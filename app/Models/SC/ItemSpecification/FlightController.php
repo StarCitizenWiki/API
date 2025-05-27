@@ -22,6 +22,21 @@ class FlightController extends Model
         'pitch',
         'yaw',
         'roll',
+
+        'scm_boost_forward',
+        'scm_boost_backward',
+        'pitch_boost_multiplier',
+        'roll_boost_multiplier',
+        'yaw_boost_multiplier',
+        'afterburner_capacitor',
+        'afterburner_idle_cost',
+        'afterburner_linear_cost',
+        'afterburner_angular_cost',
+        'afterburner_regen_per_sec',
+        'afterburner_regen_delay_after_use',
+        'afterburner_pre_delay_time',
+        'afterburner_ramp_up_time',
+        'afterburner_ramp_down_time',
     ];
 
     protected $casts = [
@@ -30,6 +45,21 @@ class FlightController extends Model
         'pitch' => 'double',
         'yaw' => 'double',
         'roll' => 'double',
+
+        'scm_boost_forward' => 'double',
+        'scm_boost_backward' => 'double',
+        'pitch_boost_multiplier' => 'double',
+        'roll_boost_multiplier' => 'double',
+        'yaw_boost_multiplier' => 'double',
+        'afterburner_capacitor' => 'double',
+        'afterburner_idle_cost' => 'double',
+        'afterburner_linear_cost' => 'double',
+        'afterburner_angular_cost' => 'double',
+        'afterburner_regen_per_sec' => 'double',
+        'afterburner_regen_delay_after_use' => 'double',
+        'afterburner_pre_delay_time' => 'double',
+        'afterburner_ramp_up_time' => 'double',
+        'afterburner_ramp_down_time' => 'double',
     ];
 
     public function item(): BelongsTo

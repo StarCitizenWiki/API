@@ -58,7 +58,9 @@ class Vehicle extends CommodityItem
         'weapon_crew',
         'operations_crew',
         'mass',
+        'cargo_capacity',
         'health',
+        'shield_face_type',
 
         'zero_to_scm',
         'zero_to_max',

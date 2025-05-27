@@ -64,6 +64,12 @@ use OpenApi\Attributes as OA;
             type: 'float',
             nullable: true
         ),
+        //        new OA\Property(
+        //            property: 'cargo_capacity_calculated',
+        //            description: 'Cargo Capacity in SCU (Calculated from hardpoints)',
+        //            type: 'float',
+        //            nullable: true
+        //        ),
         new OA\Property(
             property: 'vehicle_inventory',
             description: '(Personal) Vehicle Inventory (accessed via "I"), in SCU',
@@ -88,6 +94,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'health', type: 'float'),
         new OA\Property(property: 'shield_hp', type: 'float', nullable: true),
+        new OA\Property(
+            property: 'shield_face_type',
+            type: 'string',
+            nullable: true
+        ),
         new OA\Property(
             property: 'speed',
             properties: [
@@ -170,7 +181,39 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object'
         ),
-
+        new OA\Property(
+            property: 'speed',
+            properties: [
+                new OA\Property(property: 'scm', type: 'float', nullable: true),
+                new OA\Property(property: 'max', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_boost_forward', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_boost_backward', type: 'float', nullable: true),
+                new OA\Property(property: 'reverse', description: 'Ground Vehicles', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_to_zero', type: 'float', nullable: true),
+                new OA\Property(property: 'max_to_zero', type: 'float', nullable: true),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(
+            property: 'afterburner',
+            properties: [
+                new OA\Property(property: 'pitch_boost_multiplier', type: 'float', nullable: true),
+                new OA\Property(property: 'roll_boost_multiplier', type: 'float', nullable: true),
+                new OA\Property(property: 'yaw_boost_multiplier', type: 'float', nullable: true),
+                new OA\Property(property: 'capacitor', type: 'float', nullable: true),
+                new OA\Property(property: 'idle_cost', type: 'float', nullable: true),
+                new OA\Property(property: 'linear_cost', type: 'float', nullable: true),
+                new OA\Property(property: 'angular_cost', type: 'float', nullable: true),
+                new OA\Property(property: 'regen_per_sec', type: 'float', nullable: true),
+                new OA\Property(property: 'regen_delay_after_use', type: 'float', nullable: true),
+                new OA\Property(property: 'pre_delay_time', type: 'float', nullable: true),
+                new OA\Property(property: 'ramp_up_time', type: 'float', nullable: true),
+                new OA\Property(property: 'ramp_down_time', type: 'float', nullable: true),
+            ],
+            type: 'object'
+        ),
         new OA\Property(property: 'armor', ref: '#/components/schemas/vehicle_armor_v2', nullable: true),
         new OA\Property(
             property: 'foci',
@@ -327,7 +370,8 @@ class VehicleResourceV3 extends AbstractBaseResource
                 'em_max' => $this->em_emission['max'] ?? null,
             ],
             'mass' => $this->mass,
-            'cargo_capacity' => $this->scu,
+            'cargo_capacity' => $this->cargo_capacity,
+            //            'cargo_capacity_calculated' => $this->scu,
             'vehicle_inventory' => $this->vehicle_inventory_scu,
             'personal_inventory' => $this->personal_inventory_scu,
 
@@ -339,18 +383,7 @@ class VehicleResourceV3 extends AbstractBaseResource
             ],
             'health' => $this->health,
             'shield_hp' => $this->shield_hp,
-            'speed' => [
-                'scm' => $this->flightController?->scm_speed,
-                'max' => $this->flightController?->max_speed ?? $this->handling?->max_speed,
-                'zero_to_scm' => $this->zero_to_scm,
-                'zero_to_max' => $this->handling?->zero_to_max ?? $this->zero_to_max,
-                'scm_to_zero' => $this->scm_to_zero,
-                'max_to_zero' => $this->handling?->max_to_zero ?? $this->max_to_zero,
-                // Ground Vehicles
-                $this->mergeWhen($this->handling !== null, [
-                    'reverse' => $this->handling?->reverse_speed,
-                ]),
-            ],
+            'shield_face_type' => $this->shield_face_type,
             'fuel' => [
                 'capacity' => $this->fuel_capacity,
                 'intake_rate' => $this->fuel_intake_rate,

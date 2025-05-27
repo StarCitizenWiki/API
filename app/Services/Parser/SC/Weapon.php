@@ -59,7 +59,9 @@ final class Weapon extends AbstractCommodityItem
 
     private function buildAmmunitionWeaponPart(Collection $rawData): array
     {
-        if (! isset($rawData['Item']['stdItem']['Ammunition'])) {
+        if (! isset($rawData['Raw']['Entity']['Components']['SCItemWeaponComponentParams']['Magazine']) &&
+            ! isset($rawData['Raw']['Entity']['Components']['SAmmoContainerComponentParams'])
+        ) {
             return [];
         }
 
@@ -67,9 +69,14 @@ final class Weapon extends AbstractCommodityItem
             return $entry['damage'] > 0;
         };
 
-        $magazineKey = 'Raw.Entity.Components.SCItemWeaponComponentParams.Magazine.';
-        $baseKey = $magazineKey.'Components.SAmmoContainerComponentParams.0.';
-        $baseKeyDefensive = 'Raw.Entity.Components.SAmmoContainerComponentParams';
+        if (isset($rawData['Raw']['Entity']['Components']['SCItemWeaponComponentParams']['Magazine'])) {
+            $magazineKey = 'Raw.Entity.Components.SCItemWeaponComponentParams.Magazine.';
+            $baseKey = $magazineKey.'Components.SAmmoContainerComponentParams.ammoParams.';
+        } else {
+            $magazineKey = 'Raw.Entity.Components.SAmmoContainerComponentParams.ammoParams.';
+            $baseKey = $magazineKey;
+        }
+
         $damageKey = $baseKey.'projectileParams.BulletProjectileParams.damage.DamageInfo';
         $explosionDamageKey = $baseKey.'projectileParams.BulletProjectileParams.detonationParams.ProjectileDetonationParams.explosionParams.damage.DamageInfo';
         $pierceKey = $baseKey.'projectileParams.BulletProjectileParams.pierceabilityParams.';
@@ -100,11 +107,11 @@ final class Weapon extends AbstractCommodityItem
             ->toArray();
 
         return [
-            'uuid' => Arr::get($rawData, $magazineKey.'__ref') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParamsRecord'),
-            'size' => Arr::get($rawData, $baseKey.'size') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.size') ?? 1,
-            'speed' => Arr::get($rawData, $baseKey.'speed') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.speed'),
-            'lifetime' => Arr::get($rawData, $baseKey.'lifetime') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.lifetime'),
-            'range' => ((float) (Arr::get($rawData, $baseKey.'speed') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.speed') ?? 0)) * ((float) (Arr::get($rawData, $baseKey.'lifetime') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.lifetime') ?? 0)),
+            'uuid' => Arr::get($rawData, $baseKey.'__ref'),
+            'size' => Arr::get($rawData, $baseKey.'size', 0),
+            'speed' => Arr::get($rawData, $baseKey.'speed', 0),
+            'lifetime' => Arr::get($rawData, $baseKey.'lifetime', 0),
+            'range' => (float) (Arr::get($rawData, $baseKey.'speed', 0)) * (float) (Arr::get($rawData, $baseKey.'lifetime', 0)),
             'damages' => array_filter([
                 'impact' => $damage,
                 'detonation' => $detonation,

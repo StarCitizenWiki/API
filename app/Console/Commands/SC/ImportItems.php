@@ -50,7 +50,7 @@ class ImportItems extends AbstractQueueCommand
         $files = File::allFiles(scdata('items')) + Storage::allFiles(scdata('ships'));
 
         // Debug
-        // $files = collect($files)->filter(fn ($file) => $file->isFile() && str_contains($file->getFilename(), 'behr_pistol'));
+        // $files = collect($files)->filter(fn ($file) => $file->isFile() && str_contains($file->getFilename(), 'klwe_sniper_energy_01'));
 
         if ($this->option('skipItems') === false) {
             collect($files)

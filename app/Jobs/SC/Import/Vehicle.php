@@ -54,7 +54,7 @@ class Vehicle implements ShouldQueue
         try {
             $rawData = File::get($vehicle['filePathRaw']);
 
-            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
+            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR)['Raw'];
         } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e->getMessage());
         }
@@ -75,6 +75,7 @@ class Vehicle implements ShouldQueue
             );
 
             $data = $itemParser->getData();
+
             if ($data !== null) {
                 (new Item($data))->handle();
             }
@@ -138,7 +139,9 @@ class Vehicle implements ShouldQueue
             'weapon_crew' => $vehicle['WeaponCrew'] ?? 0,
             'operations_crew' => $vehicle['OperationsCrew'] ?? 0,
             'mass' => $vehicle['Mass'],
+            'cargo_capacity' => $vehicle['Cargo'],
             'health' => $vehicle['Health'] ?? null,
+            'shield_face_type' => $vehicle['ShieldFaceType'] ?? null,
 
             'acceleration_main' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Main', 0)),
             'acceleration_retro' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Retro', 0)),
@@ -172,7 +175,8 @@ class Vehicle implements ShouldQueue
      */
     private function tryGetShipmatrixIdForVehicle(array $vehicle)
     {
-        $nameFix = explode(' ', $vehicle['Name']);
+        $name = str_replace('_', ' ', $vehicle['Name']);
+        $nameFix = explode(' ', $name);
         array_shift($nameFix);
         $name = implode(' ', $nameFix ?? $vehicle['Name']);
         $nameDashed = implode('-', $nameFix ?? $vehicle['Name']);

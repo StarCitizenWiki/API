@@ -51,7 +51,7 @@ class PersonalWeapon extends AbstractItemCreationJob
 
     private function addAmmunition(array $data): void
     {
-        if (empty($data['ammunition']) || empty($data['uuid'])) {
+        if (empty($data['ammunition']['uuid']) || empty($data['uuid'])) {
             return;
         }
 
@@ -83,6 +83,7 @@ class PersonalWeapon extends AbstractItemCreationJob
     {
         /** @var Collection $ports */
         $ports = $weapon->ports;
+
         if ($ports === null || $ports->isEmpty()) {
             return;
         }

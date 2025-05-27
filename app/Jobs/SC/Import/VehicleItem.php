@@ -170,6 +170,21 @@ class VehicleItem extends AbstractItemCreationJob
             'pitch' => $item['flight_controller']['pitch'] ?? null,
             'yaw' => $item['flight_controller']['yaw'] ?? null,
             'roll' => $item['flight_controller']['roll'] ?? null,
+
+            'scm_boost_forward' => $item['flight_controller']['scm_boost_forward'] ?? null,
+            'scm_boost_backward' => $item['flight_controller']['scm_boost_backward'] ?? null,
+            'pitch_boost_multiplier' => $item['flight_controller']['pitch_boost_multiplier'] ?? null,
+            'roll_boost_multiplier' => $item['flight_controller']['roll_boost_multiplier'] ?? null,
+            'yaw_boost_multiplier' => $item['flight_controller']['yaw_boost_multiplier'] ?? null,
+            'afterburner_capacitor' => $item['flight_controller']['afterburner_capacitor'] ?? null,
+            'afterburner_idle_cost' => $item['flight_controller']['afterburner_idle_cost'] ?? null,
+            'afterburner_linear_cost' => $item['flight_controller']['afterburner_linear_cost'] ?? null,
+            'afterburner_angular_cost' => $item['flight_controller']['afterburner_angular_cost'] ?? null,
+            'afterburner_regen_per_sec' => $item['flight_controller']['afterburner_regen_per_sec'] ?? null,
+            'afterburner_regen_delay_after_use' => $item['flight_controller']['afterburner_regen_delay_after_use'] ?? null,
+            'afterburner_pre_delay_time' => $item['flight_controller']['afterburner_pre_delay_time'] ?? null,
+            'afterburner_ramp_up_time' => $item['flight_controller']['afterburner_ramp_up_time'] ?? null,
+            'afterburner_ramp_down_time' => $item['flight_controller']['afterburner_ramp_down_time'] ?? null,
         ]);
     }
 
