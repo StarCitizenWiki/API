@@ -1,216 +1,2013 @@
 {
-  "Raw": {
-    "Entity": {
-      "StaticEntityClassData": {
-        "DefaultEntitlementEntityParams": {
-          "entitlementPolicy": "8a1fdd48-7896-4774-a110-2466190e1a07"
+    "Raw": {
+        "Entity": {
+            "Category": "Default",
+            "Icon": "Default.bmp",
+            "Invisible": 0,
+            "BBoxSelection": 0,
+            "entityDensityClass": "41d1b328-7a76-41dc-8c6d-76d9b8249969",
+            "__ref": "9c478af1-acfd-4e88-b065-c5ebeb05f507",
+            "__path": "libs/foundry/records/entities/scitem/characters/human/clothing/pu_clothing/clothing_torso1/987_jacket_01_01_01.xml",
+            "tags": [
+                {
+                    "value": "65124877-3571-4f63-b4a5-650a79e5bfb6"
+                },
+                {
+                    "value": "bf3c7235-1d79-468e-b981-2494f00b8f18"
+                },
+                {
+                    "value": "532b3340-6cc9-4124-b822-8a422a89f2b6"
+                },
+                {
+                    "value": "59ca5e36-b9a2-4459-ad0e-5745bcf5d899"
+                },
+                {
+                    "value": "2ebe6f26-d592-488a-8625-d42ef5fec31c"
+                },
+                {
+                    "value": "3de9e0ea-7a17-4a4a-a964-63e558ad34a9"
+                },
+                {
+                    "value": "eca4cc23-79f7-4511-9cf1-1a832385383d"
+                },
+                {
+                    "value": "7f55d7e2-5f7f-470d-b6bb-c89196ed7b0e"
+                },
+                {
+                    "value": "bed8e09b-a5f2-4f4e-9be9-ab618ebfbd58"
+                }
+            ],
+            "StaticEntityClassData": {
+                "DefaultEntitlementEntityParams": {
+                    "entitlementPolicy": "8a1fdd48-7896-4774-a110-2466190e1a07",
+                    "canEntitleThroughWebsite": 1
+                }
+            },
+            "Components": {
+                "SEntityPhysicsControllerParams": {
+                    "PhysType": {
+                        "SEntityRigidPhysicsControllerParams": {
+                            "Mass": 0.5,
+                            "compoundingAllowed": 1,
+                            "maxLoggedCollisions": 1,
+                            "Damping": 0.01,
+                            "DampingFreefall": 0.05,
+                            "PushableByPlayers": 1,
+                            "NeverAffectTriggers": 0,
+                            "UseManualGridTransition": 0,
+                            "aiNavigationType": "Excluded",
+                            "Kinematic": 0,
+                            "EnableCrossGridChecks": 0,
+                            "Resting": 0,
+                            "physicalizeAllSlots": 1,
+                            "enableExteriorShadow": 0,
+                            "breakableParams": [],
+                            "gameCollisionClass": [],
+                            "PhysFlagsOverride": [],
+                            "PhysFlagsColliderOverride": [],
+                            "grid": [],
+                            "shieldSDFParams": [],
+                            "buoyancyParams": [],
+                            "temperature": {
+                                "enable": 0,
+                                "initialTemperature": -1,
+                                "coolingEqualizationMultiplier": 1,
+                                "internalTemperatureGeneration": 0,
+                                "signatureParams": {
+                                    "enable": 0,
+                                    "minimumTemperatureForIR": 250,
+                                    "temperatureToIR": 6
+                                },
+                                "itemResourceParams": {
+                                    "minOperatingTemperature": 0,
+                                    "minCoolingTemperature": 300,
+                                    "enableOverheat": 0,
+                                    "overheatTemperature": 450,
+                                    "overheatWarningTemperature": 370,
+                                    "overheatRecoveryTemperature": 350,
+                                    "stateHeatGenerationValues": [],
+                                    "degradationTemperatureMultipliers": []
+                                },
+                                "misfireTemperatureRange": {
+                                    "minimum": 370,
+                                    "maximum": 600
+                                },
+                                "fireHazard": {
+                                    "enable": 1,
+                                    "dissolveOnBurn": 0,
+                                    "dissolvePercentageRange": {
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "SAttachableComponentParams": {
+                    "attachToTileItemPort": "NoConnection",
+                    "AttachDef": {
+                        "Type": "Char_Clothing_Torso_1",
+                        "SubType": "UNDEFINED",
+                        "Size": 1,
+                        "Grade": 1,
+                        "Manufacturer": {
+                            "Logo": "UI/SharedAssets/ManufacturerLogos/987_256.tif",
+                            "LogoFullColor": "",
+                            "LogoSimplifiedWhite": "",
+                            "Code": 987,
+                            "DashboardCanvasConfig": "00000000-0000-0000-0000-000000000000",
+                            "BuildingBlocksStyle": "00000000-0000-0000-0000-000000000000",
+                            "AudioManufacturerTag": "00000000-0000-0000-0000-000000000000",
+                            "__ref": "3b54a8cc-5700-45f1-940a-2436b213926f",
+                            "__path": "libs/foundry/records/scitemmanufacturer/clothes/987.xml",
+                            "Localization": {
+                                "Name": "987",
+                                "__Name": "@manufacturer_Name987",
+                                "ShortName": "",
+                                "__ShortName": "@LOC_EMPTY",
+                                "Description": "Known for their more aggressive urban styling. Asymmetrical. Bold graphic prints.",
+                                "__Description": "@manufacturer_Desc987",
+                                "displayFeatures": {
+                                    "LogoSimplifiedWhite": "",
+                                    "FrontendBackground": "",
+                                    "History": "",
+                                    "__History": "@LOC_EMPTY",
+                                    "Callout1": "",
+                                    "__Callout1": "@LOC_EMPTY",
+                                    "Callout2": "",
+                                    "__Callout2": "@LOC_EMPTY",
+                                    "Callout3": "",
+                                    "__Callout3": "@LOC_EMPTY",
+                                    "UIPriority": 0,
+                                    "locationAudioPlayTrigger": {
+                                        "audioTrigger": ""
+                                    },
+                                    "locationAudioStopTrigger": {
+                                        "audioTrigger": ""
+                                    }
+                                },
+                                "English": {
+                                    "Locale": "english",
+                                    "Name": 987,
+                                    "ShortName": "",
+                                    "Description": "Known for their more aggressive urban styling. Asymmetrical. Bold graphic prints."
+                                }
+                            }
+                        },
+                        "inheritParentManufacturer": 0,
+                        "Tags": "987_jacket set_01 Color_01",
+                        "RequiredTags": "",
+                        "DisplayType": "",
+                        "ignoredAttachAxis": "None",
+                        "Localization": {
+                            "Name": "Legion Jacket",
+                            "__Name": "@item_Name_987_Jacket_01_01_01",
+                            "ShortName": "",
+                            "__ShortName": "@LOC_EMPTY",
+                            "Description": "Carrying Capacity: 1K \u00b5SCU\\n\\nCrafted from a slick, high-shine weave, the Legion was conceived by 987 and famed Terran underground designer, Jieto, to shock the status quo of hooded jackets and usher in a new era of aesthetic functionality.  \\n\\nWomen's sizes currently out of stock.",
+                            "__Description": "@item_Desc_987_Jacket_01_01_01",
+                            "displayFeatures": {
+                                "LogoSimplifiedWhite": "",
+                                "FrontendBackground": "",
+                                "History": "",
+                                "__History": "@LOC_EMPTY",
+                                "Callout1": "",
+                                "__Callout1": "@LOC_EMPTY",
+                                "Callout2": "",
+                                "__Callout2": "@LOC_EMPTY",
+                                "Callout3": "",
+                                "__Callout3": "@LOC_EMPTY",
+                                "UIPriority": 0,
+                                "locationAudioPlayTrigger": {
+                                    "audioTrigger": ""
+                                },
+                                "locationAudioStopTrigger": {
+                                    "audioTrigger": ""
+                                }
+                            },
+                            "English": {
+                                "Locale": "english",
+                                "Name": "Legion Jacket",
+                                "ShortName": "",
+                                "Description": "Carrying Capacity: 1K \u00b5SCU\\n\\nCrafted from a slick, high-shine weave, the Legion was conceived by 987 and famed Terran underground designer, Jieto, to shock the status quo of hooded jackets and usher in a new era of aesthetic functionality.  \\n\\nWomen's sizes currently out of stock."
+                            }
+                        },
+                        "mannequinTags": {
+                            "mannequinClassTag": "",
+                            "mannequinTypeTag": "",
+                            "mannequinBaseTag": ""
+                        },
+                        "inventoryOccupancyVolume": {
+                            "SMicroCargoUnit": {
+                                "microSCU": 8700
+                            }
+                        },
+                        "inventoryOccupancyDimensions": {
+                            "x": 0.356,
+                            "y": 0.183,
+                            "z": 0.166
+                        },
+                        "inventoryOccupancyLocalBoundsMin": {
+                            "x": 0.15,
+                            "y": -0.15,
+                            "z": 0
+                        },
+                        "inventoryOccupancyLocalBoundsMax": {
+                            "x": 0.15,
+                            "y": -0.15,
+                            "z": 0
+                        },
+                        "inventoryOccupancyDimensionsUIOverride": {
+                            "Vec3": {
+                                "x": 0.75,
+                                "y": 0.75,
+                                "z": 0.75
+                            }
+                        }
+                    },
+                    "entityAttachParams": []
+                },
+                "SCItemPurchasableParams": {
+                    "displayName": "Legion Jacket",
+                    "__displayName": "@item_Name_987_Jacket_01_01_01",
+                    "displayType": "Jacket",
+                    "__displayType": "@item_displayType_Jacket",
+                    "displayThumbnail": "",
+                    "allowTryOn": 1,
+                    "allowQuickBuy": 0,
+                    "tryOnInteractionText": "TRY ON JACKET",
+                    "__tryOnInteractionText": "@shop_ui_item_action_try_jacket",
+                    "defaultAttachToPortName": "",
+                    "interactionPointTemplate": "00000000-0000-0000-0000-000000000000",
+                    "Display": [],
+                    "disabledLoadoutInteractions": [],
+                    "tutorialParams": [],
+                    "interactionPoints": []
+                },
+                "SCItemClothingParams": {
+                    "FoleyDef": "72f56431-d882-458f-9f23-3db87db2883c",
+                    "FoleyDefNLPC": "00000000-0000-0000-0000-000000000000",
+                    "FootstepDef": "00000000-0000-0000-0000-000000000000",
+                    "FootstepDefNLPC": "00000000-0000-0000-0000-000000000000",
+                    "DressFragmentTags": "",
+                    "OverlayTags": {
+                        "tags": []
+                    },
+                    "HiddenParts": [
+                        {
+                            "PortName": "weapon_sidearm_attach"
+                        },
+                        {
+                            "PortName": "Hair_ItemPort"
+                        },
+                        {
+                            "PortName": "Hat_ItemPort"
+                        }
+                    ],
+                    "Chunks": [
+                        {
+                            "MeshChunk": "torso03_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "torso04_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_shoulder_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_arm01_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_arm02_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_arm03_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_arm04_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_shoulder_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_arm01_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_arm02_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_arm03_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_arm04_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "l_arm05_torso0_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "r_arm05_torso0_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "omega_arms_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        },
+                        {
+                            "MeshChunk": "omega_legs_zone",
+                            "Layer": 2,
+                            "VisibleLayers": [],
+                            "VisibilityConditions": []
+                        }
+                    ],
+                    "Type": [],
+                    "TemperatureResistance": {
+                        "MinResistance": 2,
+                        "MaxResistance": 32
+                    },
+                    "RadiationResistance": {
+                        "MaximumRadiationCapacity": 0,
+                        "RadiationDissipationRate": 0
+                    }
+                },
+                "SGeometryResourceParams": {
+                    "cacheResources": 0,
+                    "rootOverridePaint": 0,
+                    "inheritModelTagFromHost": 1,
+                    "ModelTag": [],
+                    "Geometry": {
+                        "Tags": "",
+                        "ScaleMultiplier": 1,
+                        "Geometry": {
+                            "Slot": "Main",
+                            "MaterialAttachments": "",
+                            "ProxyCDFPath": "",
+                            "ModifiersPath": "",
+                            "AttachFlags": 0,
+                            "DeformerType": "Standard",
+                            "ProtosBShapeExclude": 0,
+                            "VisTP": 1,
+                            "VisFP": 1,
+                            "VisShadow": 1,
+                            "VisSecondaryViews": 1,
+                            "WrinkleMap": 0,
+                            "EnableDecalProjection": 0,
+                            "BBoxJoint": "",
+                            "BBoxRadius": 0,
+                            "Wear": 0,
+                            "Dirt": 0,
+                            "Interference": 0,
+                            "Damage": 0,
+                            "RenderLayer": "Default",
+                            "VisAreaMode": "AABB_Center",
+                            "SunShadowMode": "Upto_400m",
+                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                            "LodRatio": 100,
+                            "Geometry": {
+                                "path": "Objects/buildingsets/human/universal/prop/storage/box_cardboard/box_clothing_1_jacket_a.cgf"
+                            },
+                            "Material": {
+                                "path": ""
+                            },
+                            "SimulationGeometry": [],
+                            "Palette": {
+                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                "ChildPath": ""
+                            }
+                        },
+                        "SubGeometry": [
+                            {
+                                "Tags": "heldEntity",
+                                "ScaleMultiplier": 1,
+                                "Geometry": {
+                                    "Slot": "Main",
+                                    "MaterialAttachments": "",
+                                    "ProxyCDFPath": "",
+                                    "ModifiersPath": "",
+                                    "AttachFlags": 0,
+                                    "DeformerType": "Standard",
+                                    "ProtosBShapeExclude": 0,
+                                    "VisTP": 1,
+                                    "VisFP": 1,
+                                    "VisShadow": 1,
+                                    "VisSecondaryViews": 1,
+                                    "WrinkleMap": 0,
+                                    "EnableDecalProjection": 0,
+                                    "BBoxJoint": "",
+                                    "BBoxRadius": 0,
+                                    "Wear": 0,
+                                    "Dirt": 0,
+                                    "Interference": 0,
+                                    "Damage": 0,
+                                    "RenderLayer": "Default",
+                                    "VisAreaMode": "AABB_Center",
+                                    "SunShadowMode": "Upto_400m",
+                                    "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                    "LodRatio": 100,
+                                    "Geometry": {
+                                        "path": "Objects/buildingsets/human/universal/prop/storage/box_cardboard/box_clothing_1_jacket_a.cgf"
+                                    },
+                                    "Material": {
+                                        "path": ""
+                                    },
+                                    "SimulationGeometry": [],
+                                    "Palette": {
+                                        "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                        "ChildPath": ""
+                                    }
+                                },
+                                "SubGeometry": []
+                            },
+                            {
+                                "Tags": "Female",
+                                "ScaleMultiplier": 1,
+                                "Geometry": {
+                                    "Slot": "Main",
+                                    "MaterialAttachments": "",
+                                    "ProxyCDFPath": "",
+                                    "ModifiersPath": "",
+                                    "AttachFlags": 0,
+                                    "DeformerType": "Standard",
+                                    "ProtosBShapeExclude": 0,
+                                    "VisTP": 1,
+                                    "VisFP": 1,
+                                    "VisShadow": 1,
+                                    "VisSecondaryViews": 1,
+                                    "WrinkleMap": 0,
+                                    "EnableDecalProjection": 0,
+                                    "BBoxJoint": "",
+                                    "BBoxRadius": 0,
+                                    "Wear": 0,
+                                    "Dirt": 0,
+                                    "Interference": 0,
+                                    "Damage": 0,
+                                    "RenderLayer": "Default",
+                                    "VisAreaMode": "AABB_Center",
+                                    "SunShadowMode": "Upto_400m",
+                                    "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                    "LodRatio": 100,
+                                    "Geometry": {
+                                        "path": "objects/characters/human/female_v2/clothing/earth_bc/f_scu_jacket_03.skin"
+                                    },
+                                    "Material": {
+                                        "path": ""
+                                    },
+                                    "SimulationGeometry": [],
+                                    "Palette": {
+                                        "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                        "ChildPath": ""
+                                    }
+                                },
+                                "SubGeometry": [
+                                    {
+                                        "Tags": "Hanging",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": "objects/characters/human/male_v7/clothing/terra_fc/m_987_jacket_hanging_01.cgf"
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    },
+                                    {
+                                        "Tags": "TableDisplay",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": ""
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    },
+                                    {
+                                        "Tags": "inventoryStoredEntity",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": "objects/characters/human/female_v2/clothing/earth_bc/f_scu_jacket_03_prop.cgf"
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    }
+                                ]
+                            },
+                            {
+                                "Tags": "Male",
+                                "ScaleMultiplier": 1,
+                                "Geometry": {
+                                    "Slot": "Main",
+                                    "MaterialAttachments": "",
+                                    "ProxyCDFPath": "",
+                                    "ModifiersPath": "",
+                                    "AttachFlags": 0,
+                                    "DeformerType": "Standard",
+                                    "ProtosBShapeExclude": 0,
+                                    "VisTP": 1,
+                                    "VisFP": 1,
+                                    "VisShadow": 1,
+                                    "VisSecondaryViews": 1,
+                                    "WrinkleMap": 0,
+                                    "EnableDecalProjection": 0,
+                                    "BBoxJoint": "",
+                                    "BBoxRadius": 0,
+                                    "Wear": 0,
+                                    "Dirt": 0,
+                                    "Interference": 0,
+                                    "Damage": 0,
+                                    "RenderLayer": "Default",
+                                    "VisAreaMode": "AABB_Center",
+                                    "SunShadowMode": "Upto_400m",
+                                    "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                    "LodRatio": 100,
+                                    "Geometry": {
+                                        "path": "objects/characters/human/male_v7/clothing/terra_fc/m_987_jacket_01.skin"
+                                    },
+                                    "Material": {
+                                        "path": ""
+                                    },
+                                    "SimulationGeometry": [],
+                                    "Palette": {
+                                        "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                        "ChildPath": ""
+                                    }
+                                },
+                                "SubGeometry": [
+                                    {
+                                        "Tags": "Hanging",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": "objects/characters/human/male_v7/clothing/terra_fc/m_987_jacket_hanging_01.cgf"
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    },
+                                    {
+                                        "Tags": "TableDisplay",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": ""
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    },
+                                    {
+                                        "Tags": "inventoryStoredEntity",
+                                        "ScaleMultiplier": 1,
+                                        "Geometry": {
+                                            "Slot": "Main",
+                                            "MaterialAttachments": "",
+                                            "ProxyCDFPath": "",
+                                            "ModifiersPath": "",
+                                            "AttachFlags": 0,
+                                            "DeformerType": "Standard",
+                                            "ProtosBShapeExclude": 0,
+                                            "VisTP": 1,
+                                            "VisFP": 1,
+                                            "VisShadow": 1,
+                                            "VisSecondaryViews": 1,
+                                            "WrinkleMap": 0,
+                                            "EnableDecalProjection": 0,
+                                            "BBoxJoint": "",
+                                            "BBoxRadius": 0,
+                                            "Wear": 0,
+                                            "Dirt": 0,
+                                            "Interference": 0,
+                                            "Damage": 0,
+                                            "RenderLayer": "Default",
+                                            "VisAreaMode": "AABB_Center",
+                                            "SunShadowMode": "Upto_400m",
+                                            "viewDistRatio": "00000000-0000-0000-0000-000000000000",
+                                            "LodRatio": 100,
+                                            "Geometry": {
+                                                "path": "objects/characters/human/male_v7/clothing/terra_fc/m_987_jacket_01_prop.cgf"
+                                            },
+                                            "Material": {
+                                                "path": ""
+                                            },
+                                            "SimulationGeometry": [],
+                                            "Palette": {
+                                                "RootRecord": "00000000-0000-0000-0000-000000000000",
+                                                "ChildPath": ""
+                                            }
+                                        },
+                                        "SubGeometry": []
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "Material": {
+                        "Tags": "",
+                        "Material": {
+                            "path": ""
+                        },
+                        "Palette": {
+                            "RootRecord": "00000000-0000-0000-0000-000000000000",
+                            "ChildPath": ""
+                        },
+                        "materialVariants": []
+                    }
+                },
+                "SARDataComponentParams": {
+                    "dataType": "ShopItem",
+                    "rangeMin": 1,
+                    "rangeMax": 5,
+                    "labelMovementType": "FacingPlayer",
+                    "visibleThroughWalls": 1,
+                    "labelZOrientationOffset": 0,
+                    "title1": "",
+                    "__title1": "@LOC_EMPTY",
+                    "title2": "",
+                    "__title2": "@LOC_EMPTY",
+                    "subtitle1": "",
+                    "__subtitle1": "@LOC_EMPTY",
+                    "subtitle2": "",
+                    "__subtitle2": "@LOC_EMPTY",
+                    "description": "",
+                    "__description": "@LOC_EMPTY",
+                    "scaleCapDistance": 10,
+                    "labelAttachOffset": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "queryOffset": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0.15
+                    },
+                    "labelScale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    }
+                },
+                "SItemPortContainerComponentParams": {
+                    "PortFlags": "",
+                    "PortTags": "",
+                    "RequiredItemTags": "",
+                    "LinkAllItemsToResourceNetwork": 0,
+                    "cheatResourceNetworkUpdate": 0,
+                    "masterController": [],
+                    "Ports": {
+                        "SItemPortDef": {
+                            "Name": "Material_Variant",
+                            "DisplayName": "Material_Variant",
+                            "PortTags": "",
+                            "RequiredPortTags": "",
+                            "Flags": "nontransferable ",
+                            "MinSize": 1,
+                            "MaxSize": 1,
+                            "gridBehavior": "Both",
+                            "InteractionPointSize": -1,
+                            "DefaultWeaponGroup": "UNDEFINED",
+                            "controllableTag": "",
+                            "resourceLinkToParent": 0,
+                            "useHelperAsInteractionPointName": 0,
+                            "Tags": [],
+                            "defaultItem": {
+                                "itemPort": "",
+                                "entityClass": "00000000-0000-0000-0000-000000000000",
+                                "childItems": []
+                            },
+                            "PitchLimit": {
+                                "x": 0,
+                                "y": 0
+                            },
+                            "YawLimit": {
+                                "x": 0,
+                                "y": 0
+                            },
+                            "RollLimit": {
+                                "x": 0,
+                                "y": 0
+                            },
+                            "InteractionPointOffset": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "AttachmentPoints": [],
+                            "control": [],
+                            "Connections": [],
+                            "Types": {
+                                "SItemPortDefTypes": {
+                                    "Type": "Paints",
+                                    "SubTypes": []
+                                }
+                            },
+                            "Extension": [],
+                            "AttachmentImplementation": {
+                                "SItemPortDefAttachmentImplementationEntity": {
+                                    "usePhysicalAttachment": 0,
+                                    "useEntityAttachment": 1,
+                                    "useExteriorAttachment": 0,
+                                    "usePhysicalParent": 0,
+                                    "useLogicalAttachment": 0,
+                                    "hangarPort": 0,
+                                    "constraintParams": {
+                                        "damping": 0,
+                                        "noSelfCollisions": 1,
+                                        "maxPullForce": 0,
+                                        "maxBendTorque": 0,
+                                        "constrainToLine": 0,
+                                        "constrainToPlane": 0,
+                                        "constrainFully": 1,
+                                        "useWorldConstraintPosition": 0,
+                                        "noRotation": 1,
+                                        "xMin": 0,
+                                        "xMax": 0,
+                                        "yzMax": 0,
+                                        "constraintHelper": "",
+                                        "constraintMaintainOrientation": 0
+                                    },
+                                    "Helper": {
+                                        "Tags": "",
+                                        "Helper": {
+                                            "Name": "",
+                                            "ItemOffsetHelperName": "",
+                                            "Offset": {
+                                                "Rotation": {
+                                                    "x": 0,
+                                                    "y": 0,
+                                                    "z": 0
+                                                },
+                                                "Position": {
+                                                    "x": 0,
+                                                    "y": 0,
+                                                    "z": 0
+                                                }
+                                            },
+                                            "SimulationParams": []
+                                        },
+                                        "SubHelpers": []
+                                    }
+                                }
+                            },
+                            "Breakable": {
+                                "YoungsModulus": 0,
+                                "BreakStrain": 0,
+                                "YieldStrain": 0,
+                                "Breakable": 0
+                            },
+                            "interactions": {
+                                "detach": "null",
+                                "allowPlaceInteractionFromInventory": 0,
+                                "placeInteractionBlockText": "No Appropriate Item",
+                                "__placeInteractionBlockText": "@interaction_condition_placeOnItemport_noMatchingItem"
+                            },
+                            "linkedItemPorts": [],
+                            "itemPortRules": [],
+                            "detachDirection": {
+                                "x": 0,
+                                "y": 0,
+                                "z": -1
+                            }
+                        }
+                    },
+                    "InternalResourceLinks": [],
+                    "InternalHardpointLinks": [],
+                    "destroyEntitiesOnItemportList": [],
+                    "resourceNetworkPowerPools": {
+                        "maxDefaultDistribution": 0,
+                        "itemPools": []
+                    }
+                },
+                "SEntityInteractableParams": {
+                    "Interactable": {
+                        "SharedInteractions": [
+                            {
+                                "Name": "Carry",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Carry",
+                                "__DisplayName": "@interaction_carry",
+                                "DisplayType": "Show",
+                                "GenericCursor": "Grab",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "f5e13f32-3097-46d1-b863-5bfae1c846c0"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "Drop",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Drop",
+                                "__DisplayName": "@interaction_drop",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "901b0193-5e7c-4a9b-9dc6-0a5af5420e51"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "Place",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Place",
+                                "__DisplayName": "@interaction_place",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "9e196f93-d77e-4d6e-80b4-2378dcbbf0bf"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "Store",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Store",
+                                "__DisplayName": "@interaction_store",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "103b1d52-b826-4b20-bde8-f8156d245321"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "EquipToWear",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Equip",
+                                "__DisplayName": "@interaction_equip",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "c2b4a849-3250-499a-ab24-d653c54b293a"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "OpenInventoryUI",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Open",
+                                "__DisplayName": "@interaction_open",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": {
+                                    "InteractionConditionList": {
+                                        "presetList": {
+                                            "Reference": {
+                                                "value": "2ea75af9-ca5b-4c78-86fa-e53ec3e63b03"
+                                            }
+                                        },
+                                        "conditionParams": [],
+                                        "conditionToHideParams": []
+                                    }
+                                },
+                                "playerAnimatedInteractionBase": []
+                            },
+                            {
+                                "Name": "OpenLootingUI",
+                                "RoomTag": "00000000-0000-0000-0000-000000000000",
+                                "UsableTag": "00000000-0000-0000-0000-000000000000",
+                                "LinkingTag": "00000000-0000-0000-0000-000000000000",
+                                "DisplayName": "Loot",
+                                "__DisplayName": "@interaction_loot",
+                                "DisplayType": "Show",
+                                "GenericCursor": "SingleAction",
+                                "FocusModeOnly": 0,
+                                "Sendable": 0,
+                                "Linkable": 0,
+                                "LockedByLinks": 0,
+                                "RequiresAuthorizedUser": 0,
+                                "available": 1,
+                                "InheritsConditionDisplaysThroughLinks": 0,
+                                "QueryTags": [],
+                                "conditionList": [],
+                                "playerAnimatedInteractionBase": []
+                            }
+                        ],
+                        "InteractionPoints": [
+                            {
+                                "HelperName": "HighlightOnRayHitEntity",
+                                "InteractionPointInternalSettingTemplateRef": "00000000-0000-0000-0000-000000000000",
+                                "FirstInteractionPrimary": 0,
+                                "UseHelperLocation": 0,
+                                "ApplyToEntireSkeleton": 0,
+                                "longRangeIP": 0,
+                                "Radius": 2,
+                                "ShowHighlight": 1,
+                                "HighlightOnRayHitEntity": 1,
+                                "TextJustification": "Middle",
+                                "TextOrientation": "RotateToPlayer",
+                                "TextScale": 1,
+                                "ShowInteractionTextAtCursorPos": 0,
+                                "ScalePromptOffsetWithEntity": 0,
+                                "InteractionPromptScale": 1,
+                                "InteractionPromptLabelVerticalOffset": 70,
+                                "InteractionPromptBound": "TopBoundingBoxZSurface",
+                                "UseHorizontalDistance": 0,
+                                "MaxCursorScreenDistance": 2,
+                                "ShowInnerThoughtsOffScreen": 0,
+                                "OnlySelectableInLookDir": 0,
+                                "Interactions": [
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[0]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 1
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[3]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[4]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[5]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[6]",
+                                        "DisplayName": "Loot",
+                                        "__DisplayName": "@interaction_loot",
+                                        "IsPrimary": 0
+                                    }
+                                ],
+                                "Tags": [
+                                    {
+                                        "value": "c7663132-a612-4b0c-bc5b-144ac55e267e"
+                                    },
+                                    {
+                                        "value": "ce1c13f1-a8ba-49cf-a025-89475ea07000"
+                                    }
+                                ],
+                                "Primitive": [],
+                                "PlayerAnimatedInteractionParams": [],
+                                "HighlightBehaviors": [],
+                                "AdditionalCollisionBones": [],
+                                "InteractionPointModifiers": [],
+                                "Offset": {
+                                    "Rotation": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    },
+                                    "Position": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                },
+                                "InteractionPromptOffset": {
+                                    "Rotation": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    },
+                                    "Position": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                },
+                                "AngleConstraint": {
+                                    "angleRange": 181,
+                                    "viewAngleLimit": 110,
+                                    "forwardDirOffset": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                }
+                            },
+                            {
+                                "HelperName": "Spine3",
+                                "InteractionPointInternalSettingTemplateRef": "00000000-0000-0000-0000-000000000000",
+                                "FirstInteractionPrimary": 0,
+                                "UseHelperLocation": 0,
+                                "ApplyToEntireSkeleton": 0,
+                                "longRangeIP": 0,
+                                "Radius": 2,
+                                "ShowHighlight": 1,
+                                "HighlightOnRayHitEntity": 0,
+                                "TextJustification": "Middle",
+                                "TextOrientation": "RotateToPlayer",
+                                "TextScale": 1,
+                                "ShowInteractionTextAtCursorPos": 0,
+                                "ScalePromptOffsetWithEntity": 0,
+                                "InteractionPromptScale": 1,
+                                "InteractionPromptLabelVerticalOffset": 70,
+                                "InteractionPromptBound": "EntityRoot",
+                                "UseHorizontalDistance": 0,
+                                "MaxCursorScreenDistance": 2,
+                                "ShowInnerThoughtsOffScreen": 0,
+                                "OnlySelectableInLookDir": 0,
+                                "Interactions": [
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[0]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[1]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[2]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[3]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[4]",
+                                        "DisplayName": "",
+                                        "__DisplayName": "@LOC_EMPTY",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[5]",
+                                        "DisplayName": "Open",
+                                        "__DisplayName": "@interaction_open",
+                                        "IsPrimary": 0
+                                    },
+                                    {
+                                        "Interaction": "Interactable.SharedInteractions[6]",
+                                        "DisplayName": "Loot",
+                                        "__DisplayName": "@interaction_loot",
+                                        "IsPrimary": 0
+                                    }
+                                ],
+                                "Tags": [
+                                    {
+                                        "value": "95b959c6-fb00-4d63-b062-a36d86b66128"
+                                    },
+                                    {
+                                        "value": "d8a79162-cc7b-4f0d-9445-c25530cf1588"
+                                    }
+                                ],
+                                "Primitive": [],
+                                "PlayerAnimatedInteractionParams": [],
+                                "HighlightBehaviors": [],
+                                "AdditionalCollisionBones": [],
+                                "InteractionPointModifiers": [],
+                                "Offset": {
+                                    "Rotation": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    },
+                                    "Position": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                },
+                                "InteractionPromptOffset": {
+                                    "Rotation": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    },
+                                    "Position": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                },
+                                "AngleConstraint": {
+                                    "angleRange": 181,
+                                    "viewAngleLimit": 110,
+                                    "forwardDirOffset": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0
+                                    }
+                                }
+                            }
+                        ],
+                        "interactionTasks": [],
+                        "actionHandlerTasks": [],
+                        "itemActionTasks": [],
+                        "menuTitle": {
+                            "SInteractableMenuTitleParams": {
+                                "titleColor": "a3dead36-7a01-4244-8d76-1ae6099777b0"
+                            }
+                        }
+                    }
+                },
+                "SEntityComponentCarryableParams": {
+                    "carryInteraction": "Interactable.SharedInteractions[0]",
+                    "placeInteraction": "Interactable.SharedInteractions[2]",
+                    "dropInteraction": "Interactable.SharedInteractions[1]",
+                    "equipToItemportInteraction": "null",
+                    "offHandEquipToItemportInteraction": "null",
+                    "storeInteraction": "Interactable.SharedInteractions[3]",
+                    "offHandStoreInteraction": "null",
+                    "holdReadyInteraction": "null",
+                    "equipWearableInteraction": "Interactable.SharedInteractions[4]",
+                    "inspectInteraction": "null",
+                    "flipInteraction": "null",
+                    "swapAttachmentsInteraction": "null",
+                    "attachToHeldItemInteraction": "null",
+                    "enslavementAnimationDatabase": "",
+                    "interactionPointToMoveOnEquip": "null",
+                    "ikInteractionsRecord": "00000000-0000-0000-0000-000000000000",
+                    "canBeCarriedInProne": 0,
+                    "carryableStatesParams": {
+                        "settledState": "StateTypes.SInteractionStateType.States[0]",
+                        "carriedState": "StateTypes.SInteractionStateType.States[1]",
+                        "equippedToSuitState": "null",
+                        "inspectingState": "null",
+                        "droppedState": "StateTypes.SInteractionStateType.States[2]",
+                        "offeredState": "null",
+                        "heldReadyState": "null",
+                        "equippedWornState": "StateTypes.SInteractionStateType.States[4]",
+                        "storedState": "StateTypes.SInteractionStateType.States[3]",
+                        "hangingOnOutfitHangerState": "StateTypes.SInteractionStateType.States[5]"
+                    },
+                    "interactionPointOffsets": {
+                        "interactionOffsetEquipped": {
+                            "Rotation": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "Position": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            }
+                        },
+                        "interactionOffsetCarried": {
+                            "Rotation": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "Position": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            }
+                        },
+                        "interactionOffsetInspected": {
+                            "Rotation": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "Position": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            }
+                        }
+                    },
+                    "gripData": {
+                        "gripOverrideUsingLOS": 0,
+                        "grips": [
+                            {
+                                "carryStyleID": "2H_Standard",
+                                "canBeUsedBy": "All",
+                                "handMode": "RightHand",
+                                "gripAction": "None",
+                                "handGrip": {
+                                    "gripID": "",
+                                    "optionalHelper": "$grip_right_1",
+                                    "gripShapeParameters": {
+                                        "gripShape": "gs_flat",
+                                        "dimension": 8,
+                                        "wristRotation": 0
+                                    },
+                                    "offset": {
+                                        "Rotation": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "z": 0
+                                        },
+                                        "Position": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "z": 0
+                                        }
+                                    }
+                                },
+                                "offHandGrip": {
+                                    "SGrip": {
+                                        "gripID": "",
+                                        "optionalHelper": "$grip_left_1",
+                                        "gripShapeParameters": {
+                                            "gripShape": "gs_flat",
+                                            "dimension": 8,
+                                            "wristRotation": 0
+                                        },
+                                        "offset": {
+                                            "Rotation": {
+                                                "x": 0,
+                                                "y": 0,
+                                                "z": 0
+                                            },
+                                            "Position": {
+                                                "x": 0,
+                                                "y": 0,
+                                                "z": 0
+                                            }
+                                        }
+                                    }
+                                },
+                                "animationParameters": {
+                                    "motionBase": "2h",
+                                    "handTag": ""
+                                },
+                                "carryParameters": {
+                                    "width": 4.2,
+                                    "height": 0,
+                                    "depth": 0
+                                }
+                            },
+                            {
+                                "carryStyleID": "2H_Reverse",
+                                "canBeUsedBy": "All",
+                                "handMode": "RightHand",
+                                "gripAction": "None",
+                                "handGrip": {
+                                    "gripID": "",
+                                    "optionalHelper": "$grip_left_1",
+                                    "gripShapeParameters": {
+                                        "gripShape": "gs_flat",
+                                        "dimension": 8,
+                                        "wristRotation": 0
+                                    },
+                                    "offset": {
+                                        "Rotation": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "z": 0
+                                        },
+                                        "Position": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "z": 0
+                                        }
+                                    }
+                                },
+                                "offHandGrip": {
+                                    "SGrip": {
+                                        "gripID": "",
+                                        "optionalHelper": "$grip_right_1",
+                                        "gripShapeParameters": {
+                                            "gripShape": "gs_flat",
+                                            "dimension": 8,
+                                            "wristRotation": 0
+                                        },
+                                        "offset": {
+                                            "Rotation": {
+                                                "x": 0,
+                                                "y": 0,
+                                                "z": 0
+                                            },
+                                            "Position": {
+                                                "x": 0,
+                                                "y": 0,
+                                                "z": 0
+                                            }
+                                        }
+                                    }
+                                },
+                                "animationParameters": {
+                                    "motionBase": "2h",
+                                    "handTag": ""
+                                },
+                                "carryParameters": {
+                                    "width": 4.2,
+                                    "height": 0,
+                                    "depth": 0
+                                }
+                            }
+                        ]
+                    },
+                    "abilityLocks": [
+                        {
+                            "value": "Climb"
+                        },
+                        {
+                            "value": "Sprint"
+                        },
+                        {
+                            "value": "Vault"
+                        },
+                        {
+                            "value": "VaultHigh"
+                        },
+                        {
+                            "value": "Mantle"
+                        },
+                        {
+                            "value": "MantleHigh"
+                        }
+                    ],
+                    "carryableTasks": [],
+                    "throwableParams": {
+                        "reticle": "none",
+                        "faceUpWhenSettled": 1,
+                        "allowHologramTiltRotation": 0,
+                        "placementRange": 3,
+                        "placementRangeHysteresis": 0.5,
+                        "yawOffset": 0,
+                        "applyBoundingBoxPlacementOffset": 0,
+                        "combatThrowable": 0,
+                        "throwModes": [
+                            {
+                                "mode": "Drop",
+                                "angularVelocity": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 1
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                }
+                            },
+                            {
+                                "mode": "Place",
+                                "angularVelocity": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                }
+                            },
+                            {
+                                "mode": "InteractionMode",
+                                "angularVelocity": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                }
+                            },
+                            {
+                                "mode": "TwoHandedThrow",
+                                "angularVelocity": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                }
+                            }
+                        ],
+                        "audioParams": {
+                            "onCollisionAudioPerceptionInfo": "SmallSound",
+                            "onCollisionAudioPerceptionRadius": 20,
+                            "onThrownAudioTrigger": {
+                                "audioTrigger": ""
+                            },
+                            "onCollisionAudioTrigger": {
+                                "audioTrigger": ""
+                            },
+                            "collisionSpeedAudioRTPC": {
+                                "rtpc": ""
+                            }
+                        },
+                        "defaultPlacementUpDirection": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 1
+                        }
+                    },
+                    "equipWearableParams": {
+                        "itemPort": "Clothing_Torso_1"
+                    },
+                    "carryableSequences": []
+                },
+                "SInteractionStateMachineParams": {
+                    "StateTypes": {
+                        "SInteractionStateType": {
+                            "StateTypeName": "CarryableStates",
+                            "bindingsMethod": "None",
+                            "DefaultState": "null",
+                            "asopReset": 0,
+                            "networkAuthority": "Server",
+                            "States": [
+                                {
+                                    "StateName": "Settled",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[0]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[3]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[4]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[5]",
+                                            "NextState": "null"
+                                        }
+                                    ],
+                                    "interactionPoints": {
+                                        "WeakPointer": {
+                                            "interactionPoints": "Interactable.InteractionPoints[0]"
+                                        }
+                                    },
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                },
+                                {
+                                    "StateName": "Carried",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[2]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[1]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[3]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[4]",
+                                            "NextState": "null"
+                                        }
+                                    ],
+                                    "interactionPoints": {
+                                        "WeakPointer": {
+                                            "interactionPoints": "Interactable.InteractionPoints[0]"
+                                        }
+                                    },
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                },
+                                {
+                                    "StateName": "Dropped",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [],
+                                    "interactionPoints": [],
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                },
+                                {
+                                    "StateName": "Stored",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[0]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[1]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[4]",
+                                            "NextState": "null"
+                                        },
+                                        {
+                                            "Interaction": "Interactable.SharedInteractions[5]",
+                                            "NextState": "null"
+                                        }
+                                    ],
+                                    "interactionPoints": {
+                                        "WeakPointer": {
+                                            "interactionPoints": "Interactable.InteractionPoints[1]"
+                                        }
+                                    },
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                },
+                                {
+                                    "StateName": "EquippedWorn",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [],
+                                    "interactionPoints": [],
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                },
+                                {
+                                    "StateName": "HangingOnOutfitHanger",
+                                    "EnterStateEffectGroup": "",
+                                    "ExitStateEffectGroup": "",
+                                    "EnterStatePlaySequence": "null",
+                                    "ExitStatePlaySequence": "null",
+                                    "enterGeometryTags": "",
+                                    "enterStateEffectTags": [],
+                                    "exitStateEffectTags": [],
+                                    "EnterEventDispatchers": [],
+                                    "StateAutoChange": [],
+                                    "Interactions": [],
+                                    "interactionPoints": {
+                                        "WeakPointer": {
+                                            "interactionPoints": "Interactable.InteractionPoints[0]"
+                                        }
+                                    },
+                                    "stateTags": {
+                                        "tags": []
+                                    },
+                                    "entityTags": {
+                                        "tags": []
+                                    }
+                                }
+                            ],
+                            "StateModifiers": []
+                        }
+                    }
+                },
+                "SCItemInventoryContainerComponentParams": {
+                    "openInventoryInteraction": "Interactable.SharedInteractions[5]",
+                    "openLootingInteraction": "Interactable.SharedInteractions[6]",
+                    "containerParams": "f4656fda-387e-46fe-8860-e8bf95380f64",
+                    "canAutoStoreRestrictedItems": 0,
+                    "inventoryContainer": {
+                        "__ref": "f4656fda-387e-46fe-8860-e8bf95380f64",
+                        "__path": "libs/foundry/records/inventorycontainers/clothing/clothing_torso1_pocket_size2_int_b.xml",
+                        "excludedItemTypes": [],
+                        "interiorDimensions": {
+                            "x": 0.365,
+                            "y": 0.365,
+                            "z": 0.1825
+                        },
+                        "inventoryType": {
+                            "InventoryClosedContainerType": {
+                                "capacity": {
+                                    "SMicroCargoUnit": {
+                                        "microSCU": 1000
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "SInteractionLinkParams": {
+                    "vehicleItemPortInteractionLinks": [],
+                    "linkPlugs": []
+                }
+            },
+            "ClassName": "987_jacket_01_01_01",
+            "__type": "Char_Clothing_Torso_1"
         }
-      },
-      "tags": [
-        {
-          "value": "65124877-3571-4f63-b4a5-650a79e5bfb6"
-        },
-        {
-          "value": "bf3c7235-1d79-468e-b981-2494f00b8f18"
-        },
-        {
-          "value": "532b3340-6cc9-4124-b822-8a422a89f2b6"
-        },
-        {
-          "value": "59ca5e36-b9a2-4459-ad0e-5745bcf5d899"
-        },
-        {
-          "value": "2ebe6f26-d592-488a-8625-d42ef5fec31c"
-        },
-        {
-          "value": "7f55d7e2-5f7f-470d-b6bb-c89196ed7b0e"
-        },
-        {
-          "value": "bed8e09b-a5f2-4f4e-9be9-ab618ebfbd58"
-        }
-      ],
-      "Components": {
-        "SAttachableComponentParams": {
-          "AttachDef": {
-            "Type": "Char_Clothing_Torso_1",
-            "SubType": "UNDEFINED",
+    },
+    "Item": {
+        "className": "987_jacket_01_01_01",
+        "reference": "9c478af1-acfd-4e88-b065-c5ebeb05f507",
+        "itemName": "987_jacket_01_01_01",
+        "type": "Char_Clothing_Torso_1",
+        "subType": "UNDEFINED",
+        "size": 1,
+        "grade": 1,
+        "name": "Legion Jacket",
+        "tags": "987_jacket set_01 Color_01",
+        "manufacturer": "987",
+        "classification": "FPS.Clothing.Torso",
+        "stdItem": {
+            "UUID": "9c478af1-acfd-4e88-b065-c5ebeb05f507",
+            "ClassName": "987_jacket_01_01_01",
             "Size": 1,
             "Grade": 1,
-            "Manufacturer": "3b54a8cc-5700-45f1-940a-2436b213926f",
-            "Tags": "987_jacket set_01 Color_01",
-            "RequiredTags": "",
-            "DisplayType": "",
-            "Localization": {
-              "Name": "@item_Name_987_Jacket_01_01_01",
-              "Description": "@item_Desc_987_Jacket_01_01_01"
+            "Width": 0.356,
+            "Height": 0.166,
+            "Length": 0.183,
+            "Type": "Char_Clothing_Torso_1.UNDEFINED",
+            "Name": "Legion Jacket",
+            "Description": "Carrying Capacity: 1K \u00b5SCU\\n\\nCrafted from a slick, high-shine weave, the Legion was conceived by 987 and famed Terran underground designer, Jieto, to shock the status quo of hooded jackets and usher in a new era of aesthetic functionality.  \\n\\nWomen's sizes currently out of stock.",
+            "Manufacturer": {
+                "Code": "987",
+                "Name": 987
             },
-            "inventoryOccupancyVolume": {
-              "SMicroCargoUnit": {
-                "microSCU": 8700.0
-              }
-            },
-            "inventoryOccupancyDimensions": {
-              "x": 0.356,
-              "y": 0.183,
-              "z": 0.166
-            },
-            "inventoryOccupancyDimensionsUIOverride": {
-              "Vec3": {
-                "x": 0.75,
-                "y": 0.75,
-                "z": 0.75
-              }
-            }
-          }
-        },
-        "SEntityInteractableParams": {
-          "Interactable": {
-            "SharedInteractions": [
-              {
-                "Name": "Grab",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_grab",
-                "DisplayType": "Show",
-                "GenericCursor": "Grab",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "Carry",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_carry",
-                "DisplayType": "Show",
-                "GenericCursor": "Grab",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "Drop",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_drop",
-                "DisplayType": "Show",
-                "GenericCursor": "SingleAction",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "Place",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_place",
-                "DisplayType": "Show",
-                "GenericCursor": "SingleAction",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "Store",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_store",
-                "DisplayType": "Show",
-                "GenericCursor": "SingleAction",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "Equip",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_equip",
-                "DisplayType": "Show",
-                "GenericCursor": "SingleAction",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              },
-              {
-                "Name": "OpenExternalInventory",
-                "RoomTag": "00000000-0000-0000-0000-000000000000",
-                "UsableTag": "00000000-0000-0000-0000-000000000000",
-                "DisplayName": "@interaction_open",
-                "DisplayType": "Show",
-                "GenericCursor": "SingleAction",
-                "FocusModeOnly": false,
-                "Sendable": false,
-                "Linkable": false,
-                "LockedByLinks": false,
-                "RequiresAuthorizedUser": false,
-                "available": true
-              }
-            ]
-          }
-        },
-        "SCItemClothingParams": {
-          "TemperatureResistance": {
-            "MinResistance": 2.0,
-            "MaxResistance": 32.0
-          }
-        },
-        "SItemPortContainerComponentParams": {
-          "PortFlags": "",
-          "PortTags": "",
-          "RequiredItemTags": "",
-          "Ports": [
-            {
-              "Name": "Material_Variant",
-              "DisplayName": "Material_Variant",
-              "PortTags": "",
-              "RequiredPortTags": "",
-              "Flags": "nontransferable ",
-              "MinSize": 1,
-              "MaxSize": 1,
-              "InteractionPointSize": -1.0,
-              "DefaultWeaponGroup": "UNDEFINED",
-              "Types": [
+            "Tags": [
+                "987_jacket",
+                "set_01",
+                "Color_01"
+            ],
+            "Ports": [
                 {
-                  "Type": "Paints",
-                  "SubTypes": []
+                    "PortName": "Material_Variant",
+                    "Size": 1,
+                    "Flags": [
+                        "nontransferable"
+                    ],
+                    "Types": [
+                        "Paints"
+                    ],
+                    "Uneditable": false
                 }
-              ]
+            ],
+            "DimensionOverrides": {
+                "Width": 0.75,
+                "Length": 0.75,
+                "Height": 0.75
+            },
+            "InventoryContainer": {
+                "SCU": 0.001,
+                "unit": 6,
+                "unitName": "\u00b5SCU",
+                "x": 0.365,
+                "y": 0.365,
+                "z": 0.1825,
+                "isOpenContainer": false,
+                "isExternalContainer": false,
+                "isClosedContainer": true,
+                "uuid": "f4656fda-387e-46fe-8860-e8bf95380f64"
+            },
+            "TemperatureResistance": {
+                "Minimum": 2,
+                "Maximum": 32
             }
-          ]
-        },
-        "SCItemInventoryContainerComponentParams": {
-          "containerParams": "f4656fda-387e-46fe-8860-e8bf95380f64"
         }
-      },
-      "ClassName": "987_jacket_01_01_01",
-      "__ref": "9c478af1-acfd-4e88-b065-c5ebeb05f507",
-      "__type": "EntityClassDefinition"
     }
-  },
-  "inventoryContainer": {
-    "SCU": 0.001,
-    "x": 0.365,
-    "y": 0.365,
-    "z": 0.1825,
-    "unit": 6.0
-  }
 }

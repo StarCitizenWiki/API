@@ -1,128 +1,114 @@
 {
-  "ClassName": "AEGS_Avenger_Stalker",
-  "Name": "Aegis Avenger Stalker",
-  "Description": "Manufacturer: Aegis Dynamics\nFocus: Interdiction\n\nInitially designed as Aegis’ frontline carrier ship for the military, the Avenger Stalker took a different path, ultimately having a long and storied career as the standard patrol craft of the UEE Advocacy. Utilizing its cargo hold for prisoner transport, the Avenger features a sturdy, reliable hull and the capacity for larger-than-expected engine mounts.",
-  "Career": "Combat",
-  "Role": "Interceptor",
-  "Size": 2,
-  "Cargo": 0.0,
-  "Inventory": {
-    "SCU": 0.71,
-    "x": 2.0,
-    "y": 2.0,
-    "z": 2.0,
-    "unit": 0.0
-  },
-  "Crew": 1,
-  "WeaponCrew": 0,
-  "OperationsCrew": 0,
-  "Mass": 50786.3,
-  "Health": 11900.0,
-  "Width": 15.0,
-  "Height": 6.5,
-  "Length": 20.0,
-  "IsSpaceship": true,
-  "Manufacturer": {
-    "Code": "AEG",
-    "Name": "Aegis Dynamics"
-  },
-  "DamageBeforeDestruction": {
-    "Nose": 2500.0,
-    "Body": 2500.0
-  },
-  "DamageBeforeDetach": {
-    "Canopy": 1500.0,
-    "Wing_Right": 680.0,
-    "Wing_Flap_Right": 10.0,
-    "WingTip_Right": 1000.0,
-    "Wing_Left": 680.0,
-    "Wing_Flap_Left": 10.0,
-    "WingTip_Left": 1000.0,
-    "HullTail_Right": 1000.0,
-    "Right_Tail_Fin_Flap": 10.0,
-    "HullTail_Left": 1000.0,
-    "Left_Tail_Fin_Flap": 10.0
-  },
-  "FlightCharacteristics": {
-    "ScmSpeed": 260.0,
-    "MaxSpeed": 1425.0,
-    "ZeroToScm": 2.13868881862742,
-    "ZeroToMax": 11.721659871323359,
-    "ScmToZero": 6602.219,
-    "MaxToZero": 36185.238750000004,
-    "Acceleration": {
-      "Main": 121.5698131188923,
-      "Retro": 0.039380699125551574,
-      "Vtol": 0.0,
-      "Maneuvering": 115.77925542912163
+    "UUID": "97648869-5fa5-42da-b804-4d9314289539",
+    "ClassName": "AEGS_Avenger_Stalker",
+    "Name": "Aegis Avenger Stalker",
+    "Description": "Manufacturer: Aegis Dynamics\\nFocus:\u00a0Interdiction\\n\\nInitially designed as Aegis\u2019 frontline carrier ship for the military, the Avenger Stalker took a different path, ultimately having a long and storied career as the standard patrol craft of the UEE Advocacy. Utilizing its cargo hold for prisoner transport, the Avenger features a sturdy, reliable hull and the capacity for larger-than-expected engine mounts.",
+    "Career": "Combat",
+    "Role": "Interceptor",
+    "Manufacturer": {
+        "Code": "AEG",
+        "Name": "Aegis Dynamics"
     },
-    "AccelerationG": {
-      "Main": 12.396670740142204,
-      "Retro": 0.004015713671441047,
-      "Vtol": 0.0,
-      "Maneuvering": 11.806198194036677
+    "Size": 1,
+    "Width": 15,
+    "Length": 20,
+    "Height": 6.5,
+    "Crew": 1,
+    "Insurance": {
+        "ExpeditedCost": 2658,
+        "ExpeditedClaimTime": 1.62,
+        "StandardClaimTime": 4.86
     },
-    "Pitch": 52.5,
-    "Yaw": 48.5,
-    "Roll": 180.0
-  },
-  "Propulsion": {
-    "FuelCapacity": 90000.0,
-    "FuelIntakeRate": 0.0,
-    "FuelUsage": {
-      "Main": 39.70705843125,
-      "Retro": 0.012862499999999999,
-      "Vtol": 0.0,
-      "Maneuvering": 18.375
+    "IsVehicle": false,
+    "IsGravlev": false,
+    "IsSpaceship": true,
+    "Mass": 48986.3,
+    "ShieldFaceType": "Bubble",
+    "QuantumTravel": {
+        "FuelCapacity": 1100,
+        "Range": 112244897959.18367,
+        "Speed": 165000000,
+        "SpoolTime": 4,
+        "PortOlisarToArcCorpTime": 254.105158,
+        "PortOlisarToArcCorpFuel": 410.888040486,
+        "PortOlisarToArcCorpAndBack": 1.3385641483978405
     },
-    "ThrustCapacity": {
-      "Main": 6174081.0,
-      "Retro": 2000.0,
-      "Vtol": 0.0,
-      "Maneuvering": 5880000.0
+    "Propulsion": {
+        "FuelCapacity": 9000,
+        "FuelIntakeRate": 0,
+        "FuelUsage": {
+            "Main": 39.70705843125,
+            "Retro": 0.012862499999999999,
+            "Vtol": 0,
+            "Maneuvering": 18.375
+        },
+        "ThrustCapacity": {
+            "Main": 6174081,
+            "Retro": 2000,
+            "Vtol": 0,
+            "Maneuvering": 5880000
+        },
+        "IntakeToMainFuelRatio": 0,
+        "IntakeToTankCapacityRatio": 0,
+        "ManeuveringTimeTillEmpty": 184.06956292804614
     },
-    "IntakeToMainFuelRatio": 0.0,
-    "IntakeToTankCapacityRatio": 0.0,
-    "TimeForIntakesToFillTank": "Infinity",
-    "ManeuveringTimeTillEmpty": 1840.6956292804614
-  },
-  "QuantumTravel": {
-    "Speed": 148971800.0,
-    "SpoolTime": 4.0,
-    "FuelCapacity": 612.4965,
-    "Range": 62499642857.14285,
-    "PortOlisarToArcCorpTime": 281.4448846694475,
-    "PortOlisarToArcCorpFuel": 410.888040486,
-    "PortOlisarToArcCorpAndBack": 0.7453325962901435
-  },
-  "PilotHardpoints": [
-    {
-      "Size": 4,
-      "Fixed": true,
-      "WeaponSizes": [
-        4
-      ]
+    "FlightCharacteristics": {
+        "ScmSpeed": 260,
+        "MaxSpeed": 1425,
+        "BoostSpeedForward": 610,
+        "BoostSpeedBackward": 280,
+        "Acceleration": {
+            "Main": 126.03689194734037,
+            "Retro": 0.04082774163388539,
+            "Vtol": 0,
+            "Maneuvering": 120.03356040362304
+        },
+        "AccelerationG": {
+            "Main": 12.852186215205027,
+            "Retro": 0.00416327100833469,
+            "Vtol": 0,
+            "Maneuvering": 12.24001676450399
+        },
+        "Pitch": 52.5,
+        "Yaw": 48.5,
+        "Roll": 180,
+        "PitchBoostMultiplier": 1.2,
+        "YawBoostMultiplier": 1.2,
+        "RollBoostMultiplier": 1.2,
+        "Afterburner": {
+            "PreDelayTime": 0,
+            "RampUpTime": 0.4,
+            "RampDownTime": 0.2,
+            "Capacitor": 20,
+            "IdleCost": 1,
+            "LinearCost": 0,
+            "AngularCost": 0,
+            "RegenPerSec": 0.75,
+            "RegenDelayAfterUse": 0.2
+        },
+        "ZeroToScm": 2.0628880638268274,
+        "ZeroToMax": 11.306213426743188,
+        "ScmToZero": 6368.219,
+        "MaxToZero": 34902.738750000004
     },
-    {
-      "Size": 3,
-      "Fixed": true,
-      "WeaponSizes": [
-        3
-      ]
+    "Cargo": 0,
+    "CargoGrids": [],
+    "Health": 11900,
+    "DamageBeforeDestruction": {
+        "Nose": 2500,
+        "Body": 2500
     },
-    {
-      "Size": 3,
-      "Fixed": true,
-      "WeaponSizes": [
-        3
-      ]
+    "DamageBeforeDetach": {
+        "Canopy": 1500,
+        "Wing_Flap_Right": 10,
+        "WingTip_Right": 1000,
+        "Wing_Right": 680,
+        "Wing_Flap_Left": 10,
+        "WingTip_Left": 1000,
+        "Wing_Left": 680,
+        "Right_Tail_Fin_Flap": 10,
+        "HullTail_Right": 1000,
+        "Left_Tail_Fin_Flap": 10,
+        "HullTail_Left": 1000
     }
-  ],
-  "MannedTurrets": [],
-  "RemoteTurrets": [],
-  "Insurance": {
-    "StandardClaimTime": 4.860000133514404,
-    "ExpeditedClaimTime": 1.6200000047683716,
-    "ExpeditedCost": 2658.0
-  }
 }
