@@ -64,6 +64,37 @@ use OpenApi\Attributes as OA;
             type: 'float',
             nullable: true
         ),
+        new OA\Property(
+            property: 'cargo_grids',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_cargo_grid')
+        ),
+        new OA\Property(
+            property: 'cargo_limits',
+            properties: [
+                new OA\Property(
+                    property: 'min_size',
+                    properties: [
+                        new OA\Property(property: 'x', type: 'number'),
+                        new OA\Property(property: 'y', type: 'number'),
+                        new OA\Property(property: 'z', type: 'number'),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'max_size',
+                    properties: [
+                        new OA\Property(property: 'x', type: 'number'),
+                        new OA\Property(property: 'y', type: 'number'),
+                        new OA\Property(property: 'z', type: 'number'),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object'
+        ),
         //        new OA\Property(
         //            property: 'cargo_capacity_calculated',
         //            description: 'Cargo Capacity in SCU (Calculated from hardpoints)',
@@ -104,6 +135,8 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'scm', type: 'float', nullable: true),
                 new OA\Property(property: 'max', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_boost_forward', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_boost_backward', type: 'float', nullable: true),
                 new OA\Property(property: 'reverse', description: 'Ground Vehicles', type: 'float', nullable: true),
                 new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
                 new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
@@ -178,21 +211,6 @@ use OpenApi\Attributes as OA;
                     type: 'object',
                     nullable: true
                 ),
-            ],
-            type: 'object'
-        ),
-        new OA\Property(
-            property: 'speed',
-            properties: [
-                new OA\Property(property: 'scm', type: 'float', nullable: true),
-                new OA\Property(property: 'max', type: 'float', nullable: true),
-                new OA\Property(property: 'scm_boost_forward', type: 'float', nullable: true),
-                new OA\Property(property: 'scm_boost_backward', type: 'float', nullable: true),
-                new OA\Property(property: 'reverse', description: 'Ground Vehicles', type: 'float', nullable: true),
-                new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
-                new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
-                new OA\Property(property: 'scm_to_zero', type: 'float', nullable: true),
-                new OA\Property(property: 'max_to_zero', type: 'float', nullable: true),
             ],
             type: 'object'
         ),
@@ -354,6 +372,8 @@ class VehicleResourceV3 extends AbstractBaseResource
             $manufacturer = $this->description_manufacturer;
         }
 
+        $cargoGrids = VehicleCargoGrid::collection($this->cargoGrids);
+
         $data = [
             'uuid' => $this->item_uuid,
             'name' => $this->name,
@@ -371,6 +391,8 @@ class VehicleResourceV3 extends AbstractBaseResource
             ],
             'mass' => $this->mass,
             'cargo_capacity' => $this->cargo_capacity,
+            'cargo_grids' => $cargoGrids,
+            'cargo_limits' => VehicleResource::calculateCargoGridSizeLimits(collect($cargoGrids->resolve())),
             //            'cargo_capacity_calculated' => $this->scu,
             'vehicle_inventory' => $this->vehicle_inventory_scu,
             'personal_inventory' => $this->personal_inventory_scu,

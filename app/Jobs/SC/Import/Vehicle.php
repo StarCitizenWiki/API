@@ -54,18 +54,18 @@ class Vehicle implements ShouldQueue
         try {
             $rawData = File::get($vehicle['filePathRaw']);
 
-            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR)['Raw'];
+            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
         } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e->getMessage());
         }
 
-        if (! isset($vehicle['rawData']['Entity']['__ref'])) {
+        if (! isset($vehicle['rawData']['Raw']['Entity']['__ref'])) {
             return;
         }
 
         /** @var \App\Models\SC\Vehicle\Vehicle $vehicleModel */
         $vehicleModel = \App\Models\SC\Vehicle\Vehicle::query()->withoutGlobalScopes()->updateOrCreate([
-            'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
+            'item_uuid' => $vehicle['rawData']['Raw']['Entity']['__ref'],
         ], $this->getVehicleModelArray($vehicle) + ['class_name' => $vehicle['ClassName']]);
 
         if (! $vehicleModel->item === null || ! optional($vehicleModel->item)->exists) {
@@ -86,7 +86,7 @@ class Vehicle implements ShouldQueue
         }
 
         // Manually override the Fury Manufacturer
-        if (in_array($vehicle['rawData']['Entity']['__ref'], [
+        if (in_array($vehicle['rawData']['Raw']['Entity']['__ref'], [
             '96b11061-68ce-4896-9424-fc8804a410ae',
             '469d850e-b86b-47fc-9ee2-df81d775ccc8',
         ], true) && $vehicleModel->item?->manufacturer_id === 1) {
@@ -101,7 +101,7 @@ class Vehicle implements ShouldQueue
         $vehicleModel->refresh();
         if (Arr::get($vehicle, 'Inventory') !== null) {
             $vehicleModel->item->container()->updateOrCreate([
-                'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
+                'item_uuid' => $vehicle['rawData']['Raw']['Entity']['__ref'],
             ], [
                 'width' => Arr::get($vehicle, 'Inventory.x'),
                 'height' => Arr::get($vehicle, 'Inventory.y'),
@@ -115,7 +115,30 @@ class Vehicle implements ShouldQueue
 
         $vehicleModel->hardpoints()->whereNotIn('hardpoint_name', $this->hardpoints)->delete();
         $vehicleModel->parts()->whereNotIn('name', $this->parts)->delete();
-        $this->createHandlingModel($vehicleModel, $vehicle['rawData']);
+        $this->createHandlingModel($vehicleModel, $vehicle['rawData']['Raw']);
+
+        if (Arr::get($vehicle, 'CargoGrids') !== null) {
+            collect(Arr::get($vehicle, 'CargoGrids'))->each(function ($grid) use ($vehicleModel) {
+                $vehicleModel->cargoGrids()->updateOrCreate([
+                    'container_uuid' => $grid['uuid'],
+                ], [
+                    'capacity' => Arr::get($grid, 'SCU'),
+                    'unit_name' => Arr::get($grid, 'unitName'),
+                    'x' => Arr::get($grid, 'x'),
+                    'y' => Arr::get($grid, 'y'),
+                    'z' => Arr::get($grid, 'z'),
+                    'min_x' => Arr::get($grid, 'minSize.x'),
+                    'min_y' => Arr::get($grid, 'minSize.y'),
+                    'min_z' => Arr::get($grid, 'minSize.z'),
+                    'max_x' => Arr::get($grid, 'maxSize.x'),
+                    'max_y' => Arr::get($grid, 'maxSize.y'),
+                    'max_z' => Arr::get($grid, 'maxSize.z'),
+                    'is_open' => Arr::get($grid, 'isOpenContainer'),
+                    'is_external' => Arr::get($grid, 'isExternalContainer'),
+                    'is_closed' => Arr::get($grid, 'isClosedContainer'),
+                ]);
+            });
+        }
     }
 
     public function getVehicleModelArray(array $vehicle): array
@@ -123,7 +146,7 @@ class Vehicle implements ShouldQueue
         $key = isset($vehicle['FlightCharacteristics']) ? 'FlightCharacteristics' : 'DriveCharacteristics';
 
         $data = [
-            'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
+            'item_uuid' => $vehicle['rawData']['Raw']['Entity']['__ref'],
 
             'shipmatrix_id' => $this->tryGetShipmatrixIdForVehicle($vehicle)->id ?? 0,
             'name' => $vehicle['Name'],
@@ -294,7 +317,7 @@ class Vehicle implements ShouldQueue
     {
         $entries = Arr::get(
             $rawData,
-            'Entity.Components.SEntityComponentDefaultLoadoutParams.loadout.SItemPortLoadoutManualParams.entries'
+            'Raw.Entity.Components.SEntityComponentDefaultLoadoutParams.loadout.SItemPortLoadoutManualParams.entries'
         );
 
         if ($entries === null) {

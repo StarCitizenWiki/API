@@ -257,6 +257,11 @@ class Vehicle extends CommodityItem
         );
     }
 
+    public function cargoGrids(): HasMany
+    {
+        return $this->hasMany(VehicleCargoGrid::class, 'vehicle_id', 'id');
+    }
+
     public function getComputedHealthAttribute(): float
     {
         return $this->hardpointItems()

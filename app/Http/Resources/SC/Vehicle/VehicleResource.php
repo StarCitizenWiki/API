@@ -12,6 +12,7 @@ use App\Models\System\Language;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -63,6 +64,37 @@ use OpenApi\Attributes as OA;
             description: 'Cargo Capacity in SCU',
             type: 'float',
             nullable: true
+        ),
+        new OA\Property(
+            property: 'cargo_grids',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_cargo_grid')
+        ),
+        new OA\Property(
+            property: 'cargo_limits',
+            properties: [
+                new OA\Property(
+                    property: 'min_size',
+                    properties: [
+                        new OA\Property(property: 'x', type: 'number'),
+                        new OA\Property(property: 'y', type: 'number'),
+                        new OA\Property(property: 'z', type: 'number'),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'max_size',
+                    properties: [
+                        new OA\Property(property: 'x', type: 'number'),
+                        new OA\Property(property: 'y', type: 'number'),
+                        new OA\Property(property: 'z', type: 'number'),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object'
         ),
         //        new OA\Property(
         //            property: 'cargo_capacity_calculated',
@@ -342,6 +374,8 @@ class VehicleResource extends AbstractBaseResource
             $manufacturer = $this->description_manufacturer;
         }
 
+        $cargoGrids = VehicleCargoGrid::collection($this->cargoGrids);
+
         $data = [
             'uuid' => $this->item_uuid,
             'name' => $this->name,
@@ -359,6 +393,8 @@ class VehicleResource extends AbstractBaseResource
             ],
             'mass' => $this->mass,
             'cargo_capacity' => $this->cargo_capacity,
+            'cargo_grids' => $cargoGrids,
+            'cargo_limits' => self::calculateCargoGridSizeLimits(collect($cargoGrids->resolve())),
             //            'cargo_capacity_calculated' => $this->scu,
             'vehicle_inventory' => $this->vehicle_inventory_scu,
             'personal_inventory' => $this->personal_inventory_scu,
@@ -541,5 +577,23 @@ class VehicleResource extends AbstractBaseResource
                 }
             }
         }
+    }
+
+    public static function calculateCargoGridSizeLimits(Collection $cargoGrids): array
+    {
+        $minVolumeGrid = $cargoGrids
+            ->filter(fn ($grid) => isset($grid['min_size']['x'], $grid['min_size']['y'], $grid['min_size']['z']))
+            ->sortBy(fn ($grid) => $grid['min_size']['x'] * $grid['min_size']['y'] * $grid['min_size']['z'])
+            ->first();
+
+        $maxVolumeGrid = $cargoGrids
+            ->filter(fn ($grid) => isset($grid['max_size']['x'], $grid['max_size']['y'], $grid['max_size']['z']))
+            ->sortByDesc(fn ($grid) => $grid['max_size']['x'] * $grid['max_size']['y'] * $grid['max_size']['z'])
+            ->first();
+
+        return [
+            'min_size' => $minVolumeGrid['min_size'] ?? null,
+            'max_size' => $maxVolumeGrid['max_size'] ?? null,
+        ];
     }
 }
