@@ -327,6 +327,8 @@ class Vehicle implements ShouldQueue
         $hardpoints = [];
         $this->mapHardpoints(Arr::get($rawData, 'Vehicle.Parts', []), $hardpoints);
 
+        $hardpoints = array_reverse($hardpoints);
+
         collect($entries)
             ->chunk(5)
             ->each(function (Collection $entries) use ($hardpoints, $vehicle) {
@@ -364,8 +366,8 @@ class Vehicle implements ShouldQueue
         collect($hardpoints)
             // Create vehicle parts
             ->each(function ($hardpoint) use ($vehicle) {
-                $isBaseBody = $hardpoint['class'] === 'Animated' && ($hardpoint['damagemax'] ?? $hardpoint['damageMax'] ?? null) === 0;
-                $isPart = ! empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > $this->minPartDamage;
+                $isBaseBody = $hardpoint['class'] === 'Animated' && isset($hardpoint['scopeContext']);
+                $isPart = ! empty($hardpoint['name']) && isset($hardpoint['damageMax'])/* && $hardpoint['damageMax'] > $this->minPartDamage*/;
 
                 if ($isBaseBody || $isPart) {
                     if (! empty($hardpoint['parent'])) {
@@ -376,7 +378,7 @@ class Vehicle implements ShouldQueue
                         'name' => $hardpoint['name'],
                     ], [
                         'parent_id' => $hardpoint['parent'] ?? null,
-                        'damage_max' => $hardpoint['damageMax'],
+                        'damage_max' => $hardpoint['damageMax'] ?? 0,
                     ]);
 
                     $this->parts->push($hardpoint['name']);
@@ -432,7 +434,7 @@ class Vehicle implements ShouldQueue
     private function mapHardpoints(array $parts, array &$out, ?string $parent = null): void
     {
         foreach ($parts as $part) {
-            if (! isset($part['name'])) {
+            if (! isset($part['name']) || $part === 'xmlParts') {
                 continue;
             }
 
@@ -445,7 +447,13 @@ class Vehicle implements ShouldQueue
                 unset($part['Parts']);
             }
 
-            unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
+            unset(
+                $part['ItemPort']['Connections'],
+                $part['ItemPort']['ControllerDef'],
+                $part['ItemPort']['Types'],
+                $part['Effects'],
+                $part['DamageBehaviors'],
+            );
             $out[strtolower($part['name'])] = $part;
         }
     }
