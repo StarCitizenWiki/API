@@ -39,6 +39,6 @@ class PersonalWeaponMode extends Model
     {
         $multiplier = $this->rounds_per_minute / 60;
 
-        return $this->weapon->ammunition->damage * $multiplier;
+        return $this->weapon?->ammunition?->damage * $multiplier;
     }
 }
