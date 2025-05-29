@@ -88,10 +88,10 @@ RUN set -eux; \
 COPY --chown=www-data:www-data / /api
 
 RUN rm -rf storage/app/api/scunpacked-data
-RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=master --depth=1 storage/app/api/scunpacked-data
+# RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=master --depth=1 storage/app/api/scunpacked-data
 
 RUN rm -rf storage/app/api/ScToolBoxLocales
-RUN git clone https://github.com/StarCitizenToolBox/LocalizationData --branch=main --depth=1 storage/app/api/ScToolBoxLocales
+# RUN git clone https://github.com/StarCitizenToolBox/LocalizationData --branch=main --depth=1 storage/app/api/ScToolBoxLocales
 
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
