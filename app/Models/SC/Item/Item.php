@@ -123,7 +123,7 @@ class Item extends HasTranslations
                     ->where('sc_items.class_name', 'NOT LIKE', '%\_gungame%')
                     ->where('sc_items.class_name', 'NOT LIKE', '%\_active%')
                     ->where('sc_items.class_name', 'NOT LIKE', '%\_ea\_%')
-                    ->where('sc_items.class_name', 'NOT LIKE', '%placeholder%')
+                    //->where('sc_items.class_name', 'NOT LIKE', '%placeholder%') Banu Shield
                     ->where('sc_items.class_name', 'NOT LIKE', 'weaponmount\_%')
                     ->where('sc_items.class_name', 'NOT LIKE', '%ea\_elim')
                     ->where('sc_items.class_name', 'NOT LIKE', '%\_resistgasclouds')
