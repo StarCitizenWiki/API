@@ -103,7 +103,7 @@ class ManufacturerController extends AbstractApiV2Controller
     }
 
     #[OA\Post(
-        path: '/api/v2/manufactureres/search',
+        path: '/api/v2/manufacturers/search',
         tags: ['In-Game', 'Manufacturers', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -112,7 +112,7 @@ class ManufacturerController extends AbstractApiV2Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'A List of matching Manufactureres',
+                description: 'A List of matching Manufacturers',
                 content: new OA\JsonContent(
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/manufacturer_link_v2')
