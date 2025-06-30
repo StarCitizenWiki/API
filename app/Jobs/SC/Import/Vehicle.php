@@ -158,7 +158,7 @@ class Vehicle implements ShouldQueue
             'height' => $vehicle['Height'] ?? 0,
             'length' => $vehicle['Length'] ?? 0,
 
-            'crew' => $vehicle['Crew'],
+            'crew' => $vehicle['Crew'] ?? 1,
             'weapon_crew' => $vehicle['WeaponCrew'] ?? 0,
             'operations_crew' => $vehicle['OperationsCrew'] ?? 0,
             'mass' => $vehicle['Mass'],

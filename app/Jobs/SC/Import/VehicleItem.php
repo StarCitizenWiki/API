@@ -336,7 +336,7 @@ class VehicleItem extends AbstractItemCreationJob
             'ammunition_uuid' => $item['weapon']['ammunition']['uuid'] ?? null,
         ]);
 
-        if (! empty($item['weapon']['ammunition'])) {
+        if (! empty($item['weapon']['ammunition']['uuid'])) {
             (new Ammunition($item['weapon']))->handle();
         }
 
