@@ -80,7 +80,7 @@ RUN set -eux; \
         libjpeg62-turbo \
         libwebp7 \
         libpng16-16 \
-        libzip4; \
+        libzip5; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --chown=www-data:www-data --from=api /api /var/www/html
