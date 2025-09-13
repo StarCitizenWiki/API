@@ -84,6 +84,7 @@ use Spatie\QueryBuilder\AllowedInclude;
                 'shops',
                 'shops.items',
                 'variants',
+                'related_items',
             ]
         ),
     ),

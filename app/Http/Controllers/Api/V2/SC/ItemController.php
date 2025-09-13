@@ -10,6 +10,7 @@ use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Item\Item;
+use App\Support\QueryBuilder\Includes\IncludedPassthrough;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -55,7 +57,10 @@ class ItemController extends AbstractApiV2Controller
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
-            ->allowedIncludes(ItemResource::validIncludes())
+            ->allowedIncludes(array_merge(
+                ItemResource::validIncludes(),
+                [AllowedInclude::custom('related_items', new IncludedPassthrough)]
+            ))
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -105,7 +110,10 @@ class ItemController extends AbstractApiV2Controller
                     $query->where('uuid', $identifier)
                         ->orWhere('name', $identifier);
                 })
-                ->allowedIncludes(ItemResource::validIncludes())
+                ->allowedIncludes(array_merge(
+                    ItemResource::validIncludes(),
+                    [AllowedInclude::custom('related_items', new IncludedPassthrough)]
+                ))
                 ->with([
                     'dimensions',
                     'manufacturer',
@@ -187,7 +195,10 @@ class ItemController extends AbstractApiV2Controller
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
-            ->allowedIncludes(['shops.items']);
+            ->allowedIncludes(array_merge(
+                ['shops.items'],
+                [AllowedInclude::custom('related_items', new IncludedPassthrough)]
+            ));
 
         if ($request->has('shop') && $request->get('shop') !== null) {
             $items->whereRelation('shops', 'uuid', $request->get('shop'));

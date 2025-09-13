@@ -35,6 +35,7 @@ use App\Http\Resources\SC\ItemSpecification\TractorBeamResource;
 use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\SC\Vehicle\Weapon\VehicleWeaponResource;
+use App\Support\Items\RelatedItemsBuilder;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -139,6 +140,58 @@ use OpenApi\Attributes as OA;
 )]
 
 #[OA\Schema(
+    schema: 'item_related_link_v2',
+    title: 'Related Item Link',
+    description: 'Minimal link information for a related item',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'variant_name', type: 'string', nullable: true),
+        new OA\Property(property: 'link', type: 'string'),
+    ],
+    type: 'object'
+)]
+
+#[OA\Schema(
+    schema: 'item_related_link_ext_v2',
+    title: 'Related Item Link (Extended)',
+    description: 'Related item link with basic classification',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/item_related_link_v2'),
+        new OA\Schema(
+            properties: [
+                new OA\Property(property: 'type', type: 'string', nullable: true),
+                new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+            ],
+            type: 'object'
+        ),
+    ],
+)]
+
+#[OA\Schema(
+    schema: 'item_related_items_v2',
+    title: 'Related Items',
+    description: 'Aggregated related information for base/variants and set items',
+    properties: [
+        new OA\Property(property: 'set_name', type: 'string', nullable: true),
+        new OA\Property(property: 'base_item', ref: '#/components/schemas/item_related_link_v2', nullable: true),
+        new OA\Property(
+            property: 'variant_items',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_related_link_v2'),
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'set_items',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_related_link_ext_v2'),
+            nullable: true,
+        ),
+    ],
+    type: 'object'
+)]
+
+#[OA\Schema(
     schema: 'item_v2',
     title: 'Item',
     description: 'An Item in Star Citizen',
@@ -188,6 +241,12 @@ use OpenApi\Attributes as OA;
                 ),
             ]
         ),
+        new OA\Schema(
+            properties: [
+                new OA\Property(property: 'related_items', ref: '#/components/schemas/item_related_items_v2', nullable: true),
+            ],
+            type: 'object'
+        ),
     ]
 )]
 class ItemResource extends AbstractTranslationResource
@@ -207,6 +266,16 @@ class ItemResource extends AbstractTranslationResource
         }
 
         $vehicleItem = $this->vehicleItem;
+
+        // Determine if 'related_items' has been requested via include
+        $includeParam = $request->query('include');
+        $includeValues = [];
+        if (is_string($includeParam)) {
+            $includeValues = array_map('trim', explode(',', $includeParam));
+        } elseif (is_array($includeParam)) {
+            $includeValues = $includeParam;
+        }
+        $includeRelated = in_array('related_items', $includeValues, true);
 
         return [
             'uuid' => $this->uuid,
@@ -257,6 +326,9 @@ class ItemResource extends AbstractTranslationResource
                 'base_variant' => new ItemLinkResource($this->baseVariant),
             ]),
             'variants' => ItemLinkResource::collection($this->whenLoaded('variants')),
+            $this->mergeWhen($includeRelated, [
+                'related_items' => (new RelatedItemsBuilder)->build($this->resource),
+            ]),
             'updated_at' => $this->updated_at,
             'version' => $this->version,
         ];
