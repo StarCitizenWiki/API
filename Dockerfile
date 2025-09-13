@@ -44,9 +44,6 @@ FROM php:8.4-apache AS api
 LABEL stage=intermediate
 WORKDIR /api
 
-COPY --from=extensions /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
-COPY --from=extensions /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
-
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends zip unzip git; \
@@ -55,6 +52,8 @@ RUN set -eux; \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY --chown=www-data:www-data composer.json composer.lock /api/
+
+RUN chown -R www-data:www-data /api && mkdir -p /api/vendor && chown -R www-data:www-data /api/vendor
 USER www-data
 
 RUN set -eux; \
