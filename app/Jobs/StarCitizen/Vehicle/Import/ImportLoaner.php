@@ -5,7 +5,6 @@ namespace App\Jobs\StarCitizen\Vehicle\Import;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -45,7 +44,7 @@ class ImportLoaner implements ShouldQueue
         'Hull D, E' => ['Hull D', 'Hull E'],
         'Idris-M & P' => ['Idris-P', 'Idris-M'],
         'Kraken (+ Privateer)' => ['Kraken', 'Kraken Privateer'],
-        //'Mercury' => ['Mercury Star Runner'],
+        // 'Mercury' => ['Mercury Star Runner'],
         'Mole' => ['Mole'],
         'Nox' => ['Nox', 'Nox Kue'],
         'Reliant Variants' => ['Reliant Kore', 'Reliant Mako', 'Reliant Sen', 'Reliant Tana'],
@@ -131,23 +130,24 @@ class ImportLoaner implements ShouldQueue
         })->each(function (array $datum) use ($version) {
             $name = $datum['ship'];
 
-            try {
-                /** @var Vehicle $vehicle */
-                $vehicle = Vehicle::query()->where('name', 'LIKE', "%{$name}%")->firstOrFail();
-            } catch (ModelNotFoundException $e) {
+            /** @var Vehicle|null $vehicle */
+            $vehicle = $this->findVehicleByName($name);
+
+            if ($vehicle === null) {
                 $this->missing[] = $name;
 
                 return;
             }
 
             $loanerIDs = collect($datum['loaners'])->map(function (string $loaner) {
-                try {
-                    return Vehicle::query()->where('name', 'LIKE', "%{$loaner}%")->firstOrFail()->id;
-                } catch (ModelNotFoundException $e) {
+                $match = $this->findVehicleByName($loaner);
+                if ($match === null) {
                     $this->missing[] = $loaner;
+
+                    return null;
                 }
 
-                return null;
+                return $match->id;
             })
                 ->filter()
                 ->mapWithKeys(function ($id) use ($version) {
@@ -167,6 +167,39 @@ class ImportLoaner implements ShouldQueue
                 implode(', ', $this->missing)
             ));
         }
+    }
+
+    /**
+     * Try to resolve a vehicle by name, preferring exact matches over partial ones.
+     */
+    private function findVehicleByName(string $name): ?Vehicle
+    {
+        // Prefer exact match
+        $exact = Vehicle::query()->where('name', $name)->first();
+        if ($exact instanceof Vehicle) {
+            return $exact;
+        }
+
+        // Fallback to case-insensitive exact match
+        $ciExact = Vehicle::query()->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
+        if ($ciExact instanceof Vehicle) {
+            return $ciExact;
+        }
+
+        // last resort, use LIKE
+        return Vehicle::query()
+            ->where('name', 'LIKE', "%{$name}%")
+            ->orderByRaw(
+                'CASE '.
+                'WHEN name = ? THEN 0 '.
+                'WHEN name LIKE ? THEN 1 '.
+                'ELSE 2 END',
+                [
+                    $name,
+                    "% {$name} %",
+                ]
+            )
+            ->first();
     }
 
     private function getLastUpdateVersion(Crawler $crawler): ?string
