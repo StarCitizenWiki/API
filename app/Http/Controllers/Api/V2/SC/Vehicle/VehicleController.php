@@ -66,7 +66,7 @@ class VehicleController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(
-                name: 'filter[hardpoint]',
+                name: 'filter[hardpoints]',
                 description: 'Filter hardpoint types, prefix with "!" to remove these hardpoints.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string')
