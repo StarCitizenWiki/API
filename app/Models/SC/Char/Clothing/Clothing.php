@@ -53,6 +53,15 @@ class Clothing extends Item
         );
     }
 
+    public function radiationResistance(): HasMany
+    {
+        return $this->hasMany(
+            RadiationResistance::class,
+            'item_uuid',
+            'uuid',
+        );
+    }
+
     public function damageResistances(): HasMany
     {
         return $this->resistances()->whereNotIn('type', ['temp_min', 'temp_max', 'damage_reduction']);

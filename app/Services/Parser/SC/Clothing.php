@@ -38,6 +38,7 @@ final class Clothing extends AbstractCommodityItem
             'type' => trim($type),
             'damage_reduction' => $data['damage_reduction'] ?? null,
             'carrying_capacity' => $data['carrying_capacity'] ?? null,
+            'radiation_resistance' => $this->loadRadiationResistance(),
         ] + $this->loadResistances();
     }
 
@@ -82,6 +83,16 @@ final class Clothing extends AbstractCommodityItem
                     'threshold' => $this->item['damageResistances']['StunResistance']['Threshold'] ?? null,
                 ]),
             ]),
+        ];
+    }
+
+    private function loadRadiationResistance(): array
+    {
+        $radiationResistance = $this->get('SCItemClothingParams.RadiationResistance', []);
+
+        return [
+            'maximum_radiation_capacity' => $radiationResistance['MaximumRadiationCapacity'] ?? null,
+            'radiation_dissipation_rate' => $radiationResistance['RadiationDissipationRate'] ?? null,
         ];
     }
 

@@ -104,6 +104,8 @@ final class Item extends AbstractCommodityItem
                 'Plaque' => 'Plaque',
                 'Poster' => 'Poster',
                 'Power Transfer' => 'Power Transfer',
+                'Radiation Protection' => 'Radiation Protection',
+                'Radiation Scrub Rate' => 'Radiation Scrub Rate',
                 'Rate Of Fire' => 'Rate Of Fire',
                 'Resistance' => 'Resistance',
                 'Schematic' => 'Schematic',

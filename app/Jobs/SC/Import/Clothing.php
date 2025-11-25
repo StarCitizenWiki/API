@@ -37,6 +37,7 @@ class Clothing extends AbstractItemCreationJob
         $item = $parser->getData();
 
         try {
+            /** @var \App\Models\SC\Char\Clothing\Clothing $model */
             $model = \App\Models\SC\Char\Clothing\Clothing::query()->withoutGlobalScopes()->where('uuid', $item['uuid'])->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return;
@@ -59,6 +60,15 @@ class Clothing extends AbstractItemCreationJob
                     'threshold' => $resistance['threshold'] ?? null,
                 ]);
             }
+        }
+
+        if (!empty($item['radiation_resistance'])) {
+            $model->radiationResistance()->updateOrCreate([
+               'item_uuid' => $item['uuid'],
+            ], [
+                'maximum_radiation_capacity' => $item['radiation_resistance']['maximum_radiation_capacity'],
+                'radiation_dissipation_rate' => $item['radiation_resistance']['radiation_dissipation_rate'],
+            ]);
         }
     }
 }

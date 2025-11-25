@@ -84,6 +84,7 @@ class ClothingResource extends AbstractBaseResource
             'damage_reduction' => $this->damage_reduction,
             'temp_resistance_min' => $this->temp_resistance_min,
             'temp_resistance_max' => $this->temp_resistance_max,
+            'radiation_resistance' => ClothingRadiationResistanceResource::make($this->radiation_resistance),
             'resistances' => ClothingResistanceResource::collection($this->damageResistances),
         ];
     }
