@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\SC\Item;
+namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
-use App\Http\Resources\SC\Shop\ShopResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'item_link_v2',
+    schema: 'item_link',
     title: 'Item Link',
     description: 'Link information to an Item',
     type: 'object',
@@ -23,41 +22,43 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'type', type: 'string'),
                 new OA\Property(property: 'sub_type', type: 'string', nullable: true),
                 new OA\Property(property: 'is_base_variant', type: 'boolean'),
-                new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link_v2'),
+                new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'link', type: 'string'),
-                new OA\Property(property: 'base_variant', type: 'string', nullable: true),
+                new OA\Property(property: 'base_variant', description: 'Link to base variant item', type: 'string', nullable: true),
                 new OA\Property(
                     property: 'variants',
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/item_link_v2'),
+                    items: new OA\Items(ref: '#/components/schemas/item_link'),
                     nullable: true,
                 ),
             ],
             type: 'object',
         ),
-        new OA\Schema(ref: '#/components/schemas/metadata_v2'),
+        new OA\Schema(ref: '#/components/schemas/metadata'),
     ]
 )]
 class ItemLinkResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
+        $data = $this->data->first();
+
         return [
-            'uuid' => $this->uuid ?? $this->item_uuid,
-            'name' => $this->name,
-            'type' => $this->type ?? $this->item->type,
-            'sub_type' => $this->sub_type ?? $this->item->sub_type,
-            'is_base_variant' => $this->base_id === null,
-            'manufacturer' => new ManufacturerLinkResource($this->manufacturer ?? $this->item->manufacturer),
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid ?? $this->item_uuid),
-            $this->mergeWhen($this->base_id !== null, fn () => [
-                'base_variant' => $this->makeApiUrl(self::ITEMS_SHOW, $this->baseVariant->uuid ?? ''),
+            'uuid' => $this->uuid,
+            'name' => $data->name,
+            'type' => $data->type,
+            'sub_type' => $data->sub_type,
+            'is_base_variant' => $data->base_id === null,
+            'manufacturer' => new ManufacturerLinkResource($data->manufacturer),
+            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            $this->mergeWhen($data->base_id !== null, fn () => [
+                'base_variant' => $this->makeApiUrl(self::ITEMS_SHOW, $data->baseVariant->uuid ?? ''),
             ]),
             'variants' => self::collection($this->whenLoaded('variants')),
-            'shops' => ShopResource::collection($this->whenLoaded('shops')),
+            'shops' => [],
 
             'updated_at' => $this->updated_at,
-            'version' => $this->version ?? $this->item->version,
+            'version' => $data->gameVersion->code,
         ];
     }
 }
