@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
-use App\Console\Commands\AbstractQueueCommand;
+use Illuminate\Console\Command;
 
-class ImportArticles extends AbstractQueueCommand
+class ImportArticles extends Command
 {
     /**
      * The name and signature of the console command.

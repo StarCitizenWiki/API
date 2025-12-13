@@ -4,20 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink;
 
-use App\Events\ModelUpdating;
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Link\Link;
-use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -25,14 +18,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class CommLink extends HasTranslations
 {
-    use ModelChangelog;
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
     protected $fillable = [
         'cig_id',
         'title',
@@ -148,16 +133,6 @@ class CommLink extends HasTranslations
     public function translations(): HasMany
     {
         return $this->hasMany(CommLinkTranslation::class);
-    }
-
-    public function translationChangelogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            CommLinkTranslation::class,
-            'comm_link_id',
-            'changelog_id'
-        )->where('changelog_type', CommLinkTranslation::class);
     }
 
     public function getUrlAttribute($url): string

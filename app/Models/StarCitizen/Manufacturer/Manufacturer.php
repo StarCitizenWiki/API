@@ -4,27 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Manufacturer;
 
-use App\Events\ModelUpdating;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Manufacturer Model
  */
 class Manufacturer extends HasTranslations
 {
-    use ModelChangelog;
     use VehicleRelations;
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-
-    ];
 
     protected $fillable = [
         'cig_id',
@@ -57,15 +46,5 @@ class Manufacturer extends HasTranslations
     public function getRouteKeyName()
     {
         return 'name_short';
-    }
-
-    public function translationChangelogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            ManufacturerTranslation::class,
-            'manufacturer_id',
-            'changelog_id'
-        )->where('changelog_type', ManufacturerTranslation::class);
     }
 }

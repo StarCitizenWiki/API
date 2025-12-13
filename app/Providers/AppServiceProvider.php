@@ -1,65 +1,44 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Providers;
 
-use Carbon\Carbon;
-use FilesystemIterator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
-use URL;
 
-/**
- * Class AppServiceProvider.
- */
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function register(): void
     {
-        $this->loadMigrations();
+        //
+    }
 
-        Paginator::useBootstrap();
-        Carbon::setLocale(config('app.locale'));
+    public function boot(): void
+    {
+        $paths = $this->allMigrationDirectories(database_path('migrations'));
 
-        if (config('app.env') === 'production') {
-            URL::forceScheme('https');
-        }
+        $this->loadMigrationsFrom($paths);
     }
 
     /**
-     * Loads migrations in Sub-folders.
+     * Recursively collect all directories under the given folder.
      */
-    private function loadMigrations()
+    protected function allMigrationDirectories(string $dir): array
     {
-        $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
-        $migrationDirectories = new RecursiveIteratorIterator(
-            $directoryIterator,
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-        $migrationDirectories = collect($migrationDirectories);
+        $dirs = [$dir];
 
-        $migrationDirectories->filter(
-            function (SplFileInfo $filename) {
-                return $filename->isDir();
+        $items = scandir($dir);
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
             }
-        );
 
-        $this->loadMigrationsFrom($migrationDirectories->toArray());
+            $path = $dir.DIRECTORY_SEPARATOR.$item;
+
+            if (is_dir($path)) {
+                $dirs = array_merge($dirs, $this->allMigrationDirectories($path));
+            }
+        }
+
+        return array_unique($dirs);
     }
-
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register() {}
 }

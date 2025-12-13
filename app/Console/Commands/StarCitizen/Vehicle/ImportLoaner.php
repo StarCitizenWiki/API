@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\StarCitizen\Vehicle;
 
-use App\Console\Commands\AbstractQueueCommand;
+use Illuminate\Console\Command;
 
-class ImportLoaner extends AbstractQueueCommand
+class ImportLoaner extends Command
 {
     /**
      * The name and signature of the console command.
@@ -27,7 +27,7 @@ class ImportLoaner extends AbstractQueueCommand
     {
         $this->info('Importing Loaners');
 
-        \App\Jobs\StarCitizen\Vehicle\Import\ImportLoaner::dispatch();
+        \App\Jobs\StarCitizen\Vehicle\ImportLoaner::dispatch();
 
         return 0;
     }

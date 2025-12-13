@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
-use App\Contracts\HasChangelogsInterface;
-use App\Events\ModelUpdating;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\StarCitizen\Vehicle\Component\Component;
+use App\Models\StarCitizen\Vehicle\Component;
 use App\Models\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\StarCitizen\Vehicle\Size\Size;
 use App\Models\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Abstract Vehicle Class
  */
-class Vehicle extends HasTranslations implements HasChangelogsInterface
+class Vehicle extends HasTranslations
 {
-    use ModelChangelog;
-
     protected $fillable = [
         'cig_id',
         'name',
@@ -99,12 +93,6 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
 
     protected $perPage = 5;
 
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
     public function translations(): HasMany
     {
         return $this->hasMany(VehicleTranslation::class);
@@ -113,16 +101,6 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
     public function skus(): HasMany
     {
         return $this->hasMany(VehicleSku::class);
-    }
-
-    public function translationChangelogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            VehicleTranslation::class,
-            'vehicle_id',
-            'changelog_id'
-        )->where('changelog_type', VehicleTranslation::class);
     }
 
     public function foci(): BelongsToMany
@@ -253,19 +231,6 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
         }
 
         return $length;
-    }
-
-    /**
-     * Unpacked Data
-     */
-    public function unpacked(): HasOne
-    {
-        return $this->hasOne(
-            \App\Models\StarCitizenUnpacked\Vehicle::class,
-            'shipmatrix_id',
-            'id'
-        )
-            ->withDefault();
     }
 
     /**

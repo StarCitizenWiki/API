@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Stat\Import;
 
-use App\Models\StarCitizen\Stat\Stat;
+use App\Models\StarCitizen\Stat;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;

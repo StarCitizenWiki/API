@@ -78,17 +78,23 @@ class ProductionNote extends BaseElement
     {
         app('Log')::debug('Creating new Production Note');
 
-        /** @var ProductionNoteModel $productionNote */
-        $productionNote = ProductionNoteModel::create();
+        $translation = $this->getNormalizedStatus();
+        $contentHash = md5($translation ?? '');
 
-        $productionNote->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->getNormalizedStatus(),
-            ]
+        // Race-safe: content_hash has unique constraint
+        /** @var ProductionNoteModel $productionNote */
+        $productionNote = ProductionNoteModel::query()->firstOrCreate(
+            ['content_hash' => $contentHash],
+            ['content_hash' => $contentHash]
         );
 
-        app('Log')::debug('Production Note created');
+        // Race-safe translation update
+        $productionNote->translations()->updateOrCreate(
+            ['locale_code' => config('language.english')],
+            ['translation' => $translation]
+        );
+
+        app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
 
         return $productionNote;
     }

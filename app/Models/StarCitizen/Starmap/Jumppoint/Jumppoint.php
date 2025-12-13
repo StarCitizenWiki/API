@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Starmap\Jumppoint;
 
-use App\Events\ModelUpdating;
 use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,8 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Jumppoint extends Model
 {
-    use ModelChangelog;
-
     protected $fillable = [
         'cig_id',
         'direction',
@@ -26,12 +22,6 @@ class Jumppoint extends Model
         'size',
         'entry_status',
         'exit_status',
-    ];
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
     ];
 
     /**

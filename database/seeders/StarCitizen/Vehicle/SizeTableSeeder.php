@@ -46,5 +46,8 @@ class SizeTableSeeder extends Seeder
                 'updated_at' => $now,
             ]
         );
+
+        // Reset the auto-increment sequence to prevent conflicts with parallel jobs
+        DB::statement("SELECT setval('vehicle_sizes_id_seq', (SELECT MAX(id) FROM vehicle_sizes))");
     }
 }

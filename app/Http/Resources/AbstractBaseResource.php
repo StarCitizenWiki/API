@@ -56,7 +56,7 @@ abstract class AbstractBaseResource extends JsonResource
      */
     protected function makeApiUrl(string $fragment, ...$routeKey): string
     {
-        return sprintf('%s/api/v2/%s%s', config('app.url'), $fragment, ...$routeKey);
+        return sprintf('%s/api/%s%s', config('app.url'), $fragment, ...$routeKey);
     }
 
     public static function validIncludes(): array

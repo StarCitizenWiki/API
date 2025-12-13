@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Starmap\Starsystem;
 
-use App\Events\ModelUpdating;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Models\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -19,8 +17,6 @@ use Illuminate\Support\Collection;
  */
 class Starsystem extends HasTranslations
 {
-    use ModelChangelog;
-
     protected $fillable = [
         'cig_id',
         'code',
@@ -53,12 +49,6 @@ class Starsystem extends HasTranslations
         'planets',
         'moons',
         'stations',
-    ];
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
     ];
 
     protected $casts = [

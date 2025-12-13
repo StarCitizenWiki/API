@@ -93,15 +93,19 @@ class Focus extends BaseElement
         app('Log')::debug('Creating new Vehicle Focus');
 
         /** @var VehicleFocus $vehicleFocus */
-        $vehicleFocus = VehicleFocus::create(
+        $vehicleFocus = VehicleFocus::query()->updateOrCreate(
+            [
+                'slug' => Str::slug($focus),
+            ],
             [
                 'slug' => Str::slug($focus),
             ]
         );
 
-        $vehicleFocus->translations()->create(
+        $vehicleFocus->translations()->updateOrCreate(
             [
                 'locale_code' => config('language.english'),
+            ], [
                 'translation' => $focus,
             ]
         );

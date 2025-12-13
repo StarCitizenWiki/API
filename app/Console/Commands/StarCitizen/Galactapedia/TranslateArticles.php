@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
-use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\StarCitizen\Galactapedia\TranslateArticle;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\System\Language;
+use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
-class TranslateArticles extends AbstractQueueCommand
+class TranslateArticles extends Command
 {
     /**
      * The name and signature of the console command.

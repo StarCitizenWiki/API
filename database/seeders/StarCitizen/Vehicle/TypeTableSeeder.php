@@ -46,5 +46,8 @@ class TypeTableSeeder extends Seeder
                 'updated_at' => $now,
             ]
         );
+
+        // Reset the auto-increment sequence to prevent conflicts with parallel jobs
+        DB::statement("SELECT setval('vehicle_types_id_seq', (SELECT MAX(id) FROM vehicle_types))");
     }
 }

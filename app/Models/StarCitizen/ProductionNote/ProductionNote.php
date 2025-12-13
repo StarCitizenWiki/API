@@ -17,6 +17,10 @@ class ProductionNote extends HasTranslations
 
     public $timestamps = false;
 
+    protected $fillable = [
+        'content_hash',
+    ];
+
     protected $with = [
         'translations',
     ];

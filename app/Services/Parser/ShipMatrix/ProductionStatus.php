@@ -54,21 +54,23 @@ class ProductionStatus extends BaseElement
     {
         app('Log')::debug('Creating new Production Status');
 
+        $slug = Str::slug($this->rawData->get(self::PRODUCTION_STATUS));
+        $translation = $this->rawData->get(self::PRODUCTION_STATUS);
+
+        // Race-safe: slug has unique constraint
         /** @var ProductionStatusModel $productionStatus */
-        $productionStatus = ProductionStatusModel::create(
-            [
-                'slug' => Str::slug($this->rawData->get(self::PRODUCTION_STATUS)),
-            ]
+        $productionStatus = ProductionStatusModel::query()->firstOrCreate(
+            ['slug' => $slug],
+            ['slug' => $slug]
         );
 
-        $productionStatus->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::PRODUCTION_STATUS),
-            ]
+        // Race-safe translation update
+        $productionStatus->translations()->updateOrCreate(
+            ['locale_code' => config('language.english')],
+            ['translation' => $translation]
         );
 
-        app('Log')::debug('Production Status created');
+        app('Log')::debug('Production Status created', ['id' => $productionStatus->id]);
 
         return $productionStatus;
     }

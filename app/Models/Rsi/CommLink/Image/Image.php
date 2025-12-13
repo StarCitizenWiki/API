@@ -134,7 +134,7 @@ SQL,
                         $image->similarity_method = __('Basierend auf Merkmalen des Inhalts');
                     } else {
                         $image->similarity = round((1 - ($data->pdq_distance / 256)) * 100);
-                        $image->similarity_method = ''; //PDQ
+                        $image->similarity_method = ''; // PDQ
                     }
 
                     $image->pdq_distance = $data->pdq_distance ?? $image->p_distance;

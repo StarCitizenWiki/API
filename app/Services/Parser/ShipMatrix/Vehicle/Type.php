@@ -54,21 +54,23 @@ class Type extends BaseElement
     {
         app('Log')::debug('Creating new Vehicle Type');
 
+        $slug = Str::slug($this->rawData->get(self::VEHICLE_TYPE));
+        $translation = $this->rawData->get(self::VEHICLE_TYPE);
+
+        // Race-safe: slug has unique constraint
         /** @var VehicleType $type */
-        $type = VehicleType::create(
-            [
-                'slug' => Str::slug($this->rawData->get(self::VEHICLE_TYPE)),
-            ]
+        $type = VehicleType::query()->firstOrCreate(
+            ['slug' => $slug],
+            ['slug' => $slug]
         );
 
-        $type->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::VEHICLE_TYPE),
-            ]
+        // Race-safe translation update
+        $type->translations()->updateOrCreate(
+            ['locale_code' => config('language.english')],
+            ['translation' => $translation]
         );
 
-        app('Log')::debug('Vehicle Type created');
+        app('Log')::debug('Vehicle Type created', ['id' => $type->id]);
 
         return $type;
     }

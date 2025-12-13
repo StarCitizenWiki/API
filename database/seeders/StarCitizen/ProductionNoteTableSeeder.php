@@ -24,6 +24,7 @@ class ProductionNoteTableSeeder extends Seeder
         DB::table('production_notes')->insert(
             [
                 'id' => 1,
+                'content_hash' => md5('None'),
             ]
         );
         DB::table('production_note_translations')->insert(

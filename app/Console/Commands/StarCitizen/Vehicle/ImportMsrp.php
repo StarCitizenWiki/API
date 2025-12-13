@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\StarCitizen\Vehicle;
 
-use App\Console\Commands\AbstractQueueCommand;
-use App\Jobs\StarCitizen\Vehicle\Import\ImportMsrp as ImportMsrpJob;
+use App\Jobs\StarCitizen\Vehicle\ImportMsrp as ImportMsrpJob;
+use Illuminate\Console\Command;
 
-class ImportMsrp extends AbstractQueueCommand
+class ImportMsrp extends Command
 {
     /**
      * The name and signature of the console command.

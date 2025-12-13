@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Galactapedia;
 
-use App\Contracts\HasChangelogsInterface;
-use App\Events\ModelUpdating;
 use App\Models\System\Translation\AbstractHasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder;
 use Normalizer;
 
-class Article extends AbstractHasTranslations implements HasChangelogsInterface
+class Article extends AbstractHasTranslations
 {
     use HasFactory;
-    use ModelChangelog;
 
     protected $table = 'galactapedia_articles';
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
 
     protected $fillable = [
         'cig_id',
@@ -175,15 +164,5 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
             'article_id',
             'template_id',
         );
-    }
-
-    public function translationChangelogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            ArticleTranslation::class,
-            'article_id',
-            'changelog_id'
-        )->where('changelog_type', ArticleTranslation::class);
     }
 }

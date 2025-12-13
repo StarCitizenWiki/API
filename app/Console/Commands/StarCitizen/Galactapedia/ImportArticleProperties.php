@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
-use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\StarCitizen\Galactapedia\ImportArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Article;
+use Illuminate\Console\Command;
 
-class ImportArticleProperties extends AbstractQueueCommand
+class ImportArticleProperties extends Command
 {
     /**
      * The name and signature of the console command.

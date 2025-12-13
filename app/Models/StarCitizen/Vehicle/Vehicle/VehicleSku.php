@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,8 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class VehicleSku extends Model
 {
-    use ModelChangelog;
-
     protected $fillable = [
         'vehicle_id',
         'title',

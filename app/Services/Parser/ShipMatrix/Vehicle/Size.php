@@ -54,21 +54,23 @@ class Size extends BaseElement
     {
         app('Log')::debug('Creating new Vehicle Size');
 
+        $slug = Str::slug($this->rawData->get(self::VEHICLE_SIZE));
+        $translation = $this->rawData->get(self::VEHICLE_SIZE);
+
+        // Race-safe: slug has unique constraint
         /** @var VehicleSize $size */
-        $size = VehicleSize::create(
-            [
-                'slug' => Str::slug($this->rawData->get(self::VEHICLE_SIZE)),
-            ]
+        $size = VehicleSize::query()->firstOrCreate(
+            ['slug' => $slug],
+            ['slug' => $slug]
         );
 
-        $size->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::VEHICLE_SIZE),
-            ]
+        // Race-safe translation update
+        $size->translations()->updateOrCreate(
+            ['locale_code' => config('language.english')],
+            ['translation' => $translation]
         );
 
-        app('Log')::debug('Vehicle Size created');
+        app('Log')::debug('Vehicle Size created', ['id' => $size->id]);
 
         return $size;
     }

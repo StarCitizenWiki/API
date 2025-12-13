@@ -45,5 +45,8 @@ class ProductionStatusTableSeeder extends Seeder
                 'updated_at' => $now,
             ]
         );
+
+        // Reset the auto-increment sequence to prevent conflicts with parallel jobs
+        DB::statement("SELECT setval('production_statuses_id_seq', (SELECT MAX(id) FROM production_statuses))");
     }
 }

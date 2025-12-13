@@ -16,14 +16,14 @@ final class Labels
     private Collection $zhTranslations;
 
     /**
-     * Labels contain all available translations
+     * Labels contain all available translations.
      *
      * @throws FileNotFoundException
      * @throws JsonException
      */
     public function __construct()
     {
-        $items = File::get(scdata('labels.json'));
+        $items = File::get(storage_path('app/api/scunpacked-data/labels.json'));
         $this->labels = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
         $this->loadChinese();
     }
