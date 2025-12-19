@@ -7,6 +7,7 @@ namespace App\Http\Resources\Game\Item;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
+use App\Http\Resources\Game\ItemSpecification\BarrelAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
 use App\Http\Resources\Game\ItemSpecification\CharacterArmorResource;
 use App\Http\Resources\Game\ItemSpecification\ClothingResource;
@@ -16,6 +17,7 @@ use App\Http\Resources\Game\ItemSpecification\FlightControllerResource;
 use App\Http\Resources\Game\ItemSpecification\FuelTankResource;
 use App\Http\Resources\Game\ItemSpecification\GrenadeResource;
 use App\Http\Resources\Game\ItemSpecification\HackingChipResource;
+use App\Http\Resources\Game\ItemSpecification\IronSightResource;
 use App\Http\Resources\Game\ItemSpecification\MeleeWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\MiningLaserResource;
 use App\Http\Resources\Game\ItemSpecification\MiningModuleResource;
@@ -24,6 +26,7 @@ use App\Http\Resources\Game\ItemSpecification\PersonalWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\QuantumDriveResource;
 use App\Http\Resources\Game\ItemSpecification\QuantumInterdictionGeneratorResource;
 use App\Http\Resources\Game\ItemSpecification\RadiationResistanceResource;
+use App\Http\Resources\Game\ItemSpecification\SalvageModifierResource;
 use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\Game\ItemSpecification\ShieldResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
@@ -147,7 +150,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'melee_weapon', ref: '#/components/schemas/melee_weapon', nullable: true),
         new OA\Property(property: 'grenade', ref: '#/components/schemas/grenade', nullable: true),
         new OA\Property(property: 'knife', ref: '#/components/schemas/melee_weapon', nullable: true, deprecated: true),
+        new OA\Property(property: 'barrel_attachment', ref: '#/components/schemas/barrel_attachment', nullable: true),
         new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/weapon_modifier', nullable: true),
+        new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight', nullable: true),
+        new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', nullable: true),
 
         new OA\Property(property: 'base_variant', ref: '#/components/schemas/item_link', nullable: true),
         new OA\Property(
@@ -500,9 +506,21 @@ class ItemResource extends AbstractBaseResource
                 true,
                 fn () => ['personal_weapon' => new PersonalWeaponResource($itemData)],
             ],
+            Arr::has($itemData->data, 'stdItem.SalvageModifier') => [
+                true,
+                fn () => ['salvage_modifier' => new SalvageModifierResource($itemData)],
+            ],
+            $itemData->type === 'WeaponAttachment' && $itemData->sub_type === 'Barrel' => [
+                true,
+                fn () => ['barrel_attachment' => new BarrelAttachmentResource($itemData)],
+            ],
             Arr::has($itemData->data, 'stdItem.WeaponModifier') => [
                 true,
                 fn () => ['weapon_modifier' => new WeaponModifierResource($itemData)],
+            ],
+            Arr::has($itemData->data, 'stdItem.WeaponAttachment.IronSight') => [
+                true,
+                fn () => ['iron_sight' => new IronSightResource($itemData)],
             ],
             default => [false, []],
         };
