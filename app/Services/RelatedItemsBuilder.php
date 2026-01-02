@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class RelatedItemsBuilder
 {
@@ -35,7 +37,10 @@ class RelatedItemsBuilder
             ->filter(fn (ItemData $i) => $i->item->uuid !== $item->uuid) // exclude current item
             ->map(function (ItemData $it) use ($variantNames) {
                 $link = $this->toBaseLink($it, null, false);
-                $link['variant_name'] = $variantNames[$it->item->uuid] ?? null;
+                $fullVariantName = $variantNames[$it->item->uuid] ?? null;
+                $link['variant_name'] = $fullVariantName !== null
+                    ? $this->extractVariantSuffix($fullVariantName)
+                    : null;
 
                 return $link;
             })
@@ -64,9 +69,18 @@ class RelatedItemsBuilder
         if ($itemData->base_id === null) {
             $base = $itemData;
             $siblings = $itemData->variants()->get()->all();
+            $shouldFallbackToTags = $siblings === [];
         } else {
             $base = $itemData->baseVariant()->first();
             $siblings = $base?->variants()->get()->all() ?? [];
+            $shouldFallbackToTags = count($siblings) <= 1;
+        }
+
+        if ($shouldFallbackToTags) {
+            $tagGroup = $this->findVariantGroupFromTags($itemData);
+            if (count($tagGroup) > 1) {
+                return [null, $tagGroup];
+            }
         }
 
         return [$base, $siblings];
@@ -228,6 +242,138 @@ class RelatedItemsBuilder
     }
 
     /**
+     * @return array<int,ItemData>
+     */
+    private function findVariantGroupFromTags(ItemData $itemData): array
+    {
+        $tags = $this->extractStdItemTags($itemData);
+        $groupTags = $this->resolveVariantGroupTags($tags);
+
+        if ($groupTags === null) {
+            return [];
+        }
+
+        $query = ItemData::query()
+            ->where('game_version_id', $this->resolveGameVersion()->id)
+            ->whereJsonContains('data->stdItem->Tags', $groupTags['series'])
+            ->whereJsonContains('data->stdItem->Tags', $groupTags['set']);
+
+        $this->applyVariantTypeFilter($query, $itemData);
+
+        return $query->get()->all();
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    private function extractStdItemTags(ItemData $itemData): array
+    {
+        $tags = Arr::get($itemData->data, 'stdItem.Tags', []);
+
+        if (! is_array($tags)) {
+            $tags = [];
+        }
+
+        $rawTags = Arr::get($itemData->data, 'tags');
+        if (is_string($rawTags)) {
+            $tags = array_merge($tags, preg_split('/\s+/', trim($rawTags)) ?: []);
+        }
+
+        $tags = array_filter($tags, fn ($tag) => is_string($tag) && trim($tag) !== '');
+
+        return array_values(array_unique($tags));
+    }
+
+    /**
+     * @param  array<int,string>  $tags
+     * @return array{series:string,set:string}|null
+     */
+    private function resolveVariantGroupTags(array $tags): ?array
+    {
+        $setTag = null;
+
+        foreach ($tags as $tag) {
+            if (stripos($tag, 'set_') === 0) {
+                $setTag = $tag;
+                break;
+            }
+        }
+
+        if ($setTag === null) {
+            return null;
+        }
+
+        $seriesTag = null;
+        foreach ($tags as $tag) {
+            if (preg_match('/^(set|color)_/i', $tag) === 1) {
+                continue;
+            }
+
+            if ($this->isIgnoredVariantTag($tag)) {
+                continue;
+            }
+
+            $seriesTag = $tag;
+            break;
+        }
+
+        if ($seriesTag === null) {
+            return null;
+        }
+
+        return [
+            'series' => $seriesTag,
+            'set' => $setTag,
+        ];
+    }
+
+    private function isIgnoredVariantTag(string $tag): bool
+    {
+        $lower = strtolower($tag);
+
+        if (str_starts_with($lower, 'sm_')) {
+            return true;
+        }
+
+        if (str_starts_with($lower, 'texture_')) {
+            return true;
+        }
+
+        if (str_contains($lower, 'armor_mobi')) {
+            return true;
+        }
+
+        return in_array($lower, [
+            'helmet',
+            'helmetcarryable',
+            'backpack',
+            'flightready',
+            'uneditable',
+            'stocked',
+            'weaponmountusable',
+            'missionquestitem',
+            'unifiedhead',
+        ], true);
+    }
+
+    private function applyVariantTypeFilter(Builder $query, ItemData $itemData): void
+    {
+        if ($itemData->classification !== null) {
+            $query->where('classification', $itemData->classification);
+
+            return;
+        }
+
+        if ($itemData->type !== null) {
+            $query->where('type', $itemData->type);
+        }
+
+        if ($itemData->sub_type !== null) {
+            $query->where('sub_type', $itemData->sub_type);
+        }
+    }
+
+    /**
      * Resolve the game version to use for queries.
      * Caches the result to avoid multiple database queries.
      */
@@ -250,5 +396,26 @@ class RelatedItemsBuilder
         return $item->data()
             ->whereHas('gameVersion', fn ($q) => $q->where('id', $this->resolveGameVersion()->id))
             ->firstOrFail();
+    }
+
+    /**
+     * Extract the color/variant suffix by removing the part/type name.
+     * Handles quoted variant names (e.g., "Red Alert") and regular variants.
+     */
+    private function extractVariantSuffix(string $variantName): string
+    {
+        $trimmed = trim($variantName);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        if (preg_match('/"([^"]+)"/', $trimmed, $matches)) {
+            return $matches[1];
+        }
+
+        $words = preg_split('/\s+/', $trimmed);
+        array_shift($words);
+
+        return implode(' ', $words);
     }
 }

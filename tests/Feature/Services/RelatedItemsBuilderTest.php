@@ -186,6 +186,63 @@ it('detects variant items for correct game version', function () {
     expect($result['variant_items'][0]['name'])->toBe('Weapon Red');
 });
 
+it('falls back to stdItem tags for variant grouping', function () {
+    $firstItem = Item::create(['uuid' => 'tag-variant-1']);
+    ItemData::create([
+        'item_id' => $firstItem->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Geist Armor Helmet',
+        'class_name' => 'kap_combat_light_helmet_01_01_01',
+        'classification' => 'FPS.Armor.Helmet',
+        'data' => [
+            'stdItem' => [
+                'Tags' => ['kap_light', 'Set_01', 'Color_01', 'Helmet', 'HelmetCarryable'],
+            ],
+        ],
+    ]);
+
+    $secondItem = Item::create(['uuid' => 'tag-variant-2']);
+    ItemData::create([
+        'item_id' => $secondItem->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Geist Armor Helmet Rogue',
+        'class_name' => 'kap_combat_light_helmet_01_01_02',
+        'classification' => 'FPS.Armor.Helmet',
+        'data' => [
+            'stdItem' => [
+                'Tags' => ['kap_light', 'Set_01', 'Color_02', 'Helmet', 'HelmetCarryable'],
+            ],
+        ],
+    ]);
+
+    $thirdItem = Item::create(['uuid' => 'tag-variant-3']);
+    ItemData::create([
+        'item_id' => $thirdItem->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Geist Armor Helmet Whiteout',
+        'class_name' => 'kap_combat_light_helmet_01_01_10',
+        'classification' => 'FPS.Armor.Helmet',
+        'data' => [
+            'stdItem' => [
+                'Tags' => ['kap_light', 'Set_01', 'Color_10', 'Helmet', 'HelmetCarryable'],
+            ],
+        ],
+    ]);
+
+    $builder = new RelatedItemsBuilder($this->defaultVersion->code);
+    $result = $builder->build($firstItem);
+
+    expect($result['base_item'])->toBeNull();
+    expect($result['set_name'])->toBe('Geist Armor');
+    expect($result['variant_items'])->toHaveCount(2);
+
+    $variantUuids = collect($result['variant_items'])->pluck('uuid')->all();
+    expect($variantUuids)->toContain('tag-variant-2', 'tag-variant-3');
+});
+
 it('finds set items filtered by game version', function () {
     // Create helmet item for default version
     $helmetItem = Item::create(['uuid' => 'helmet-uuid']);
@@ -354,6 +411,119 @@ it('computes correct set names for variant groups', function () {
 
     expect($result['set_name'])->toBe('Gemini A03 Sniper');
     expect($result['base_item']['variant_name'])->toBe('Rifle');
-    expect($result['variant_items'][0]['variant_name'])->toBeIn(['Rifle Eclipse', 'Rifle Pathfinder']);
-    expect($result['variant_items'][1]['variant_name'])->toBeIn(['Rifle Eclipse', 'Rifle Pathfinder']);
+    expect($result['variant_items'][0]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
+    expect($result['variant_items'][1]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
+});
+
+it('handles multi-word color variant names correctly', function () {
+    // Create base item
+    $baseItem = Item::create(['uuid' => 'lynx-arms-base']);
+    $baseData = ItemData::create([
+        'item_id' => $baseItem->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Lynx Arms',
+        'class_name' => 'LynxArms',
+        'classification' => 'Armor',
+        'data' => [],
+    ]);
+
+    // Create multi-word color variants
+    $variant1 = Item::create(['uuid' => 'lynx-arms-dark-green']);
+    ItemData::create([
+        'item_id' => $variant1->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Lynx Arms Dark Green',
+        'class_name' => 'LynxArmsDarkGreen',
+        'classification' => 'Armor',
+        'base_id' => $baseData->id,
+        'data' => [],
+    ]);
+
+    $variant2 = Item::create(['uuid' => 'lynx-arms-dark-red']);
+    ItemData::create([
+        'item_id' => $variant2->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'Lynx Arms Dark Red',
+        'class_name' => 'LynxArmsDarkRed',
+        'classification' => 'Armor',
+        'base_id' => $baseData->id,
+        'data' => [],
+    ]);
+
+    // Build from base item
+    $builder = new RelatedItemsBuilder($this->defaultVersion->code);
+    $result = $builder->build($baseItem);
+
+    expect($result['set_name'])->toBe('Lynx');
+    expect($result['base_item']['variant_name'])->toBe('Arms');
+    expect($result['variant_items'][0]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
+    expect($result['variant_items'][1]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
+});
+
+it('handles quoted variant names correctly', function () {
+    // Create base item
+    $baseItem = Item::create(['uuid' => 'a03-base']);
+    $baseData = ItemData::create([
+        'item_id' => $baseItem->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'A03 Sniper Rifle',
+        'class_name' => 'A03',
+        'classification' => 'WeaponPersonal',
+        'data' => [],
+    ]);
+
+    // Create quoted variants
+    $variant1 = Item::create(['uuid' => 'a03-scorched']);
+    ItemData::create([
+        'item_id' => $variant1->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'A03 "Scorched" Sniper Rifle',
+        'class_name' => 'A03Scorched',
+        'classification' => 'WeaponPersonal',
+        'base_id' => $baseData->id,
+        'data' => [],
+    ]);
+
+    $variant2 = Item::create(['uuid' => 'a03-red-alert']);
+    ItemData::create([
+        'item_id' => $variant2->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'A03 "Red Alert" Sniper Rifle',
+        'class_name' => 'A03RedAlert',
+        'classification' => 'WeaponPersonal',
+        'base_id' => $baseData->id,
+        'data' => [],
+    ]);
+
+    $variant3 = Item::create(['uuid' => 'a03-lodestone']);
+    ItemData::create([
+        'item_id' => $variant3->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'name' => 'A03 "Lodestone" Sniper Rifle',
+        'class_name' => 'A03Lodestone',
+        'classification' => 'WeaponPersonal',
+        'base_id' => $baseData->id,
+        'data' => [],
+    ]);
+
+    // Build from base item
+    $builder = new RelatedItemsBuilder($this->defaultVersion->code);
+    $result = $builder->build($baseItem);
+
+    expect($result['set_name'])->toBe('A03');
+    expect($result['base_item']['variant_name'])->toBe('Sniper Rifle');
+
+    // Extract variant names from result
+    $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
+
+    expect($variantNames)->toContain('Scorched');
+    expect($variantNames)->toContain('Red Alert');
+    expect($variantNames)->toContain('Lodestone');
 });

@@ -118,11 +118,11 @@ use OpenApi\Attributes as OA;
             description: 'Entity tags from the database relationship',
             type: 'array',
             items: new OA\Items(
-                type: 'object',
                 properties: [
                     new OA\Property(property: 'uuid', type: 'string'),
                     new OA\Property(property: 'name', type: 'string'),
-                ]
+                ],
+                type: 'object'
             ),
             nullable: true,
         ),
@@ -258,13 +258,8 @@ class ItemResource extends AbstractBaseResource
     public static function validIncludes(): array
     {
         return [
-            'manufacturer',
-            'translations',
-            'descriptionData',
-            'baseVariant',
             'variants',
-            'entityTags',
-            'related_items',
+            // 'related_items', // Set in Controller
         ];
     }
 
@@ -289,8 +284,6 @@ class ItemResource extends AbstractBaseResource
             $includeValues = $includeParam;
         }
         $includeRelated = in_array('related_items', $includeValues, true);
-
-        //        dd($data);
 
         return [
             'uuid' => $this->uuid,
@@ -358,7 +351,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($this->hasInStdItem($itemData, 'PowerConnection'), [
                 'power' => new ItemPowerConnectionResource($this->extractFromStdItem($itemData, 'PowerConnection')),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability'), [
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability') && $this->extractFromStdItem($itemData, 'Durability.Lifetime', 0) > 0, [
                 'durability' => new ItemDurabilityResource($this->extractFromStdItem($itemData, 'Durability')),
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'Distortion'), [
@@ -412,10 +405,6 @@ class ItemResource extends AbstractBaseResource
                 true,
                 fn () => ['armor' => new ArmorResource($itemData)],
             ],
-            //            $this->type === 'Armor' => [
-            //                $specification->exists,
-            //                fn () => ['emp' => new ArmorResource($specification)],
-            //            ],
             str_starts_with($itemData->classification ?? '', 'Ship.MainThruster'),
             str_starts_with($itemData->classification ?? '', 'Ship.ManneuverThruster') => [
                 true,
@@ -457,10 +446,6 @@ class ItemResource extends AbstractBaseResource
                 true,
                 fn () => ['self_destruct' => new SelfDestructResource($itemData)],
             ],
-            //            $this->sub_type === 'Magazine' => [
-            //                $specification->exists,
-            //                fn () => ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
-            //            ],
             $itemData->type === 'Bomb' => [
                 true,
                 fn () => ['bomb' => new BombResource($itemData)],

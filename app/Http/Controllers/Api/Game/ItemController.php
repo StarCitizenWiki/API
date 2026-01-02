@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
+use App\Http\Includes\PassthroughInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemLinkResource;
@@ -13,17 +14,34 @@ use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ItemController extends Controller
 {
     use ResolvesGameVersion;
+
+    /**
+     * Get allowed includes with custom handlers.
+     *
+     * 'related_items' is handled as a custom include because it's computed
+     * in ItemResource rather than being an Eloquent relationship.
+     */
+    private function allowedIncludes(): array
+    {
+        return array_merge(
+            ItemResource::validIncludes(),
+            [AllowedInclude::custom('related_items', new PassthroughInclude)]
+        );
+    }
 
     #[OA\Get(
         path: '/api/items',
@@ -70,7 +88,7 @@ class ItemController extends Controller
             ])
             ->allowedSorts(['name', 'size', 'grade', 'type', 'sub_type', 'classification'])
             ->defaultSort('name')
-            ->allowedIncludes(ItemResource::validIncludes())
+            ->allowedIncludes($this->allowedIncludes())
             ->with(['item', 'gameVersion']);
 
         $items = $query->paginate()->appends($request->query());
@@ -104,25 +122,37 @@ class ItemController extends Controller
             ),
         ]
     )]
-    public function show(Request $request, string $identifier): ItemResource
+    public function show(Request $request, string $identifier): ItemResource|RedirectResponse
     {
         $versionCode = $this->gameVersionCode();
         $identifier = $this->cleanQueryName($identifier);
+        $isUuid = Str::isUuid($identifier);
 
         try {
-            $itemData = QueryBuilder::for(ItemData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
-                ->whereHas('item', fn (Builder $q) => $q->where('uuid', $identifier))
-                ->allowedIncludes(ItemResource::validIncludes())
-                ->with(['entityTags', 'item', 'gameVersion'])
-                ->first();
+            $itemData = null;
 
-            if ($itemData === null) {
+            if ($isUuid) {
                 $itemData = QueryBuilder::for(ItemData::class, $request)
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->where('name', $identifier)
-                    ->allowedIncludes(ItemResource::validIncludes())
+                    ->whereHas('item', fn (Builder $q) => $q->where('uuid', $identifier))
+                    ->allowedIncludes($this->allowedIncludes())
                     ->with(['entityTags', 'item', 'gameVersion'])
+                    ->first();
+            }
+
+            if ($itemData === null) {
+                $underscored = str_replace(' ', '_', $identifier);
+                $itemData = QueryBuilder::for(ItemData::class, $request)
+                    ->forRequestedOrDefaultVersion($versionCode)
+                    ->where(function (Builder $q) use ($identifier, $underscored) {
+                        $q->where('name', $identifier)
+                            ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
+                            ->orWhere('class_name', $underscored)
+                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($underscored)])
+                            ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                    })
+                    ->allowedIncludes($this->allowedIncludes())
+                    ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
                     ->first();
             }
 
@@ -199,7 +229,7 @@ class ItemController extends Controller
             ])
             ->allowedSorts(['name', 'size', 'grade', 'type', 'sub_type', 'classification'])
             ->defaultSort('name')
-            ->allowedIncludes(ItemResource::validIncludes())
+            ->allowedIncludes($this->allowedIncludes())
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%")
                     ->orWhereHas('item', fn (Builder $q) => $q->where('uuid', $toSearch))
