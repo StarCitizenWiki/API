@@ -1,0 +1,184 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api\StarCitizen;
+
+use App\Http\Controllers\Controller;
+use App\Http\Filters\ShipMatrixFocusFilter;
+use App\Http\Filters\ShipMatrixProductionStatusFilter;
+use App\Http\Filters\ShipMatrixTypeFilter;
+use App\Http\Requests\Api\Game\SearchRequest;
+use App\Http\Resources\StarCitizen\Vehicle\VehicleLinkResource;
+use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class VehicleController extends Controller
+{
+    #[OA\Get(
+        path: '/api/shipmatrix/vehicles',
+        tags: ['Ship-Matrix', 'Vehicles'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[focus]', description: 'Filter by vehicle focus slug (comma-separated for multiple)', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[production_status]', description: 'Filter by production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Ship-Matrix Vehicles',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/shipmatrix_vehicle_link')
+                )
+            ),
+        ]
+    )]
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $query = QueryBuilder::for(Vehicle::class, $request)
+            ->allowedFilters([
+                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::exact('size', 'size.slug'),
+                AllowedFilter::custom('type', new ShipMatrixTypeFilter),
+                AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
+                AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+            ]);
+
+        $vehicles = $query->paginate()->appends($request->query());
+
+        return VehicleLinkResource::collection($vehicles);
+    }
+
+    #[OA\Get(
+        path: '/api/shipmatrix/vehicles/{slug}',
+        tags: ['Ship-Matrix', 'Vehicles'],
+        parameters: [
+            new OA\Parameter(
+                name: 'slug',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Vehicle slug',
+                    type: 'string',
+                ),
+            ),
+            new OA\Parameter(
+                name: 'include',
+                description: 'Include additional relationships (components, loaner, skus)',
+                in: 'query',
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A Ship-Matrix Vehicle',
+                content: new OA\JsonContent(ref: '#/components/schemas/vehicle_v2')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Vehicle not found'
+            ),
+        ]
+    )]
+    public function show(Request $request, string $slug): VehicleResource
+    {
+        try {
+            $vehicle = Vehicle::query()
+                ->where('slug', urldecode($slug))
+                ->firstOrFail();
+
+            // Handle optional includes
+            $includes = collect(explode(',', $request->get('include', '')))
+                ->map('trim')
+                ->filter()
+                ->toArray();
+
+            if (in_array('components', $includes, true)) {
+                $vehicle->load('components');
+            }
+
+            if (in_array('loaner', $includes, true)) {
+                $vehicle->load('loaner');
+            }
+
+            if (in_array('skus', $includes, true)) {
+                $vehicle->load('skus');
+            }
+        } catch (ModelNotFoundException) {
+            throw new NotFoundHttpException('No Vehicle with specified slug found.');
+        }
+
+        return new VehicleResource($vehicle);
+    }
+
+    #[OA\Post(
+        path: '/api/shipmatrix/vehicles/search',
+        requestBody: new OA\RequestBody(
+            description: 'Vehicle name to search for',
+            required: true,
+            content: [
+                new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(type: 'object'),
+                    example: '{"query": "Avenger"}',
+                ),
+            ]
+        ),
+        tags: ['Ship-Matrix', 'Vehicles', 'Search'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[focus]', description: 'Filter by vehicle focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[production_status]', description: 'Filter by production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A List of matching Ship-Matrix Vehicles',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/shipmatrix_vehicle_link')
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No matching vehicles found'
+            ),
+        ]
+    )]
+    public function search(SearchRequest $request): AnonymousResourceCollection
+    {
+        $toSearch = urldecode($request->validated('query'));
+
+        $query = QueryBuilder::for(Vehicle::class, $request)
+            ->allowedFilters([
+                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::exact('size', 'size.slug'),
+                AllowedFilter::custom('type', new ShipMatrixTypeFilter),
+                AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
+                AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+            ])
+            ->where(function (Builder $query) use ($toSearch) {
+                $query->where('name', 'like', "%{$toSearch}%");
+            });
+
+        $vehicles = $query->paginate()->appends($request->query());
+
+        return VehicleLinkResource::collection($vehicles);
+    }
+}
