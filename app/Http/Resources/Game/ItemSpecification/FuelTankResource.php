@@ -201,6 +201,7 @@ class FuelTankResource extends AbstractItemSpecificationResource
                 'unit_name' => Arr::get($container, 'Capacity.UnitName'),
                 'scu' => Arr::get($container, 'Capacity.SCU'),
             ],
+            'capacity_legacy' => Arr::get($container, 'Capacity.SCU'),
             'mass' => Arr::get($container, 'Mass'),
             'immutable' => Arr::get($container, 'Immutable'),
             'default_fill_fraction' => Arr::get($container, 'DefaultFillFraction'),

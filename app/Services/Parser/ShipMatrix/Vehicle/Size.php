@@ -52,19 +52,15 @@ class Size extends BaseElement
 
     private function createNewVehicleSize(): VehicleSize
     {
-        app('Log')::debug('Creating new Vehicle Size');
-
         $slug = Str::slug($this->rawData->get(self::VEHICLE_SIZE));
         $translation = $this->rawData->get(self::VEHICLE_SIZE);
 
-        // Race-safe: slug has unique constraint
         /** @var VehicleSize $size */
         $size = VehicleSize::query()->firstOrCreate(
             ['slug' => $slug],
             ['slug' => $slug]
         );
 
-        // Race-safe translation update
         $size->translations()->updateOrCreate(
             ['locale_code' => config('language.english')],
             ['translation' => $translation]

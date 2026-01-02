@@ -100,6 +100,22 @@ class MiningModuleResource extends AbstractItemSpecificationResource
             'duration_seconds' => $this->parseDurationToSeconds(Arr::get($description, 'Duration')),
         ];
 
+        $legacyModifiers = [
+            'all_charge_rates' => Arr::get($description, 'All Charge Rates', Arr::get($modifiers, 'AllChargeRates')),
+            'collection_point_radius' => Arr::get($description, 'Collection Point Radius', Arr::get($modifiers, 'CollectionPointRadius')),
+            'instability' => Arr::get($description, 'Instability', Arr::get($modifiers, 'Instability')),
+            'module' => Arr::get($description, 'Module'),
+            'optimal_charge_rate' => Arr::get($description, 'Optimal Charge Rate', Arr::get($modifiers, 'OptimalChargeRate')),
+            'optimal_charge_window' => Arr::get($description, 'Optimal Charge Window', Arr::get($description, 'Optimal Charge Window Size', Arr::get($modifiers, 'OptimalChargeWindow'))),
+            'overcharge_rate' => Arr::get($description, 'Overcharge Rate', Arr::get($description, 'Catastrophic Charge Rate', Arr::get($modifiers, 'OverchargeRate'))),
+            'resistance' => Arr::get($description, 'Resistance', Arr::get($modifiers, 'Resistance')),
+            'shatter_damage' => Arr::get($description, 'Shatter Damage', Arr::get($modifiers, 'ShatterDamage')),
+            'throttle_responsiveness_delay' => Arr::get($description, 'Throttle Responsiveness Delay', Arr::get($modifiers, 'ThrottleResponsivenessDelay')),
+            'throttle_speed' => Arr::get($description, 'Throttle Speed', Arr::get($modifiers, 'ThrottleSpeed')),
+            'extraction_rate' => Arr::get($description, 'Extraction Rate', Arr::get($modifiers, 'ExtractionRate')),
+            'inert_materials' => Arr::get($description, 'Inert Materials', Arr::get($modifiers, 'InertMaterials')),
+        ];
+
         return [
             'type' => Arr::get($description, 'Item Type'),
             'module_type' => Arr::get($miningModule, 'Type'),
@@ -109,7 +125,7 @@ class MiningModuleResource extends AbstractItemSpecificationResource
             'lifetime_seconds' => $usage['lifetime_seconds'],
             'uses' => $usage['uses'],
             'duration_seconds' => $usage['duration_seconds'],
-            'modifiers' => [
+            'modifier_map' => [
                 'mining_laser_power_percent' => $this->parsePercent(Arr::get($description, 'Mining Laser Power')),
                 'extraction_laser_power_percent' => $this->parsePercent(Arr::get($description, 'Extraction Laser Power')),
                 'optimal_charge_window_percent' => $this->parsePercent(
@@ -144,6 +160,7 @@ class MiningModuleResource extends AbstractItemSpecificationResource
                 'cluster_factor' => Arr::get($modifiers, 'ClusterFactor'),
                 'damage_multiplier' => Arr::get($modifiers, 'DamageMultiplier'),
             ],
+            'modifiers' => array_filter($legacyModifiers, static fn ($value) => $value !== null),
         ];
     }
 

@@ -85,11 +85,14 @@ class ArmorResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
-        $armor = Arr::get($data, 'stdItem.Armor', []);
+        $stdItem = $this->extractStdItem($data);
+        $armor = Arr::get($stdItem, 'Armor', []);
         $signalMultipliers = Arr::get($armor, 'SignalMultipliers', []);
         $damageMultipliers = Arr::get($armor, 'DamageMultipliers', []);
 
         return [
+            'health' => Arr::get($stdItem, 'Durability.Health'),
+
             'signal_infrared' => Arr::get($signalMultipliers, 'Infrared'),
             'signal_electromagnetic' => Arr::get($signalMultipliers, 'Electromagnetic'),
             'signal_cross_section' => Arr::get($signalMultipliers, 'CrossSection'),
@@ -99,6 +102,37 @@ class ArmorResource extends AbstractItemSpecificationResource
             'damage_thermal' => Arr::get($damageMultipliers, 'Thermal'),
             'damage_biochemical' => Arr::get($damageMultipliers, 'Biochemical'),
             'damage_stun' => Arr::get($damageMultipliers, 'Stun'),
+
+            'signal_multiplier' => [
+                'cross_section' => Arr::get($armor, 'SignalMultipliers.CrossSection'),
+                'infrared' => Arr::get($armor, 'SignalMultipliers.Infrared'),
+                'electromagnetic' => Arr::get($armor, 'SignalMultipliers.Electromagnetic'),
+            ],
+            'damage_multiplier' => [
+                'physical' => Arr::get($armor, 'DamageMultipliers.Physical'),
+                'energy' => Arr::get($armor, 'DamageMultipliers.Energy'),
+                'distortion' => Arr::get($armor, 'DamageMultipliers.Distortion'),
+                'thermal' => Arr::get($armor, 'DamageMultipliers.Thermal'),
+                'biochemical' => Arr::get($armor, 'DamageMultipliers.Biochemical'),
+                'stun' => Arr::get($armor, 'DamageMultipliers.Stun'),
+            ],
+            'resistance_multiplier' => [
+                'physical' => Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier'),
+                'energy' => Arr::get($stdItem, 'Durability.Resistance.Energy.Multiplier'),
+                'distortion' => Arr::get($stdItem, 'Durability.Resistance.Distortion.Multiplier'),
+                'thermal' => Arr::get($stdItem, 'Durability.Resistance.Thermal.Multiplier'),
+                'biochemical' => Arr::get($stdItem, 'Durability.Resistance.Biochemical.Multiplier'),
+                'stun' => Arr::get($stdItem, 'Durability.Resistance.Stun.Multiplier'),
+            ],
+            'penetration_resistance' => [
+                'base' => Arr::get($armor, 'PenetrationResistance.Base'),
+                'physical' => Arr::get($armor, 'PenetrationResistance.Physical'),
+                'energy' => Arr::get($armor, 'PenetrationResistance.Energy'),
+                'distortion' => Arr::get($armor, 'PenetrationResistance.Distortion'),
+                'thermal' => Arr::get($armor, 'PenetrationResistance.Thermal'),
+                'biochemical' => Arr::get($armor, 'PenetrationResistance.Biochemical'),
+                'stun' => Arr::get($armor, 'PenetrationResistance.Stun'),
+            ],
         ];
     }
 }

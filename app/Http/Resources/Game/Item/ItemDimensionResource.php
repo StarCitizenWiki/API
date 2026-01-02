@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -81,26 +82,30 @@ use OpenApi\Attributes as OA;
 )]
 class ItemDimensionResource extends AbstractBaseResource
 {
+    use ExtractsJsonData;
+
     public function toArray(Request $request): array
     {
-        $stdItem = collect($this->data->get('stdItem'));
+        $dimensions = $this->extractFromStdItem($this->resource, 'InventoryOccupancy.Dimensions');
+        $uiDimensions = $this->extractFromStdItem($this->resource, 'InventoryOccupancy.UIDimensions');
 
-        $trueDim = $stdItem->get('Dimension', []);
-        $dim = $stdItem->has('DimensionOverrides') ? $stdItem->get('DimensionOverrides') : $trueDim;
+        $sumDim = Arr::get($dimensions, 'Width', 0) + Arr::get($dimensions, 'Height', 0) + Arr::get($dimensions, 'Length', 0);
+        $sumTrueDim = Arr::get($uiDimensions, 'Width', 0) + Arr::get($uiDimensions, 'Height', 0) + Arr::get($uiDimensions, 'Length', 0);
 
-        $sumDim = Arr::get($dim, 'Width', 0) + Arr::get($dim, 'Height', 0) + Arr::get($dim, 'Length', 0);
-        $sumTrueDim = Arr::get($trueDim, 'Width', 0) + Arr::get($trueDim, 'Height', 0) + Arr::get($trueDim, 'Length', 0);
+        $dim = $uiDimensions && $sumDim !== $sumTrueDim ? $uiDimensions : $dimensions;
 
         return [
             'width' => Arr::get($dim, 'Width'),
             'height' => Arr::get($dim, 'Height'),
             'length' => Arr::get($dim, 'Length'),
-            'volume' => Arr::get($trueDim, 'Volume'),
-            $this->mergeWhen($sumDim !== $sumTrueDim, [
+            'volume' => $this->extractFromStdItem($this->resource, 'InventoryOccupancy.Volume.SCU'),
+            'volume_converted' => $this->extractFromStdItem($this->resource, 'InventoryOccupancy.Volume.SCUConverted'),
+            'volume_converted_unit' => $this->extractFromStdItem($this->resource, 'InventoryOccupancy.Volume.Unit'),
+            $this->mergeWhen($uiDimensions && $sumDim !== $sumTrueDim, [
                 'true_dimension' => [
-                    'width' => Arr::get($trueDim, 'Width'),
-                    'height' => Arr::get($trueDim, 'Height'),
-                    'length' => Arr::get($trueDim, 'Length'),
+                    'width' => Arr::get($dimensions, 'Width'),
+                    'height' => Arr::get($dimensions, 'Height'),
+                    'length' => Arr::get($dimensions, 'Length'),
                 ],
             ]),
         ];

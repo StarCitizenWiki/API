@@ -1,0 +1,3 @@
+[submodule "storage/app/api/StarCitizenDeutsch"]
+	path = storage/app/api/StarCitizenDeutsch
+	url = https://github.com/rjcncpt/StarCitizen-Deutsch-INI

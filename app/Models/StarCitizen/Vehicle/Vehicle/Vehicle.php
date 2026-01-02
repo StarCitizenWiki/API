@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
+use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
@@ -11,7 +12,8 @@ use App\Models\StarCitizen\Vehicle\Component;
 use App\Models\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\StarCitizen\Vehicle\Size\Size;
 use App\Models\StarCitizen\Vehicle\Type\Type;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,8 +22,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * Abstract Vehicle Class
  */
-class Vehicle extends HasTranslations
+class Vehicle extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'cig_id',
         'name',
@@ -90,8 +94,6 @@ class Vehicle extends HasTranslations
 
         'updated_at' => 'datetime',
     ];
-
-    protected $perPage = 5;
 
     public function translations(): HasMany
     {
@@ -183,63 +185,13 @@ class Vehicle extends HasTranslations
         return $this->beam;
     }
 
-    public function getHeightAttribute($height)
-    {
-        $unpacked = $this->unpacked->height;
-        if ($unpacked !== null && $unpacked > 0) {
-            return $unpacked;
-        }
-
-        return $height;
-    }
-
-    public function getLengthAttribute($length)
-    {
-        $unpacked = $this->unpacked->length;
-        if ($unpacked !== null && $unpacked > 0) {
-            return $unpacked;
-        }
-
-        return $length;
-    }
-
-    public function getScWidthAttribute()
-    {
-        $unpacked = $this->sc->width;
-        if ($unpacked !== null && $unpacked > 0) {
-            return $unpacked;
-        }
-
-        return $this->beam;
-    }
-
-    public function getScHeightAttribute($height)
-    {
-        $unpacked = $this->sc->height;
-        if ($unpacked !== null && $unpacked > 0) {
-            return $unpacked;
-        }
-
-        return $height;
-    }
-
-    public function getScLengthAttribute($length)
-    {
-        $unpacked = $this->sc->length;
-        if ($unpacked !== null && $unpacked > 0) {
-            return $unpacked;
-        }
-
-        return $length;
-    }
-
     /**
      * Unpacked Data
      */
     public function sc(): HasOne
     {
         return $this->hasOne(
-            \App\Models\SC\Vehicle\Vehicle::class,
+            VehicleData::class,
             'shipmatrix_id',
             'id',
         )

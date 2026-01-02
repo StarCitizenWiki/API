@@ -18,7 +18,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'width', description: 'interiorDimensions@x', type: 'double', nullable: true),
         new OA\Property(property: 'height', description: 'interiorDimensions@z', type: 'double', nullable: true),
         new OA\Property(property: 'length', description: 'interiorDimensions@y', type: 'double', nullable: true),
-        new OA\Property(property: 'dimension', description: 'x*y*z', type: 'double', nullable: true),
+        new OA\Property(property: 'volume', description: 'x*y*z', type: 'double', nullable: true),
         new OA\Property(
             property: 'scu',
             description: 'Amount of SCU this container can hold.',
@@ -48,7 +48,7 @@ class ItemInventoryResource extends AbstractBaseResource
             'width' => Arr::get($this, 'x'),
             'height' => Arr::get($this, 'z'),
             'length' => Arr::get($this, 'y'),
-            'dimension' => Arr::has($this, ['x', 'z', 'y'])
+            'volume' => Arr::has($this, ['x', 'z', 'y'])
                 ? Arr::get($this, 'x') * Arr::get($this, 'z') * Arr::get($this, 'y')
                 : null,
             'scu' => Arr::get($this, 'SCU'),

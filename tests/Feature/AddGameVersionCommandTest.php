@@ -66,3 +66,36 @@ it('stores released_at when provided', function (): void {
     expect($version)->not->toBeNull();
     expect($version->released_at)->toEqual(Carbon::parse($releasedAt));
 });
+
+it('can mark the version as default', function (): void {
+    $this->artisan('game:add-version', [
+        'code' => '4.4.4-live.1',
+        '--default' => true,
+    ])
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Game version "4.4.4-LIVE.1" created.');
+
+    $version = GameVersion::query()->first();
+
+    expect($version)->not->toBeNull();
+    expect($version->is_default)->toBeTrue();
+});
+
+it('replaces the existing default when requested', function (): void {
+    GameVersion::query()->create([
+        'code' => '4.4.0-LIVE.10753606',
+        'channel' => 'live',
+        'is_default' => true,
+    ]);
+
+    $this->artisan('game:add-version', [
+        'code' => '4.4.1-ptu.2',
+        '--default' => true,
+    ])
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Game version "4.4.1-PTU.2" created.');
+
+    expect(GameVersion::query()->count())->toBe(2);
+    expect(GameVersion::query()->where('code', '4.4.1-PTU.2')->value('is_default'))->toBeTrue();
+    expect(GameVersion::query()->where('code', '4.4.0-LIVE.10753606')->value('is_default'))->toBeFalse();
+});

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\EntityTag;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
@@ -15,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use RuntimeException;
@@ -28,10 +30,15 @@ class ImportItemData implements ShouldQueue
 
     private ?Labels $labels = null;
 
+    private ?Collection $entityTagsLookup = null;
+
     public function __construct(
         private readonly int $gameVersionId,
-        private readonly string $path
-    ) {}
+        private readonly string $path,
+        ?Labels $labels = null
+    ) {
+        $this->labels = $labels;
+    }
 
     /**
      * Execute the job.
@@ -73,6 +80,7 @@ class ImportItemData implements ShouldQueue
 
         $this->syncDescriptionData($item, $itemPayload, $raw);
         $this->syncTranslations($itemData, $itemPayload, $raw);
+        $this->syncEntityTags($itemData, $itemPayload);
     }
 
     /**
@@ -117,16 +125,20 @@ class ImportItemData implements ShouldQueue
     {
         $name = $this->extractName($itemPayload);
 
+        unset($itemPayload['name'], $itemPayload['itemName']);
+
         return [
             'manufacturer_id' => $manufacturerId,
             'name' => $name,
+            'class_name' => $itemPayload['className'] ?? null,
             'type' => $itemPayload['type'] ?? null,
             'sub_type' => $itemPayload['subType'] ?? null,
             'classification' => $itemPayload['classification'] ?? null,
             'size' => $this->nullableInt($itemPayload['size'] ?? null),
             'grade' => $this->nullableInt($itemPayload['grade'] ?? null),
-            'class_name' => $itemPayload['className'] ?? null,
+            'class' => Arr::get($itemPayload, 'stdItem.DescriptionData.Class'),
             'base_id' => null,
+
             'data' => $itemPayload,
         ];
     }
@@ -175,38 +187,61 @@ class ImportItemData implements ShouldQueue
 
     private function syncTranslations(ItemData $itemData, array $itemPayload, array $raw): void
     {
-        $english = $this->extractEnglishDescription($raw, $itemPayload);
-        $descriptionLabel = $this->extractDescriptionLabel($raw);
+        $this->syncEnglishTranslation($itemData, $raw, $itemPayload);
 
-        if ($english !== null && $english !== '') {
-            ItemTranslation::query()->updateOrCreate(
-                [
-                    'item_data_id' => $itemData->id,
-                    'locale_code' => Language::ENGLISH,
-                ],
-                [
-                    'translation' => $english,
-                ]
-            );
-        }
+        $descriptionLabel = $this->extractDescriptionLabel($raw);
 
         if ($descriptionLabel === null) {
             return;
         }
 
-        $chinese = $this->fetchChineseTranslation($descriptionLabel);
+        foreach ([Language::CHINESE, Language::GERMAN] as $language) {
+            try {
+                $this->syncLanguageTranslation($itemData, $descriptionLabel, $language);
+            } catch (\Exception $e) {
+                \Log::warning("Failed to sync {$language} translation", [
+                    'item_data_id' => $itemData->id,
+                    'label' => $descriptionLabel,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
 
-        if ($chinese === null || $chinese === '') {
+    private function syncEnglishTranslation(ItemData $itemData, array $raw, array $itemPayload): void
+    {
+        $english = $this->extractEnglishDescription($raw, $itemPayload);
+
+        if ($english === null || $english === '') {
             return;
         }
 
         ItemTranslation::query()->updateOrCreate(
             [
                 'item_data_id' => $itemData->id,
-                'locale_code' => Language::CHINESE,
+                'locale_code' => Language::ENGLISH,
             ],
             [
-                'translation' => $this->getDescriptionText($chinese),
+                'translation' => $english,
+            ]
+        );
+    }
+
+    private function syncLanguageTranslation(ItemData $itemData, string $label, string $localeCode): void
+    {
+        $translation = $this->getLabels()->getTranslation($localeCode, $label);
+
+        if ($translation === null || $translation === '') {
+            return;
+        }
+
+        ItemTranslation::query()->updateOrCreate(
+            [
+                'item_data_id' => $itemData->id,
+                'locale_code' => $localeCode,
+            ],
+            [
+                'translation' => $this->getDescriptionText($translation),
             ]
         );
     }
@@ -251,13 +286,6 @@ class ImportItemData implements ShouldQueue
         return null;
     }
 
-    private function fetchChineseTranslation(string $label): ?string
-    {
-        $normalized = ltrim($label, '@');
-
-        return $this->getLabels()->getDataZh()->get($normalized);
-    }
-
     private function getLabels(): Labels
     {
         if ($this->labels === null) {
@@ -265,6 +293,17 @@ class ImportItemData implements ShouldQueue
         }
 
         return $this->labels;
+    }
+
+    private function getEntityTagsLookup(): Collection
+    {
+        if ($this->entityTagsLookup === null) {
+            $this->entityTagsLookup = EntityTag::query()
+                ->get(['id', 'uuid', 'name'])
+                ->keyBy('uuid');
+        }
+
+        return $this->entityTagsLookup;
     }
 
     private function nullableInt(mixed $value): ?int
@@ -300,5 +339,58 @@ class ImportItemData implements ShouldQueue
         });
 
         return trim(implode("\n\n", $exploded));
+    }
+
+    private function syncEntityTags(ItemData $itemData, array $itemPayload): void
+    {
+        $entityTagMap = $itemPayload['entity_tag_map'] ?? [];
+
+        if (! is_array($entityTagMap) || $entityTagMap === []) {
+            $itemData->entityTags()->sync([]);
+
+            return;
+        }
+
+        $validTags = collect($entityTagMap)
+            ->filter(function ($tagData) {
+                return isset($tagData['tag'], $tagData['name']) && is_array($tagData) && is_string($tagData['tag']) && is_string($tagData['name']);
+            });
+
+        if ($validTags->isEmpty()) {
+            $itemData->entityTags()->sync([]);
+
+            return;
+        }
+
+        $lookup = $this->getEntityTagsLookup();
+
+        $missingTags = $validTags->filter(function ($tagData) use ($lookup) {
+            return ! $lookup->has($tagData['tag']);
+        });
+
+        if ($missingTags->isNotEmpty()) {
+            $tagsToCreate = $missingTags->map(function ($tagData) {
+                return [
+                    'uuid' => $tagData['tag'],
+                    'name' => $tagData['name'],
+                ];
+            })->values()->all();
+
+            EntityTag::query()->upsert(
+                $tagsToCreate,
+                ['uuid'],
+                ['name', 'updated_at']
+            );
+
+            $this->entityTagsLookup = null;
+        }
+
+        $tagIds = $validTags
+            ->map(fn ($tagData) => $this->getEntityTagsLookup()->get($tagData['tag']))
+            ->filter()
+            ->pluck('id')
+            ->all();
+
+        $itemData->entityTags()->sync($tagIds);
     }
 }

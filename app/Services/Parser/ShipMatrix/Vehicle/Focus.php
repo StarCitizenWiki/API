@@ -31,8 +31,6 @@ class Focus extends BaseElement
      */
     public function getVehicleFociIDs(): array
     {
-        app('Log')::debug('Getting Vehicle Foci IDs');
-
         $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
 
         if ($rawFocus === null) {
@@ -90,8 +88,6 @@ class Focus extends BaseElement
      */
     private function createNewVehicleFocus(string $focus): VehicleFocus
     {
-        app('Log')::debug('Creating new Vehicle Focus');
-
         /** @var VehicleFocus $vehicleFocus */
         $vehicleFocus = VehicleFocus::query()->updateOrCreate(
             [

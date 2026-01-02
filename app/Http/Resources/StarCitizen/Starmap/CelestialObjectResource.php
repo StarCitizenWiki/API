@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\TranslationResolver;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -44,7 +45,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class CelestialObjectResource extends AbstractTranslationResource
+class CelestialObjectResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
@@ -81,7 +82,7 @@ class CelestialObjectResource extends AbstractTranslationResource
 
             'info_url' => $this->info_url,
 
-            'description' => $this->getTranslation($this, $request),
+            'description' => TranslationResolver::resolve($this, $request),
 
             'sensor' => [
                 'population' => $this->sensor_population,

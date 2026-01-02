@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Focus;
 
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Vehicle Focus Model
  */
-class Focus extends HasTranslations
+class Focus extends Model
 {
+    use HasFactory;
     use VehicleRelations;
 
     /**

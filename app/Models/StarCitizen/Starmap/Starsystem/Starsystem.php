@@ -7,16 +7,18 @@ namespace App\Models\StarCitizen\Starmap\Starsystem;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Models\StarCitizen\Starmap\Jumppoint\Jumppoint;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 
 /**
  * Class Starsystem
  */
-class Starsystem extends HasTranslations
+class Starsystem extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'cig_id',
         'code',

@@ -71,8 +71,8 @@ class ItemPortResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $item = null;
-        if (Arr::has($this, 'EquippedItemUUID') && Arr::get($this, 'EquippedItemUUID') !== null) {
-            $item = $this->loadItemForVersion(Arr::get($this, 'EquippedItemUUID'));
+        if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null) {
+            $item = $this->loadItemForVersion(Arr::get($this, 'EquippedItem'));
         }
 
         return [

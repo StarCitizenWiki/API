@@ -26,8 +26,6 @@ class Manufacturer extends BaseElement
 
     public function getManufacturer(): ManufacturerModel
     {
-        app('Log')::debug('Getting Manufacturer');
-
         $manufacturerData = collect($this->rawData->get(self::MANUFACTURER));
 
         /** @var ManufacturerModel $manufacturer */

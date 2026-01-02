@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'vehicle_component_v2',
+    schema: 'vehicle_component',
     title: 'Vehicle Component',
     description: 'Components from in-game files',
     properties: [

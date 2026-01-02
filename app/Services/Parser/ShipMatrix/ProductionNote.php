@@ -29,8 +29,6 @@ class ProductionNote extends BaseElement
      */
     public function getProductionNote(): ProductionNoteModel
     {
-        app('Log')::debug('Getting Production Note');
-
         $note = $this->getNormalizedStatus();
         if ($note === null) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
@@ -76,19 +74,15 @@ class ProductionNote extends BaseElement
 
     private function createNewProductionNote(): ProductionNoteModel
     {
-        app('Log')::debug('Creating new Production Note');
-
         $translation = $this->getNormalizedStatus();
         $contentHash = md5($translation ?? '');
 
-        // Race-safe: content_hash has unique constraint
         /** @var ProductionNoteModel $productionNote */
         $productionNote = ProductionNoteModel::query()->firstOrCreate(
             ['content_hash' => $contentHash],
             ['content_hash' => $contentHash]
         );
 
-        // Race-safe translation update
         $productionNote->translations()->updateOrCreate(
             ['locale_code' => config('language.english')],
             ['translation' => $translation]

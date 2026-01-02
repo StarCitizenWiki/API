@@ -95,55 +95,114 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
-        $stdItem = $this->extractStdItem($data);
+        $ammo = $this->extractFromStdItem($this->resource, 'Ammunition');
+        $weapon = $this->extractFromStdItem($this->resource, 'Weapon');
+        $mode = Arr::get($weapon, 'Modes.0');
 
-        $weapon = Arr::get($stdItem, 'Weapon', []);
-        $ammunition = Arr::get($stdItem, 'Ammunition', []);
-        $magazine = Arr::get($weapon, 'Magazine', []);
-        $attachments = Arr::get($weapon, 'Attachments', []);
+        $damages = array_filter([
+            ['type' => 'impact', 'name' => 'physical', 'damage' => Arr::get($ammo, 'ImpactDamage.Physical')],
+            ['type' => 'impact', 'name' => 'energy', 'damage' => Arr::get($ammo, 'ImpactDamage.Energy')],
+            ['type' => 'impact', 'name' => 'distortion', 'damage' => Arr::get($ammo, 'ImpactDamage.Distortion')],
+            ['type' => 'impact', 'name' => 'thermal', 'damage' => Arr::get($ammo, 'ImpactDamage.Thermal')],
+            ['type' => 'impact', 'name' => 'biochemical', 'damage' => Arr::get($ammo, 'ImpactDamage.Biochemical')],
+            ['type' => 'impact', 'name' => 'stun', 'damage' => Arr::get($ammo, 'ImpactDamage.Stun')],
 
-        $impactDamage = $this->buildDamageArray(Arr::get($ammunition, 'ImpactDamage', []));
-        $detonationDamage = $this->buildDamageArray(Arr::get($ammunition, 'DetonationDamage', []));
-        $ammunitionResource = new AmmunitionResource($this->resource);
+            ['type' => 'detonation', 'name' => 'physical', 'damage' => Arr::get($ammo, 'DetonationDamage.Physical')],
+            ['type' => 'detonation', 'name' => 'energy', 'damage' => Arr::get($ammo, 'DetonationDamage.Energy')],
+            ['type' => 'detonation', 'name' => 'distortion', 'damage' => Arr::get($ammo, 'DetonationDamage.Distortion')],
+            ['type' => 'detonation', 'name' => 'thermal', 'damage' => Arr::get($ammo, 'DetonationDamage.Thermal')],
+            ['type' => 'detonation', 'name' => 'biochemical', 'damage' => Arr::get($ammo, 'DetonationDamage.Biochemical')],
+            ['type' => 'detonation', 'name' => 'stun', 'damage' => Arr::get($ammo, 'DetonationDamage.Stun')],
+        ], static fn (array $entry) => $entry !== [] && ! empty($entry['damage']));
+
+        $modes = collect(Arr::get($weapon, 'Modes', []))
+            ->map(static fn (mixed $mode): array => [
+                'mode' => Arr::get($mode, 'Name'),
+                'localised' => Arr::get($mode, 'LocalisedName'),
+                'type' => Arr::get($mode, 'FireType'),
+                'rounds_per_minute' => Arr::get($mode, 'RoundsPerMinute'),
+                'ammo_per_shot' => Arr::get($mode, 'AmmoPerShot'),
+                'pellets_per_shot' => Arr::get($mode, 'PelletsPerShot'),
+                'damage_per_second' => Arr::get($mode, 'DamagePerSecond'),
+            ])
+            ->values()
+            ->toArray();
 
         return [
-            'weapon_class' => Arr::get($weapon, 'WeaponClass'),
-            'weapon_size' => Arr::get($weapon, 'Size'),
+            'class' => $this->extractFromStdItem($this->resource, 'DescriptionData.Class'),
+            'type' => $this->extractFromStdItem($this->resource, 'DescriptionData.Item Type'),
+
+            // deprecated
+            'magazine_type' => '',
+            // deprecated
+            'magazine_size' => Arr::get($weapon, 'Capacity'),
+
+            // deprecated
             'effective_range' => Arr::get($weapon, 'EffectiveRange'),
-            'rate_of_fire' => Arr::get($weapon, 'RateOfFire'),
-            'capacity' => Arr::get($weapon, 'Capacity'),
-            'magazine' => [
-                'max_ammo' => Arr::get($magazine, 'MaxAmmoCount'),
-                'initial_ammo' => Arr::get($magazine, 'InitialAmmoCount'),
+
+            'range' => Arr::get($weapon, 'EffectiveRange'),
+
+            'damage_per_shot' => Arr::get($mode, 'Alpha'),
+
+            'rpm' => Arr::get($mode, 'RoundsPerMinute'),
+
+            'damages' => $damages,
+            'modes' => $modes,
+
+            'damage' => [
+                'dps_total' => Arr::get($mode, 'Dps'),
+                'alpha_total' => Arr::get($mode, 'Alpha'),
+                'maximum' => Arr::get($mode, 'MaxDamagePerMagazine') === 0 ? -1 : Arr::get($mode, 'MaxDamagePerMagazine'),
+                'dps' => [
+                    'physical' => Arr::get($mode, 'DpsPhysical'),
+                    'energy' => Arr::get($mode, 'DpsEnergy'),
+                    'distortion' => Arr::get($mode, 'DpsDistortion'),
+                    'thermal' => Arr::get($mode, 'DpsThermal'),
+                    'biochemical' => Arr::get($mode, 'DpsBiochemical'),
+                    'stun' => Arr::get($mode, 'DpsStun'),
+                ],
+                'alpha' => [
+                    'physical' => Arr::get($mode, 'AlphaPhysical'),
+                    'energy' => Arr::get($mode, 'AlphaEnergy'),
+                    'distortion' => Arr::get($mode, 'AlphaDistortion'),
+                    'thermal' => Arr::get($mode, 'AlphaThermal'),
+                    'biochemical' => Arr::get($mode, 'AlphaBiochemical'),
+                    'stun' => Arr::get($mode, 'AlphaStun'),
+                ],
             ],
-            'attachments' => collect($attachments)->map(
-                static fn (mixed $attachment): array => [
-                    'port' => Arr::get($attachment, 'Port'),
-                    'class_name' => Arr::get($attachment, 'ClassName'),
-                ]
-            ),
-            'modes' => collect(Arr::get($weapon, 'Modes', []))->map(
-                static fn (mixed $mode): array => [
-                    'name' => Arr::get($mode, 'Name'),
-                    'label' => Arr::get($mode, 'LocalisedName'),
-                    'fire_type' => Arr::get($mode, 'FireType'),
-                    'rounds_per_minute' => Arr::get($mode, 'RoundsPerMinute'),
-                    'ammo_per_shot' => Arr::get($mode, 'AmmoPerShot'),
-                    'pellets_per_shot' => Arr::get($mode, 'PelletsPerShot'),
-                    'damage_per_shot' => Arr::get($mode, 'DamagePerShot'),
-                    'damage_per_second' => Arr::get($mode, 'DamagePerSecond'),
-                ]
-            ),
-            'ammunition' => $ammunitionResource,
-            'consumption' => Arr::get($weapon, 'Consumption'),
-            // Backward compatibility with v2
-            'class' => Arr::get($weapon, 'WeaponClass'),
-            'magazine_size' => Arr::get($magazine, 'MaxAmmoCount'),
-            'damage_per_shot' => $this->calculateTotalDamage(Arr::get($ammunition, 'ImpactDamage', [])),
-            'rof' => Arr::get($weapon, 'RateOfFire'),
-            'damages' => $impactDamage,
-            'magazine_type' => null,
+
+            $this->mergeWhen(Arr::get($mode, 'Spread.Min') !== null, [
+                'spread' => [
+                    'min' => Arr::get($mode, 'Spread.Min'),
+                    'max' => Arr::get($mode, 'Spread.Max'),
+                    'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
+                    'per_attack' => Arr::get($mode, 'Spread.Attack'),
+                    'decay' => Arr::get($mode, 'Spread.Decay'),
+                ],
+                'ads_spread' => [
+                    'min' => Arr::get($mode, 'AdsSpread.Min'),
+                    'max' => Arr::get($mode, 'AdsSpread.Max'),
+                    'first_attack' => Arr::get($mode, 'AdsSpread.FirstAttack'),
+                    'per_attack' => Arr::get($mode, 'AdsSpread.Attack'),
+                    'decay' => Arr::get($mode, 'AdsSpread.Decay'),
+                ],
+            ]),
+
+            $this->mergeWhen(Arr::get($mode, 'Charge') !== null, [
+                'charge' => [
+                    'time' => Arr::get($mode, 'Charge.ChargeTime'),
+                    'overcharge_time' => Arr::get($mode, 'Charge.OverchargeTime'),
+                    'overcharged_time' => Arr::get($mode, 'Charge.OverchargedTime'),
+                    'cooldown_time' => Arr::get($mode, 'Charge.CooldownTime'),
+                ],
+                'charge_modifier' => [
+                    'damage' => Arr::get($mode, 'ChargeModifier.Damage'),
+                    'fire_rate' => Arr::get($mode, 'ChargeModifier.FireRate'),
+                    'ammo_speed' => Arr::get($mode, 'ChargeModifier.AmmoSpeed'),
+                ],
+            ]),
+
+            'ammo' => new AmmunitionResource($this->resource),
         ];
     }
 }

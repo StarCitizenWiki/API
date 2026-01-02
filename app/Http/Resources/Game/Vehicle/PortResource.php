@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
+use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -19,16 +22,21 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'sizes', properties: [
             new OA\Property(property: 'min', type: 'integer', example: 1, nullable: true),
             new OA\Property(property: 'max', type: 'integer', example: 1, nullable: true),
-        ], type: 'object'),
+        ], type: 'object', nullable: true),
         new OA\Property(property: 'class_name', type: 'string', example: 'LFSP_TYDT_S01_ComfortAir', nullable: true),
         new OA\Property(property: 'health', type: 'number', example: 300, nullable: true),
+        new OA\Property(property: 'editable', type: 'boolean', nullable: true),
+        new OA\Property(property: 'editable_children', type: 'boolean', nullable: true),
+        new OA\Property(property: 'uuid', type: 'string', nullable: true),
+        new OA\Property(property: 'type', type: 'string', example: 'LifeSupportGenerator', nullable: true),
+        new OA\Property(property: 'subtype', type: 'string', example: 'UNDEFINED', nullable: true),
         new OA\Property(
             property: 'compatible_types',
             description: 'Port compatibility straight from the ship data.',
             type: 'array',
             items: new OA\Items(properties: [
                 new OA\Property(property: 'type', type: 'string', example: 'LifeSupportGenerator', nullable: true),
-                new OA\Property(property: 'sub_type', type: 'string', example: 'UNDEFINED', nullable: true),
+                new OA\Property(property: 'subtype', type: 'string', example: 'UNDEFINED', nullable: true),
             ], type: 'object'),
             nullable: true
         ),
@@ -44,6 +52,10 @@ use OpenApi\Attributes as OA;
 )]
 class PortResource extends AbstractBaseResource
 {
+    use ExtractsJsonData;
+    use ProcessesHardpointData;
+    use ResolvesGameVersion;
+
     public static function validIncludes(): array
     {
         return [];
@@ -51,33 +63,52 @@ class PortResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        return array_filter([
-            'name' => Arr::get($this->resource, 'Name'),
-            'position' => Arr::get($this->resource, 'Position'),
-            'sizes' => [
-                'min' => Arr::get($this->resource, 'Sizes.Min'),
-                'max' => Arr::get($this->resource, 'Sizes.Max'),
-            ],
-            'class_name' => Arr::get($this->resource, 'ClassName'),
-            'health' => Arr::get($this->resource, 'Health'),
-            'compatible_types' => $this->buildCompatibleTypes(),
-            $this->mergeWhen(Arr::has($this->resource, 'EquippedItem'), [
-                'equipped_item' => new PortItemResource(Arr::get($this->resource, 'EquippedItem')),
-            ]),
-            $this->mergeWhen(Arr::has($this->resource, 'Ports'), [
-                'ports' => self::collection(Arr::get($this->resource, 'Ports', [])),
-            ]),
-        ], static fn ($value) => $value !== null && $value !== []);
-    }
+        $resolvedItem = $this->loadEquippedItem();
+        $health = $this->extractHealth($resolvedItem);
+        [$type, $subtype] = $this->extractTypeAndSubtype();
+        $compatibleTypes = $this->buildCompatibleTypes();
 
-    private function buildCompatibleTypes(): ?array
-    {
-        $types = collect(Arr::get($this->resource, 'CompatibleTypes', []))
-            ->map(fn (array $type): array => array_filter([
-                'type' => Arr::get($type, 'Type'),
-                'sub_type' => Arr::get($type, 'SubType'),
-            ], static fn ($value) => $value !== null && $value !== ''));
+        $minSize = Arr::get($this, 'MinSize');
+        $maxSize = Arr::get($this, 'MaxSize');
 
-        return $types->isEmpty() ? null : $types->values()->all();
+        $data = [
+            'name' => Arr::get($this, 'HardpointName'),
+            'position' => Arr::get($this, 'Position'),
+            'class_name' => Arr::get($this, 'ClassName'),
+            'editable' => Arr::get($this, 'Editable'),
+            'editable_children' => Arr::get($this, 'EditableChildren'),
+            'uuid' => Arr::get($this->resource, 'UUID'),
+            'type' => $type,
+            'subtype' => $subtype,
+        ];
+
+        if ($minSize !== null || $maxSize !== null) {
+            $data['sizes'] = [
+                'min' => $minSize,
+                'max' => $maxSize,
+            ];
+        }
+
+        if ($compatibleTypes !== []) {
+            $data['compatible_types'] = $compatibleTypes;
+        }
+
+        if ($health !== null) {
+            $data['health'] = $health;
+        }
+
+        if ($resolvedItem !== null) {
+            $data['equipped_item'] = new PortItemResource($resolvedItem);
+        }
+
+        if ($this->shouldIncludeChildren()) {
+            $data['ports'] = self::collection($this->getChildrenArray());
+        }
+
+        return array_filter(
+            $data,
+            static fn ($value) => $value !== null && $value !== [],
+            ARRAY_FILTER_USE_BOTH
+        );
     }
 }

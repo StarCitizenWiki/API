@@ -41,8 +41,6 @@ class Component extends BaseElement
      */
     public function getComponents(): array
     {
-        app('Log')::debug('Getting Component IDs');
-
         if (! $this->rawData->has(self::COMPONENTS)) {
             return [];
         }
@@ -87,8 +85,6 @@ class Component extends BaseElement
 
     public function getComponent(Collection $data): ?Model
     {
-        app('Log')::debug('Getting Component');
-
         /** @var ComponentModel $component */
         $component = ComponentModel::query()->updateOrCreate(
             [

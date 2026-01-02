@@ -19,7 +19,16 @@ trait ResolvesGameVersion
      */
     protected function gameVersion(): GameVersion
     {
-        return request()->attributes->get('game_version');
+        $gameVersion = request()->attributes->get('game_version');
+
+        if ($gameVersion instanceof GameVersion) {
+            return $gameVersion;
+        }
+
+        $resolved = GameVersion::resolveRequestedOrDefault($this->gameVersionCode());
+        request()->attributes->set('game_version', $resolved);
+
+        return $resolved;
     }
 
     /**
@@ -27,7 +36,16 @@ trait ResolvesGameVersion
      */
     protected function gameVersionCode(): ?string
     {
-        return request()->attributes->get('game_version_code');
+        $code = request()->attributes->get('game_version_code');
+
+        if ($code !== null) {
+            return $code;
+        }
+
+        $code = request()->query('version');
+        request()->attributes->set('game_version_code', $code);
+
+        return $code;
     }
 
     /**

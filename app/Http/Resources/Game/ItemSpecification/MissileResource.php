@@ -14,7 +14,6 @@ use OpenApi\Attributes as OA;
     title: 'Missile',
     description: 'Comprehensive missile specifications including tracking, flight performance, countermeasure resistance, and damage characteristics. Missiles feature multi-phase flight dynamics (boost, intercept, terminal) and various targeting systems.',
     properties: [
-        // === BASIC PROPERTIES ===
         new OA\Property(
             property: 'cluster_size',
             description: 'Number of submunitions released when the missile splits. Only applicable when is_cluster is true.',
@@ -44,7 +43,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // === TARGETING & LOCK MECHANICS ===
         new OA\Property(
             property: 'signal_type',
             description: 'Type of tracking signal used for target acquisition. CrossSection (radar) tracks ship hulls, Infrared tracks heat signatures, Electromagnetic tracks power signatures. Affects lock behavior and countermeasure effectiveness.',
@@ -109,7 +107,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // === COUNTERMEASURE RESISTANCE ===
         new OA\Property(
             property: 'signal_resilience_min',
             description: 'Minimum countermeasure resistance factor. Typically 1.0 for all missiles. Values above 1.0 make locks harder to break with chaff/flares.',
@@ -125,7 +122,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // === FLIGHT PERFORMANCE ===
         new OA\Property(
             property: 'speed',
             description: 'Linear cruise velocity in meters per second during intercept phase. Light missiles (S1-S2): 1,000-1,400 m/s, torpedoes (S9-S10): 25-50 m/s. Primary factor in engagement time.',
@@ -183,7 +179,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // === LIFETIME & TIMING ===
         new OA\Property(
             property: 'max_lifetime',
             description: 'Maximum flight time in seconds before missile self-destructs. Light missiles (S1): 15s, medium (S3): 35s, torpedoes (S9): 60s. Prevents indefinite flight and determines absolute maximum range.',
@@ -220,7 +215,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // === EXPLOSION & DAMAGE ===
         new OA\Property(
             property: 'explosion_safety_distance',
             description: 'Minimum safe distance in meters from the explosion center. Typically matches explosion radius. Used for AI safety calculations.',
@@ -272,15 +266,21 @@ class MissileResource extends AbstractItemSpecificationResource
 
         $damages = $this->buildDamageArray($damageData);
         $totalDamage = $this->calculateTotalDamage($damageData);
+        $legacyDamages = array_filter([
+            'physical' => Arr::get($damageData, 'Physical'),
+            'energy' => Arr::get($damageData, 'Energy'),
+            'distortion' => Arr::get($damageData, 'Distortion'),
+            'thermal' => Arr::get($damageData, 'Thermal'),
+            'biochemical' => Arr::get($damageData, 'Biochemical'),
+            'stun' => Arr::get($damageData, 'Stun'),
+        ], static fn ($value) => $value !== null);
 
         return [
-            // === BASIC PROPERTIES ===
             'cluster_size' => Arr::has($missile, 'Cluster.Size') ? Arr::get($missile, 'Cluster.Size') : null,
             'is_cluster' => Arr::get($missile, 'IsCluster'),
             'is_dumb_missile' => Arr::get($gcs, 'IsDumbMissile'),
             'requires_launcher' => Arr::get($missile, 'RequiresLauncher'),
 
-            // === TARGETING & LOCK MECHANICS ===
             'signal_type' => Arr::get($targeting, 'TrackingSignalType'),
             'lock_time' => Arr::get($targeting, 'LockTime'),
             'lock_range_max' => Arr::get($targeting, 'LockRangeMax'),
@@ -291,11 +291,9 @@ class MissileResource extends AbstractItemSpecificationResource
             'lock_increase_rate' => Arr::get($targeting, 'LockIncreaseRate'),
             'allow_dumb_firing' => Arr::get($targeting, 'AllowDumbFiring'),
 
-            // === COUNTERMEASURE RESISTANCE ===
             'signal_resilience_min' => Arr::get($targeting, 'SignalResilienceMin'),
             'signal_resilience_max' => Arr::get($targeting, 'SignalResilienceMax'),
 
-            // === FLIGHT PERFORMANCE ===
             'speed' => Arr::get($gcs, 'LinearSpeed'),
             'boost_speed' => Arr::get($gcs, 'BoostSpeed'),
             'boost_phase_duration' => Arr::get($gcs, 'BoostPhaseDuration'),
@@ -305,19 +303,18 @@ class MissileResource extends AbstractItemSpecificationResource
             'terminal_phase_engagement_angle' => Arr::get($gcs, 'TerminalPhaseEngagementAngle'),
             'fuel_tank_size' => Arr::get($gcs, 'FuelTankSize'),
 
-            // === LIFETIME & TIMING ===
             'max_lifetime' => Arr::get($missile, 'MaxLifetime'),
             'enable_lifetime' => Arr::get($missile, 'EnableLifetime'),
             'arm_time' => Arr::get($missile, 'ArmTime'),
             'ignite_time' => Arr::get($missile, 'IgniteTime'),
             'collision_delay_time' => Arr::get($missile, 'CollisionDelayTime'),
 
-            // === EXPLOSION & DAMAGE ===
             'explosion_safety_distance' => Arr::get($missile, 'ExplosionSafetyDistance'),
             'explosion_radius_min' => Arr::get($missile, 'ExplosionMinRadius'),
             'explosion_radius_max' => Arr::get($missile, 'ExplosionMaxRadius'),
             'damage_total' => $totalDamage > 0 ? $totalDamage : null,
             'damages' => WeaponDamageResource::collection($damages),
+            'damages_legacy' => $legacyDamages === [] ? null : $legacyDamages,
         ];
     }
 }

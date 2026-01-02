@@ -137,7 +137,23 @@ class MiningLaserResource extends AbstractItemSpecificationResource
             'throttle_speed' => Arr::get($handling, 'throttle_speed'),
         ];
 
+        $legacyModifiers = [
+            'all_charge_rates' => Arr::get($description, 'All Charge Rates', Arr::get($modifiers, 'AllChargeRates')),
+            'collection_point_radius' => Arr::get($description, 'Collection Point Radius', Arr::get($modifiers, 'CollectionPointRadius')),
+            'instability' => Arr::get($description, 'Instability', Arr::get($modifiers, 'Instability')),
+            'module' => Arr::get($description, 'Module'),
+            'optimal_charge_rate' => Arr::get($description, 'Optimal Charge Rate', Arr::get($modifiers, 'OptimalChargeRate')),
+            'optimal_charge_window' => Arr::get($description, 'Optimal Charge Window', Arr::get($description, 'Optimal Charge Window Size', Arr::get($modifiers, 'OptimalChargeWindow'))),
+            'overcharge_rate' => Arr::get($description, 'Overcharge Rate', Arr::get($description, 'Catastrophic Charge Rate', Arr::get($modifiers, 'OverchargeRate'))),
+            'resistance' => Arr::get($description, 'Resistance', Arr::get($modifiers, 'Resistance')),
+            'shatter_damage' => Arr::get($description, 'Shatter Damage', Arr::get($modifiers, 'ShatterDamage')),
+            'throttle_responsiveness_delay' => Arr::get($description, 'Throttle Responsiveness Delay', Arr::get($modifiers, 'ThrottleResponsivenessDelay', Arr::get($globalParams, 'ThrottleAccPeriod'))),
+            'throttle_speed' => Arr::get($description, 'Throttle Speed', Arr::get($modifiers, 'ThrottleSpeed', Arr::get($globalParams, 'ThrottleAccFactor'))),
+        ];
+
         return [
+            'item_type' => Arr::get($description, 'Item Type'),
+            'description' => Arr::get($stdItem, 'DescriptionText', Arr::get($stdItem, 'Description')),
             'mining_power' => [
                 'min' => $minPower,
                 'max' => $maxPower,
@@ -160,7 +176,7 @@ class MiningLaserResource extends AbstractItemSpecificationResource
             'extraction_throughput' => $extractionThroughput,
             'extraction_laser_power' => Arr::get($description, 'Extraction Laser Power'),
             'mining_laser_power' => Arr::get($description, 'Mining Laser Power'),
-            'modifiers_legacy' => $modifierBlock,
+            'modifiers_legacy' => array_filter($legacyModifiers, static fn ($value) => $value !== null),
         ];
     }
 

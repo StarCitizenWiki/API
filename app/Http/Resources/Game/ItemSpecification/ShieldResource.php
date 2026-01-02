@@ -64,7 +64,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
-        // Backwards compatibility (v2 field names)
         new OA\Property(property: 'max_shield_health', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'max_shield_regen', type: 'double', nullable: true, deprecated: true),
     ],
@@ -83,6 +82,7 @@ class ShieldResource extends AbstractItemSpecificationResource
         $decayRatio = Arr::get($shield, 'DecayRatio');
         $downedDelay = Arr::get($shield, 'DownedDelay');
         $damagedDelay = Arr::get($shield, 'DamagedDelay');
+        $absorptions = Arr::get($shield, 'ShieldAbsorption', []);
 
         $reservePool = [
             'initial_health_ratio' => Arr::get($shield, 'ReservePoolInitialHealthRatio'),
@@ -101,10 +101,39 @@ class ShieldResource extends AbstractItemSpecificationResource
                 'damage' => $damagedDelay,
             ],
             'electrical_charge_damage_resistance' => Arr::get($shield, 'ElectricalChargeDamageResistance'),
+            'downed_regen_delay' => $downedDelay,
+            'damage_regen_delay' => $damagedDelay,
+            'max_reallocation' => Arr::get($shield, 'MaxReallocation'),
+            'reallocation_rate' => Arr::get($shield, 'ReallocationRate'),
+            'absorptions' => $this->mapAbsorptions($absorptions),
 
-            // Deprecated v2 fields (kept for backwards compatibility)
+            // Deprecated v2 fields
             'max_shield_health' => $maxShieldHealth,
             'max_shield_regen' => $maxShieldRegen,
         ];
+    }
+
+    private function mapAbsorptions(array $absorptions): ?array
+    {
+        if ($absorptions === []) {
+            return null;
+        }
+
+        $keys = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
+
+        $mapped = [];
+
+        foreach ($keys as $index => $key) {
+            if (! isset($absorptions[$index])) {
+                continue;
+            }
+
+            $mapped[$key] = [
+                'min' => Arr::get($absorptions, "{$index}.Min"),
+                'max' => Arr::get($absorptions, "{$index}.Max"),
+            ];
+        }
+
+        return $mapped === [] ? null : $mapped;
     }
 }

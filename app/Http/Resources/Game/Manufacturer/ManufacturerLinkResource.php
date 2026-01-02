@@ -14,6 +14,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'code', type: 'string'),
+        new OA\Property(property: 'uuid', type: 'string'),
         new OA\Property(property: 'link', type: 'string'),
     ],
     type: 'object'
@@ -25,6 +26,7 @@ class ManufacturerLinkResource extends AbstractBaseResource
         return [
             'name' => $this->name,
             'code' => $this->code,
+            'uuid' => $this->uuid,
             'link' => $this->makeApiUrl(self::MANUFACTURERS_SHOW, urlencode($this->name)),
         ];
     }

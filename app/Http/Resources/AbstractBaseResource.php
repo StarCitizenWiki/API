@@ -13,6 +13,8 @@ abstract class AbstractBaseResource extends JsonResource
 
     public const VEHICLES_SHOW = 'vehicles/';
 
+    public const SHIPMATRIX_VEHICLES_SHOW = 'shipmatrix/vehicles/';
+
     public const STARMAP_STARSYSTEM_SHOW = 'starsystems/';
 
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'celestial-objects/';

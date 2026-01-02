@@ -54,20 +54,20 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'temperature_resistance',
             ref: '#/components/schemas/temperature_resistance',
-            nullable: true,
             example: [
                 'minimum' => 2,
                 'maximum' => 32,
-            ]
+            ],
+            nullable: true
         ),
         new OA\Property(
             property: 'radiation_resistance',
             ref: '#/components/schemas/radiation_resistance',
-            nullable: true,
             example: [
                 'maximum_radiation_capacity' => 0,
                 'radiation_dissipation_rate' => 0,
-            ]
+            ],
+            nullable: true
         ),
     ],
     type: 'object'
@@ -83,11 +83,19 @@ class ClothingResource extends AbstractBaseResource
             Arr::get($resource, 'type', ''),
             Arr::get($resource, 'name', '')
         );
+        $descriptionData = Arr::get($resource, 'data.stdItem.DescriptionData', []);
+        $damageResistances = Arr::get($resource, 'data.stdItem.DamageResistances', Arr::get($resource, 'data.damageResistances', []));
 
         return [
             'slot' => $slot,
             'clothing_type' => $type,
             'type' => $type,
+            'damage_reduction' => Arr::get($descriptionData, 'Damage Reduction'),
+            'carrying_capacity' => Arr::get($descriptionData, 'Carrying Capacity'),
+            'resistances' => $this->mapLegacyResistances(
+                Arr::get($resource, 'data.stdItem.TemperatureResistance', []),
+                $damageResistances
+            ),
             'temp_resistance_min' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Minimum'),
             'temp_resistance_max' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Maximum'),
             'temperature_resistance' => Arr::has($resource, 'data.stdItem.TemperatureResistance')
@@ -138,5 +146,37 @@ class ClothingResource extends AbstractBaseResource
         $parts = explode('.', $classification);
 
         return $parts !== [] ? Arr::last($parts) : null;
+    }
+
+    private function mapLegacyResistances(array $temperatureResistance, array $damageResistances): ?array
+    {
+        $resistances = [
+            'temp_min' => Arr::get($temperatureResistance, 'MinResistance', Arr::get($temperatureResistance, 'Minimum')),
+            'temp_max' => Arr::get($temperatureResistance, 'MaxResistance', Arr::get($temperatureResistance, 'Maximum')),
+            'physical' => $this->mapDamageResistance($damageResistances, 'Physical'),
+            'energy' => $this->mapDamageResistance($damageResistances, 'Energy'),
+            'distortion' => $this->mapDamageResistance($damageResistances, 'Distortion'),
+            'thermal' => $this->mapDamageResistance($damageResistances, 'Thermal'),
+            'biochemical' => $this->mapDamageResistance($damageResistances, 'Biochemical'),
+            'stun' => $this->mapDamageResistance($damageResistances, 'Stun'),
+        ];
+
+        $hasValue = collect($resistances)->flatten()->contains(static fn ($value) => $value !== null);
+
+        return $hasValue ? $resistances : null;
+    }
+
+    private function mapDamageResistance(array $damageResistances, string $key): ?array
+    {
+        $entry = Arr::get($damageResistances, $key);
+
+        if (! is_array($entry)) {
+            return null;
+        }
+
+        return [
+            'multiplier' => Arr::get($entry, 'Multiplier'),
+            'threshold' => Arr::get($entry, 'Threshold'),
+        ];
     }
 }

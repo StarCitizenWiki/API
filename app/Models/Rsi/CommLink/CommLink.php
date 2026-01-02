@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Models\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,8 +16,10 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Comm-Link
  */
-class CommLink extends HasTranslations
+class CommLink extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'cig_id',
         'title',

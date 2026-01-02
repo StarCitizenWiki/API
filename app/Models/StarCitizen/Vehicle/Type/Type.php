@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Type;
 
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Vehicle Type Model
  */
-class Type extends HasTranslations
+class Type extends Model
 {
+    use HasFactory;
     use VehicleRelations;
 
     /**

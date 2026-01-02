@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Game;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 class VehicleData extends Model
 {
@@ -17,6 +22,7 @@ class VehicleData extends Model
 
         'class_name',
         'name',
+        'display_name',
         'career',
         'role',
 
@@ -25,33 +31,8 @@ class VehicleData extends Model
         'is_spaceship',
 
         'size',
-        'length',
-        'width',
-        'height',
-        'crew',
-        'mass',
-        'cargo',
 
-        'insurance_claim_time',
-        'insurance_expedited_time',
-        'insurance_expedited_cost',
-
-        'shield_face_type',
-        'shield_hp',
-        'health',
-
-        'quantum_speed',
-        'quantum_spool_time',
-        'quantum_fuel_capacity',
-        'quantum_range',
-
-        'fuel_capacity',
-        'fuel_intake_rate',
-        'fuel_usage_main',
-        'fuel_usage_retro',
-        'fuel_usage_vtol',
-        'fuel_usage_maneuvering',
-        'json',
+        'data',
     ];
 
     protected $casts = [
@@ -65,33 +46,8 @@ class VehicleData extends Model
         'is_spaceship' => 'boolean',
 
         'size' => 'integer',
-        'length' => 'double',
-        'width' => 'double',
-        'height' => 'double',
-        'crew' => 'integer',
-        'mass' => 'double',
-        'cargo' => 'integer',
 
-        'insurance_claim_time' => 'double',
-        'insurance_expedited_time' => 'double',
-        'insurance_expedited_cost' => 'double',
-
-        'shield_hp' => 'double',
-        'health' => 'double',
-
-        'quantum_speed' => 'double',
-        'quantum_spool_time' => 'double',
-        'quantum_fuel_capacity' => 'double',
-        'quantum_range' => 'double',
-
-        'fuel_capacity' => 'double',
-        'fuel_intake_rate' => 'double',
-        'fuel_usage_main' => 'double',
-        'fuel_usage_retro' => 'double',
-        'fuel_usage_vtol' => 'double',
-        'fuel_usage_maneuvering' => 'double',
-
-        'json' => 'array',
+        'data' => AsCollection::class,
     ];
 
     public function vehicle(): BelongsTo
@@ -116,5 +72,72 @@ class VehicleData extends Model
             'shipmatrix_id',
             'id'
         )->withDefault();
+    }
+
+    /**
+     * Get the ItemData for this vehicle, matching the same game version.
+     * Returns null if no matching ItemData exists.
+     */
+    public function itemData(): ?ItemData
+    {
+        if (! $this->relationLoaded('vehicle') || $this->vehicle === null) {
+            return null;
+        }
+
+        if (! $this->vehicle->relationLoaded('item') || $this->vehicle->item === null) {
+            return null;
+        }
+
+        return $this->vehicle->item
+            ->data()
+            ->where('game_version_id', $this->game_version_id)
+            ->first();
+    }
+
+    /**
+     * Get ItemDescriptionData collection through the vehicle's item.
+     * Returns empty collection if no ItemData exists.
+     */
+    public function itemDescriptionData(): Collection
+    {
+        $itemData = $this->itemData();
+
+        if ($itemData === null) {
+            return collect();
+        }
+
+        if (! $itemData->relationLoaded('descriptionData')) {
+            return collect();
+        }
+
+        return $itemData->descriptionData;
+    }
+
+    /**
+     * Scope to filter by requested game version code or default version.
+     */
+    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
+    {
+        if ($code !== null) {
+            return $query->whereHas('gameVersion', function (Builder $q) use ($code) {
+                $q->whereRaw('LOWER(code) = ?', [strtolower($code)]);
+            });
+        }
+
+        return $query->whereHas('gameVersion', function (Builder $q) {
+            $q->where('is_default', true);
+        });
+    }
+
+    /**
+     * Scope to filter vehicles by type category.
+     */
+    public function scopeForVehicleType(Builder $query, string $vehicleType): Builder
+    {
+        return match ($vehicleType) {
+            'ground-vehicles' => $query->where('is_vehicle', true),
+            'gravlev-vehicles' => $query->where('is_gravlev', true),
+            default => $query,
+        };
     }
 }

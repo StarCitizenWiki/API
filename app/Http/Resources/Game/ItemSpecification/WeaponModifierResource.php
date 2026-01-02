@@ -17,15 +17,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'ignore_wear', type: 'boolean', example: false, nullable: true, description: 'If true, the modifier ignores item wear/maintenance effects.'),
         new OA\Property(
             property: 'weapon_stats',
-            type: 'object',
             properties: [
                 new OA\Property(
                     property: 'base',
-                    type: 'object',
                     description: 'Core scalar adjustments applied to the weapon.',
                     properties: [
-                        new OA\Property(property: 'fire_rate', type: 'double', example: 0, nullable: true, description: 'Base fire rate override (usually 0).'),
-                        new OA\Property(property: 'fire_rate_multiplier', type: 'double', example: 1.1, nullable: true, description: 'Multiplier applied to fire rate.'),
+                        new OA\Property(property: 'fire_rate', description: 'Base fire rate override (usually 0).', type: 'double', example: 0, nullable: true),
+                        new OA\Property(property: 'fire_rate_multiplier', description: 'Multiplier applied to fire rate.', type: 'double', example: 1.1, nullable: true),
                         new OA\Property(property: 'damage_multiplier', type: 'double', example: 0.92, nullable: true, description: 'Damage output multiplier.'),
                         new OA\Property(property: 'damage_over_time_multiplier', type: 'double', example: 1.0, nullable: true, description: 'DoT damage multiplier.'),
                         new OA\Property(property: 'projectile_speed_multiplier', type: 'double', example: 0.875, nullable: true, description: 'Multiplier applied to projectile speed.'),
@@ -39,11 +37,11 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'use_alternate_projectile_visuals', type: 'boolean', example: false, nullable: true, description: 'Switch to alternate projectile FX.'),
                         new OA\Property(property: 'use_augmented_reality_projectiles', type: 'boolean', example: false, nullable: true, description: 'Enable AR projectiles rendering.'),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
                 new OA\Property(
                     property: 'recoil',
-                    type: 'object',
                     description: 'Recoil tuning multipliers.',
                     properties: [
                         new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
@@ -60,11 +58,11 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'frontal_oscillation_randomness_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'animated_recoil_multiplier', type: 'double', example: 1.0, nullable: true),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
                 new OA\Property(
                     property: 'spread',
-                    type: 'object',
                     description: 'Spread behaviour tuning multipliers.',
                     properties: [
                         new OA\Property(property: 'min_multiplier', type: 'double', example: 1.0, nullable: true),
@@ -74,11 +72,11 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'additive_modifier', type: 'double', example: 0, nullable: true),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
                 new OA\Property(
                     property: 'aim',
-                    type: 'object',
                     description: 'ADS and zoom behaviour adjustments.',
                     properties: [
                         new OA\Property(property: 'zoom_scale', type: 'double', example: 4, nullable: true),
@@ -87,36 +85,37 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'hide_weapon_in_ads', type: 'boolean', example: false, nullable: true),
                         new OA\Property(property: 'fstop_multiplier', type: 'double', example: 1.0, nullable: true),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
                 new OA\Property(
                     property: 'regen',
-                    type: 'object',
                     description: 'Resource regeneration modifiers for specialised tools.',
                     properties: [
                         new OA\Property(property: 'power_ratio_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'max_ammo_load_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'max_regen_per_sec_multiplier', type: 'double', example: 1.0, nullable: true),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
                 new OA\Property(
                     property: 'salvage',
-                    type: 'object',
                     description: 'Salvage efficiency modifiers.',
                     properties: [
                         new OA\Property(property: 'salvage_speed_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'radius_multiplier', type: 'double', example: 1.0, nullable: true),
                         new OA\Property(property: 'extraction_efficiency', type: 'double', example: 1.0, nullable: true),
                     ],
+                    type: 'object',
                     nullable: true
                 ),
             ],
+            type: 'object',
             nullable: true
         ),
         new OA\Property(
             property: 'zeroing',
-            type: 'object',
             description: 'Zeroing distances supported by the optic or attachment.',
             properties: [
                 new OA\Property(property: 'default_range', type: 'double', example: 0, nullable: true),
@@ -124,9 +123,10 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'range_increment', type: 'double', example: 100, nullable: true),
                 new OA\Property(property: 'auto_zeroing_time', type: 'double', example: 0, nullable: true),
             ],
+            type: 'object',
             nullable: true
         ),
-        // Backwards compatibility with v2 (deprecated)
+        // Backwards compatibility with v2
         new OA\Property(property: 'fire_rate_multiplier', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'damage_multiplier', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'damage_over_time_multiplier', type: 'double', nullable: true, deprecated: true),
@@ -267,6 +267,30 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
                 'radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
                 'extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
             ],
+            'recoil_decay_multiplier' => Arr::get($recoil, 'DecayMultiplier'),
+            'recoil_end_decay_multiplier' => Arr::get($recoil, 'EndDecayMultiplier'),
+            'recoil_fire_recoil_time_multiplier' => Arr::get($recoil, 'FireRecoilTimeMultiplier'),
+            'recoil_fire_recoil_strength_first_multiplier' => Arr::get($recoil, 'FireRecoilStrengthFirstMultiplier'),
+            'recoil_fire_recoil_strength_multiplier' => Arr::get($recoil, 'FireRecoilStrengthMultiplier'),
+            'recoil_angle_recoil_strength_multiplier' => Arr::get($recoil, 'AngleRecoilStrengthMultiplier'),
+            'recoil_randomness_multiplier' => Arr::get($recoil, 'RandomnessMultiplier'),
+            'recoil_randomness_back_push_multiplier' => Arr::get($recoil, 'RandomnessBackPushMultiplier'),
+            'recoil_frontal_oscillation_rotation_multiplier' => Arr::get($recoil, 'FrontalOscillationRotationMultiplier'),
+            'recoil_frontal_oscillation_strength_multiplier' => Arr::get($recoil, 'FrontalOscillationStrengthMultiplier'),
+            'recoil_frontal_oscillation_decay_multiplier' => Arr::get($recoil, 'FrontalOscillationDecayMultiplier'),
+            'recoil_frontal_oscillation_randomness_multiplier' => Arr::get($recoil, 'FrontalOscillationRandomnessMultiplier'),
+            'recoil_animated_recoil_multiplier' => Arr::get($recoil, 'AnimatedRecoilMultiplier'),
+            'spread_min_multiplier' => Arr::get($spread, 'MinMultiplier'),
+            'spread_max_multiplier' => Arr::get($spread, 'MaxMultiplier'),
+            'spread_first_attack_multiplier' => Arr::get($spread, 'FirstAttackMultiplier'),
+            'spread_attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
+            'spread_decay_multiplier' => Arr::get($spread, 'DecayMultiplier'),
+            'spread_additive_modifier' => Arr::get($spread, 'AdditiveModifier'),
+            'aim_zoom_scale' => Arr::get($aim, 'ZoomScale'),
+            'aim_zoom_time_scale' => Arr::get($aim, 'ZoomTimeScale'),
+            'salvage_speed_multiplier' => Arr::get($salvage, 'SalvageSpeedMultiplier'),
+            'salvage_radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
+            'salvage_extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
         ];
     }
 }

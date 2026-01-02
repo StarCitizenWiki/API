@@ -18,6 +18,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/api/scunpacked-data/labels.json
+/storage/app/api/ScToolBoxLocales/chinese_(simplified)/global.ini
 /vendor
 Homestead.json
 Homestead.yaml

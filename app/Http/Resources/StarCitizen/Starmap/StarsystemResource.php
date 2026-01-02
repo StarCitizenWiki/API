@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\TranslationResolver;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -90,7 +91,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class StarsystemResource extends AbstractTranslationResource
+class StarsystemResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
@@ -122,7 +123,7 @@ class StarsystemResource extends AbstractTranslationResource
 
             'info_url' => $this->info_url,
 
-            'description' => $this->getTranslation($this, $request),
+            'description' => TranslationResolver::resolve($this, $request),
 
             'aggregated' => [
                 'size' => $this->aggregated_size,

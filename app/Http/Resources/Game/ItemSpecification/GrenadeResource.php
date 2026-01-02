@@ -50,9 +50,11 @@ class GrenadeResource extends AbstractItemSpecificationResource
     public function toArray(Request $request): array
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
-        $grenade = Arr::get($this->extractStdItem($data), 'Grenade', []);
+        $stdItem = $this->extractStdItem($data);
+        $grenade = Arr::get($stdItem, 'Grenade', []);
 
         $areaOfEffectMax = Arr::get($grenade, 'AreaOfEffect');
+        $descriptionData = Arr::get($stdItem, 'DescriptionData', []);
 
         return [
             'area_of_effect_min' => Arr::get($grenade, 'MinAreaOfEffect'),
@@ -60,7 +62,9 @@ class GrenadeResource extends AbstractItemSpecificationResource
             'damage_type' => Arr::get($grenade, 'DamageType'),
             'damage' => Arr::get($grenade, 'Damage'),
             // Backward compatibility with v2
+            'description' => Arr::get($stdItem, 'DescriptionText', Arr::get($stdItem, 'Description')),
             'area_of_effect' => $areaOfEffectMax,
+            'aoe' => Arr::get($descriptionData, 'Area of Effect', $areaOfEffectMax),
         ];
     }
 }

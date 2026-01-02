@@ -6,7 +6,7 @@ namespace App\Http\Resources\Rsi\CommLink;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
-use App\Http\Resources\TranslationResourceFactory;
+use App\Http\Resources\TranslationResolver;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -70,7 +70,7 @@ class CommLinkResource extends AbstractBaseResource
             'series' => $this->series->name,
             'images' => ImageResource::collection($this->whenLoaded('images')),
             'images_count' => $this->images_count,
-            'translations' => TranslationResourceFactory::getTranslationResource($request, $this->whenLoaded('translations')),
+            'translations' => TranslationResolver::resolve($this->whenLoaded('translations'), $request),
             'links' => CommLinkLinkResource::collection($this->whenLoaded('links')),
             'links_count' => $this->links_count,
             'comment_count' => $this->comment_count,

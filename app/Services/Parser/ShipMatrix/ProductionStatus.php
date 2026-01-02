@@ -22,8 +22,6 @@ class ProductionStatus extends BaseElement
      */
     public function getProductionStatus(): ProductionStatusModel
     {
-        app('Log')::debug('Getting Production Status');
-
         $status = $this->rawData->get(self::PRODUCTION_STATUS);
 
         if ($status === null) {
@@ -52,19 +50,15 @@ class ProductionStatus extends BaseElement
 
     private function createNewProductionStatus(): ProductionStatusModel
     {
-        app('Log')::debug('Creating new Production Status');
-
         $slug = Str::slug($this->rawData->get(self::PRODUCTION_STATUS));
         $translation = $this->rawData->get(self::PRODUCTION_STATUS);
 
-        // Race-safe: slug has unique constraint
         /** @var ProductionStatusModel $productionStatus */
         $productionStatus = ProductionStatusModel::query()->firstOrCreate(
             ['slug' => $slug],
             ['slug' => $slug]
         );
 
-        // Race-safe translation update
         $productionStatus->translations()->updateOrCreate(
             ['locale_code' => config('language.english')],
             ['translation' => $translation]

@@ -17,5 +17,11 @@ return [
         'Kruger P-72 Archimedes' => 'P-72 Archimedes',
         'Origin M50 Interceptor' => 'M50',
         'Origin 85X Limited' => '85X',
+
+        // Hornet Heartseeker variants (missing "Super" in game data)
+        'Anvil F7C-M Hornet Heartseeker Mk I' => 'F7C-M Super Hornet Heartseeker Mk I',
+        'Anvil F7C-M Hornet Heartseeker Mk II' => 'F7C-M Super Hornet Heartseeker Mk II',
+        'F7C-M Hornet Heartseeker Mk I' => 'F7C-M Super Hornet Heartseeker Mk I',
+        'F7C-M Hornet Heartseeker Mk II' => 'F7C-M Super Hornet Heartseeker Mk II',
     ],
 ];

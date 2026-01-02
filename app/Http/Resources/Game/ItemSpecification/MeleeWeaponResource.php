@@ -51,14 +51,12 @@ use OpenApi\Attributes as OA;
             ),
             nullable: true
         ),
-        // Legacy names for backward compatibility (v2)
         new OA\Property(
             property: 'attack_modes_legacy',
             description: 'Deprecated: legacy melee combat config format.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/melee_combat_config_v2'),
-            deprecated: true,
-            nullable: true
+            nullable: true,
         ),
     ],
     type: 'object'
@@ -85,14 +83,15 @@ class MeleeWeaponResource extends AbstractItemSpecificationResource
                     $damage = Arr::get($attack, 'Damage', []);
 
                     return [
-                        'action_category' => Arr::get($attack, 'ActionCategory'),
+                        'category' => Arr::get($attack, 'ActionCategory'),
+                        'damage' => Arr::get($attack, 'DamageTotal'),
                         'stun_recovery_modifier' => Arr::get($attack, 'StunRecoveryModifier'),
                         'block_stun_reduction_modifier' => Arr::get($attack, 'BlockStunReductionModifier'),
                         'block_stun_stamina_modifier' => Arr::get($attack, 'BlockStunStaminaModifier'),
                         'attack_impulse' => Arr::get($attack, 'AttackImpulse'),
                         'ignore_body_part_impulse_scale' => Arr::get($attack, 'IgnoreBodyPartImpulseScale'),
                         'force_knockdown' => Arr::get($attack, 'ForceKnockdown'),
-                        'damage' => [
+                        'damages' => [
                             'physical' => Arr::get($damage, 'Physical'),
                             'energy' => Arr::get($damage, 'Energy'),
                             'distortion' => Arr::get($damage, 'Distortion'),
@@ -100,39 +99,9 @@ class MeleeWeaponResource extends AbstractItemSpecificationResource
                             'biochemical' => Arr::get($damage, 'Biochemical'),
                             'stun' => Arr::get($damage, 'Stun'),
                         ],
-                        'damage_total' => Arr::get($attack, 'DamageTotal'),
                     ];
                 }
             ),
-            // Legacy compatibility: expose raw MeleeCombatConfigResource collection when available
-            'attack_modes_legacy' => $this->buildLegacyCombatConfig($melee),
         ];
-    }
-
-    private function buildLegacyCombatConfig(array $melee): mixed
-    {
-        $attackConfigs = Arr::get($melee, 'AttackConfig');
-
-        if ($attackConfigs === null) {
-            return null;
-        }
-
-        return collect(is_array($attackConfigs) ? $attackConfigs : [$attackConfigs])->map(
-            function (mixed $attack): array {
-                $damage = Arr::get($attack, 'Damage', []);
-
-                return [
-                    'category' => Arr::get($attack, 'ActionCategory'),
-                    'damage' => Arr::get($attack, 'DamageTotal'),
-                    'stun_recovery_modifier' => Arr::get($attack, 'StunRecoveryModifier'),
-                    'block_stun_reduction_modifier' => Arr::get($attack, 'BlockStunReductionModifier'),
-                    'block_stun_stamina_modifier' => Arr::get($attack, 'BlockStunStaminaModifier'),
-                    'attack_impulse' => Arr::get($attack, 'AttackImpulse'),
-                    'ignore_body_part_impulse_scale' => Arr::get($attack, 'IgnoreBodyPartImpulseScale'),
-                    'fullbody_animation' => null,
-                    'damages' => $this->buildDamageArray($damage),
-                ];
-            }
-        );
     }
 }

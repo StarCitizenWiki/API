@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Game;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ItemData extends Model
@@ -16,12 +19,13 @@ class ItemData extends Model
         'item_id',
         'game_version_id',
         'name',
+        'class_name',
         'type',
         'sub_type',
         'classification',
         'size',
         'grade',
-        'class_name',
+        'class',
         'manufacturer_id',
         'base_id',
         'data',
@@ -31,13 +35,6 @@ class ItemData extends Model
         'size' => 'integer',
         'grade' => 'integer',
         'data' => AsCollection::class,
-    ];
-
-    protected $with = [
-        'gameVersion',
-        'manufacturer',
-        'translations',
-        'descriptionData',
     ];
 
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
@@ -103,5 +100,131 @@ class ItemData extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(ItemTranslation::class);
+    }
+
+    public function entityTags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            EntityTag::class,
+            'game_item_data_entity_tag',
+            'item_data_id',
+            'entity_tag_id'
+        );
+    }
+
+    public function scopeForCategory(Builder $query, string $category): Builder
+    {
+        return match ($category) {
+            'food' => $query->food(),
+            'weapon-attachments' => $query->weaponAttachments(),
+            'weapons' => $query->personalWeapons(),
+            'clothes' => $query->clothes(),
+            'armor' => $query->armor(),
+            'vehicle-weapons' => $query->vehicleWeapons(),
+            'vehicle-items' => $query->vehicleItems(),
+            default => $query,
+        };
+    }
+
+    public function scopeFood(Builder $query): Builder
+    {
+        return $query->whereIn('type', ['Food', 'Bottle', 'Drink']);
+    }
+
+    public function scopeWeaponAttachments(Builder $query): Builder
+    {
+        return $query->where('type', 'WeaponAttachment');
+    }
+
+    public function scopePersonalWeapons(Builder $query): Builder
+    {
+        return $query->where('type', 'WeaponPersonal');
+    }
+
+    public function scopeClothes(Builder $query): Builder
+    {
+        return $query
+            ->where('classification', 'LIKE', 'FPS.Clothing.%')
+            ->excludePlaceholderNames();
+    }
+
+    public function scopeArmor(Builder $query): Builder
+    {
+        return $query
+            ->where('classification', 'LIKE', 'FPS.Armor.%')
+            ->excludePlaceholderNames();
+    }
+
+    public function scopeVehicleWeapons(Builder $query): Builder
+    {
+        return $query->where('type', 'WeaponGun');
+    }
+
+    public function scopeVehicleItems(Builder $query): Builder
+    {
+        return $query
+            ->where('class_name', 'NOT LIKE', '%test%')
+            ->where('class_name', 'NOT LIKE', '%lowpoly%')
+            ->where('class_name', 'NOT LIKE', '%dummy%')
+            ->where('class_name', 'NOT LIKE', '%_mm')
+            ->where('class_name', 'NOT LIKE', '%s%_idris_m')
+            ->where('class_name', 'NOT LIKE', '%s%_turret')
+            ->where('class_name', 'NOT LIKE', 'mrck_s05_orig_%')
+            ->where('class_name', 'NOT LIKE', 'mrck_s05_behr_quad_s03_a')
+            ->whereIn('type', [
+                'Arm',
+                'Battery',
+                'BombLauncher',
+                'Cooler',
+                'EMP',
+                'ExternalFuelTank',
+                'FlightController',
+                'FuelIntake',
+                'FuelTank',
+                'MainThruster',
+                'ManneuverThruster',
+                'MiningArm',
+                'Missile',
+                'MissileLauncher',
+                'Mount',
+                'Paints',
+                'PowerPlant',
+                'QuantumDrive',
+                'QuantumFuelTank',
+                'QuantumInterdictionGenerator',
+                'Radar',
+                'SalvageModifier',
+                'SelfDestruct',
+                'Shield',
+                'ToolArm',
+                'TowingBeam',
+                'TractorBeam',
+                'Turret',
+                'Turret',
+                'TurretBase',
+                'UtilityTurret',
+                'WeaponDefensive',
+                'WeaponGun',
+                'WeaponMount',
+                'WeaponMining',
+                'WheeledController',
+            ]);
+    }
+
+    public function scopeExcludePlaceholderNames(Builder $query): Builder
+    {
+        return $query
+            ->where('name', 'NOT LIKE', '%PLACEHOLDER%')
+            ->where('name', 'NOT LIKE', '%Placeholder%')
+            ->where('name', 'NOT LIKE', 'PH -%')
+            ->where('name', 'NOT LIKE', '[PH]%')
+            ->where('name', 'NOT LIKE', '%- name%');
+    }
+
+    public function scopeWithDescriptionValue(Builder $query, string $name, string $value): Builder
+    {
+        return $query->whereHas('descriptionData', function (Builder $builder) use ($name, $value) {
+            $builder->where('name', $name)->where('value', $value);
+        });
     }
 }

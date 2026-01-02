@@ -86,56 +86,56 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
-        $stdItem = $this->extractStdItem($data);
-        $resourceNetwork = Arr::get($stdItem, 'ResourceNetwork', []);
-
-        $states = collect(Arr::get($resourceNetwork, 'States', []))
-            ->map(function (array $state): array {
-                $signature = Arr::get($state, 'Signature', null);
-
-                $deltas = collect(Arr::get($state, 'Deltas', []))
-                    ->map(function (array $delta): array {
-                        return array_filter([
-                            'type' => Arr::get($delta, 'Type'),
-                            'resource' => Arr::get($delta, 'Resource'),
-                            'rate' => Arr::get($delta, 'Rate'),
-                            'minimum_fraction' => Arr::get($delta, 'MinimumFraction'),
-                            'generated_resource' => Arr::get($delta, 'GeneratedResource'),
-                            'generated_rate' => Arr::get($delta, 'GeneratedRate'),
-                            'discharge' => Arr::get($delta, 'Discharge'),
-                            'no_over_generation' => Arr::get($delta, 'NoOverGeneration'),
-                            'binary_evaluation' => Arr::get($delta, 'BinaryEvaluation'),
-                            'composition' => collect(Arr::get($delta, 'Composition', []))
-                                ->map(fn (array $entry): array => [
-                                    'container_resource' => Arr::get($entry, 'ContainerResource'),
-                                    'ratio' => Arr::get($entry, 'Ratio'),
-                                ])
-                                ->values()
-                                ->toArray(),
-                        ], static fn ($value) => $value !== null && $value !== []);
-                    })
-                    ->values()
-                    ->toArray();
-
-                return array_filter([
-                    'name' => Arr::get($state, 'Name'),
-                    'signature' => $signature !== null ? [
-                        'em' => Arr::get($signature, 'EM'),
-                        'ir' => Arr::get($signature, 'IR'),
-                    ] : null,
-                    'deltas' => $deltas,
-                ], static fn ($value) => $value !== null && $value !== []);
-            })
-            ->values()
-            ->toArray();
+        $resourceNetwork = $this->extractFromStdItem($this->resource, 'ResourceNetwork');
 
         return array_filter([
             'is_networked' => Arr::get($resourceNetwork, 'IsNetworked'),
             'is_relay' => Arr::get($resourceNetwork, 'IsRelay'),
             'default_priority' => Arr::get($resourceNetwork, 'DefaultPriority'),
-            'states' => $states,
+            'states' => array_map(fn ($state) => [
+                'name' => Arr::get($state, 'Name'),
+                'signature' => [
+                    'em' => Arr::get($state, 'Signature.EM'),
+                    'ir' => Arr::get($state, 'Signature.IR'),
+                ],
+                'deltas' => collect(Arr::get($state, 'Deltas', []))->map(fn ($delta) => [
+                    'type' => Arr::get($delta, 'Type'),
+                    'resource' => Arr::get($delta, 'Resource'),
+                    'rate' => Arr::get($delta, 'Rate'),
+                    'minimum_fraction' => Arr::get($delta, 'MinimumFraction'),
+                    'generated_resource' => Arr::get($delta, 'GeneratedResource'),
+                    'generated_rate' => Arr::get($delta, 'GeneratedRate'),
+                    'discharge' => Arr::get($delta, 'Discharge'),
+                    'no_over_generation' => Arr::get($delta, 'NoOverGeneration'),
+                    'binary_evaluation' => Arr::get($delta, 'BinaryEvaluation'),
+                    'composition' => Arr::get($delta, 'Composition'),
+                ]),
+                'power_ranges' => collect(Arr::get($state, 'PowerRanges', []))->map(fn ($range) => [
+                    'start' => Arr::get($range, 'Start'),
+                    'modifier' => Arr::get($range, 'Modifier'),
+                    'register_range' => Arr::get($range, 'RegisterRange'),
+                ]),
+            ], Arr::get($resourceNetwork, 'States', [])),
+            'repair' => [
+                'max_repair_count' => Arr::get($resourceNetwork, 'Repair.MaxRepairCount'),
+                'time_to_repair' => Arr::get($resourceNetwork, 'Repair.TimeToRepair'),
+                'health_ratio' => Arr::get($resourceNetwork, 'Repair.HealthRatio'),
+            ],
+            'usage' => [
+                'power' => [
+                    'minimum' => Arr::get($resourceNetwork, 'Usage.Power.Minimum'),
+                    'maximum' => Arr::get($resourceNetwork, 'Usage.Power.Maximum'),
+                ],
+                'coolant' => [
+                    'minimum' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),
+                    'maximum' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),
+                ],
+            ],
+            'generation' => [
+                'coolant' => Arr::get($resourceNetwork, 'Generation.Coolant'),
+                'power' => Arr::get($resourceNetwork, 'Generation.Power'),
+            ],
         ], static fn ($value) => $value !== null && $value !== []);
     }
 }

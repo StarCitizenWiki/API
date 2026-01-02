@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs\Game;
 
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\Manufacturer\Manufacturer as ShipMatrixManufacturer;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Services\Game\VehicleItemImporter;
+use App\Services\Game\VehicleMatchingService;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -28,7 +29,9 @@ class ImportVehicleData implements ShouldQueue
 
     public function __construct(
         private readonly int $gameVersionId,
-        private readonly string $path
+        private readonly string $path,
+        private readonly ?Labels $labels = null,
+        private readonly ?VehicleMatchingService $matcher = null
     ) {}
 
     /**
@@ -39,6 +42,7 @@ class ImportVehicleData implements ShouldQueue
     public function handle(): void
     {
         $payload = $this->readPayload();
+        $rawPayload = $this->readRawPayload();
 
         if (! isset($payload['UUID'])) {
             return;
@@ -59,6 +63,8 @@ class ImportVehicleData implements ShouldQueue
             ],
             $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId)
         );
+
+        $this->importVehicleItem($payload, $rawPayload, $manufacturerId);
     }
 
     /**
@@ -69,6 +75,38 @@ class ImportVehicleData implements ShouldQueue
         $contents = Storage::disk('scunpacked')->get($this->path);
 
         return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function readRawPayload(): array
+    {
+        $rawPath = $this->buildRawPath();
+
+        if ($rawPath === null || Storage::disk('scunpacked')->missing($rawPath)) {
+            return [];
+        }
+
+        $contents = Storage::disk('scunpacked')->get($rawPath);
+        $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+
+        return is_array($payload) ? ($payload['Raw'] ?? []) : [];
+    }
+
+    private function buildRawPath(): ?string
+    {
+        if (! str_ends_with($this->path, '.json')) {
+            return null;
+        }
+
+        return preg_replace('/\\.json$/', '-raw.json', $this->path);
+    }
+
+    private function importVehicleItem(array $payload, array $rawPayload, int $manufacturerId): void
+    {
+        $importer = new VehicleItemImporter($this->labels);
+        $importer->importFromVehiclePayload($this->gameVersionId, $payload, $rawPayload, $manufacturerId);
     }
 
     private function resolveManufacturer(array $payload): int
@@ -96,13 +134,12 @@ class ImportVehicleData implements ShouldQueue
 
     private function mapVehicleData(array $payload, ?int $manufacturerId, ?int $shipmatrixId): array
     {
-        $insurance = $payload['Insurance'] ?? [];
-
         return [
             'manufacturer_id' => $manufacturerId,
             'shipmatrix_id' => $shipmatrixId,
             'class_name' => $payload['ClassName'] ?? null,
             'name' => $payload['Name'] ?? null,
+            'display_name' => $this->generateDisplayName($payload, $manufacturerId),
             'career' => $payload['Career'] ?? null,
             'role' => $payload['Role'] ?? null,
 
@@ -111,167 +148,14 @@ class ImportVehicleData implements ShouldQueue
             'is_spaceship' => (bool) Arr::get($payload, 'IsSpaceship', false),
 
             'size' => Arr::get($payload, 'Size'),
-            'length' => Arr::get($payload, 'Length'),
-            'width' => Arr::get($payload, 'Width'),
-            'height' => Arr::get($payload, 'Height'),
-            'crew' => Arr::get($payload, 'Crew'),
-            'mass' => Arr::get($payload, 'Mass'),
-            'cargo' => Arr::get($payload, 'Cargo'),
 
-            'insurance_claim_time' => Arr::get($insurance, 'StandardClaimTime'),
-            'insurance_expedited_time' => Arr::get($insurance, 'ExpeditedClaimTime'),
-            'insurance_expedited_cost' => Arr::get($insurance, 'ExpeditedCost'),
-
-            'shield_face_type' => Arr::get($payload, 'ShieldFaceType'),
-            'shield_hp' => Arr::get($payload, 'ShieldHp'),
-            'health' => Arr::get($payload, 'Health'),
-
-            'quantum_speed' => Arr::get($payload, 'Quantum.QuantumSpeed'),
-            'quantum_spool_time' => Arr::get($payload, 'Quantum.QuantumSpoolTime'),
-            'quantum_fuel_capacity' => Arr::get($payload, 'Quantum.QuantumFuelCapacity'),
-            'quantum_range' => Arr::get($payload, 'Quantum.QuantumRange'),
-
-            'fuel_capacity' => Arr::get($payload, 'Fuel.Capacity'),
-            'fuel_intake_rate' => Arr::get($payload, 'Fuel.IntakeRate'),
-            'fuel_usage_main' => Arr::get($payload, 'Fuel.Usage.Main'),
-            'fuel_usage_retro' => Arr::get($payload, 'Fuel.Usage.Retro'),
-            'fuel_usage_vtol' => Arr::get($payload, 'Fuel.Usage.Vtol'),
-            'fuel_usage_maneuvering' => Arr::get($payload, 'Fuel.Usage.Maneuvering'),
-
-            'json' => $payload,
+            'data' => $payload,
         ];
     }
 
     private function resolveShipmatrixVehicleId(array $payload): ?int
     {
-        $manufacturerData = Arr::get($payload, 'Manufacturer', []);
-        $manufacturerCode = Arr::get($manufacturerData, 'Code');
-        $manufacturerName = Arr::get($manufacturerData, 'Name');
-
-        $shipmatrixManufacturerId = $this->matchShipmatrixManufacturer($manufacturerCode, $manufacturerName);
-
-        $candidates = $this->buildVehicleNameCandidates($payload, $manufacturerName, $manufacturerCode);
-
-        foreach ($candidates as $candidate) {
-            $match = $this->findShipmatrixVehicle($candidate, $shipmatrixManufacturerId);
-
-            if ($match !== null) {
-                Log::info('Vehicle matched', [
-                    'uuid' => $payload['UUID'],
-                    'game_name' => $payload['Name'],
-                    'matched_to' => $match->name,
-                    'candidate' => $candidate,
-                ]);
-
-                return $match->id;
-            }
-        }
-
-        if ($shipmatrixManufacturerId !== null) {
-            foreach ($candidates as $candidate) {
-                $match = $this->findShipmatrixVehicle($candidate, null);
-
-                if ($match !== null) {
-                    Log::warning('Vehicle matched without manufacturer constraint', [
-                        'uuid' => $payload['UUID'],
-                        'game_name' => $payload['Name'],
-                        'matched_to' => $match->name,
-                        'expected_manufacturer_id' => $shipmatrixManufacturerId,
-                        'actual_manufacturer_id' => $match->manufacturer_id,
-                    ]);
-
-                    return $match->id;
-                }
-            }
-        }
-
-        Log::warning('Vehicle match failed', [
-            'uuid' => $payload['UUID'],
-            'game_name' => $payload['Name'],
-            'class_name' => $payload['ClassName'],
-            'manufacturer' => $manufacturerName,
-            'candidates_tried' => $candidates,
-        ]);
-
-        return null;
-    }
-
-    private function matchShipmatrixManufacturer(?string $code, ?string $name): ?int
-    {
-        $query = ShipMatrixManufacturer::query();
-
-        if ($code !== null && $code !== '') {
-            $manufacturer = (clone $query)->whereRaw('LOWER(name_short) = ?', [mb_strtolower($code)])->first();
-
-            if ($manufacturer !== null) {
-                return $manufacturer->id;
-            }
-        }
-
-        if ($name !== null && $name !== '') {
-            $manufacturer = (clone $query)->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
-
-            if ($manufacturer !== null) {
-                return $manufacturer->id;
-            }
-        }
-
-        return null;
-    }
-
-    private function buildVehicleNameCandidates(array $payload, ?string $manufacturerName, ?string $manufacturerCode): array
-    {
-        $candidates = [];
-        $payloadName = $this->normalizeName($payload['Name'] ?? $payload['ClassName'] ?? '');
-
-        if ($payloadName !== '') {
-            $candidates[] = $payloadName;
-        }
-
-        if ($manufacturerName !== null) {
-            $stripped = $this->stripManufacturerPrefix($payloadName, $manufacturerName);
-            if ($stripped !== '' && $stripped !== $payloadName) {
-                $candidates[] = $stripped;
-            }
-        }
-
-        if ($manufacturerCode !== null) {
-            $stripped = $this->stripManufacturerPrefix($payloadName, $manufacturerCode);
-            if ($stripped !== '' && $stripped !== $payloadName) {
-                $candidates[] = $stripped;
-            }
-        }
-
-        $className = Arr::get($payload, 'ClassName');
-        if (is_string($className) && $className !== '') {
-            $parts = array_filter(explode('_', $className));
-
-            if (count($parts) > 1) {
-                array_shift($parts);
-            }
-
-            $classCandidate = $this->normalizeName(implode(' ', $parts));
-            if ($classCandidate !== '') {
-                $candidates[] = $classCandidate;
-            }
-        }
-
-        $overrides = config('game.vehicle_name_overrides', []);
-        if ($payloadName !== '' && array_key_exists($payloadName, $overrides)) {
-            array_unshift($candidates, $overrides[$payloadName]);
-        }
-
-        $reversed = [];
-        foreach ($candidates as $candidate) {
-            $parts = preg_split('/\\s+/', $candidate);
-            if ($parts !== false && count($parts) > 1) {
-                $reversed[] = implode(' ', array_reverse($parts));
-            }
-        }
-
-        $candidates = [...$candidates, ...$reversed];
-
-        return array_values(array_unique(array_filter($candidates)));
+        return ($this->matcher ?? app(VehicleMatchingService::class))->findMatch($payload);
     }
 
     private function normalizeName(string $name): string
@@ -289,50 +173,75 @@ class ImportVehicleData implements ShouldQueue
         return trim((string) preg_replace($pattern, '', $name));
     }
 
-    private function findShipmatrixVehicle(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
+    /**
+     * Get possible short names for a manufacturer to use for prefix stripping.
+     *
+     * Returns an array of candidates to try when stripping manufacturer prefixes,
+     * ordered from most specific to least specific.
+     */
+    private function getManufacturerShortNames(array $manufacturerData): array
     {
-        $baseQuery = ShipMatrixVehicle::query()
-            ->when($manufacturerId !== null, static fn ($query) => $query->where('manufacturer_id', $manufacturerId));
+        $manufacturerName = Arr::get($manufacturerData, 'Name');
 
-        $slug = Str::slug($candidate);
-
-        $match = (clone $baseQuery)->where('slug', $slug)->first();
-        if ($match !== null) {
-            return $match;
+        if ($manufacturerName === null || $manufacturerName === '') {
+            return [];
         }
 
-        $match = (clone $baseQuery)->where('name', $candidate)->first();
-        if ($match !== null) {
-            return $match;
+        $candidates = [];
+
+        $specialCases = [
+            'Roberts Space Industries' => ['RSI'],
+            'Consolidated Outland' => ['C.O.'],
+            'Musashi Industrial & Starflight Concern' => ['MISC'],
+        ];
+
+        if (isset($specialCases[$manufacturerName])) {
+            $candidates = array_merge($candidates, $specialCases[$manufacturerName]);
         }
 
-        $match = (clone $baseQuery)->whereRaw('LOWER(name) = ?', [mb_strtolower($candidate)])->first();
-        if ($match !== null) {
-            return $match;
+        $candidates[] = $manufacturerName;
+
+        $parts = explode(' ', $manufacturerName);
+        if (count($parts) > 0 && $parts[0] !== '') {
+            $candidates[] = $parts[0];
         }
 
-        $match = (clone $baseQuery)->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower($candidate).'%'])->first();
-
-        return $match ?? $this->fuzzyMatch($candidate, $manufacturerId);
+        return array_unique($candidates);
     }
 
     /**
-     * Try fuzzy matching using Levenshtein distance
+     * Generate a display name by stripping manufacturer prefix from the vehicle name.
+     *
+     * Examples:
+     * - "RSI Constellation Andromeda" > "Constellation Andromeda"
+     * - "Anvil F7C Hornet" > "F7C Hornet"
+     * - "F8C Lightning PYAM Exec" > "F8C Lightning PYAM Exec" (no prefix)
      */
-    private function fuzzyMatch(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
+    private function generateDisplayName(array $payload, ?int $manufacturerId): ?string
     {
-        $baseQuery = ShipMatrixVehicle::query()
-            ->when($manufacturerId !== null, static fn ($query) => $query->where('manufacturer_id', $manufacturerId));
+        $rawName = $payload['Name'] ?? null;
 
-        $vehicles = $baseQuery->get();
+        if ($rawName === null || $rawName === '') {
+            return null;
+        }
 
-        return $vehicles->first(function ($vehicle) use ($candidate) {
-            $distance = levenshtein(
-                mb_strtolower($candidate),
-                mb_strtolower($vehicle->name)
-            );
+        $normalized = $this->normalizeName($rawName);
 
-            return $distance <= 2;
-        });
+        if ($manufacturerId === null) {
+            return $normalized;
+        }
+
+        $manufacturerData = Arr::get($payload, 'Manufacturer', []);
+
+        $shortNames = $this->getManufacturerShortNames($manufacturerData);
+
+        foreach ($shortNames as $shortName) {
+            $stripped = $this->stripManufacturerPrefix($normalized, $shortName);
+            if ($stripped !== '' && $stripped !== $normalized) {
+                return $stripped;
+            }
+        }
+
+        return $normalized;
     }
 }

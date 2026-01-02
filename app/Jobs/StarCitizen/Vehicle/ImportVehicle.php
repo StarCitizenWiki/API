@@ -108,6 +108,9 @@ class ImportVehicle implements ShouldQueue
                 'translation' => strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? ''),
             ]
         );
+
+        $this->syncFociIds($vehicle);
+        $this->syncComponents($vehicle);
     }
 
     /**

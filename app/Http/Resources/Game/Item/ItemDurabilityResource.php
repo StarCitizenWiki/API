@@ -28,6 +28,7 @@ class ItemDurabilityResource extends AbstractBaseResource
         return [
             'health' => Arr::get($this, 'Health'),
             'max_lifetime' => Arr::get($this, 'Lifetime'),
+            'lifetime' => Arr::get($this, 'Lifetime'),
             'repairable' => Arr::get($this, 'Repairable') === 1,
             'salvageable' => Arr::get($this, 'Salvageable') === 1,
         ];

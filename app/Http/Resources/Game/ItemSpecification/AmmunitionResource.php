@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -160,21 +161,26 @@ class AmmunitionResource extends AbstractItemSpecificationResource
         $stdItem = $this->extractStdItem($data);
         $ammunition = Arr::get($stdItem, 'Ammunition', []);
 
-        $impactDamage = $this->buildDamageArray(Arr::get($ammunition, 'ImpactDamage', []));
-        $detonationDamage = $this->buildDamageArray(Arr::get($ammunition, 'DetonationDamage', []));
+        $impactDamage = $this->buildDamageArray(Arr::get($ammunition, 'ImpactDamage', []), 'ImpactDamage');
+        $detonationDamage = $this->buildDamageArray(Arr::get($ammunition, 'DetonationDamage', []), 'DetonationDamage');
 
-        $damageDropMinDistance = Arr::get($ammunition, 'DamageDropMinDistance');
-        $damageDropPerMeter = Arr::get($ammunition, 'DamageDropPerMeter');
-        $damageDropMinDamage = Arr::get($ammunition, 'DamageDropMinDamage');
+        $mapper = static fn ($value, $key) => [Str::snake($key) => $value];
+
+        $damageDropMinDistance = collect(Arr::get($ammunition, 'DamageDropMinDistance', []))->mapWithKeys($mapper)->toArray();
+        $damageDropPerMeter = collect(Arr::get($ammunition, 'DamageDropPerMeter', []))->mapWithKeys($mapper)->toArray();
+        $damageDropMinDamage = collect(Arr::get($ammunition, 'DamageDropMinDamage', []))->mapWithKeys($mapper)->toArray();
         $penetration = Arr::get($ammunition, 'Penetration');
 
         return [
-            'speed' => Arr::get($ammunition, 'Speed'),
-            'lifetime' => Arr::get($ammunition, 'Lifetime'),
-            'range' => Arr::get($ammunition, 'Range'),
+            'uuid' => Arr::get($ammunition, 'UUID'),
             'size' => Arr::get($ammunition, 'Size'),
+            'lifetime' => Arr::get($ammunition, 'Lifetime'),
+            'speed' => Arr::get($ammunition, 'Speed'),
+            'range' => Arr::get($ammunition, 'Range'),
+
             'capacity' => Arr::get($ammunition, 'Capacity'),
             'initial_capacity' => Arr::get($ammunition, 'InitialCapacity'),
+
             'damage_falloff_level_1' => Arr::get($ammunition, 'DamageFalloffLevel1'),
             'damage_falloff_level_2' => Arr::get($ammunition, 'DamageFalloffLevel2'),
             'damage_falloff_level_3' => Arr::get($ammunition, 'DamageFalloffLevel3'),
@@ -188,16 +194,22 @@ class AmmunitionResource extends AbstractItemSpecificationResource
             'damage_drop_min_distance' => $damageDropMinDistance,
             'damage_drop_per_meter' => $damageDropPerMeter,
             'damage_drop_min_damage' => $damageDropMinDamage,
-            'bullet_impulse_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff'),
+            'bullet_impulse_falloff' => [
+                'min_distance' => Arr::get($ammunition, 'BulletImpulseFalloff.MinDistance'),
+                'drop_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.DropFalloff'),
+                'max_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.MaxFalloff'),
+            ],
             'bullet_electron' => Arr::get($ammunition, 'BulletElectron'),
             'impulse_scale' => Arr::get($ammunition, 'ImpulseScale'),
             'bullet_type' => Arr::get($ammunition, 'BulletType'),
+
             // Deprecated grouping to preserve v2 compatibility
             'damage_falloffs' => [
                 'min_distance' => $damageDropMinDistance,
                 'per_meter' => $damageDropPerMeter,
                 'min_damage' => $damageDropMinDamage,
             ],
+
             'piercability' => [
                 'damage_falloff_level_1' => Arr::get($ammunition, 'DamageFalloffLevel1'),
                 'damage_falloff_level_2' => Arr::get($ammunition, 'DamageFalloffLevel2'),

@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('game_version_id')->index();
+            $table->unsignedBigInteger('manufacturer_id');
             $table->string('name');
+            $table->string('class_name');
             $table->string('type')->nullable();
             $table->string('sub_type')->nullable();
             $table->string('classification')->nullable();
-            $table->unsignedBigInteger('manufacturer_id');
             $table->unsignedInteger('size')->nullable();
             $table->unsignedInteger('grade')->nullable();
-            $table->string('class_name')->nullable();
+            $table->string('class')->nullable();
             $table->unsignedBigInteger('base_id')->nullable();
             $table->jsonb('data');
             $table->timestamps();

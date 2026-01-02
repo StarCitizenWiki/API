@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\ItemSpecification\BarrelAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
+use App\Http\Resources\Game\ItemSpecification\CargoGridResource;
 use App\Http\Resources\Game\ItemSpecification\CharacterArmorResource;
 use App\Http\Resources\Game\ItemSpecification\ClothingResource;
 use App\Http\Resources\Game\ItemSpecification\CoolerResource;
+use App\Http\Resources\Game\ItemSpecification\CounterMeasureResource;
 use App\Http\Resources\Game\ItemSpecification\EmpResource;
 use App\Http\Resources\Game\ItemSpecification\FlightControllerResource;
+use App\Http\Resources\Game\ItemSpecification\FoodResource;
+use App\Http\Resources\Game\ItemSpecification\FuelIntakeResource;
 use App\Http\Resources\Game\ItemSpecification\FuelTankResource;
 use App\Http\Resources\Game\ItemSpecification\GrenadeResource;
 use App\Http\Resources\Game\ItemSpecification\HackingChipResource;
@@ -21,10 +26,13 @@ use App\Http\Resources\Game\ItemSpecification\IronSightResource;
 use App\Http\Resources\Game\ItemSpecification\MeleeWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\MiningLaserResource;
 use App\Http\Resources\Game\ItemSpecification\MiningModuleResource;
+use App\Http\Resources\Game\ItemSpecification\MissileRackResource;
 use App\Http\Resources\Game\ItemSpecification\MissileResource;
 use App\Http\Resources\Game\ItemSpecification\PersonalWeaponResource;
+use App\Http\Resources\Game\ItemSpecification\PowerPlantResource;
 use App\Http\Resources\Game\ItemSpecification\QuantumDriveResource;
 use App\Http\Resources\Game\ItemSpecification\QuantumInterdictionGeneratorResource;
+use App\Http\Resources\Game\ItemSpecification\RadarResource;
 use App\Http\Resources\Game\ItemSpecification\RadiationResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\SalvageModifierResource;
 use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
@@ -32,6 +40,8 @@ use App\Http\Resources\Game\ItemSpecification\ShieldResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
 use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
+use App\Http\Resources\Game\ItemSpecification\VehicleWeaponResource;
+use App\Http\Resources\Game\ItemSpecification\WeaponAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Models\Game\Item;
@@ -67,8 +77,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'mass',
             description: 'Generated from SEntityRigidPhysicsControllerParams', type: 'double', example: 1000.0, nullable: true),
         new OA\Property(property: 'is_base_variant', type: 'boolean'),
-        //        new OA\Property(property: 'grade', type: 'string', nullable: true),
-        //        new OA\Property(property: 'class', type: 'string', nullable: true),
+        new OA\Property(property: 'grade', type: 'string', nullable: true),
+        new OA\Property(property: 'class', type: 'string', nullable: true),
         new OA\Property(
             property: 'description_data',
             description: 'Key Value pairs from the description, where key is data before a ":" and value is whats following',
@@ -104,6 +114,19 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(
+            property: 'entity_tag_map',
+            description: 'Entity tags from the database relationship',
+            type: 'array',
+            items: new OA\Items(
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'uuid', type: 'string'),
+                    new OA\Property(property: 'name', type: 'string'),
+                ]
+            ),
+            nullable: true,
+        ),
+        new OA\Property(
             property: 'interactions',
             description: 'Generated from SInteractionPointParams',
             type: 'array',
@@ -111,14 +134,14 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(
-            property: 'ports',
+            property: 'item_ports',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/item_port'),
             nullable: true
         ),
         new OA\Property(property: 'heat', ref: '#/components/schemas/item_heat_connection', nullable: true),
         new OA\Property(property: 'power', ref: '#/components/schemas/item_power_connection', nullable: true),
-        new OA\Property(property: 'distortion', type: 'array', nullable: true, deprecated: true),
+        new OA\Property(property: 'distortion', ref: '#/components/schemas/item_distortion', nullable: true),
         new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability', nullable: true),
         new OA\Property(property: 'resource_container', ref: '#/components/schemas/resource_container', nullable: true),
         new OA\Property(property: 'ammunition', ref: '#/components/schemas/ammunition', nullable: true),
@@ -150,7 +173,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'melee_weapon', ref: '#/components/schemas/melee_weapon', nullable: true),
         new OA\Property(property: 'grenade', ref: '#/components/schemas/grenade', nullable: true),
         new OA\Property(property: 'knife', ref: '#/components/schemas/melee_weapon', nullable: true, deprecated: true),
-        new OA\Property(property: 'barrel_attachment', ref: '#/components/schemas/barrel_attachment', nullable: true),
+        new OA\Property(property: 'barrel_attach', ref: '#/components/schemas/barrel_attachment', nullable: true),
         new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/weapon_modifier', nullable: true),
         new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight', nullable: true),
         new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', nullable: true),
@@ -230,9 +253,19 @@ use OpenApi\Attributes as OA;
 )]
 class ItemResource extends AbstractBaseResource
 {
+    use ExtractsJsonData;
+
     public static function validIncludes(): array
     {
-        return parent::validIncludes();
+        return [
+            'manufacturer',
+            'translations',
+            'descriptionData',
+            'baseVariant',
+            'variants',
+            'entityTags',
+            'related_items',
+        ];
     }
 
     public function toArray(Request $request): array
@@ -241,12 +274,11 @@ class ItemResource extends AbstractBaseResource
             return [];
         }
 
+        $this->addMetadata('deprecations', [
+            'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
+        ]);
+
         $itemData = $this->data->first();
-        $data = $itemData->data;
-        $stdItem = Arr::get($data, 'stdItem', []);
-        if (! is_array($stdItem)) {
-            $stdItem = [];
-        }
 
         // Determine if 'related_items' has been requested via include
         $includeParam = $request->query('include');
@@ -267,63 +299,88 @@ class ItemResource extends AbstractBaseResource
             'classification' => $itemData->classification,
             'description' => $this->getTranslation($itemData, $request),
             'size' => $itemData->size,
-            'mass' => Arr::get($data, 'stdItem.Mass'),
+            'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
-            //            $this->mergeWhen(str_starts_with('Ship.', $itemData->classification), [
-            //                'grade' => $itemData->grade,
-            //                'class' => $itemData->class,
-            //            ]),
+            $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
+                'grade' => match ($itemData->grade) {
+                    1 => 'A',
+                    2 => 'B',
+                    3 => 'C',
+                    4 => 'D',
+                    default => $itemData->grade,
+                },
+                'class' => $itemData->class,
+            ]),
             'description_data' => ItemDescriptionDataResource::collection($itemData->descriptionData),
             'manufacturer_description' => $itemData->getDescriptionDatum('Manufacturer'),
             'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
             'type' => str_replace('NOITEM_', '', ($itemData->type ?? '')),
             'sub_type' => $itemData->sub_type,
-            //            $this->mergeWhen(...$this->addAttachmentPosition()),
-            //            $this->mergeWhen($this->isTurret(), $this->addTurretData()),
+            $this->mergeWhen(...$this->addAttachmentPosition($itemData)),
+            $this->mergeWhen($this->isTurret($itemData), $this->addTurretData($itemData)),
             $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
             'dimension' => new ItemDimensionResource($itemData),
-            $this->mergeWhen(Arr::has($data, 'stdItem.InventoryContainer'), [
-                'inventory' => new ItemInventoryResource(Arr::get($data, 'stdItem.InventoryContainer')),
+
+            $this->mergeWhen($this->hasInStdItem($itemData, 'InventoryContainer'), [
+                'inventory' => new ItemInventoryResource($this->extractFromStdItem($itemData, 'InventoryContainer')),
             ]),
-            'tags' => Arr::get($data, 'stdItem.Tags', []),
-            'required_tags' => Arr::get($data, 'stdItem.RequiredTags', []),
-            'entity_tags' => Arr::get($data, 'entity_tags', []),
-            'interactions' => Arr::get($data, 'stdItem.Interactions', []),
-            'ports' => ItemPortResource::collection($this->when(Arr::has($data, 'stdItem.Ports'), Arr::get($data, 'stdItem.Ports'))),
-            $this->mergeWhen(Arr::has($data, 'stdItem.ResourceContainer'), [
-                'resource_container' => new ResourceContainerResource(Arr::get($data, 'stdItem.ResourceContainer')),
+
+            'tags' => $this->extractArray($itemData, 'Tags'),
+            'required_tags' => $this->extractArray($itemData, 'RequiredTags'),
+            'entity_tags' => $itemData->relationLoaded('entityTags')
+                ? $itemData->entityTags->pluck('uuid')->values()->toArray()
+                : [],
+            'entity_tag_map' => $itemData->relationLoaded('entityTags')
+                ? $itemData->entityTags->map(fn ($tag) => [
+                    'uuid' => $tag->uuid,
+                    'name' => $tag->name,
+                ])->values()->toArray()
+                : [],
+            'interactions' => $this->extractArray($itemData, 'Interactions'),
+            'ports' => ItemPortResource::collection($this->when($this->hasInStdItem($itemData, 'Ports'), $this->extractPorts($itemData))),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceContainer'), [
+                'resource_container' => new ResourceContainerResource($this->extractFromStdItem($itemData, 'ResourceContainer')),
             ]),
-            $this->mergeWhen(Arr::has($stdItem, 'Ammunition'), [
+            $this->mergeWhen($this->hasSpecification($itemData, 'Ammunition'), [
                 'ammunition' => new AmmunitionResource($itemData),
             ]),
 
-            $this->mergeWhen(Arr::has($data, 'stdItem.RadiationResistance'), [
-                'radiation_resistance' => new RadiationResistanceResource(Arr::get($data, 'stdItem.RadiationResistance')),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'RadiationResistance'), [
+                'radiation_resistance' => new RadiationResistanceResource($this->extractFromStdItem($itemData, 'RadiationResistance')),
             ]),
-            $this->mergeWhen(Arr::has($data, 'stdItem.TemperatureResistance'), [
-                'temperature_resistance' => new TemperatureResistanceResource(Arr::get($data, 'stdItem.TemperatureResistance')),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'TemperatureResistance'), [
+                'temperature_resistance' => new TemperatureResistanceResource($this->extractFromStdItem($itemData, 'TemperatureResistance')),
             ]),
 
-            $this->mergeWhen(Arr::has($data, 'stdItem.HeatConnection'), [
-                'heat' => new ItemHeatConnectionResource(Arr::get($data, 'stdItem.HeatConnection')),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'HeatConnection'), [
+                'heat' => new ItemHeatConnectionResource($this->extractFromStdItem($itemData, 'HeatConnection')),
             ]),
-            $this->mergeWhen(Arr::has($data, 'stdItem.PowerConnection'), [
-                'power' => new ItemPowerConnectionResource(Arr::get($data, 'stdItem.PowerConnection')),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'PowerConnection'), [
+                'power' => new ItemPowerConnectionResource($this->extractFromStdItem($itemData, 'PowerConnection')),
             ]),
-            $this->mergeWhen(Arr::has($data, 'stdItem.Durability'), [
-                'durability' => new ItemDurabilityResource(Arr::get($data, 'stdItem.Durability')),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability'), [
+                'durability' => new ItemDurabilityResource($this->extractFromStdItem($itemData, 'Durability')),
             ]),
-            $this->mergeWhen(Arr::has($data, 'stdItem.ResourceNetwork'), [
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Distortion'), [
+                'distortion' => new ItemDistortionResource($this->extractFromStdItem($itemData, 'Distortion')),
+            ]),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceNetwork'), [
                 'resource_network' => new ResourceNetworkResource($itemData),
             ]),
-            //            $this->mergeWhen($this->type === 'WeaponAttachment', [
-            //                'weapon_modifier' => new ItemWeaponModifierDataResource($this->weaponModifierData),
-            //            ]),
+
             'shops' => [],
-            //            $this->mergeWhen($this->base_id !== null, [
-            //                'base_variant' => new ItemLinkResource($this->baseVariant),
-            //            ]),
-            //            'variants' => ItemLinkResource::collection($this->whenLoaded('variants')),
+            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
+                'base_variant' => $itemData->baseVariant?->item
+                    ? new ItemLinkResource($itemData->baseVariant->item)
+                    : $this->makeApiUrl(self::ITEMS_SHOW, $itemData->baseVariant?->item?->uuid ?? ''),
+            ]),
+            'variants' => $itemData->relationLoaded('variants')
+                ? ItemLinkResource::collection(
+                    $itemData->variants
+                        ->filter(fn ($v) => $v->item !== null)
+                        ->map(fn ($v) => $v->item)
+                )
+                : [],
             $this->mergeWhen($includeRelated, [
                 'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
             ]),
@@ -359,42 +416,6 @@ class ItemResource extends AbstractBaseResource
             //                $specification->exists,
             //                fn () => ['emp' => new ArmorResource($specification)],
             //            ],
-            //            $this->type === 'Bomb' => [
-            //                $specification->exists,
-            //                fn () => ['bomb' => new BombResource($specification)],
-            //            ],
-            //            $this->type === 'Cooler' => [
-            //                $specification->exists,
-            //                fn () => ['cooler' => new CoolerResource($specification)],
-            //            ],
-            //            str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
-            //                $specification->exists,
-            //                fn () => ['clothing' => new ClothingResource($specification)],
-            //            ],
-            //            $this->type === 'EMP' => [
-            //                $specification->exists,
-            //                fn () => ['emp' => new EmpResource($specification)],
-            //            ],
-            //            $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
-            //                $specification->exists,
-            //                fn () => ['food' => new FoodResource($specification)],
-            //            ],
-            //            $this->type === 'FlightController' => [
-            //                $specification->exists,
-            //                fn () => ['flight_controller' => new FlightControllerResource($specification)],
-            //            ],
-            //            $this->type === 'FuelTank', $this->type === 'QuantumFuelTank', $this->type === 'ExternalFuelTank' => [
-            //                $specification->exists,
-            //                fn () => ['fuel_tank' => new FuelTankResource($specification)],
-            //            ],
-            //            $this->type === 'FuelIntake' => [
-            //                $specification->exists,
-            //                fn () => ['fuel_intake' => new FuelIntakeResource($specification)],
-            //            ],
-            //            $this->sub_type === 'Hacking' => [
-            //                $specification->exists,
-            //                fn () => ['hacking_chip' => new HackingChipResource($specification)],
-            //            ],
             str_starts_with($itemData->classification ?? '', 'Ship.MainThruster'),
             str_starts_with($itemData->classification ?? '', 'Ship.ManneuverThruster') => [
                 true,
@@ -420,6 +441,10 @@ class ItemResource extends AbstractBaseResource
                 true,
                 fn () => ['mining_module' => new MiningModuleResource($itemData)],
             ],
+            $itemData->type === 'Gadget' && $this->extractFromStdItem($itemData, 'MiningModule') !== null => [
+                true,
+                fn () => ['mining_gadget' => new MiningModuleResource($itemData)],
+            ],
             $itemData->type === 'QuantumDrive' => [
                 true,
                 fn () => ['quantum_drive' => new QuantumDriveResource($itemData)],
@@ -435,32 +460,6 @@ class ItemResource extends AbstractBaseResource
             //            $this->sub_type === 'Magazine' => [
             //                $specification->exists,
             //                fn () => ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
-            //            ],
-            //            $this->type === 'PowerPlant' => [
-            //                $specification->exists,
-            //                fn () => ['power_plant' => new PowerPlantResource($specification)],
-            //            ],
-            //            $this->type === 'SalvageModifier' => [
-            //                $specification->exists,
-            //                fn () => ['salvage_modifier' => new SalvageModifierResource($specification)],
-            //            ],
-            //            $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
-            //                $specification->exists,
-            //                fn () => ['grenade' => new GrenadeResource($specification)],
-            //            ],
-            //            $this->sub_type === 'IronSight' => [
-            //                $specification->exists,
-            //                fn () => ['iron_sight' => new IronSightResource($specification)],
-            //            ],
-            //            $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment', 'Utility'], true) => [
-            //                $specification->exists,
-            //                fn () => ['barrel_attach' => new BarrelAttachResource($specification)],
-            //            ],
-            //            $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
-            //                $specification->exists,
-            //                fn () => [($this->type === 'WeaponGun' ?
-            //                    'vehicle_weapon' :
-            //                    'counter_measure') => new VehicleWeaponResource($specification), ],
             //            ],
             $itemData->type === 'Bomb' => [
                 true,
@@ -506,60 +505,108 @@ class ItemResource extends AbstractBaseResource
                 true,
                 fn () => ['personal_weapon' => new PersonalWeaponResource($itemData)],
             ],
-            Arr::has($itemData->data, 'stdItem.SalvageModifier') => [
+            $this->hasInStdItem($itemData, 'SalvageModifier') => [
                 true,
                 fn () => ['salvage_modifier' => new SalvageModifierResource($itemData)],
             ],
             $itemData->type === 'WeaponAttachment' && $itemData->sub_type === 'Barrel' => [
                 true,
-                fn () => ['barrel_attachment' => new BarrelAttachmentResource($itemData)],
+                fn () => ['barrel_attach' => new BarrelAttachmentResource($itemData)],
             ],
-            Arr::has($itemData->data, 'stdItem.WeaponModifier') => [
+            $this->hasInStdItem($itemData, 'WeaponModifier') => [
                 true,
                 fn () => ['weapon_modifier' => new WeaponModifierResource($itemData)],
             ],
-            Arr::has($itemData->data, 'stdItem.WeaponAttachment.IronSight') => [
+            $this->hasInStdItem($itemData, 'WeaponAttachment.IronSight') => [
                 true,
                 fn () => ['iron_sight' => new IronSightResource($itemData)],
+            ],
+            $itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment') => [
+                true,
+                fn () => ['weapon_attachment' => new WeaponAttachmentResource($itemData)],
+            ],
+            in_array($itemData->type, ['Food', 'Bottle', 'Drink'], true) || $this->hasInStdItem($itemData, 'Food') => [
+                true,
+                fn () => ['food' => new FoodResource($itemData)],
+            ],
+            $itemData->type === 'WeaponDefensive' || str_contains($itemData->classification ?? '', 'WeaponDefensive') => [
+                true,
+                fn () => ['counter_measure' => new CounterMeasureResource($itemData)],
+            ],
+            ($itemData->type === 'MissileLauncher' && $itemData->sub_type === 'MissileRack') || str_contains($itemData->classification ?? '', 'MissileRack') => [
+                true,
+                fn () => ['missile_rack' => new MissileRackResource($itemData)],
+            ],
+            $itemData->type === 'FuelIntake' || $this->hasInStdItem($itemData, 'FuelIntake') => [
+                true,
+                fn () => ['fuel_intake' => new FuelIntakeResource($itemData)],
+            ],
+            $itemData->type === 'PowerPlant' || str_contains($itemData->classification ?? '', 'PowerPlant') => [
+                true,
+                fn () => ['power_plant' => new PowerPlantResource($itemData)],
+            ],
+            $itemData->type === 'Radar' || str_contains($itemData->classification ?? '', 'Radar') => [
+                true,
+                fn () => ['radar' => new RadarResource($itemData)],
+            ],
+            $itemData->type === 'CargoGrid' || str_contains($itemData->classification ?? '', 'CargoGrid') => [
+                true,
+                fn () => ['cargo_grid' => new CargoGridResource($itemData)],
+            ],
+            $this->hasVehicleWeapon($itemData) => [
+                true,
+                fn () => ['vehicle_weapon' => new VehicleWeaponResource($itemData)],
             ],
             default => [false, []],
         };
     }
 
-    protected function addTurretData(): array
+    protected function isTurret(ItemData $itemData): bool
+    {
+        return in_array($itemData->type, [
+            'Turret',
+            'TurretBase',
+            'UtilityTurret',
+            'MissileLauncher',
+            'BombLauncher',
+            'WeaponMount',
+        ], true);
+    }
+
+    protected function addTurretData(ItemData $itemData): array
     {
         $mountName = 'max_mounts';
-        if ($this->type === 'MissileLauncher') {
+        if ($itemData->type === 'MissileLauncher') {
             $mountName = 'max_missiles';
-        } elseif ($this->type === 'BombLauncher') {
+        } elseif ($itemData->type === 'BombLauncher') {
             $mountName = 'max_bombs';
         }
 
-        $ports = $this->ports;
+        $ports = collect($this->extractPorts($itemData));
 
         return [
             $mountName => $ports->count(),
-            'min_size' => $ports->min('min_size'),
-            'max_size' => $ports->max('max_size'),
+            'min_size' => $ports->min('MinSize') ?? $ports->min('min_size'),
+            'max_size' => $ports->max('MaxSize') ?? $ports->max('max_size'),
         ];
     }
 
-    private function addAttachmentPosition(): array
+    private function addAttachmentPosition(ItemData $itemData): array
     {
-        if ($this->type !== 'WeaponAttachment' || $this->name === '<= PLACEHOLDER =>') {
+        if ($itemData->type !== 'WeaponAttachment' || $itemData->name === '<= PLACEHOLDER =>') {
             return [false, []];
         }
 
         return [
             true,
             fn () => [
-                'position' => match ($this->sub_type) {
+                'position' => match ($itemData->sub_type) {
                     'Magazine' => 'Magazine Well',
                     'Barrel' => 'Barrel',
                     'IronSight' => 'Optic',
                     'Utility' => 'Utility',
                     'BottomAttachment' => 'Underbarrel',
-                    default => $this->sub_type,
+                    default => $itemData->sub_type,
                 },
             ],
         ];
@@ -575,8 +622,24 @@ class ItemResource extends AbstractBaseResource
                 '';
         }
 
-        return $itemData->translations->mapWithKeys(fn (ItemTranslation $translation) => [
-            $translation->locale_code => $translation->translation,
-        ]);
+        return $itemData->translations->mapWithKeys(function (mixed $translation): array {
+            if ($translation instanceof ItemTranslation) {
+                return [$translation->locale_code => $translation->translation];
+            }
+
+            // Handle stdClass from tests or raw data
+            return [
+                $translation->locale_code ?? '' => $translation->translation ?? '',
+            ];
+        });
+    }
+
+    private function hasVehicleWeapon(ItemData $itemData): bool
+    {
+        if ($itemData->type === 'WeaponPersonal' || str_starts_with($itemData->classification ?? '', 'FPS.Weapon.')) {
+            return false;
+        }
+
+        return Arr::has($itemData->data, 'stdItem.Weapon');
     }
 }

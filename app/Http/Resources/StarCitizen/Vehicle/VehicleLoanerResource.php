@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'vehicle_loaner_v2',
+    schema: 'vehicle_loaner',
     title: 'Vehicle Loaner',
     properties: [
         new OA\Property(property: 'name', type: 'string'),
@@ -31,9 +31,8 @@ class VehicleLoanerResource extends AbstractBaseResource
             'name' => $this->name,
             'link' => $this->makeApiUrl(
                 self::VEHICLES_SHOW,
-                $this->sc?->exists ? $this->sc->item_uuid : urlencode($this->name)
+                $this->sc?->exists ? $this->sc->vehicle->uuid : urlencode($this->name)
             ),
-
             'version' => $this->pivot->version,
         ];
     }

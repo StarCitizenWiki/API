@@ -1,31 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs\StarCitizen\Vehicle;
 
-use App\Jobs\StarCitizen\AbstractRSIDownloadData;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Import all msrps by requesting the pledge-store upgrade api endpoint
  */
-class ImportMsrp extends AbstractRSIDownloadData implements ShouldQueue
+class ImportMsrp implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
+    private const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
+
+    private CookieJar $cookieJar;
+
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $this->makeClient();
+        $this->cookieJar = new CookieJar;
+
+        $client = Http::withOptions([
+            'base_uri' => config('services.rsi_url'),
+            'cookies' => $this->cookieJar,
+        ])
+            ->timeout(60)
+            ->withHeaders([
+                'X-RSI-Token' => self::RSI_TOKEN,
+            ]);
 
         $query = <<<'QUERY'
 {
@@ -44,19 +61,23 @@ class ImportMsrp extends AbstractRSIDownloadData implements ShouldQueue
 }
 QUERY;
 
-        self::$client->post('https://robertsspaceindustries.com/api/account/v2/setAuthToken');
-        self::$client->post('https://robertsspaceindustries.com/api/ship-upgrades/setContextToken');
-        $response = self::$client->post(
-            'https://robertsspaceindustries.com/pledge-store/api/upgrade',
-            [
-                'query' => $query,
-            ]
-        );
+        try {
+            $client->post('https://robertsspaceindustries.com/api/account/v2/setAuthToken')->throw();
+            $client->post('https://robertsspaceindustries.com/api/ship-upgrades/setContextToken')->throw();
+            $response = $client->post(
+                'https://robertsspaceindustries.com/pledge-store/api/upgrade',
+                [
+                    'query' => $query,
+                ]
+            )->throw();
+        } catch (RequestException $e) {
+            app('Log')::critical('Could not connect to RSI Pledge Store API', [
+                'message' => $e->getMessage(),
+            ]);
 
-        if (! $response->ok()) {
-            app('Log')::error('Could not connect to RSI Pledge Store API, retrying in 5 minutes.');
+            $this->fail($e);
 
-            $this->release(300);
+            return;
         }
 
         collect($response->json('data.ships', []))
@@ -72,7 +93,7 @@ QUERY;
                     if ($vehicle['msrp'] !== null) {
                         $model->update(
                             [
-                                'msrp' => substr($vehicle['msrp'], 0, -2),
+                                'msrp' => substr((string) $vehicle['msrp'], 0, -2),
                                 'pledge_url' => $vehicle['link'],
                             ]
                         );
@@ -84,7 +105,7 @@ QUERY;
                                 'cig_id' => $sku['id'],
                             ], [
                                 'title' => $sku['title'],
-                                'price' => substr($sku['price'], 0, -2),
+                                'price' => substr((string) $sku['price'], 0, -2),
                                 'available' => $sku['available'],
                             ]);
                         });

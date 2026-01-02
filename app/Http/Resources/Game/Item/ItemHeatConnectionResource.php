@@ -45,6 +45,8 @@ class ItemHeatConnectionResource extends AbstractBaseResource
             'temperature_to_ir' => Arr::get($this, 'TemperatureToIR'),
             'ir_temperature_threshold' => Arr::get($this, 'StartIRTemperature'),
             'overpower_heat' => Arr::get($this, 'OverpowerHeat'),
+            'overclock_threshold_min' => Arr::get($this, 'OverclockThresholdMinHeat'),
+            'overclock_threshold_max' => Arr::get($this, 'OverclockThresholdMaxHeat'),
             'overclock_threshold_min_heat' => Arr::get($this, 'OverclockThresholdMinHeat'),
             'overclock_threshold_max_heat' => Arr::get($this, 'OverclockThresholdMaxHeat'),
             'thermal_energy_base' => Arr::get($this, 'ThermalEnergyBase'),

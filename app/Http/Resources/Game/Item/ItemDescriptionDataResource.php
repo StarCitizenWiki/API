@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'value', type: 'string'),
+        new OA\Property(property: 'type', description: 'Deprecated: Use "value" key.', type: 'string', deprecated: true),
     ],
     type: 'object'
 )]
@@ -24,6 +25,7 @@ class ItemDescriptionDataResource extends AbstractBaseResource
     {
         return [
             'name' => $this->name,
+            'value' => $this->value,
             'type' => $this->value,
         ];
     }

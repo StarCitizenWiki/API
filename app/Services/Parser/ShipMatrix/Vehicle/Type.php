@@ -22,8 +22,6 @@ class Type extends BaseElement
      */
     public function getVehicleType(): VehicleType
     {
-        app('Log')::debug('Getting Vehicle Type');
-
         $type = $this->rawData->get(self::VEHICLE_TYPE);
 
         if ($type === null) {
@@ -42,8 +40,6 @@ class Type extends BaseElement
                 config('language.english')
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Vehicle Type not found in DB');
-
             return $this->createNewVehicleType();
         }
 
@@ -52,19 +48,15 @@ class Type extends BaseElement
 
     private function createNewVehicleType(): VehicleType
     {
-        app('Log')::debug('Creating new Vehicle Type');
-
         $slug = Str::slug($this->rawData->get(self::VEHICLE_TYPE));
         $translation = $this->rawData->get(self::VEHICLE_TYPE);
 
-        // Race-safe: slug has unique constraint
         /** @var VehicleType $type */
         $type = VehicleType::query()->firstOrCreate(
             ['slug' => $slug],
             ['slug' => $slug]
         );
 
-        // Race-safe translation update
         $type->translations()->updateOrCreate(
             ['locale_code' => config('language.english')],
             ['translation' => $translation]

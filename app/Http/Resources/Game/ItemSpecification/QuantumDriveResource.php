@@ -78,6 +78,8 @@ class QuantumDriveResource extends AbstractItemSpecificationResource
         $quantumDrive = Arr::get($data, 'stdItem.QuantumDrive', []);
 
         $heat = Arr::get($quantumDrive, 'Heat', []);
+        $standardJump = Arr::get($quantumDrive, 'StandardJump', []);
+        $splineJump = Arr::get($quantumDrive, 'SplineJump', []);
 
         return [
             'quantum_fuel_requirement' => Arr::get($quantumDrive, 'QuantumFuelRequirement'),
@@ -93,6 +95,34 @@ class QuantumDriveResource extends AbstractItemSpecificationResource
             ],
             'standard_jump' => new QuantumDriveJumpProfileResource(Arr::get($quantumDrive, 'StandardJump', [])),
             'spline_jump' => new QuantumDriveJumpProfileResource(Arr::get($quantumDrive, 'SplineJump', [])),
+            'pre_ramp_up_thermal_energy_draw' => Arr::get($heat, 'PreRampUpThermalEnergyDraw'),
+            'ramp_up_thermal_energy_draw' => Arr::get($heat, 'RampUpThermalEnergyDraw'),
+            'in_flight_thermal_energy_draw' => Arr::get($heat, 'InFlightThermalEnergyDraw'),
+            'ramp_down_thermal_energy_draw' => Arr::get($heat, 'RampDownThermalEnergyDraw'),
+            'post_ramp_down_thermal_energy_draw' => Arr::get($heat, 'PostRampDownThermalEnergyDraw'),
+            'modes' => [
+                'normal' => $this->mapLegacyJumpProfile($standardJump),
+                'spline' => $this->mapLegacyJumpProfile($splineJump),
+            ],
+        ];
+    }
+
+    private function mapLegacyJumpProfile(array $profile): array
+    {
+        return [
+            'drive_speed' => Arr::get($profile, 'DriveSpeed'),
+            'cooldown_time' => Arr::get($profile, 'CooldownTime'),
+            'stage_one_accel_rate' => Arr::get($profile, 'StageOneAccelRate'),
+            'stage_two_accel_rate' => Arr::get($profile, 'StageTwoAccelRate'),
+            'engage_speed' => Arr::get($profile, 'EngageSpeed'),
+            'interdiction_effect_time' => Arr::get($profile, 'InterdictionEffectTime'),
+            'calibration_rate' => Arr::get($profile, 'CalibrationRate'),
+            'min_calibration_requirement' => Arr::get($profile, 'MinCalibrationRequirement'),
+            'max_calibration_requirement' => Arr::get($profile, 'MaxCalibrationRequirement'),
+            'calibration_process_angle_limit' => Arr::get($profile, 'CalibrationProcessAngleLimit'),
+            'calibration_warning_angle_limit' => Arr::get($profile, 'CalibrationWarningAngleLimit'),
+            'calibration_delay_in_seconds' => Arr::get($profile, 'CalibrationDelayInSeconds'),
+            'spool_up_time' => Arr::get($profile, 'SpoolUpTime'),
         ];
     }
 }

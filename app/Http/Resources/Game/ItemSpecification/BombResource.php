@@ -71,6 +71,14 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'damage',
+            description: 'V2 compatibility: Total combined damage from all damage types.',
+            type: 'double',
+            example: 46702.0,
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
             property: 'damage_total',
             description: 'Total combined damage from all damage types. Scales dramatically with bomb size (27,000 for S3, 568,297 for S10).',
             type: 'double',
@@ -98,6 +106,14 @@ class BombResource extends AbstractItemSpecificationResource
 
         $damages = $this->buildDamageArray($damageData);
         $totalDamage = $this->calculateTotalDamage($damageData);
+        $legacyDamages = array_filter([
+            'physical' => Arr::get($damageData, 'Physical'),
+            'energy' => Arr::get($damageData, 'Energy'),
+            'distortion' => Arr::get($damageData, 'Distortion'),
+            'thermal' => Arr::get($damageData, 'Thermal'),
+            'biochemical' => Arr::get($damageData, 'Biochemical'),
+            'stun' => Arr::get($damageData, 'Stun'),
+        ], static fn ($value) => $value !== null);
 
         return [
             'arm_time' => Arr::get($bomb, 'ArmTime'),
@@ -108,8 +124,10 @@ class BombResource extends AbstractItemSpecificationResource
             'explosion_radius_max' => Arr::get($bomb, 'ExplosionMaxRadius'),
             'maximum_drop_angle' => Arr::get($bomb, 'MaximumDropAngleFromFlatFlight'),
             'is_cluster' => Arr::get($bomb, 'IsCluster'),
+            'damage' => $totalDamage > 0 ? $totalDamage : null, // V2 compatibility
             'damage_total' => $totalDamage > 0 ? $totalDamage : null,
             'damages' => WeaponDamageResource::collection($damages),
+            'damages_legacy' => $legacyDamages === [] ? null : $legacyDamages,
         ];
     }
 }

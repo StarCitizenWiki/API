@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -42,7 +42,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class JumppointResource extends AbstractTranslationResource
+class JumppointResource extends AbstractBaseResource
 {
     private bool $hideCO;
 
