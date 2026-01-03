@@ -33,12 +33,12 @@ class ImportShipMatrix implements ShouldQueue
 
     private const VEHICLES_DISK = 'vehicles';
 
-    public function handle(): void
+    public function handle(RsiDownloadClient $client): void
     {
         app('Log')::info('Downloading and importing Ship Matrix');
 
         try {
-            $shipMatrixPath = $this->downloadShipMatrix();
+            $shipMatrixPath = $this->downloadShipMatrix($client);
             $this->cleanupDailyFiles($shipMatrixPath);
             $vehicles = $this->loadVehicles($shipMatrixPath);
             $this->assertStructure($vehicles);
@@ -64,11 +64,11 @@ class ImportShipMatrix implements ShouldQueue
     /**
      * @throws RuntimeException|RequestException|ConnectionException|JsonException
      */
-    private function downloadShipMatrix(): string
+    private function downloadShipMatrix(RsiDownloadClient $client): string
     {
         $path = $this->buildPath();
 
-        $response = RsiDownloadClient::getClient()->get(config('services.rsi_url').self::SHIPS_ENDPOINT);
+        $response = $client->forRsi()->throw()->get(config('services.rsi_url').self::SHIPS_ENDPOINT);
 
         $parsed = json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR);
 

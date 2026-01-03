@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'affiliation_v2',
+    schema: 'affiliation',
     title: 'Affiliation',
     properties: [
         new OA\Property(property: 'id', type: 'string'),
@@ -20,7 +21,7 @@ use OpenApi\Attributes as OA;
 )]
 class AffiliationResource extends JsonResource
 {
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->cig_id,

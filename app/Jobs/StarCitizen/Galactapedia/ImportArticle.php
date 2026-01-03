@@ -4,48 +4,39 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Galactapedia;
 
-use App\Jobs\AbstractBaseDownloadData;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
 use App\Models\System\Language;
-use App\Traits\CreateRelationChangelogTrait;
-use Illuminate\Bus\Queueable;
+use App\Services\RsiDownloadClient;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class ImportArticle extends AbstractBaseDownloadData implements ShouldQueue
+class ImportArticle implements ShouldQueue
 {
-    use CreateRelationChangelogTrait;
-    use Dispatchable;
-    use InteractsWithQueue;
+    use Batchable;
     use Queueable;
-    use SerializesModels;
 
-    private string $articleId;
+    public int $timeout = 120;
 
     private Article $article;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(string $articleId)
-    {
-        $this->articleId = $articleId;
-
-        app('Log')::info(sprintf('Importing Galactapedia Article "%s"', $articleId));
+    public function __construct(
+        public readonly string $articleId,
+    ) {
+        Log::info(sprintf('Importing Galactapedia Article "%s"', $articleId));
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(RsiDownloadClient $client): void
     {
-        $result = $this->makeClient()->post('galactapedia/graphql', [
+        $result = $client->forRsi()->post('galactapedia/graphql', [
             'query' => <<<'QUERY'
 query ArticleByID($query: ID!) {
   Article(id: $query) {
@@ -121,8 +112,6 @@ QUERY,
         $changes['categories'] = $this->syncCategories($data['categories'] ?? []);
         $changes['tags'] = $this->syncTags($data['tags'] ?? []);
         $changes['related_articles'] = $this->syncRelatedArticles($data['relatedArticles'] ?? []);
-
-        $this->createRelationChangelog($changes, $this->article);
     }
 
     /**
@@ -257,7 +246,7 @@ QUERY,
         }
 
         if ($article->cig_id !== $data['id']) {
-            app('Log')::info(sprintf(
+            Log::info(sprintf(
                 'Galactapedia Article "%s" (%s) is duplicate, disabling older one.',
                 $article->cleanTitle,
                 $article->cig_id,

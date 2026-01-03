@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Vehicle;
 
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Services\RsiDownloadClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,7 +13,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 
 /**
  * Import all msrps by requesting the pledge-store upgrade api endpoint
@@ -24,25 +24,18 @@ class ImportMsrp implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
-
     private CookieJar $cookieJar;
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(RsiDownloadClient $rsiClient): void
     {
         $this->cookieJar = new CookieJar;
 
-        $client = Http::withOptions([
-            'base_uri' => config('services.rsi_url'),
+        $client = $rsiClient->base()->withOptions([
             'cookies' => $this->cookieJar,
-        ])
-            ->timeout(60)
-            ->withHeaders([
-                'X-RSI-Token' => self::RSI_TOKEN,
-            ]);
+        ]);
 
         $query = <<<'QUERY'
 {

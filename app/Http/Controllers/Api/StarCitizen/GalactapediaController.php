@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StarCitizen\Galactapedia\GalactapediaSearchRequest;
+use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Models\StarCitizen\Galactapedia\Article;
@@ -167,9 +167,9 @@ class GalactapediaController extends Controller
             ),
         ],
     )]
-    public function search(GalactapediaSearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $this->cleanQueryName($request->get('query'));
+        $query = $request->validated('query');
 
         $queryBuilder = QueryBuilder::for(Article::class, $request)
             ->where('title', 'like', "%{$query}%")

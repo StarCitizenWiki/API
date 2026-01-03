@@ -12,12 +12,7 @@ use Illuminate\Http\Request;
  */
 class ImageHashResource extends ImageResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         $data = parent::toArray($request);
 

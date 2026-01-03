@@ -68,7 +68,7 @@ use OpenApi\Attributes as OA;
                 new OA\Schema(type: 'string'),
                 new OA\Schema(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/translation_v2'),
+                    items: new OA\Items(ref: '#/components/schemas/translation'),
                 ),
             ],
         ),
@@ -175,8 +175,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'knife', ref: '#/components/schemas/melee_weapon', nullable: true, deprecated: true),
         new OA\Property(property: 'barrel_attach', ref: '#/components/schemas/barrel_attachment', nullable: true),
         new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/weapon_modifier', nullable: true),
-        new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight', nullable: true),
-        new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', nullable: true),
+        new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight', description: 'Deprecated: Use weapon_modifiers instead.', nullable: true, deprecated: true),
+        new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', description: 'Deprecated: Use weapon_modifiers instead.', nullable: true, deprecated: true),
 
         new OA\Property(property: 'base_variant', ref: '#/components/schemas/item_link', nullable: true),
         new OA\Property(
@@ -201,7 +201,7 @@ use OpenApi\Attributes as OA;
 )]
 
 #[OA\Schema(
-    schema: 'item_related_link_v2',
+    schema: 'item_related_link',
     title: 'Related Item Link',
     description: 'Minimal link information for a related item',
     properties: [
@@ -214,11 +214,11 @@ use OpenApi\Attributes as OA;
 )]
 
 #[OA\Schema(
-    schema: 'item_related_link_ext_v2',
+    schema: 'item_related_link_ext',
     title: 'Related Item Link (Extended)',
     description: 'Related item link with basic classification',
     allOf: [
-        new OA\Schema(ref: '#/components/schemas/item_related_link_v2'),
+        new OA\Schema(ref: '#/components/schemas/item_related_link'),
         new OA\Schema(
             properties: [
                 new OA\Property(property: 'type', type: 'string', nullable: true),
@@ -230,22 +230,22 @@ use OpenApi\Attributes as OA;
 )]
 
 #[OA\Schema(
-    schema: 'item_related_items_v2',
+    schema: 'item_related_items',
     title: 'Related Items',
     description: 'Aggregated related information for base/variants and set items',
     properties: [
         new OA\Property(property: 'set_name', type: 'string', nullable: true),
-        new OA\Property(property: 'base_item', ref: '#/components/schemas/item_related_link_v2', nullable: true),
+        new OA\Property(property: 'base_item', ref: '#/components/schemas/item_related_link', nullable: true),
         new OA\Property(
             property: 'variant_items',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/item_related_link_v2'),
+            items: new OA\Items(ref: '#/components/schemas/item_related_link'),
             nullable: true,
         ),
         new OA\Property(
             property: 'set_items',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/item_related_link_ext_v2'),
+            items: new OA\Items(ref: '#/components/schemas/item_related_link_ext'),
             nullable: true,
         ),
     ],
@@ -365,7 +365,10 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
                 'base_variant' => $itemData->baseVariant?->item
                     ? new ItemLinkResource($itemData->baseVariant->item)
-                    : $this->makeApiUrl(self::ITEMS_SHOW, $itemData->baseVariant?->item?->uuid ?? ''),
+                    : static fn () => route(
+                        'items.show',
+                        ['identifier' => $itemData->baseVariant?->item?->uuid ?? '']
+                    ),
             ]),
             'variants' => $itemData->relationLoaded('variants')
                 ? ItemLinkResource::collection(
@@ -384,166 +387,241 @@ class ItemResource extends AbstractBaseResource
 
     protected function addSpecification(Item $item, ItemData $itemData): array
     {
-        //        $specification = $this?->specification;
-        //        if (! $specification?->exists || $specification === null) {
-        //            return [false, []];
-        //        }
+        $specifications = [];
+        $hasMatch = false;
 
-        return match (true) {
-            str_starts_with($itemData->classification ?? '', 'FPS.Clothing.') => [
-                true,
-                fn () => ['clothing' => new ClothingResource($itemData)],
-            ],
-            str_starts_with($itemData->classification ?? '', 'FPS.Armor.') => [
-                true,
-                fn () => [
-                    'character_armor' => new CharacterArmorResource($itemData),
-                    'suit_armor' => new CharacterArmorResource($itemData),
-                ],
-            ],
-            str_starts_with($itemData->classification ?? '', 'Ship.Armor.') => [
-                true,
-                fn () => ['armor' => new ArmorResource($itemData)],
-            ],
-            str_starts_with($itemData->classification ?? '', 'Ship.MainThruster'),
-            str_starts_with($itemData->classification ?? '', 'Ship.ManneuverThruster') => [
-                true,
-                fn () => ['thruster' => new ThrusterResource($itemData)],
-            ],
-            $itemData->type === 'FlightController' => [
-                true,
-                fn () => ['flight_controller' => new FlightControllerResource($itemData)],
-            ],
-            in_array($itemData->type, ['FuelTank', 'QuantumFuelTank', 'ExternalFuelTank'], true) => [
-                true,
-                fn () => ['fuel_tank' => new FuelTankResource($itemData)],
-            ],
-            $itemData->sub_type === 'Hacking' => [
-                true,
-                fn () => ['hacking_chip' => new HackingChipResource($itemData)],
-            ],
-            $itemData->type === 'WeaponMining' => [
-                true,
-                fn () => ['mining_laser' => new MiningLaserResource($itemData)],
-            ],
-            $itemData->type === 'MiningModifier' => [
-                true,
-                fn () => ['mining_module' => new MiningModuleResource($itemData)],
-            ],
-            $itemData->type === 'Gadget' && $this->extractFromStdItem($itemData, 'MiningModule') !== null => [
-                true,
-                fn () => ['mining_gadget' => new MiningModuleResource($itemData)],
-            ],
-            $itemData->type === 'QuantumDrive' => [
-                true,
-                fn () => ['quantum_drive' => new QuantumDriveResource($itemData)],
-            ],
-            $itemData->type === 'QuantumInterdictionGenerator' => [
-                true,
-                fn () => ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($itemData)],
-            ],
-            $itemData->type === 'SelfDestruct' => [
-                true,
-                fn () => ['self_destruct' => new SelfDestructResource($itemData)],
-            ],
-            $itemData->type === 'Bomb' => [
-                true,
-                fn () => ['bomb' => new BombResource($itemData)],
-            ],
-            $itemData->type === 'Torpedo',
-            $itemData->type === 'Missile' => [
-                true,
-                fn () => ['missile' => new MissileResource($itemData)],
-            ],
-            $itemData->type === 'EMP' => [
-                true,
-                fn () => ['emp' => new EmpResource($itemData)],
-            ],
-            $itemData->type === 'Cooler' => [
-                true,
-                fn () => ['cooler' => new CoolerResource($itemData)],
-            ],
-            in_array($itemData->type, ['TractorBeam', 'TowingBeam'], true) => [
-                true,
-                fn () => ['tractor_beam' => new TractorBeamResource($itemData)],
-            ],
-            $itemData->type === 'Shield' => [
-                true,
-                fn () => ['shield' => new ShieldResource($itemData)],
-            ],
-            $itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Grenade' => [
-                true,
-                fn () => [
-                    'grenade' => new GrenadeResource($itemData),
-                    'personal_weapon' => new PersonalWeaponResource($itemData),
-                ],
-            ],
-            $itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Knife' => [
-                true,
-                fn () => [
-                    'melee_weapon' => new MeleeWeaponResource($itemData),
-                    'knife' => new MeleeWeaponResource($itemData),
-                ],
-            ],
-            $itemData->type === 'WeaponPersonal',
-            str_starts_with($itemData->classification ?? '', 'FPS.Weapon.') => [
-                true,
-                fn () => ['personal_weapon' => new PersonalWeaponResource($itemData)],
-            ],
-            $this->hasInStdItem($itemData, 'SalvageModifier') => [
-                true,
-                fn () => ['salvage_modifier' => new SalvageModifierResource($itemData)],
-            ],
-            $itemData->type === 'WeaponAttachment' && $itemData->sub_type === 'Barrel' => [
-                true,
-                fn () => ['barrel_attach' => new BarrelAttachmentResource($itemData)],
-            ],
-            $this->hasInStdItem($itemData, 'WeaponModifier') => [
-                true,
-                fn () => ['weapon_modifier' => new WeaponModifierResource($itemData)],
-            ],
-            $this->hasInStdItem($itemData, 'WeaponAttachment.IronSight') => [
-                true,
-                fn () => ['iron_sight' => new IronSightResource($itemData)],
-            ],
-            $itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment') => [
-                true,
-                fn () => ['weapon_attachment' => new WeaponAttachmentResource($itemData)],
-            ],
-            in_array($itemData->type, ['Food', 'Bottle', 'Drink'], true) || $this->hasInStdItem($itemData, 'Food') => [
-                true,
-                fn () => ['food' => new FoodResource($itemData)],
-            ],
-            $itemData->type === 'WeaponDefensive' || str_contains($itemData->classification ?? '', 'WeaponDefensive') => [
-                true,
-                fn () => ['counter_measure' => new CounterMeasureResource($itemData)],
-            ],
-            ($itemData->type === 'MissileLauncher' && $itemData->sub_type === 'MissileRack') || str_contains($itemData->classification ?? '', 'MissileRack') => [
-                true,
-                fn () => ['missile_rack' => new MissileRackResource($itemData)],
-            ],
-            $itemData->type === 'FuelIntake' || $this->hasInStdItem($itemData, 'FuelIntake') => [
-                true,
-                fn () => ['fuel_intake' => new FuelIntakeResource($itemData)],
-            ],
-            $itemData->type === 'PowerPlant' || str_contains($itemData->classification ?? '', 'PowerPlant') => [
-                true,
-                fn () => ['power_plant' => new PowerPlantResource($itemData)],
-            ],
-            $itemData->type === 'Radar' || str_contains($itemData->classification ?? '', 'Radar') => [
-                true,
-                fn () => ['radar' => new RadarResource($itemData)],
-            ],
-            $itemData->type === 'CargoGrid' || str_contains($itemData->classification ?? '', 'CargoGrid') => [
-                true,
-                fn () => ['cargo_grid' => new CargoGridResource($itemData)],
-            ],
-            $this->hasVehicleWeapon($itemData) => [
-                true,
-                fn () => ['vehicle_weapon' => new VehicleWeaponResource($itemData)],
-            ],
-            default => [false, []],
-        };
+        // FPS Clothing
+        if (str_starts_with($itemData->classification ?? '', 'FPS.Clothing.')) {
+            $hasMatch = true;
+            $specifications['clothing'] = static fn () => new ClothingResource($itemData);
+        }
+
+        // FPS Armor
+        if (str_starts_with($itemData->classification ?? '', 'FPS.Armor.')) {
+            $hasMatch = true;
+            $specifications['character_armor'] = static fn () => new CharacterArmorResource($itemData);
+            $specifications['suit_armor'] = static fn () => new CharacterArmorResource($itemData);
+        }
+
+        // Ship Armor
+        if (str_starts_with($itemData->classification ?? '', 'Ship.Armor.')) {
+            $hasMatch = true;
+            $specifications['armor'] = static fn () => new ArmorResource($itemData);
+        }
+
+        // Thrusters
+        if (str_starts_with($itemData->classification ?? '', 'Ship.MainThruster') ||
+            str_starts_with($itemData->classification ?? '', 'Ship.ManneuverThruster')) {
+            $hasMatch = true;
+            $specifications['thruster'] = static fn () => new ThrusterResource($itemData);
+        }
+
+        // Flight Controller
+        if ($itemData->type === 'FlightController') {
+            $hasMatch = true;
+            $specifications['flight_controller'] = static fn () => new FlightControllerResource($itemData);
+        }
+
+        // Fuel Tanks
+        if (in_array($itemData->type, ['FuelTank', 'QuantumFuelTank', 'ExternalFuelTank'], true)) {
+            $hasMatch = true;
+            $specifications['fuel_tank'] = static fn () => new FuelTankResource($itemData);
+        }
+
+        // Hacking Chip
+        if ($itemData->sub_type === 'Hacking') {
+            $hasMatch = true;
+            $specifications['hacking_chip'] = static fn () => new HackingChipResource($itemData);
+        }
+
+        // Mining Laser
+        if ($itemData->type === 'WeaponMining') {
+            $hasMatch = true;
+            $specifications['mining_laser'] = static fn () => new MiningLaserResource($itemData);
+        }
+
+        // Mining Module/Modifier
+        if ($itemData->type === 'MiningModifier') {
+            $hasMatch = true;
+            $specifications['mining_module'] = static fn () => new MiningModuleResource($itemData);
+        }
+
+        // Mining Gadget
+        if ($itemData->type === 'Gadget' && $this->extractFromStdItem($itemData, 'MiningModule') !== null) {
+            $hasMatch = true;
+            $specifications['mining_gadget'] = static fn () => new MiningModuleResource($itemData);
+        }
+
+        // Quantum Drive
+        if ($itemData->type === 'QuantumDrive') {
+            $hasMatch = true;
+            $specifications['quantum_drive'] = static fn () => new QuantumDriveResource($itemData);
+        }
+
+        // Quantum Interdiction Generator
+        if ($itemData->type === 'QuantumInterdictionGenerator') {
+            $hasMatch = true;
+            $specifications['quantum_interdiction_generator'] = static fn () => new QuantumInterdictionGeneratorResource($itemData);
+        }
+
+        // Self Destruct
+        if ($itemData->type === 'SelfDestruct') {
+            $hasMatch = true;
+            $specifications['self_destruct'] = static fn () => new SelfDestructResource($itemData);
+        }
+
+        // Bombs
+        if ($itemData->type === 'Bomb') {
+            $hasMatch = true;
+            $specifications['bomb'] = static fn () => new BombResource($itemData);
+        }
+
+        // Missiles/Torpedoes
+        if ($itemData->type === 'Torpedo' || $itemData->type === 'Missile') {
+            $hasMatch = true;
+            $specifications['missile'] = static fn () => new MissileResource($itemData);
+        }
+
+        // EMP
+        if ($itemData->type === 'EMP') {
+            $hasMatch = true;
+            $specifications['emp'] = static fn () => new EmpResource($itemData);
+        }
+
+        // Cooler
+        if ($itemData->type === 'Cooler') {
+            $hasMatch = true;
+            $specifications['cooler'] = static fn () => new CoolerResource($itemData);
+        }
+
+        // Tractor/Towing Beam
+        if (in_array($itemData->type, ['TractorBeam', 'TowingBeam'], true)) {
+            $hasMatch = true;
+            $specifications['tractor_beam'] = static fn () => new TractorBeamResource($itemData);
+        }
+
+        // Shield
+        if ($itemData->type === 'Shield') {
+            $hasMatch = true;
+            $specifications['shield'] = static fn () => new ShieldResource($itemData);
+        }
+
+        // Grenade (has both grenade and personal_weapon specs)
+        if ($itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Grenade') {
+            $hasMatch = true;
+            $specifications['grenade'] = static fn () => new GrenadeResource($itemData);
+            $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
+        }
+
+        // Knife/Melee Weapon
+        if ($itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Knife') {
+            $hasMatch = true;
+            $specifications['melee_weapon'] = static fn () => new MeleeWeaponResource($itemData);
+            $specifications['knife'] = static fn () => new MeleeWeaponResource($itemData);
+        }
+
+        // Personal Weapon (general - after specific grenade/knife checks)
+        if (($itemData->type === 'WeaponPersonal' || str_starts_with($itemData->classification ?? '', 'FPS.Weapon.')) &&
+            ! isset($specifications['grenade']) && ! isset($specifications['melee_weapon'])) {
+            $hasMatch = true;
+            $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
+        }
+
+        // Salvage Modifier
+        if ($this->hasInStdItem($itemData, 'SalvageModifier')) {
+            $hasMatch = true;
+            $specifications['salvage_modifier'] = static fn () => new SalvageModifierResource($itemData);
+        }
+
+        // Barrel Attachment (specific type)
+        if ($itemData->type === 'WeaponAttachment' && $itemData->sub_type === 'Barrel') {
+            $hasMatch = true;
+            $specifications['barrel_attach'] = static fn () => new BarrelAttachmentResource($itemData);
+        }
+
+        // Weapon Modifier (can coexist with attachment types)
+        if ($this->hasInStdItem($itemData, 'WeaponModifier')) {
+            $hasMatch = true;
+            $specifications['weapon_modifier'] = static fn () => new WeaponModifierResource($itemData);
+        }
+
+        // Iron Sight (deprecated - can coexist with other specs)
+        if ($itemData->sub_type === 'IronSight') {
+            $hasMatch = true;
+            $specifications['iron_sight'] = static fn () => new IronSightResource($itemData);
+        }
+
+        // Weapon Attachment
+        // if ($itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment')) {
+        //     $hasMatch = true;
+        //     $specifications['weapon_attachment'] = static fn () => new WeaponAttachmentResource($itemData);
+        // }
+
+        // Food/Drink
+        if (in_array($itemData->type, ['Food', 'Bottle', 'Drink'], true) || $this->hasInStdItem($itemData, 'Food')) {
+            $hasMatch = true;
+            $specifications['food'] = static fn () => new FoodResource($itemData);
+        }
+
+        // Countermeasures
+        if ($itemData->type === 'WeaponDefensive' || str_contains($itemData->classification ?? '', 'WeaponDefensive')) {
+            $hasMatch = true;
+            $specifications['counter_measure'] = static fn () => new CounterMeasureResource($itemData);
+        }
+
+        // Missile Rack
+        if (($itemData->type === 'MissileLauncher' && $itemData->sub_type === 'MissileRack') ||
+            str_contains($itemData->classification ?? '', 'MissileRack')) {
+            $hasMatch = true;
+            $specifications['missile_rack'] = static fn () => new MissileRackResource($itemData);
+        }
+
+        // Fuel Intake
+        if ($itemData->type === 'FuelIntake' || $this->hasInStdItem($itemData, 'FuelIntake')) {
+            $hasMatch = true;
+            $specifications['fuel_intake'] = static fn () => new FuelIntakeResource($itemData);
+        }
+
+        // Power Plant
+        if ($itemData->type === 'PowerPlant' || str_contains($itemData->classification ?? '', 'PowerPlant')) {
+            $hasMatch = true;
+            $specifications['power_plant'] = static fn () => new PowerPlantResource($itemData);
+        }
+
+        // Radar
+        if ($itemData->type === 'Radar' || str_contains($itemData->classification ?? '', 'Radar')) {
+            $hasMatch = true;
+            $specifications['radar'] = static fn () => new RadarResource($itemData);
+        }
+
+        // Cargo Grid
+        if ($itemData->type === 'CargoGrid' || str_contains($itemData->classification ?? '', 'CargoGrid')) {
+            $hasMatch = true;
+            $specifications['cargo_grid'] = static fn () => new CargoGridResource($itemData);
+        }
+
+        // Vehicle Weapon
+        if ($this->hasVehicleWeapon($itemData)) {
+            $hasMatch = true;
+            $specifications['vehicle_weapon'] = static fn () => new VehicleWeaponResource($itemData);
+        }
+
+        if (! $hasMatch) {
+            return [false, []];
+        }
+
+        return [
+            true,
+            fn () => $this->resolveSpecifications($specifications),
+        ];
+    }
+
+    private function resolveSpecifications(array $specifications): array
+    {
+        return array_map(
+            static fn ($spec) => is_callable($spec) ? $spec() : $spec,
+            $specifications
+        );
     }
 
     protected function isTurret(ItemData $itemData): bool

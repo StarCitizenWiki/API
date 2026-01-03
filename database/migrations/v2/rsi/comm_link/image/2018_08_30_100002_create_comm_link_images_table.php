@@ -21,8 +21,13 @@ return new class extends Migration
                 $table->text('alt'); // Thanks RSI???
                 $table->boolean('local')->default(false);
                 $table->string('dir')->nullable();
-                $table->unsignedBigInteger('base_image_id')->nullable();
+                $table->foreignId('base_image_id')
+                    ->nullable()
+                    ->constrained('comm_link_images')
+                    ->nullOnDelete();
                 $table->timestamps();
+
+                $table->index('base_image_id');
             }
         );
     }

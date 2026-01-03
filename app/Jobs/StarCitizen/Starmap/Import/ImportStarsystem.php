@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Starmap\Import;
 
+use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Models\System\Language;
-use App\Services\Parser\Starmap\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -113,11 +114,16 @@ class ImportStarsystem implements ShouldQueue
             )
             ->map(
                 function ($affiliationData) {
-                    return (new Affiliation($affiliationData))->getAffiliation();
+                    return Affiliation::query()->updateOrCreate(['cig_id' => $affiliationData['id']], [
+                        'name' => Arr::get($affiliationData, 'name'),
+                        'code' => Arr::get($affiliationData, 'code'),
+                        'color' => Arr::get($affiliationData, 'color'),
+                        'membership_id' => Arr::get($affiliationData, 'membership.id', null),
+                    ]);
                 }
             )
             ->map(
-                function (\App\Models\StarCitizen\Starmap\Affiliation $affiliation) {
+                function (Affiliation $affiliation) {
                     return $affiliation->id;
                 }
             )

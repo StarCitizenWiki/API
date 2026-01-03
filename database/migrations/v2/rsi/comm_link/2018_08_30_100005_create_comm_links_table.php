@@ -20,14 +20,22 @@ return new class extends Migration
                 $table->unsignedBigInteger('cig_id')->unique();
 
                 $table->string('title');
-                $table->unsignedBigInteger('comment_count');
+                $table->unsignedBigInteger('comment_count')->default(0);
                 $table->string('url')->nullable();
 
                 $table->string('file');
 
-                $table->unsignedBigInteger('channel_id');
-                $table->unsignedBigInteger('category_id');
-                $table->unsignedBigInteger('series_id');
+                $table->foreignId('channel_id')
+                    ->constrained('comm_link_channels')
+                    ->cascadeOnDelete();
+                $table->foreignId('category_id')
+                    ->constrained('comm_link_categories')
+                    ->cascadeOnDelete();
+                $table->foreignId('series_id')
+                    ->constrained('comm_link_series')
+                    ->cascadeOnDelete();
+
+                $table->timestamp('created_at_file')->nullable();
 
                 $table->timestamps();
             }

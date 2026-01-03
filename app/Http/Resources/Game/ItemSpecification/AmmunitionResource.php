@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'ammunition_damage_falloff_v2',
+    schema: 'ammunition_damage_falloff',
     title: 'Ammunition Damage Falloff (v2)',
     description: 'Legacy damage falloff entry grouped by type. Deprecated in favour of the damage_drop_* fields.',
     properties: [
@@ -135,9 +135,9 @@ use OpenApi\Attributes as OA;
             property: 'damage_falloffs',
             description: 'Legacy grouping of damage drop data.',
             properties: [
-                new OA\Property(property: 'min_distance', ref: '#/components/schemas/ammunition_damage_falloff_v2', nullable: true),
-                new OA\Property(property: 'per_meter', ref: '#/components/schemas/ammunition_damage_falloff_v2', nullable: true),
-                new OA\Property(property: 'min_damage', ref: '#/components/schemas/ammunition_damage_falloff_v2', nullable: true),
+                new OA\Property(property: 'min_distance', ref: '#/components/schemas/ammunition_damage_falloff', nullable: true),
+                new OA\Property(property: 'per_meter', ref: '#/components/schemas/ammunition_damage_falloff', nullable: true),
+                new OA\Property(property: 'min_damage', ref: '#/components/schemas/ammunition_damage_falloff', nullable: true),
             ],
             type: 'object',
             nullable: true,

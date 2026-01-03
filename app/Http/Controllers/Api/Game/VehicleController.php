@@ -248,7 +248,7 @@ class VehicleController extends Controller
     {
         $versionCode = $this->gameVersionCode();
         $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
-        $toSearch = $this->cleanQueryName($request->validated('query'));
+        $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
         $allowedIncludes = $this->allowedIncludes();
 
@@ -354,14 +354,6 @@ class VehicleController extends Controller
             'shipMatrixVehicle',
             'shipMatrixVehicle.components',
         ];
-    }
-
-    /**
-     * Clean the name for query use.
-     */
-    private function cleanQueryName(string $name): string
-    {
-        return str_replace('_', ' ', urldecode($name));
     }
 
     /**

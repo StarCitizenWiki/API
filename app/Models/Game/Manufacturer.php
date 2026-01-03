@@ -1,13 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Game;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class Manufacturer extends Model
 {
+    use HasFactory;
+
     protected $table = 'game_manufacturers';
 
     protected $fillable = [

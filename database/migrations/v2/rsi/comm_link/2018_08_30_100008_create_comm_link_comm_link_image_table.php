@@ -19,8 +19,14 @@ return new class extends Migration
         Schema::create(
             'comm_link_image',
             static function (Blueprint $table) {
-                $table->unsignedBigInteger('comm_link_id');
-                $table->unsignedBigInteger('comm_link_image_id');
+                $table->foreignId('comm_link_id')
+                    ->constrained('comm_links')
+                    ->cascadeOnDelete();
+                $table->foreignId('comm_link_image_id')
+                    ->constrained('comm_link_images')
+                    ->cascadeOnDelete();
+
+                $table->unique(['comm_link_id', 'comm_link_image_id']);
             }
         );
     }

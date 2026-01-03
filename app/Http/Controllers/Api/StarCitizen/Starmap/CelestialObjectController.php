@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
+use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
 use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
@@ -56,9 +56,9 @@ class CelestialObjectController extends Controller
         return new CelestialObjectResource($starsystem);
     }
 
-    public function search(StarsystemRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $this->cleanQueryName($request->get('query'));
+        $query = mb_strtoupper($request->validated('query'));
 
         $objects = QueryBuilder::for(CelestialObject::class)
             ->where('code', $query)

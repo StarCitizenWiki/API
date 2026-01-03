@@ -21,7 +21,13 @@ class ResolveGameVersion
     public function handle(Request $request, Closure $next): Response
     {
         // Only process for Game API routes (items, vehicles, etc.)
-        if (! str_starts_with($request->path(), 'api/items')) {
+        if (
+            str_starts_with($request->path(), 'api/comm-link') || // Comm-Links + Images
+            str_starts_with($request->path(), 'api/galactapedia') ||
+            str_starts_with($request->path(), 'api/stats') ||
+            str_starts_with($request->path(), 'api/starsystems') ||
+            str_starts_with($request->path(), 'api/shipmatrix')
+        ) {
             return $next($request);
         }
 

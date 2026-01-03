@@ -12,47 +12,40 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->gameVersion = GameVersion::create([
+    $this->gameVersion = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
         'released_at' => now(),
     ]);
 
-    $this->manufacturer = Manufacturer::create([
-        'uuid' => 'manufacturer-test',
+    $this->manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
 });
 
 it('returns entity tag map with correct structure when tags are attached', function () {
-    $tag1 = EntityTag::create([
-        'uuid' => 'tag-uuid-1',
-        'name' => 'Tag One',
-    ]);
+    $tag1 = EntityTag::factory()->create(['name' => 'Tag One']);
+    $tag2 = EntityTag::factory()->create(['name' => 'Tag Two']);
 
-    $tag2 = EntityTag::create([
-        'uuid' => 'tag-uuid-2',
-        'name' => 'Tag Two',
-    ]);
+    $item = Item::factory()->create();
 
-    $item = Item::create(['uuid' => 'test-item-uuid']);
-
-    $itemData = ItemData::create([
-        'item_id' => $item->id,
-        'game_version_id' => $this->gameVersion->id,
-        'name' => 'Test Item',
-        'type' => 'TestType',
-        'class_name' => 'test_item',
-        'classification' => 'Test.Category',
-        'manufacturer_id' => $this->manufacturer->id,
-        'data' => ['stdItem' => []],
-    ]);
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'TestType',
+            'class_name' => 'test_item',
+            'classification' => 'Test.Category',
+            'data' => ['stdItem' => []],
+        ]);
 
     $itemData->entityTags()->attach([$tag1->id, $tag2->id]);
 
-    $response = $this->getJson("/api/items/{$item->uuid}?include=entityTags");
+    $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
         ->assertJsonStructure([
@@ -69,33 +62,34 @@ it('returns entity tag map with correct structure when tags are attached', funct
         ->assertJsonCount(2, 'data.entity_tags');
 
     $entityTagMap = $response->json('data.entity_tag_map');
-    expect($entityTagMap)->toBeArray();
-    expect($entityTagMap)->toHaveCount(2);
+    expect($entityTagMap)->toBeArray()
+        ->and($entityTagMap)->toHaveCount(2);
 
     $uuids = collect($entityTagMap)->pluck('uuid')->toArray();
     $names = collect($entityTagMap)->pluck('name')->toArray();
 
-    expect($uuids)->toContain('tag-uuid-1', 'tag-uuid-2');
-    expect($names)->toContain('Tag One', 'Tag Two');
+    expect($uuids)->toContain($tag1->uuid, $tag2->uuid)
+        ->and($names)->toContain('Tag One', 'Tag Two');
 
     $entityTags = $response->json('data.entity_tags');
-    expect($entityTags)->toBeArray();
-    expect($entityTags)->toContain('Tag One', 'Tag Two');
+    expect($entityTags)->toBeArray()
+        ->and($entityTags)->toContain($tag1->uuid, $tag2->uuid);
 });
 
 it('returns empty array when no entity tags are attached', function () {
-    $item = Item::create(['uuid' => 'test-item-no-tags']);
+    $item = Item::factory()->create();
 
-    ItemData::create([
-        'item_id' => $item->id,
-        'game_version_id' => $this->gameVersion->id,
-        'name' => 'Test Item Without Tags',
-        'type' => 'TestType',
-        'class_name' => 'test_item_no_tags',
-        'classification' => 'Test.Category',
-        'manufacturer_id' => $this->manufacturer->id,
-        'data' => ['stdItem' => []],
-    ]);
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item Without Tags',
+            'type' => 'TestType',
+            'class_name' => 'test_item_no_tags',
+            'classification' => 'Test.Category',
+            'data' => ['stdItem' => []],
+        ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
@@ -105,58 +99,54 @@ it('returns empty array when no entity tags are attached', function () {
 });
 
 it('returns correct uuid and name values for entity tags', function () {
-    $tag = EntityTag::create([
-        'uuid' => 'specific-tag-uuid-123',
-        'name' => 'Specific Tag Name',
-    ]);
+    $tag = EntityTag::factory()->create(['name' => 'Specific Tag Name']);
 
-    $item = Item::create(['uuid' => 'test-item-specific']);
+    $item = Item::factory()->create();
 
-    $itemData = ItemData::create([
-        'item_id' => $item->id,
-        'game_version_id' => $this->gameVersion->id,
-        'name' => 'Test Item',
-        'type' => 'TestType',
-        'class_name' => 'test_item',
-        'classification' => 'Test.Category',
-        'manufacturer_id' => $this->manufacturer->id,
-        'data' => ['stdItem' => []],
-    ]);
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'TestType',
+            'class_name' => 'test_item',
+            'classification' => 'Test.Category',
+            'data' => ['stdItem' => []],
+        ]);
 
     $itemData->entityTags()->attach($tag->id);
 
-    $response = $this->getJson("/api/items/{$item->uuid}?include=entityTags");
+    $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.entity_tag_map.0.uuid', 'specific-tag-uuid-123')
+        ->assertJsonPath('data.entity_tag_map.0.uuid', $tag->uuid)
         ->assertJsonPath('data.entity_tag_map.0.name', 'Specific Tag Name');
 });
 
 it('returns entity tag map for items with multiple tags in correct format', function () {
     $tags = [];
     for ($i = 1; $i <= 5; $i++) {
-        $tags[] = EntityTag::create([
-            'uuid' => "tag-uuid-{$i}",
-            'name' => "Tag {$i}",
-        ]);
+        $tags[] = EntityTag::factory()->create(['name' => "Tag {$i}"]);
     }
 
-    $item = Item::create(['uuid' => 'test-item-multiple']);
+    $item = Item::factory()->create();
 
-    $itemData = ItemData::create([
-        'item_id' => $item->id,
-        'game_version_id' => $this->gameVersion->id,
-        'name' => 'Test Item Multiple Tags',
-        'type' => 'TestType',
-        'class_name' => 'test_item_multiple',
-        'classification' => 'Test.Category',
-        'manufacturer_id' => $this->manufacturer->id,
-        'data' => ['stdItem' => []],
-    ]);
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item Multiple Tags',
+            'type' => 'TestType',
+            'class_name' => 'test_item_multiple',
+            'classification' => 'Test.Category',
+            'data' => ['stdItem' => []],
+        ]);
 
     $itemData->entityTags()->attach(collect($tags)->pluck('id')->toArray());
 
-    $response = $this->getJson("/api/items/{$item->uuid}?include=entityTags");
+    $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
         ->assertJsonCount(5, 'data.entity_tag_map');
@@ -164,8 +154,8 @@ it('returns entity tag map for items with multiple tags in correct format', func
     $entityTagMap = $response->json('data.entity_tag_map');
 
     foreach ($entityTagMap as $tagData) {
-        expect($tagData)->toHaveKeys(['uuid', 'name']);
-        expect($tagData['uuid'])->toBeString();
-        expect($tagData['name'])->toBeString();
+        expect($tagData)->toHaveKeys(['uuid', 'name'])
+            ->and($tagData['uuid'])->toBeString()
+            ->and($tagData['name'])->toBeString();
     }
 });

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactpedia_related_article_v2',
+    schema: 'galactpedia_related_article',
     title: 'Galactapedia related article',
     description: 'Related article for this galactapedia article',
     properties: [
@@ -22,20 +22,15 @@ use OpenApi\Attributes as OA;
 )]
 class RelatedArticleResource extends AbstractBaseResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->cig_id,
             'title' => $this->title,
             'url' => $this->url,
-            'api_url' => $this->makeApiUrl(
-                self::GALACTAPEDIA_ARTICLE_SHOW,
-                $this->getRouteKey(),
+            'api_url' => route(
+                'galactapedia.show',
+                ['article' => $this->getRouteKey()],
             ),
         ];
     }

@@ -6,7 +6,6 @@ namespace App\Services\Game;
 
 use App\Models\StarCitizen\Manufacturer\Manufacturer as ShipMatrixManufacturer;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -318,7 +317,7 @@ class VehicleMatchingService
      * Try fuzzy matching using Levenshtein distance
      * Optimized with caching to avoid loading all vehicles repeatedly
      */
-    private function fuzzyMatch(string $candidate, ?int $manufacturerId): Model
+    private function fuzzyMatch(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
     {
         if ($this->shipMatrixCache === null) {
             $this->shipMatrixCache = ShipMatrixVehicle::with('manufacturer')->get();

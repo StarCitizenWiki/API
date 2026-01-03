@@ -20,18 +20,13 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleLoanerResource extends AbstractBaseResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'name' => $this->name,
-            'link' => $this->makeApiUrl(
-                self::VEHICLES_SHOW,
-                $this->sc?->exists ? $this->sc->vehicle->uuid : urlencode($this->name)
+            'link' => route(
+                'vehicles.show',
+                ['vehicle' => $this->sc?->exists ? $this->sc->vehicle->uuid : ($this->name ?? '')]
             ),
             'version' => $this->pivot->version,
         ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
@@ -48,7 +50,7 @@ class VehicleLinkResource extends AbstractBaseResource
             'is_gravlev' => $data->is_gravlev,
             'is_spaceship' => $data->is_spaceship,
             'manufacturer' => new ManufacturerLinkResource($data->manufacturer),
-            'link' => $this->makeApiUrl(self::VEHICLES_SHOW, ($this->uuid ?? urlencode($this->name))),
+            'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $data->name]),
             'updated_at' => $this->updated_at,
             'version' => $data->gameVersion->code,
         ];

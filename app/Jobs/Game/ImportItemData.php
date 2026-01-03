@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs\Game;
 
 use App\Models\Game\EntityTag;
@@ -10,6 +12,7 @@ use App\Models\Game\ItemTranslation;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,6 +26,7 @@ use RuntimeException;
 
 class ImportItemData implements ShouldQueue
 {
+    use Batchable;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;

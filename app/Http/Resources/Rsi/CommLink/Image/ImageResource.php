@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources\Rsi\CommLink\Image;
 
 use App\Http\Resources\AbstractBaseResource;
@@ -7,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'comm_link_image_v2',
+    schema: 'comm_link_image',
     title: 'Comm-Link Image',
     description: 'Image used in a Comm-Link',
     properties: [
@@ -29,16 +31,10 @@ use OpenApi\Attributes as OA;
 )]
 class ImageResource extends AbstractBaseResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'rsi_url' => $this->url,
-            'api_url' => $this->local ? asset("storage/comm_link_images/{$this->dir}/{$this->name}") : null,
             'alt' => $this->alt,
             'size' => $this->metadata->size,
             'mime_type' => $this->metadata->mime,
@@ -46,7 +42,7 @@ class ImageResource extends AbstractBaseResource
             $this->mergeWhen($this->whenLoaded('tags'), [
                 'tags' => $this->tags->map(fn ($tag) => $tag->translated_name),
             ]),
-            'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey().'/similar'),
+            'similar_url' => route('comm-link-images.similar', ['image' => $this->getRouteKey()]),
         ];
     }
 }

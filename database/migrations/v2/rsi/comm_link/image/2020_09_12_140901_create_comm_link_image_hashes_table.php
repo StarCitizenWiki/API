@@ -15,18 +15,19 @@ return new class extends Migration
     {
         Schema::create('comm_link_image_hashes', static function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('comm_link_image_id');
-            $table->binary('average_hash');
-            $table->binary('perceptual_hash');
-            $table->binary('difference_hash');
-            $table->binary('pdq_hash1');
-            $table->binary('pdq_hash2');
-            $table->binary('pdq_hash3');
-            $table->binary('pdq_hash4');
-            $table->smallInteger('pdq_quality');
+            $table->foreignId('comm_link_image_id')
+                ->constrained('comm_link_images')
+                ->cascadeOnDelete();
+            if (Schema::getConnection()->getDriverName() === 'sqlite') {
+                $table->text('pdq_hash');
+            } else {
+                $table->addColumn('raw', 'pdq_hash', ['definition' => 'bit(256)']);
+            }
+            $table->smallInteger('pdq_quality')->nullable();
             $table->timestamps();
 
             $table->unique('comm_link_image_id');
+            $table->index('pdq_hash');
         });
     }
 

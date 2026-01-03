@@ -64,7 +64,7 @@ class HardpointItemResource extends ItemResource
             'uuid' => $this->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            'link' => route('items.show', ['identifier' => $this->uuid]),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'grade' => match ($itemData->grade) {

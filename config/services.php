@@ -16,4 +16,8 @@ return [
 
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
+    'deepl' => [
+        'auth_key' => env('DEEPL_AUTH_KEY'),
+    ],
+
 ];

@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ImageTagFilter;
-use App\Http\Requests\Rsi\CommLink\Image\ImageSearchRequest;
+use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
 use App\Models\Rsi\CommLink\Image\Image;
 use Illuminate\Http\Request;
@@ -97,14 +97,14 @@ class ImageController extends Controller
             ),
         ]
     )]
-    public function search(ImageSearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
             ->allowedFilters([
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereNull('base_image_id')
-            ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($request->get('query')))])
+            ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($request->validated('query')))])
             ->whereRelation('metadata', 'size', '>', 0)
             ->limit(100)
             ->orderByDesc('created_at')

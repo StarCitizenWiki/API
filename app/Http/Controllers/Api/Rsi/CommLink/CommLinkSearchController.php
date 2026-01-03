@@ -13,16 +13,11 @@ use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
-use App\Services\ImageHash\Implementations\PDQHash\PDQHash;
-use App\Services\ImageHash\Implementations\PDQHasher;
-use App\Services\ImageHash\Implementations\PerceptualHash2;
+use App\Services\ImageHash\PdqHasher;
 use App\Services\Parser\CommLink\Image as ImageParser;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
-use Jenssegers\ImageHash\ImageHash;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -172,25 +167,6 @@ class CommLinkSearchController extends Controller
                     minimum: 1,
                 )
             ),
-            new OA\Parameter(
-                name: 'method',
-                in: 'query',
-                required: true,
-                schema: new OA\Schema(
-                    description: 'Available Comm-Link includes',
-                    type: 'array',
-                    items: new OA\Items(
-                        type: 'string',
-                        default: 'perceptual',
-                        enum: [
-                            'perceptual',
-                            'difference',
-                            'average',
-                        ]
-                    ),
-                ),
-                explode: false,
-            ),
         ],
         responses: [
             new OA\Response(
@@ -207,30 +183,22 @@ class CommLinkSearchController extends Controller
             ),
         ],
     )]
-    public function reverseImageSearch(Request $request): AnonymousResourceCollection
+    public function reverseImageSearch(Request $request, PdqHasher $hasher): AnonymousResourceCollection
     {
         $this->checkExtensionsLoaded();
 
         $request->validate((new ReverseImageSearchRequest)->rules());
 
-        /** @var PDQHash $hash */
-        [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename(
-            $request->file('image')->get(),
-            true,
-            true
+        try {
+            $hashResult = $hasher->hashContents($request->file('image')->get());
+        } catch (\RuntimeException $exception) {
+            throw new HttpException(422, $exception->getMessage(), $exception);
+        }
+
+        $data = ImageHashModel::similarImagesForHash(
+            $hashResult->toBitString(),
+            (int) $request->get('similarity')
         );
-
-        $pdqHash = $hash->to64BitStrings();
-
-        $hashData = [
-            'perceptual_hash' => (new ImageHash(new PerceptualHash2))->hash($request->file('image'))->toHex(),
-            'pdq_hash1' => $pdqHash[0],
-            'pdq_hash2' => $pdqHash[1],
-            'pdq_hash3' => $pdqHash[2],
-            'pdq_hash4' => $pdqHash[3],
-        ];
-
-        $data = $this->getResultImages($hashData, (int) $request->get('similarity'));
 
         return ImageHashResource::collection($data);
     }
@@ -252,33 +220,6 @@ class CommLinkSearchController extends Controller
         $image = Image::query()->find($image);
 
         return ImageHashResource::collection($image->similarImages($similarity ?? 50, 50));
-    }
-
-    private function getResultImages(array $hashData, int $similarity = 50)
-    {
-        return $this->getHashesFromDatabase($hashData)
-            ->map(
-                function (object $data) {
-                    $id = $data->comm_link_image_id;
-
-                    $image = Image::query()->find($id);
-
-                    if ($data->pdq_distance === null) {
-                        $image->similarity = round((1 - ($data->p_distance / 64)) * 100);
-                        $image->similarity_method = __('Basierend auf Merkmalen des Inhalts');
-                    } else {
-                        $image->similarity = round((1 - ($data->pdq_distance / 256)) * 100);
-                        $image->similarity_method = ''; // PDQ
-                    }
-
-                    $image->pdq_distance = $data->pdq_distance ?? $image->p_distance;
-
-                    return $image;
-                }
-            )
-            ->filter()
-            ->sortByDesc('similarity')
-            ->filter(fn (object $image) => $image->similarity >= $similarity);
     }
 
     /**
@@ -304,72 +245,10 @@ class CommLinkSearchController extends Controller
      */
     private function checkExtensionsLoaded(): void
     {
-        if (! extension_loaded('gd') && ! extension_loaded('imagick')) {
-            app('Log')::error('Required extension "GD" or "Imagick" not available.');
+        if (! extension_loaded('gd')) {
+            app('Log')::error('Required extension "GD" not available.');
 
-            throw new HttpException(501, 'Required extension "GD" or "Imagick" not available.');
+            throw new HttpException(501, 'Required extension "GD" not available.');
         }
-    }
-
-    /**
-     * Return hashes based on database connection type
-     *
-     *
-     * @return Builder[]|Collection|\Illuminate\Support\Collection
-     */
-    private function getHashesFromDatabase(array $hashData)
-    {
-        // Since SQLITE does not support the BIT_COUNT operation we only search for exact hash matches
-        if (config('database.default') === 'sqlite') {
-            return $this->getHashesFromSQLiteStore($hashData['perceptual_hash']);
-        }
-
-        return $this->getHashesFromSQLStore($hashData);
-    }
-
-    /**
-     * Get the image hashes that equal the provided hash
-     *
-     * @param  string  $hash  The image hash
-     * @return Builder[]|Collection
-     */
-    private function getHashesFromSQLiteStore(string $hash)
-    {
-        return ImageHashModel::query()
-            ->where('perceptual_hash', $hash)
-            ->get('comm_link_image_id');
-    }
-
-    /**
-     * Get the image hashes matching the provided hash method and hamming distance
-     *
-     * @param  array  $hashes  Image hash split in the middle and hex decoded
-     */
-    private function getHashesFromSQLStore(array $hashes): \Illuminate\Support\Collection
-    {
-        return ImageHashModel::query()
-            ->with('image')
-            ->select('comm_link_image_hashes.comm_link_image_id')
-            ->selectRaw(
-                <<<'SQL'
-(BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(?, 16, 10))) as pdq_distance,
-BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(?, 16, 10)) AS p_distance
-SQL,
-                [
-                    $hashes['pdq_hash1'],
-                    $hashes['pdq_hash2'],
-                    $hashes['pdq_hash3'],
-                    $hashes['pdq_hash4'],
-                    $hashes['perceptual_hash'],
-                ]
-            )
-            ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
-            ->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')
-            ->orderBy('pdq_distance')
-            ->limit(50)
-            ->get();
     }
 }

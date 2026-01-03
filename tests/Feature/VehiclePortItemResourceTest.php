@@ -9,32 +9,29 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
 it('returns the equipped item with specifications for the default game version', function (): void {
-    $version = GameVersion::query()->create([
+    $version = GameVersion::factory()->create([
         'code' => '4.4.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => (string) Str::uuid(),
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
 
-    $item = Item::query()->create([
-        'uuid' => (string) Str::uuid(),
-    ]);
+    $item = Item::factory()->create();
 
-    ItemData::query()->create([
+    ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $version->id,
         'manufacturer_id' => $manufacturer->id,
         'name' => 'Test Power Plant',
+        'class_name' => 'TEST_PowerPlant',
         'type' => 'PowerPlant',
         'classification' => 'Ship.PowerPlant',
         'size' => 1,
@@ -48,23 +45,20 @@ it('returns the equipped item with specifications for the default game version',
         ],
     ]);
 
-    $vehicle = Vehicle::query()->create([
-        'uuid' => (string) Str::uuid(),
-    ]);
+    $vehicle = Vehicle::factory()->create();
 
-    VehicleData::query()->create([
+    VehicleData::factory()->create([
         'vehicle_id' => $vehicle->id,
         'game_version_id' => $version->id,
         'manufacturer_id' => $manufacturer->id,
         'class_name' => 'Test_Ship',
         'name' => 'Test Ship',
         'data' => [
-            'Ports' => [
+            'Loadout' => [
                 [
-                    'Name' => 'powerport',
-                    'EquippedItem' => [
-                        'UUID' => $item->uuid,
-                    ],
+                    'HardpointName' => 'powerport',
+                    'Type' => 'PowerPlant.UNDEFINED',
+                    'UUID' => $item->uuid,
                 ],
             ],
         ],
@@ -78,33 +72,31 @@ it('returns the equipped item with specifications for the default game version',
 });
 
 it('uses the requested game version when resolving equipped items', function (): void {
-    $defaultVersion = GameVersion::query()->create([
+    $defaultVersion = GameVersion::factory()->create([
         'code' => '4.3.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
     ]);
 
-    $requestedVersion = GameVersion::query()->create([
+    $requestedVersion = GameVersion::factory()->create([
         'code' => '4.4.0-PTU',
         'channel' => 'ptu',
         'is_default' => false,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => (string) Str::uuid(),
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Alt Manufacturer',
         'code' => 'ALTM',
     ]);
 
-    $item = Item::query()->create([
-        'uuid' => (string) Str::uuid(),
-    ]);
+    $item = Item::factory()->create();
 
-    ItemData::query()->create([
+    ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $requestedVersion->id,
         'manufacturer_id' => $manufacturer->id,
         'name' => 'Alt Power Plant',
+        'class_name' => 'ALT_PowerPlant',
         'type' => 'PowerPlant',
         'classification' => 'Ship.PowerPlant',
         'size' => 2,
@@ -118,23 +110,20 @@ it('uses the requested game version when resolving equipped items', function ():
         ],
     ]);
 
-    $vehicle = Vehicle::query()->create([
-        'uuid' => (string) Str::uuid(),
-    ]);
+    $vehicle = Vehicle::factory()->create();
 
-    VehicleData::query()->create([
+    VehicleData::factory()->create([
         'vehicle_id' => $vehicle->id,
         'game_version_id' => $requestedVersion->id,
         'manufacturer_id' => $manufacturer->id,
         'class_name' => 'Alt_Ship',
         'name' => 'Alt Ship',
         'data' => [
-            'Ports' => [
+            'Loadout' => [
                 [
-                    'Name' => 'powerport',
-                    'EquippedItem' => [
-                        'UUID' => $item->uuid,
-                    ],
+                    'HardpointName' => 'powerport',
+                    'Type' => 'PowerPlant.UNDEFINED',
+                    'UUID' => $item->uuid,
                 ],
             ],
         ],
@@ -148,35 +137,31 @@ it('uses the requested game version when resolving equipped items', function ():
 });
 
 it('returns null when the equipped item cannot be resolved for the version', function (): void {
-    $version = GameVersion::query()->create([
+    $version = GameVersion::factory()->create([
         'code' => '4.4.1-LIVE',
         'channel' => 'live',
         'is_default' => true,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => (string) Str::uuid(),
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Missing Manufacturer',
         'code' => 'MISS',
     ]);
 
-    $vehicle = Vehicle::query()->create([
-        'uuid' => (string) Str::uuid(),
-    ]);
+    $vehicle = Vehicle::factory()->create();
 
-    VehicleData::query()->create([
+    VehicleData::factory()->create([
         'vehicle_id' => $vehicle->id,
         'game_version_id' => $version->id,
         'manufacturer_id' => $manufacturer->id,
         'class_name' => 'Missing_Ship',
         'name' => 'Missing Ship',
         'data' => [
-            'Ports' => [
+            'Loadout' => [
                 [
-                    'Name' => 'powerport',
-                    'EquippedItem' => [
-                        'UUID' => 'non-existent-uuid',
-                    ],
+                    'HardpointName' => 'powerport',
+                    'Type' => 'PowerPlant.UNDEFINED',
+                    'UUID' => 'non-existent-uuid',
                 ],
             ],
         ],

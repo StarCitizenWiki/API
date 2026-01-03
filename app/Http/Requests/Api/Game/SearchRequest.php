@@ -8,6 +8,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SearchRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $query = $this->input('query');
+
+        if (! is_string($query)) {
+            return;
+        }
+
+        $this->merge([
+            'query' => trim(str_replace('_', ' ', urldecode($query))),
+        ]);
+    }
+
     public function authorize(): bool
     {
         return true;

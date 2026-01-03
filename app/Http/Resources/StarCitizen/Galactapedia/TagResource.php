@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactapedia_tag_v2',
+    schema: 'galactapedia_tag',
     title: 'Galctapedia article tag',
     description: 'Tag of an article',
     properties: [
@@ -20,12 +20,7 @@ use OpenApi\Attributes as OA;
 )]
 class TagResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->cig_id,

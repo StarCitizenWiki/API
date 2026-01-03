@@ -2,13 +2,19 @@
 
 namespace App\Providers;
 
+use App\Services\Translation\TranslationService;
+use DeepL\Translator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(Translator::class, function () {
+            return new Translator(config('services.deepl.auth_key'));
+        });
+
+        $this->app->singleton(TranslationService::class);
     }
 
     public function boot(): void

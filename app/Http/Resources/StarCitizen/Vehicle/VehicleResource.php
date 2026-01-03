@@ -142,9 +142,6 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    /**
-     * Transform the resource into an array.
-     */
     public function toArray(Request $request): array
     {
         $includes = collect(explode(',', $request->get('include', '')))

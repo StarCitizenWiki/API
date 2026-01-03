@@ -14,8 +14,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comm_link_image_tag', static function (Blueprint $table) {
-            $table->unsignedBigInteger('image_id');
-            $table->unsignedBigInteger('tag_id');
+            $table->foreignId('image_id')
+                ->constrained('comm_link_images')
+                ->cascadeOnDelete();
+            $table->foreignId('tag_id')
+                ->constrained('comm_link_image_tags')
+                ->cascadeOnDelete();
+
+            $table->unique(['image_id', 'tag_id']);
         });
     }
 

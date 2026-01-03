@@ -11,50 +11,47 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->manufacturer = Manufacturer::create([
-        'uuid' => 'test-manufacturer-uuid',
+    $this->manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
-        'known' => true,
     ]);
 
-    $this->gameVersion = GameVersion::create([
+    $this->gameVersion = GameVersion::factory()->create([
         'code' => '4.4.0-TEST',
         'channel' => 'test',
         'is_default' => true,
     ]);
 
-    $this->vehicle = Vehicle::create([
-        'uuid' => 'test-vehicle-uuid',
-    ]);
+    $this->vehicle = Vehicle::factory()->create();
 
-    $this->vehicleData = VehicleData::create([
-        'vehicle_id' => $this->vehicle->id,
-        'game_version_id' => $this->gameVersion->id,
-        'manufacturer_id' => $this->manufacturer->id,
-        'name' => 'Test Ship',
-        'class_name' => 'TEST_Ship',
-        'data' => [
-            'Loadout' => [
-                [
-                    'HardpointName' => 'hardpoint_weapon_left',
-                    'Position' => 'left',
-                    'ClassName' => 'WeaponMount_S1',
-                    'MinSize' => 1,
-                    'MaxSize' => 1,
-                    'Type' => 'WeaponGun.Gun',
-                    'ItemTypes' => [
-                        ['Type' => 'WeaponGun', 'SubType' => 'Gun'],
+    $this->vehicleData = VehicleData::factory()
+        ->for($this->vehicle)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Ship',
+            'class_name' => 'TEST_Ship',
+            'data' => [
+                'Loadout' => [
+                    [
+                        'HardpointName' => 'hardpoint_weapon_left',
+                        'Position' => 'left',
+                        'ClassName' => 'WeaponMount_S1',
+                        'MinSize' => 1,
+                        'MaxSize' => 1,
+                        'Type' => 'WeaponGun.Gun',
+                        'ItemTypes' => [
+                            ['Type' => 'WeaponGun', 'SubType' => 'Gun'],
+                        ],
+                        'Editable' => true,
+                        'EditableChildren' => false,
                     ],
-                    'Editable' => true,
-                    'EditableChildren' => false,
                 ],
             ],
-        ],
-    ]);
+        ]);
 });
 
-it('returns v2 hardpoint format when accessing api/v2/vehicles endpoint', function () {
+it('returns v2 hardpoint format when accessing api/v2/vehicles endpoint', function (): void {
     $response = $this->getJson("/api/v2/vehicles/{$this->vehicle->uuid}");
 
     $response->assertSuccessful();
@@ -78,7 +75,7 @@ it('returns v2 hardpoint format when accessing api/v2/vehicles endpoint', functi
     expect($hardpoint)->not->toHaveKey('ports');
 });
 
-it('returns v3 port format when accessing api/v3/vehicles endpoint', function () {
+it('returns v3 port format when accessing api/v3/vehicles endpoint', function (): void {
     $response = $this->getJson("/api/v3/vehicles/{$this->vehicle->uuid}");
 
     $response->assertSuccessful();
@@ -104,7 +101,7 @@ it('returns v3 port format when accessing api/v3/vehicles endpoint', function ()
     expect($port)->toHaveKey('subtype', 'Gun');
 });
 
-it('returns cargo limits when accessing api/v2/vehicles endpoint', function () {
+it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): void {
     $this->vehicleData->update([
         'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
             'CargoGrids' => [
@@ -130,7 +127,7 @@ it('returns cargo limits when accessing api/v2/vehicles endpoint', function () {
     ]);
 });
 
-it('returns cargo limits when accessing api/v3/vehicles endpoint', function () {
+it('returns cargo limits when accessing api/v3/vehicles endpoint', function (): void {
     $this->vehicleData->update([
         'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
             'CargoGrids' => [
@@ -156,7 +153,7 @@ it('returns cargo limits when accessing api/v3/vehicles endpoint', function () {
     ]);
 });
 
-it('returns v3 port format when accessing api/vehicles endpoint without version prefix', function () {
+it('returns v3 port format when accessing api/vehicles endpoint without version prefix', function (): void {
     $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
 
     $response->assertSuccessful();
@@ -170,7 +167,7 @@ it('returns v3 port format when accessing api/vehicles endpoint without version 
     expect($port['sizes'])->toHaveKeys(['min', 'max']);
 });
 
-it('returns nested children in v2 format', function () {
+it('returns nested children in v2 format', function (): void {
     $this->vehicleData->update([
         'data' => [
             'Loadout' => [
@@ -207,7 +204,7 @@ it('returns nested children in v2 format', function () {
     expect($hardpoint['children'][0])->toHaveKey('name', 'child_hardpoint');
 });
 
-it('returns nested ports in v3 format', function () {
+it('returns nested ports in v3 format', function (): void {
     $this->vehicleData->update([
         'data' => [
             'Loadout' => [

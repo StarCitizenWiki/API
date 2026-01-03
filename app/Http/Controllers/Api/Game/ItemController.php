@@ -214,7 +214,7 @@ class ItemController extends Controller
     public function search(SearchRequest $request): AnonymousResourceCollection
     {
         $versionCode = $this->gameVersionCode();
-        $toSearch = $this->cleanQueryName($request->validated('query'));
+        $toSearch = $request->validated('query');
 
         $query = QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
@@ -243,14 +243,6 @@ class ItemController extends Controller
         return ItemLinkResource::collection(
             $this->transformToItems($items, $versionCode)
         );
-    }
-
-    /**
-     * Clean the name for query use.
-     */
-    private function cleanQueryName(string $name): string
-    {
-        return str_replace('_', ' ', urldecode($name));
     }
 
     /**

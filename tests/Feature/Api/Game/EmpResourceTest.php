@@ -7,70 +7,43 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 
 uses(RefreshDatabase::class);
 
 it('returns emp specification when item type is emp', function (): void {
-    $version = GameVersion::create([
+    $version = GameVersion::factory()->create([
         'code' => '4.4.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
         'released_at' => now(),
     ]);
 
-    $manufacturer = Manufacturer::create([
-        'uuid' => 'test-manufacturer-uuid',
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
 
-    $item = Item::create(['uuid' => 'test-emp-uuid']);
+    $item = Item::factory()->create();
 
-    ItemData::create([
-        'item_id' => $item->id,
-        'game_version_id' => $version->id,
-        'manufacturer_id' => $manufacturer->id,
-        'name' => 'Test EMP',
-        'class_name' => 'EMP_TEST_S01',
-        'classification' => 'Ship.EMP',
-        'type' => 'EMP',
-        'sub_type' => 'UNDEFINED',
-        'size' => 1,
-        'data' => [
-            'stdItem' => [
-                'Emp' => [
-                    'ChargeTime' => 12,
-                    'DistortionDamage' => 1000,
-                    'EmpRadius' => 400,
-                    'MinEmpRadius' => 150,
-                    'PhysRadius' => 250,
-                    'MinPhysRadius' => 150,
-                    'Pressure' => 0,
-                    'UnleashTime' => 0.75,
-                    'CooldownTime' => 6,
-                    'ChargingTag' => 'charging-tag-uuid',
-                    'ChargedTag' => 'charged-tag-uuid',
-                    'StartChargingTrigger' => 'start-charging-trigger',
-                    'StopChargingTrigger' => 'stop-charging-trigger',
-                    'StartChargedTrigger' => 'start-charged-trigger',
-                    'StopChargedTrigger' => 'stop-charged-trigger',
-                    'StartUnleashTrigger' => 'start-unleash-trigger',
-                    'StopUnleashTrigger' => 'stop-unleash-trigger',
-                    'IdleState' => 'states',
-                    'ChargingState' => 'states',
-                    'ChargedState' => 'states',
-                    'ReleasingState' => 'states',
-                ],
-            ],
-        ],
-    ]);
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->emp()
+        ->create([
+            'name' => 'Test EMP',
+            'class_name' => 'EMP_TEST_S01',
+            'size' => 1,
+        ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
+    $empData = Arr::get($itemData->data, 'stdItem.Emp', []);
+
     $response->assertSuccessful()
-        ->assertJsonPath('data.emp.charge_time', 12)
-        ->assertJsonPath('data.emp.emp_radius', 400)
-        ->assertJsonPath('data.emp.cooldown_time', 6)
-        ->assertJsonPath('data.emp.charged_tag', 'charged-tag-uuid')
-        ->assertJsonPath('data.emp.releasing_state', 'states');
+        ->assertJsonPath('data.emp.charge_time', Arr::get($empData, 'ChargeTime'))
+        ->assertJsonPath('data.emp.emp_radius', Arr::get($empData, 'EmpRadius'))
+        ->assertJsonPath('data.emp.cooldown_time', Arr::get($empData, 'CooldownTime'))
+        ->assertJsonPath('data.emp.distortion_damage', Arr::get($empData, 'DistortionDamage'));
 });

@@ -17,7 +17,9 @@ return new class extends Migration
             'comm_link_image_metadata',
             static function (Blueprint $table) {
                 $table->id();
-                $table->unsignedBigInteger('comm_link_image_id');
+                $table->foreignId('comm_link_image_id')
+                    ->constrained('comm_link_images')
+                    ->cascadeOnDelete();
 
                 $table->unsignedBigInteger('size')->nullable();
                 $table->string('mime')->nullable();

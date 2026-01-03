@@ -4,24 +4,28 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Item;
 
+use App\Models\System\Translation\AbstractTranslation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ItemTranslation extends Model
+class ItemTranslation extends AbstractTranslation
 {
     use HasFactory;
 
-    protected $table = 'game_item_translations';
+    protected $table = 'sc_item_translations';
 
     protected $fillable = [
         'locale_code',
-        'item_id',
+        'item_uuid',
         'translation',
     ];
 
     public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(
+            Item::class,
+            'item_uuid',
+            'uuid'
+        );
     }
 }

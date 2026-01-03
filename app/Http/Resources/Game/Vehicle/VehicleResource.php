@@ -289,36 +289,36 @@ use OpenApi\Attributes as OA;
             property: 'foci',
             description: 'Ship-Matrix vehicle foci/roles',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/translation_v2'),
+            items: new OA\Items(ref: '#/components/schemas/translation'),
             nullable: true
         ),
         new OA\Property(
             property: 'production_status',
-            ref: '#/components/schemas/translation_v2',
+            ref: '#/components/schemas/translation',
             description: 'Ship-Matrix production status',
             nullable: true
         ),
         new OA\Property(
             property: 'production_note',
-            ref: '#/components/schemas/translation_v2',
+            ref: '#/components/schemas/translation',
             description: 'Ship-Matrix production note',
             nullable: true
         ),
         new OA\Property(
             property: 'type',
-            ref: '#/components/schemas/translation_v2',
+            ref: '#/components/schemas/translation',
             description: 'Ship-Matrix vehicle type',
             nullable: true
         ),
         new OA\Property(
             property: 'shipmatrix_description',
-            ref: '#/components/schemas/translation_v2',
+            ref: '#/components/schemas/translation',
             description: 'Ship-Matrix vehicle description',
             nullable: true
         ),
         new OA\Property(
             property: 'size_name',
-            ref: '#/components/schemas/translation_v2',
+            ref: '#/components/schemas/translation',
             description: 'Ship-Matrix size name (Small, Medium, Large, etc.)',
             nullable: true
         ),
@@ -352,7 +352,7 @@ use OpenApi\Attributes as OA;
             property: 'components',
             description: 'Ship-Matrix components (only included when ?include=components)',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_component_v2'),
+            items: new OA\Items(ref: '#/components/schemas/vehicle_component'),
             nullable: true
         ),
         new OA\Property(property: 'updated_at', type: 'string'),
@@ -439,9 +439,9 @@ class VehicleResource extends AbstractBaseResource
 
             'mass' => $vehicleData->mass ?? Arr::get($payload, 'Mass'),
 
-            'mass_hull' => round($vehicleData->mass_vehicle ?? Arr::get($payload, 'Mass'), 2),
-            'mass_loadout' => round($vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout'), 2),
-            'mass_total' => round($vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'), 2),
+            'mass_hull' => $this->roundNullable($vehicleData->mass_vehicle ?? Arr::get($payload, 'Mass')),
+            'mass_loadout' => $this->roundNullable($vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout')),
+            'mass_total' => $this->roundNullable($vehicleData->mass_total ?? Arr::get($payload, 'MassTotal')),
 
             'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
             'cargo_grids' => $cargoGrids,
@@ -466,7 +466,7 @@ class VehicleResource extends AbstractBaseResource
 
             'shield' => [
                 'hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
-                'regeneration' => round(Arr::get($payload, 'ShieldsTotal.Regen'), 2),
+                'regeneration' => $this->roundNullable(Arr::get($payload, 'ShieldsTotal.Regen')),
                 'face_type' => Arr::get($payload, 'ShieldController.FaceType'),
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
@@ -670,10 +670,10 @@ class VehicleResource extends AbstractBaseResource
             'capacity' => Arr::get($payload, 'Propulsion.FuelCapacity') / 1000,
             'intake_rate' => Arr::get($payload, 'Propulsion.FuelIntakeRate'),
             'usage' => [
-                'main' => round(Arr::get($payload, 'Propulsion.FuelUsage.Main'), 2),
-                'retro' => round(Arr::get($payload, 'Propulsion.FuelUsage.Retro'), 2),
-                'vtol' => round(Arr::get($payload, 'Propulsion.FuelUsage.Vtol'), 2),
-                'maneuvering' => round(Arr::get($payload, 'Propulsion.FuelUsage.Maneuvering'), 2),
+                'main' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Main')),
+                'retro' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Retro')),
+                'vtol' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Vtol')),
+                'maneuvering' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Maneuvering')),
             ],
         ];
     }
@@ -777,5 +777,14 @@ class VehicleResource extends AbstractBaseResource
     private function getApiVersion(Request $request): ?string
     {
         return $request->route('api_version');
+    }
+
+    private function roundNullable(mixed $value, int $precision = 2): ?float
+    {
+        if ($value === null || ! is_numeric($value)) {
+            return null;
+        }
+
+        return round((float) $value, $precision);
     }
 }

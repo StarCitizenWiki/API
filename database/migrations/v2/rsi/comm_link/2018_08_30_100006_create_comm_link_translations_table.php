@@ -18,7 +18,9 @@ return new class extends Migration
             static function (Blueprint $table) {
                 $table->id();
                 $table->string('locale_code', 25);
-                $table->unsignedBigInteger('comm_link_id');
+                $table->foreignId('comm_link_id')
+                    ->constrained('comm_links')
+                    ->cascadeOnDelete();
                 $table->longText('translation');
                 $table->boolean('proofread')->default(false);
                 $table->timestamps();

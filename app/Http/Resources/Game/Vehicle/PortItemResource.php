@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle;
 
-use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Http\Resources\Game\Item\ItemResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -16,10 +15,8 @@ use OpenApi\Attributes as OA;
     type: 'object',
 
 )]
-class PortItemResource extends AbstractBaseResource
+class PortItemResource extends ItemResource
 {
-    use ExtractsJsonData;
-
     public function toArray(Request $request): array
     {
         $itemData = $this->data?->first();
@@ -34,7 +31,7 @@ class PortItemResource extends AbstractBaseResource
             'class_name' => $itemData->class_name,
             'type' => $itemData->type,
             'sub_type' => $itemData->sub_type,
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            'link' => route('items.show', ['identifier' => $this->uuid]),
             'size' => $itemData->size,
             'mass' => $this->extractFromStdItem($itemData, 'Mass'),
             'grade' => match ($itemData->grade) {
@@ -49,6 +46,9 @@ class PortItemResource extends AbstractBaseResource
             $this->mergeWhen($itemData->manufacturer !== null, [
                 'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
             ]),
+
+            $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
+            'version' => $itemData->gameVersion->code,
         ];
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactapedia_category_v2',
+    schema: 'galactapedia_category',
     title: 'Galctapedia article category',
     description: 'Category of an article',
     properties: [
@@ -20,12 +20,7 @@ use OpenApi\Attributes as OA;
 )]
 class CategoryResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->cig_id,

@@ -2,14 +2,23 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('lists manufacturers', function () {
-    $manufacturer = Manufacturer::create([
-        'uuid' => 'manufacturer-uuid-1',
+beforeEach(function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+});
+
+it('lists manufacturers', function (): void {
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -21,9 +30,8 @@ it('lists manufacturers', function () {
         ->assertJsonPath('data.0.code', $manufacturer->code);
 });
 
-it('shows a manufacturer by underscored name', function () {
-    $manufacturer = Manufacturer::create([
-        'uuid' => 'manufacturer-uuid-2',
+it('shows a manufacturer by underscored name', function (): void {
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -36,15 +44,14 @@ it('shows a manufacturer by underscored name', function () {
         ->assertJsonPath('data.uuid', $manufacturer->uuid);
 });
 
-it('returns not found for missing manufacturers', function () {
+it('returns not found for missing manufacturers', function (): void {
     $response = $this->getJson('/api/manufacturers/missing-manufacturer');
 
     $response->assertNotFound();
 });
 
-it('searches manufacturers by query', function () {
-    $manufacturer = Manufacturer::create([
-        'uuid' => 'manufacturer-uuid-3',
+it('searches manufacturers by query', function (): void {
+    $manufacturer = Manufacturer::factory()->create([
         'name' => 'Anvil Aerospace',
         'code' => 'ANVL',
     ]);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\ItemSpecification;
 
+use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -144,12 +145,11 @@ use OpenApi\Attributes as OA;
 )]
 class WeaponModifierResource extends AbstractItemSpecificationResource
 {
+    use ExtractsJsonData;
+
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
-        $stdItem = $this->extractStdItem($data);
-
-        $weaponModifier = Arr::get($stdItem, 'WeaponModifier', []);
+        $weaponModifier = $this->extractFromStdItem($this->resource, 'WeaponModifier', []);
         $weaponStats = Arr::get($weaponModifier, 'WeaponStats', []);
         $base = Arr::get($weaponStats, 'Base', []);
         $recoil = Arr::get($weaponStats, 'Recoil', []);
@@ -159,73 +159,105 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
         $salvage = Arr::get($weaponStats, 'Salvage', []);
         $zeroing = Arr::get($weaponModifier, 'Zeroing', []);
 
+        $weaponAttachment = $this->extractFromStdItem($this->resource, 'WeaponAttachment');
+
+        $ironSight = Arr::get($weaponAttachment, 'IronSight', []);
+
         return [
             'activate_on_attach' => Arr::get($weaponModifier, 'ActivateOnAttach'),
             'ignore_wear' => Arr::get($weaponModifier, 'IgnoreWear'),
             'weapon_stats' => [
-                'base' => [
-                    'fire_rate' => Arr::get($base, 'FireRate'),
-                    'fire_rate_multiplier' => Arr::get($base, 'FireRateMultiplier'),
-                    'damage_multiplier' => Arr::get($base, 'DamageMultiplier'),
-                    'damage_over_time_multiplier' => Arr::get($base, 'DamageOverTimeMultiplier'),
-                    'projectile_speed_multiplier' => Arr::get($base, 'ProjectileSpeedMultiplier'),
-                    'pellets' => Arr::get($base, 'Pellets'),
-                    'burst_shots' => Arr::get($base, 'BurstShots'),
-                    'ammo_cost' => Arr::get($base, 'AmmoCost'),
-                    'ammo_cost_multiplier' => Arr::get($base, 'AmmoCostMultiplier'),
-                    'heat_generation_multiplier' => Arr::get($base, 'HeatGenerationMultiplier'),
-                    'sound_radius_multiplier' => Arr::get($base, 'SoundRadiusMultiplier'),
-                    'charge_time_multiplier' => Arr::get($base, 'ChargeTimeMultiplier'),
-                    'use_alternate_projectile_visuals' => Arr::get($base, 'UseAlternateProjectileVisuals'),
-                    'use_augmented_reality_projectiles' => Arr::get($base, 'UseAugmentedRealityProjectiles'),
-                ],
-                'recoil' => [
-                    'decay_multiplier' => Arr::get($recoil, 'DecayMultiplier'),
-                    'end_decay_multiplier' => Arr::get($recoil, 'EndDecayMultiplier'),
-                    'fire_recoil_time_multiplier' => Arr::get($recoil, 'FireRecoilTimeMultiplier'),
-                    'fire_recoil_strength_first_multiplier' => Arr::get($recoil, 'FireRecoilStrengthFirstMultiplier'),
-                    'fire_recoil_strength_multiplier' => Arr::get($recoil, 'FireRecoilStrengthMultiplier'),
-                    'angle_recoil_strength_multiplier' => Arr::get($recoil, 'AngleRecoilStrengthMultiplier'),
-                    'randomness_multiplier' => Arr::get($recoil, 'RandomnessMultiplier'),
-                    'randomness_back_push_multiplier' => Arr::get($recoil, 'RandomnessBackPushMultiplier'),
-                    'frontal_oscillation_rotation_multiplier' => Arr::get($recoil, 'FrontalOscillationRotationMultiplier'),
-                    'frontal_oscillation_strength_multiplier' => Arr::get($recoil, 'FrontalOscillationStrengthMultiplier'),
-                    'frontal_oscillation_decay_multiplier' => Arr::get($recoil, 'FrontalOscillationDecayMultiplier'),
-                    'frontal_oscillation_randomness_multiplier' => Arr::get($recoil, 'FrontalOscillationRandomnessMultiplier'),
-                    'animated_recoil_multiplier' => Arr::get($recoil, 'AnimatedRecoilMultiplier'),
-                ],
-                'spread' => [
-                    'min_multiplier' => Arr::get($spread, 'MinMultiplier'),
-                    'max_multiplier' => Arr::get($spread, 'MaxMultiplier'),
-                    'first_attack_multiplier' => Arr::get($spread, 'FirstAttackMultiplier'),
-                    'attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
-                    'decay_multiplier' => Arr::get($spread, 'DecayMultiplier'),
-                    'additive_modifier' => Arr::get($spread, 'AdditiveModifier'),
-                ],
-                'aim' => [
-                    'zoom_scale' => Arr::get($aim, 'ZoomScale'),
-                    'second_zoom_scale' => Arr::get($aim, 'SecondZoomScale'),
-                    'zoom_time_scale' => Arr::get($aim, 'ZoomTimeScale'),
-                    'hide_weapon_in_ads' => Arr::get($aim, 'HideWeaponInAds'),
-                    'fstop_multiplier' => Arr::get($aim, 'FstopMultiplier'),
-                ],
-                'regen' => [
-                    'power_ratio_multiplier' => Arr::get($regen, 'PowerRatioMultiplier'),
-                    'max_ammo_load_multiplier' => Arr::get($regen, 'MaxAmmoLoadMultiplier'),
-                    'max_regen_per_sec_multiplier' => Arr::get($regen, 'MaxRegenPerSecMultiplier'),
-                ],
-                'salvage' => [
-                    'salvage_speed_multiplier' => Arr::get($salvage, 'SalvageSpeedMultiplier'),
-                    'radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
-                    'extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
-                ],
+                // TODO: Verify
+                $this->mergeWhen(collect($base)->max() !== 1, [
+                    'base' => [
+                        'fire_rate' => Arr::get($base, 'FireRate'),
+                        'fire_rate_multiplier' => Arr::get($base, 'FireRateMultiplier'),
+                        'damage_multiplier' => Arr::get($base, 'DamageMultiplier'),
+                        'damage_over_time_multiplier' => Arr::get($base, 'DamageOverTimeMultiplier'),
+                        'projectile_speed_multiplier' => Arr::get($base, 'ProjectileSpeedMultiplier'),
+                        'pellets' => Arr::get($base, 'Pellets'),
+                        'burst_shots' => Arr::get($base, 'BurstShots'),
+                        'ammo_cost' => Arr::get($base, 'AmmoCost'),
+                        'ammo_cost_multiplier' => Arr::get($base, 'AmmoCostMultiplier'),
+                        'heat_generation_multiplier' => Arr::get($base, 'HeatGenerationMultiplier'),
+                        'sound_radius_multiplier' => Arr::get($base, 'SoundRadiusMultiplier'),
+                        'charge_time_multiplier' => Arr::get($base, 'ChargeTimeMultiplier'),
+                        'use_alternate_projectile_visuals' => Arr::get($base, 'UseAlternateProjectileVisuals'),
+                        'use_augmented_reality_projectiles' => Arr::get($base, 'UseAugmentedRealityProjectiles'),
+                    ],
+                ]),
+
+                // TODO: Verify
+                $this->mergeWhen(collect($recoil)->max() !== 1, [
+                    'recoil' => [
+                        'decay_multiplier' => Arr::get($recoil, 'DecayMultiplier'),
+                        'end_decay_multiplier' => Arr::get($recoil, 'EndDecayMultiplier'),
+                        'fire_recoil_time_multiplier' => Arr::get($recoil, 'FireRecoilTimeMultiplier'),
+                        'fire_recoil_strength_first_multiplier' => Arr::get($recoil, 'FireRecoilStrengthFirstMultiplier'),
+                        'fire_recoil_strength_multiplier' => Arr::get($recoil, 'FireRecoilStrengthMultiplier'),
+                        'angle_recoil_strength_multiplier' => Arr::get($recoil, 'AngleRecoilStrengthMultiplier'),
+                        'randomness_multiplier' => Arr::get($recoil, 'RandomnessMultiplier'),
+                        'randomness_back_push_multiplier' => Arr::get($recoil, 'RandomnessBackPushMultiplier'),
+                        'frontal_oscillation_rotation_multiplier' => Arr::get($recoil, 'FrontalOscillationRotationMultiplier'),
+                        'frontal_oscillation_strength_multiplier' => Arr::get($recoil, 'FrontalOscillationStrengthMultiplier'),
+                        'frontal_oscillation_decay_multiplier' => Arr::get($recoil, 'FrontalOscillationDecayMultiplier'),
+                        'frontal_oscillation_randomness_multiplier' => Arr::get($recoil, 'FrontalOscillationRandomnessMultiplier'),
+                        'animated_recoil_multiplier' => Arr::get($recoil, 'AnimatedRecoilMultiplier'),
+                    ],
+                ]),
+
+                // TODO: Verify
+                $this->mergeWhen(collect($spread)->max() !== 1, [
+                    'spread' => [
+                        'min_multiplier' => Arr::get($spread, 'MinMultiplier'),
+                        'max_multiplier' => Arr::get($spread, 'MaxMultiplier'),
+                        'first_attack_multiplier' => Arr::get($spread, 'FirstAttackMultiplier'),
+                        'attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
+                        'decay_multiplier' => Arr::get($spread, 'DecayMultiplier'),
+                        'additive_modifier' => Arr::get($spread, 'AdditiveModifier'),
+                    ],
+                ]),
+
+                // TODO: Verify
+                $this->mergeWhen(collect($aim)->max() !== 1, [
+                    'aim' => [
+                        'type' => Arr::get($ironSight, 'ScopeType'),
+                        'zoom_scale' => Arr::get($aim, 'ZoomScale'),
+                        'second_zoom_scale' => Arr::get($aim, 'SecondZoomScale'),
+                        'zoom_time_scale' => Arr::get($aim, 'ZoomTimeScale'),
+                        'hide_weapon_in_ads' => Arr::get($aim, 'HideWeaponInAds'),
+                        'fstop_multiplier' => Arr::get($aim, 'FstopMultiplier'),
+                    ],
+                ]),
+
+                // TODO: Verify
+                $this->mergeWhen(collect($regen)->max() !== 1, [
+                    'regen' => [
+                        'power_ratio_multiplier' => Arr::get($regen, 'PowerRatioMultiplier'),
+                        'max_ammo_load_multiplier' => Arr::get($regen, 'MaxAmmoLoadMultiplier'),
+                        'max_regen_per_sec_multiplier' => Arr::get($regen, 'MaxRegenPerSecMultiplier'),
+                    ],
+                ]),
+
+                // TODO: Verify
+                $this->mergeWhen(collect($salvage)->max() !== 1, [
+                    'salvage' => [
+                        'salvage_speed_multiplier' => Arr::get($salvage, 'SalvageSpeedMultiplier'),
+                        'radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
+                        'extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
+                    ],
+                ]),
             ],
-            'zeroing' => [
-                'default_range' => Arr::get($zeroing, 'DefaultRange'),
-                'max_range' => Arr::get($zeroing, 'MaxRange'),
-                'range_increment' => Arr::get($zeroing, 'RangeIncrement'),
-                'auto_zeroing_time' => Arr::get($zeroing, 'AutoZeroingTime'),
-            ],
+
+            $this->mergeWhen(collect($zeroing)->reject(fn ($item) => $item !== null)->isNotEmpty(), [
+                'zeroing' => [
+                    'default_range' => Arr::get($zeroing, 'DefaultRange'),
+                    'max_range' => Arr::get($zeroing, 'MaxRange'),
+                    'range_increment' => Arr::get($zeroing, 'RangeIncrement'),
+                    'auto_zeroing_time' => Arr::get($zeroing, 'AutoZeroingTime'),
+                ],
+            ]),
+
             // Deprecated flat fields for backwards compatibility with v2
             'fire_rate_multiplier' => Arr::get($base, 'FireRateMultiplier'),
             'damage_multiplier' => Arr::get($base, 'DamageMultiplier'),
@@ -267,30 +299,6 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
                 'radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
                 'extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
             ],
-            'recoil_decay_multiplier' => Arr::get($recoil, 'DecayMultiplier'),
-            'recoil_end_decay_multiplier' => Arr::get($recoil, 'EndDecayMultiplier'),
-            'recoil_fire_recoil_time_multiplier' => Arr::get($recoil, 'FireRecoilTimeMultiplier'),
-            'recoil_fire_recoil_strength_first_multiplier' => Arr::get($recoil, 'FireRecoilStrengthFirstMultiplier'),
-            'recoil_fire_recoil_strength_multiplier' => Arr::get($recoil, 'FireRecoilStrengthMultiplier'),
-            'recoil_angle_recoil_strength_multiplier' => Arr::get($recoil, 'AngleRecoilStrengthMultiplier'),
-            'recoil_randomness_multiplier' => Arr::get($recoil, 'RandomnessMultiplier'),
-            'recoil_randomness_back_push_multiplier' => Arr::get($recoil, 'RandomnessBackPushMultiplier'),
-            'recoil_frontal_oscillation_rotation_multiplier' => Arr::get($recoil, 'FrontalOscillationRotationMultiplier'),
-            'recoil_frontal_oscillation_strength_multiplier' => Arr::get($recoil, 'FrontalOscillationStrengthMultiplier'),
-            'recoil_frontal_oscillation_decay_multiplier' => Arr::get($recoil, 'FrontalOscillationDecayMultiplier'),
-            'recoil_frontal_oscillation_randomness_multiplier' => Arr::get($recoil, 'FrontalOscillationRandomnessMultiplier'),
-            'recoil_animated_recoil_multiplier' => Arr::get($recoil, 'AnimatedRecoilMultiplier'),
-            'spread_min_multiplier' => Arr::get($spread, 'MinMultiplier'),
-            'spread_max_multiplier' => Arr::get($spread, 'MaxMultiplier'),
-            'spread_first_attack_multiplier' => Arr::get($spread, 'FirstAttackMultiplier'),
-            'spread_attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
-            'spread_decay_multiplier' => Arr::get($spread, 'DecayMultiplier'),
-            'spread_additive_modifier' => Arr::get($spread, 'AdditiveModifier'),
-            'aim_zoom_scale' => Arr::get($aim, 'ZoomScale'),
-            'aim_zoom_time_scale' => Arr::get($aim, 'ZoomTimeScale'),
-            'salvage_speed_multiplier' => Arr::get($salvage, 'SalvageSpeedMultiplier'),
-            'salvage_radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),
-            'salvage_extraction_efficiency' => Arr::get($salvage, 'ExtractionEfficiency'),
         ];
     }
 }

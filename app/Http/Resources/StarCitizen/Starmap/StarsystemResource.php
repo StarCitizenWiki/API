@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'starsystem_v2',
+    schema: 'starsystem',
     title: 'Starsystem',
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
@@ -106,7 +106,7 @@ class StarsystemResource extends AbstractBaseResource
         return [
             'id' => $this->cig_id,
             'code' => $this->code,
-            'system_api_url' => $this->makeApiUrl(self::STARMAP_STARSYSTEM_SHOW, $this->code),
+            'system_api_url' => route('starsystems.show', ['code' => $this->code]),
             'name' => $this->name,
             'status' => $this->status,
             'type' => $this->type,

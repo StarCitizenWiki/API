@@ -119,7 +119,7 @@ class ManufacturerController extends Controller
     )]
     public function search(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $this->cleanQueryName($request->validated('query'));
+        $query = $request->validated('query');
 
         $manufacturers = QueryBuilder::for(Manufacturer::class)
             ->where('name', 'like', "%{$query}%")
@@ -131,13 +131,5 @@ class ManufacturerController extends Controller
             ->appends($request->query());
 
         return ManufacturerLinkResource::collection($manufacturers);
-    }
-
-    /**
-     * Clean the name for query use.
-     */
-    private function cleanQueryName(string $name): string
-    {
-        return str_replace('_', ' ', urldecode($name));
     }
 }

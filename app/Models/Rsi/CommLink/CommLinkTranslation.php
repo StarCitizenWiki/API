@@ -16,6 +16,7 @@ class CommLinkTranslation extends Translation
         'locale_code',
         'comm_link_id',
         'translation',
+        'proofread',
     ];
 
     protected $casts = [

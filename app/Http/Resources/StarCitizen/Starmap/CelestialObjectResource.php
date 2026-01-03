@@ -9,7 +9,7 @@ use App\Http\Resources\TranslationResolver;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'celestial_object_v2',
+    schema: 'celestial_object',
     title: 'Celestial Object',
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
@@ -61,9 +61,9 @@ class CelestialObjectResource extends AbstractBaseResource
             'id' => $this->cig_id,
             'code' => $this->code,
             'system_id' => $this->starsystem_id,
-            'link' => $this->makeApiUrl(
-                self::STARMAP_CELESTIAL_OBJECTS_SHOW,
-                $this->code
+            'link' => route(
+                'celestial-objects.show',
+                ['code' => $this->code]
             ),
             'name' => $this->name,
             'type' => $this->type,

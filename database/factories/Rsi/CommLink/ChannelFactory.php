@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories\Rsi\CommLink;
+
+use App\Models\Rsi\CommLink\Channel;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rsi\CommLink\Channel>
+ */
+class ChannelFactory extends Factory
+{
+    protected $model = Channel::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        $name = fake()->randomElement(['Transmission', 'Spectrum Dispatch', 'Development', 'News', 'Media']);
+
+        return [
+            'name' => $name,
+            'slug' => strtolower(str_replace(' ', '-', $name)),
+        ];
+    }
+}

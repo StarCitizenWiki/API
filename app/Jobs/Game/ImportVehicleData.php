@@ -10,6 +10,7 @@ use App\Models\Game\VehicleData;
 use App\Services\Game\VehicleItemImporter;
 use App\Services\Game\VehicleMatchingService;
 use App\Services\Parser\SC\Labels;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,6 +23,7 @@ use RuntimeException;
 
 class ImportVehicleData implements ShouldQueue
 {
+    use Batchable;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;

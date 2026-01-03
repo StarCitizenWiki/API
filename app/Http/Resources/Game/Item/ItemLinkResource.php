@@ -54,9 +54,9 @@ class ItemLinkResource extends AbstractBaseResource
             'classification' => $data->classification,
             'is_base_variant' => $data->base_id === null,
             'manufacturer' => new ManufacturerLinkResource($data->manufacturer),
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            'link' => route('items.show', ['identifier' => $this->uuid]),
             $this->mergeWhen($data->base_id !== null, fn () => [
-                'base_variant' => $this->makeApiUrl(self::ITEMS_SHOW, $data->baseVariant->uuid ?? ''),
+                'base_variant' => route('items.show', ['identifier' => $data->baseVariant->uuid ?? '']),
             ]),
             'variants' => self::collection($this->whenLoaded('variants')),
             'shops' => [],

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
+use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
 use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use Illuminate\Http\Request;
@@ -49,9 +49,9 @@ class StarsystemController extends Controller
         return new StarsystemResource($starsystem);
     }
 
-    public function search(StarsystemRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $this->cleanQueryName($request->get('query'));
+        $query = mb_strtoupper($request->validated('query'));
 
         $starsystems = QueryBuilder::for(Starsystem::class)
             ->where('code', $query)

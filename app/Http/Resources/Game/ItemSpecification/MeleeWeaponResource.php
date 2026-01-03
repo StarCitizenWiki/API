@@ -55,7 +55,7 @@ use OpenApi\Attributes as OA;
             property: 'attack_modes_legacy',
             description: 'Deprecated: legacy melee combat config format.',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/melee_combat_config_v2'),
+            items: new OA\Items(ref: '#/components/schemas/melee_combat_config'),
             nullable: true,
         ),
     ],

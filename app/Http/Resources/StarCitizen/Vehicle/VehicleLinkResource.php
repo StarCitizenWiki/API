@@ -44,7 +44,7 @@ class VehicleLinkResource extends AbstractBaseResource
             'type' => TranslationResolver::resolve($this->type, $request),
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'production_status' => TranslationResolver::resolve($this->productionStatus, $request),
-            'link' => $this->makeApiUrl(self::SHIPMATRIX_VEHICLES_SHOW, urlencode($this->slug)),
+            'link' => route('shipmatrix.vehicles.show', ['vehicle' => $this->slug]),
             'updated_at' => $this->updated_at,
         ];
     }
