@@ -11,10 +11,8 @@ use App\Http\Filters\VehicleTypeFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
-use App\Http\Resources\Game\Vehicle\VehicleLinkResource;
 use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
-use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,6 +32,8 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/vehicles',
+        description: 'Returns paginated in-game vehicles for the requested version and vehicle type with optional filters.',
+        summary: 'In-Game Vehicles Overview',
         tags: ['In-Game', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -43,9 +43,12 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[career]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[role]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[focus]', description: 'Filter by Ship-Matrix focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', description: 'Filter by Ship-Matrix type slug', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[production_status]', description: 'Filter by Ship-Matrix production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[is_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[is_gravlev]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[is_spaceship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            // new OA\Parameter(name: 'filter[focus]', description: 'Filter by Ship-Matrix focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            // new OA\Parameter(name: 'filter[type]', description: 'Filter by Ship-Matrix type slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            // new OA\Parameter(name: 'filter[production_status]', description: 'Filter by Ship-Matrix production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -53,7 +56,7 @@ class VehicleController extends Controller
                 description: 'List of Vehicles',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/vehicle_link')
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle')
                 )
             ),
         ]
@@ -72,11 +75,14 @@ class VehicleController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::exact('size'),
+                AllowedFilter::exact('is_vehicle'),
+                AllowedFilter::exact('is_gravlev'),
+                AllowedFilter::exact('is_spaceship'),
                 AllowedFilter::partial('career'),
                 AllowedFilter::partial('role'),
-                AllowedFilter::custom('focus', new VehicleFocusFilter),
-                AllowedFilter::custom('type', new VehicleTypeFilter),
-                AllowedFilter::custom('production_status', new VehicleProductionStatusFilter),
+                // AllowedFilter::custom('focus', new VehicleFocusFilter),
+                // AllowedFilter::custom('type', new VehicleTypeFilter),
+                // AllowedFilter::custom('production_status', new VehicleProductionStatusFilter),
             ])
             ->allowedSorts(['name', 'size', 'career', 'role'])
             ->defaultSort('name')
@@ -85,13 +91,15 @@ class VehicleController extends Controller
 
         $vehicles = $query->paginate()->appends($request->query());
 
-        return VehicleLinkResource::collection(
+        return VehicleResource::collection(
             $this->transformToVehicles($vehicles)
         );
     }
 
     #[OA\Get(
         path: '/api/vehicles/{identifier}',
+        description: 'Retrieve a vehicle by name, class name, or UUID along with requested includes.',
+        summary: 'In-Game Vehicle Detail',
         tags: ['In-Game', 'Vehicles'],
         parameters: [
             new OA\Parameter(
@@ -112,7 +120,7 @@ class VehicleController extends Controller
                 content: new OA\JsonContent(
                     oneOf: [
                         new OA\Schema(ref: '#/components/schemas/game_vehicle'),
-                        new OA\Schema(ref: '#/components/schemas/vehicle_v2'),
+                        new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle'),
                     ]
                 )
             ),
@@ -120,6 +128,7 @@ class VehicleController extends Controller
     )]
     public function show(Request $request, string $identifier): AbstractBaseResource
     {
+        $original = $identifier;
         $versionCode = $this->gameVersionCode();
         $identifier = $this->cleanQueryName($identifier);
         $isUuid = Str::isUuid($identifier);
@@ -143,9 +152,10 @@ class VehicleController extends Controller
                 $underscored = str_replace(' ', '_', $identifier);
                 $vehicleData = QueryBuilder::for(VehicleData::class, $request)
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->where(function (Builder $q) use ($identifier, $underscored) {
+                    ->where(function (Builder $q) use ($identifier, $underscored, $original) {
                         $q->where('name', $identifier)
                             ->orWhereRaw('upper(display_name) = ?', [strtoupper($identifier)])
+                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
                             ->orWhere('class_name', strtoupper($underscored))
                             ->orWhere('class_name', 'LIKE', "%_{$underscored}");
                     })
@@ -212,6 +222,8 @@ class VehicleController extends Controller
 
     #[OA\Post(
         path: '/api/vehicles/search',
+        description: 'Search vehicles by name, career, or identifier with optional filters and pagination.',
+        summary: 'In-Game Vehicle Search',
         requestBody: new OA\RequestBody(
             description: 'Vehicle name, class_name, career, or UUID',
             required: true,
@@ -239,7 +251,7 @@ class VehicleController extends Controller
                 description: 'A List of matching Vehicles',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/vehicle_link')
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle')
                 )
             ),
         ]
@@ -281,7 +293,7 @@ class VehicleController extends Controller
 
         $vehicles = $query->paginate()->appends($request->query());
 
-        return VehicleLinkResource::collection(
+        return VehicleResource::collection(
             $this->transformToVehicles($vehicles)
         );
     }

@@ -8,7 +8,7 @@ use App\Models\System\Language;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'translation_v2',
+    schema: 'translation',
     title: 'Grouped Translations',
     description: 'Translations of an entity',
     properties: [
@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
-    schema: 'translation_single_v2',
+    schema: 'translation_single',
     title: 'Single Translation',
     description: 'Translation of an entity',
     type: 'string'

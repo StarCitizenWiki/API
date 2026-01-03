@@ -29,7 +29,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'type', type: 'string', nullable: true),
                 new OA\Property(property: 'sub_type', type: 'string', nullable: true),
-                new OA\Property(property: 'inventory', ref: '#/components/schemas/item_container', nullable: true),
+                new OA\Property(property: 'inventory', ref: '#/components/schemas/item_inventory', nullable: true),
                 new OA\Property(
                     property: 'ports',
                     type: 'array',

@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'stat_v2',
+    schema: 'stat',
     title: 'RSI Stats',
     description: 'Stats about fans and funds',
     properties: [

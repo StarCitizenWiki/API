@@ -51,13 +51,6 @@ use OpenApi\Attributes as OA;
             ),
             nullable: true
         ),
-        new OA\Property(
-            property: 'attack_modes_legacy',
-            description: 'Deprecated: legacy melee combat config format.',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/melee_combat_config'),
-            nullable: true,
-        ),
     ],
     type: 'object'
 )]
@@ -77,7 +70,7 @@ class MeleeWeaponResource extends AbstractItemSpecificationResource
             'can_be_used_in_prone' => Arr::get($melee, 'CanBeUsedInProne', Arr::get($melee, 'canBeUsedInProne')),
             'can_dodge' => Arr::get($melee, 'CanDodge', Arr::get($melee, 'canDodge')),
             'stance_transition_melee_delay' => Arr::get($melee, 'StanceTransitionMeleeDelay', Arr::get($melee, 'stanceTransitionMeleeDelay')),
-            'melee_combat_config' => Arr::get($melee, 'MeleeCombatConfig', Arr::get($melee, 'meleeCombatConfig')),
+            'melee_combat_config' => Arr::get($melee, 'MeleeCombatConfig'),
             'attack_modes' => collect(is_array($attackConfigs) ? $attackConfigs : [$attackConfigs])->map(
                 static function (mixed $attack): array {
                     $damage = Arr::get($attack, 'Damage', []);

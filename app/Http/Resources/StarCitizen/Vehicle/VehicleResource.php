@@ -85,13 +85,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'foci',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/translation_v2')
+            items: new OA\Items(ref: '#/components/schemas/translation')
         ),
-        new OA\Property(property: 'production_status', ref: '#/components/schemas/translation_v2'),
-        new OA\Property(property: 'production_note', ref: '#/components/schemas/translation_v2'),
-        new OA\Property(property: 'type', ref: '#/components/schemas/translation_v2'),
-        new OA\Property(property: 'description', ref: '#/components/schemas/translation_v2'),
-        new OA\Property(property: 'size', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'production_status', ref: '#/components/schemas/translation'),
+        new OA\Property(property: 'production_note', ref: '#/components/schemas/translation'),
+        new OA\Property(property: 'type', ref: '#/components/schemas/translation'),
+        new OA\Property(property: 'description', ref: '#/components/schemas/translation'),
+        new OA\Property(property: 'size', ref: '#/components/schemas/translation'),
         new OA\Property(
             property: 'msrp',
             description: 'MSRP imported from the Ship Upgrade tool.',
@@ -149,7 +149,7 @@ class VehicleResource extends AbstractBaseResource
             ->map('strtolower')
             ->toArray();
 
-        $this->addMetadata('deprecations', [
+        $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
         ]);
 

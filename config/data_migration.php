@@ -38,6 +38,7 @@ return [
             'comm_links',
             'comm_link_link',
             'comm_link_translations',
+            'comm_link_image',
         ],
 
         'ShipMatrix' => [
@@ -75,6 +76,6 @@ return [
 
         'Stats' => [
             'stats',
-        ]
+        ],
     ],
 ];

@@ -58,7 +58,7 @@ use OpenApi\Attributes as OA;
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            ref: '#/components/schemas/celestial_object_v2',
+                            ref: '#/components/schemas/celestial_object',
                             type: 'array',
                             items: new OA\Items,
                         ),
@@ -77,7 +77,7 @@ use OpenApi\Attributes as OA;
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            ref: '#/components/schemas/jumppoint_v2',
+                            ref: '#/components/schemas/jumppoint',
                             type: 'array',
                             items: new OA\Items,
                         ),

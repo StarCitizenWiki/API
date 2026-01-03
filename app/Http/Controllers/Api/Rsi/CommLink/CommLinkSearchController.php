@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
+use App\Http\Requests\Rsi\CommLink\SimilarSearchRequest;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
 use App\Models\Rsi\CommLink\CommLink;
@@ -17,8 +18,8 @@ use App\Services\ImageHash\PdqHasher;
 use App\Services\Parser\CommLink\Image as ImageParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use RuntimeException;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -26,7 +27,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class CommLinkSearchController extends Controller
 {
     #[OA\Post(
-        path: '/api/v2/comm-links/search',
+        path: '/api/comm-links/search',
+        description: 'Query comm-links by title or ID with localized includes.',
+        summary: 'Comm-Link Search',
         requestBody: new OA\RequestBody(
             description: '(Partial) Comm-Link Title or ID',
             required: true,
@@ -48,7 +51,7 @@ class CommLinkSearchController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A singular Comm-Link',
-                content: new OA\JsonContent(ref: '#/components/schemas/comm_link_v2')
+                content: new OA\JsonContent(ref: '#/components/schemas/comm_link')
             ),
             new OA\Response(
                 response: 404,
@@ -78,7 +81,9 @@ class CommLinkSearchController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/v2/comm-links/reverse-image-link-search',
+        path: '/api/comm-links/reverse-image-link-search',
+        description: 'Return comm-links that reference the same RSI-hosted image URL.',
+        summary: 'Comm-Link Reverse Image Link Search',
         requestBody: new OA\RequestBody(
             description: 'Url to an image hosted on (media.)robertsspaceindustries.com',
             required: true,
@@ -99,7 +104,7 @@ class CommLinkSearchController extends Controller
                 description: 'List of Comm-Links that use that image',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_link_v2')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
                 )
             ),
             new OA\Response(
@@ -108,10 +113,8 @@ class CommLinkSearchController extends Controller
             ),
         ],
     )]
-    public function reverseImageLinkSearch(Request $request): AnonymousResourceCollection
+    public function reverseImageLinkSearch(ReverseImageLinkSearchRequest $request): AnonymousResourceCollection
     {
-        $request->validate((new ReverseImageLinkSearchRequest)->rules());
-
         $image = Image::query();
 
         $dir = $this->getDirHashFromImageUrl($request->get('url', ''));
@@ -142,15 +145,24 @@ class CommLinkSearchController extends Controller
 
     #[OA\Post(
         path: '/api/v2/comm-links/reverse-image-search',
+        description: 'Search comm-links by uploading an image and specifying a similarity threshold.',
+        summary: 'Comm-Link Reverse Image Search',
         requestBody: new OA\RequestBody(
             required: true,
             content: [
-                'image' => new OA\MediaType(
-                    mediaType: 'application/octet-stream',
+                'multipart/form-data' => new OA\MediaType(
+                    mediaType: 'multipart/form-data',
                     schema: new OA\Schema(
-                        description: 'The image to reverse-search',
-                        type: 'string',
-                        format: 'binary',
+                        required: ['image'],
+                        properties: [
+                            new OA\Property(
+                                property: 'image',
+                                description: 'The image to reverse-search',
+                                type: 'string',
+                                format: 'binary',
+                            ),
+                        ],
+                        type: 'object',
                     ),
                 ),
             ]
@@ -174,7 +186,7 @@ class CommLinkSearchController extends Controller
                 description: 'List of Comm-Links that use that image',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_link_v2')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
                 )
             ),
             new OA\Response(
@@ -183,15 +195,13 @@ class CommLinkSearchController extends Controller
             ),
         ],
     )]
-    public function reverseImageSearch(Request $request, PdqHasher $hasher): AnonymousResourceCollection
+    public function reverseImageSearch(ReverseImageSearchRequest $request, PdqHasher $hasher): AnonymousResourceCollection
     {
         $this->checkExtensionsLoaded();
 
-        $request->validate((new ReverseImageSearchRequest)->rules());
-
         try {
-            $hashResult = $hasher->hashContents($request->file('image')->get());
-        } catch (\RuntimeException $exception) {
+            $hashResult = $hasher->hashContents($request->imageContents());
+        } catch (RuntimeException $exception) {
             throw new HttpException(422, $exception->getMessage(), $exception);
         }
 
@@ -203,23 +213,55 @@ class CommLinkSearchController extends Controller
         return ImageHashResource::collection($data);
     }
 
-    public function similarSearch(Request $request)
+    #[OA\Get(
+        path: '/api/comm-link-images/{image}/similar',
+        description: 'Find Comm-Link images similar to an existing RSI-hosted image.',
+        summary: 'Comm-Link Reverse Image Similar Search',
+        tags: ['Comm-Links', 'RSI-Website', 'Search'],
+        parameters: [
+            new OA\Parameter(
+                name: 'image',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer'),
+            ),
+            new OA\Parameter(
+                name: 'similarity',
+                description: 'Threshold similarity percentage (defaults to 50)',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'integer',
+                    maximum: 100,
+                    minimum: 1,
+                ),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Comm-Link images that match the requested similarity',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Comm-Link image not found.',
+            ),
+        ],
+    )]
+    public function similarSearch(SimilarSearchRequest $request): AnonymousResourceCollection
     {
-        ['image' => $image, 'similarity' => $similarity] = Validator::validate(
-            [
-                'image' => $request->image,
-                'similarity' => $request->similarity,
-            ],
-            [
-                'image' => 'required|int|exists:comm_link_images,id',
-                'similarity' => 'nullable|int|min:1|max:100',
-            ]
-        );
+        $data = $request->validated();
 
         /** @var Image $image */
-        $image = Image::query()->find($image);
+        $image = Image::query()->findOrFail($data['image']);
 
-        return ImageHashResource::collection($image->similarImages($similarity ?? 50, 50));
+        $similarity = $data['similarity'] ?? 50;
+
+        return ImageHashResource::collection($image->similarImages($similarity, 50));
     }
 
     /**

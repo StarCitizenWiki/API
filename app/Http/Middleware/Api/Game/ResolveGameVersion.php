@@ -26,6 +26,7 @@ class ResolveGameVersion
             str_starts_with($request->path(), 'api/galactapedia') ||
             str_starts_with($request->path(), 'api/stats') ||
             str_starts_with($request->path(), 'api/starsystems') ||
+            str_starts_with($request->path(), 'api/manufacturers') ||
             str_starts_with($request->path(), 'api/shipmatrix')
         ) {
             return $next($request);

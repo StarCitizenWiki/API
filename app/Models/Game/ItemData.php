@@ -18,6 +18,8 @@ class ItemData extends Model
 
     protected $table = 'game_item_data';
 
+    protected $perPage = 50;
+
     protected $fillable = [
         'item_id',
         'game_version_id',

@@ -24,8 +24,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'overpower_performance', type: 'double', nullable: true),
         new OA\Property(property: 'power_to_em', type: 'double', nullable: true),
         new OA\Property(property: 'decay_rate_em', type: 'double', nullable: true),
-        new OA\Property(property: 'em_min', description: 'PowerBase * PowerToEm', type: 'double', nullable: true),
-        new OA\Property(property: 'em_max', description: 'PowerDraw * PowerToEm', type: 'double', nullable: true),
+        new OA\Property(property: 'em_min', description: 'PowerBase * PowerToEm. Use ResourceNetwork data instead.', type: 'double', nullable: true),
+        new OA\Property(property: 'em_max', description: 'PowerDraw * PowerToEm. Use ResourceNetwork data instead.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]

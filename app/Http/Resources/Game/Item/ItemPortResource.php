@@ -60,6 +60,12 @@ use OpenApi\Attributes as OA;
             type: 'boolean',
             nullable: true,
         ),
+        new OA\Property(
+            property: 'equipped_item_uuid',
+            description: 'UUID of the equipped item',
+            type: 'string',
+            nullable: true,
+        ),
         new OA\Property(property: 'equipped_item', ref: '#/components/schemas/item_link', nullable: true),
     ],
     type: 'object'
@@ -71,7 +77,7 @@ class ItemPortResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $item = null;
-        if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null) {
+        if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null && $request->routeIs('items.show')) {
             $item = $this->loadItemForVersion(Arr::get($this, 'EquippedItem'));
         }
 
@@ -92,6 +98,7 @@ class ItemPortResource extends AbstractBaseResource
             'required_tags' => Arr::get($this, 'RequiredTags', []),
             'flags' => Arr::get($this, 'Flags', []),
             'uneditable' => Arr::get($this, 'Uneditable'),
+            'equipped_item_uuid' => Arr::get($this, 'EquippedItem'),
             $this->mergeWhen($item !== null, [
                 'equipped_item' => new ItemLinkResource($item),
             ]),

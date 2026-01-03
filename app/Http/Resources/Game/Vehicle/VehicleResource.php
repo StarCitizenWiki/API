@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
-use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Traits\CalculatesCargoGridSizeLimits;
 use Illuminate\Http\Request;
@@ -609,13 +608,15 @@ class VehicleResource extends AbstractBaseResource
                 'remote' => TurretSummaryResource::collection(Arr::get($payload, 'RemoteTurrets', [])),
             ],
 
-            'career' => Arr::get($payload, 'Career'),
-            'role' => Arr::get($payload, 'Role'),
+            'career' => $vehicleData->career ?? Arr::get($payload, 'Career'),
+            'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
 
             $this->mergeWhen(
-                $this->shouldIncludeComponents($includes, $vehicleData),
+                $this->shouldIncludeComponents($includes, $vehicleData) && $request->routeIs('vehicles.show'),
                 fn () => ['components' => $this->getComponents($vehicleData)]
             ),
+
+            'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $vehicleData->name]),
 
             'updated_at' => $vehicleData->updated_at,
             'version' => $vehicleData->gameVersion?->code,

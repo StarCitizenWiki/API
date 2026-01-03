@@ -53,7 +53,7 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'item_base',
+    schema: 'game_item',
     title: 'Item',
     description: 'An item in Star Citizen, based on EntityClassDefinition XML files.',
     properties: [
@@ -91,7 +91,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'type', description: 'AttachDef@Type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', description: 'AttachDef@SubType', type: 'string', nullable: true),
         new OA\Property(property: 'dimension', ref: '#/components/schemas/item_dimension'),
-        new OA\Property(property: 'inventory', ref: '#/components/schemas/item_container', nullable: true),
+        new OA\Property(property: 'inventory', ref: '#/components/schemas/item_inventory', nullable: true),
         new OA\Property(
             property: 'tags',
             description: 'AttachDef@Tags',
@@ -269,7 +269,7 @@ class ItemResource extends AbstractBaseResource
             return [];
         }
 
-        $this->addMetadata('deprecations', [
+        $this->addMetadata('deprecated_fields', [
             'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
         ]);
 
@@ -362,13 +362,8 @@ class ItemResource extends AbstractBaseResource
             ]),
 
             'shops' => [],
-            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
-                'base_variant' => $itemData->baseVariant?->item
-                    ? new ItemLinkResource($itemData->baseVariant->item)
-                    : static fn () => route(
-                        'items.show',
-                        ['identifier' => $itemData->baseVariant?->item?->uuid ?? '']
-                    ),
+            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant') && $itemData?->baseVariant?->item !== null, [
+                'base_variant' => fn () => new ItemLinkResource($itemData->baseVariant->item),
             ]),
             'variants' => $itemData->relationLoaded('variants')
                 ? ItemLinkResource::collection(
@@ -380,6 +375,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($includeRelated, [
                 'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
             ]),
+            'link' => route('items.show', ['identifier' => $this->uuid]),
             'updated_at' => $this->updated_at,
             'version' => $itemData->gameVersion->code,
         ];

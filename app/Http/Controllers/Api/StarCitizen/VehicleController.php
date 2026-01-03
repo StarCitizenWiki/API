@@ -9,7 +9,6 @@ use App\Http\Filters\ShipMatrixFocusFilter;
 use App\Http\Filters\ShipMatrixProductionStatusFilter;
 use App\Http\Filters\ShipMatrixTypeFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
-use App\Http\Resources\StarCitizen\Vehicle\VehicleLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +24,8 @@ class VehicleController extends Controller
 {
     #[OA\Get(
         path: '/api/shipmatrix/vehicles',
+        description: 'Returns paginated Ship Matrix vehicles with optional filters for manufacturer, size, and status.',
+        summary: 'Ship Matrix Vehicles Overview',
         tags: ['Ship-Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -40,7 +41,7 @@ class VehicleController extends Controller
                 description: 'List of Ship-Matrix Vehicles',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/shipmatrix_vehicle_link')
+                    items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')
                 )
             ),
         ]
@@ -58,11 +59,13 @@ class VehicleController extends Controller
 
         $vehicles = $query->paginate()->appends($request->query());
 
-        return VehicleLinkResource::collection($vehicles);
+        return VehicleResource::collection($vehicles);
     }
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles/{slug}',
+        description: 'Retrieve a Ship Matrix vehicle by slug with optional related data.',
+        summary: 'Ship Matrix Vehicle Detail',
         tags: ['Ship-Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(
@@ -85,7 +88,7 @@ class VehicleController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A Ship-Matrix Vehicle',
-                content: new OA\JsonContent(ref: '#/components/schemas/vehicle_v2')
+                content: new OA\JsonContent(ref: '#/components/schemas/ship_matrix_vehicle')
             ),
             new OA\Response(
                 response: 404,
@@ -126,6 +129,8 @@ class VehicleController extends Controller
 
     #[OA\Post(
         path: '/api/shipmatrix/vehicles/search',
+        description: 'Search Ship Matrix vehicles by name with optional filters for manufacturer, size, and status.',
+        summary: 'Ship Matrix Vehicle Search',
         requestBody: new OA\RequestBody(
             description: 'Vehicle name to search for',
             required: true,
@@ -152,7 +157,7 @@ class VehicleController extends Controller
                 description: 'A List of matching Ship-Matrix Vehicles',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/shipmatrix_vehicle_link')
+                    items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')
                 )
             ),
             new OA\Response(
@@ -179,6 +184,6 @@ class VehicleController extends Controller
 
         $vehicles = $query->paginate()->appends($request->query());
 
-        return VehicleLinkResource::collection($vehicles);
+        return VehicleResource::collection($vehicles);
     }
 }

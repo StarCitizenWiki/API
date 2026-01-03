@@ -12,6 +12,7 @@ use App\Models\Game\Manufacturer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,6 +21,8 @@ class ManufacturerController extends Controller
 {
     #[OA\Get(
         path: '/api/manufacturers',
+        description: 'Returns paginated manufacturers grouped by name with optional pagination.',
+        summary: 'In-Game Manufacturers Overview',
         tags: ['In-Game', 'Manufacturers'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -41,7 +44,9 @@ class ManufacturerController extends Controller
     {
         $query = QueryBuilder::for(Manufacturer::class, $request)
             ->select(['name'])
-            ->selectRaw('MAX(`code`) as code')
+            ->selectRaw("MIN(NULLIF(code, '')) AS code")
+            ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
+            ->where('name', '<>', '')
             ->groupBy('name')
             ->orderBy('name')
             ->paginate()
@@ -52,6 +57,8 @@ class ManufacturerController extends Controller
 
     #[OA\Get(
         path: '/api/manufacturers/{manufacturer}',
+        description: 'Retrieve a manufacturer by name, UUID, or code together with its products.',
+        summary: 'In-Game Manufacturer Detail',
         tags: ['In-Game', 'Manufacturers'],
         parameters: [
             new OA\Parameter(
@@ -76,12 +83,19 @@ class ManufacturerController extends Controller
     {
         $identifier = $this->cleanQueryName($manufacturer);
 
+        $isUuid = Str::isUuid($identifier);
+
         try {
-            $manufacturer = QueryBuilder::for(Manufacturer::class, $request)
-                ->where('uuid', $identifier)
-                ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
-                ->orWhere('code', 'LIKE', sprintf('%%%s%%', $identifier))
-                ->firstOrFail();
+            if ($isUuid) {
+                $manufacturer = QueryBuilder::for(Manufacturer::class, $request)
+                    ->where('uuid', $identifier)
+                    ->firstOrFail();
+            } else {
+                $manufacturer = QueryBuilder::for(Manufacturer::class, $request)
+                    ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
+                    ->orWhere('code', 'LIKE', sprintf('%%%s%%', $identifier))
+                    ->firstOrFail();
+            }
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Manufacturer with specified UUID or Name found.');
         }
@@ -91,6 +105,8 @@ class ManufacturerController extends Controller
 
     #[OA\Post(
         path: '/api/manufacturers/search',
+        description: 'Search manufacturers by name, UUID, or code with optional pagination.',
+        summary: 'In-Game Manufacturer Search',
         requestBody: new OA\RequestBody(
             description: 'Manufacturer name, uuid, or code',
             required: true,

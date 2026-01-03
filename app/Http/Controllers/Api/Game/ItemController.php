@@ -9,7 +9,6 @@ use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Includes\PassthroughInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
-use App\Http\Resources\Game\Item\ItemLinkResource;
 use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,6 +44,8 @@ class ItemController extends Controller
 
     #[OA\Get(
         path: '/api/items',
+        description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
+        summary: 'In-Game Item Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -64,7 +65,7 @@ class ItemController extends Controller
                 description: 'List of Items',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/item_link')
+                    items: new OA\Items(ref: '#/components/schemas/game_item')
                 )
             ),
         ]
@@ -93,13 +94,15 @@ class ItemController extends Controller
 
         $items = $query->paginate()->appends($request->query());
 
-        return ItemLinkResource::collection(
+        return ItemResource::collection(
             $this->transformToItems($items, $versionCode)
         );
     }
 
     #[OA\Get(
         path: '/api/items/{identifier}',
+        description: 'Retrieve a specific item by name or UUID with metadata and includes.',
+        summary: 'In-Game Item Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
@@ -118,12 +121,13 @@ class ItemController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'An Item',
-                content: new OA\JsonContent(ref: '#/components/schemas/item_base')
+                content: new OA\JsonContent(ref: '#/components/schemas/game_item')
             ),
         ]
     )]
     public function show(Request $request, string $identifier): ItemResource|RedirectResponse
     {
+        $original = $identifier;
         $versionCode = $this->gameVersionCode();
         $identifier = $this->cleanQueryName($identifier);
         $isUuid = Str::isUuid($identifier);
@@ -144,11 +148,11 @@ class ItemController extends Controller
                 $underscored = str_replace(' ', '_', $identifier);
                 $itemData = QueryBuilder::for(ItemData::class, $request)
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->where(function (Builder $q) use ($identifier, $underscored) {
+                    ->where(function (Builder $q) use ($identifier, $underscored, $original) {
                         $q->where('name', $identifier)
                             ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
                             ->orWhere('class_name', $underscored)
-                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($underscored)])
+                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
                             ->orWhere('class_name', 'LIKE', "%_{$underscored}");
                     })
                     ->allowedIncludes($this->allowedIncludes())
@@ -175,6 +179,8 @@ class ItemController extends Controller
 
     #[OA\Post(
         path: '/api/items/search',
+        description: 'Search items by title, manufacturer, or classification with optional filters.',
+        summary: 'In-Game Item Search',
         requestBody: new OA\RequestBody(
             description: 'Item Name or (sub)type',
             required: true,
@@ -206,7 +212,7 @@ class ItemController extends Controller
                 description: 'A List of matching Items',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/item_link')
+                    items: new OA\Items(ref: '#/components/schemas/game_item')
                 )
             ),
         ]
@@ -240,7 +246,7 @@ class ItemController extends Controller
 
         $items = $query->paginate()->appends($request->query());
 
-        return ItemLinkResource::collection(
+        return ItemResource::collection(
             $this->transformToItems($items, $versionCode)
         );
     }

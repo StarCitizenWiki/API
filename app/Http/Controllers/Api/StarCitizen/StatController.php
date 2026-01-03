@@ -15,13 +15,15 @@ use Spatie\QueryBuilder\QueryBuilder;
 class StatController extends Controller
 {
     #[OA\Get(
-        path: '/api/v2/stats/latest',
+        path: '/api/stats/latest',
+        description: 'Return the most recent fund and fleet statistics snapshot.',
+        summary: 'Latest Fund / Fleet Stats',
         tags: ['Stats', 'RSI-Website'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Latest statistics',
-                content: new OA\JsonContent(ref: '#/components/schemas/stat_v2')
+                content: new OA\JsonContent(ref: '#/components/schemas/stat')
             ),
         ]
     )]
@@ -33,7 +35,9 @@ class StatController extends Controller
     }
 
     #[OA\Get(
-        path: '/api/v2/stats',
+        path: '/api/stats',
+        description: 'Return paginated historical fund and fleet statistics.',
+        summary: 'Fund / Fleet Stats',
         tags: ['Stats', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -44,7 +48,7 @@ class StatController extends Controller
                 description: 'List of stats',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/stat_v2')
+                    items: new OA\Items(ref: '#/components/schemas/stat')
                 )
             ),
         ]

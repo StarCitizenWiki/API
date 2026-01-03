@@ -15,21 +15,21 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'code', type: 'string'),
         new OA\Property(property: 'uuid', type: 'string'),
-        new OA\Property(
-            property: 'ships',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_link')
-        ),
-        new OA\Property(
-            property: 'vehicles',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_link')
-        ),
-        new OA\Property(
-            property: 'items',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/item_link')
-        ),
+        // new OA\Property(
+        //     property: 'ships',
+        //     type: 'array',
+        //     items: new OA\Items(ref: '#/components/schemas/vehicle_link')
+        // ),
+        // new OA\Property(
+        //     property: 'vehicles',
+        //     type: 'array',
+        //     items: new OA\Items(ref: '#/components/schemas/vehicle_link')
+        // ),
+        // new OA\Property(
+        //     property: 'items',
+        //     type: 'array',
+        //     items: new OA\Items(ref: '#/components/schemas/item_link')
+        // ),
     ],
     type: 'object'
 )]
@@ -50,9 +50,10 @@ class ManufacturerResource extends AbstractBaseResource
             'name' => $this->name,
             'code' => $this->code,
             'uuid' => $this->uuid,
-            //            'ships' => VehicleLinkResource::collection($this->ships()),
-            //            'vehicles' => VehicleLinkResource::collection($this->groundVehicles()),
-            //            'items' => ItemLinkResource::collection($this->items()),
+            // TODO
+            // 'ships' => VehicleLinkResource::collection($this->ships()),
+            // 'vehicles' => VehicleLinkResource::collection($this->groundVehicles()),
+            // 'items' => ItemLinkResource::collection($this->items()),
         ];
     }
 }

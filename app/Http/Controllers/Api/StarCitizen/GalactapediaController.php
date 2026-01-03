@@ -22,7 +22,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class GalactapediaController extends Controller
 {
     #[OA\Get(
-        path: '/api/v2/galactapedia',
+        path: '/api/galactapedia',
+        description: 'Return paginated Galactapedia articles with category, tag, property, and template filters.',
+        summary: 'Galactapedia Overview',
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -39,7 +41,7 @@ class GalactapediaController extends Controller
                 description: 'List of Galactapedia Articles',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article_v2')
+                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
                 )
             ),
         ]
@@ -65,7 +67,9 @@ class GalactapediaController extends Controller
     }
 
     #[OA\Get(
-        path: '/api/v2/galactapedia/{id}',
+        path: '/api/galactapedia/{id}',
+        description: 'Retrieve a Galactapedia article by ID with available includes and translations.',
+        summary: 'Galactapedia Article',
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
@@ -103,7 +107,7 @@ class GalactapediaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A singular Article',
-                content: new OA\JsonContent(ref: '#/components/schemas/galactapedia_article_v2')
+                content: new OA\JsonContent(ref: '#/components/schemas/galactapedia_article')
             ),
             new OA\Response(
                 response: 404,
@@ -137,7 +141,9 @@ class GalactapediaController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/v2/galactapedia/search',
+        path: '/api/galactapedia/search',
+        description: 'Search Galactapedia articles by title, template, slug, or related metadata.',
+        summary: 'Galactapedia Article Search',
         requestBody: new OA\RequestBody(
             description: 'Article (partial) title, template or slug',
             required: true,
@@ -158,7 +164,7 @@ class GalactapediaController extends Controller
                 description: 'List of articles matching the query',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article_v2')
+                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
                 )
             ),
             new OA\Response(

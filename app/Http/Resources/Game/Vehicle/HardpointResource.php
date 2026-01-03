@@ -49,7 +49,11 @@ class HardpointResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $resolvedItem = $this->loadEquippedItem();
+        $resolvedItem = null;
+        if ($request->routeIs('vehicles.show')) {
+            $resolvedItem = $this->loadEquippedItem();
+        }
+
         $health = $this->extractHealth($resolvedItem);
         [$type, $subtype] = $this->extractTypeAndSubtype();
 

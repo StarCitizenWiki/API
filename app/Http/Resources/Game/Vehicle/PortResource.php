@@ -63,7 +63,11 @@ class PortResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $resolvedItem = $this->loadEquippedItem();
+        $resolvedItem = null;
+        if ($request->routeIs('vehicles.show')) {
+            $resolvedItem = $this->loadEquippedItem();
+        }
+
         $health = $this->extractHealth($resolvedItem);
         [$type, $subtype] = $this->extractTypeAndSubtype();
         $compatibleTypes = $this->buildCompatibleTypes();
@@ -77,7 +81,7 @@ class PortResource extends AbstractBaseResource
             'class_name' => Arr::get($this, 'ClassName'),
             'editable' => Arr::get($this, 'Editable'),
             'editable_children' => Arr::get($this, 'EditableChildren'),
-            'uuid' => Arr::get($this->resource, 'UUID'),
+            'equipped_item_uuid' => Arr::get($this->resource, 'UUID'),
             'type' => $type,
             'subtype' => $subtype,
         ];

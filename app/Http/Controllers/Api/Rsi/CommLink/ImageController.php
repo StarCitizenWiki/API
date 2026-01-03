@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
-use App\Http\Filters\ImageTagFilter;
+// use App\Http\Filters\ImageTagFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
 use App\Models\Rsi\CommLink\Image\Image;
@@ -18,11 +18,13 @@ use Spatie\QueryBuilder\QueryBuilder;
 class ImageController extends Controller
 {
     #[OA\Get(
-        path: '/api/v2/comm-link-images',
+        path: '/api/comm-link-images',
+        description: 'List available comm-link images with pagination.',
+        summary: 'Comm-Link Images',
         tags: ['Comm-Links', 'RSI-Website', 'Images'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
-            new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
+            //            new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -30,7 +32,7 @@ class ImageController extends Controller
                 description: 'List of Comm-Link Images',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
                 )
             ),
         ]
@@ -38,9 +40,9 @@ class ImageController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-            ->allowedFilters([
-                AllowedFilter::custom('tags', new ImageTagFilter),
-            ])
+//            ->allowedFilters([
+//                AllowedFilter::custom('tags', new ImageTagFilter),
+//            ])
             ->orderByDesc('id')
             ->paginate()
             ->appends(request()->query());
@@ -49,7 +51,9 @@ class ImageController extends Controller
     }
 
     #[OA\Get(
-        path: '/api/v2/comm-link-images/random',
+        path: '/api/comm-link-images/random',
+        description: 'Retrieve random comm-link images, optionally filtered by tag.',
+        summary: 'Comm-Link Images Random',
         tags: ['Comm-Links', 'RSI-Website', 'Images'],
         parameters: [
             new OA\Parameter(name: 'limit', in: 'query', schema: new OA\Schema(type: 'integer', maximum: 100)),
@@ -61,7 +65,7 @@ class ImageController extends Controller
                 description: 'Retrieve a random Comm-Link Image. Limit parameter sets the number of random images',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
                 )
             ),
         ]
@@ -81,7 +85,9 @@ class ImageController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/v2/comm-link-images/search',
+        path: '/api/comm-link-images/search',
+        description: 'Search comm-link images by filename with optional tag filtering.',
+        summary: 'Comm-Link Image Search by filename',
         tags: ['Comm-Links', 'RSI-Website', 'Images', 'Search'],
         parameters: [
             new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -92,7 +98,7 @@ class ImageController extends Controller
                 description: 'Search for a Comm-Link Image by its filename.',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
                 )
             ),
         ]
