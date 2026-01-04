@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Game;
 
 use App\Models\Game\Manufacturer;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
@@ -99,6 +100,9 @@ class ImportManufacturers extends Command
             ['uuid'],
             ['name', 'code', 'updated_at']
         );
+
+        FilterCache::bust(FilterCache::NAMESPACE_ITEMS);
+        FilterCache::bust(FilterCache::NAMESPACE_VEHICLES);
 
         $created = count(array_diff($uuids, $existing));
         $updated = $manufacturers->count() - $created;

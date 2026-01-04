@@ -4,6 +4,7 @@ namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
@@ -56,6 +57,7 @@ class ImportVehicles extends Command implements PromptsForMissingInput
         }
 
         $this->dispatchJobs($shipFiles, $gameVersion->id);
+        FilterCache::bust(FilterCache::NAMESPACE_VEHICLES);
 
         $this->info(sprintf(
             'Dispatched %d vehicle import jobs for version %s.',

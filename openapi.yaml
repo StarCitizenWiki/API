@@ -58,6 +58,11 @@ paths:
           in: query
           schema:
             type: number
+        -
+          name: 'filter[class]'
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: 'List of Items'
@@ -147,6 +152,11 @@ paths:
           in: query
           schema:
             type: number
+        -
+          name: 'filter[class]'
+          in: query
+          schema:
+            type: string
       requestBody:
         description: 'Item Name or (sub)type'
         required: true
@@ -164,6 +174,29 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/game_item'
+  /api/items/filters:
+    get:
+      tags:
+        - In-Game
+        - Items
+      summary: 'In-Game Item Filters'
+      description: 'Return all available filter values for in-game items, grouped by field.'
+      operationId: 8cd032a0b4591c3e203c00e9e5779194
+      parameters:
+        -
+          name: version
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Available filters for in-game items.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/manufacturers:
     get:
       tags:
@@ -347,6 +380,31 @@ paths:
           schema:
             type: integer
         -
+          name: 'filter[career]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[role]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[is_vehicle]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[is_gravlev]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[is_spaceship]'
+          in: query
+          schema:
+            type: boolean
+        -
           name: 'filter[focus]'
           in: query
           description: 'Filter by Ship-Matrix focus slug'
@@ -381,6 +439,29 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/game_vehicle'
+  /api/vehicles/filters:
+    get:
+      tags:
+        - In-Game
+        - Vehicles
+      summary: 'In-Game Vehicle Filters'
+      description: 'Return all available filter values for in-game vehicles.'
+      operationId: 57e041d605c3ed0ffabeccf150c51a5e
+      parameters:
+        -
+          name: version
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Available filters for in-game vehicles.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { manufacturer: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_vehicle: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_gravlev: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_spaceship: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, role: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, career: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/comm-links:
     get:
       tags:
@@ -409,6 +490,11 @@ paths:
           in: query
           schema:
             type: string
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: 'List of Comm-Links'
@@ -418,6 +504,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/comm_link'
+  /api/comm-links/filters:
+    get:
+      tags:
+        - Comm-Links
+        - RSI-Website
+      summary: 'Comm-Link Filters'
+      description: 'Return all available filter values for Comm-Links.'
+      operationId: 022b883a0bc1e7ae8691f000cb019a02
+      responses:
+        '200':
+          description: 'Available filters for Comm-Links.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { category: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, channel: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, series: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   '/api/comm-links/{id}':
     get:
       tags:
@@ -663,7 +766,7 @@ paths:
         - Galactapedia
         - RSI-Website
       summary: 'Galactapedia Overview'
-      description: 'Return paginated Galactapedia articles with category, tag, property, and template filters.'
+      description: 'Return paginated Galactapedia articles with category, tag, and template filters.'
       operationId: 48f80f5118a6ef2670845b9dd1b90357
       parameters:
         -
@@ -689,11 +792,6 @@ paths:
           schema:
             type: string
         -
-          name: 'filter[property]'
-          in: query
-          schema:
-            type: string
-        -
           name: 'filter[template]'
           in: query
           schema:
@@ -707,6 +805,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/galactapedia_article'
+  /api/galactapedia/filters:
+    get:
+      tags:
+        - Galactapedia
+        - RSI-Website
+      summary: 'Galactapedia Filters'
+      description: 'Return all available filter values for Galactapedia articles.'
+      operationId: 8087c05b7d87a42900d3c920dcaf1c6e
+      responses:
+        '200':
+          description: 'Available filters for Galactapedia.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { category: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, tag: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, template: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   '/api/galactapedia/{id}':
     get:
       tags:
@@ -883,6 +998,26 @@ paths:
         -
           $ref: '#/components/parameters/page'
         -
+          name: 'filter[affiliation]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[status]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[size]'
+          in: query
+          schema:
+            type: number
+        -
           name: include
           in: query
           description: 'Include additional relationships (affiliation, celestialObjects).'
@@ -964,6 +1099,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/starsystem'
+  /api/starsystems/filters:
+    get:
+      tags:
+        - Starmap
+        - RSI-Website
+      summary: 'Starsystem Filters'
+      description: 'Return all available filter values for starsystems.'
+      operationId: 7d3e54fa78ec8659a190388720bb5523
+      responses:
+        '200':
+          description: 'Available filters for starsystems.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { affiliation: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, status: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/stats/latest:
     get:
       tags:
@@ -1047,6 +1199,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ship_matrix_vehicle'
+  /api/shipmatrix/vehicles/filters:
+    get:
+      tags:
+        - Ship-Matrix
+        - Vehicles
+      summary: 'Ship Matrix Vehicle Filters'
+      description: 'Return all available filter values for Ship Matrix vehicles.'
+      operationId: 2906e4ea55463870d8502d869947066f
+      responses:
+        '200':
+          description: 'Available filters for Ship Matrix vehicles.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { manufacturer: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, focus: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, production_status: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   '/api/shipmatrix/vehicles/{slug}':
     get:
       tags:
@@ -1139,6 +1308,24 @@ paths:
           description: 'No matching vehicles found'
 components:
   schemas:
+    filter_value:
+      title: 'Filter Value'
+      description: 'A value available for filtering along with a human label and result count.'
+      properties:
+        value:
+          nullable: true
+          oneOf:
+            -
+              type: string
+            -
+              type: integer
+            -
+              type: boolean
+        label:
+          type: string
+        count:
+          type: integer
+      type: object
     item_description_data:
       title: 'Item Description Data'
       description: 'Data found in the description of an item, e.g. "Carrying Capacity: 2kµSCU".'
@@ -1725,6 +1912,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/resource_container'
+          nullable: true
+        seat:
+          oneOf:
+            -
+              $ref: '#/components/schemas/seat'
           nullable: true
         ammunition:
           oneOf:
@@ -4671,6 +4863,73 @@ components:
           format: double
           nullable: true
           deprecated: true
+      type: object
+    seat_axis:
+      title: 'Item Seat Axis Limits'
+      description: 'Minimum and maximum values for a yaw or pitch axis.'
+      properties:
+        minimum:
+          type: number
+          format: double
+          nullable: true
+        maximum:
+          type: number
+          format: double
+          nullable: true
+      type: object
+    seat_ejection:
+      title: 'Item Seat Ejection'
+      description: 'Ejection system capabilities when equipped.'
+      properties:
+        max_linear_velocity:
+          type: number
+          format: double
+          nullable: true
+        max_linear_acceleration:
+          type: number
+          format: double
+          nullable: true
+        max_angular_velocity:
+          type: number
+          format: double
+          nullable: true
+        max_angular_acceleration:
+          type: number
+          format: double
+          nullable: true
+        ejection_loop_time:
+          type: number
+          format: double
+          nullable: true
+      type: object
+    seat:
+      title: Seat
+      description: 'Seat data sourced from stdItem.Seat for manned components.'
+      properties:
+        seat_type:
+          type: string
+          nullable: true
+        yaw:
+          oneOf:
+            -
+              $ref: '#/components/schemas/seat_axis'
+          nullable: true
+        pitch:
+          oneOf:
+            -
+              $ref: '#/components/schemas/seat_axis'
+          nullable: true
+        set_yaw_pitch_limits:
+          type: boolean
+          nullable: true
+        has_ejection:
+          type: boolean
+          nullable: true
+        ejection:
+          oneOf:
+            -
+              $ref: '#/components/schemas/seat_ejection'
+          nullable: true
       type: object
     self_destruct:
       title: 'Self-Destruct Module'
@@ -7666,11 +7925,11 @@ components:
       title: 'Grouped Translations'
       description: 'Translations of an entity'
       properties:
-        en_EN:
+        en:
           type: string
-        de_DE:
+        de:
           type: string
-        zh_CN:
+        zh:
           type: string
       type: object
     translation_single:

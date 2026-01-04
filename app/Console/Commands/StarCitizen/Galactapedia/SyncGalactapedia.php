@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
 use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia as SyncGalactapediaJob;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 
 class SyncGalactapedia extends Command
@@ -31,6 +32,7 @@ class SyncGalactapedia extends Command
         $this->info('Dispatching Galactapedia Sync');
 
         SyncGalactapediaJob::dispatch();
+        FilterCache::bust(FilterCache::NAMESPACE_GALACTAPEDIA);
 
         return Command::SUCCESS;
     }

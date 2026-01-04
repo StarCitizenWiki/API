@@ -15,8 +15,11 @@ use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -73,7 +76,15 @@ class VehicleController extends Controller
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
             ->allowedFilters([
-                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
+                    $values = is_array($value) ? $value : [$value];
+
+                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                        $manufacturerQuery
+                            ->whereIn('name', $values)
+                            ->orWhereIn('code', $values);
+                    });
+                }),
                 AllowedFilter::exact('size'),
                 AllowedFilter::exact('is_vehicle'),
                 AllowedFilter::exact('is_gravlev'),
@@ -241,6 +252,11 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[career]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[role]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[is_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[is_gravlev]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[is_spaceship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[focus]', description: 'Filter by Ship-Matrix focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by Ship-Matrix type slug', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[production_status]', description: 'Filter by Ship-Matrix production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -270,8 +286,21 @@ class VehicleController extends Controller
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
             ->allowedFilters([
-                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
+                    $values = is_array($value) ? $value : [$value];
+
+                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                        $manufacturerQuery
+                            ->whereIn('name', $values)
+                            ->orWhereIn('code', $values);
+                    });
+                }),
                 AllowedFilter::exact('size'),
+                AllowedFilter::exact('is_vehicle'),
+                AllowedFilter::exact('is_gravlev'),
+                AllowedFilter::exact('is_spaceship'),
+                AllowedFilter::partial('career'),
+                AllowedFilter::partial('role'),
                 AllowedFilter::custom('focus', new VehicleFocusFilter),
                 AllowedFilter::custom('type', new VehicleTypeFilter),
                 AllowedFilter::custom('production_status', new VehicleProductionStatusFilter),
@@ -296,6 +325,112 @@ class VehicleController extends Controller
         return VehicleResource::collection(
             $this->transformToVehicles($vehicles)
         );
+    }
+
+    #[OA\Get(
+        path: '/api/vehicles/filters',
+        description: 'Return all available filter values for in-game vehicles.',
+        summary: 'In-Game Vehicle Filters',
+        tags: ['In-Game', 'Vehicles'],
+        parameters: [
+            new OA\Parameter(name: 'version', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Available filters for in-game vehicles.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'filters',
+                            properties: [
+                                new OA\Property(property: 'manufacturer', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'is_vehicle', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'is_gravlev', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'is_spaceship', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'size', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'role', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'career', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                            ],
+                            type: 'object'
+                        ),
+                    ],
+                    type: 'object'
+                )
+            ),
+        ]
+    )]
+    public function filters(Request $request): JsonResponse
+    {
+        $versionCode = $this->gameVersionCode();
+        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
+
+        $filters = FilterCache::rememberForever(
+            FilterCache::NAMESPACE_VEHICLES,
+            FilterCache::vehiclesKey($versionCode, $vehicleType),
+            function () use ($versionCode, $vehicleType): array {
+                $baseQuery = VehicleData::query()
+                    ->forRequestedOrDefaultVersion($versionCode)
+                    ->forVehicleType($vehicleType);
+
+                $manufacturerRows = (clone $baseQuery)
+                    ->leftJoin('game_manufacturers', 'game_vehicle_data.manufacturer_id', '=', 'game_manufacturers.id')
+                    ->selectRaw('game_manufacturers.name as value, count(*) as count')
+                    ->groupBy('game_manufacturers.name')
+                    ->orderByRaw('game_manufacturers.name IS NULL, game_manufacturers.name')
+                    ->get();
+
+                $isVehicleRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.is_vehicle as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.is_vehicle')
+                    ->orderByRaw('game_vehicle_data.is_vehicle IS NULL, game_vehicle_data.is_vehicle')
+                    ->get();
+
+                $isGravlevRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.is_gravlev as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.is_gravlev')
+                    ->orderByRaw('game_vehicle_data.is_gravlev IS NULL, game_vehicle_data.is_gravlev')
+                    ->get();
+
+                $isSpaceshipRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.is_spaceship as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.is_spaceship')
+                    ->orderByRaw('game_vehicle_data.is_spaceship IS NULL, game_vehicle_data.is_spaceship')
+                    ->get();
+
+                $sizeRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.size as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.size')
+                    ->orderByRaw('game_vehicle_data.size IS NULL, game_vehicle_data.size')
+                    ->get();
+
+                $roleRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.role as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.role')
+                    ->orderByRaw('game_vehicle_data.role IS NULL, game_vehicle_data.role')
+                    ->get();
+
+                $careerRows = (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.career as value, count(*) as count')
+                    ->groupBy('game_vehicle_data.career')
+                    ->orderByRaw('game_vehicle_data.career IS NULL, game_vehicle_data.career')
+                    ->get();
+
+                return [
+                    'manufacturer' => FilterValues::fromRows($manufacturerRows),
+                    'is_vehicle' => FilterValues::fromRows($isVehicleRows, static fn ($value) => $value === null ? null : (bool) $value),
+                    'is_gravlev' => FilterValues::fromRows($isGravlevRows, static fn ($value) => $value === null ? null : (bool) $value),
+                    'is_spaceship' => FilterValues::fromRows($isSpaceshipRows, static fn ($value) => $value === null ? null : (bool) $value),
+                    'size' => FilterValues::fromRows($sizeRows, static fn ($value) => $value === null ? null : (int) $value),
+                    'role' => FilterValues::fromRows($roleRows),
+                    'career' => FilterValues::fromRows($careerRows),
+                ];
+            }
+        );
+
+        return response()->json([
+            'filters' => $filters,
+        ]);
     }
 
     /**

@@ -40,11 +40,11 @@ use OpenApi\Attributes as OA;
     description: 'Seat data sourced from stdItem.Seat for manned components.',
     properties: [
         new OA\Property(property: 'seat_type', type: 'string', nullable: true),
-        new OA\Property(property: 'yaw', ref: '#/components/schemas/item_seat_axis', nullable: true),
-        new OA\Property(property: 'pitch', ref: '#/components/schemas/item_seat_axis', nullable: true),
+        new OA\Property(property: 'yaw', ref: '#/components/schemas/seat_axis', nullable: true),
+        new OA\Property(property: 'pitch', ref: '#/components/schemas/seat_axis', nullable: true),
         new OA\Property(property: 'set_yaw_pitch_limits', type: 'boolean', nullable: true),
         new OA\Property(property: 'has_ejection', type: 'boolean', nullable: true),
-        new OA\Property(property: 'ejection', ref: '#/components/schemas/item_seat_ejection', nullable: true),
+        new OA\Property(property: 'ejection', ref: '#/components/schemas/seat_ejection', nullable: true),
     ],
     type: 'object',
 )]

@@ -7,6 +7,7 @@ namespace App\Console\Commands\CommLink;
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLinks as ImportCommLinksJob;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -39,6 +40,7 @@ class ImportCommLinks extends Command
     {
         if ($this->option('all')) {
             dispatch(new ImportCommLinksJob(-1));
+            FilterCache::bust(FilterCache::NAMESPACE_COMM_LINKS);
 
             return self::SUCCESS;
         }
@@ -80,6 +82,7 @@ class ImportCommLinks extends Command
 
         $basename = Str::afterLast($file, '/');
         dispatch(new ImportCommLink($commLinkId, $basename, (bool) $this->option('force')));
+        FilterCache::bust(FilterCache::NAMESPACE_COMM_LINKS);
 
         return self::SUCCESS;
     }

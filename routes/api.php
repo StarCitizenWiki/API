@@ -21,85 +21,106 @@ Route::get('/user', function (Request $request) {
 Route::group(
     [],
     static function () {
-        Route::prefix('v2')->group(static function () {
-            Route::get('vehicles', [VehicleController::class, 'index'])
-                ->defaults('api_version', 'v2')
-                ->name('v2.vehicles.index');
-            Route::post('vehicles/search', [VehicleController::class, 'search'])
-                ->defaults('api_version', 'v2')
-                ->name('v2.vehicles.search');
-            Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
-                ->defaults('api_version', 'v2')
+
+        Route::middleware('game.version')->group(static function () {
+            Route::prefix('v2')->group(static function () {
+                Route::get('vehicles', [VehicleController::class, 'index'])
+                    ->defaults('api_version', 'v2')
+                    ->name('v2.vehicles.index');
+                Route::post('vehicles/search', [VehicleController::class, 'search'])
+                    ->defaults('api_version', 'v2')
+                    ->name('v2.vehicles.search');
+                Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
+                    ->defaults('api_version', 'v2')
+                    ->where('vehicle', '.*')
+                    ->name('v2.vehicles.show');
+
+                Route::any('{any?}', static function (Request $request, ?string $any = null) {
+                    $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
+                    $queryString = $request->getQueryString();
+
+                    if ($queryString !== null && $queryString !== '') {
+                        $target .= '?'.$queryString;
+                    }
+
+                    return redirect($target, 308);
+                })->where('any', '.*');
+            });
+
+            Route::prefix('v3')->group(static function () {
+                Route::get('vehicles', [VehicleController::class, 'index'])
+                    ->defaults('api_version', 'v3')
+                    ->name('v3.vehicles.index');
+                Route::post('vehicles/search', [VehicleController::class, 'search'])
+                    ->defaults('api_version', 'v3')
+                    ->name('v3.vehicles.search');
+                Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
+                    ->defaults('api_version', 'v3')
+                    ->where('vehicle', '.*')
+                    ->name('v3.vehicles.show');
+            });
+
+            Route::get('items', [ItemController::class, 'index'])->defaults('category', 'items')->name('items.index');
+            Route::get('items/filters', [ItemController::class, 'filters'])->defaults('category', 'items')->name('items.filters');
+            Route::post('items/search', [ItemController::class, 'search'])->name('items.search');
+            Route::get('items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'items')->where('identifier', '.*')->name('items.show');
+
+            Route::get('weapons', [ItemController::class, 'index'])->defaults('category', 'weapons')->name('weapons.index');
+            Route::get('weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapons')->name('weapons.show');
+
+            Route::get('weapon-attachments', [ItemController::class, 'index'])->defaults('category', 'weapon-attachments')->name('attachments.index');
+            Route::get('weapon-attachments/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapon-attachments')->name('attachments.show');
+
+            Route::get('clothes', [ItemController::class, 'index'])->defaults('category', 'clothes')->name('clothes.index');
+            Route::get('clothes/{identifier}', [ItemController::class, 'show'])->defaults('category', 'clothes')->where('identifier', '.*')->name('clothes.show');
+
+            Route::get('armor', [ItemController::class, 'index'])->defaults('category', 'armor')->name('armor.index');
+            Route::get('armor/{identifier}', [ItemController::class, 'show'])->defaults('category', 'armor')->where('identifier', '.*')->name('armor.show');
+
+            Route::get('food', [ItemController::class, 'index'])->defaults('category', 'food')->name('food.index');
+            Route::get('food/{identifier}', [ItemController::class, 'show'])->defaults('category', 'food')->where('identifier', '.*')->name('food.show');
+
+            Route::get('vehicle-weapons', [ItemController::class, 'index'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.index');
+            Route::get('vehicle-weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.show');
+
+            Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
+            Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
+
+            Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
+            Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
+            Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
+
+            Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
+            Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');
+            Route::post('vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
+            Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])->where('vehicle', '.*')->name('vehicles.show');
+
+            Route::get('ground-vehicles', [VehicleController::class, 'index'])
+                ->defaults('vehicle_type', 'ground-vehicles')
+                ->name('ground-vehicles.index');
+            Route::post('ground-vehicles/search', [VehicleController::class, 'search'])
+                ->defaults('vehicle_type', 'ground-vehicles')
+                ->name('ground-vehicles.search');
+            Route::get('ground-vehicles/{vehicle}', [VehicleController::class, 'show'])
+                ->defaults('vehicle_type', 'ground-vehicles')
                 ->where('vehicle', '.*')
-                ->name('v2.vehicles.show');
+                ->name('ground-vehicles.show');
 
-            Route::any('{any?}', static function (Request $request, ?string $any = null) {
-                $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
-                $queryString = $request->getQueryString();
-
-                if ($queryString !== null && $queryString !== '') {
-                    $target .= '?'.$queryString;
-                }
-
-                return redirect($target, 308);
-            })->where('any', '.*');
-        });
-
-        Route::prefix('v3')->group(static function () {
-            Route::get('vehicles', [VehicleController::class, 'index'])
-                ->defaults('api_version', 'v3')
-                ->name('v3.vehicles.index');
-            Route::post('vehicles/search', [VehicleController::class, 'search'])
-                ->defaults('api_version', 'v3')
-                ->name('v3.vehicles.search');
-            Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
-                ->defaults('api_version', 'v3')
+            Route::get('gravlev-vehicles', [VehicleController::class, 'index'])
+                ->defaults('vehicle_type', 'gravlev-vehicles')
+                ->name('gravlev-vehicles.index');
+            Route::post('gravlev-vehicles/search', [VehicleController::class, 'search'])
+                ->defaults('vehicle_type', 'gravlev-vehicles')
+                ->name('gravlev-vehicles.search');
+            Route::get('gravlev-vehicles/{vehicle}', [VehicleController::class, 'show'])
+                ->defaults('vehicle_type', 'gravlev-vehicles')
                 ->where('vehicle', '.*')
-                ->name('v3.vehicles.show');
-
-            Route::any('{any?}', static function (Request $request, ?string $any = null) {
-                $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
-                $queryString = $request->getQueryString();
-
-                if ($queryString !== null && $queryString !== '') {
-                    $target .= '?'.$queryString;
-                }
-
-                return redirect($target, 308);
-            })->where('any', '.*');
+                ->name('gravlev-vehicles.show');
         });
-
-        Route::get('items', [ItemController::class, 'index'])->defaults('category', 'items')->name('items.index');
-        Route::post('items/search', [ItemController::class, 'search'])->name('items.search');
-        Route::get('items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'items')->where('identifier', '.*')->name('items.show');
-
-        Route::get('weapons', [ItemController::class, 'index'])->defaults('category', 'weapons')->name('weapons.index');
-        Route::get('weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapons')->name('weapons.show');
-
-        Route::get('weapon-attachments', [ItemController::class, 'index'])->defaults('category', 'weapon-attachments')->name('attachments.index');
-        Route::get('weapon-attachments/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapon-attachments')->name('attachments.show');
-
-        Route::get('clothes', [ItemController::class, 'index'])->defaults('category', 'clothes')->name('clothes.index');
-        Route::get('clothes/{identifier}', [ItemController::class, 'show'])->defaults('category', 'clothes')->where('identifier', '.*')->name('clothes.show');
-
-        Route::get('armor', [ItemController::class, 'index'])->defaults('category', 'armor')->name('armor.index');
-        Route::get('armor/{identifier}', [ItemController::class, 'show'])->defaults('category', 'armor')->where('identifier', '.*')->name('armor.show');
-
-        Route::get('food', [ItemController::class, 'index'])->defaults('category', 'food')->name('food.index');
-        Route::get('food/{identifier}', [ItemController::class, 'show'])->defaults('category', 'food')->where('identifier', '.*')->name('food.show');
-
-        Route::get('vehicle-weapons', [ItemController::class, 'index'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.index');
-        Route::get('vehicle-weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.show');
-
-        Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
-        Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
-
-        Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
-        Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
-        Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
 
         // CommLink
         Route::get('comm-links', [CommLinkController::class, 'index'])->name('comm-links.index');
+        Route::get('comm-links/filters', [CommLinkController::class, 'filters'])->name('comm-links.filters');
         Route::get('comm-links/{id}', [CommLinkController::class, 'show'])->name('comm-links.show');
         Route::post('comm-links/search', [CommLinkSearchController::class, 'searchByTitle'])->name('comm-links.search');
         Route::post('comm-links/reverse-image-link-search', [CommLinkSearchController::class, 'reverseImageLinkSearch'])->name('comm-links.reverse-link-search');
@@ -113,6 +134,7 @@ Route::group(
 
         // Galactapedia
         Route::get('galactapedia', [GalactapediaController::class, 'index'])->name('galactapedia.index');
+        Route::get('galactapedia/filters', [GalactapediaController::class, 'filters'])->name('galactapedia.filters');
         Route::post('galactapedia/search', [GalactapediaController::class, 'search'])->name('galactapedia.search');
         Route::get('galactapedia/{article}', [GalactapediaController::class, 'show'])->name('galactapedia.show');
 
@@ -122,6 +144,7 @@ Route::group(
 
         // Starmap
         Route::get('starsystems', [StarsystemController::class, 'index'])->name('starsystems.index');
+        Route::get('starsystems/filters', [StarsystemController::class, 'filters'])->name('starsystems.filters');
         Route::get('starsystems/{code}', [StarsystemController::class, 'show'])->name('starsystems.show');
         Route::get('celestial-objects', [CelestialObjectController::class, 'index'])->name('celestial-objects.index');
         Route::get('celestial-objects/{code}', [CelestialObjectController::class, 'show'])->name('celestial-objects.show');
@@ -129,37 +152,12 @@ Route::group(
         Route::prefix('shipmatrix')->name('shipmatrix.')->group(function () {
             Route::prefix('vehicles')->name('vehicles.')->group(function () {
                 Route::get('/', [ShipMatrixVehicleController::class, 'index'])->name('index');
+                Route::get('/filters', [ShipMatrixVehicleController::class, 'filters'])->name('filters');
                 Route::post('/search', [ShipMatrixVehicleController::class, 'search'])->name('search');
                 Route::get('/{vehicle}', [ShipMatrixVehicleController::class, 'show'])
                     ->name('show')
                     ->where('vehicle', '.*');
             });
         });
-
-        Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
-        Route::post('vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
-        Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])->where('vehicle', '.*')->name('vehicles.show');
-
-        Route::get('ground-vehicles', [VehicleController::class, 'index'])
-            ->defaults('vehicle_type', 'ground-vehicles')
-            ->name('ground-vehicles.index');
-        Route::post('ground-vehicles/search', [VehicleController::class, 'search'])
-            ->defaults('vehicle_type', 'ground-vehicles')
-            ->name('ground-vehicles.search');
-        Route::get('ground-vehicles/{vehicle}', [VehicleController::class, 'show'])
-            ->defaults('vehicle_type', 'ground-vehicles')
-            ->where('vehicle', '.*')
-            ->name('ground-vehicles.show');
-
-        Route::get('gravlev-vehicles', [VehicleController::class, 'index'])
-            ->defaults('vehicle_type', 'gravlev-vehicles')
-            ->name('gravlev-vehicles.index');
-        Route::post('gravlev-vehicles/search', [VehicleController::class, 'search'])
-            ->defaults('vehicle_type', 'gravlev-vehicles')
-            ->name('gravlev-vehicles.search');
-        Route::get('gravlev-vehicles/{vehicle}', [VehicleController::class, 'show'])
-            ->defaults('vehicle_type', 'gravlev-vehicles')
-            ->where('vehicle', '.*')
-            ->name('gravlev-vehicles.show');
     }
 );

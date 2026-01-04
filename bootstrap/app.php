@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(\App\Http\Middleware\Api\Game\ResolveGameVersion::class);
+        $middleware->alias([
+            'game.version' => \App\Http\Middleware\Api\Game\ResolveGameVersion::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

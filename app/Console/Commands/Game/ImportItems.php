@@ -4,6 +4,7 @@ namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ImportItemData;
 use App\Models\Game\GameVersion;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
@@ -55,6 +56,7 @@ class ImportItems extends Command implements PromptsForMissingInput
         }
 
         $this->dispatchJobs($itemFiles, $gameVersion->id);
+        FilterCache::bust(FilterCache::NAMESPACE_ITEMS);
 
         $this->info(sprintf(
             'Dispatched %d item import jobs for version %s.',

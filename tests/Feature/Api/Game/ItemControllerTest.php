@@ -271,3 +271,43 @@ it('does not include related items when not requested', function (): void {
     $response->assertSuccessful()
         ->assertJsonMissing(['related_items']);
 });
+
+it('does not include related items on index route even when requested', function (): void {
+    $item = Item::factory()->create();
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'Weapon',
+            'class_name' => 'test_item',
+            'classification' => 'WeaponPersonal',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson('/api/items?include=related_items');
+
+    $response->assertSuccessful()
+        ->assertJsonMissing(['related_items']);
+});
+
+it('does not include related items on search route even when requested', function (): void {
+    $item = Item::factory()->create();
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Searchable Item',
+            'type' => 'Weapon',
+            'class_name' => 'searchable_item',
+            'classification' => 'WeaponPersonal',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->postJson('/api/items/search?include=related_items', ['query' => 'Searchable']);
+
+    $response->assertSuccessful()
+        ->assertJsonMissing(['related_items']);
+});

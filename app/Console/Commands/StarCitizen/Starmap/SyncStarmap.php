@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizen\Starmap;
 
 use App\Jobs\StarCitizen\Starmap\Sync\SyncStarmap as SyncStarmapJob;
+use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 
 class SyncStarmap extends Command
@@ -31,6 +32,7 @@ class SyncStarmap extends Command
         $this->info('Dispatching Starmap Sync');
 
         SyncStarmapJob::dispatch();
+        FilterCache::bust(FilterCache::NAMESPACE_STARSYSTEMS);
 
         return 0;
     }

@@ -59,6 +59,12 @@ it('filters items by type and manufacturer', function (): void {
     $response->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $match->uuid);
+
+    $response = $this->getJson('/api/items?filter[type]=Widget&filter[manufacturer]=ACME');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $match->uuid);
 });
 
 it('filters items by variants flag', function (): void {
@@ -156,6 +162,17 @@ it('filters search results by manufacturer', function (): void {
         'query' => 'Laser',
         'filter' => [
             'manufacturer' => 'Search Co',
+        ],
+    ]);
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $match->uuid);
+
+    $response = $this->postJson('/api/items/search', [
+        'query' => 'Laser',
+        'filter' => [
+            'manufacturer' => 'SEARCH',
         ],
     ]);
 

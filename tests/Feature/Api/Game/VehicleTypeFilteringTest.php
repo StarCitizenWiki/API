@@ -334,4 +334,12 @@ it('applies other filters alongside vehicle type filtering', function (): void {
     $response->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $groundVehicle1->uuid);
+
+    $response = $this->getJson(route('ground-vehicles.index', [
+        'filter' => ['manufacturer' => 'MFRA'],
+    ]));
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $groundVehicle1->uuid);
 });

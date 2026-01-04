@@ -9,8 +9,11 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Models\StarCitizen\Galactapedia\Article;
+use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -23,7 +26,7 @@ class GalactapediaController extends Controller
 {
     #[OA\Get(
         path: '/api/galactapedia',
-        description: 'Return paginated Galactapedia articles with category, tag, property, and template filters.',
+        description: 'Return paginated Galactapedia articles with category, tag, and template filters.',
         summary: 'Galactapedia Overview',
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
@@ -32,7 +35,6 @@ class GalactapediaController extends Controller
             new OA\Parameter(name: 'filter[categoryId]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[tagId]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[property]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[template]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
@@ -55,8 +57,6 @@ class GalactapediaController extends Controller
 
                 AllowedFilter::exact('tag', 'tag.name'),
                 AllowedFilter::exact('tagId', 'tag.cig_id'),
-
-                AllowedFilter::exact('property', 'property.name'),
                 AllowedFilter::exact('template', 'template.template'),
             ])
             ->orderByDesc('id')
@@ -64,6 +64,77 @@ class GalactapediaController extends Controller
             ->appends(request()->query());
 
         return ArticleResource::collection($query);
+    }
+
+    #[OA\Get(
+        path: '/api/galactapedia/filters',
+        description: 'Return all available filter values for Galactapedia articles.',
+        summary: 'Galactapedia Filters',
+        tags: ['Galactapedia', 'RSI-Website'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Available filters for Galactapedia.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'filters',
+                            properties: [
+                                new OA\Property(property: 'category', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'tag', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'template', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                            ],
+                            type: 'object'
+                        ),
+                    ],
+                    type: 'object'
+                )
+            ),
+        ]
+    )]
+    public function filters(): JsonResponse
+    {
+        $filters = FilterCache::rememberForever(
+            FilterCache::NAMESPACE_GALACTAPEDIA,
+            FilterCache::galactapediaKey(),
+            static function (): array {
+                $baseQuery = (new Article)->newQueryWithoutRelationships()->toBase();
+
+                $categoryRows = (clone $baseQuery)
+                    ->leftJoin('galactapedia_article_categories', 'galactapedia_articles.id', '=', 'galactapedia_article_categories.article_id')
+                    ->leftJoin('galactapedia_categories', 'galactapedia_article_categories.category_id', '=', 'galactapedia_categories.id')
+                    ->selectRaw('galactapedia_categories.name as value, count(*) as count')
+                    ->groupBy('galactapedia_categories.name')
+                    ->orderByRaw('galactapedia_categories.name IS NULL, galactapedia_categories.name')
+                    ->get();
+
+                $tagRows = (clone $baseQuery)
+                    ->leftJoin('galactapedia_article_tags', 'galactapedia_articles.id', '=', 'galactapedia_article_tags.article_id')
+                    ->leftJoin('galactapedia_tags', 'galactapedia_article_tags.tag_id', '=', 'galactapedia_tags.id')
+                    ->selectRaw('galactapedia_tags.name as value, count(*) as count')
+                    ->groupBy('galactapedia_tags.name')
+                    ->orderByRaw('galactapedia_tags.name IS NULL, galactapedia_tags.name')
+                    ->get();
+
+                $templateRows = (clone $baseQuery)
+                    ->leftJoin('galactapedia_article_templates', 'galactapedia_articles.id', '=', 'galactapedia_article_templates.article_id')
+                    ->leftJoin('galactapedia_templates', 'galactapedia_article_templates.template_id', '=', 'galactapedia_templates.id')
+                    ->selectRaw('galactapedia_templates.template as value, count(*) as count')
+                    ->groupBy('galactapedia_templates.template')
+                    ->orderByRaw('galactapedia_templates.template IS NULL, galactapedia_templates.template')
+                    ->get();
+
+                return [
+                    'category' => FilterValues::fromRows($categoryRows),
+                    'tag' => FilterValues::fromRows($tagRows),
+                    'template' => FilterValues::fromRows($templateRows),
+                ];
+            }
+        );
+
+        return response()->json([
+            'filters' => $filters,
+        ]);
     }
 
     #[OA\Get(

@@ -20,18 +20,6 @@ class ResolveGameVersion
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Only process for Game API routes (items, vehicles, etc.)
-        if (
-            str_starts_with($request->path(), 'api/comm-link') || // Comm-Links + Images
-            str_starts_with($request->path(), 'api/galactapedia') ||
-            str_starts_with($request->path(), 'api/stats') ||
-            str_starts_with($request->path(), 'api/starsystems') ||
-            str_starts_with($request->path(), 'api/manufacturers') ||
-            str_starts_with($request->path(), 'api/shipmatrix')
-        ) {
-            return $next($request);
-        }
-
         $versionCode = $request->query('version');
 
         // Resolve version once and cache in request attributes
