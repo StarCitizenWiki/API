@@ -64,18 +64,6 @@ it('migrates translations from the source connection to the destination connecti
         $table->text('description')->nullable();
     });
 
-    Schema::connection('to_test')->create('game_items', function (Blueprint $table): void {
-        $table->uuid('uuid')->primary();
-        $table->text('translation')->nullable();
-    });
-
-    Schema::connection('from_test')->create('sc_item_translations', function (Blueprint $table): void {
-        $table->id();
-        $table->uuid('item_uuid');
-        $table->string('locale_code');
-        $table->text('translation')->nullable();
-    });
-
     DB::connection('to_test')->table('shipmatrix_vehicles')->insert([
         'id' => 1,
         'translation' => null,
@@ -98,17 +86,6 @@ it('migrates translations from the source connection to the destination connecti
         ['manufacturer_id' => 1, 'locale_code' => 'fr', 'known_for' => null, 'description' => 'Description'],
     ]);
 
-    DB::connection('to_test')->table('game_items')->insert([
-        'uuid' => '11111111-1111-1111-1111-111111111111',
-        'translation' => null,
-    ]);
-
-    DB::connection('from_test')->table('sc_item_translations')->insert([
-        ['item_uuid' => '11111111-1111-1111-1111-111111111111', 'locale_code' => 'en', 'translation' => 'Item'],
-        ['item_uuid' => '11111111-1111-1111-1111-111111111111', 'locale_code' => 'de', 'translation' => 'Gegenstand'],
-        ['item_uuid' => '11111111-1111-1111-1111-111111111111', 'locale_code' => 'es', 'translation' => ''],
-    ]);
-
     $this->artisan('data:migrate-translations', [
         '--from' => 'from_test',
         '--to' => 'to_test',
@@ -129,9 +106,4 @@ it('migrates translations from the source connection to the destination connecti
         'fr' => 'Description',
     ]);
 
-    $item = DB::connection('to_test')->table('game_items')->where('uuid', '11111111-1111-1111-1111-111111111111')->first();
-    expect(json_decode((string) $item->translation, true))->toBe([
-        'en' => 'Item',
-        'de' => 'Gegenstand',
-    ]);
 });

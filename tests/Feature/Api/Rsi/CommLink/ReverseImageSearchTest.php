@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash;
 use App\Services\ImageHash\PdqHasher;
@@ -36,4 +37,20 @@ test('reverse image search finds a matching comm-link image', function () {
     $response->assertSuccessful()
         ->assertJsonPath('data.0.rsi_url', $image->url)
         ->assertJsonPath('data.0.similarity', 100);
+});
+
+test('reverse image search defaults similarity to 75', function () {
+    $request = ReverseImageSearchRequest::create('/api/comm-links/reverse-image-search', 'POST');
+
+    expect($request->similarity())->toBe(75);
+});
+
+test('reverse image search rejects non-image uploads', function () {
+    $uploadedFile = UploadedFile::fake()->create('not-an-image.txt', 10, 'text/plain');
+
+    $response = $this->postJson('/api/comm-links/reverse-image-search', [
+        'image' => $uploadedFile,
+    ]);
+
+    $response->assertInvalid(['image']);
 });

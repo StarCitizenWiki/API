@@ -172,7 +172,7 @@ class CommLinkSearchController extends Controller
             new OA\Parameter(
                 name: 'similarity',
                 in: 'query',
-                required: true,
+                required: false,
                 schema: new OA\Schema(
                     type: 'integer',
                     maximum: 100,
@@ -207,7 +207,7 @@ class CommLinkSearchController extends Controller
 
         $data = ImageHashModel::similarImagesForHash(
             $hashResult->toBitString(),
-            (int) $request->get('similarity')
+            $request->similarity()
         );
 
         return ImageHashResource::collection($data);

@@ -27,12 +27,19 @@ class SyncGameData extends Command
      *
      * @var string
      */
-    protected $signature = 'game:sync
+    protected $signature = 'game:sync-data
                             {--game-version= : Specific game version code}
                             {--skip-items : Skip importing item data}
                             {--skip-vehicles : Skip importing vehicle data}
                             {--skip-compute-item-base-ids : Skip computing item base ids}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}';
+
+    /**
+     * The console command name aliases.
+     *
+     * @var array<int, string>
+     */
+    protected $aliases = ['game:sync'];
 
     /**
      * The console command description.

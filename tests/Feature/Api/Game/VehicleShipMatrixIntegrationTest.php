@@ -6,8 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
@@ -15,7 +13,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
-use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -61,23 +58,14 @@ beforeEach(function () {
 });
 
 it('includes ship-matrix data when shipmatrix_id is set', function () {
-    ProductionStatusTranslation::query()->create([
-        'locale_code' => 'en_EN',
-        'production_status_id' => $this->productionStatus->id,
-        'translation' => 'Flight Ready',
-    ]);
+    $this->productionStatus->setTranslation('translation', 'en', 'Flight Ready');
+    $this->productionStatus->save();
 
-    ProductionNoteTranslation::query()->create([
-        'locale_code' => 'en_EN',
-        'production_note_id' => $this->productionNote->id,
-        'translation' => 'Test Note',
-    ]);
+    $this->productionNote->setTranslation('translation', 'en', 'Test Note');
+    $this->productionNote->save();
 
-    TypeTranslation::query()->create([
-        'locale_code' => 'en_EN',
-        'type_id' => $this->shipType->id,
-        'translation' => 'Combat',
-    ]);
+    $this->shipType->setTranslation('translation', 'en', 'Combat');
+    $this->shipType->save();
 
     $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
         'cig_id' => 12345,

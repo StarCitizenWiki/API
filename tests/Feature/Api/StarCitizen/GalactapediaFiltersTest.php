@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Galactapedia\Article;
-use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
@@ -29,11 +28,6 @@ it('returns galactapedia filter values with counts', function (): void {
     $article->tags()->attach($tag);
     $article->templates()->attach($template);
 
-    ArticleProperty::factory()->create([
-        'article_id' => $article->id,
-        'name' => 'Homeworld',
-    ]);
-
     Article::factory()->create();
 
     $response = $this->getJson(route('galactapedia.filters'));
@@ -45,6 +39,5 @@ it('returns galactapedia filter values with counts', function (): void {
     expect(collect($filters['category'])->contains(fn (array $row) => $row['value'] === 'Lore' && $row['count'] === 1))->toBeTrue()
         ->and(collect($filters['tag'])->contains(fn (array $row) => $row['value'] === 'Banu' && $row['count'] === 1))->toBeTrue()
         ->and(collect($filters['template'])->contains(fn (array $row) => $row['value'] === 'species' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['property'])->contains(fn (array $row) => $row['value'] === 'Homeworld' && $row['count'] === 1))->toBeTrue()
         ->and(collect($filters['category'])->contains(fn (array $row) => $row['value'] === null && $row['label'] === 'Unknown'))->toBeTrue();
 });

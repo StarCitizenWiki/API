@@ -130,6 +130,7 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/vehicle_loaner'),
         ),
+        new OA\Property(property: 'link', description: 'Link to detail endpoint', type: 'string'),
     ],
     type: 'object'
 )]
@@ -212,6 +213,8 @@ class VehicleResource extends AbstractBaseResource
             ]),
 
             'loaner' => VehicleLoanerResource::collection($this->loaner),
+
+            'link' => route('shipmatrix.vehicles.show', $this->slug),
 
             'updated_at' => $this->updated_at,
         ];

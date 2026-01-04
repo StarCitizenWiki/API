@@ -45,7 +45,7 @@ class ManufacturerController extends Controller
         $query = QueryBuilder::for(Manufacturer::class, $request)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
-            ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
+            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
             ->where('name', '<>', '')
             ->groupBy('name')
             ->orderBy('name')

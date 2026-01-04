@@ -612,7 +612,7 @@ class VehicleResource extends AbstractBaseResource
             'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
 
             $this->mergeWhen(
-                $this->shouldIncludeComponents($includes, $vehicleData) && $request->routeIs('vehicles.show'),
+                $this->shouldIncludeComponents($includes, $vehicleData) && $this->isVehicleShowRoute($request),
                 fn () => ['components' => $this->getComponents($vehicleData)]
             ),
 
@@ -773,6 +773,11 @@ class VehicleResource extends AbstractBaseResource
         $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
 
         return ComponentResource::collection($shipMatrixVehicle->components)->resolve();
+    }
+
+    private function isVehicleShowRoute(Request $request): bool
+    {
+        return $request->routeIs('vehicles.show') || $request->routeIs('*.vehicles.show');
     }
 
     private function getApiVersion(Request $request): ?string

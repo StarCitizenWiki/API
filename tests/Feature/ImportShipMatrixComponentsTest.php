@@ -25,7 +25,7 @@ it('imports vehicle components from ship matrix data', function (): void {
 
     (new ImportVehicle(new Collection($payload)))->handle();
 
-    $this->assertDatabaseHas('vehicle_components', [
+    $this->assertDatabaseHas('shipmatrix_vehicle_components', [
         'type' => 'radar',
         'name' => 'Radar',
         'component_class' => 'RSIAvionic',
@@ -42,7 +42,7 @@ it('imports vehicle components from ship matrix data', function (): void {
 
     $vehicle = Vehicle::query()->where('cig_id', (int) $payload['id'])->firstOrFail();
 
-    $this->assertDatabaseHas('vehicle_component', [
+    $this->assertDatabaseHas('shipmatrix_vehicle_component', [
         'vehicle_id' => $vehicle->id,
         'component_id' => $component->id,
         'mounts' => 1,

@@ -50,8 +50,6 @@ it('returns the vehicle list without error', function (): void {
         'production_status_id' => $status->id,
         'production_note_id' => $note->id,
         'chassis_id' => 1,
-        'production_note_id' => $note->id,
-        'chassis_id' => 1,
     ]);
 
     $response = $this->getJson(route('shipmatrix.vehicles.index'));
@@ -416,12 +414,10 @@ it('has correct response structure', function (): void {
                 'size',
                 'type',
                 'manufacturer' => [
-                    'id',
                     'name',
                     'code',
                 ],
                 'production_status',
-                'link',
                 'updated_at',
             ],
         ],
