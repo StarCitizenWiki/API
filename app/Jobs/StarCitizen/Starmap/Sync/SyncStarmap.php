@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 
 class SyncStarmap implements ShouldQueue
@@ -46,9 +47,8 @@ class SyncStarmap implements ShouldQueue
 
     private string $timestamp;
 
-    public function __construct(
-        public readonly bool $force = false,
-    ) {
+    public function __construct()
+    {
         $this->timestamp = now()->format('Y-m-d');
     }
 
@@ -57,23 +57,23 @@ class SyncStarmap implements ShouldQueue
      */
     public function handle(RsiDownloadClient $client): void
     {
-        if (! $this->force && Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
-            return;
-        }
-
-        $this->downloadBootup($client);
-
-        if (! isset($this->response)) {
-            return;
-        }
-
-        $bootupData = $this->decodeBootup();
+        $bootupData = $this->loadBootupFromDisk();
 
         if ($bootupData === null) {
-            return;
-        }
+            $this->downloadBootup($client);
 
-        $this->writeBootupDataToDisk($bootupData);
+            if (! isset($this->response)) {
+                return;
+            }
+
+            $bootupData = $this->decodeBootup();
+
+            if ($bootupData === null) {
+                return;
+            }
+
+            $this->writeBootupDataToDisk($bootupData);
+        }
 
         $this->dispatchJumppointJobs();
         $this->dispatchStarsystemJobs();
@@ -122,6 +122,11 @@ class SyncStarmap implements ShouldQueue
             return null;
         }
 
+        return $this->parseBootupData($bootupData);
+    }
+
+    private function parseBootupData(array $bootupData): ?array
+    {
         if (Arr::get($bootupData, 'data.systems.resultset.0') === null) {
             $this->fail('Can not read Star-Systems from RSI');
 
@@ -138,6 +143,27 @@ class SyncStarmap implements ShouldQueue
         $this->tunnels = collect($bootupData['data']['tunnels']['resultset']);
 
         return $bootupData;
+    }
+
+    private function loadBootupFromDisk(): ?array
+    {
+        $bootupPath = sprintf('%s/%s', $this->timestamp, self::STARMAP_BOOTUP_FILENAME);
+
+        if (! Storage::disk(self::STARSYSTEM_DISK)->exists($bootupPath)) {
+            return null;
+        }
+
+        $payload = Storage::disk(self::STARSYSTEM_DISK)->get($bootupPath);
+
+        try {
+            $bootupData = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->fail($e);
+
+            return null;
+        }
+
+        return $this->parseBootupData($bootupData);
     }
 
     private function writeBootupDataToDisk(array $bootupData): void
@@ -168,12 +194,25 @@ class SyncStarmap implements ShouldQueue
      */
     private function dispatchStarsystemJobs(): void
     {
-        $jobs = $this->systems->map(
-            function (array $system): DownloadStarsystem {
-                return new DownloadStarsystem($system['code'], $this->timestamp, new Collection($system));
-            }
-        );
+        $jobs = $this->systems
+            ->reject(fn (array $system): bool => $this->hasStarsystemData($system['code']))
+            ->map(
+                function (array $system): DownloadStarsystem {
+                    return new DownloadStarsystem($system['code'], $this->timestamp, new Collection($system));
+                }
+            );
+
+        if ($jobs->isEmpty()) {
+            return;
+        }
 
         Bus::batch($jobs)->dispatch();
+    }
+
+    private function hasStarsystemData(string $systemCode): bool
+    {
+        $path = sprintf('%s/%s_system.json', $this->timestamp, Str::slug($systemCode));
+
+        return Storage::disk(self::STARSYSTEM_DISK)->exists($path);
     }
 }

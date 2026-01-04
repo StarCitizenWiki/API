@@ -35,18 +35,18 @@ use App\Http\Resources\Game\ItemSpecification\QuantumInterdictionGeneratorResour
 use App\Http\Resources\Game\ItemSpecification\RadarResource;
 use App\Http\Resources\Game\ItemSpecification\RadiationResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\SalvageModifierResource;
+use App\Http\Resources\Game\ItemSpecification\SeatResource;
 use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\Game\ItemSpecification\ShieldResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
 use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
 use App\Http\Resources\Game\ItemSpecification\VehicleWeaponResource;
-use App\Http\Resources\Game\ItemSpecification\WeaponAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Http\Resources\TranslationResolver;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
-use App\Models\Game\ItemTranslation;
 use App\Services\RelatedItemsBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -144,6 +144,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'distortion', ref: '#/components/schemas/item_distortion', nullable: true),
         new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability', nullable: true),
         new OA\Property(property: 'resource_container', ref: '#/components/schemas/resource_container', nullable: true),
+        new OA\Property(property: 'seat', ref: '#/components/schemas/seat', nullable: true),
         new OA\Property(property: 'ammunition', ref: '#/components/schemas/ammunition', nullable: true),
 
         new OA\Property(property: 'temperature_resistance', ref: '#/components/schemas/temperature_resistance', nullable: true),
@@ -290,7 +291,7 @@ class ItemResource extends AbstractBaseResource
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
             'classification' => $itemData->classification,
-            'description' => $this->getTranslation($itemData, $request),
+            'description' => $this->getTranslation($this->resource, $request),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
@@ -333,6 +334,9 @@ class ItemResource extends AbstractBaseResource
             'ports' => ItemPortResource::collection($this->when($this->hasInStdItem($itemData, 'Ports'), $this->extractPorts($itemData))),
             $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceContainer'), [
                 'resource_container' => new ResourceContainerResource($this->extractFromStdItem($itemData, 'ResourceContainer')),
+            ]),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Seat'), [
+                'seat' => new SeatResource($this->extractFromStdItem($itemData, 'Seat')),
             ]),
             $this->mergeWhen($this->hasSpecification($itemData, 'Ammunition'), [
                 'ammunition' => new AmmunitionResource($itemData),
@@ -671,26 +675,9 @@ class ItemResource extends AbstractBaseResource
         ];
     }
 
-    private function getTranslation(ItemData $itemData, Request $request)
+    private function getTranslation(Item $item, Request $request): array|string|null
     {
-        $locale = $request->get('locale');
-
-        if (! empty($locale)) {
-            return $itemData->translations()->where('locale_code', $locale)->first()->translation ??
-                $itemData->translations()->where('locale_code', 'en_EN')->first()->translation ??
-                '';
-        }
-
-        return $itemData->translations->mapWithKeys(function (mixed $translation): array {
-            if ($translation instanceof ItemTranslation) {
-                return [$translation->locale_code => $translation->translation];
-            }
-
-            // Handle stdClass from tests or raw data
-            return [
-                $translation->locale_code ?? '' => $translation->translation ?? '',
-            ];
-        });
+        return TranslationResolver::resolve($item, $request);
     }
 
     private function hasVehicleWeapon(ItemData $itemData): bool

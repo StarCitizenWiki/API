@@ -2,7 +2,7 @@
 
 namespace App\Jobs\StarCitizen\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

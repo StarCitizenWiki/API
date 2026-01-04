@@ -10,10 +10,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\Builder;
 use Normalizer;
+use Spatie\Translatable\HasTranslations;
 
 class Article extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['translation'];
 
     protected $table = 'galactapedia_articles';
 
@@ -24,6 +28,7 @@ class Article extends Model
         'in_wiki',
         'disabled',
         'thumbnail',
+        'translation',
     ];
 
     protected $casts = [
@@ -96,11 +101,6 @@ class Article extends Model
     public function getNextAttribute()
     {
         return self::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(ArticleTranslation::class);
     }
 
     /**

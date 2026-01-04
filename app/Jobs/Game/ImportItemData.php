@@ -8,7 +8,6 @@ use App\Models\Game\EntityTag;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
-use App\Models\Game\ItemTranslation;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
@@ -83,7 +82,7 @@ class ImportItemData implements ShouldQueue
         $raw = $payload['Raw'] ?? [];
 
         $this->syncDescriptionData($item, $itemPayload, $raw);
-        $this->syncTranslations($itemData, $itemPayload, $raw);
+        $this->syncTranslations($item, $itemPayload, $raw);
         $this->syncEntityTags($itemData, $itemPayload);
     }
 
@@ -189,9 +188,9 @@ class ImportItemData implements ShouldQueue
         }
     }
 
-    private function syncTranslations(ItemData $itemData, array $itemPayload, array $raw): void
+    private function syncTranslations(Item $item, array $itemPayload, array $raw): void
     {
-        $this->syncEnglishTranslation($itemData, $raw, $itemPayload);
+        $updated = $this->syncEnglishTranslation($item, $raw, $itemPayload);
 
         $descriptionLabel = $this->extractDescriptionLabel($raw);
 
@@ -201,53 +200,45 @@ class ImportItemData implements ShouldQueue
 
         foreach ([Language::CHINESE, Language::GERMAN] as $language) {
             try {
-                $this->syncLanguageTranslation($itemData, $descriptionLabel, $language);
+                $updated = $this->syncLanguageTranslation($item, $descriptionLabel, $language) || $updated;
             } catch (\Exception $e) {
                 \Log::warning("Failed to sync {$language} translation", [
-                    'item_data_id' => $itemData->id,
+                    'item_id' => $item->id,
                     'label' => $descriptionLabel,
                     'error' => $e->getMessage(),
                 ]);
             }
         }
+
+        if ($updated) {
+            $item->save();
+        }
     }
 
-    private function syncEnglishTranslation(ItemData $itemData, array $raw, array $itemPayload): void
+    private function syncEnglishTranslation(Item $item, array $raw, array $itemPayload): bool
     {
         $english = $this->extractEnglishDescription($raw, $itemPayload);
 
         if ($english === null || $english === '') {
-            return;
+            return false;
         }
 
-        ItemTranslation::query()->updateOrCreate(
-            [
-                'item_data_id' => $itemData->id,
-                'locale_code' => Language::ENGLISH,
-            ],
-            [
-                'translation' => $english,
-            ]
-        );
+        $item->setTranslation('translation', Language::ENGLISH, $english);
+
+        return true;
     }
 
-    private function syncLanguageTranslation(ItemData $itemData, string $label, string $localeCode): void
+    private function syncLanguageTranslation(Item $item, string $label, string $localeCode): bool
     {
         $translation = $this->getLabels()->getTranslation($localeCode, $label);
 
         if ($translation === null || $translation === '') {
-            return;
+            return false;
         }
 
-        ItemTranslation::query()->updateOrCreate(
-            [
-                'item_data_id' => $itemData->id,
-                'locale_code' => $localeCode,
-            ],
-            [
-                'translation' => $this->getDescriptionText($translation),
-            ]
-        );
+        $item->setTranslation('translation', $localeCode, $this->getDescriptionText($translation));
+
+        return true;
     }
 
     private function extractDescriptionLabel(array $raw): ?string

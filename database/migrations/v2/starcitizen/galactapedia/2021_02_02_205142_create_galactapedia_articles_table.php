@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('thumbnail')->nullable();
             $table->boolean('disabled')->default(false);
             $table->boolean('in_wiki')->default(false);
+            $table->json('translation')->nullable();
             $table->timestamps();
         });
     }

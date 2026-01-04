@@ -8,15 +8,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Translatable\HasTranslations;
 
 class Item extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['translation'];
 
     protected $table = 'game_items';
 
     protected $fillable = [
         'uuid',
+        'translation',
     ];
 
     public function getRouteKeyName()

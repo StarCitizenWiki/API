@@ -27,7 +27,7 @@ class SyncGameData extends Command
      *
      * @var string
      */
-    protected $signature = 'game:sync-data
+    protected $signature = 'game:sync
                             {--game-version= : Specific game version code}
                             {--skip-items : Skip importing item data}
                             {--skip-vehicles : Skip importing vehicle data}

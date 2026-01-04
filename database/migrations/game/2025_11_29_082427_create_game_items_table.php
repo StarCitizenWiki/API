@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('game_items', static function (Blueprint $table) {
             $table->id();
             $table->uuid()->unique();
+            $table->json('translation')->nullable();
             $table->timestamps();
         });
     }

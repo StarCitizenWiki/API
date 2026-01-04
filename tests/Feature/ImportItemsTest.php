@@ -8,7 +8,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
-use App\Models\Game\ItemTranslation;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use Illuminate\Console\Command;
@@ -142,29 +141,9 @@ it('imports item data, description data, and translations and upserts on re-run'
     expect($descriptionData->first()->name)->toBe('Damage');
     expect($descriptionData->first()->value)->toBe('10');
 
-    $english = ItemTranslation::query()
-        ->where('item_data_id', $data->id)
-        ->where('locale_code', Language::ENGLISH)
-        ->first();
-
-    expect($english)->not->toBeNull();
-    expect($english->translation)->toBe('English description');
-
-    $chinese = ItemTranslation::query()
-        ->where('item_data_id', $data->id)
-        ->where('locale_code', Language::CHINESE)
-        ->first();
-
-    expect($chinese)->not->toBeNull();
-    expect($chinese->translation)->toBe('中文描述');
-
-    $german = ItemTranslation::query()
-        ->where('item_data_id', $data->id)
-        ->where('locale_code', Language::GERMAN)
-        ->first();
-
-    expect($german)->not->toBeNull();
-    expect($german->translation)->toBe('Deutsche Beschreibung');
+    expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description');
+    expect($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述');
+    expect($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
 
     // Re-run with updated payload to verify upsert behaviour
     $payload['Item']['grade'] = 4;
@@ -179,8 +158,8 @@ it('imports item data, description data, and translations and upserts on re-run'
     $data->refresh();
     expect($data->grade)->toBe(4);
 
-    $english->refresh();
-    expect($english->translation)->toBe('Updated English');
+    $item->refresh();
+    expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('Updated English');
 });
 
 it('skips chinese translation when the key is missing and uses stdItem manufacturer fallback', function (): void {
@@ -258,12 +237,8 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
     expect($data)->not->toBeNull();
     expect($data->manufacturer_id)->toBe($manufacturer->id);
 
-    $translations = ItemTranslation::query()
-        ->where('item_data_id', $data->id)
-        ->get();
-
-    expect($translations->where('locale_code', Language::CHINESE))->toHaveCount(0);
-    expect($translations->where('locale_code', Language::ENGLISH))->toHaveCount(1);
+    expect($item->getTranslation('translation', Language::CHINESE, false))->toBeEmpty();
+    expect($item->getTranslation('translation', Language::ENGLISH, false))->not->toBeNull();
 });
 
 it('imports and syncs entity tags and removes outdated tags on re-run', function (): void {

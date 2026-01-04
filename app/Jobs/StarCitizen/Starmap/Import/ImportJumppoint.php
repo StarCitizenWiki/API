@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Starmap\Import;
 
-use App\Models\StarCitizen\Starmap\Jumppoint\Jumppoint;
+use App\Models\StarCitizen\Starmap\Jumppoint;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

@@ -8,13 +8,13 @@ use App\Exceptions\Translation\QuotaExceededException;
 use App\Exceptions\Translation\RateLimitException;
 use App\Exceptions\Translation\TranslationException;
 use App\Models\StarCitizen\Galactapedia\Article;
+use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Str;
 
 class TranslateArticle implements ShouldQueue
 {
@@ -41,8 +41,12 @@ class TranslateArticle implements ShouldQueue
         app('Log')::info("Translating Galactapedia Article {$this->article->cig_id}");
         $targetLocale = config('services.deepl.target_locale', 'de');
 
-        $english = $this->article->english()->translation;
-        $german = optional($this->article->german())->translation;
+        $english = $this->article->getTranslation('translation', Language::ENGLISH, false);
+        $german = $this->article->getTranslation('translation', Language::GERMAN, false);
+
+        if ($english === null || $english === '') {
+            return;
+        }
 
         // Delete job german and english translation length don't differ in length by <= 20%
         if ($german !== null && ((strlen($german) / strlen($english)) > 0.80)) {
@@ -67,14 +71,7 @@ class TranslateArticle implements ShouldQueue
             return;
         }
 
-        $this->article->translations()->updateOrCreate(
-            [
-                'locale_code' => sprintf('%s_%s', Str::lower($targetLocale), $targetLocale),
-            ],
-            [
-                'translation' => $translation,
-                'proofread' => false,
-            ]
-        );
+        $this->article->setTranslation('translation', Language::GERMAN, $translation);
+        $this->article->save();
     }
 }

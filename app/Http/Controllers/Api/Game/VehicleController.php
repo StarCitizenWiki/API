@@ -14,7 +14,7 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;

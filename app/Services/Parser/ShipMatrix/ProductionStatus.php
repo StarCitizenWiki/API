@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus as ProductionStatusModel;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
+use App\Models\StarCitizen\ShipMatrix\ProductionStatus as ProductionStatusModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -31,21 +30,14 @@ class ProductionStatus extends BaseElement
         }
 
         try {
-            /** @var ProductionStatusTranslation $productionStatusTranslation */
-            $productionStatusTranslation = ProductionStatusTranslation::query()->where(
-                'translation',
-                $status
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return ProductionStatusModel::query()
+                ->where('translation->'.config('language.english'), $status)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Production Status not found in DB');
 
             return $this->createNewProductionStatus();
         }
-
-        return $productionStatusTranslation->productionStatus;
     }
 
     private function createNewProductionStatus(): ProductionStatusModel
@@ -59,10 +51,10 @@ class ProductionStatus extends BaseElement
             ['slug' => $slug]
         );
 
-        $productionStatus->translations()->updateOrCreate(
-            ['locale_code' => config('language.english')],
-            ['translation' => $translation]
-        );
+        if ($translation !== null && $translation !== '') {
+            $productionStatus->setTranslation('translation', config('language.english'), $translation);
+            $productionStatus->save();
+        }
 
         app('Log')::debug('Production Status created', ['id' => $productionStatus->id]);
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use App\Models\StarCitizen\Vehicle\GroundVehicle;
-use App\Models\StarCitizen\Vehicle\Ship;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\GroundVehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Ship;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**

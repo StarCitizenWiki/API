@@ -10,7 +10,7 @@ use App\Http\Filters\ShipMatrixProductionStatusFilter;
 use App\Http\Filters\ShipMatrixTypeFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;

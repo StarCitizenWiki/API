@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Models\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\System\Language;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * Comm-Link
@@ -20,6 +19,9 @@ use Illuminate\Support\Facades\Auth;
 class CommLink extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['translation'];
 
     protected $fillable = [
         'cig_id',
@@ -32,6 +34,7 @@ class CommLink extends Model
         'series_id',
         'created_at',
         'created_at_file',
+        'translation',
     ];
 
     protected $withCount = [
@@ -133,21 +136,6 @@ class CommLink extends Model
     public function links(): BelongsToMany
     {
         return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(CommLinkTranslation::class);
-    }
-
-    public function english(): ?Model
-    {
-        return $this->translations->keyBy('locale_code')->get(Language::ENGLISH);
-    }
-
-    public function german(): ?Model
-    {
-        return $this->translations->keyBy('locale_code')->get(Language::GERMAN);
     }
 
     public function getUrlAttribute($url): string

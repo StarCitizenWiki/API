@@ -13,7 +13,6 @@ use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -44,20 +43,21 @@ class TranslateCommLinks implements ShouldQueue
         $targetLocale = config('services.deepl.target_locale', 'de');
 
         CommLink::query()
-            ->with(['category', 'translations'])
-            ->whereHas(
-                'translations',
-                function (Builder $query) {
-                    $query->where('locale_code', Language::ENGLISH)
-                        ->whereRaw("translation <> ''");
-                }
-            )
+            ->with(['category'])
+            ->whereNotNull('translation')
             ->chunk(
                 25,
                 function (Collection $commLinks) use ($translator, $targetLocale) {
                     $commLinks->each(
                         function (CommLink $commLink) use ($translator, $targetLocale) {
-                            if (optional($commLink->german())->translation !== null) {
+                            $english = $commLink->getTranslation('translation', Language::ENGLISH, false);
+                            $german = $commLink->getTranslation('translation', Language::GERMAN, false);
+
+                            if ($english === null || $english === '') {
+                                return;
+                            }
+
+                            if ($german !== null && $german !== '') {
                                 return;
                             }
 
@@ -68,12 +68,7 @@ class TranslateCommLinks implements ShouldQueue
 
                             try {
                                 app('Log')::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
-                                $translation = $translator->translate(
-                                    $commLink->english()->translation,
-                                    $targetLocale,
-                                    'en',
-                                    $formality
-                                );
+                                $translation = $translator->translate($english, $targetLocale, 'en', $formality);
                             } catch (QuotaExceededException $e) {
                                 app('Log')::warning('DeepL quota exceeded');
 
@@ -101,15 +96,8 @@ class TranslateCommLinks implements ShouldQueue
                                 return;
                             }
 
-                            $commLink->translations()->updateOrCreate(
-                                [
-                                    'locale_code' => Language::GERMAN,
-                                ],
-                                [
-                                    'translation' => $translation,
-                                    'proofread' => false,
-                                ]
-                            );
+                            $commLink->setTranslation('translation', Language::GERMAN, $translation);
+                            $commLink->save();
                         }
                     );
                 }

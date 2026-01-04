@@ -7,16 +7,15 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
-use App\Models\Game\ItemTranslation;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\Manufacturer\Manufacturer as ShipMatrixManufacturer;
-use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\StarCitizen\Vehicle\Size\Size as ShipSize;
-use App\Models\StarCitizen\Vehicle\Type\Type as ShipType;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote;
+use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
@@ -299,29 +298,9 @@ it('imports vehicle item data from vehicle payload and raw data', function (): v
     expect($descriptionData->last()->name)->toBe('Manufacturer');
     expect($descriptionData->last()->value)->toBe('Test Manufacturer');
 
-    $english = ItemTranslation::query()
-        ->where('item_data_id', $itemData->id)
-        ->where('locale_code', Language::ENGLISH)
-        ->first();
-
-    expect($english)->not->toBeNull();
-    expect($english->translation)->toBe('English description');
-
-    $chinese = ItemTranslation::query()
-        ->where('item_data_id', $itemData->id)
-        ->where('locale_code', Language::CHINESE)
-        ->first();
-
-    expect($chinese)->not->toBeNull();
-    expect($chinese->translation)->toBe('中文描述');
-
-    $german = ItemTranslation::query()
-        ->where('item_data_id', $itemData->id)
-        ->where('locale_code', Language::GERMAN)
-        ->first();
-
-    expect($german)->not->toBeNull();
-    expect($german->translation)->toBe('Deutsche Beschreibung');
+    expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description');
+    expect($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述');
+    expect($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
 });
 
 it('matches shipmatrix vehicle using override name and manufacturer code', function (): void {

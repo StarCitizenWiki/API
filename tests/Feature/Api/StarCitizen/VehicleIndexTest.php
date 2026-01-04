@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Models\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\StarCitizen\Vehicle\Size\Size;
-use App\Models\StarCitizen\Vehicle\Type\Type;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\Manufacturer;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote;
+use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

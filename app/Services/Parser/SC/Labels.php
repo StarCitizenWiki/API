@@ -61,7 +61,9 @@ final class Labels
         $normalized = ltrim($key, '@');
 
         return match ($localeCode) {
+            'zh' => $this->zhTranslations->get($normalized),
             'zh_CN' => $this->zhTranslations->get($normalized),
+            'de' => $this->deTranslations->get($normalized),
             'de_DE' => $this->deTranslations->get($normalized),
             default => null,
         };

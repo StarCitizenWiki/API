@@ -3,8 +3,9 @@
 namespace App\Console\Commands\Game;
 
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
@@ -40,7 +41,6 @@ class ReviewVehicleMatches extends Command
             $this->line("Class Name: <fg=gray>{$vehicle->class_name}</>");
             $this->line("Manufacturer: <fg=gray>{$vehicle->manufacturer?->name}</>");
 
-            // Find potential matches
             $suggestions = $this->findPotentialMatches($vehicle->name);
 
             if ($suggestions->isEmpty()) {
@@ -49,7 +49,6 @@ class ReviewVehicleMatches extends Command
                 continue;
             }
 
-            // Let user search and select
             $selectedId = search(
                 label: 'Select matching ShipMatrix vehicle (or press Ctrl+C to skip):',
                 options: fn (string $value) => strlen($value) > 0
@@ -69,19 +68,17 @@ class ReviewVehicleMatches extends Command
             $selected = ShipMatrixVehicle::find($selectedId);
 
             if (confirm("Confirm: '{$vehicle->name}' → '{$selected->name}'?")) {
-                // Update the vehicle
                 $vehicle->update(['shipmatrix_id' => $selected->id]);
 
                 $this->info('✓ Matched!');
 
-                // Suggest adding to overrides
                 if (confirm('Add this to config overrides?', default: false)) {
                     $newOverrides[$vehicle->name] = $selected->name;
                 }
             }
         }
 
-        // Show suggested overrides
+        // suggested overrides
         if (! empty($newOverrides)) {
             $this->newLine();
             $this->line('<fg=green>Add these to config/game.php:</>');
@@ -95,7 +92,7 @@ class ReviewVehicleMatches extends Command
         return self::SUCCESS;
     }
 
-    private function findPotentialMatches(string $name): \Illuminate\Support\Collection
+    private function findPotentialMatches(string $name): Collection
     {
         return ShipMatrixVehicle::query()
             ->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower($name).'%'])

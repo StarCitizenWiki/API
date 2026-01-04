@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Starmap\Import;
 
 use App\Models\StarCitizen\Starmap\Affiliation;
-use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Models\System\Language;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,15 +54,10 @@ class ImportStarsystem implements ShouldQueue
             $systemData->toArray()
         );
 
-        $starsystem->translations()->updateOrCreate(
-            [
-                'starsystem_id' => $starsystem->id,
-                'locale_code' => Language::ENGLISH,
-            ],
-            [
-                'translation' => $description,
-            ]
-        );
+        if ($description !== null && $description !== '') {
+            $starsystem->setTranslation('translation', Language::ENGLISH, $description);
+            $starsystem->save();
+        }
 
         $starsystem->affiliation()->sync($this->getAffiliationIds($affiliation));
 

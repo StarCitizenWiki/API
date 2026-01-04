@@ -8,12 +8,11 @@ use App\Exceptions\Translation\AuthenticationException;
 use App\Exceptions\Translation\QuotaExceededException;
 use App\Exceptions\Translation\RateLimitException;
 use App\Exceptions\Translation\TranslationException;
-use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -38,25 +37,28 @@ class TranslateSystems implements ShouldQueue
 
         $targetLocale = config('services.deepl.target_locale', 'de');
 
-        Starsystem::query()->whereHas(
-            'translations',
-            function (Builder $query) {
-                $query->where('locale_code', Language::ENGLISH)->whereRaw("translation <> ''");
-            }
-        )
+        Starsystem::query()
+            ->whereNotNull('translation')
             ->chunk(
                 25,
                 function (Collection $systems) use ($translator, $targetLocale) {
                     $systems->each(
                         function (Starsystem $starsystem) use ($translator, $targetLocale) {
-                            if (optional($starsystem->german())->translation !== null) {
+                            $english = $starsystem->getTranslation('translation', Language::ENGLISH, false);
+                            $german = $starsystem->getTranslation('translation', Language::GERMAN, false);
+
+                            if ($english === null || $english === '') {
+                                return;
+                            }
+
+                            if ($german !== null && $german !== '') {
                                 return;
                             }
 
                             try {
                                 app('Log')::info(sprintf('Translating system %s', $starsystem->name));
                                 $translation = $translator->translate(
-                                    $starsystem->english()->translation,
+                                    $english,
                                     $targetLocale
                                 );
                             } catch (QuotaExceededException $e) {
@@ -86,14 +88,8 @@ class TranslateSystems implements ShouldQueue
                                 return;
                             }
 
-                            $starsystem->translations()->updateOrCreate(
-                                [
-                                    'locale_code' => 'de_DE',
-                                ],
-                                [
-                                    'translation' => $translation,
-                                ]
-                            );
+                            $starsystem->setTranslation('translation', Language::GERMAN, $translation);
+                            $starsystem->save();
                         }
                     );
                 }

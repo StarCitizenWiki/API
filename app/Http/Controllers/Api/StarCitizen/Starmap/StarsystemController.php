@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
-use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Models\StarCitizen\ProductionNote\ProductionNote as ProductionNoteModel;
-use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote as ProductionNoteModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -37,21 +36,14 @@ class ProductionNote extends BaseElement
         }
 
         try {
-            /** @var ProductionNoteTranslation $productionNoteTranslation */
-            $productionNoteTranslation = ProductionNoteTranslation::query()->where(
-                'translation',
-                $note
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return ProductionNoteModel::query()
+                ->where('translation->'.config('language.english'), $note)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Production Note not found in DB');
 
             return $this->createNewProductionNote();
         }
-
-        return $productionNoteTranslation->productionNote;
     }
 
     /**
@@ -83,10 +75,10 @@ class ProductionNote extends BaseElement
             ['content_hash' => $contentHash]
         );
 
-        $productionNote->translations()->updateOrCreate(
-            ['locale_code' => config('language.english')],
-            ['translation' => $translation]
-        );
+        if ($translation !== null && $translation !== '') {
+            $productionNote->setTranslation('translation', config('language.english'), $translation);
+            $productionNote->save();
+        }
 
         app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
 

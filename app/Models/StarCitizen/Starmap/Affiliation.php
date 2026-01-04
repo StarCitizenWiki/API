@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Affiliation extends Model
 {
-    public $timestamps = false;
+    protected $table = 'starmap_affiliations';
 
     protected $fillable = [
         'cig_id',

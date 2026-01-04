@@ -54,10 +54,10 @@ HTML;
         ->and($commLink->title)->toBe('Test Comm-Link')
         ->and($commLink->comment_count)->toBe(5);
 
-    $translation = $commLink?->translations()->where('locale_code', Language::ENGLISH)->first();
+    $translation = $commLink?->getTranslation('translation', Language::ENGLISH, false);
 
     expect($translation)->not->toBeNull()
-        ->and($translation->translation)->toContain('Hello world');
+        ->and($translation)->toContain('Hello world');
 
     expect(Image::query()->count())->toBeGreaterThanOrEqual(1)
         ->and($commLink?->images()->count())->toBeGreaterThanOrEqual(1);

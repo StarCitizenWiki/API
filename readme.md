@@ -2,6 +2,36 @@
 
 A Laravel-based API providing access to Star Citizen game data with multi-language support (English, German, Chinese Simplified).
 
+## Migrating from v2
+Ensure that both MariaDB and PostgreSQL are installed and running on your server.
+
+MariaDB is configured using 
+```dotenv
+MARIADB_HOST=
+MARIADB_DATABASE=
+MARIADB_USERNAME=
+MARIADB_PASSWORD=
+```
+
+Run these commands in order once. This will setup all migrations in postgres and migrate data from MariaDB to postgres.
+
+```shell
+php artisan db:wipe
+php artisan migrate
+php artisan game:add-version --default <SC_UNPACKED_DATA_VERSION>
+php artisan data:migrate --all
+php artisan db:seed
+php artisan game:sync
+php artisan starmap:sync
+
+# Let the job runner finish processing all jobs
+php artisan queue:work
+
+# After ALL jobs have finished
+php artisan data:migrate-translations
+
+```
+
 ## Third-Party Projects & Licenses
 
 This project integrates data and translations from the following external community projects:

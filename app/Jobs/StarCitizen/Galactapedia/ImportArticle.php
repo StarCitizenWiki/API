@@ -98,14 +98,12 @@ QUERY,
             ]
         );
 
-        $this->article->translations()->updateOrCreate(
-            [
-                'locale_code' => Language::ENGLISH,
-            ],
-            [
-                'translation' => Article::normalizeContent($data['body']),
-            ]
-        );
+        $translation = Article::normalizeContent($data['body']);
+
+        if ($translation !== '') {
+            $this->article->setTranslation('translation', Language::ENGLISH, $translation);
+            $this->article->save();
+        }
 
         $changes = [];
         $changes['templates'] = $this->syncTemplates($data['template'] ?? []);

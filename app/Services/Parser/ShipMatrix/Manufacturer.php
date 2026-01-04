@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Models\StarCitizen\Manufacturer\Manufacturer as ManufacturerModel;
+use App\Models\StarCitizen\ShipMatrix\Manufacturer as ManufacturerModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 
 /**
@@ -39,15 +39,19 @@ class Manufacturer extends BaseElement
             ]
         );
 
-        $manufacturer->translations()->updateOrCreate(
-            [
-                'locale_code' => config('language.english'),
-            ],
-            [
-                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
-                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
-            ]
-        );
+        $locale = config('language.english');
+        $knownFor = $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR);
+        $description = $manufacturerData->get(self::MANUFACTURER_DESCRIPTION);
+
+        if ($knownFor !== null && $knownFor !== '') {
+            $manufacturer->setTranslation('known_for', $locale, $knownFor);
+        }
+
+        if ($description !== null && $description !== '') {
+            $manufacturer->setTranslation('description', $locale, $description);
+        }
+
+        $manufacturer->save();
 
         return $manufacturer;
     }

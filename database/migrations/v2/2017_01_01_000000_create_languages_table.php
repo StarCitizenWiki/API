@@ -10,18 +10,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create(
             'languages',
             static function (Blueprint $table) {
-                $table->string('locale_code', 25);
+                $table->id();
+                $table->string('code');
                 $table->timestamps();
-
-                $table->primary('locale_code');
             }
         );
     }

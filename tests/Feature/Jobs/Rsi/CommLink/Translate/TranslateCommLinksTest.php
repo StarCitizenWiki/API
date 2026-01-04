@@ -19,11 +19,8 @@ it('translates comm-links without german translation', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Hello World',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Hello World');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -34,30 +31,19 @@ it('translates comm-links without german translation', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    $german = $commLink->translations()
-        ->where('locale_code', Language::GERMAN)
-        ->first();
+    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
     expect($german)->not->toBeNull()
-        ->and($german->translation)->toBe('Hallo Welt')
-        ->and($german->proofread)->toBeFalse();
+        ->and($german)->toBe('Hallo Welt');
 });
 
 it('skips comm-links with existing german translation', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Hello World',
-        'proofread' => false,
-    ]);
-
-    $commLink->translations()->create([
-        'locale_code' => Language::GERMAN,
-        'translation' => 'Existing Translation',
-        'proofread' => true,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Hello World');
+    $commLink->setTranslation('translation', Language::GERMAN, 'Existing Translation');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldNotReceive('translate');
@@ -65,12 +51,9 @@ it('skips comm-links with existing german translation', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    $german = $commLink->translations()
-        ->where('locale_code', Language::GERMAN)
-        ->first();
+    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
-    expect($german->translation)->toBe('Existing Translation')
-        ->and($german->proofread)->toBeTrue();
+    expect($german)->toBe('Existing Translation');
 });
 
 it('skips comm-links without english translation', function () {
@@ -88,11 +71,8 @@ it('skips comm-links with empty english translation', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => '',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, '');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldNotReceive('translate');
@@ -105,11 +85,8 @@ it('uses more formality for lore category', function () {
     $category = Category::factory()->create(['name' => 'Lore']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'A formal story',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'A formal story');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -120,23 +97,18 @@ it('uses more formality for lore category', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    $german = $commLink->translations()
-        ->where('locale_code', Language::GERMAN)
-        ->first();
+    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
     expect($german)->not->toBeNull()
-        ->and($german->translation)->toBe('Eine formelle Geschichte');
+        ->and($german)->toBe('Eine formelle Geschichte');
 });
 
 it('uses more formality for short stories category', function () {
     $category = Category::factory()->create(['name' => 'Short Stories']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'A short story',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'A short story');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -147,23 +119,18 @@ it('uses more formality for short stories category', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    $german = $commLink->translations()
-        ->where('locale_code', Language::GERMAN)
-        ->first();
+    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
     expect($german)->not->toBeNull()
-        ->and($german->translation)->toBe('Eine Kurzgeschichte');
+        ->and($german)->toBe('Eine Kurzgeschichte');
 });
 
 it('uses less formality for other categories', function () {
     $category = Category::factory()->create(['name' => 'Development']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Development update',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Development update');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -174,23 +141,18 @@ it('uses less formality for other categories', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    $german = $commLink->translations()
-        ->where('locale_code', Language::GERMAN)
-        ->first();
+    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
     expect($german)->not->toBeNull()
-        ->and($german->translation)->toBe('Entwicklungsupdate');
+        ->and($german)->toBe('Entwicklungsupdate');
 });
 
 it('stops processing when quota is exceeded', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Test',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -204,18 +166,15 @@ it('stops processing when quota is exceeded', function () {
         // Exception is expected
     }
 
-    expect($commLink->fresh()->translations()->where('locale_code', Language::GERMAN)->exists())->toBeFalse();
+    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('stops processing when rate limit is hit', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Test',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -225,18 +184,15 @@ it('stops processing when rate limit is hit', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    expect($commLink->fresh()->translations()->where('locale_code', Language::GERMAN)->exists())->toBeFalse();
+    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('stops processing when authentication fails', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Test',
-        'proofread' => false,
-    ]);
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
+    $commLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -250,7 +206,7 @@ it('stops processing when authentication fails', function () {
         // Exception is expected
     }
 
-    expect($commLink->fresh()->translations()->where('locale_code', Language::GERMAN)->exists())->toBeFalse();
+    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('continues to next comm-link when translation fails', function () {
@@ -258,17 +214,11 @@ it('continues to next comm-link when translation fails', function () {
     $commLink1 = CommLink::factory()->create(['category_id' => $category->id]);
     $commLink2 = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink1->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'First',
-        'proofread' => false,
-    ]);
+    $commLink1->setTranslation('translation', Language::ENGLISH, 'First');
+    $commLink1->save();
 
-    $commLink2->translations()->create([
-        'locale_code' => Language::ENGLISH,
-        'translation' => 'Second',
-        'proofread' => false,
-    ]);
+    $commLink2->setTranslation('translation', Language::ENGLISH, 'Second');
+    $commLink2->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
@@ -284,6 +234,6 @@ it('continues to next comm-link when translation fails', function () {
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 
-    expect($commLink1->translations()->where('locale_code', Language::GERMAN)->exists())->toBeFalse()
-        ->and($commLink2->translations()->where('locale_code', Language::GERMAN)->exists())->toBeTrue();
+    expect($commLink1->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
+        ->and($commLink2->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Zweite');
 });

@@ -71,7 +71,7 @@ class VehicleData extends Model
     public function shipMatrixVehicle(): BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class,
+            \App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle::class,
             'shipmatrix_id',
             'id'
         )->withDefault();

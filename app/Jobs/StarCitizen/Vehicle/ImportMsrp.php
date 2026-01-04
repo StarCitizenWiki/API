@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Services\RsiDownloadClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Bus\Queueable;

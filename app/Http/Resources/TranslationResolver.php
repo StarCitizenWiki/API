@@ -7,12 +7,15 @@ namespace App\Http\Resources;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
-use Illuminate\Support\Collection;
+use Spatie\Translatable\HasTranslations;
 
 final class TranslationResolver
 {
-    public static function resolve(mixed $source, Request $request, string $translationKey = 'translation'): array|string|null|MissingValue
-    {
+    public static function resolve(
+        mixed $source,
+        Request $request,
+        string $translationKey = 'translation'
+    ): array|string|null|MissingValue {
         if ($source instanceof MissingValue) {
             return $source;
         }
@@ -21,87 +24,55 @@ final class TranslationResolver
             return new MissingValue;
         }
 
-        $translations = self::normalizeTranslations($source);
-
-        if ($translations->isEmpty()) {
-            return null;
-        }
-
         $locale = $request->get('locale');
 
         if (is_string($locale) && $locale !== '') {
-            return self::translationValue($translations->get($locale), $translationKey)
-                ?? self::translationValue($translations->get(Language::ENGLISH), $translationKey);
+            return self::getSingleLocaleTranslation($source, $translationKey, substr($locale, 0, 2));
         }
 
-        return self::translationsForAllLocales($translations, $translationKey);
+        return self::getAllLocaleTranslations($source, $translationKey);
     }
 
-    private static function normalizeTranslations(mixed $source): Collection
-    {
-        if ($source instanceof Collection) {
-            return self::keyTranslationsByLocale($source);
+    private static function getSingleLocaleTranslation(
+        mixed $source,
+        string $field,
+        string $locale
+    ): ?string {
+        $value = $source->getTranslation($field, $locale, false);
+
+        if (empty($value) && $locale !== Language::ENGLISH) {
+            $value = $source->getTranslation($field, Language::ENGLISH, false);
         }
 
-        if (is_object($source) && is_callable([$source, 'translations'])) {
-            $translations = $source->translations;
+        return ! empty($value) ? $value : null;
+    }
 
-            if ($translations instanceof Collection) {
-                return self::keyTranslationsByLocale($translations);
-            }
+    /**
+     * @param  HasTranslations  $source
+     */
+    private static function getAllLocaleTranslations(mixed $source, string $field): ?array
+    {
+        $translations = $source->getTranslations($field);
+
+        if (empty($translations)) {
+            return null;
         }
 
-        return collect();
-    }
-
-    private static function keyTranslationsByLocale(Collection $translations): Collection
-    {
-        return $translations
-            ->filter(static fn ($translation) => data_get($translation, 'locale_code') !== null)
-            ->keyBy(static fn ($translation) => data_get($translation, 'locale_code'));
-    }
-
-    private static function translationsForAllLocales(Collection $translations, string $translationKey): ?array
-    {
-        $locales = Language::query()->pluck('locale_code');
+        $english = $translations[Language::ENGLISH] ?? null;
+        $locales = Language::query()->pluck('code');
 
         if ($locales->isEmpty()) {
-            return self::mapTranslations($translations, $translationKey);
+            return array_filter($translations, fn ($v) => ! empty($v)) ?: null;
         }
 
-        $english = self::translationValue($translations->get(Language::ENGLISH), $translationKey);
+        $result = $locales->mapWithKeys(function (string $locale) use ($translations, $english): array {
+            $value = $translations[$locale] ?? $english;
 
-        $filled = $locales->mapWithKeys(
-            static function (string $locale) use ($translations, $translationKey, $english): array {
-                $value = $translations->has($locale)
-                    ? self::translationValue($translations->get($locale), $translationKey)
-                    : $english;
+            return [$locale => $value];
+        })
+            ->filter(fn ($value) => ! empty($value))
+            ->toArray();
 
-                return [$locale => $value];
-            }
-        )->filter(static fn ($value) => ! empty($value));
-
-        return $filled->isEmpty() ? null : $filled->toArray();
-    }
-
-    private static function mapTranslations(Collection $translations, string $translationKey): ?array
-    {
-        $values = $translations->mapWithKeys(
-            static function ($translation) use ($translationKey): array {
-                $locale = data_get($translation, 'locale_code');
-                $value = self::translationValue($translation, $translationKey);
-
-                return $locale !== null ? [$locale => $value] : [];
-            }
-        )->filter(static fn ($value) => ! empty($value));
-
-        return $values->isEmpty() ? null : $values->toArray();
-    }
-
-    private static function translationValue(mixed $translation, string $translationKey): ?string
-    {
-        $value = data_get($translation, $translationKey);
-
-        return is_string($value) ? $value : null;
+        return ! empty($result) ? $result : null;
     }
 }

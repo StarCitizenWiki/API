@@ -8,7 +8,6 @@ use App\Jobs\StarCitizen\Galactapedia\TranslateArticle;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\System\Language;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class TranslateArticles extends Command
@@ -33,25 +32,10 @@ class TranslateArticles extends Command
     public function handle(): int
     {
         Article::query()
-            ->whereHas(
-                'translations',
-                function (Builder $query) {
-                    $query
-                        ->where('locale_code', Language::ENGLISH)
-                        ->whereRaw("translation <> ''");
-                }
-            )
-            ->chunk(
-                100,
-                function (Collection $articles) {
-                    $articles->each(
-                        function (Article $article) {
-                            TranslateArticle::dispatch($article);
-                        }
-                    );
-                }
-            );
+            ->whereNotNull('translation->'.Language::ENGLISH)
+            ->where('translation->'.Language::ENGLISH, '!=', '')
+            ->chunk(100, fn (Collection $articles) => $articles->each(fn (Article $article) => TranslateArticle::dispatch($article)));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

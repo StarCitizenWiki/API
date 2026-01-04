@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Starmap\Import;
 
 use App\Models\StarCitizen\Starmap\Affiliation;
-use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject as CelestialObjectModel;
-use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
+use App\Models\StarCitizen\Starmap\CelestialObject as CelestialObjectModel;
+use App\Models\StarCitizen\Starmap\CelestialObjectSubtype;
 use App\Models\System\Language;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,16 +61,9 @@ class ImportCelestialObject implements ShouldQueue
             $data->toArray()
         );
 
-        if ($description !== null) {
-            $celestialObject->translations()->updateOrCreate(
-                [
-                    'celestial_object_id' => $celestialObject->id,
-                    'locale_code' => Language::ENGLISH,
-                ],
-                [
-                    'translation' => $description,
-                ]
-            );
+        if ($description !== null && $description !== '') {
+            $celestialObject->setTranslation('translation', Language::ENGLISH, $description);
+            $celestialObject->save();
         }
 
         $celestialObject->affiliation()->sync($this->getAffiliationIds($this->rawData->pull('affiliation')));

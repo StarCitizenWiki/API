@@ -7,7 +7,6 @@ namespace App\Services\Game;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
-use App\Models\Game\ItemTranslation;
 use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Support\Arr;
@@ -78,7 +77,7 @@ class VehicleItemImporter
         );
 
         $this->syncDescriptionData($item, $descriptionData);
-        $this->syncTranslations($itemData, $vehiclePayload, $rawPayload);
+        $this->syncTranslations($item, $vehiclePayload, $rawPayload);
     }
 
     private function extractUuid(array $vehiclePayload, array $rawPayload): ?string
@@ -257,20 +256,14 @@ class VehicleItemImporter
         }
     }
 
-    private function syncTranslations(ItemData $itemData, array $vehiclePayload, array $rawPayload): void
+    private function syncTranslations(Item $item, array $vehiclePayload, array $rawPayload): void
     {
+        $updated = false;
         $english = $this->extractEnglishDescription($vehiclePayload, $rawPayload);
 
         if ($english !== null && $english !== '') {
-            ItemTranslation::query()->updateOrCreate(
-                [
-                    'item_data_id' => $itemData->id,
-                    'locale_code' => Language::ENGLISH,
-                ],
-                [
-                    'translation' => $english,
-                ]
-            );
+            $item->setTranslation('translation', Language::ENGLISH, $english);
+            $updated = true;
         }
 
         $label = $this->extractDescriptionLabel($rawPayload);
@@ -286,15 +279,12 @@ class VehicleItemImporter
                 continue;
             }
 
-            ItemTranslation::query()->updateOrCreate(
-                [
-                    'item_data_id' => $itemData->id,
-                    'locale_code' => $locale,
-                ],
-                [
-                    'translation' => $this->getDescriptionText($translation),
-                ]
-            );
+            $item->setTranslation('translation', $locale, $this->getDescriptionText($translation));
+            $updated = true;
+        }
+
+        if ($updated) {
+            $item->save();
         }
     }
 

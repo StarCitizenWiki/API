@@ -242,13 +242,12 @@ class ImportCommLink implements ShouldQueue
     {
         $contentParser = new Content($this->crawler);
 
-        $commLink->translations()->updateOrCreate(
-            ['locale_code' => Language::ENGLISH],
-            [
-                'translation' => $contentParser->getContent(),
-                'proofread' => true,
-            ]
-        );
+        $content = $contentParser->getContent();
+
+        if ($content !== null && $content !== '') {
+            $commLink->setTranslation('translation', Language::ENGLISH, $content);
+            $commLink->save();
+        }
     }
 
     private function syncImageIds(CommLink $commLink): void
@@ -266,7 +265,7 @@ class ImportCommLink implements ShouldQueue
     private function contentHasChanged(CommLink $commLink): bool
     {
         $contentParser = new Content($this->crawler);
-        $currentTranslation = optional($commLink->translations()->where('locale_code', Language::ENGLISH)->first())->translation;
+        $currentTranslation = $commLink->getTranslation('translation', Language::ENGLISH, false);
 
         return $contentParser->getContent() !== ($currentTranslation ?? '');
     }

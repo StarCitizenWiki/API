@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Services\Parser\ShipMatrix\Component;
 use App\Services\Parser\ShipMatrix\Manufacturer;
 use App\Services\Parser\ShipMatrix\ProductionNote;
@@ -100,14 +100,12 @@ class ImportVehicle implements ShouldQueue
         /** @var Vehicle $vehicle */
         $vehicle = Vehicle::query()->updateOrCreate($where, $data);
 
-        $vehicle->translations()->updateOrCreate(
-            [
-                'locale_code' => config('language.english'),
-            ],
-            [
-                'translation' => strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? ''),
-            ]
-        );
+        $translation = strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? '');
+
+        if ($translation !== '') {
+            $vehicle->setTranslation('translation', config('language.english'), $translation);
+            $vehicle->save();
+        }
 
         $this->syncFociIds($vehicle);
         $this->syncComponents($vehicle);

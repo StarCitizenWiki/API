@@ -37,6 +37,7 @@ return new class extends Migration
 
                 $table->timestamp('created_at_file')->nullable();
 
+                $table->json('translation')->nullable();
                 $table->timestamps();
             }
         );

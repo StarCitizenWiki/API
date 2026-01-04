@@ -102,11 +102,6 @@ class ItemData extends Model
         return $this->belongsTo(GameVersion::class, 'game_version_id');
     }
 
-    public function translations(): HasMany
-    {
-        return $this->hasMany(ItemTranslation::class);
-    }
-
     public function entityTags(): BelongsToMany
     {
         return $this->belongsToMany(

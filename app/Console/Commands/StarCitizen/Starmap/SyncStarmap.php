@@ -14,8 +14,7 @@ class SyncStarmap extends Command
      *
      * @var string
      */
-    protected $signature = 'starmap:sync
-                            {--f|force : Force Download, Overwrite File if exist}';
+    protected $signature = 'starmap:sync';
 
     /**
      * The console command description.
@@ -31,7 +30,7 @@ class SyncStarmap extends Command
     {
         $this->info('Dispatching Starmap Sync');
 
-        SyncStarmapJob::dispatch($this->option('force') === true);
+        SyncStarmapJob::dispatch();
 
         return 0;
     }

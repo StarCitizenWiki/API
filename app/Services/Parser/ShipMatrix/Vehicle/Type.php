@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Type\Type as VehicleType;
-use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as VehicleType;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -31,19 +30,12 @@ class Type extends BaseElement
         }
 
         try {
-            /** @var TypeTranslation $typeTranslation */
-            $typeTranslation = TypeTranslation::query()->where(
-                'translation',
-                $type
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return VehicleType::query()
+                ->where('translation->'.config('language.english'), $type)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return $this->createNewVehicleType();
         }
-
-        return $typeTranslation->type;
     }
 
     private function createNewVehicleType(): VehicleType
@@ -57,10 +49,10 @@ class Type extends BaseElement
             ['slug' => $slug]
         );
 
-        $type->translations()->updateOrCreate(
-            ['locale_code' => config('language.english')],
-            ['translation' => $translation]
-        );
+        if ($translation !== null && $translation !== '') {
+            $type->setTranslation('translation', config('language.english'), $translation);
+            $type->save();
+        }
 
         app('Log')::debug('Vehicle Type created', ['id' => $type->id]);
 

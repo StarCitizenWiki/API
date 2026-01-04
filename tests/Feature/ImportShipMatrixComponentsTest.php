@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Jobs\StarCitizen\Vehicle\ImportVehicle;
-use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\StarCitizen\Vehicle\Component;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Component;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 

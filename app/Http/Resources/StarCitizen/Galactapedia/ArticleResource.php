@@ -85,7 +85,7 @@ class ArticleResource extends AbstractBaseResource
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'properties' => PropertyResource::collection($this->whenLoaded('properties')),
             'related_articles' => RelatedArticleResource::collection($this->whenLoaded('related')),
-            'translations' => TranslationResolver::resolve($this->whenLoaded('translations'), $request),
+            'translations' => TranslationResolver::resolve($this, $request),
             'created_at' => $this->created_at,
         ];
     }

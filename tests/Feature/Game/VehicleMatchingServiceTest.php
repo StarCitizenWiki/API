@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Models\StarCitizen\Manufacturer\Manufacturer as ShipMatrixManufacturer;
-use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\StarCitizen\Vehicle\Size\Size as ShipSize;
-use App\Models\StarCitizen\Vehicle\Type\Type as ShipType;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote;
+use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Services\Game\VehicleMatchingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

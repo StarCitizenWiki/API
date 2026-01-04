@@ -49,6 +49,7 @@ class CommLinkController extends Controller
             new OA\Parameter(name: 'filter[channel]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[series]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -70,6 +71,7 @@ class CommLinkController extends Controller
                 AllowedFilter::exact('series', 'series.name'),
                 AllowedFilter::exact('channel', 'channel.name'),
             ])
+            ->allowedSorts(['cig_id', 'created_at'])
             ->orderByDesc('cig_id')
             ->paginate()
             ->appends(request()->query());
