@@ -15,6 +15,22 @@ use OpenApi\Attributes as OA;
     schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
 )]
 #[OA\Parameter(
+    parameter: 'page_number',
+    name: 'page[number]',
+    description: 'Page number for pagination (starts at 1).',
+    in: 'query',
+    required: false,
+    schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
+)]
+#[OA\Parameter(
+    parameter: 'page_size',
+    name: 'page[size]',
+    description: 'Number of results to return per page.',
+    in: 'query',
+    required: false,
+    schema: new OA\Schema(type: 'integer', default: 30, maximum: 200, minimum: 1)
+)]
+#[OA\Parameter(
     parameter: 'locale',
     name: 'locale',
     description: 'Locale code for translated fields (e.g. en, de, zh).',

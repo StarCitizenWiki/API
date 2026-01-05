@@ -55,6 +55,8 @@ class ItemController extends Controller
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
@@ -83,7 +85,9 @@ class ItemController extends Controller
         $category = $request->route()->defaults['category'] ?? 'items';
 
         $include = str_replace('related_items', '', $request->input('include', ''));
-        $request->merge(['include' => $include]);
+        if (! empty($include)) {
+            $request->merge(['include' => $include]);
+        }
 
         $query = QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
@@ -111,7 +115,7 @@ class ItemController extends Controller
             ->allowedIncludes($this->allowedIncludes())
             ->with(['item', 'gameVersion']);
 
-        $items = $query->paginate()->appends($request->query());
+        $items = $query->jsonPaginate();
 
         return ItemResource::collection(
             $this->transformToItems($items, $versionCode)
@@ -214,6 +218,8 @@ class ItemController extends Controller
         tags: ['In-Game', 'Items', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
@@ -273,7 +279,7 @@ class ItemController extends Controller
             })
             ->with(['item', 'gameVersion']);
 
-        $items = $query->paginate()->appends($request->query());
+        $items = $query->jsonPaginate();
 
         return ItemResource::collection(
             $this->transformToItems($items, $versionCode)

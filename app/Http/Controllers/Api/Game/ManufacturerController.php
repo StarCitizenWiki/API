@@ -26,6 +26,8 @@ class ManufacturerController extends Controller
         tags: ['In-Game', 'Manufacturers'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
             new OA\Response(
@@ -49,7 +51,7 @@ class ManufacturerController extends Controller
             ->where('name', '<>', '')
             ->groupBy('name')
             ->orderBy('name')
-            ->paginate()
+            ->jsonPaginate()
             ->appends($request->query());
 
         return ManufacturerLinkResource::collection($query);
@@ -121,6 +123,8 @@ class ManufacturerController extends Controller
         tags: ['In-Game', 'Manufacturers', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
             new OA\Response(
@@ -143,7 +147,7 @@ class ManufacturerController extends Controller
             ->orWhere('name', 'LIKE', sprintf('%%%s%%', $query))
             ->orWhere('code', 'LIKE', sprintf('%%%s%%', $query))
             ->groupBy('name')
-            ->paginate()
+            ->jsonPaginate()
             ->appends($request->query());
 
         return ManufacturerLinkResource::collection($manufacturers);

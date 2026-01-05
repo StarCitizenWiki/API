@@ -31,6 +31,8 @@ class GalactapediaController extends Controller
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[categoryId]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -60,7 +62,7 @@ class GalactapediaController extends Controller
                 AllowedFilter::exact('template', 'template.template'),
             ])
             ->orderByDesc('id')
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return ArticleResource::collection($query);
@@ -255,7 +257,7 @@ class GalactapediaController extends Controller
             ->orWhereHas('templates', function (Builder $builder) use ($query) {
                 return $builder->where('template', 'like', "%{$query}%");
             })
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return ArticleResource::collection($queryBuilder);

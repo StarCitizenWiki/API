@@ -48,6 +48,8 @@ class CommLinkController extends Controller
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
             new OA\Parameter(name: 'filter[channel]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[series]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -76,7 +78,7 @@ class CommLinkController extends Controller
             ])
             ->allowedSorts(['cig_id', 'created_at'])
             ->orderByDesc('cig_id')
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return CommLinkResource::collection($query);

@@ -24,6 +24,8 @@ class ImageController extends Controller
         tags: ['Comm-Links', 'RSI-Website', 'Images'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             //            new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
@@ -44,7 +46,7 @@ class ImageController extends Controller
 //                AllowedFilter::custom('tags', new ImageTagFilter),
 //            ])
             ->orderByDesc('id')
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return ImageResource::collection($query);

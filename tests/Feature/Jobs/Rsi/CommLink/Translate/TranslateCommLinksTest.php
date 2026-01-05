@@ -210,7 +210,7 @@ it('stops processing when authentication fails', function () {
 });
 
 it('continues to next comm-link when translation fails', function () {
-    $category = Category::factory()->create(['name' => 'General']);
+    $category = Category::factory()->create(['name' => fake()->word()]);
     $commLink1 = CommLink::factory()->create(['category_id' => $category->id]);
     $commLink2 = CommLink::factory()->create(['category_id' => $category->id]);
 

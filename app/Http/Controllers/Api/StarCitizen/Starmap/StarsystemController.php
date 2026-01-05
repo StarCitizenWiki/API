@@ -27,6 +27,8 @@ class StarsystemController extends Controller
         tags: ['Starmap', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[affiliation]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[status]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -61,7 +63,7 @@ class StarsystemController extends Controller
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('size', 'aggregated_size'),
             ])
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return StarsystemResource::collection($query);
@@ -150,6 +152,8 @@ class StarsystemController extends Controller
         tags: ['Starmap', 'RSI-Website', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
             new OA\Response(
@@ -176,7 +180,7 @@ class StarsystemController extends Controller
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('size', 'aggregated_size'),
             ])
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return StarsystemResource::collection($starsystems);

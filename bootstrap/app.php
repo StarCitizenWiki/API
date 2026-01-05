@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'game.version' => \App\Http\Middleware\Api\Game\ResolveGameVersion::class,
+            'limit.parameter' => \App\Http\Middleware\MigrateLimitParameter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

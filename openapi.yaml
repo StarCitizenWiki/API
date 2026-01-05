@@ -20,6 +20,10 @@ paths:
         -
           $ref: '#/components/parameters/page'
         -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
           $ref: '#/components/parameters/include'
         -
           $ref: '#/components/parameters/sort'
@@ -111,6 +115,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/locale'
         -
@@ -208,6 +216,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       responses:
         '200':
           description: 'List of Manufacturers'
@@ -252,6 +264,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       requestBody:
         description: 'Manufacturer name, uuid, or code'
         required: true
@@ -280,6 +296,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/include'
         -
@@ -367,6 +387,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/sort'
         -
@@ -473,6 +497,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/comm_link_includes'
         -
@@ -619,7 +647,7 @@ paths:
         -
           name: similarity
           in: query
-          required: true
+          required: false
           schema:
             type: integer
             maximum: 100
@@ -696,6 +724,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       responses:
         '200':
           description: 'List of Comm-Link Images'
@@ -771,6 +803,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           name: 'filter[category]'
           in: query
@@ -905,6 +941,10 @@ paths:
         -
           $ref: '#/components/parameters/page'
         -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
           name: include
           in: query
           description: 'Include additional relationships (affiliation, starsystem).'
@@ -966,6 +1006,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       requestBody:
         description: 'Partial celestial object code or name to search for'
         required: true
@@ -997,6 +1041,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           name: 'filter[affiliation]'
           in: query
@@ -1079,6 +1127,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       requestBody:
         description: 'Partial starsystem code or name to search for'
         required: true
@@ -1142,6 +1194,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
       responses:
         '200':
           description: 'List of stats'
@@ -1162,6 +1218,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           name: 'filter[manufacturer]'
           in: query
@@ -1259,6 +1319,10 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
         -
           name: 'filter[manufacturer]'
           in: query
@@ -7907,6 +7971,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/vehicle_loaner'
+        link:
+          description: 'Link to detail endpoint'
+          type: string
       type: object
     vehicle_sku:
       title: 'Vehicle SKU'
@@ -7959,6 +8026,25 @@ components:
       schema:
         type: integer
         default: 1
+        minimum: 1
+    page_number:
+      name: 'page[number]'
+      in: query
+      description: 'Page number for pagination (starts at 1).'
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    page_size:
+      name: 'page[size]'
+      in: query
+      description: 'Number of results to return per page.'
+      required: false
+      schema:
+        type: integer
+        default: 30
+        maximum: 200
         minimum: 1
     locale:
       name: locale

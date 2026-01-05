@@ -32,6 +32,8 @@ class VehicleController extends Controller
         tags: ['Ship-Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -60,7 +62,7 @@ class VehicleController extends Controller
                 AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
             ]);
 
-        $vehicles = $query->paginate()->appends($request->query());
+        $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
     }
@@ -235,6 +237,8 @@ class VehicleController extends Controller
         tags: ['Ship-Matrix', 'Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -272,7 +276,7 @@ class VehicleController extends Controller
                 $query->where('name', 'like', "%{$toSearch}%");
             });
 
-        $vehicles = $query->paginate()->appends($request->query());
+        $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
     }

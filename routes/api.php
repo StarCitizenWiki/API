@@ -22,7 +22,7 @@ Route::group(
     [],
     static function () {
 
-        Route::middleware('game.version')->group(static function () {
+        Route::middleware(['game.version', 'limit.parameter'])->group(static function () {
             Route::prefix('v2')->group(static function () {
                 Route::get('vehicles', [VehicleController::class, 'index'])
                     ->defaults('api_version', 'v2')

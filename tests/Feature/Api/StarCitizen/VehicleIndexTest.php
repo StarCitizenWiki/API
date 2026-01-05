@@ -92,8 +92,52 @@ it('returns paginated results', function (): void {
     $response = $this->getJson(route('shipmatrix.vehicles.index'));
 
     $response->assertOk();
-    expect($response->json('data'))->toHaveCount(15); // Laravel default per page
+    expect($response->json('data'))->toHaveCount(20); // Fits within the JSON:API default page size.
     expect($response->json('meta.total'))->toBe(20);
+});
+
+it('does not duplicate page number in pagination links', function (): void {
+    $manufacturer = Manufacturer::query()->create([
+        'cig_id' => 1,
+        'name' => 'Test Manufacturer',
+        'name_short' => 'TEST',
+    ]);
+
+    $size = Size::query()->create(['slug' => 'small']);
+    $type = Type::query()->create(['slug' => 'fighter']);
+    $note = ProductionNote::query()->create([
+        'content_hash' => 'test-hash',
+    ]);
+    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
+
+    for ($i = 1; $i <= 12; $i++) {
+        Vehicle::query()->create([
+            'cig_id' => $i,
+            'name' => "Vehicle {$i}",
+            'slug' => "vehicle-{$i}",
+            'manufacturer_id' => $manufacturer->id,
+            'size_id' => $size->id,
+            'type_id' => $type->id,
+            'production_status_id' => $status->id,
+            'production_note_id' => $note->id,
+            'chassis_id' => 1,
+        ]);
+    }
+
+    $response = $this->getJson(route('shipmatrix.vehicles.index', [
+        'page' => [
+            'number' => 2,
+            'size' => 5,
+        ],
+    ]));
+
+    $response->assertOk();
+
+    $lastLink = $response->json('links.last');
+
+    expect($lastLink)->toBeString();
+    expect($lastLink)->toContain('page%5Bsize%5D=5');
+    expect(substr_count($lastLink, 'page%5Bnumber%5D='))->toBe(1);
 });
 
 it('ignores custom pagination limit', function (): void {
@@ -128,7 +172,7 @@ it('ignores custom pagination limit', function (): void {
     $response = $this->getJson(route('shipmatrix.vehicles.index', ['limit' => 1]));
 
     $response->assertOk();
-    expect($response->json('data'))->toHaveCount(15);
+    expect($response->json('data'))->toHaveCount(20);
 });
 
 it('filters by manufacturer name', function (): void {

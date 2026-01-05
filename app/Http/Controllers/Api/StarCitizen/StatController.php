@@ -41,6 +41,8 @@ class StatController extends Controller
         tags: ['Stats', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
             new OA\Response(
@@ -57,7 +59,7 @@ class StatController extends Controller
     {
         $query = QueryBuilder::for(Stat::class, $request)
             ->orderByDesc('created_at')
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return StatResource::collection($query);

@@ -40,6 +40,8 @@ class VehicleController extends Controller
         tags: ['In-Game', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -100,7 +102,7 @@ class VehicleController extends Controller
             ->allowedIncludes($allowedIncludes)
             ->with(['vehicle', 'gameVersion']);
 
-        $vehicles = $query->paginate()->appends($request->query());
+        $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection(
             $this->transformToVehicles($vehicles)
@@ -249,6 +251,8 @@ class VehicleController extends Controller
         tags: ['In-Game', 'Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
@@ -320,7 +324,7 @@ class VehicleController extends Controller
             ->allowedIncludes($allowedIncludes)
             ->with(['vehicle', 'gameVersion']);
 
-        $vehicles = $query->paginate()->appends($request->query());
+        $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection(
             $this->transformToVehicles($vehicles)

@@ -26,6 +26,8 @@ class CelestialObjectController extends Controller
         tags: ['Starmap', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(
                 name: 'include',
                 description: 'Include additional relationships (affiliation, starsystem).',
@@ -50,7 +52,7 @@ class CelestialObjectController extends Controller
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
             ->allowedIncludes([])
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return CelestialObjectResource::collection($query);
@@ -143,6 +145,8 @@ class CelestialObjectController extends Controller
         tags: ['Starmap', 'RSI-Website', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
             new OA\Response(
@@ -163,7 +167,7 @@ class CelestialObjectController extends Controller
             ->where('code', $query)
             ->orWhere('cig_id', $query)
             ->orWhere('name', 'LIKE', "%$query%")
-            ->paginate()
+            ->jsonPaginate()
             ->appends(request()->query());
 
         return CelestialObjectResource::collection($objects);
