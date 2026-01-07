@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
+use App\Http\Filters\SortByRelation;
 use App\Http\Includes\PassthroughInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
@@ -20,10 +21,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
+use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -63,6 +66,9 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
@@ -104,13 +110,35 @@ class ItemController extends Controller
                             ->orWhereIn('code', $values);
                     });
                 }),
+                AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
+                    $values = is_array($value) ? $value : [$value];
+
+                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                        $manufacturerQuery
+                            ->whereIn('name', $values)
+                            ->orWhereIn('code', $values);
+                    });
+                }),
+                AllowedFilter::partial('class_name'),
+                AllowedFilter::partial('name'),
                 AllowedFilter::partial('classification'),
                 AllowedFilter::exact('size'),
                 AllowedFilter::exact('grade'),
                 AllowedFilter::exact('class'),
                 AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
-            ->allowedSorts(['name', 'size', 'grade', 'type', 'sub_type', 'classification'])
+            ->allowedSorts([
+                'name',
+                'class_name',
+                'class',
+                'size',
+                'grade',
+                'type',
+                'sub_type',
+                'classification',
+                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+            ])
             ->defaultSort('name')
             ->allowedIncludes($this->allowedIncludes())
             ->with(['item', 'gameVersion']);
@@ -227,6 +255,9 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
@@ -262,13 +293,35 @@ class ItemController extends Controller
                             ->orWhereIn('code', $values);
                     });
                 }),
+                AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
+                    $values = is_array($value) ? $value : [$value];
+
+                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                        $manufacturerQuery
+                            ->whereIn('name', $values)
+                            ->orWhereIn('code', $values);
+                    });
+                }),
                 AllowedFilter::custom('variants', new ItemVariantsFilter),
+                AllowedFilter::partial('class_name'),
+                AllowedFilter::partial('name'),
                 AllowedFilter::partial('classification'),
                 AllowedFilter::exact('size'),
                 AllowedFilter::exact('grade'),
                 AllowedFilter::exact('class'),
             ])
-            ->allowedSorts(['name', 'size', 'grade', 'type', 'sub_type', 'classification'])
+            ->allowedSorts([
+                'name',
+                'class_name',
+                'class',
+                'size',
+                'grade',
+                'type',
+                'sub_type',
+                'classification',
+                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+            ])
             ->defaultSort('name')
             ->allowedIncludes($this->allowedIncludes())
             ->where(function (Builder $query) use ($toSearch) {
@@ -332,58 +385,62 @@ class ItemController extends Controller
                     ->forRequestedOrDefaultVersion($versionCode)
                     ->forCategory($category);
 
-                $typeRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.type as value, count(*) as count')
-                    ->groupBy('game_item_data.type')
-                    ->orderByRaw('game_item_data.type IS NULL, game_item_data.type')
-                    ->get();
-
-                $subTypeRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.sub_type as value, count(*) as count')
-                    ->groupBy('game_item_data.sub_type')
-                    ->orderByRaw('game_item_data.sub_type IS NULL, game_item_data.sub_type')
-                    ->get();
-
-                $classificationRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.classification as value, count(*) as count')
-                    ->groupBy('game_item_data.classification')
-                    ->orderByRaw('game_item_data.classification IS NULL, game_item_data.classification')
-                    ->get();
-
-                $sizeRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.size as value, count(*) as count')
-                    ->groupBy('game_item_data.size')
-                    ->orderByRaw('game_item_data.size IS NULL, game_item_data.size')
-                    ->get();
-
-                $gradeRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.grade as value, count(*) as count')
-                    ->groupBy('game_item_data.grade')
-                    ->orderByRaw('game_item_data.grade IS NULL, game_item_data.grade')
-                    ->get();
-
-                $classRows = (clone $baseQuery)
-                    ->selectRaw('game_item_data.class as value, count(*) as count')
-                    ->groupBy('game_item_data.class')
-                    ->orderByRaw('game_item_data.class IS NULL, game_item_data.class')
-                    ->get();
-
-                $manufacturerRows = (clone $baseQuery)
-                    ->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id')
-                    ->selectRaw('game_manufacturers.name as value, count(*) as count')
-                    ->groupBy('game_manufacturers.name')
-                    ->orderByRaw('game_manufacturers.name IS NULL, game_manufacturers.name')
-                    ->get();
-
-                return [
-                    'type' => FilterValues::fromRows($typeRows),
-                    'sub_type' => FilterValues::fromRows($subTypeRows),
-                    'classification' => FilterValues::fromRows($classificationRows),
-                    'size' => FilterValues::fromRows($sizeRows, static fn ($value) => $value === null ? null : (int) $value),
-                    'grade' => FilterValues::fromRows($gradeRows, static fn ($value) => $value === null ? null : (int) $value),
-                    'class' => FilterValues::fromRows($classRows),
-                    'manufacturer' => FilterValues::fromRows($manufacturerRows),
+                $facets = [
+                    'type' => [
+                        'expr' => 'game_item_data.type',
+                        'cast' => null,
+                    ],
+                    'sub_type' => [
+                        'expr' => 'game_item_data.sub_type',
+                        'cast' => null,
+                    ],
+                    'classification' => [
+                        'expr' => 'game_item_data.classification',
+                        'cast' => null,
+                    ],
+                    'size' => [
+                        'expr' => 'game_item_data.size',
+                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                    ],
+                    'grade' => [
+                        'expr' => 'game_item_data.grade',
+                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                    ],
+                    'class' => [
+                        'expr' => 'game_item_data.class',
+                        'cast' => null,
+                    ],
+                    'manufacturer' => [
+                        'expr' => 'game_manufacturers.name',
+                        'join' => static fn ($q) => $q->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id'),
+                        'cast' => null,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 

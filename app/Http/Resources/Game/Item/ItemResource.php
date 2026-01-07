@@ -89,6 +89,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'manufacturer_description', description: 'Manufacturer set in the description', type: 'string', nullable: true),
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
         new OA\Property(property: 'type', description: 'AttachDef@Type', type: 'string', nullable: true),
+        new OA\Property(property: 'type_web_url', description: 'Web URL for filtering items by type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', description: 'AttachDef@SubType', type: 'string', nullable: true),
         new OA\Property(property: 'dimension', ref: '#/components/schemas/item_dimension'),
         new OA\Property(property: 'inventory', ref: '#/components/schemas/item_inventory', nullable: true),
@@ -197,6 +198,7 @@ use OpenApi\Attributes as OA;
             type: 'string',
             example: '4.4.0-LIVE.12340123'
         ),
+        new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string'),
     ],
     type: 'object'
 )]
@@ -286,6 +288,8 @@ class ItemResource extends AbstractBaseResource
         }
         $includeRelated = in_array('related_items', $includeValues, true);
 
+        $type = str_replace('NOITEM_', '', ($itemData->type ?? ''));
+
         return [
             'uuid' => $this->uuid,
             'name' => $itemData->name,
@@ -295,20 +299,13 @@ class ItemResource extends AbstractBaseResource
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
-            $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
-                'grade' => match ($itemData->grade) {
-                    1 => 'A',
-                    2 => 'B',
-                    3 => 'C',
-                    4 => 'D',
-                    default => $itemData->grade,
-                },
-                'class' => $itemData->class,
-            ]),
+            'grade' => $this->formatGrade($itemData),
+            'class' => $itemData->class,
             'description_data' => ItemDescriptionDataResource::collection($itemData->descriptionData),
             'manufacturer_description' => $itemData->getDescriptionDatum('Manufacturer'),
             'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
-            'type' => str_replace('NOITEM_', '', ($itemData->type ?? '')),
+            'type' => $type,
+            'type_web_url' => $this->buildTypeWebUrl($type, $request),
             'sub_type' => $itemData->sub_type,
             $this->mergeWhen(...$this->addAttachmentPosition($itemData)),
             $this->mergeWhen($this->isTurret($itemData), $this->addTurretData($itemData)),
@@ -379,6 +376,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($includeRelated, [
                 'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
             ]),
+            'web_url' => $this->buildWebUrl($request),
             'link' => route('items.show', ['identifier' => $this->uuid]),
             'updated_at' => $this->updated_at,
             'version' => $itemData->gameVersion->code,
@@ -687,5 +685,48 @@ class ItemResource extends AbstractBaseResource
         }
 
         return Arr::has($itemData->data, 'stdItem.Weapon');
+    }
+
+    private function buildWebUrl(Request $request): string
+    {
+        $url = route('web.items.show', ['item' => $this->uuid]);
+        $version = $request->query('version');
+
+        if ($version === null || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
+    }
+
+    private function buildTypeWebUrl(string $type, Request $request): ?string
+    {
+        if ($type === '') {
+            return null;
+        }
+
+        $url = route('web.items.type', ['type' => $type]);
+        $version = $request->query('version');
+
+        if ($version === null || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
+    }
+
+    private function formatGrade(ItemData $itemData): mixed
+    {
+        if (! str_starts_with($itemData->classification ?? '', 'Ship.')) {
+            return $itemData->grade;
+        }
+
+        return match ($itemData->grade) {
+            1 => 'A',
+            2 => 'B',
+            3 => 'C',
+            4 => 'D',
+            default => $itemData->grade,
+        };
     }
 }

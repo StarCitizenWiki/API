@@ -1,13 +1,21 @@
-import {Tabulator, FilterModule, AjaxModule, SortModule, PageModule, FormatModule, EditModule} from 'tabulator-tables';
+import {
+    Tabulator,
+    FilterModule,
+    AjaxModule,
+    SortModule,
+    PageModule,
+    FormatModule,
+    EditModule,
+    FrozenColumnsModule, MoveColumnsModule
+} from 'tabulator-tables';
 
-Tabulator.registerModule([FilterModule, AjaxModule, SortModule, PageModule, FormatModule, EditModule]);
+Tabulator.registerModule([FilterModule, AjaxModule, SortModule, PageModule, FormatModule, EditModule, FrozenColumnsModule, MoveColumnsModule]);
 
 const tabulatorTables = new Map();
 
 export function getTabulatorTable(id) {
     return tabulatorTables.get(id);
 }
-
 
 function readJsonScript(id) {
     const el = document.getElementById(id);
@@ -42,6 +50,7 @@ function buildJsonApiUrl(baseUrl, params) {
 
     // filters: filter[field]=value (simple mapping)
     const filters = params.filter ?? params.filters ?? [];
+
     // Remove existing filter[...] keys first so we don't accumulate stale params
     for (const key of [...u.searchParams.keys()]) {
         if (key.startsWith("filter[")) u.searchParams.delete(key);
@@ -57,17 +66,19 @@ function buildJsonApiUrl(baseUrl, params) {
     return u.toString();
 }
 
-function syncBrowserUrl(urlString, targetId) {
-    if (!targetId) {
-        return;
-    }
-
-    const target = document.getElementById(targetId);
-    const openLinks = document.querySelectorAll(`[data-api-url-open="${targetId}"]`);
-
-    if (!target) {
-        return;
-    }
+/**
+ * Syncs a computed API URL into:
+ * - an optional "API URL" input + open links (existing behavior)
+ * - window.history (optional), typically for filter query params
+ *
+ * @param {string} urlString - The API URL (including query params)
+ * @param {string|null} targetId - DOM id of the API URL input (optional)
+ * @param {"replace"|"push"|null} historySyncMode - null disables history sync
+ * @param {"filters"|"all"} historySyncScope - "filters" copies only filter[...] params, "all" copies full querystring
+ */
+function syncBrowserUrl(urlString, targetId, historySyncMode = "replace", historySyncScope = "all") {
+    const target = targetId ? document.getElementById(targetId) : null;
+    const openLinks = targetId ? document.querySelectorAll(`[data-api-url-open="${targetId}"]`) : [];
 
     let resolvedUrl = urlString;
 
@@ -77,10 +88,37 @@ function syncBrowserUrl(urlString, targetId) {
         resolvedUrl = urlString;
     }
 
-    target.value = resolvedUrl;
-    openLinks.forEach((link) => {
-        link.setAttribute("href", resolvedUrl);
-    });
+    if (target) {
+        target.value = resolvedUrl;
+        openLinks.forEach((link) => {
+            link.setAttribute("href", resolvedUrl);
+        });
+    }
+
+    if (!historySyncMode) return;
+
+    try {
+        const apiUrl = new URL(urlString, window.location.origin);
+        const pageUrl = new URL(window.location.href);
+
+        if (historySyncScope === "all") {
+            pageUrl.search = apiUrl.search;
+        } else {
+            for (const key of [...pageUrl.searchParams.keys()]) {
+                if (key.startsWith("filter[")) pageUrl.searchParams.delete(key);
+            }
+
+            for (const [k, v] of apiUrl.searchParams.entries()) {
+                if (k.startsWith("filter[")) pageUrl.searchParams.set(k, v);
+            }
+        }
+
+        if (historySyncMode === "push") {
+            window.history.pushState({}, "", pageUrl.toString());
+        } else {
+            window.history.replaceState({}, "", pageUrl.toString());
+        }
+    } catch (e) {}
 }
 
 function formatYesNo(value, trueLabel = "Yes", falseLabel = "No") {
@@ -100,63 +138,20 @@ function normalizeColumns(columns) {
         yesNo: (cell, params) => {
             const trueLabel = params?.trueLabel ?? "Yes";
             const falseLabel = params?.falseLabel ?? "No";
+
+            if (!cell.getValue()) {
+                return '';
+            }
+
             return formatYesNo(cell.getValue(), trueLabel, falseLabel);
         },
-        translationLabel: (cell, params) => {
-            const value = cell.getValue();
-
-            if (!value) {
-                return "";
+        suffix: (cell, params) => {
+            if (!cell.getValue()) {
+                return '';
             }
 
-            if (typeof value === "string") {
-                return value;
-            }
-
-            if (typeof value === "object") {
-                if (typeof value.en === "string") {
-                    return value.en;
-                }
-
-                const first = Object.values(value).find((entry) => typeof entry === "string");
-                return typeof first === "string" ? first : "";
-            }
-
-            return "";
-        },
-        translationList: (cell, params) => {
-            const value = cell.getValue();
-
-            if (!Array.isArray(value)) {
-                return "";
-            }
-
-            const labels = value
-                .map((entry) => {
-                    if (!entry) return null;
-                    if (typeof entry === "string") return entry;
-                    if (typeof entry === "object") {
-                        if (typeof entry.en === "string") return entry.en;
-                        const first = Object.values(entry).find((item) => typeof item === "string");
-                        return typeof first === "string" ? first : null;
-                    }
-                    return null;
-                })
-                .filter(Boolean);
-
-            return labels.join(", ");
-        },
-        objectLabel: (cell, params) => {
-            const value = cell.getValue();
-
-            if (!value || typeof value !== "object") {
-                return "";
-            }
-
-            const key = params?.key ?? "name";
-            const label = value[key] ?? value.name ?? value.label ?? value.title ?? null;
-
-            return typeof label === "string" ? label : "";
+            const suffix = params?.suffix ?? '';
+            return `${cell.getValue()}${params?.space === false ? '' : ' '}${suffix}`;
         },
         viewButton: (cell, params) => {
             const label = params?.label ?? "View";
@@ -175,6 +170,10 @@ function normalizeColumns(columns) {
     };
 
     return (columns ?? []).map((column) => {
+        if (Array.isArray(column.columns) && column.columns.length > 0) {
+            return { ...column, columns: normalizeColumns(column.columns) };
+        }
+
         if (typeof column.formatter === "string" && formatters[column.formatter]) {
             return { ...column, formatter: formatters[column.formatter] };
         }
@@ -201,6 +200,10 @@ function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
     const filters = payload?.filters ?? {};
 
     return (columns ?? []).map((column) => {
+        if (Array.isArray(column.columns) && column.columns.length > 0) {
+            return { ...column, columns: applyHeaderFilterOptionsToColumns(column.columns, optionsMap, payload) };
+        }
+
         const filterKey = optionsMap?.[column.field];
 
         if (!filterKey) {
@@ -220,6 +223,23 @@ function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
     });
 }
 
+/**
+ * Build a { [columnField]: sortField } map, including nested/group columns.
+ */
+function buildSortFieldMap(columns, map = {}) {
+    (columns ?? []).forEach((column) => {
+        if (column?.field && column?.sortField) {
+            map[column.field] = column.sortField;
+        }
+
+        if (Array.isArray(column?.columns) && column.columns.length > 0) {
+            buildSortFieldMap(column.columns, map);
+        }
+    });
+
+    return map;
+}
+
 export function initTabulatorTables() {
     document.querySelectorAll("[data-tabulator]").forEach((mount) => {
         const id = mount.dataset.tabulatorId;
@@ -230,21 +250,26 @@ export function initTabulatorTables() {
         const lastPagePath = config?.meta?.lastPagePath || "meta.last_page";
         const pageSize = config.pageSize ?? 25;
         const headerFilterOptionsMap = config.headerFilterOptionsMap ?? null;
-        const headerFilterOptionsSeed = Array.isArray(config.initialHeaderFilter)
-            ? null
-            : config.initialHeaderFilter ?? null;
-        const initialHeaderFilter = Array.isArray(config.initialHeaderFilter)
-            ? config.initialHeaderFilter
-            : false;
+        const headerFilterOptionsSeed = config.initialHeaderFilterOptions
+            ?? (Array.isArray(config.initialHeaderFilter)
+                ? null
+                : config.initialHeaderFilter ?? null);
+        const initialHeaderFilter = Array.isArray(config.initialFilters)
+            ? config.initialFilters
+            : (Array.isArray(config.initialHeaderFilter)
+                ? config.initialHeaderFilter
+                : false);
+
         const apiUrlTargetId = config.apiUrlTargetId ?? null;
         const apiUrlTarget = apiUrlTargetId ? document.getElementById(apiUrlTargetId) : null;
-        const sortFieldMap = (config.columns ?? []).reduce((map, column) => {
-            if (column?.field && column?.sortField) {
-                map[column.field] = column.sortField;
-            }
 
-            return map;
-        }, {});
+        // History sync options:
+        // - historySyncMode: "replace" (recommended) | "push" | null (disabled)
+        // - historySyncScope: "filters" (default) | "all"
+        const historySyncMode = config.historySyncMode ?? "replace";
+        const historySyncScope = config.historySyncScope ?? "all";
+        const sortFieldMap = buildSortFieldMap(config.columns ?? []);
+
         const columns = headerFilterOptionsSeed && headerFilterOptionsMap
             ? applyHeaderFilterOptionsToColumns(config.columns ?? [], headerFilterOptionsMap, {
                 filters: headerFilterOptionsSeed,
@@ -263,6 +288,7 @@ export function initTabulatorTables() {
             columnDefaults: config.columnDefaults ?? {},
 
             columns: normalizeColumns(columns),
+            movableColumns: true,
 
             pagination: true,
             paginationMode: "remote",
@@ -293,8 +319,7 @@ export function initTabulatorTables() {
 
                 const finalUrl = buildJsonApiUrl(url, params);
 
-                // keep URL state aligned with table state
-                syncBrowserUrl(finalUrl, apiUrlTargetId);
+                syncBrowserUrl(finalUrl, apiUrlTargetId, historySyncMode, historySyncScope);
 
                 if (!servedInitial && initial) {
                     servedInitial = true;

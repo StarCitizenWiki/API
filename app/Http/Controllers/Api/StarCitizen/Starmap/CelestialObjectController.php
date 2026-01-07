@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\SortByRelation;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -28,6 +31,11 @@ class CelestialObjectController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(name: 'filter[starsystem]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[designation]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'include',
                 description: 'Include additional relationships (affiliation, starsystem).',
@@ -51,7 +59,28 @@ class CelestialObjectController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
-            ->allowedIncludes([])
+            ->allowedIncludes(CelestialObjectResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::exact('starsystem', 'starsystem.name'),
+                AllowedFilter::exact('name'),
+                AllowedFilter::exact('designation'),
+                AllowedFilter::exact('type'),
+            ])
+            ->with(['starsystem'])
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
+                'name',
+                'designation',
+                'type',
+                'fairchanceact',
+                'habitable',
+                'latitude',
+                'longitude',
+                'sensor_population',
+                'sensor_economy',
+                'sensor_danger',
+            ])
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -167,6 +196,26 @@ class CelestialObjectController extends Controller
             ->where('code', $query)
             ->orWhere('cig_id', $query)
             ->orWhere('name', 'LIKE', "%$query%")
+            ->allowedFilters([
+                AllowedFilter::exact('starsystem', 'starsystem.name'),
+                AllowedFilter::exact('name'),
+                AllowedFilter::exact('designation'),
+                AllowedFilter::exact('type'),
+            ])
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
+                'name',
+                'designation',
+                'type',
+                'fairchanceact',
+                'habitable',
+                'latitude',
+                'longitude',
+                'sensor_population',
+                'sensor_economy',
+                'sensor_danger',
+            ])
             ->jsonPaginate()
             ->appends(request()->query());
 

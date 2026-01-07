@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Galactapedia;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder;
 use Normalizer;
 use Spatie\Translatable\HasTranslations;
 
@@ -163,5 +163,26 @@ class Article extends Model
             'article_id',
             'template_id',
         );
+    }
+
+    public function scopeCategory(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('categories', function (Builder $categoryQuery) use ($value): void {
+            $categoryQuery->where('name', $value);
+        });
+    }
+
+    public function scopeTag(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('tags', function (Builder $tagQuery) use ($value): void {
+            $tagQuery->where('name', $value);
+        });
+    }
+
+    public function scopeTemplate(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('templates', function (Builder $templateQuery) use ($value): void {
+            $templateQuery->where('template', $value);
+        });
     }
 }

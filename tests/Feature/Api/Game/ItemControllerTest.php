@@ -311,3 +311,27 @@ it('does not include related items on search route even when requested', functio
     $response->assertSuccessful()
         ->assertJsonMissing(['related_items']);
 });
+
+it('includes web urls with version in item index', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'Widget',
+            'class_name' => 'test_item',
+            'classification' => 'Test',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson('/api/items?version=4.0.0-LIVE');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $item->uuid);
+
+    expect($response->json('data.0.web_url'))->toContain('version=4.0.0-LIVE');
+    expect($response->json('data.0.type_web_url'))->toContain('version=4.0.0-LIVE');
+});

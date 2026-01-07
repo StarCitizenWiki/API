@@ -218,4 +218,29 @@ class Vehicle extends Model
             'id',
         )->withPivot('version');
     }
+
+    public function scopeFocus(Builder $query, mixed $value): Builder
+    {
+        $focusSlugs = is_array($value) ? $value : explode(',', (string) $value);
+        $focusSlugs = array_map('strtolower', $focusSlugs);
+
+        return $query->whereHas('foci', function (Builder $q) use ($focusSlugs) {
+            $q->whereIn('slug', $focusSlugs);
+        });
+    }
+
+    public function scopeType(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('type', function (Builder $q) use ($value) {
+            $q->where('slug', strtolower((string) $value));
+        });
+    }
+
+    public function scopeProductionStatus(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('productionStatus', function (Builder $q) use ($value) {
+            $q->where('slug', strtolower((string) $value));
+        });
+
+    }
 }

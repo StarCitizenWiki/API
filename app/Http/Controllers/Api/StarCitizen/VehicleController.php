@@ -5,15 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Http\Controllers\Controller;
-use App\Http\Filters\ShipMatrixFocusFilter;
-use App\Http\Filters\ShipMatrixProductionStatusFilter;
-use App\Http\Filters\ShipMatrixTypeFilter;
+use App\Http\Filters\SortByRelation;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
-use App\Models\StarCitizen\ShipMatrix\Manufacturer;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
@@ -22,6 +16,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -62,9 +57,9 @@ class VehicleController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::exact('size', 'size.slug'),
-                AllowedFilter::custom('type', new ShipMatrixTypeFilter),
-                AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
-                AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+                AllowedFilter::scope('type'),
+                AllowedFilter::scope('focus'),
+                AllowedFilter::scope('production_status'),
                 AllowedFilter::partial('name'),
             ]);
 
@@ -82,10 +77,10 @@ class VehicleController extends Controller
                 AllowedSort::field('min_crew'),
                 AllowedSort::field('max_crew'),
                 AllowedSort::field('msrp'),
-                AllowedSort::callback('manufacturer', $this->relationSortCallback('manufacturer')),
-                AllowedSort::callback('focus', $this->relationSortCallback('focus')),
-                AllowedSort::callback('type', $this->relationSortCallback('type')),
-                AllowedSort::callback('size', $this->relationSortCallback('size')),
+                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('focus', new SortByRelation, 'focus.slug'),
+                AllowedSort::custom('type', new SortByRelation, 'type.slug'),
+                AllowedSort::custom('size', new SortByRelation, 'size.slug'),
             ])
             ->jsonPaginate();
 
@@ -128,49 +123,60 @@ class VehicleController extends Controller
             static function (): array {
                 $baseQuery = (new Vehicle)->newQueryWithoutRelationships()->toBase();
 
-                $manufacturerRows = (clone $baseQuery)
-                    ->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id')
-                    ->selectRaw('shipmatrix_manufacturers.name as value, count(*) as count')
-                    ->groupBy('shipmatrix_manufacturers.name')
-                    ->orderByRaw('shipmatrix_manufacturers.name IS NULL, shipmatrix_manufacturers.name')
-                    ->get();
-
-                $sizeRows = (clone $baseQuery)
-                    ->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id')
-                    ->selectRaw('shipmatrix_vehicle_sizes.slug as value, count(*) as count')
-                    ->groupBy('shipmatrix_vehicle_sizes.slug')
-                    ->orderByRaw('shipmatrix_vehicle_sizes.slug IS NULL, shipmatrix_vehicle_sizes.slug')
-                    ->get();
-
-                $typeRows = (clone $baseQuery)
-                    ->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id')
-                    ->selectRaw('shipmatrix_vehicle_types.slug as value, count(*) as count')
-                    ->groupBy('shipmatrix_vehicle_types.slug')
-                    ->orderByRaw('shipmatrix_vehicle_types.slug IS NULL, shipmatrix_vehicle_types.slug')
-                    ->get();
-
-                $focusRows = (clone $baseQuery)
-                    ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
-                    ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id')
-                    ->selectRaw('shipmatrix_vehicle_foci.slug as value, count(*) as count')
-                    ->groupBy('shipmatrix_vehicle_foci.slug')
-                    ->orderByRaw('shipmatrix_vehicle_foci.slug IS NULL, shipmatrix_vehicle_foci.slug')
-                    ->get();
-
-                $productionStatusRows = (clone $baseQuery)
-                    ->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id')
-                    ->selectRaw('shipmatrix_production_statuses.slug as value, count(*) as count')
-                    ->groupBy('shipmatrix_production_statuses.slug')
-                    ->orderByRaw('shipmatrix_production_statuses.slug IS NULL, shipmatrix_production_statuses.slug')
-                    ->get();
-
-                return [
-                    'manufacturer' => FilterValues::fromRows($manufacturerRows),
-                    'size' => FilterValues::fromRows($sizeRows),
-                    'type' => FilterValues::fromRows($typeRows),
-                    'focus' => FilterValues::fromRows($focusRows),
-                    'production_status' => FilterValues::fromRows($productionStatusRows),
+                $facets = [
+                    'manufacturer' => [
+                        'expr' => 'shipmatrix_manufacturers.name',
+                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id'),
+                        'cast' => null,
+                    ],
+                    'size' => [
+                        'expr' => 'shipmatrix_vehicle_sizes.slug',
+                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id'),
+                        'cast' => null,
+                    ],
+                    'type' => [
+                        'expr' => 'shipmatrix_vehicle_types.slug',
+                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id'),
+                        'cast' => null,
+                    ],
+                    'focus' => [
+                        'expr' => 'shipmatrix_vehicle_foci.slug',
+                        'join' => static fn ($q) => $q
+                            ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
+                            ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id'),
+                        'cast' => null,
+                    ],
+                    'production_status' => [
+                        'expr' => 'shipmatrix_production_statuses.slug',
+                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id'),
+                        'cast' => null,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 
@@ -293,9 +299,9 @@ class VehicleController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::exact('size', 'size.slug'),
-                AllowedFilter::custom('type', new ShipMatrixTypeFilter),
-                AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
-                AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+                AllowedFilter::scope('type'),
+                AllowedFilter::scope('focus'),
+                AllowedFilter::scope('production_status'),
                 AllowedFilter::partial('name'),
             ])
             ->where(function (Builder $query) use ($toSearch) {
@@ -305,41 +311,5 @@ class VehicleController extends Controller
         $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
-    }
-
-    private function relationSortCallback(string $relation): callable
-    {
-        return static function (Builder $query, bool $descending, string $property) use ($relation): void {
-            $vehiclesTable = $query->getModel()->getTable();
-            $direction = $descending ? 'desc' : 'asc';
-
-            $subquery = match ($relation) {
-                'manufacturer' => (new Manufacturer)->newQuery()
-                    ->select('name')
-                    ->whereColumn('shipmatrix_manufacturers.id', $vehiclesTable.'.manufacturer_id'),
-                'type' => (new Type)->newQuery()
-                    ->select('slug')
-                    ->whereColumn('shipmatrix_vehicle_types.id', $vehiclesTable.'.type_id'),
-                'size' => (new Size)->newQuery()
-                    ->select('slug')
-                    ->whereColumn('shipmatrix_vehicle_sizes.id', $vehiclesTable.'.size_id'),
-                'focus' => (new Focus)->newQuery()
-                    ->selectRaw('min(shipmatrix_vehicle_foci.slug)')
-                    ->join(
-                        'shipmatrix_vehicle_vehicle_focus',
-                        'shipmatrix_vehicle_foci.id',
-                        '=',
-                        'shipmatrix_vehicle_vehicle_focus.focus_id'
-                    )
-                    ->whereColumn('shipmatrix_vehicle_vehicle_focus.vehicle_id', $vehiclesTable.'.id'),
-                default => null,
-            };
-
-            if ($subquery === null) {
-                return;
-            }
-
-            $query->orderBy($subquery, $direction);
-        };
     }
 }

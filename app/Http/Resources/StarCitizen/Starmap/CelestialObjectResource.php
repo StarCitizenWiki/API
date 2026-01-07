@@ -16,6 +16,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'code', type: 'string'),
         new OA\Property(property: 'system_id', type: 'integer'),
         new OA\Property(property: 'celestial_object_api_url', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'type', type: 'string'),
         new OA\Property(property: 'age', type: 'integer'),
@@ -41,6 +42,16 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'size', type: 'float'),
         new OA\Property(property: 'parent_id', type: 'integer'),
+        new OA\Property(
+            property: 'starsystem',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', nullable: true),
+                new OA\Property(property: 'code', type: 'string', nullable: true),
+                new OA\Property(property: 'name', type: 'string', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
         new OA\Property(property: 'time_modified', type: 'string'),
     ],
     type: 'object'
@@ -65,6 +76,7 @@ class CelestialObjectResource extends AbstractBaseResource
                 'celestial-objects.show',
                 ['code' => $this->code]
             ),
+            'web_url' => route('web.starmap.celestial-objects.show', ['id' => $this->cig_id]),
             'name' => $this->name,
             'type' => $this->type,
 
@@ -95,7 +107,13 @@ class CelestialObjectResource extends AbstractBaseResource
             'parent_id' => $this->parent_id,
 
             'affiliation' => AffiliationResource::collection($this->whenLoaded('affiliation')),
-            'starsystem' => new StarsystemResource($this->whenLoaded('starsystem')),
+            'starsystem' => $this->whenLoaded('starsystem', function (): array {
+                return [
+                    'id' => $this->starsystem?->cig_id,
+                    'code' => $this->starsystem?->code,
+                    'name' => $this->starsystem?->name,
+                ];
+            }),
             $this->mergeWhen($this->whenLoaded('subtype'), [
                 'sub_type' => [
                     'id' => $this->subtype->id,

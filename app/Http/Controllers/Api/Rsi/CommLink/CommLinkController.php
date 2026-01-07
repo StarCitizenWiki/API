@@ -6,19 +6,17 @@ namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
+use App\Http\Filters\SortByRelation;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
-use App\Models\Rsi\CommLink\Category;
-use App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Series;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -98,9 +96,9 @@ class CommLinkController extends Controller
                 'title',
                 'images_count',
                 'links_count',
-                AllowedSort::callback('channel', $this->relationSortCallback('channel')),
-                AllowedSort::callback('category', $this->relationSortCallback('category')),
-                AllowedSort::callback('series', $this->relationSortCallback('series')),
+                AllowedSort::custom('channel', new SortByRelation, 'channel.name'),
+                AllowedSort::custom('category', new SortByRelation, 'category.name'),
+                AllowedSort::custom('series', new SortByRelation, 'series.name'),
                 'created_at',
             ])
             ->orderByDesc('cig_id')
@@ -146,32 +144,48 @@ class CommLinkController extends Controller
             static function (): array {
                 $baseQuery = (new CommLink)->newQueryWithoutRelationships()->toBase();
 
-                $categoryRows = (clone $baseQuery)
-                    ->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id')
-                    ->selectRaw('comm_link_categories.name as value, count(*) as count')
-                    ->groupBy('comm_link_categories.name')
-                    ->orderByRaw('comm_link_categories.name IS NULL, comm_link_categories.name')
-                    ->get();
-
-                $channelRows = (clone $baseQuery)
-                    ->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id')
-                    ->selectRaw('comm_link_channels.name as value, count(*) as count')
-                    ->groupBy('comm_link_channels.name')
-                    ->orderByRaw('comm_link_channels.name IS NULL, comm_link_channels.name')
-                    ->get();
-
-                $seriesRows = (clone $baseQuery)
-                    ->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id')
-                    ->selectRaw('comm_link_series.name as value, count(*) as count')
-                    ->groupBy('comm_link_series.name')
-                    ->orderByRaw('comm_link_series.name IS NULL, comm_link_series.name')
-                    ->get();
-
-                return [
-                    'category' => FilterValues::fromRows($categoryRows),
-                    'channel' => FilterValues::fromRows($channelRows),
-                    'series' => FilterValues::fromRows($seriesRows),
+                $facets = [
+                    'category' => [
+                        'expr' => 'comm_link_categories.name',
+                        'join' => static fn ($q) => $q->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id'),
+                        'cast' => null,
+                    ],
+                    'channel' => [
+                        'expr' => 'comm_link_channels.name',
+                        'join' => static fn ($q) => $q->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id'),
+                        'cast' => null,
+                    ],
+                    'series' => [
+                        'expr' => 'comm_link_series.name',
+                        'join' => static fn ($q) => $q->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id'),
+                        'cast' => null,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 
@@ -239,33 +253,5 @@ class CommLinkController extends Controller
         ]);
 
         return $resource;
-    }
-
-    private function relationSortCallback(string $relation): callable
-    {
-        return static function (Builder $query, bool $descending, string $property) use ($relation): void {
-            $commLinksTable = $query->getModel()->getTable();
-
-            [$relatedModel, $foreignKey] = match ($relation) {
-                'channel' => [new Channel, 'channel_id'],
-                'category' => [new Category, 'category_id'],
-                'series' => [new Series, 'series_id'],
-                default => [null, null],
-            };
-
-            if ($relatedModel === null || $foreignKey === null) {
-                return;
-            }
-
-            $relatedTable = $relatedModel->getTable();
-            $direction = $descending ? 'desc' : 'asc';
-
-            $query->orderBy(
-                $relatedModel->newQuery()
-                    ->select('name')
-                    ->whereColumn($relatedTable.'.id', $commLinksTable.'.'.$foreignKey),
-                $direction
-            );
-        };
     }
 }

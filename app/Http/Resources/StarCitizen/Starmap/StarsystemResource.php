@@ -19,6 +19,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'status', type: 'string'),
         new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(
             property: 'position',
             properties: [
@@ -110,6 +111,7 @@ class StarsystemResource extends AbstractBaseResource
             'name' => $this->name,
             'status' => $this->status,
             'type' => $this->type,
+            'web_url' => route('web.starmap.systems.show', ['id' => $this->cig_id]),
 
             'position' => [
                 'x' => $this->position_x,

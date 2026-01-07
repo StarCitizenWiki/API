@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -55,21 +56,9 @@ class GalactapediaController extends Controller
     {
         $query = QueryBuilder::for(Article::class, $request)
             ->allowedFilters([
-                AllowedFilter::callback('category', static function (Builder $query, string $value): void {
-                    $query->whereHas('categories', function (Builder $categoryQuery) use ($value): void {
-                        $categoryQuery->where('name', $value);
-                    });
-                }),
-                AllowedFilter::callback('tag', static function (Builder $query, string $value): void {
-                    $query->whereHas('tags', function (Builder $tagQuery) use ($value): void {
-                        $tagQuery->where('name', $value);
-                    });
-                }),
-                AllowedFilter::callback('template', static function (Builder $query, string $value): void {
-                    $query->whereHas('templates', function (Builder $templateQuery) use ($value): void {
-                        $templateQuery->where('template', $value);
-                    });
-                }),
+                AllowedFilter::scope('category'),
+                AllowedFilter::scope('tag'),
+                AllowedFilter::scope('template'),
                 AllowedFilter::partial('title'),
                 AllowedFilter::custom('created_at', new DateFilter('created_at')),
             ])
@@ -127,35 +116,54 @@ class GalactapediaController extends Controller
             static function (): array {
                 $baseQuery = (new Article)->newQueryWithoutRelationships()->toBase();
 
-                $categoryRows = (clone $baseQuery)
-                    ->leftJoin('galactapedia_article_categories', 'galactapedia_articles.id', '=', 'galactapedia_article_categories.article_id')
-                    ->leftJoin('galactapedia_categories', 'galactapedia_article_categories.category_id', '=', 'galactapedia_categories.id')
-                    ->selectRaw('galactapedia_categories.name as value, count(*) as count')
-                    ->groupBy('galactapedia_categories.name')
-                    ->orderByRaw('galactapedia_categories.name IS NULL, galactapedia_categories.name')
-                    ->get();
-
-                $tagRows = (clone $baseQuery)
-                    ->leftJoin('galactapedia_article_tags', 'galactapedia_articles.id', '=', 'galactapedia_article_tags.article_id')
-                    ->leftJoin('galactapedia_tags', 'galactapedia_article_tags.tag_id', '=', 'galactapedia_tags.id')
-                    ->selectRaw('galactapedia_tags.name as value, count(*) as count')
-                    ->groupBy('galactapedia_tags.name')
-                    ->orderByRaw('galactapedia_tags.name IS NULL, galactapedia_tags.name')
-                    ->get();
-
-                $templateRows = (clone $baseQuery)
-                    ->leftJoin('galactapedia_article_templates', 'galactapedia_articles.id', '=', 'galactapedia_article_templates.article_id')
-                    ->leftJoin('galactapedia_templates', 'galactapedia_article_templates.template_id', '=', 'galactapedia_templates.id')
-                    ->selectRaw('galactapedia_templates.template as value, count(*) as count')
-                    ->groupBy('galactapedia_templates.template')
-                    ->orderByRaw('galactapedia_templates.template IS NULL, galactapedia_templates.template')
-                    ->get();
-
-                return [
-                    'category' => FilterValues::fromRows($categoryRows),
-                    'tag' => FilterValues::fromRows($tagRows),
-                    'template' => FilterValues::fromRows($templateRows),
+                $facets = [
+                    'category' => [
+                        'expr' => 'galactapedia_categories.name',
+                        'join' => static fn ($q) => $q
+                            ->leftJoin('galactapedia_article_categories', 'galactapedia_articles.id', '=', 'galactapedia_article_categories.article_id')
+                            ->leftJoin('galactapedia_categories', 'galactapedia_article_categories.category_id', '=', 'galactapedia_categories.id'),
+                        'cast' => null,
+                    ],
+                    'tag' => [
+                        'expr' => 'galactapedia_tags.name',
+                        'join' => static fn ($q) => $q
+                            ->leftJoin('galactapedia_article_tags', 'galactapedia_articles.id', '=', 'galactapedia_article_tags.article_id')
+                            ->leftJoin('galactapedia_tags', 'galactapedia_article_tags.tag_id', '=', 'galactapedia_tags.id'),
+                        'cast' => null,
+                    ],
+                    'template' => [
+                        'expr' => 'galactapedia_templates.template',
+                        'join' => static fn ($q) => $q
+                            ->leftJoin('galactapedia_article_templates', 'galactapedia_articles.id', '=', 'galactapedia_article_templates.article_id')
+                            ->leftJoin('galactapedia_templates', 'galactapedia_article_templates.template_id', '=', 'galactapedia_templates.id'),
+                        'cast' => null,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 

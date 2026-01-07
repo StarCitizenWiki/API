@@ -14,8 +14,10 @@ class GroundVehicle extends Vehicle
 
         static::addGlobalScope(
             'size',
-            static function (Builder $builder) {
-                $builder->has('groundVehicles');
+            static function (Builder $builder): void {
+                $builder->whereHas('size', static function (Builder $sizeQuery): void {
+                    $sizeQuery->groundVehicle();
+                });
             }
         );
     }

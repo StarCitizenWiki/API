@@ -101,7 +101,7 @@ class ArticleResource extends AbstractBaseResource
             'related_articles' => RelatedArticleResource::collection($this->whenLoaded('related')),
             'related_articles_count' => $this->related_articles_count,
             'translations' => TranslationResolver::resolve($this, $request),
-            'created_at' => $this->created_at->diffForHumans(),
+            'created_at' => $this->created_at->toIso8601String(),
             'created_at_human' => $this->created_at->diffForHumans(),
         ];
     }

@@ -52,6 +52,27 @@
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 
+<x-app.sidemenu-group title="Universe">
+    <x-app.sidemenu-item
+        :route="'web.vehicles.index'"
+        route-is="web.vehicles.*"
+    >
+        <x-slot:icon>
+            <x-icon name="rocket" class="size-4" />
+        </x-slot:icon>
+        Vehicles
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        :route="'web.items.index'"
+        route-is="web.items.*"
+    >
+        <x-slot:icon>
+            <x-icon name="package" class="size-4" />
+        </x-slot:icon>
+        Items
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
 <x-app.sidemenu-group title="Ship-Matrix">
     <x-app.sidemenu-item
         :route="'web.ship-matrix.vehicles.index'"
@@ -62,6 +83,29 @@
             <x-icon name="rocket" class="size-4" />
         </x-slot:icon>
         Vehicles
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
+<x-app.sidemenu-group title="Starmap">
+    <x-app.sidemenu-item
+        :route="'web.starmap.systems.index'"
+        route-is="web.starmap.systems.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="map" class="size-4" />
+        </x-slot:icon>
+        Systems
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        :route="'web.starmap.celestial-objects.index'"
+        route-is="web.starmap.celestial-objects.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="star" class="size-4" />
+        </x-slot:icon>
+        Celestial Objects
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 

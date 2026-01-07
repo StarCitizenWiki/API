@@ -66,8 +66,8 @@
                 ['title' => 'Width', 'field' => 'dimension.width', 'sorter' => 'number', 'sortField' => 'width', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
                 ['title' => 'Height', 'field' => 'dimension.height', 'sorter' => 'number', 'sortField' => 'height', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
                 ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'cargo_capacity', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
-                ['title' => 'Crew Min', 'field' => 'crew.min', 'sorter' => 'number', 'sortField' => 'crew_min', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                ['title' => 'Crew Max', 'field' => 'crew.max', 'sorter' => 'number', 'sortField' => 'crew_max', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                ['title' => 'Crew Min', 'field' => 'crew.min', 'sorter' => 'number', 'sortField' => 'min_crew', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                ['title' => 'Crew Max', 'field' => 'crew.max', 'sorter' => 'number', 'sortField' => 'max_crew', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
                 [
                     'title' => 'Note',
                     'field' => 'production_note',
@@ -76,10 +76,10 @@
                     'minWidth' => 180,
                 ],
                 [
-                    'title' => 'Price',
-                    'field' => 'price',
+                    'title' => 'MSRP',
+                    'field' => 'msrp',
                     'sorter' => 'number',
-                    'sortField' => 'price',
+                    'sortField' => 'msrp',
                     'headerSort' => true,
                     'hozAlign' => 'right',
                     'width' => 120,
@@ -91,12 +91,6 @@
                     'sortField' => 'manufacturer',
                     'headerSort' => true,
                     'headerFilter' => 'list',
-                    'minWidth' => 180,
-                ],
-                [
-                    'title' => 'Updated',
-                    'field' => 'updated_at_human',
-                    'headerSort' => false,
                     'minWidth' => 180,
                 ],
                 [

@@ -213,3 +213,106 @@ it('ignores unknown filters', function (): void {
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $item->uuid);
 });
+
+it('filters items by name and class_name', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '3.24.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Filter Co',
+        'code' => 'FILTER',
+    ]);
+
+    $match = Item::factory()->create();
+    ItemData::factory()
+        ->for($match)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Alpha Widget',
+            'type' => 'Widget',
+            'class_name' => 'alpha_widget_class',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $other = Item::factory()->create();
+    ItemData::factory()
+        ->for($other)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Beta Widget',
+            'type' => 'Widget',
+            'class_name' => 'beta_widget_class',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/items?filter[name]=Alpha');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $match->uuid);
+
+    $response = $this->getJson('/api/items?filter[class_name]=beta');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $other->uuid);
+});
+
+it('sorts items by manufacturer name', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '3.24.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $alphaManufacturer = Manufacturer::factory()->create([
+        'name' => 'Alpha Corp',
+        'code' => 'ALPHA',
+    ]);
+
+    $betaManufacturer = Manufacturer::factory()->create([
+        'name' => 'Beta Corp',
+        'code' => 'BETA',
+    ]);
+
+    $alphaItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($alphaItem)
+        ->for($version, 'gameVersion')
+        ->for($alphaManufacturer)
+        ->create([
+            'name' => 'Alpha Item',
+            'type' => 'Widget',
+            'class_name' => 'alpha_item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $betaItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($betaItem)
+        ->for($version, 'gameVersion')
+        ->for($betaManufacturer)
+        ->create([
+            'name' => 'Beta Item',
+            'type' => 'Widget',
+            'class_name' => 'beta_item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/items?sort=manufacturer.name');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $alphaItem->uuid)
+        ->assertJsonPath('data.1.uuid', $betaItem->uuid);
+});

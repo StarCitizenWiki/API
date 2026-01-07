@@ -448,7 +448,7 @@ class VehicleResource extends AbstractBaseResource
                 $cargoLimits !== null,
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
-            'vehicle_inventory' => Arr::get($payload, 'Stowage'),
+            'vehicle_inventory' => round(Arr::get($payload, 'Stowage', 0), 2),
             'inventory_containers' => Arr::get($payload, 'InventoryContainers'),
 
             'crew' => [
@@ -458,13 +458,13 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => null, // TODO
             ],
 
-            'health' => Arr::get($payload, 'Health'),
+            'health' => round(Arr::get($payload, 'Health', 0)),
 
             'shield_hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
             'shield_face_type' => Arr::get($payload, 'ShieldController.FaceType'),
 
             'shield' => [
-                'hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
+                'hp' => round(Arr::get($payload, 'ShieldsTotal.Hp', 0)),
                 'regeneration' => $this->roundNullable(Arr::get($payload, 'ShieldsTotal.Regen')),
                 'face_type' => Arr::get($payload, 'ShieldController.FaceType'),
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
@@ -616,6 +616,7 @@ class VehicleResource extends AbstractBaseResource
                 fn () => ['components' => $this->getComponents($vehicleData)]
             ),
 
+            'web_url' => $this->buildWebUrl($request),
             'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $vehicleData->name]),
 
             'updated_at' => $vehicleData->updated_at,
@@ -689,6 +690,18 @@ class VehicleResource extends AbstractBaseResource
             'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime'),
             'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel'),
         ];
+    }
+
+    private function buildWebUrl(Request $request): string
+    {
+        $url = route('web.vehicles.show', ['vehicle' => $this->uuid]);
+        $version = $request->query('version');
+
+        if ($version === null || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
     }
 
     /**

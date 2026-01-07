@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
-use App\Http\Filters\VehicleFocusFilter;
-use App\Http\Filters\VehicleProductionStatusFilter;
-use App\Http\Filters\VehicleTypeFilter;
+use App\Http\Filters\SortByRelation;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
@@ -23,9 +21,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -45,15 +45,33 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[size_class]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[career]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[role]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            // new OA\Parameter(name: 'filter[focus]', description: 'Filter by Ship-Matrix focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
-            // new OA\Parameter(name: 'filter[type]', description: 'Filter by Ship-Matrix type slug', in: 'query', schema: new OA\Schema(type: 'string')),
-            // new OA\Parameter(name: 'filter[production_status]', description: 'Filter by Ship-Matrix production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[mass_total]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cargo_capacity]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[vehicle_inventory]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[crew.min]', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[health]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[shield.hp]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[shield.face_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[speed.scm]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[speed.max]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[armor.health]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.length]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.width]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.height]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.ir_quantum]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.ir_shields]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.em_quantum]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.em_shields]', in: 'query', schema: new OA\Schema(type: 'number')),
         ],
         responses: [
             new OA\Response(
@@ -77,27 +95,8 @@ class VehicleController extends Controller
         $query = QueryBuilder::for(VehicleData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
-            ->allowedFilters([
-                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::exact('size'),
-                AllowedFilter::exact('is_vehicle'),
-                AllowedFilter::exact('is_gravlev'),
-                AllowedFilter::exact('is_spaceship'),
-                AllowedFilter::partial('career'),
-                AllowedFilter::partial('role'),
-                // AllowedFilter::custom('focus', new VehicleFocusFilter),
-                // AllowedFilter::custom('type', new VehicleTypeFilter),
-                // AllowedFilter::custom('production_status', new VehicleProductionStatusFilter),
-            ])
-            ->allowedSorts(['name', 'size', 'career', 'role'])
+            ->allowedFilters($this->allowedFilters())
+            ->allowedSorts($this->allowedSorts())
             ->defaultSort('name')
             ->allowedIncludes($allowedIncludes)
             ->with(['vehicle', 'gameVersion']);
@@ -255,12 +254,33 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[size_class]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[career]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[role]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[mass_total]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cargo_capacity]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[vehicle_inventory]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[crew.min]', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[health]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[shield.hp]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[shield.face_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[speed.scm]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[speed.max]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[armor.health]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.length]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.width]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[cross_section.height]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.ir_quantum]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.ir_shields]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.em_quantum]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[signature.em_shields]', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[focus]', description: 'Filter by Ship-Matrix focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by Ship-Matrix type slug', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[production_status]', description: 'Filter by Ship-Matrix production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -289,27 +309,8 @@ class VehicleController extends Controller
         $query = QueryBuilder::for(VehicleData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
-            ->allowedFilters([
-                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::exact('size'),
-                AllowedFilter::exact('is_vehicle'),
-                AllowedFilter::exact('is_gravlev'),
-                AllowedFilter::exact('is_spaceship'),
-                AllowedFilter::partial('career'),
-                AllowedFilter::partial('role'),
-                AllowedFilter::custom('focus', new VehicleFocusFilter),
-                AllowedFilter::custom('type', new VehicleTypeFilter),
-                AllowedFilter::custom('production_status', new VehicleProductionStatusFilter),
-            ])
-            ->allowedSorts(['name', 'size', 'career', 'role'])
+            ->allowedFilters($this->allowedFilters())
+            ->allowedSorts($this->allowedSorts())
             ->defaultSort('name')
             ->where(function (Builder $query) use ($toSearch, $isUuid) {
                 $underscored = str_replace(' ', '_', $toSearch);
@@ -372,63 +373,71 @@ class VehicleController extends Controller
         $filters = FilterCache::rememberForever(
             FilterCache::NAMESPACE_VEHICLES,
             FilterCache::vehiclesKey($versionCode, $vehicleType),
-            function () use ($versionCode, $vehicleType): array {
+            static function () use ($versionCode, $vehicleType): array {
                 $baseQuery = VehicleData::query()
                     ->forRequestedOrDefaultVersion($versionCode)
                     ->forVehicleType($vehicleType);
 
-                $manufacturerRows = (clone $baseQuery)
-                    ->leftJoin('game_manufacturers', 'game_vehicle_data.manufacturer_id', '=', 'game_manufacturers.id')
-                    ->selectRaw('game_manufacturers.name as value, count(*) as count')
-                    ->groupBy('game_manufacturers.name')
-                    ->orderByRaw('game_manufacturers.name IS NULL, game_manufacturers.name')
-                    ->get();
-
-                $isVehicleRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.is_vehicle as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.is_vehicle')
-                    ->orderByRaw('game_vehicle_data.is_vehicle IS NULL, game_vehicle_data.is_vehicle')
-                    ->get();
-
-                $isGravlevRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.is_gravlev as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.is_gravlev')
-                    ->orderByRaw('game_vehicle_data.is_gravlev IS NULL, game_vehicle_data.is_gravlev')
-                    ->get();
-
-                $isSpaceshipRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.is_spaceship as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.is_spaceship')
-                    ->orderByRaw('game_vehicle_data.is_spaceship IS NULL, game_vehicle_data.is_spaceship')
-                    ->get();
-
-                $sizeRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.size as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.size')
-                    ->orderByRaw('game_vehicle_data.size IS NULL, game_vehicle_data.size')
-                    ->get();
-
-                $roleRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.role as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.role')
-                    ->orderByRaw('game_vehicle_data.role IS NULL, game_vehicle_data.role')
-                    ->get();
-
-                $careerRows = (clone $baseQuery)
-                    ->selectRaw('game_vehicle_data.career as value, count(*) as count')
-                    ->groupBy('game_vehicle_data.career')
-                    ->orderByRaw('game_vehicle_data.career IS NULL, game_vehicle_data.career')
-                    ->get();
-
-                return [
-                    'manufacturer' => FilterValues::fromRows($manufacturerRows),
-                    'is_vehicle' => FilterValues::fromRows($isVehicleRows, static fn ($value) => $value === null ? null : (bool) $value),
-                    'is_gravlev' => FilterValues::fromRows($isGravlevRows, static fn ($value) => $value === null ? null : (bool) $value),
-                    'is_spaceship' => FilterValues::fromRows($isSpaceshipRows, static fn ($value) => $value === null ? null : (bool) $value),
-                    'size' => FilterValues::fromRows($sizeRows, static fn ($value) => $value === null ? null : (int) $value),
-                    'role' => FilterValues::fromRows($roleRows),
-                    'career' => FilterValues::fromRows($careerRows),
+                $facets = [
+                    'manufacturer' => [
+                        'expr' => 'game_manufacturers.name',
+                        'join' => static fn ($q) => $q->leftJoinRelationship('manufacturer'),
+                        'cast' => null,
+                    ],
+                    'is_vehicle' => [
+                        'expr' => 'game_vehicle_data.is_vehicle',
+                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                    ],
+                    'is_gravlev' => [
+                        'expr' => 'game_vehicle_data.is_gravlev',
+                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                    ],
+                    'is_spaceship' => [
+                        'expr' => 'game_vehicle_data.is_spaceship',
+                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                    ],
+                    'size' => [
+                        'expr' => 'game_vehicle_data.size',
+                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                    ],
+                    'role' => [
+                        'expr' => 'game_vehicle_data.role',
+                        'cast' => null,
+                    ],
+                    'career' => [
+                        'expr' => 'game_vehicle_data.career',
+                        'cast' => null,
+                    ],
+                    'shield.face_type' => [
+                        'expr' => "(game_vehicle_data.data #>> '{ShieldController,FaceType}')",
+                        'cast' => null,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 
@@ -505,6 +514,199 @@ class VehicleController extends Controller
             'shipMatrixVehicle',
             'shipMatrixVehicle.components',
         ];
+    }
+
+    /**
+     * Allowed filters for in-game vehicles, including JSON-backed fields.
+     */
+    private function allowedFilters(): array
+    {
+        $manufacturerFilter = static function (Builder $query, mixed $value): void {
+            $values = is_array($value) ? $value : [$value];
+
+            $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                $manufacturerQuery
+                    ->whereIn('name', $values)
+                    ->orWhereIn('code', $values);
+            });
+        };
+
+        return [
+            AllowedFilter::callback('manufacturer', $manufacturerFilter),
+            AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
+            AllowedFilter::partial('class_name'),
+            AllowedFilter::partial('name'),
+            AllowedFilter::partial('career'),
+            AllowedFilter::partial('role'),
+            AllowedFilter::exact('is_vehicle'),
+            AllowedFilter::exact('is_gravlev'),
+            AllowedFilter::exact('is_spaceship'),
+            AllowedFilter::exact('size'),
+            AllowedFilter::callback('size_class', function (Builder $query, mixed $value): void {
+                $this->applyColumnFilter($query, 'size', $value);
+            }),
+            AllowedFilter::callback('mass_total', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'MassTotal', $value, 'numeric');
+            }),
+            AllowedFilter::callback('cargo_capacity', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Cargo', $value, 'numeric');
+            }),
+            AllowedFilter::callback('vehicle_inventory', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Stowage', $value, 'numeric');
+            }),
+            AllowedFilter::callback('crew.min', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Crew', $value, 'numeric');
+            }),
+            AllowedFilter::callback('health', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Health', $value, 'numeric');
+            }),
+            AllowedFilter::callback('shield.hp', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'ShieldsTotal.Hp', $value, 'numeric');
+            }),
+            AllowedFilter::callback('shield.face_type', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'ShieldController.FaceType', $value);
+            }),
+            AllowedFilter::callback('speed.scm', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'FlightCharacteristics.Speeds.Scm', $value, 'numeric');
+            }),
+            AllowedFilter::callback('speed.max', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'FlightCharacteristics.Speeds.Max', $value, 'numeric');
+            }),
+            AllowedFilter::callback('armor.health', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Armor.Health', $value, 'numeric');
+            }),
+            AllowedFilter::callback('cross_section.length', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'CrossSection.X', $value, 'numeric');
+            }),
+            AllowedFilter::callback('cross_section.width', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'CrossSection.Y', $value, 'numeric');
+            }),
+            AllowedFilter::callback('cross_section.height', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'CrossSection.Z', $value, 'numeric');
+            }),
+            AllowedFilter::callback('signature.ir_quantum', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Emission.IrQuantum', $value, 'numeric');
+            }),
+            AllowedFilter::callback('signature.ir_shields', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Emission.IrShields', $value, 'numeric');
+            }),
+            AllowedFilter::callback('signature.em_quantum', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Emission.EmQuantum', $value, 'numeric');
+            }),
+            AllowedFilter::callback('signature.em_shields', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'Emission.EmShields', $value, 'numeric');
+            }),
+        ];
+    }
+
+    /**
+     * Allowed sorts for in-game vehicles, including JSON-backed fields.
+     */
+    private function allowedSorts(): array
+    {
+        return [
+            'name',
+            'class_name',
+            'career',
+            'role',
+            'is_vehicle',
+            'is_gravlev',
+            'is_spaceship',
+            'size',
+            AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+            AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+            AllowedSort::custom('version', new SortByRelation, 'gameVersion.code'),
+            AllowedSort::callback('size_class', static fn (Builder $query, bool $descending): Builder => $query->orderBy('size', $descending ? 'desc' : 'asc')),
+            $this->jsonSort('length', 'Length'),
+            $this->jsonSort('width', 'Width'),
+            $this->jsonSort('height', 'Height'),
+            $this->jsonSort('mass_total', 'MassTotal'),
+            $this->jsonSort('cargo_capacity', 'Cargo'),
+            $this->jsonSort('cargo', 'Cargo'),
+            $this->jsonSort('vehicle_inventory', 'Stowage'),
+            $this->jsonSort('crew.min', 'Crew'),
+            $this->jsonSort('health', 'Health'),
+            $this->jsonSort('shield.hp', 'ShieldsTotal.Hp'),
+            $this->jsonSort('shield.face_type', 'ShieldController.FaceType', 'text'),
+            $this->jsonSort('speed.scm', 'FlightCharacteristics.Speeds.Scm'),
+            $this->jsonSort('speed.max', 'FlightCharacteristics.Speeds.Max'),
+            $this->jsonSort('armor.health', 'Armor.Health'),
+            $this->jsonSort('cross_section.length', 'CrossSection.X'),
+            $this->jsonSort('cross_section.width', 'CrossSection.Y'),
+            $this->jsonSort('cross_section.height', 'CrossSection.Z'),
+            $this->jsonSort('signature.ir_quantum', 'Emission.IrQuantum'),
+            $this->jsonSort('signature.ir_shields', 'Emission.IrShields'),
+            $this->jsonSort('signature.em_quantum', 'Emission.EmQuantum'),
+            $this->jsonSort('signature.em_shields', 'Emission.EmShields'),
+        ];
+    }
+
+    private function jsonSort(string $sortKey, string $path, ?string $cast = 'numeric'): AllowedSort
+    {
+        return AllowedSort::callback(
+            $sortKey,
+            function (Builder $query, bool $descending) use ($path, $cast): Builder {
+                $direction = $descending ? 'desc' : 'asc';
+                $expression = $this->jsonExpression($path, $cast);
+
+                return $query->orderByRaw("{$expression} {$direction} nulls last");
+            }
+        );
+    }
+
+    private function applyColumnFilter(Builder $query, string $column, mixed $value): void
+    {
+        $values = is_array($value) ? $value : [$value];
+        $values = array_values(array_filter($values, static fn ($item) => $item !== null && $item !== ''));
+
+        if ($values === []) {
+            return;
+        }
+
+        $query->whereIn($column, $values);
+    }
+
+    /**
+     * Build a Laravel JSON path column like: game_vehicle_data.data->FlightCharacteristics->Speeds->Scm
+     */
+    private function laravelJsonColumn(string $baseColumn, string $path): string
+    {
+        return $baseColumn.'->'.str_replace('.', '->', $path);
+    }
+
+    private function applyJsonFilter(Builder $query, string $path, mixed $value, ?string $cast = null): void
+    {
+        $values = is_array($value) ? $value : [$value];
+        $values = array_values(array_filter($values, static fn ($item) => $item !== null && $item !== ''));
+
+        if ($values === []) {
+            return;
+        }
+
+        if ($cast === null || $cast === '') {
+            $jsonColumn = $this->laravelJsonColumn('game_vehicle_data.data', $path);
+
+            $query->whereIn($jsonColumn, $values);
+
+            return;
+        }
+
+        $expression = $this->jsonExpression($path, $cast);
+        $query->whereIn(DB::raw($expression), $values);
+    }
+
+    private function jsonExpression(string $path, ?string $cast = null): string
+    {
+        $segments = array_map('trim', explode('.', $path));
+        $pathExpression = implode(',', $segments);
+
+        $expression = "game_vehicle_data.data #>> '{".$pathExpression."}'";
+
+        if ($cast === null || $cast === '') {
+            return $expression;
+        }
+
+        return sprintf('(%s)::%s', $expression, $cast);
     }
 
     /**

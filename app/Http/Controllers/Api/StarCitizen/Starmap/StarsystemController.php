@@ -13,6 +13,7 @@ use App\Support\Filters\FilterValues;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -30,9 +31,12 @@ class StarsystemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[affiliation]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[code]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[status]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'include',
                 description: 'Include additional relationships (affiliation, celestialObjects).',
@@ -59,9 +63,21 @@ class StarsystemController extends Controller
             ->allowedIncludes([])
             ->allowedFilters([
                 AllowedFilter::exact('affiliation', 'affiliation.name'),
+                AllowedFilter::exact('code'),
+                AllowedFilter::partial('name'),
                 AllowedFilter::exact('status'),
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('size', 'aggregated_size'),
+            ])
+            ->allowedSorts([
+                'name',
+                'code',
+                'status',
+                'type',
+                'aggregated_size',
+                'aggregated_population',
+                'aggregated_economy',
+                'aggregated_danger',
             ])
             ->jsonPaginate()
             ->appends(request()->query());
@@ -176,9 +192,21 @@ class StarsystemController extends Controller
             ->orWhere('name', 'LIKE', "%$query%")
             ->allowedFilters([
                 AllowedFilter::exact('affiliation', 'affiliation.name'),
+                AllowedFilter::exact('code'),
+                AllowedFilter::partial('name'),
                 AllowedFilter::exact('status'),
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('size', 'aggregated_size'),
+            ])
+            ->allowedSorts([
+                'name',
+                'code',
+                'status',
+                'type',
+                'aggregated_size',
+                'aggregated_population',
+                'aggregated_economy',
+                'aggregated_danger',
             ])
             ->jsonPaginate()
             ->appends(request()->query());
@@ -221,38 +249,52 @@ class StarsystemController extends Controller
             static function (): array {
                 $baseQuery = (new Starsystem)->newQueryWithoutRelationships()->toBase();
 
-                $affiliationRows = (clone $baseQuery)
-                    ->leftJoin('starmap_starsystem_affiliation', 'starmap_starsystems.id', '=', 'starmap_starsystem_affiliation.starsystem_id')
-                    ->leftJoin('starmap_affiliations', 'starmap_starsystem_affiliation.affiliation_id', '=', 'starmap_affiliations.id')
-                    ->selectRaw('starmap_affiliations.name as value, count(*) as count')
-                    ->groupBy('starmap_affiliations.name')
-                    ->orderByRaw('starmap_affiliations.name IS NULL, starmap_affiliations.name')
-                    ->get();
-
-                $statusRows = (clone $baseQuery)
-                    ->selectRaw('starmap_starsystems.status as value, count(*) as count')
-                    ->groupBy('starmap_starsystems.status')
-                    ->orderByRaw('starmap_starsystems.status IS NULL, starmap_starsystems.status')
-                    ->get();
-
-                $typeRows = (clone $baseQuery)
-                    ->selectRaw('starmap_starsystems.type as value, count(*) as count')
-                    ->groupBy('starmap_starsystems.type')
-                    ->orderByRaw('starmap_starsystems.type IS NULL, starmap_starsystems.type')
-                    ->get();
-
-                $sizeRows = (clone $baseQuery)
-                    ->selectRaw('starmap_starsystems.aggregated_size as value, count(*) as count')
-                    ->groupBy('starmap_starsystems.aggregated_size')
-                    ->orderByRaw('starmap_starsystems.aggregated_size IS NULL, starmap_starsystems.aggregated_size')
-                    ->get();
-
-                return [
-                    'affiliation' => FilterValues::fromRows($affiliationRows),
-                    'status' => FilterValues::fromRows($statusRows),
-                    'type' => FilterValues::fromRows($typeRows),
-                    'size' => FilterValues::fromRows($sizeRows, static fn ($value) => $value === null ? null : (float) $value),
+                $facets = [
+                    'affiliation' => [
+                        'expr' => 'starmap_affiliations.name',
+                        'join' => static fn ($q) => $q
+                            ->leftJoin('starmap_starsystem_affiliation', 'starmap_starsystems.id', '=', 'starmap_starsystem_affiliation.starsystem_id')
+                            ->leftJoin('starmap_affiliations', 'starmap_starsystem_affiliation.affiliation_id', '=', 'starmap_affiliations.id'),
+                        'cast' => null,
+                    ],
+                    'status' => [
+                        'expr' => 'starmap_starsystems.status',
+                        'cast' => null,
+                    ],
+                    'type' => [
+                        'expr' => 'starmap_starsystems.type',
+                        'cast' => null,
+                    ],
+                    'size' => [
+                        'expr' => 'starmap_starsystems.aggregated_size',
+                        'cast' => static fn ($value) => $value === null ? null : (float) $value,
+                    ],
                 ];
+
+                $out = [];
+
+                foreach ($facets as $key => $facet) {
+                    $expr = $facet['expr'];
+
+                    $q = clone $baseQuery;
+
+                    if (isset($facet['join'])) {
+                        ($facet['join'])($q);
+                    }
+
+                    $rows = $q
+                        ->select([
+                            DB::raw("{$expr} as value"),
+                            DB::raw('count(*) as count'),
+                        ])
+                        ->groupByRaw($expr)
+                        ->orderByRaw("{$expr} IS NULL, {$expr}")
+                        ->get();
+
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                }
+
+                return $out;
             }
         );
 
