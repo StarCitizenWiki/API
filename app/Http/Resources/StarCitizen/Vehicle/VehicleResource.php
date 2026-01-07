@@ -131,6 +131,7 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/vehicle_loaner'),
         ),
         new OA\Property(property: 'link', description: 'Link to detail endpoint', type: 'string'),
+        new OA\Property(property: 'updated_at_human', type: 'string', example: '1 hour ago'),
     ],
     type: 'object'
 )]
@@ -207,6 +208,7 @@ class VehicleResource extends AbstractBaseResource
                 'code' => $this->manufacturer->name_short,
                 'name' => $this->manufacturer->name,
             ],
+            'web_url' => route('web.ship-matrix.vehicles.show', ['vehicle' => $this->cig_id]),
 
             $this->mergeWhen(in_array('components', $includes, true), [
                 'components' => ComponentResource::collection($this->components),

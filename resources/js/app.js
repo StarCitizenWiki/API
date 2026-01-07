@@ -1,8 +1,11 @@
 import "./bootstrap";
 import { initTabulatorTables } from "./tables/baseTable";
 
+import { createIcons, icons } from 'lucide';
+
 document.addEventListener("DOMContentLoaded", () => {
     initTabulatorTables();
+    createIcons({icons});
 
     const themeToggles = document.querySelectorAll("[data-theme-toggle]");
 

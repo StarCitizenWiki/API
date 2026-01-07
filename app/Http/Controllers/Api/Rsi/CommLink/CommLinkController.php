@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\DateFilter;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
+use App\Models\Rsi\CommLink\Category;
+use App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Series;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +22,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -51,9 +57,17 @@ class CommLinkController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
-            new OA\Parameter(name: 'filter[channel]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[series]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[id]', description: 'Filter by comm-link ID', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[title]', description: 'Filter by partial comm-link title', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[channel]', description: 'Filter by channel name', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[series]', description: 'Filter by series name', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[category]', description: 'Filter by category name', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'filter[created_at]',
+                description: 'Filter by publication year (YYYY) or date (YYYY-MM-DD).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string')
+            ),
             new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
@@ -72,11 +86,23 @@ class CommLinkController extends Controller
         $query = QueryBuilder::for(CommLink::class)
             ->allowedIncludes(CommLinkResource::validIncludes())
             ->allowedFilters([
+                AllowedFilter::exact('id', 'cig_id'),
+                AllowedFilter::partial('title'),
+                AllowedFilter::exact('channel', 'channel.name'),
                 AllowedFilter::exact('category', 'category.name'),
                 AllowedFilter::exact('series', 'series.name'),
-                AllowedFilter::exact('channel', 'channel.name'),
+                AllowedFilter::custom('created_at', new DateFilter('created_at')),
             ])
-            ->allowedSorts(['cig_id', 'created_at'])
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                'title',
+                'images_count',
+                'links_count',
+                AllowedSort::callback('channel', $this->relationSortCallback('channel')),
+                AllowedSort::callback('category', $this->relationSortCallback('category')),
+                AllowedSort::callback('series', $this->relationSortCallback('series')),
+                'created_at',
+            ])
             ->orderByDesc('cig_id')
             ->jsonPaginate()
             ->appends(request()->query());
@@ -213,5 +239,33 @@ class CommLinkController extends Controller
         ]);
 
         return $resource;
+    }
+
+    private function relationSortCallback(string $relation): callable
+    {
+        return static function (Builder $query, bool $descending, string $property) use ($relation): void {
+            $commLinksTable = $query->getModel()->getTable();
+
+            [$relatedModel, $foreignKey] = match ($relation) {
+                'channel' => [new Channel, 'channel_id'],
+                'category' => [new Category, 'category_id'],
+                'series' => [new Series, 'series_id'],
+                default => [null, null],
+            };
+
+            if ($relatedModel === null || $foreignKey === null) {
+                return;
+            }
+
+            $relatedTable = $relatedModel->getTable();
+            $direction = $descending ? 'desc' : 'asc';
+
+            $query->orderBy(
+                $relatedModel->newQuery()
+                    ->select('name')
+                    ->whereColumn($relatedTable.'.id', $commLinksTable.'.'.$foreignKey),
+                $direction
+            );
+        };
     }
 }

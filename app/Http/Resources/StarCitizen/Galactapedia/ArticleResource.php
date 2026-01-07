@@ -52,6 +52,7 @@ use OpenApi\Attributes as OA;
                 ),
             ],
         ),
+        new OA\Property(property: 'created_at_human', type: 'string', example: '1 hour ago'),
     ],
     type: 'object'
 )]
@@ -70,23 +71,38 @@ class ArticleResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
+        $template = $this->templates->isEmpty() ? null : $this->templates[0]->template;
+        $categoryList = $this->categories->pluck('name')->filter()->implode(', ');
+        $tagList = $this->tags->pluck('name')->filter()->implode(', ');
+
         return [
             'id' => $this->cig_id,
             'title' => $this->title,
             'slug' => $this->slug,
             'thumbnail' => $this->thumbnail,
-            'type' => $this->templates->isEmpty() ? null : $this->templates[0]->template,
+            'type' => $template,
+            'template' => $template,
+            'category' => $categoryList !== '' ? $categoryList : null,
+            'tag' => $tagList !== '' ? $tagList : null,
             'rsi_url' => $this->url,
             'api_url' => route(
                 'galactapedia.show',
                 ['article' => $this->getRouteKey()],
             ),
+            'web_url' => route(
+                'web.galactapedia.show',
+                ['article' => $this->getRouteKey()],
+            ),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'categories_count' => $this->categories_count,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'tags_count' => $this->tags_count,
             'properties' => PropertyResource::collection($this->whenLoaded('properties')),
             'related_articles' => RelatedArticleResource::collection($this->whenLoaded('related')),
+            'related_articles_count' => $this->related_articles_count,
             'translations' => TranslationResolver::resolve($this, $request),
-            'created_at' => $this->created_at,
+            'created_at' => $this->created_at->diffForHumans(),
+            'created_at_human' => $this->created_at->diffForHumans(),
         ];
     }
 }

@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Route; @endphp
 @props([
     'route' => null,
     'routeIs' => null,
@@ -33,12 +34,16 @@
     } elseif ($route) {
         $isActive = request()->routeIs($route);
     }
+
+       // @dump($route, $isActive, request()->routeIs($route), Route::currentRouteName());
+
+    $iconClass = $isActive ? 'text-primary-content' : 'text-base-content/70';
 @endphp
 
 <li>
-    <a href="{{ $resolvedHref }}" @class(['active' => $isActive])>
+    <a href="{{ $resolvedHref }}" @class(['menu-active' => $isActive])>
         @isset($icon)
-            <span class="text-base-content/70">
+            <span class="{{ $iconClass }}">
                 {{ $icon }}
             </span>
         @endisset

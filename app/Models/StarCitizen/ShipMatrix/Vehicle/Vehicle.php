@@ -8,6 +8,7 @@ use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -94,6 +95,20 @@ class Vehicle extends Model
         'updated_at' => 'datetime',
     ];
 
+    public function scopeShips(Builder $query): Builder
+    {
+        return $query->whereHas('size', function (Builder $sizeQuery): void {
+            $sizeQuery->ship();
+        });
+    }
+
+    public function scopeGroundVehicles(Builder $query): Builder
+    {
+        return $query->whereHas('size', function (Builder $sizeQuery): void {
+            $sizeQuery->groundVehicle();
+        });
+    }
+
     public function skus(): HasMany
     {
         return $this->hasMany(VehicleSku::class);
@@ -159,11 +174,6 @@ class Vehicle extends Model
         return $components;
     }
 
-    public function ships()
-    {
-        return $this->size()->ship();
-    }
-
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class);
@@ -186,16 +196,6 @@ class Vehicle extends Model
         )
             ->withoutGlobalScopes()
             ->withDefault();
-    }
-
-    public function groundVehicles()
-    {
-        return $this->size()->groundVehicle();
-    }
-
-    public function getMorphClass(): string
-    {
-        return self::class;
     }
 
     public function getForeignKey(): string

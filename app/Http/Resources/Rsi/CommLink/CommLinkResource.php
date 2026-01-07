@@ -38,6 +38,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'comment_count', type: 'integer'),
         new OA\Property(property: 'created_at', type: 'string'),
         new OA\Property(property: 'translations', ref: '#/components/schemas/translation'),
+        new OA\Property(property: 'created_at_human', type: 'string', example: '1 hour ago'),
     ],
     type: 'object'
 )]
@@ -59,7 +60,7 @@ class CommLinkResource extends AbstractBaseResource
             'title' => $this->title,
             'rsi_url' => $this->getCommLinkUrl(),
             'api_url' => route('comm-links.show', ['id' => $this->getRouteKey()]),
-            //            'api_public_url' => route('web.comm-links.show', $this->getRouteKey()),
+            'api_public_url' => route('web.comm-links.show', $this->getRouteKey()),
             'channel' => $this->channel->name,
             'category' => $this->category->name,
             'series' => $this->series->name,
@@ -69,7 +70,8 @@ class CommLinkResource extends AbstractBaseResource
             'links' => CommLinkLinkResource::collection($this->whenLoaded('links')),
             'links_count' => $this->links_count,
             'comment_count' => $this->comment_count,
-            'created_at' => $this->created_at,
+            'created_at' => $this->created_at->toIso8601String(),
+            'created_at_human' => $this->created_at->diffForHumans(),
         ];
     }
 

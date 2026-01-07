@@ -29,16 +29,14 @@
         @stack('styles')
     </head>
     <body class="min-h-screen bg-base-100 text-base-content">
-        <div class="drawer lg:drawer-open">
+        <div class="drawer ">
             <input id="app-drawer" type="checkbox" class="drawer-toggle" />
 
             <div class="drawer-content flex min-h-screen flex-col">
                 <div class="navbar sticky top-0 z-30 border-b border-base-200 bg-base-100/90 backdrop-blur">
-                    <div class="flex-none lg:hidden">
+                    <div class="flex-none ">
                         <label for="app-drawer" class="btn btn-square btn-ghost" aria-label="Open menu">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
+                            <x-icon name="menu" class="size-5" />
                         </label>
                     </div>
 
@@ -71,13 +69,8 @@
 
                         <label class="swap swap-rotate btn btn-ghost btn-square">
                             <input type="checkbox" class="theme-toggle" data-theme-toggle="dark" aria-label="Toggle dark mode">
-                            <svg class="swap-off size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-                            </svg>
-                            <svg class="swap-on size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" />
-                            </svg>
+                            <x-icon name="sun" class="swap-off size-5" />
+                            <x-icon name="moon" class="swap-on size-5" />
                         </label>
 
                         <div class="hidden items-center gap-1 md:flex">
@@ -105,9 +98,7 @@
 
                         <div class="dropdown dropdown-end md:hidden">
                             <button tabindex="0" role="button" class="btn btn-ghost btn-square" aria-label="Open menu">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 6h0M12 12h0M12 18h0" />
-                                </svg>
+                                <x-icon name="more-vertical" class="size-5" />
                             </button>
                             <ul tabindex="0" class="menu dropdown-content z-[1] mt-2 w-64 rounded-box border border-base-200 bg-base-100 p-2 shadow">
                                 @if ($gameVersions->isNotEmpty())
@@ -162,14 +153,11 @@
 
             <div class="drawer-side">
                 <label for="app-drawer" class="drawer-overlay"></label>
-                <aside class="min-h-full w-72 bg-base-200 px-3 py-5">
+                <aside class="min-h-full w-72 bg-base-200 px-3 py-5 pt-20">
                     <x-app.sidemenu>
+                        <x-app.main-sidemenu />
                         @hasSection('sidemenu')
                             @yield('sidemenu')
-                        @else
-                            <x-app.sidemenu-group title="Getting Started">
-                                <x-app.sidemenu-item :route="'home'">Home</x-app.sidemenu-item>
-                            </x-app.sidemenu-group>
                         @endif
                     </x-app.sidemenu>
                 </aside>

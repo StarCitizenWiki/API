@@ -66,16 +66,16 @@ class CommLinkSearchController extends Controller
         $query = $request->get('keyword') ?? $request->get('query');
 
         $commLinks = QueryBuilder::for(CommLink::class)
-            ->where('title', 'LIKE', sprintf('%%%s%%', $query))
-            ->orWhere('cig_id', 'LIKE', "%{$query}%")
-            ->limit(100)
+            ->where('title', 'ilike', "%{$query}%")
+            ->orWhere('cig_id', $query)
             ->allowedIncludes(CommLinkResource::validIncludes())
             ->allowedFilters([
                 AllowedFilter::exact('category', 'category.name'),
                 AllowedFilter::exact('series', 'series.name'),
                 AllowedFilter::exact('channel', 'channel.name'),
             ])
-            ->get();
+            ->jsonPaginate()
+            ->appends(request()->query());
 
         return CommLinkResource::collection($commLinks);
     }

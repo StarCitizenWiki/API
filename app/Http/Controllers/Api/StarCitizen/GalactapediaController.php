@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\DateFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
@@ -34,10 +35,10 @@ class GalactapediaController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[categoryId]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[tagId]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[template]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[title]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[created_at]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -54,14 +55,38 @@ class GalactapediaController extends Controller
     {
         $query = QueryBuilder::for(Article::class, $request)
             ->allowedFilters([
-                AllowedFilter::exact('category', 'category.name'),
-                AllowedFilter::exact('categoryId', 'category.cig_id'),
-
-                AllowedFilter::exact('tag', 'tag.name'),
-                AllowedFilter::exact('tagId', 'tag.cig_id'),
-                AllowedFilter::exact('template', 'template.template'),
+                AllowedFilter::callback('category', static function (Builder $query, string $value): void {
+                    $query->whereHas('categories', function (Builder $categoryQuery) use ($value): void {
+                        $categoryQuery->where('name', $value);
+                    });
+                }),
+                AllowedFilter::callback('tag', static function (Builder $query, string $value): void {
+                    $query->whereHas('tags', function (Builder $tagQuery) use ($value): void {
+                        $tagQuery->where('name', $value);
+                    });
+                }),
+                AllowedFilter::callback('template', static function (Builder $query, string $value): void {
+                    $query->whereHas('templates', function (Builder $templateQuery) use ($value): void {
+                        $templateQuery->where('template', $value);
+                    });
+                }),
+                AllowedFilter::partial('title'),
+                AllowedFilter::custom('created_at', new DateFilter('created_at')),
             ])
-            ->orderByDesc('id')
+            ->allowedSorts([
+                'title',
+                'categories_count',
+                'tags_count',
+                'related_articles_count',
+            ])
+            ->defaultSort('-id')
+            ->with(['categories', 'tags', 'templates'])
+            ->withCount([
+                'categories',
+                'tags',
+                'templates',
+                'related as related_articles_count',
+            ])
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -251,7 +276,7 @@ class GalactapediaController extends Controller
         $query = $request->validated('query');
 
         $queryBuilder = QueryBuilder::for(Article::class, $request)
-            ->where('title', 'like', "%{$query}%")
+            ->where('title', 'ilike', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
             ->orWhere('cig_id', $query)
             ->orWhereHas('templates', function (Builder $builder) use ($query) {

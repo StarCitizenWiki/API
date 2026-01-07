@@ -10,6 +10,10 @@ use App\Http\Filters\ShipMatrixProductionStatusFilter;
 use App\Http\Filters\ShipMatrixTypeFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
+use App\Models\StarCitizen\ShipMatrix\Manufacturer;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
@@ -20,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -60,9 +65,29 @@ class VehicleController extends Controller
                 AllowedFilter::custom('type', new ShipMatrixTypeFilter),
                 AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
                 AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+                AllowedFilter::partial('name'),
             ]);
 
-        $vehicles = $query->jsonPaginate();
+        $vehicles = $query
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                'chassis_id',
+                'name',
+                'msrp',
+                'updated_at',
+                'length',
+                AllowedSort::field('width', 'beam'),
+                'height',
+                'cargo_capacity',
+                AllowedSort::field('min_crew'),
+                AllowedSort::field('max_crew'),
+                AllowedSort::field('msrp'),
+                AllowedSort::callback('manufacturer', $this->relationSortCallback('manufacturer')),
+                AllowedSort::callback('focus', $this->relationSortCallback('focus')),
+                AllowedSort::callback('type', $this->relationSortCallback('type')),
+                AllowedSort::callback('size', $this->relationSortCallback('size')),
+            ])
+            ->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
     }
@@ -271,6 +296,7 @@ class VehicleController extends Controller
                 AllowedFilter::custom('type', new ShipMatrixTypeFilter),
                 AllowedFilter::custom('focus', new ShipMatrixFocusFilter),
                 AllowedFilter::custom('production_status', new ShipMatrixProductionStatusFilter),
+                AllowedFilter::partial('name'),
             ])
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%");
@@ -279,5 +305,41 @@ class VehicleController extends Controller
         $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
+    }
+
+    private function relationSortCallback(string $relation): callable
+    {
+        return static function (Builder $query, bool $descending, string $property) use ($relation): void {
+            $vehiclesTable = $query->getModel()->getTable();
+            $direction = $descending ? 'desc' : 'asc';
+
+            $subquery = match ($relation) {
+                'manufacturer' => (new Manufacturer)->newQuery()
+                    ->select('name')
+                    ->whereColumn('shipmatrix_manufacturers.id', $vehiclesTable.'.manufacturer_id'),
+                'type' => (new Type)->newQuery()
+                    ->select('slug')
+                    ->whereColumn('shipmatrix_vehicle_types.id', $vehiclesTable.'.type_id'),
+                'size' => (new Size)->newQuery()
+                    ->select('slug')
+                    ->whereColumn('shipmatrix_vehicle_sizes.id', $vehiclesTable.'.size_id'),
+                'focus' => (new Focus)->newQuery()
+                    ->selectRaw('min(shipmatrix_vehicle_foci.slug)')
+                    ->join(
+                        'shipmatrix_vehicle_vehicle_focus',
+                        'shipmatrix_vehicle_foci.id',
+                        '=',
+                        'shipmatrix_vehicle_vehicle_focus.focus_id'
+                    )
+                    ->whereColumn('shipmatrix_vehicle_vehicle_focus.vehicle_id', $vehiclesTable.'.id'),
+                default => null,
+            };
+
+            if ($subquery === null) {
+                return;
+            }
+
+            $query->orderBy($subquery, $direction);
+        };
     }
 }

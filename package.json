@@ -16,6 +16,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "lucide": "^0.562.0",
         "tabulator-tables": "^6.3.1"
     }
 }
