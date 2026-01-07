@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Services\Translation\TranslationService;
 use App\View\Composers\AppShellComposer;
 use DeepL\Translator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom($paths);
 
         View::composer('layouts.app', AppShellComposer::class);
+
+        Gate::define('access-admin', static function (User $user): bool {
+            return $user->is_admin === true;
+        });
     }
 
     /**
