@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
 use App\Models\StarCitizen\Starmap\CelestialObject;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,6 +23,36 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CelestialObjectController extends Controller
 {
+    /**
+     * Build base query with filters and sorts for celestial objects.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(CelestialObject::class, $request)
+            ->allowedIncludes(CelestialObjectResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::exact('starsystem', 'starsystem.name'),
+                AllowedFilter::partial('name'),
+                AllowedFilter::exact('designation'),
+                AllowedFilter::exact('type'),
+            ])
+            ->with(['starsystem'])
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
+                'name',
+                'designation',
+                'type',
+                'fairchanceact',
+                'habitable',
+                'latitude',
+                'longitude',
+                'sensor_population',
+                'sensor_economy',
+                'sensor_danger',
+            ]);
+    }
+
     #[OA\Get(
         path: '/api/celestial-objects',
         description: 'Returns paginated celestial objects with optional relationships.',
@@ -32,7 +63,7 @@ class CelestialObjectController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[starsystem]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on celestial object name', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[designation]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -58,29 +89,7 @@ class CelestialObjectController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(CelestialObject::class, $request)
-            ->allowedIncludes(CelestialObjectResource::validIncludes())
-            ->allowedFilters([
-                AllowedFilter::exact('starsystem', 'starsystem.name'),
-                AllowedFilter::exact('name'),
-                AllowedFilter::exact('designation'),
-                AllowedFilter::exact('type'),
-            ])
-            ->with(['starsystem'])
-            ->allowedSorts([
-                AllowedSort::field('id', 'cig_id'),
-                AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
-                'name',
-                'designation',
-                'type',
-                'fairchanceact',
-                'habitable',
-                'latitude',
-                'longitude',
-                'sensor_population',
-                'sensor_economy',
-                'sensor_danger',
-            ])
+        $query = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -153,8 +162,8 @@ class CelestialObjectController extends Controller
 
     #[OA\Post(
         path: '/api/celestial-objects/search',
-        description: 'Search celestial objects by code, cig_id, or name.',
-        summary: 'Celestial Object Search',
+        description: 'Deprecated. Use GET /api/celestial-objects?filter[name]={value} for name search. This endpoint will be removed in a future version.',
+        summary: 'Celestial Object Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Partial celestial object code or name to search for',
             required: true,
@@ -186,39 +195,24 @@ class CelestialObjectController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/celestial_object')
                 )
             ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $query = mb_strtoupper($request->validated('query'));
 
-        $objects = QueryBuilder::for(CelestialObject::class)
-            ->where('code', $query)
-            ->orWhere('cig_id', $query)
-            ->orWhere('name', 'LIKE', "%$query%")
-            ->allowedFilters([
-                AllowedFilter::exact('starsystem', 'starsystem.name'),
-                AllowedFilter::exact('name'),
-                AllowedFilter::exact('designation'),
-                AllowedFilter::exact('type'),
-            ])
-            ->allowedSorts([
-                AllowedSort::field('id', 'cig_id'),
-                AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
-                'name',
-                'designation',
-                'type',
-                'fairchanceact',
-                'habitable',
-                'latitude',
-                'longitude',
-                'sensor_population',
-                'sensor_economy',
-                'sensor_danger',
-            ])
+        $objects = $this->buildBaseQuery($request)
+            ->where(function (Builder $builder) use ($query) {
+                $builder->where('code', $query)
+                    ->orWhere('cig_id', $query)
+                    ->orWhere('name', 'LIKE', "%$query%");
+            })
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return CelestialObjectResource::collection($objects);
+        return CelestialObjectResource::collection($objects)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 }

@@ -32,7 +32,7 @@ class ItemDistortionResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         return [
-            'decay_rate' => Arr::get($this, 'DecayRate'),
+            'decay_rate' => round(Arr::get($this, 'DecayRate', 0), 2),
             'decay_delay' => Arr::get($this, 'DecayDelay'),
             'maximum' => Arr::get($this, 'Maximum'),
             'overload_ratio' => Arr::get($this, 'OverloadRatio'),
@@ -41,7 +41,7 @@ class ItemDistortionResource extends AbstractBaseResource
             'recovery_time' => Arr::get($this, 'RecoveryTime'),
             'power_ratio_at_max_distortion' => Arr::get($this, 'PowerRatioAtMaxDistortion'),
             'power_change_only_at_max_distortion' => Arr::get($this, 'PowerChangeOnlyAtMaxDistortion'),
-            'shutdown_time' => Arr::get($this, 'ShutdownTime'),
+            'shutdown_time' => round(Arr::get($this, 'ShutdownTime', 0), 2),
         ];
     }
 }

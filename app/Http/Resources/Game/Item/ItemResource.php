@@ -352,7 +352,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($this->hasInStdItem($itemData, 'PowerConnection'), [
                 'power' => new ItemPowerConnectionResource($this->extractFromStdItem($itemData, 'PowerConnection')),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability') && $this->extractFromStdItem($itemData, 'Durability.Lifetime', 0) > 0, [
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability') && $this->extractFromStdItem($itemData, 'Durability.Health', 0) > 0, [
                 'durability' => new ItemDurabilityResource($this->extractFromStdItem($itemData, 'Durability')),
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'Distortion'), [

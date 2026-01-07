@@ -124,8 +124,8 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
             ],
             'usage' => [
                 'power' => [
-                    'minimum' => Arr::get($resourceNetwork, 'Usage.Power.Minimum'),
-                    'maximum' => Arr::get($resourceNetwork, 'Usage.Power.Maximum'),
+                    'minimum' => round(Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0), 2),
+                    'maximum' => round(Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0), 2),
                 ],
                 'coolant' => [
                     'minimum' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),

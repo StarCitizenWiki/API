@@ -9,6 +9,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerResource;
 use App\Models\Game\Manufacturer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -19,6 +20,24 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ManufacturerController extends Controller
 {
+    /**
+     * Build base query with groupBy for manufacturers.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        $query = QueryBuilder::for(Manufacturer::class, $request)
+            ->select(['name'])
+            ->selectRaw("MIN(NULLIF(code, '')) AS code")
+            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
+            ->where('name', '<>', '');
+
+        if ($request->has('filter.name')) {
+            $query->where('name', 'like', '%'.$request->input('filter.name').'%');
+        }
+
+        return $query->groupBy('name')->orderBy('name');
+    }
+
     #[OA\Get(
         path: '/api/manufacturers',
         description: 'Returns paginated manufacturers grouped by name with optional pagination.',
@@ -28,6 +47,7 @@ class ManufacturerController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on manufacturer name', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -44,13 +64,7 @@ class ManufacturerController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Manufacturer::class, $request)
-            ->select(['name'])
-            ->selectRaw("MIN(NULLIF(code, '')) AS code")
-            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
-            ->where('name', '<>', '')
-            ->groupBy('name')
-            ->orderBy('name')
+        $query = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends($request->query());
 
@@ -107,8 +121,8 @@ class ManufacturerController extends Controller
 
     #[OA\Post(
         path: '/api/manufacturers/search',
-        description: 'Search manufacturers by name, UUID, or code with optional pagination.',
-        summary: 'In-Game Manufacturer Search',
+        description: 'Deprecated. Use GET /api/manufacturers?filter[name]={value} for name search. This endpoint will be removed in a future version.',
+        summary: 'In-Game Manufacturer Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Manufacturer name, uuid, or code',
             required: true,
@@ -135,21 +149,29 @@ class ManufacturerController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/manufacturer_link')
                 )
             ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $query = $request->validated('query');
 
         $manufacturers = QueryBuilder::for(Manufacturer::class)
-            ->where('name', 'like', "%{$query}%")
-            ->orWhere('uuid', $query)
-            ->orWhere('name', 'LIKE', sprintf('%%%s%%', $query))
-            ->orWhere('code', 'LIKE', sprintf('%%%s%%', $query))
+            ->select(['name'])
+            ->selectRaw("MIN(NULLIF(code, '')) AS code")
+            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
+            ->where(function (Builder $q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('uuid', $query)
+                    ->orWhere('code', 'LIKE', "%{$query}%");
+            })
             ->groupBy('name')
+            ->orderBy('name')
             ->jsonPaginate()
             ->appends($request->query());
 
-        return ManufacturerLinkResource::collection($manufacturers);
+        return ManufacturerLinkResource::collection($manufacturers)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 }

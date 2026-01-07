@@ -6,7 +6,8 @@ import {
     PageModule,
     FormatModule,
     EditModule,
-    FrozenColumnsModule, MoveColumnsModule
+    FrozenColumnsModule,
+    MoveColumnsModule
 } from 'tabulator-tables';
 
 Tabulator.registerModule([FilterModule, AjaxModule, SortModule, PageModule, FormatModule, EditModule, FrozenColumnsModule, MoveColumnsModule]);
@@ -51,11 +52,35 @@ function buildJsonApiUrl(baseUrl, params) {
     // filters: filter[field]=value (simple mapping)
     const filters = params.filter ?? params.filters ?? [];
 
-    // Remove existing filter[...] keys first so we don't accumulate stale params
+    // Build a Set of fields that Tabulator is managing
+    const managedFields = new Set(filters.map(f => f?.field).filter(Boolean));
+
+    // Preserve existing filter[...] keys that aren't managed by Tabulator
+    const preservedFilters = new Map();
+    for (const key of [...u.searchParams.keys()]) {
+        if (key.startsWith("filter[")) {
+            const match = key.match(/^filter\[([^\]]+)\]$/);
+            if (match) {
+                const field = match[1];
+                // Only preserve if NOT managed by Tabulator
+                if (!managedFields.has(field)) {
+                    preservedFilters.set(key, u.searchParams.get(key));
+                }
+            }
+        }
+    }
+
+    // Clear all filter params (we'll rebuild them)
     for (const key of [...u.searchParams.keys()]) {
         if (key.startsWith("filter[")) u.searchParams.delete(key);
     }
 
+    // Restore preserved filters first
+    for (const [key, value] of preservedFilters) {
+        u.searchParams.set(key, value);
+    }
+
+    // Then add/override with Tabulator's filters
     for (const f of filters) {
         if (f?.field && f?.value != null && String(f.value).length) {
             const name = f.field === 'created_at_human' ? 'created_at' : f.field;
@@ -283,7 +308,7 @@ export function initTabulatorTables() {
         let servedInitial = false;
 
         const table = new Tabulator(mount, {
-            layout: "fitColumns",
+            layout: "fitData",
 
             columnDefaults: config.columnDefaults ?? {},
 
@@ -294,6 +319,8 @@ export function initTabulatorTables() {
             paginationMode: "remote",
             paginationSize: pageSize,
             initialHeaderFilter,
+
+            headerWordWrap: true,
 
             sortMode: "remote",
             filterMode: "remote",

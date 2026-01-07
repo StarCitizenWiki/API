@@ -48,6 +48,21 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[manufacturer.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[class_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
           name: 'filter[classification]'
           in: query
           schema:
@@ -109,8 +124,8 @@ paths:
         - In-Game
         - Items
         - Search
-      summary: 'In-Game Item Search'
-      description: 'Search items by title, manufacturer, or classification with optional filters.'
+      summary: 'In-Game Item Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/items?filter[name]={value} for name search. Note: OR search across name/uuid/type is no longer supported. This endpoint will be removed in a future version.'
       operationId: 67e81b3a53d62afe9d3d713e391d6d05
       parameters:
         -
@@ -142,6 +157,21 @@ paths:
             type: string
         -
           name: 'filter[manufacturer]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[manufacturer.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[class_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
           in: query
           schema:
             type: string
@@ -182,6 +212,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/game_item'
+      deprecated: true
   /api/items/filters:
     get:
       tags:
@@ -220,6 +251,12 @@ paths:
           $ref: '#/components/parameters/page_number'
         -
           $ref: '#/components/parameters/page_size'
+        -
+          name: 'filter[name]'
+          in: query
+          description: 'Partial match on manufacturer name'
+          schema:
+            type: string
       responses:
         '200':
           description: 'List of Manufacturers'
@@ -258,8 +295,8 @@ paths:
         - In-Game
         - Manufacturers
         - Search
-      summary: 'In-Game Manufacturer Search'
-      description: 'Search manufacturers by name, UUID, or code with optional pagination.'
+      summary: 'In-Game Manufacturer Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/manufacturers?filter[name]={value} for name search. This endpoint will be removed in a future version.'
       operationId: 26ff6a6dbd3785225cf297e83cc1b306
       parameters:
         -
@@ -285,6 +322,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/manufacturer_link'
+      deprecated: true
   /api/vehicles:
     get:
       tags:
@@ -310,7 +348,27 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[manufacturer.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[class_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
           name: 'filter[size]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[size_class]'
           in: query
           schema:
             type: integer
@@ -339,6 +397,91 @@ paths:
           in: query
           schema:
             type: boolean
+        -
+          name: 'filter[mass_total]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cargo_capacity]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[vehicle_inventory]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[crew.min]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[health]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[shield.hp]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[shield.face_type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[speed.scm]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[speed.max]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[armor.health]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.length]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.width]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.height]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.ir_quantum]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.ir_shields]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.em_quantum]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.em_shields]'
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: 'List of Vehicles'
@@ -381,8 +524,8 @@ paths:
         - In-Game
         - Vehicles
         - Search
-      summary: 'In-Game Vehicle Search'
-      description: 'Search vehicles by name, career, or identifier with optional filters and pagination.'
+      summary: 'In-Game Vehicle Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.'
       operationId: e50aec74b72796ff0e51ce4bf5bf3a9e
       parameters:
         -
@@ -399,7 +542,27 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[manufacturer.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[class_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
           name: 'filter[size]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[size_class]'
           in: query
           schema:
             type: integer
@@ -428,6 +591,91 @@ paths:
           in: query
           schema:
             type: boolean
+        -
+          name: 'filter[mass_total]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cargo_capacity]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[vehicle_inventory]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[crew.min]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[health]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[shield.hp]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[shield.face_type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[speed.scm]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[speed.max]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[armor.health]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.length]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.width]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[cross_section.height]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.ir_quantum]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.ir_shields]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.em_quantum]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[signature.em_shields]'
+          in: query
+          schema:
+            type: number
         -
           name: 'filter[focus]'
           in: query
@@ -463,6 +711,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/game_vehicle'
+      deprecated: true
   /api/vehicles/filters:
     get:
       tags:
@@ -504,18 +753,39 @@ paths:
         -
           $ref: '#/components/parameters/comm_link_includes'
         -
+          name: 'filter[id]'
+          in: query
+          description: 'Filter by comm-link ID'
+          schema:
+            type: string
+        -
+          name: 'filter[title]'
+          in: query
+          description: 'Filter by partial comm-link title'
+          schema:
+            type: string
+        -
           name: 'filter[channel]'
           in: query
+          description: 'Filter by channel name'
           schema:
             type: string
         -
           name: 'filter[series]'
           in: query
+          description: 'Filter by series name'
           schema:
             type: string
         -
           name: 'filter[category]'
           in: query
+          description: 'Filter by category name'
+          schema:
+            type: string
+        -
+          name: 'filter[created_at]'
+          in: query
+          description: 'Filter by publication year (YYYY) or date (YYYY-MM-DD).'
           schema:
             type: string
         -
@@ -583,8 +853,8 @@ paths:
       tags:
         - Comm-Links
         - RSI-Website
-      summary: 'Comm-Link Search'
-      description: 'Query comm-links by title or ID with localized includes.'
+      summary: 'Comm-Link Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.'
       operationId: 2efd50e02ba871c509078dcf08701557
       parameters:
         -
@@ -604,8 +874,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/comm_link'
-        '404':
-          description: 'No Comm-Link with found.'
+      deprecated: true
   /api/comm-links/reverse-image-link-search:
     post:
       tags:
@@ -813,22 +1082,22 @@ paths:
           schema:
             type: string
         -
-          name: 'filter[categoryId]'
-          in: query
-          schema:
-            type: string
-        -
           name: 'filter[tag]'
           in: query
           schema:
             type: string
         -
-          name: 'filter[tagId]'
+          name: 'filter[template]'
           in: query
           schema:
             type: string
         -
-          name: 'filter[template]'
+          name: 'filter[title]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[created_at]'
           in: query
           schema:
             type: string
@@ -907,8 +1176,8 @@ paths:
         - Galactapedia
         - RSI-Website
         - Search
-      summary: 'Galactapedia Article Search'
-      description: 'Search Galactapedia articles by title, template, slug, or related metadata.'
+      summary: 'Galactapedia Article Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/galactapedia?filter[title]={value} for title search. This endpoint will be removed in a future version.'
       operationId: ed9b1b052b5dd9a03e0f7ee5a21cb8dd
       requestBody:
         description: 'Article (partial) title, template or slug'
@@ -927,8 +1196,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/galactapedia_article'
-        '404':
-          description: 'No Article found.'
+      deprecated: true
   /api/celestial-objects:
     get:
       tags:
@@ -944,6 +1212,32 @@ paths:
           $ref: '#/components/parameters/page_number'
         -
           $ref: '#/components/parameters/page_size'
+        -
+          name: 'filter[starsystem]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          description: 'Partial match on celestial object name'
+          schema:
+            type: string
+        -
+          name: 'filter[designation]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
         -
           name: include
           in: query
@@ -1000,8 +1294,8 @@ paths:
         - Starmap
         - RSI-Website
         - Search
-      summary: 'Celestial Object Search'
-      description: 'Search celestial objects by code, cig_id, or name.'
+      summary: 'Celestial Object Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/celestial-objects?filter[name]={value} for name search. This endpoint will be removed in a future version.'
       operationId: 34134c8a7a8bb87a6c6f905cbce9ed42
       parameters:
         -
@@ -1030,6 +1324,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/celestial_object'
+      deprecated: true
   /api/starsystems:
     get:
       tags:
@@ -1051,6 +1346,16 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[code]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
           name: 'filter[status]'
           in: query
           schema:
@@ -1065,6 +1370,11 @@ paths:
           in: query
           schema:
             type: number
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
         -
           name: include
           in: query
@@ -1121,8 +1431,8 @@ paths:
         - Starmap
         - RSI-Website
         - Search
-      summary: 'Starsystem Search'
-      description: 'Search for starsystems by code, cig_id, or name.'
+      summary: 'Starsystem Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/starsystems?filter[name]={value} for name search. This endpoint will be removed in a future version.'
       operationId: ae8a21d883ee8e48ac7be01e3ed3084a
       parameters:
         -
@@ -1151,6 +1461,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/starsystem'
+      deprecated: true
   /api/starsystems/filters:
     get:
       tags:
@@ -1313,8 +1624,8 @@ paths:
         - Ship-Matrix
         - Vehicles
         - Search
-      summary: 'Ship Matrix Vehicle Search'
-      description: 'Search Ship Matrix vehicles by name with optional filters for manufacturer, size, and status.'
+      summary: 'Ship Matrix Vehicle Search (Deprecated)'
+      description: 'Deprecated. Use GET /api/shipmatrix/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.'
       operationId: 1405185e569f89147a09bdd1b41b8519
       parameters:
         -
@@ -1368,8 +1679,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ship_matrix_vehicle'
-        '404':
-          description: 'No matching vehicles found'
+      deprecated: true
 components:
   schemas:
     filter_value:
@@ -1901,6 +2211,10 @@ components:
           description: AttachDef@Type
           type: string
           nullable: true
+        type_web_url:
+          description: 'Web URL for filtering items by type'
+          type: string
+          nullable: true
         sub_type:
           description: AttachDef@SubType
           type: string
@@ -2156,6 +2470,9 @@ components:
           description: 'Game version code'
           type: string
           example: 4.4.0-LIVE.12340123
+        web_url:
+          description: 'Web URL for item detail page'
+          type: string
       type: object
     item_related_link:
       title: 'Related Item Link'
@@ -7429,6 +7746,9 @@ components:
           type: string
         translations:
           $ref: '#/components/schemas/translation'
+        created_at_human:
+          type: string
+          example: '1 hour ago'
       type: object
     comm_link_image:
       title: 'Comm-Link Image'
@@ -7500,6 +7820,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/translation'
+        created_at_human:
+          type: string
+          example: '1 hour ago'
       type: object
     galactapedia_category:
       title: 'Galctapedia article category'
@@ -7574,6 +7897,8 @@ components:
           type: integer
         celestial_object_api_url:
           type: string
+        web_url:
+          type: string
         name:
           type: string
         type:
@@ -7624,6 +7949,19 @@ components:
           format: float
         parent_id:
           type: integer
+        starsystem:
+          properties:
+            id:
+              type: integer
+              nullable: true
+            code:
+              type: string
+              nullable: true
+            name:
+              type: string
+              nullable: true
+          type: object
+          nullable: true
         time_modified:
           type: string
       type: object
@@ -7686,6 +8024,8 @@ components:
         status:
           type: string
         type:
+          type: string
+        web_url:
           type: string
         position:
           properties:
@@ -7974,6 +8314,9 @@ components:
         link:
           description: 'Link to detail endpoint'
           type: string
+        updated_at_human:
+          type: string
+          example: '1 hour ago'
       type: object
     vehicle_sku:
       title: 'Vehicle SKU'

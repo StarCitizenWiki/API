@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
 use App\Http\Requests\Api\Game\SearchRequest;
@@ -31,7 +32,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VehicleController extends Controller
 {
+    use FiltersJsonColumns;
     use ResolvesGameVersion;
+
+    protected function getJsonTableName(): string
+    {
+        return 'game_vehicle_data';
+    }
+
+    protected function getJsonColumnName(): string
+    {
+        return 'data';
+    }
 
     #[OA\Get(
         path: '/api/vehicles',
@@ -86,21 +98,7 @@ class VehicleController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $versionCode = $this->gameVersionCode();
-        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
-        $allowedIncludes = $this->allowedIncludes();
-
-        $this->normalizeIncludes($request, $allowedIncludes);
-
-        $query = QueryBuilder::for(VehicleData::class, $request)
-            ->forRequestedOrDefaultVersion($versionCode)
-            ->forVehicleType($vehicleType)
-            ->allowedFilters($this->allowedFilters())
-            ->allowedSorts($this->allowedSorts())
-            ->defaultSort('name')
-            ->allowedIncludes($allowedIncludes)
-            ->with(['vehicle', 'gameVersion']);
-
+        $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection(
@@ -234,8 +232,8 @@ class VehicleController extends Controller
 
     #[OA\Post(
         path: '/api/vehicles/search',
-        description: 'Search vehicles by name, career, or identifier with optional filters and pagination.',
-        summary: 'In-Game Vehicle Search',
+        description: 'Deprecated. Use GET /api/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.',
+        summary: 'In-Game Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Vehicle name, class_name, career, or UUID',
             required: true,
@@ -294,24 +292,15 @@ class VehicleController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/game_vehicle')
                 )
             ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
-        $versionCode = $this->gameVersionCode();
-        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
-        $allowedIncludes = $this->allowedIncludes();
 
-        $this->normalizeIncludes($request, $allowedIncludes);
-
-        $query = QueryBuilder::for(VehicleData::class, $request)
-            ->forRequestedOrDefaultVersion($versionCode)
-            ->forVehicleType($vehicleType)
-            ->allowedFilters($this->allowedFilters())
-            ->allowedSorts($this->allowedSorts())
-            ->defaultSort('name')
+        $query = $this->buildBaseQuery($request)
             ->where(function (Builder $query) use ($toSearch, $isUuid) {
                 $underscored = str_replace(' ', '_', $toSearch);
                 $query->where('name', 'like', "%{$toSearch}%")
@@ -321,15 +310,15 @@ class VehicleController extends Controller
                 if ($isUuid) {
                     $query->orWhereHas('vehicle', fn (Builder $q) => $q->where('uuid', $toSearch));
                 }
-            })
-            ->allowedIncludes($allowedIncludes)
-            ->with(['vehicle', 'gameVersion']);
+            });
 
         $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection(
             $this->transformToVehicles($vehicles)
-        );
+        )->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Get(
@@ -505,6 +494,27 @@ class VehicleController extends Controller
     }
 
     /**
+     * Build base query with filters, sorts, and includes for vehicles.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        $versionCode = $this->gameVersionCode();
+        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
+        $allowedIncludes = $this->allowedIncludes();
+
+        $this->normalizeIncludes($request, $allowedIncludes);
+
+        return QueryBuilder::for(VehicleData::class, $request)
+            ->forRequestedOrDefaultVersion($versionCode)
+            ->forVehicleType($vehicleType)
+            ->allowedFilters($this->allowedFilters())
+            ->allowedSorts($this->allowedSorts())
+            ->defaultSort('name')
+            ->allowedIncludes($allowedIncludes)
+            ->with(['vehicle', 'gameVersion']);
+    }
+
+    /**
      * Query builder includes for vehicles.
      */
     private function allowedIncludes(): array
@@ -542,9 +552,7 @@ class VehicleController extends Controller
             AllowedFilter::exact('is_gravlev'),
             AllowedFilter::exact('is_spaceship'),
             AllowedFilter::exact('size'),
-            AllowedFilter::callback('size_class', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'size', $value);
-            }),
+            AllowedFilter::exact('size_class', 'size'),
             AllowedFilter::callback('mass_total', function (Builder $query, mixed $value): void {
                 $this->applyJsonFilter($query, 'MassTotal', $value, 'numeric');
             }),
@@ -615,8 +623,7 @@ class VehicleController extends Controller
             'size',
             AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
             AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-            AllowedSort::custom('version', new SortByRelation, 'gameVersion.code'),
-            AllowedSort::callback('size_class', static fn (Builder $query, bool $descending): Builder => $query->orderBy('size', $descending ? 'desc' : 'asc')),
+            AllowedSort::field('size_class', 'size'),
             $this->jsonSort('length', 'Length'),
             $this->jsonSort('width', 'Width'),
             $this->jsonSort('height', 'Height'),
@@ -639,74 +646,6 @@ class VehicleController extends Controller
             $this->jsonSort('signature.em_quantum', 'Emission.EmQuantum'),
             $this->jsonSort('signature.em_shields', 'Emission.EmShields'),
         ];
-    }
-
-    private function jsonSort(string $sortKey, string $path, ?string $cast = 'numeric'): AllowedSort
-    {
-        return AllowedSort::callback(
-            $sortKey,
-            function (Builder $query, bool $descending) use ($path, $cast): Builder {
-                $direction = $descending ? 'desc' : 'asc';
-                $expression = $this->jsonExpression($path, $cast);
-
-                return $query->orderByRaw("{$expression} {$direction} nulls last");
-            }
-        );
-    }
-
-    private function applyColumnFilter(Builder $query, string $column, mixed $value): void
-    {
-        $values = is_array($value) ? $value : [$value];
-        $values = array_values(array_filter($values, static fn ($item) => $item !== null && $item !== ''));
-
-        if ($values === []) {
-            return;
-        }
-
-        $query->whereIn($column, $values);
-    }
-
-    /**
-     * Build a Laravel JSON path column like: game_vehicle_data.data->FlightCharacteristics->Speeds->Scm
-     */
-    private function laravelJsonColumn(string $baseColumn, string $path): string
-    {
-        return $baseColumn.'->'.str_replace('.', '->', $path);
-    }
-
-    private function applyJsonFilter(Builder $query, string $path, mixed $value, ?string $cast = null): void
-    {
-        $values = is_array($value) ? $value : [$value];
-        $values = array_values(array_filter($values, static fn ($item) => $item !== null && $item !== ''));
-
-        if ($values === []) {
-            return;
-        }
-
-        if ($cast === null || $cast === '') {
-            $jsonColumn = $this->laravelJsonColumn('game_vehicle_data.data', $path);
-
-            $query->whereIn($jsonColumn, $values);
-
-            return;
-        }
-
-        $expression = $this->jsonExpression($path, $cast);
-        $query->whereIn(DB::raw($expression), $values);
-    }
-
-    private function jsonExpression(string $path, ?string $cast = null): string
-    {
-        $segments = array_map('trim', explode('.', $path));
-        $pathExpression = implode(',', $segments);
-
-        $expression = "game_vehicle_data.data #>> '{".$pathExpression."}'";
-
-        if ($cast === null || $cast === '') {
-            return $expression;
-        }
-
-        return sprintf('(%s)::%s', $expression, $cast);
     }
 
     /**

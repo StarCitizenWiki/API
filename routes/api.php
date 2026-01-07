@@ -145,8 +145,10 @@ Route::group(
         // Starmap
         Route::get('starsystems', [StarsystemController::class, 'index'])->name('starsystems.index');
         Route::get('starsystems/filters', [StarsystemController::class, 'filters'])->name('starsystems.filters');
+        Route::post('starsystems/search', [StarsystemController::class, 'search'])->name('starsystems.search');
         Route::get('starsystems/{code}', [StarsystemController::class, 'show'])->name('starsystems.show');
         Route::get('celestial-objects', [CelestialObjectController::class, 'index'])->name('celestial-objects.index');
+        Route::post('celestial-objects/search', [CelestialObjectController::class, 'search'])->name('celestial-objects.search');
         Route::get('celestial-objects/{code}', [CelestialObjectController::class, 'show'])->name('celestial-objects.show');
 
         Route::prefix('shipmatrix')->name('shipmatrix.')->group(function () {

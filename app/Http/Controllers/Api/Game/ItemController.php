@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Filters\SortByRelation;
@@ -32,7 +33,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ItemController extends Controller
 {
+    use FiltersJsonColumns;
     use ResolvesGameVersion;
+
+    protected function getJsonTableName(): string
+    {
+        return 'game_item_data';
+    }
+
+    protected function getJsonColumnName(): string
+    {
+        return 'data';
+    }
 
     /**
      * Get allowed includes with custom handlers.
@@ -51,51 +63,15 @@ class ItemController extends Controller
         return $includes;
     }
 
-    #[OA\Get(
-        path: '/api/items',
-        description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
-        summary: 'In-Game Item Overview',
-        tags: ['In-Game', 'Items'],
-        parameters: [
-            new OA\Parameter(ref: '#/components/parameters/page'),
-            new OA\Parameter(ref: '#/components/parameters/page_number'),
-            new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(ref: '#/components/parameters/include'),
-            new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: 'List of Items',
-                content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/game_item')
-                )
-            ),
-        ]
-    )]
-    public function index(Request $request): AnonymousResourceCollection
+    /**
+     * Build base query with filters, sorts, and includes for items.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
     {
         $versionCode = $this->gameVersionCode();
         $category = $request->route()->defaults['category'] ?? 'items';
 
-        $include = str_replace('related_items', '', $request->input('include', ''));
-        if (! empty($include)) {
-            $request->merge(['include' => $include]);
-        }
-
-        $query = QueryBuilder::for(ItemData::class, $request)
+        return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
             ->allowedFilters([
@@ -142,7 +118,52 @@ class ItemController extends Controller
             ->defaultSort('name')
             ->allowedIncludes($this->allowedIncludes())
             ->with(['item', 'gameVersion']);
+    }
 
+    #[OA\Get(
+        path: '/api/items',
+        description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
+        summary: 'In-Game Item Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Items',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/game_item')
+                )
+            ),
+        ]
+    )]
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $versionCode = $this->gameVersionCode();
+
+        $include = str_replace('related_items', '', $request->input('include', ''));
+        if (! empty($include)) {
+            $request->merge(['include' => $include]);
+        }
+
+        $query = $this->buildBaseQuery($request);
         $items = $query->jsonPaginate();
 
         return ItemResource::collection(
@@ -230,8 +251,8 @@ class ItemController extends Controller
 
     #[OA\Post(
         path: '/api/items/search',
-        description: 'Search items by title, manufacturer, or classification with optional filters.',
-        summary: 'In-Game Item Search',
+        description: 'Deprecated. Use GET /api/items?filter[name]={value} for name search. Note: OR search across name/uuid/type is no longer supported. This endpoint will be removed in a future version.',
+        summary: 'In-Game Item Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Item Name or (sub)type',
             required: true,
@@ -272,71 +293,29 @@ class ItemController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/game_item')
                 )
             ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $versionCode = $this->gameVersionCode();
         $toSearch = $request->validated('query');
 
-        $query = QueryBuilder::for(ItemData::class, $request)
-            ->forRequestedOrDefaultVersion($versionCode)
-            ->allowedFilters([
-                AllowedFilter::exact('type'),
-                AllowedFilter::exact('sub_type'),
-                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::custom('variants', new ItemVariantsFilter),
-                AllowedFilter::partial('class_name'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::partial('classification'),
-                AllowedFilter::exact('size'),
-                AllowedFilter::exact('grade'),
-                AllowedFilter::exact('class'),
-            ])
-            ->allowedSorts([
-                'name',
-                'class_name',
-                'class',
-                'size',
-                'grade',
-                'type',
-                'sub_type',
-                'classification',
-                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
-                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-            ])
-            ->defaultSort('name')
-            ->allowedIncludes($this->allowedIncludes())
+        $query = $this->buildBaseQuery($request)
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%")
                     ->orWhereHas('item', fn (Builder $q) => $q->where('uuid', $toSearch))
                     ->orWhere('type', $toSearch)
                     ->orWhere('sub_type', $toSearch);
-            })
-            ->with(['item', 'gameVersion']);
+            });
 
         $items = $query->jsonPaginate();
 
         return ItemResource::collection(
             $this->transformToItems($items, $versionCode)
-        );
+        )->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Get(
@@ -405,6 +384,16 @@ class ItemController extends Controller
                     'grade' => [
                         'expr' => 'game_item_data.grade',
                         'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                        'labelResolver' => static fn ($value, $Lbl) => match ($value) {
+                            1 => 'A',
+                            2 => 'B',
+                            3 => 'C',
+                            4 => 'D',
+                            5 => 'E',
+                            6 => 'F',
+                            7 => 'G',
+                            default => null,
+                        },
                     ],
                     'class' => [
                         'expr' => 'game_item_data.class',
@@ -437,7 +426,7 @@ class ItemController extends Controller
                         ->orderByRaw("{$expr} IS NULL, {$expr}")
                         ->get();
 
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null, $facet['labelResolver'] ?? null);
                 }
 
                 return $out;

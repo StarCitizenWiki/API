@@ -28,8 +28,8 @@ class CommLinkSearchController extends Controller
 {
     #[OA\Post(
         path: '/api/comm-links/search',
-        description: 'Query comm-links by title or ID with localized includes.',
-        summary: 'Comm-Link Search',
+        description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.',
+        summary: 'Comm-Link Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: '(Partial) Comm-Link Title or ID',
             required: true,
@@ -53,13 +53,10 @@ class CommLinkSearchController extends Controller
                 description: 'A singular Comm-Link',
                 content: new OA\JsonContent(ref: '#/components/schemas/comm_link')
             ),
-            new OA\Response(
-                response: 404,
-                description: 'No Comm-Link with found.',
-            ),
         ],
+        deprecated: true,
     )]
-    public function searchByTitle(Request $request): AnonymousResourceCollection
+    public function searchByTitle(Request $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $request->validate((new CommLinkSearchRequest)->rules());
 
@@ -77,7 +74,9 @@ class CommLinkSearchController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return CommLinkResource::collection($commLinks);
+        return CommLinkResource::collection($commLinks)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Post(

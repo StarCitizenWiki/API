@@ -26,6 +26,35 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GalactapediaController extends Controller
 {
+    /**
+     * Build base query with filters, sorts, and counts for articles.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(Article::class, $request)
+            ->allowedFilters([
+                AllowedFilter::scope('category'),
+                AllowedFilter::scope('tag'),
+                AllowedFilter::scope('template'),
+                AllowedFilter::partial('title'),
+                AllowedFilter::custom('created_at', new DateFilter('created_at')),
+            ])
+            ->allowedSorts([
+                'title',
+                'categories_count',
+                'tags_count',
+                'related_articles_count',
+            ])
+            ->defaultSort('-id')
+            ->with(['categories', 'tags', 'templates'])
+            ->withCount([
+                'categories',
+                'tags',
+                'templates',
+                'related as related_articles_count',
+            ]);
+    }
+
     #[OA\Get(
         path: '/api/galactapedia',
         description: 'Return paginated Galactapedia articles with category, tag, and template filters.',
@@ -54,28 +83,7 @@ class GalactapediaController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Article::class, $request)
-            ->allowedFilters([
-                AllowedFilter::scope('category'),
-                AllowedFilter::scope('tag'),
-                AllowedFilter::scope('template'),
-                AllowedFilter::partial('title'),
-                AllowedFilter::custom('created_at', new DateFilter('created_at')),
-            ])
-            ->allowedSorts([
-                'title',
-                'categories_count',
-                'tags_count',
-                'related_articles_count',
-            ])
-            ->defaultSort('-id')
-            ->with(['categories', 'tags', 'templates'])
-            ->withCount([
-                'categories',
-                'tags',
-                'templates',
-                'related as related_articles_count',
-            ])
+        $query = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -248,8 +256,8 @@ class GalactapediaController extends Controller
 
     #[OA\Post(
         path: '/api/galactapedia/search',
-        description: 'Search Galactapedia articles by title, template, slug, or related metadata.',
-        summary: 'Galactapedia Article Search',
+        description: 'Deprecated. Use GET /api/galactapedia?filter[title]={value} for title search. This endpoint will be removed in a future version.',
+        summary: 'Galactapedia Article Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Article (partial) title, template or slug',
             required: true,
@@ -273,13 +281,10 @@ class GalactapediaController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
                 )
             ),
-            new OA\Response(
-                response: 404,
-                description: 'No Article found.',
-            ),
         ],
+        deprecated: true,
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $query = $request->validated('query');
 
@@ -293,6 +298,8 @@ class GalactapediaController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return ArticleResource::collection($queryBuilder);
+        return ArticleResource::collection($queryBuilder)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 }

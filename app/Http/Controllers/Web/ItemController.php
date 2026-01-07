@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
+use App\Support\Items\ItemTableConfig;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -13,7 +14,10 @@ use Illuminate\View\View;
 
 class ItemController extends Controller
 {
-    public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
+    public function __construct(
+        private readonly ApiJsonRequest $apiJsonRequest,
+        private readonly ItemTableConfig $itemTableConfig,
+    ) {}
 
     public function index(Request $request, ?string $type = null): View
     {
@@ -23,11 +27,15 @@ class ItemController extends Controller
         $filterPayload = $this->apiJsonRequest->request(route('items.filters', [], false), $requestWithFilters);
 
         $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
+        $tableConfig = $this->itemTableConfig->build($type);
 
         return view('items.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $allowedFilterValues,
             'initialFilters' => $this->buildInitialFilters($type),
+            'pageTitle' => $tableConfig['title'],
+            'tableColumns' => $tableConfig['columns'],
+            'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
         ]);
     }
 

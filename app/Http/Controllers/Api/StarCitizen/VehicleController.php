@@ -25,6 +25,40 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VehicleController extends Controller
 {
+    /**
+     * Build base query with filters and sorts for Ship Matrix vehicles.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(Vehicle::class, $request)
+            ->allowedFilters([
+                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::exact('size', 'size.slug'),
+                AllowedFilter::scope('type'),
+                AllowedFilter::scope('focus'),
+                AllowedFilter::scope('production_status'),
+                AllowedFilter::partial('name'),
+            ])
+            ->allowedSorts([
+                AllowedSort::field('id', 'cig_id'),
+                'chassis_id',
+                'name',
+                'msrp',
+                'updated_at',
+                'length',
+                AllowedSort::field('width', 'beam'),
+                'height',
+                'cargo_capacity',
+                AllowedSort::field('min_crew'),
+                AllowedSort::field('max_crew'),
+                AllowedSort::field('msrp'),
+                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('focus', new SortByRelation, 'focus.slug'),
+                AllowedSort::custom('type', new SortByRelation, 'type.slug'),
+                AllowedSort::custom('size', new SortByRelation, 'size.slug'),
+            ]);
+    }
+
     #[OA\Get(
         path: '/api/shipmatrix/vehicles',
         description: 'Returns paginated Ship Matrix vehicles with optional filters for manufacturer, size, and status.',
@@ -53,36 +87,8 @@ class VehicleController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Vehicle::class, $request)
-            ->allowedFilters([
-                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('size', 'size.slug'),
-                AllowedFilter::scope('type'),
-                AllowedFilter::scope('focus'),
-                AllowedFilter::scope('production_status'),
-                AllowedFilter::partial('name'),
-            ]);
-
-        $vehicles = $query
-            ->allowedSorts([
-                AllowedSort::field('id', 'cig_id'),
-                'chassis_id',
-                'name',
-                'msrp',
-                'updated_at',
-                'length',
-                AllowedSort::field('width', 'beam'),
-                'height',
-                'cargo_capacity',
-                AllowedSort::field('min_crew'),
-                AllowedSort::field('max_crew'),
-                AllowedSort::field('msrp'),
-                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
-                AllowedSort::custom('focus', new SortByRelation, 'focus.slug'),
-                AllowedSort::custom('type', new SortByRelation, 'type.slug'),
-                AllowedSort::custom('size', new SortByRelation, 'size.slug'),
-            ])
-            ->jsonPaginate();
+        $query = $this->buildBaseQuery($request);
+        $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
     }
@@ -252,8 +258,8 @@ class VehicleController extends Controller
 
     #[OA\Post(
         path: '/api/shipmatrix/vehicles/search',
-        description: 'Search Ship Matrix vehicles by name with optional filters for manufacturer, size, and status.',
-        summary: 'Ship Matrix Vehicle Search',
+        description: 'Deprecated. Use GET /api/shipmatrix/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.',
+        summary: 'Ship Matrix Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Vehicle name to search for',
             required: true,
@@ -285,31 +291,22 @@ class VehicleController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')
                 )
             ),
-            new OA\Response(
-                response: 404,
-                description: 'No matching vehicles found'
-            ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $toSearch = urldecode($request->validated('query'));
 
-        $query = QueryBuilder::for(Vehicle::class, $request)
-            ->allowedFilters([
-                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('size', 'size.slug'),
-                AllowedFilter::scope('type'),
-                AllowedFilter::scope('focus'),
-                AllowedFilter::scope('production_status'),
-                AllowedFilter::partial('name'),
-            ])
+        $query = $this->buildBaseQuery($request)
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%");
             });
 
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection($vehicles);
+        return VehicleResource::collection($vehicles)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 }

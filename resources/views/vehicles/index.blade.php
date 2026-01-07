@@ -95,7 +95,6 @@
 
                 ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
-                // ['title' => 'Version', 'field' => 'version', 'sortField' => 'version', 'headerSort' => true, 'minWidth' => 170],
                 [
                     'title' => '',
                     'field' => 'uuid',

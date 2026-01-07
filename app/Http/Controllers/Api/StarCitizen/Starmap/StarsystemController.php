@@ -10,6 +10,7 @@ use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,6 +22,33 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class StarsystemController extends Controller
 {
+    /**
+     * Build base query with filters and sorts for starsystems.
+     */
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(Starsystem::class, $request)
+            ->allowedIncludes([])
+            ->allowedFilters([
+                AllowedFilter::exact('affiliation', 'affiliation.name'),
+                AllowedFilter::exact('code'),
+                AllowedFilter::partial('name'),
+                AllowedFilter::exact('status'),
+                AllowedFilter::exact('type'),
+                AllowedFilter::exact('size', 'aggregated_size'),
+            ])
+            ->allowedSorts([
+                'name',
+                'code',
+                'status',
+                'type',
+                'aggregated_size',
+                'aggregated_population',
+                'aggregated_economy',
+                'aggregated_danger',
+            ]);
+    }
+
     #[OA\Get(
         path: '/api/starsystems',
         description: 'Returns paginated starsystems, optionally including related resources.',
@@ -59,26 +87,7 @@ class StarsystemController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Starsystem::class, $request)
-            ->allowedIncludes([])
-            ->allowedFilters([
-                AllowedFilter::exact('affiliation', 'affiliation.name'),
-                AllowedFilter::exact('code'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::exact('status'),
-                AllowedFilter::exact('type'),
-                AllowedFilter::exact('size', 'aggregated_size'),
-            ])
-            ->allowedSorts([
-                'name',
-                'code',
-                'status',
-                'type',
-                'aggregated_size',
-                'aggregated_population',
-                'aggregated_economy',
-                'aggregated_danger',
-            ])
+        $query = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -147,8 +156,8 @@ class StarsystemController extends Controller
 
     #[OA\Post(
         path: '/api/starsystems/search',
-        description: 'Search for starsystems by code, cig_id, or name.',
-        summary: 'Starsystem Search',
+        description: 'Deprecated. Use GET /api/starsystems?filter[name]={value} for name search. This endpoint will be removed in a future version.',
+        summary: 'Starsystem Search (Deprecated)',
         requestBody: new OA\RequestBody(
             description: 'Partial starsystem code or name to search for',
             required: true,
@@ -180,38 +189,25 @@ class StarsystemController extends Controller
                     items: new OA\Items(ref: '#/components/schemas/starsystem')
                 )
             ),
-        ]
+        ],
+        deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection
+    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $query = mb_strtoupper($request->validated('query'));
 
-        $starsystems = QueryBuilder::for(Starsystem::class)
-            ->where('code', $query)
-            ->orWhere('cig_id', $query)
-            ->orWhere('name', 'LIKE', "%$query%")
-            ->allowedFilters([
-                AllowedFilter::exact('affiliation', 'affiliation.name'),
-                AllowedFilter::exact('code'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::exact('status'),
-                AllowedFilter::exact('type'),
-                AllowedFilter::exact('size', 'aggregated_size'),
-            ])
-            ->allowedSorts([
-                'name',
-                'code',
-                'status',
-                'type',
-                'aggregated_size',
-                'aggregated_population',
-                'aggregated_economy',
-                'aggregated_danger',
-            ])
+        $starsystems = $this->buildBaseQuery($request)
+            ->where(function (Builder $builder) use ($query) {
+                $builder->where('code', $query)
+                    ->orWhere('cig_id', $query)
+                    ->orWhere('name', 'LIKE', "%$query%");
+            })
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return StarsystemResource::collection($starsystems);
+        return StarsystemResource::collection($starsystems)->additional([
+            'meta' => ['deprecated' => true],
+        ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Get(
