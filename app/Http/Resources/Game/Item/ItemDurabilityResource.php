@@ -18,6 +18,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'max_lifetime', description: 'MaxLifetimeHours attribute on SWearAccumulatorParams', type: 'double', nullable: true),
         new OA\Property(property: 'repairable', description: 'SHealthComponentParams@IsRepairable', type: 'boolean'),
         new OA\Property(property: 'salvageable', description: 'SHealthComponentParams@IsSalvagable', type: 'boolean'),
+        new OA\Property(property: 'resistance', description: 'Resistance attributes on SHealthComponentParams', type: 'object', nullable: true),
     ],
     type: 'object'
 )]
@@ -31,6 +32,7 @@ class ItemDurabilityResource extends AbstractBaseResource
             'lifetime' => Arr::get($this, 'Lifetime'),
             'repairable' => Arr::get($this, 'Repairable') === 1,
             'salvageable' => Arr::get($this, 'Salvageable') === 1,
+            'resistance' => collect(Arr::get($this, 'Resistance', []))->mapWithKeys(fn ($value, $key) => [strtolower($key) => Arr::get($value, 'Multiplier')])->toArray(),
         ];
     }
 }

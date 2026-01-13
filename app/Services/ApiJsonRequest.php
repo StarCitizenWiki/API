@@ -19,13 +19,22 @@ class ApiJsonRequest
      */
     public function request(string $path, Request $request): array
     {
+        $originalRequest = app('request');
+
+        $server = $request->server->all();
+        $server['REQUEST_URI'] = $path;
+        $server['PATH_INFO'] = parse_url($path, PHP_URL_PATH) ?: $path;
+        $server['QUERY_STRING'] = parse_url($path, PHP_URL_QUERY) ?: '';
+
+        $parameters = array_merge($request->query->all(), $request->request->all());
+
         $apiRequest = Request::create(
             $path,
             'GET',
-            $request->query(),
+            $parameters,
             $request->cookies->all(),
             [],
-            $request->server->all()
+            $server
         );
         $apiRequest->headers->set('Accept', 'application/json');
         $apiRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
@@ -35,7 +44,15 @@ class ApiJsonRequest
             $apiRequest->setLaravelSession($request->session());
         }
 
-        $response = $this->router->dispatch($apiRequest);
+        app()->instance('request', $apiRequest);
+        app('url')->setRequest($apiRequest);
+
+        try {
+            $response = $this->router->dispatch($apiRequest);
+        } finally {
+            app()->instance('request', $originalRequest);
+            app('url')->setRequest($originalRequest);
+        }
 
         if ($response->getStatusCode() >= 400) {
             return [];

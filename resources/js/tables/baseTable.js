@@ -7,10 +7,25 @@ import {
     FormatModule,
     EditModule,
     FrozenColumnsModule,
-    MoveColumnsModule
+    MoveColumnsModule,
+    MoveRowsModule,
+    ResizeColumnsModule,
+    SelectRowModule
 } from 'tabulator-tables';
 
-Tabulator.registerModule([FilterModule, AjaxModule, SortModule, PageModule, FormatModule, EditModule, FrozenColumnsModule, MoveColumnsModule]);
+Tabulator.registerModule([
+    FilterModule,
+    AjaxModule,
+    SortModule,
+    PageModule,
+    FormatModule,
+    EditModule,
+    FrozenColumnsModule,
+    MoveColumnsModule,
+    MoveRowsModule,
+    ResizeColumnsModule,
+    SelectRowModule,
+]);
 
 const tabulatorTables = new Map();
 
@@ -170,13 +185,18 @@ function normalizeColumns(columns) {
 
             return formatYesNo(cell.getValue(), trueLabel, falseLabel);
         },
-        suffix: (cell, params) => {
-            if (!cell.getValue()) {
+        pct: (cell, params) => {
+            if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
                 return '';
             }
 
-            const suffix = params?.suffix ?? '';
-            return `${cell.getValue()}${params?.space === false ? '' : ' '}${suffix}`;
+            const val = cell.getValue() * 100;
+
+            if (params.suffix === false) {
+                return val.toFixed(0);
+            }
+
+            return `${val.toFixed(0)}%`;
         },
         viewButton: (cell, params) => {
             const label = params?.label ?? "View";
@@ -310,19 +330,36 @@ export function initTabulatorTables() {
         const table = new Tabulator(mount, {
             layout: "fitData",
 
-            columnDefaults: config.columnDefaults ?? {},
+            columnDefaults: {
+                ...(config.columnDefaults ?? {}),
+                resizable: true,
+            },
+
+            rowHeader: {
+                headerSort: false,
+                resizable: false,
+                minWidth: 30,
+                width: 30,
+                rowHandle: true,
+                formatter: 'handle',
+                frozen: true
+            },
 
             columns: normalizeColumns(columns),
             movableColumns: true,
+            movableRows: true,
+            selectableRows:true,
 
             pagination: true,
             paginationMode: "remote",
             paginationSize: pageSize,
+            paginationSizeSelector: [25, 50, 100],
             initialHeaderFilter,
 
             headerWordWrap: true,
 
-            sortMode: "remote",
+            // sortMode: "remote",
+            sortOrderReverse: true,
             filterMode: "remote",
 
             ajaxURL: endpoint,

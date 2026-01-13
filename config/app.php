@@ -123,4 +123,11 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'ui' => [
+        'themes' => [
+            'light' => 'nord',
+            'dark' => 'night',
+        ],
+    ],
+
 ];

@@ -14,10 +14,15 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
         <script>
+            window.AppThemes = {
+                light: @json(config('app.ui.themes.light', 'nord')),
+                dark: @json(config('app.ui.themes.dark', 'night')),
+            };
+
             (function () {
                 const storedTheme = localStorage.getItem('theme');
                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const theme = storedTheme ?? (prefersDark ? 'dark' : 'light');
+                const theme = storedTheme ?? (prefersDark ? window.AppThemes.dark : window.AppThemes.light);
                 document.documentElement.setAttribute('data-theme', theme);
             })();
         </script>

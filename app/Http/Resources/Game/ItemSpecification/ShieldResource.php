@@ -82,9 +82,12 @@ class ShieldResource extends AbstractItemSpecificationResource
         $decayRatio = Arr::get($shield, 'DecayRatio');
         $downedDelay = Arr::get($shield, 'DownedDelay');
         $damagedDelay = Arr::get($shield, 'DamagedDelay');
-        $absorptions = Arr::get($shield, 'ShieldAbsorption', []);
+        $absorptions = Arr::get($shield, 'Absorption', []);
 
         $reservePool = [
+            'regen_rate' => Arr::get($shield, 'ReservePool.MaxShieldRegen'),
+            'regen_time' => Arr::get($shield, 'ReservePool.RegenerationTime'),
+
             'initial_health_ratio' => Arr::get($shield, 'ReservePoolInitialHealthRatio'),
             'max_health_ratio' => Arr::get($shield, 'ReservePoolMaxHealthRatio'),
             'regen_rate_ratio' => Arr::get($shield, 'ReservePoolRegenRateRatio'),
@@ -94,6 +97,7 @@ class ShieldResource extends AbstractItemSpecificationResource
         return [
             'max_health' => $maxShieldHealth,
             'regen_rate' => $maxShieldRegen,
+            'regen_time' => round(Arr::get($shield, 'RegenerationTime', 0), 2),
             'decay_ratio' => $decayRatio,
             'reserve_pool' => $reservePool,
             'regen_delay' => [
@@ -101,11 +105,9 @@ class ShieldResource extends AbstractItemSpecificationResource
                 'damage' => $damagedDelay,
             ],
             'electrical_charge_damage_resistance' => Arr::get($shield, 'ElectricalChargeDamageResistance'),
-            'downed_regen_delay' => $downedDelay,
-            'damage_regen_delay' => $damagedDelay,
-            'max_reallocation' => Arr::get($shield, 'MaxReallocation'),
-            'reallocation_rate' => Arr::get($shield, 'ReallocationRate'),
-            'absorptions' => $this->mapAbsorptions($absorptions),
+
+            'absorption' => $this->mapAbsorptions($absorptions),
+            'resistance' => $this->mapAbsorptions(Arr::get($shield, 'Resistance', [])),
 
             // Deprecated v2 fields
             'max_shield_health' => $maxShieldHealth,
@@ -119,18 +121,18 @@ class ShieldResource extends AbstractItemSpecificationResource
             return null;
         }
 
-        $keys = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
+        $keys = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
 
         $mapped = [];
 
-        foreach ($keys as $index => $key) {
-            if (! isset($absorptions[$index])) {
+        foreach ($keys as $key) {
+            if (! isset($absorptions[$key])) {
                 continue;
             }
 
-            $mapped[$key] = [
-                'min' => Arr::get($absorptions, "{$index}.Min"),
-                'max' => Arr::get($absorptions, "{$index}.Max"),
+            $mapped[strtolower($key)] = [
+                'min' => Arr::get($absorptions, "{$key}.Minimum"),
+                'max' => Arr::get($absorptions, "{$key}.Maximum"),
             ];
         }
 

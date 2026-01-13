@@ -345,9 +345,11 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($this->hasInStdItem($itemData, 'TemperatureResistance'), [
                 'temperature_resistance' => new TemperatureResistanceResource($this->extractFromStdItem($itemData, 'TemperatureResistance')),
             ]),
-
             $this->mergeWhen($this->hasInStdItem($itemData, 'HeatConnection'), [
                 'heat' => new ItemHeatConnectionResource($this->extractFromStdItem($itemData, 'HeatConnection')),
+            ]),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Temperature'), [
+                'temperature' => new ItemTemperatureResource($this->extractFromStdItem($itemData, 'Temperature')),
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'PowerConnection'), [
                 'power' => new ItemPowerConnectionResource($this->extractFromStdItem($itemData, 'PowerConnection')),
@@ -360,6 +362,7 @@ class ItemResource extends AbstractBaseResource
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceNetwork'), [
                 'resource_network' => new ResourceNetworkResource($itemData),
+                'emission' => new ItemEmissionResource($this->extractFromStdItem($itemData, 'Emission')),
             ]),
 
             'shops' => [],

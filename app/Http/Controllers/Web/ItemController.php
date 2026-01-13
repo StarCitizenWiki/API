@@ -10,6 +10,7 @@ use App\Support\Items\ItemTableConfig;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ItemController extends Controller
@@ -21,46 +22,69 @@ class ItemController extends Controller
 
     public function index(Request $request, ?string $type = null): View
     {
-        $requestWithFilters = $this->applyTypeFilter($request, $type);
+        $knownCategories = ['armor', 'clothes', 'food', 'weapon-attachments'];
+        $resolvedType = is_string($type) ? trim($type) : null;
+        $normalizedType = $resolvedType !== null && $resolvedType !== '' ? Str::lower($resolvedType) : null;
+        $isCategory = $normalizedType !== null && in_array($normalizedType, $knownCategories, true);
 
-        $initialTableData = $this->apiJsonRequest->request(route('items.index', [], false), $requestWithFilters);
-        $filterPayload = $this->apiJsonRequest->request(route('items.filters', [], false), $requestWithFilters);
+        $routeName = $request->route()?->getName() ?? '';
+        $isVehicleItems = str_starts_with($routeName, 'web.vehicle-items.');
 
-        $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
-        $tableConfig = $this->itemTableConfig->build($type);
+        $categoryRouteMap = [
+            'armor' => 'armor.index',
+            'clothes' => 'clothes.index',
+            'food' => 'food.index',
+            'weapon-attachments' => 'attachments.index',
+        ];
+
+        $categoryFiltersRouteMap = [
+            'armor' => 'armor.filters',
+            'clothes' => 'clothes.filters',
+            'food' => 'food.filters',
+            'weapon-attachments' => 'attachments.filters',
+        ];
+
+        if ($isCategory) {
+            $indexRouteName = $categoryRouteMap[$normalizedType];
+            $filtersRouteName = $categoryFiltersRouteMap[$normalizedType];
+        } elseif ($isVehicleItems) {
+            $indexRouteName = 'vehicle-items.index';
+            $filtersRouteName = 'vehicle-items.filters';
+        } else {
+            $indexRouteName = 'items.index';
+            $filtersRouteName = 'items.filters';
+        }
+
+        if (! empty($resolvedType) && ! $isCategory) {
+            $request->merge([
+                'filter' => array_merge(
+                    $request->input('filter', []),
+                    ['type' => $resolvedType]
+                ),
+            ]);
+        }
+
+        $initialTableData = $this->apiJsonRequest->request(route($indexRouteName, [], false), $request);
+        $filterPayload = $this->apiJsonRequest->request(route($filtersRouteName, [], false), $request);
+
+        $filterOptions = Arr::get($filterPayload, 'filters', []);
+
+        $tableConfig = $this->itemTableConfig->build($resolvedType);
 
         return view('items.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => $allowedFilterValues,
-            'initialFilters' => $this->buildInitialFilters($type),
+            'initialHeaderFilter' => $filterOptions,
+            'initialFilters' => $isCategory ? [] : $this->buildInitialFilters($resolvedType),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
+            'endpointRouteName' => $indexRouteName,
         ]);
     }
 
     public function show(string $item): Response
     {
         return response('', Response::HTTP_NO_CONTENT);
-    }
-
-    private function applyTypeFilter(Request $request, ?string $type): Request
-    {
-        if ($type === null || $type === '') {
-            return $request;
-        }
-
-        $filters = $request->query('filter', []);
-
-        if (! is_array($filters)) {
-            $filters = [];
-        }
-
-        $filters['type'] = $type;
-
-        $request->merge(['filter' => $filters]);
-
-        return $request;
     }
 
     private function buildInitialFilters(?string $type): array

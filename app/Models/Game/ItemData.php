@@ -200,7 +200,6 @@ class ItemData extends Model
                 'TowingBeam',
                 'TractorBeam',
                 'Turret',
-                'Turret',
                 'TurretBase',
                 'UtilityTurret',
                 'WeaponDefensive',
@@ -214,11 +213,11 @@ class ItemData extends Model
     public function scopeExcludePlaceholderNames(Builder $query): Builder
     {
         return $query
-            ->where('name', 'NOT LIKE', '%PLACEHOLDER%')
-            ->where('name', 'NOT LIKE', '%Placeholder%')
-            ->where('name', 'NOT LIKE', 'PH -%')
-            ->where('name', 'NOT LIKE', '[PH]%')
-            ->where('name', 'NOT LIKE', '%- name%');
+            ->where($this->table.'.name', 'NOT LIKE', '%PLACEHOLDER%')
+            ->where($this->table.'.name', 'NOT LIKE', '%Placeholder%')
+            ->where($this->table.'.name', 'NOT LIKE', 'PH -%')
+            ->where($this->table.'.name', 'NOT LIKE', '[PH]%')
+            ->where($this->table.'.name', 'NOT LIKE', '%- name%');
     }
 
     public function scopeWithDescriptionValue(Builder $query, string $name, string $value): Builder

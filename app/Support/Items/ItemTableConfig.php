@@ -1,0 +1,232 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Support\Items;
+
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+
+final class ItemTableConfig
+{
+    /**
+     * @return array{title:string,columns:array<int,array<string,mixed>>,headerFilterOptionsMap:array<string,string>}
+     */
+    public function build(?string $type): array
+    {
+        $resolvedType = $this->normalizeType($type);
+        $columns = $this->columnsForType($resolvedType);
+        $headerFilterOptionsMap = $this->headerFilterOptionsMapForType($resolvedType);
+
+        return [
+            'title' => $this->titleForType($resolvedType),
+            'columns' => $columns,
+            'headerFilterOptionsMap' => $headerFilterOptionsMap,
+        ];
+    }
+
+    private function columnsForType(?string $type): array
+    {
+        $columns = config('items.table.columns', []);
+        $overrides = $this->overridesForType($type);
+
+        if ($overrides !== []) {
+            $removeFields = Arr::get($overrides, 'remove_fields', []);
+            if (is_array($removeFields) && $removeFields !== []) {
+                $columns = $this->removeColumns($columns, $removeFields);
+            }
+
+            $sharedGroups = $this->resolveSharedGroups($overrides);
+            if ($sharedGroups !== []) {
+                $sharedInsertAt = Arr::get($overrides, 'shared_insert_at');
+                $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
+            }
+
+            $additionalColumns = Arr::get($overrides, 'add_columns', []);
+            if (is_array($additionalColumns) && $additionalColumns !== []) {
+                $addColumnsInsertAt = Arr::get($overrides, 'add_columns_insert_at');
+                $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+            }
+        }
+
+        if ($type !== null) {
+            $columns = $this->removeColumns($columns, ['type']);
+        }
+
+        return $columns;
+    }
+
+    private function headerFilterOptionsMapForType(?string $type): array
+    {
+        $headerFilterOptionsMap = config('items.table.header_filter_options_map', []);
+        $overrides = $this->overridesForType($type);
+
+        $overrideMap = Arr::get($overrides, 'header_filter_options_map', []);
+        if (is_array($overrideMap) && $overrideMap !== []) {
+            $headerFilterOptionsMap = array_merge($headerFilterOptionsMap, $overrideMap);
+        }
+
+        if ($type !== null) {
+            $headerFilterOptionsMap = Arr::except($headerFilterOptionsMap, ['type']);
+        }
+
+        return $headerFilterOptionsMap;
+    }
+
+    private function titleForType(?string $type): string
+    {
+        if ($type === null) {
+            return (string) config('items.title.default', 'Items');
+        }
+
+        $overrideTitle = Arr::get($this->overridesForType($type), 'title');
+        if (is_string($overrideTitle) && $overrideTitle !== '') {
+            return $overrideTitle;
+        }
+
+        $format = (string) config('items.title.format', '%s Items');
+
+        return sprintf($format, Str::headline($type));
+    }
+
+    private function overridesForType(?string $type): array
+    {
+        if ($type === null) {
+            return [];
+        }
+
+        $overrides = config('items.type_overrides', []);
+        $typeKey = Str::lower($type);
+
+        return $overrides[$type] ?? $overrides[$typeKey] ?? [];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $columns
+     * @param  array<int, string>  $fields
+     * @return array<int, array<string, mixed>>
+     */
+    private function removeColumns(array $columns, array $fields): array
+    {
+        if ($fields === []) {
+            return $columns;
+        }
+
+        return array_values(array_filter($columns, function (array $column) use ($fields): bool {
+            $field = $column['field'] ?? null;
+
+            return ! in_array($field, $fields, true);
+        }));
+    }
+
+    private function normalizeType(?string $type): ?string
+    {
+        if ($type === null) {
+            return null;
+        }
+
+        $trimmedType = trim($type);
+
+        return $trimmedType === '' ? null : $trimmedType;
+    }
+
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveSharedGroups(array $overrides): array
+    {
+        $sharedKeys = Arr::get($overrides, 'shared', []);
+        if (! is_array($sharedKeys) || $sharedKeys === []) {
+            return [];
+        }
+
+        $sharedGroups = config('items.shared_groups', []);
+        $sharedOverrides = Arr::get($overrides, 'shared_overrides', []);
+        $resolvedGroups = [];
+
+        foreach ($sharedKeys as $key) {
+            if (! isset($sharedGroups[$key])) {
+                continue;
+            }
+
+            $group = $sharedGroups[$key];
+
+            // Apply overrides if provided
+            if (isset($sharedOverrides[$key]) && is_array($sharedOverrides[$key])) {
+                $group = array_replace_recursive($group, $sharedOverrides[$key]);
+            }
+
+            $resolvedGroups[] = $group;
+        }
+
+        return $resolvedGroups;
+    }
+
+    /**
+     * Find the index of the view button column
+     *
+     * @param  array<int, array<string, mixed>>  $columns
+     * @return int|null Index of view button, or null if not found
+     */
+    private function findViewButtonIndex(array $columns): ?int
+    {
+        foreach ($columns as $index => $column) {
+            if (($column['formatter'] ?? null) === 'viewButton') {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Insert columns at a specific position with view button protection
+     *
+     * @param  array<int, array<string, mixed>>  $columns  Base columns
+     * @param  array<int, array<string, mixed>>  $newColumns  Columns to insert
+     * @param  int|null  $insertAt  Position to insert (null = append)
+     * @param  bool  $protectViewButton  Whether to ensure view button stays last
+     * @return array<int, array<string, mixed>>
+     */
+    private function insertColumnsAt(
+        array $columns,
+        array $newColumns,
+        ?int $insertAt,
+        bool $protectViewButton = true
+    ): array {
+        if ($newColumns === []) {
+            return $columns;
+        }
+
+        // If no position specified, append (backwards compatible)
+        if ($insertAt === null) {
+            return array_values(array_merge($columns, $newColumns));
+        }
+
+        $columnCount = count($columns);
+
+        // Handle negative indices (count from end)
+        if ($insertAt < 0) {
+            $insertAt = max(0, $columnCount + $insertAt);
+        }
+
+        // Clamp to valid range
+        $insertAt = max(0, min($insertAt, $columnCount));
+
+        // Protect view button if requested
+        if ($protectViewButton) {
+            $viewButtonIndex = $this->findViewButtonIndex($columns);
+            if ($viewButtonIndex !== null && $insertAt > $viewButtonIndex) {
+                $insertAt = $viewButtonIndex;
+            }
+        }
+
+        // Insert columns
+        return array_values(array_merge(
+            array_slice($columns, 0, $insertAt),
+            $newColumns,
+            array_slice($columns, $insertAt)
+        ));
+    }
+}

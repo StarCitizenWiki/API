@@ -21,7 +21,7 @@
         }
 
         $tableConfig = [
-            'endpoint' => route('items.index', $endpointParams),
+            'endpoint' => route($endpointRouteName ?? 'items.index', $endpointParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

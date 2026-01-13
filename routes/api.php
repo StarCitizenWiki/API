@@ -66,24 +66,30 @@ Route::group(
             Route::get('items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'items')->where('identifier', '.*')->name('items.show');
 
             Route::get('weapons', [ItemController::class, 'index'])->defaults('category', 'weapons')->name('weapons.index');
+            Route::get('weapons/filters', [ItemController::class, 'filters'])->defaults('category', 'weapons')->name('weapons.filters');
             Route::get('weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapons')->name('weapons.show');
 
             Route::get('weapon-attachments', [ItemController::class, 'index'])->defaults('category', 'weapon-attachments')->name('attachments.index');
+            Route::get('weapon-attachments/filters', [ItemController::class, 'filters'])->defaults('category', 'weapon-attachments')->name('attachments.filters');
             Route::get('weapon-attachments/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapon-attachments')->name('attachments.show');
 
             Route::get('clothes', [ItemController::class, 'index'])->defaults('category', 'clothes')->name('clothes.index');
+            Route::get('clothes/filters', [ItemController::class, 'filters'])->defaults('category', 'clothes')->name('clothes.filters');
             Route::get('clothes/{identifier}', [ItemController::class, 'show'])->defaults('category', 'clothes')->where('identifier', '.*')->name('clothes.show');
 
             Route::get('armor', [ItemController::class, 'index'])->defaults('category', 'armor')->name('armor.index');
+            Route::get('armor/filters', [ItemController::class, 'filters'])->defaults('category', 'armor')->name('armor.filters');
             Route::get('armor/{identifier}', [ItemController::class, 'show'])->defaults('category', 'armor')->where('identifier', '.*')->name('armor.show');
 
             Route::get('food', [ItemController::class, 'index'])->defaults('category', 'food')->name('food.index');
+            Route::get('food/filters', [ItemController::class, 'filters'])->defaults('category', 'food')->name('food.filters');
             Route::get('food/{identifier}', [ItemController::class, 'show'])->defaults('category', 'food')->where('identifier', '.*')->name('food.show');
 
             Route::get('vehicle-weapons', [ItemController::class, 'index'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.index');
             Route::get('vehicle-weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.show');
 
             Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
+            Route::get('vehicle-items/filters', [ItemController::class, 'filters'])->defaults('category', 'vehicle-items')->name('vehicle-items.filters');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
 
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');

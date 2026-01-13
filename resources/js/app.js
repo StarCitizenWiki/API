@@ -3,6 +3,9 @@ import { initTabulatorTables } from "./tables/baseTable";
 
 import { createIcons, icons } from 'lucide';
 
+const lightTheme = window.AppThemes?.light ?? 'nord';
+const darkTheme = window.AppThemes?.dark ?? 'night';
+
 document.addEventListener("DOMContentLoaded", () => {
     initTabulatorTables();
     createIcons({icons});
@@ -15,22 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const storedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const currentTheme = storedTheme ?? (prefersDark ? "dark" : "light");
+    const currentTheme = storedTheme ?? (prefersDark ? darkTheme : lightTheme);
 
     document.documentElement.setAttribute("data-theme", currentTheme);
     themeToggles.forEach((toggle) => {
-        toggle.checked = currentTheme === "dark";
+        toggle.checked = currentTheme === darkTheme;
     });
 
     themeToggles.forEach((toggle) => {
         toggle.addEventListener("change", () => {
-            const nextTheme = toggle.checked ? "dark" : "light";
+            const nextTheme = toggle.checked ? darkTheme : lightTheme;
 
             document.documentElement.setAttribute("data-theme", nextTheme);
             localStorage.setItem("theme", nextTheme);
 
             themeToggles.forEach((syncToggle) => {
-                syncToggle.checked = nextTheme === "dark";
+                syncToggle.checked = nextTheme === darkTheme;
             });
         });
     });

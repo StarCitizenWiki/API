@@ -130,6 +130,12 @@ class ImportItemData implements ShouldQueue
 
         unset($itemPayload['name'], $itemPayload['itemName']);
 
+        $itemClass = Arr::get($itemPayload, 'stdItem.DescriptionData.Class');
+
+        if (! in_array($itemClass, ['Industrial', 'Civilian', 'Military', 'Stealth', 'Competition'], true)) {
+            $itemClass = null;
+        }
+
         return [
             'manufacturer_id' => $manufacturerId,
             'name' => $name,
@@ -139,7 +145,7 @@ class ImportItemData implements ShouldQueue
             'classification' => $itemPayload['classification'] ?? null,
             'size' => $this->nullableInt($itemPayload['size'] ?? null),
             'grade' => $this->nullableInt($itemPayload['grade'] ?? null),
-            'class' => Arr::get($itemPayload, 'stdItem.DescriptionData.Class'),
+            'class' => $itemClass,
             'base_id' => null,
 
             'data' => $itemPayload,

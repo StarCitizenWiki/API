@@ -323,57 +323,80 @@ class FlightControllerResource extends AbstractItemSpecificationResource
         $afterburner = Arr::get($ifcs, 'Afterburner', []);
         $flightController = Arr::get($data, 'stdItem.FlightController', []);
 
-        $afterburnerData = [
-            'pre_delay_time' => Arr::get($afterburner, 'PreDelayTime'),
-            'ramp_up_time' => Arr::get($afterburner, 'RampUpTime'),
-            'ramp_down_time' => Arr::get($afterburner, 'RampDownTime'),
-            'capacitor_threshold_ratio' => Arr::get($afterburner, 'CapacitorThresholdRatio'),
-            'capacitor_max' => Arr::get($afterburner, 'CapacitorMax'),
-            'capacitor_afterburner_idle_cost' => Arr::get($afterburner, 'CapacitorAfterburnerIdleCost'),
-            'capacitor_afterburner_linear_cost' => Arr::get($afterburner, 'CapacitorAfterburnerLinearCost'),
-            'capacitor_afterburner_angular_cost' => Arr::get($afterburner, 'CapacitorAfterburnerAngularCost'),
-            'capacitor_regen_delay_after_use' => Arr::get($afterburner, 'CapacitorRegenDelayAfterUse'),
-            'capacitor_regen_per_sec' => Arr::get($afterburner, 'CapacitorRegenPerSec'),
-        ];
-
-        $afterburnerData = $this->collapseEmpty($afterburnerData);
-
         return [
-            'scm_speed' => Arr::get($ifcs, 'scmSpeed'),
-            'boost_speed_forward' => Arr::get($ifcs, 'boostSpeedForward'),
-            'boost_speed_backward' => Arr::get($ifcs, 'boostSpeedBackward'),
-            'max_speed' => Arr::get($ifcs, 'maxSpeed'),
-            'max_speed_precision_mode_full_proximity_assist' => Arr::get($ifcs, 'maxSpeedPrecisionModeFullProximityAssist'),
-            'max_speed_precision_mode_zero_proximity_assist' => Arr::get($ifcs, 'maxSpeedPrecisionModeZeroProximityAssist'),
-            'torque_distance_threshold' => Arr::get($ifcs, 'torqueDistanceThreshold'),
-            'torque_imbalance_multiplier' => Arr::get($ifcs, 'torqueImbalanceMultiplier'),
-            'refresh_caches_on_landing_mode' => Arr::get($ifcs, 'refreshCachesOnLandingMode'),
-            'lift_multiplier' => Arr::get($ifcs, 'liftMultiplier'),
-            'drag_multiplier' => Arr::get($ifcs, 'dragMultiplier'),
-            'precision_min_distance' => Arr::get($ifcs, 'precisionMinDistance'),
-            'precision_max_distance' => Arr::get($ifcs, 'precisionMaxDistance'),
-            'precision_landing_multiplier' => Arr::get($ifcs, 'precisionLandingMultiplier'),
-            'linear_accel_decay' => Arr::get($ifcs, 'linearAccelDecay'),
-            'angular_accel_decay' => Arr::get($ifcs, 'angularAccelDecay'),
-            'scm_max_drag_multiplier' => Arr::get($ifcs, 'scmMaxDragMultiplier'),
+            'scm_speed' => Arr::get($ifcs, 'ScmSpeed'),
+            'boost_speed_forward' => Arr::get($ifcs, 'BoostSpeedForward'),
+            'boost_speed_backward' => Arr::get($ifcs, 'BoostSpeedBackward'),
+            'max_speed' => Arr::get($ifcs, 'MaxSpeed'),
+
             'pitch' => Arr::get($ifcs, 'Pitch'),
             'yaw' => Arr::get($ifcs, 'Yaw'),
             'roll' => Arr::get($ifcs, 'Roll'),
-            'afterburner' => $afterburnerData,
-            'scm_boost_forward' => Arr::get($ifcs, 'boostSpeedForward'),
-            'scm_boost_backward' => Arr::get($ifcs, 'boostSpeedBackward'),
-            'pitch_boost_multiplier' => Arr::get($afterburner, 'AfterburnAngVelocityMultiplier.X'),
-            'roll_boost_multiplier' => Arr::get($afterburner, 'AfterburnAngVelocityMultiplier.Y'),
-            'yaw_boost_multiplier' => Arr::get($afterburner, 'AfterburnAngVelocityMultiplier.Z'),
-            'afterburner_capacitor' => Arr::get($afterburner, 'CapacitorMax'),
-            'afterburner_idle_cost' => Arr::get($afterburner, 'CapacitorAfterburnerIdleCost'),
-            'afterburner_linear_cost' => Arr::get($afterburner, 'CapacitorAfterburnerLinearCost'),
-            'afterburner_angular_cost' => Arr::get($afterburner, 'CapacitorAfterburnerAngularCost'),
-            'afterburner_regen_per_sec' => Arr::get($afterburner, 'CapacitorRegenPerSec'),
-            'afterburner_regen_delay_after_use' => Arr::get($afterburner, 'CapacitorRegenDelayAfterUse'),
-            'afterburner_pre_delay_time' => Arr::get($afterburner, 'PreDelayTime'),
-            'afterburner_ramp_up_time' => Arr::get($afterburner, 'RampUpTime'),
-            'afterburner_ramp_down_time' => Arr::get($afterburner, 'RampDownTime'),
+
+            'pitch_boosted' => round(Arr::get($ifcs, 'Pitch') * Arr::get($afterburner, 'AngularMultiplier.Pitch', 1)),
+            'yaw_boosted' => round(Arr::get($ifcs, 'Yaw') * Arr::get($afterburner, 'AngularMultiplier.Yaw', 1)),
+            'roll_boosted' => round(Arr::get($ifcs, 'Roll') * Arr::get($afterburner, 'AngularMultiplier.Roll', 1)),
+
+            'boost_capacitor' => [
+                'capacity' => Arr::get($afterburner, 'CapacitorMax'),
+                'threshold_ratio' => Arr::get($afterburner, 'AfterburnerCapacitorThresholdRatio'),
+                'idle_cost' => Arr::get($afterburner, 'CapacitorAfterburnerIdleCost'),
+                'linear_cost' => Arr::get($afterburner, 'CapacitorAfterburnerLinearCost'),
+                'angular_cost' => Arr::get($afterburner, 'CapacitorAfterburnerAngularCost'),
+                'regen_per_sec' => Arr::get($afterburner, 'CapacitorRegenPerSec'),
+                'regen_delay' => Arr::get($afterburner, 'CapacitorRegenDelayAfterUse'),
+                'regen_time' => Arr::get($afterburner, 'RegenTime'),
+            ],
+
+            'boost_activation' => [
+                'pre_delay_time' => Arr::get($afterburner, 'AfterburnerPreDelayTime'),
+                'ramp_up_time' => Arr::get($afterburner, 'AfterburnerRampUpTime'),
+                'ramp_down_time' => Arr::get($afterburner, 'AfterburnerRampDownTime'),
+            ],
+
+            'thruster_decay' => [
+                'linear_accel' => Arr::get($ifcs, 'LinearAccelDecay'),
+                'angular_accel' => Arr::get($ifcs, 'AngularAccelDecay'),
+            ],
+
+            'multiplier' => [
+                'torque_imbalance' => Arr::get($ifcs, 'TorqueImbalanceMultiplier'),
+                'lift' => Arr::get($ifcs, 'LiftMultiplier'),
+                'drag' => Arr::get($ifcs, 'DragMultiplier'),
+                'scm_max_drag' => Arr::get($ifcs, 'ScmMaxDragMultiplier'),
+                'precision_landing' => Arr::get($ifcs, 'PrecisionLandingMultiplier'),
+            ],
+
+            'boost_multiplier' => [
+                'accel_x' => [
+                    'positive' => Arr::get($afterburner, 'AccelerationMultiplierPositive.x'),
+                    'negative' => Arr::get($afterburner, 'AccelerationMultiplierNegative.x'),
+                ],
+                'accel_y' => [
+                    'positive' => Arr::get($afterburner, 'AccelerationMultiplierPositive.y'),
+                    'negative' => Arr::get($afterburner, 'AccelerationMultiplierNegative.y'),
+                ],
+                'accel_z' => [
+                    'positive' => Arr::get($afterburner, 'AccelerationMultiplierPositive.z'),
+                    'negative' => Arr::get($afterburner, 'AccelerationMultiplierNegative.z'),
+                ],
+                'pitch' => Arr::get($afterburner, 'AngularMultiplier.Pitch'),
+                'yaw' => Arr::get($afterburner, 'AngularMultiplier.Yaw'),
+                'roll' => Arr::get($afterburner, 'AngularMultiplier.Roll'),
+
+                'pitch_accel' => Arr::get($afterburner, 'AngularAccelerationMultiplier.Pitch'),
+                'yaw_accel' => Arr::get($afterburner, 'AngularAccelerationMultiplier.Yaw'),
+                'roll_accel' => Arr::get($afterburner, 'AngularAccelerationMultiplier.Roll'),
+            ],
+
+            'precision_mode' => [
+                'max_speed_full_proximity_assist' => Arr::get($ifcs, 'MaxSpeedPrecisionModeFullProximityAssist'),
+                'max_speed_zero_proximity_assist' => Arr::get($ifcs, 'MaxSpeedPrecisionModeZeroProximityAssist'),
+
+                'min_distance' => Arr::get($ifcs, 'PrecisionMinDistance'),
+                'max_distance' => Arr::get($ifcs, 'PrecisionMaxDistance'),
+            ],
+
             'recall_params' => $this->collapseEmpty([
                 'hover_height_at_destination' => Arr::get($flightController, 'RecallParams.HoverHeightAtDestination'),
                 'forward_offset' => Arr::get($flightController, 'RecallParams.ForwardOffset'),
