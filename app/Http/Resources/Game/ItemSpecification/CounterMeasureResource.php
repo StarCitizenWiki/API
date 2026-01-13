@@ -13,8 +13,8 @@ use OpenApi\Attributes as OA;
     title: 'Counter Measure',
     description: 'Counter measure launcher ammo capacity values derived from stdItem.Ammunition or raw ammo container data.',
     properties: [
-        new OA\Property(property: 'initial_ammo_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_ammo_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'signature', type: 'object', nullable: true),
     ],
     type: 'object'
 )]
@@ -24,19 +24,15 @@ class CounterMeasureResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
         $stdItem = $this->extractStdItem($data);
-        $ammunition = Arr::get($stdItem, 'Ammunition', []);
-        $rawAmmo = Arr::get($data, 'Raw.Entity.Components.SAmmoContainerComponentParams', []);
-
-        $initial = Arr::get($ammunition, 'InitialCapacity', Arr::get($rawAmmo, 'initialAmmoCount'));
-        $max = Arr::get($ammunition, 'Capacity', Arr::get($rawAmmo, 'maxAmmoCount'));
-
-        if ($max === 0 || $max === null) {
-            $max = Arr::get($rawAmmo, 'maxRestockCount', $max);
-        }
 
         return [
-            'initial_ammo_count' => $initial,
-            'max_ammo_count' => $max,
+            'type' => Arr::get($stdItem, 'WeaponDefensive.Type'),
+            'signature' => [
+                'infrared' => Arr::get($stdItem, 'WeaponDefensive.Signatures.Infrared.End'),
+                'cross_section' => Arr::get($stdItem, 'WeaponDefensive.Signatures.CrossSection.End'),
+                'electromagnetic' => Arr::get($stdItem, 'WeaponDefensive.Signatures.Electromagnetic.End'),
+                'decibel' => Arr::get($stdItem, 'WeaponDefensive.Signatures.Decibel.End'),
+            ],
         ];
     }
 }

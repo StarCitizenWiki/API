@@ -371,12 +371,13 @@ return [
                 'minWidth' => 140,
             ],
             [
-                'title' => '',
+                'title' => 'API Url',
                 'field' => 'uuid',
-                'formatter' => 'viewButton',
+                'formatter' => 'link',
                 'formatterParams' => [
                     'label' => 'View',
-                    'hrefField' => 'web_url',
+                    'target' => 'blank',
+                    'urlField' => 'link',
                 ],
                 'headerSort' => false,
                 'hozAlign' => 'right',
@@ -428,6 +429,49 @@ return [
                     'title' => 'Coolant Generation',
                     'field' => 'resource_network.generation.coolant',
                 ],
+            ],
+        ],
+        'PowerPlant' => [
+            'title' => 'Power Plants',
+            'shared' => ['resourceNetwork.cooling_usage', 'resourceNetwork.repair', 'temperature', 'durability', 'occupancy'],
+            'shared_insert_at' => -1,
+            'add_columns_insert_at' => -2,
+            'add_columns' => [
+                [
+                    'title' => 'Power Generation',
+                    'field' => 'resource_network.generation.power',
+                ],
+                [
+                    'title' => 'Signature',
+                    'columns' => [
+                        [
+                            'title' => 'EM',
+                            'columns' => [
+                                [
+                                    'title' => 'Per Segment',
+                                    'field' => 'emission.em_per_segment',
+                                    ...numFormat(),
+                                ],
+                                [
+                                    'title' => 'Max',
+                                    'field' => 'emission.em_max',
+                                    ...numFormat(),
+                                ],
+                                [
+                                    'title' => 'Decay',
+                                    'field' => 'emission.em_decay',
+                                    ...numFormat(),
+                                ],
+                            ],
+                        ],
+                        [
+                            'title' => 'IR Start',
+                            'field' => 'emission.ir',
+                            ...numFormat(),
+                        ],
+                    ],
+                ],
+
             ],
         ],
         'FlightController' => [
@@ -1034,6 +1078,130 @@ return [
                         // ],
                     ],
                 ],
+            ],
+        ],
+        'ShieldController' => [
+            'title' => 'Shield Controllers',
+            'add_columns_insert_at' => -1,
+            'add_columns' => [
+                [
+                    'title' => 'Face Type',
+                    'field' => 'shield_controller.face_type',
+                ],
+                [
+                    'title' => 'Max Reallocation',
+                    'field' => 'shield_controller.max_reallocation',
+                ],
+                [
+                    'title' => 'Reconfiguration Cooldown',
+                    'field' => 'shield_controller.reconfiguration_cooldown',
+                ],
+                [
+                    'title' => 'Max Electrical Charge Dmg Rate',
+                    'field' => 'shield_controller.max_electrical_charge_damage_rate',
+                ],
+            ],
+        ],
+        'JumpDrive' => [
+            'title' => 'Jump Drives',
+            'shared' => ['resourceNetwork.repair', 'durability', 'occupancy'],
+
+            'add_columns_insert_at' => -1,
+            'add_columns' => [
+                [
+                    'title' => 'Alignment Rate',
+                    'field' => 'jump_drive.alignment_rate',
+                ],
+                [
+                    'title' => 'Alignment Decay Rate',
+                    'field' => 'jump_drive.alignment_decay_rate',
+                ],
+                [
+                    'title' => 'Tuning Rate',
+                    'field' => 'jump_drive.tuning_rate',
+                ],
+                [
+                    'title' => 'Tuning Decay Rate',
+                    'field' => 'jump_drive.tuning_decay_rate',
+                ],
+                [
+                    'title' => 'Fuel Usage Efficiency Multiplier',
+                    'field' => 'jump_drive.fuel_usage_efficiency_multiplier',
+                ],
+            ],
+        ],
+        'WeaponDefensive' => [
+            'title' => 'Countermeasures',
+            'shared' => ['occupancy'],
+
+            'add_columns_insert_at' => -1,
+            'add_columns' => [
+                [
+                    'title' => 'Type',
+                    'field' => 'counter_measure.type',
+                ],
+                [
+                    'title' => 'Ammo',
+                    'columns' => [
+                        [
+                            'title' => 'Capacity',
+                            'field' => 'ammunition.capacity',
+                        ],
+                        [
+                            'title' => 'Speed',
+                            'field' => 'ammunition.speed',
+                            ...suffix('m/s'),
+                        ],
+                        [
+                            'title' => 'Range',
+                            'field' => 'ammunition.range',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Lifetime',
+                            'field' => 'ammunition.lifetime',
+                            ...suffix('s', space: false),
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Signature',
+                    'columns' => [
+                        [
+                            'title' => 'IR',
+                            'field' => 'counter_measure.signature.infrared',
+                        ],
+                        [
+                            'title' => 'CS',
+                            'field' => 'counter_measure.signature.cross_section',
+                        ],
+                        [
+                            'title' => 'EM',
+                            'field' => 'counter_measure.signature.electromagnetic',
+                        ],
+                        [
+                            'title' => 'dB',
+                            'field' => 'counter_measure.signature.decibel',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'MissileLauncher' => [
+            'title' => 'Missile Racks',
+            'shared' => ['resourceNetwork.repair', 'occupancy'],
+
+            'add_columns_insert_at' => -1,
+            'add_columns' => [
+                [
+                    'title' => 'Capacity',
+                    'field' => 'missile_rack.missile_count',
+                ],
+                [
+                    'title' => 'Size',
+                    'field' => 'missile_rack.missile_size',
+                ],
+
             ],
         ],
         // 'weapon' => [

@@ -355,6 +355,7 @@ export function initTabulatorTables() {
             paginationSize: pageSize,
             paginationSizeSelector: [25, 50, 100],
             initialHeaderFilter,
+            headerFilterLiveFilterDelay: 600,
 
             headerWordWrap: true,
 

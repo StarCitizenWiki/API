@@ -62,24 +62,23 @@
         </x-slot:icon>
         Vehicles
     </x-app.sidemenu-item>
-    <x-app.sidemenu-item :route="'web.items.index'" collapsible>
+
+    <x-app.sidemenu-item
+        :route="'web.items.index'"
+    >
         <x-slot:icon>
             <x-icon name="package" class="size-4" />
         </x-slot:icon>
-        Items
+        All Items
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item :route="'web.items.index'" collapsible>
+        <x-slot:icon>
+            <x-icon name="contact-round" class="size-4" />
+        </x-slot:icon>
+        FPS-Items
 
         <x-slot:children>
-            <x-app.sidemenu-item
-                :route="'web.items.index'"
-            >
-                <x-slot:icon>
-                    <x-icon name="package" class="size-4" />
-                </x-slot:icon>
-                All Items
-            </x-app.sidemenu-item>
-
-            <div class="divider m-0"></div>
-
             <x-app.sidemenu-item
                 :route="'web.items.type'"
                 :params="['type' => 'WeaponPersonal']"
@@ -113,7 +112,7 @@
 
             <x-app.sidemenu-item :route="'web.items.type'" :params="['type' => 'weapon-attachments']">
                 <x-slot:icon>
-                    <x-icon name="puzzle-piece" class="size-4" />
+                    <x-icon name="puzzle" class="size-4" />
                 </x-slot:icon>
                 Weapon Attachments
             </x-app.sidemenu-item>

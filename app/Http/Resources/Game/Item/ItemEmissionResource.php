@@ -18,6 +18,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'em_min', description: 'Minimum EM emission', type: 'double', nullable: true),
         new OA\Property(property: 'em_max', description: 'Maximum EM emission', type: 'double', nullable: true),
         new OA\Property(property: 'em_decay', description: 'EM decay', type: 'double', nullable: true),
+        new OA\Property(property: 'em_per_segment', description: 'EM decay per segment', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -30,6 +31,7 @@ class ItemEmissionResource extends AbstractBaseResource
             'em_min' => Arr::get($this, 'Em.Minimum'),
             'em_max' => Arr::get($this, 'Em.Maximum'),
             'em_decay' => Arr::get($this, 'Em.Decay'),
+            $this->mergeWhen(Arr::has($this, 'Em.PerSegment'), fn () => ['em_per_segment' => Arr::get($this, 'Em.PerSegment')]),
         ];
     }
 }

@@ -23,6 +23,7 @@ use App\Http\Resources\Game\ItemSpecification\FuelTankResource;
 use App\Http\Resources\Game\ItemSpecification\GrenadeResource;
 use App\Http\Resources\Game\ItemSpecification\HackingChipResource;
 use App\Http\Resources\Game\ItemSpecification\IronSightResource;
+use App\Http\Resources\Game\ItemSpecification\JumpDriveResource;
 use App\Http\Resources\Game\ItemSpecification\MeleeWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\MiningLaserResource;
 use App\Http\Resources\Game\ItemSpecification\MiningModuleResource;
@@ -37,6 +38,7 @@ use App\Http\Resources\Game\ItemSpecification\RadiationResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\SalvageModifierResource;
 use App\Http\Resources\Game\ItemSpecification\SeatResource;
 use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
+use App\Http\Resources\Game\ItemSpecification\ShieldControllerResource;
 use App\Http\Resources\Game\ItemSpecification\ShieldResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
@@ -505,6 +507,18 @@ class ItemResource extends AbstractBaseResource
         if ($itemData->type === 'Shield') {
             $hasMatch = true;
             $specifications['shield'] = static fn () => new ShieldResource($itemData);
+        }
+
+        // Shield Controller
+        if ($itemData->type === 'ShieldController') {
+            $hasMatch = true;
+            $specifications['shield_controller'] = static fn () => new ShieldControllerResource($itemData);
+        }
+
+        // Jump Drive
+        if ($itemData->type === 'JumpDrive') {
+            $hasMatch = true;
+            $specifications['jump_drive'] = static fn () => new JumpDriveResource($itemData);
         }
 
         // Grenade (has both grenade and personal_weapon specs)
