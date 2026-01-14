@@ -43,6 +43,7 @@ use App\Http\Resources\Game\ItemSpecification\ShieldResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
 use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
+use App\Http\Resources\Game\ItemSpecification\TurretResource;
 use App\Http\Resources\Game\ItemSpecification\VehicleWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
@@ -495,6 +496,12 @@ class ItemResource extends AbstractBaseResource
         if ($itemData->type === 'Cooler') {
             $hasMatch = true;
             $specifications['cooler'] = static fn () => new CoolerResource($itemData);
+        }
+
+        // Turet
+        if ($itemData->type === 'Turret') {
+            $hasMatch = true;
+            $specifications['turret'] = static fn () => new TurretResource($itemData);
         }
 
         // Tractor/Towing Beam

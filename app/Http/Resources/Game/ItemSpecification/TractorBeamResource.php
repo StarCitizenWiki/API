@@ -257,7 +257,6 @@ class TractorBeamResource extends AbstractItemSpecificationResource
 
         $stdItem = $this->extractStdItem($data);
         $tractor = Arr::get($stdItem, 'TractorBeam', []);
-        $rawParams = Arr::get($data, 'Raw.Entity.Components.SCItemWeaponComponentParams.fireActions.SWeaponActionFireTractorBeamParams', []);
 
         $force = [
             'min' => Arr::get($tractor, 'MinForce'),
@@ -267,8 +266,8 @@ class TractorBeamResource extends AbstractItemSpecificationResource
         ];
 
         $range = [
-            'min_distance' => Arr::get($tractor, 'MinDistance'),
-            'max_distance' => Arr::get($tractor, 'MaxDistance'),
+            'min' => Arr::get($tractor, 'MinDistance'),
+            'max' => Arr::get($tractor, 'MaxDistance'),
             'full_strength_distance' => Arr::get($tractor, 'FullStrengthDistance'),
             'max_angle' => Arr::get($tractor, 'MaxAngle'),
             'hit_radius' => Arr::get($tractor, 'HitRadius'),
@@ -280,19 +279,6 @@ class TractorBeamResource extends AbstractItemSpecificationResource
             'allow_scrolling_into_breaking_range' => Arr::has($tractor, 'AllowScrollingIntoBreakingRange')
                 ? (bool) Arr::get($tractor, 'AllowScrollingIntoBreakingRange')
                 : null,
-        ];
-
-        $energy = [
-            'min_energy_draw' => Arr::get($tractor, 'MinEnergyDraw'),
-            'max_energy_draw' => Arr::get($tractor, 'MaxEnergyDraw'),
-            'heat_per_second' => Arr::get($tractor, 'HeatPerSecond'),
-            'wear_per_second' => Arr::get($tractor, 'WearPerSecond'),
-        ];
-
-        $handling = [
-            'max_player_look_rotation_scale' => Arr::get($tractor, 'MaxPlayerLookRotationScale'),
-            'should_tractor_self' => Arr::has($tractor, 'ShouldTractorSelf') ? (bool) Arr::get($tractor, 'ShouldTractorSelf') : null,
-            'should_fire_in_hangars' => Arr::has($tractor, 'ShouldFireInHangars') ? (bool) Arr::get($tractor, 'ShouldFireInHangars') : null,
         ];
 
         $cargoOverride = Arr::get($tractor, 'CargoModeOverride', []);
@@ -314,94 +300,19 @@ class TractorBeamResource extends AbstractItemSpecificationResource
             'full_strength_distance' => Arr::get($cargoOverride, 'FullStrengthDistanceOverride'),
         ] : null;
 
-        $movementParams = Arr::get($rawParams, 'movementParams', []);
-        $movement = is_array($movementParams) ? [
-            'acceleration_factor' => Arr::get($movementParams, 'accelerationFactor'),
-            'max_acceleration' => Arr::get($movementParams, 'maxAcceleration'),
-            'min_acceleration' => Arr::get($movementParams, 'minAcceleration'),
-            'max_speed' => Arr::get($movementParams, 'maxSpeed'),
-            'min_speed' => Arr::get($movementParams, 'minSpeed'),
-            'enter_push_pull_threshold' => Arr::get($movementParams, 'enterPushPullThreshold'),
-            'exit_push_pull_threshold' => Arr::get($movementParams, 'exitPushPullThreshold'),
-            'rotation_single_axis_deadzone' => Arr::get($movementParams, 'rotationSingleAxisDeadzone'),
-        ] : null;
-
-        $rotationParams = Arr::get($rawParams, 'rotationParams', []);
-        $rotation = is_array($rotationParams) ? [
-            'degrees_per_action' => Arr::get($rotationParams, 'degreesPerAction'),
-            'degrees_per_action_scroll_wheel' => Arr::get($rotationParams, 'degreesPerActionScrollWheel'),
-            'force_fraction_rotation' => Arr::get($rotationParams, 'forceFractionRotation'),
-            'max_angular_acceleration' => Arr::get($rotationParams, 'maxAngularAcceleration'),
-            'max_angular_velocity' => Arr::get($rotationParams, 'maxAngularVelocity'),
-        ] : null;
-
-        $grappleParams = Arr::get($rawParams, 'grappleParams', []);
-        $grapple = is_array($grappleParams) ? [
-            'max_speed' => Arr::get($grappleParams, 'maxSpeed'),
-            'max_acceleration' => Arr::get($grappleParams, 'maxAcceleration'),
-            'coast_speed' => Arr::get($grappleParams, 'coastSpeed'),
-            'positive_acceleration_limit' => Arr::get($grappleParams, 'positiveAccelerationLimit'),
-            'negative_acceleration_limit' => Arr::get($grappleParams, 'negativeAccelerationLimit'),
-            'look_orientation_influence_factor' => Arr::get($grappleParams, 'lookOrientationInfluenceFactor'),
-        ] : null;
-
-        $detachParams = Arr::get($rawParams, 'attachDetachParams', []);
-        $detachment = is_array($detachParams) ? [
-            'detach_aim_range' => Arr::get($detachParams, 'detachAimRange'),
-            'release_distance_cargo_attachment' => Arr::get($detachParams, 'releaseDistanceCargoAttachment'),
-            'release_distance_placement' => Arr::get($detachParams, 'releaseDistancePlacement'),
-            'detach_acceleration_pop_amount' => Arr::get($detachParams, 'detachAccelerationPopAmount'),
-            'throw_charge_time' => Arr::get($detachParams, 'throwChargeTime'),
-            'min_throw_force' => Arr::get($detachParams, 'minThrowForce'),
-            'max_throw_force' => Arr::get($detachParams, 'maxThrowForce'),
-            'is_cargo_mode' => Arr::has($detachParams, 'isCargoMode') ? (bool) Arr::get($detachParams, 'isCargoMode') : null,
-            'is_detach_mode' => Arr::has($detachParams, 'isDetachMode') ? (bool) Arr::get($detachParams, 'isDetachMode') : null,
-            'vision_field_multiplier' => Arr::get($detachParams, 'visionFieldMultiplier'),
-            'attach_holo_default_range' => Arr::get($detachParams, 'attachHoloDefaultRange'),
-            'attach_holo_range_modifier' => Arr::get($detachParams, 'attachHoloRangeModifier'),
-            'allowed_target_types' => collect(Arr::get($detachParams, 'allowedDetachTypes', []))
-                ->pluck('Type')
-                ->filter()
-                ->values()
-                ->all(),
-        ] : null;
-
-        $multitractorParams = Arr::get($rawParams, 'multitractorParams', []);
-        $multitractor = is_array($multitractorParams) ? [
-            'beam_alignment_slope_coefficient' => Arr::get($multitractorParams, 'beamAlignmentSlopeCoefficient'),
-            'enter_lead_force_threshold_modifier' => Arr::get($multitractorParams, 'enterLeadForceThresholdModifier'),
-            'follow_beam_deadzone_alignment' => Arr::get($multitractorParams, 'followBeamDeadzoneAlignment'),
-            'follow_beam_deadzone_blend_start' => Arr::get($multitractorParams, 'followBeamDeadzoneBlendStart'),
-            'follow_beam_deadzone_end' => Arr::get($multitractorParams, 'followBeamDeadzoneEnd'),
-            'follow_beam_deadzone_misalignment' => Arr::get($multitractorParams, 'followBeamDeadzoneMisalignment'),
-            'lead_beam_deadzone_blend_start' => Arr::get($multitractorParams, 'leadBeamDeadzoneBlendStart'),
-            'lead_beam_deadzone_end' => Arr::get($multitractorParams, 'leadBeamDeadzoneEnd'),
-        ] : null;
-
-        $beamStrengthValues = Arr::get($rawParams, 'beamStrengthValues', []);
-        $beamStrength = is_array($beamStrengthValues) ? [
-            'stable' => Arr::get($beamStrengthValues, 'stable'),
-            'unstable' => Arr::get($beamStrengthValues, 'unstable'),
-            'breaking' => Arr::get($beamStrengthValues, 'breaking'),
-            'impact_grapple' => Arr::get($beamStrengthValues, 'impactGrapple'),
-            'impact_controlling_target' => Arr::get($beamStrengthValues, 'impactControllingTarget'),
-            'impact_invalid_target' => Arr::get($beamStrengthValues, 'impactInvalidTarget'),
-        ] : null;
-
         return [
             'force' => $force,
             'range' => $range,
             'tether' => $tether,
-            'energy' => $energy,
-            'handling' => $handling,
-            'ammo_type' => Arr::get($tractor, 'AmmoType'),
+
             'cargo_mode_override' => $cargoModeOverride,
-            'movement' => $movement,
-            'rotation' => $rotation,
-            'grapple' => $grapple,
-            'detachment' => $detachment,
-            'multitractor' => $multitractor,
-            'beam_strength' => $beamStrength,
+
+            'towing' => [
+                'force' => Arr::get($tractor, 'Towing.TowingForce'),
+                'max_acceleration' => Arr::get($tractor, 'Towing.TowingMaxAcceleration'),
+                'max_distance' => Arr::get($tractor, 'Towing.TowingMaxDistance'),
+                'qt_mass_limit' => Arr::get($tractor, 'Towing.QuantumTowMassLimit'),
+            ],
 
             // Backward compatibility
             'min_force' => Arr::get($tractor, 'MinForce'),

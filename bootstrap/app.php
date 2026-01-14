@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\PersistSelectedGameVersion::class,
+        ]);
+
         $middleware->alias([
             'game.version' => \App\Http\Middleware\Api\Game\ResolveGameVersion::class,
             'limit.parameter' => \App\Http\Middleware\MigrateLimitParameter::class,

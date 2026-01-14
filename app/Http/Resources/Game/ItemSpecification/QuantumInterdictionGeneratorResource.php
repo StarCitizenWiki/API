@@ -139,12 +139,14 @@ class QuantumInterdictionGeneratorResource extends AbstractItemSpecificationReso
                 'green_zone_check_range' => Arr::get($pulse, 'greenZoneCheckRange'),
             ],
 
-            // Legacy mirrors (deprecated)
             'interdiction_range' => Arr::get($quantumInterdiction, 'InterdictionRange'),
             'jammer_range' => Arr::get($quantumInterdiction, 'JammingRange'),
+
             'charge_duration' => Arr::get($pulse, 'chargeTimeSecs'),
+            'activation_duration' => Arr::get($pulse, 'activationPhaseDuration_seconds'),
             'discharge_duration' => Arr::get($pulse, 'dischargeTimeSecs'),
             'cooldown_duration' => Arr::get($pulse, 'cooldownTimeSecs'),
+            'disperse_charge_duration' => Arr::get($pulse, 'disperseChargeTimeSeconds'),
         ];
     }
 }

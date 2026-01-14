@@ -28,10 +28,6 @@ class AppShellComposer
 
         $selectedGameVersionCode = $selectedGameVersion?->code;
 
-        if ($selectedGameVersionCode !== null) {
-            session()->put('game_version_code', $selectedGameVersionCode);
-        }
-
         $view->with([
             'gameVersions' => $gameVersions,
             'selectedGameVersion' => $selectedGameVersion,

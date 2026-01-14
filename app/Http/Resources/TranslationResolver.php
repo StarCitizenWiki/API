@@ -62,13 +62,13 @@ final class TranslationResolver
         $locales = Language::query()->pluck('code');
 
         if ($locales->isEmpty()) {
-            return array_filter($translations, fn ($v) => ! empty($v)) ?: null;
+            return array_filter($translations, static fn ($v) => ! empty($v)) ?: null;
         }
 
         $result = $locales->mapWithKeys(function (string $locale) use ($translations, $english): array {
             $value = $translations[$locale] ?? $english;
 
-            return [$locale => $value];
+            return [Language::OLD_LANG_MAP[$locale] ?? $locale => $value];
         })
             ->filter(fn ($value) => ! empty($value))
             ->toArray();

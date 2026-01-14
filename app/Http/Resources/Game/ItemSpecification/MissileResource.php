@@ -266,7 +266,7 @@ class MissileResource extends AbstractItemSpecificationResource
 
         $damages = $this->buildDamageArray($damageData);
         $totalDamage = $this->calculateTotalDamage($damageData);
-        $legacyDamages = array_filter([
+        $damageMap = array_filter([
             'physical' => Arr::get($damageData, 'Physical'),
             'energy' => Arr::get($damageData, 'Energy'),
             'distortion' => Arr::get($damageData, 'Distortion'),
@@ -277,44 +277,73 @@ class MissileResource extends AbstractItemSpecificationResource
 
         return [
             'cluster_size' => Arr::has($missile, 'Cluster.Size') ? Arr::get($missile, 'Cluster.Size') : null,
-            'is_cluster' => Arr::get($missile, 'IsCluster'),
-            'is_dumb_missile' => Arr::get($gcs, 'IsDumbMissile'),
-            'requires_launcher' => Arr::get($missile, 'RequiresLauncher'),
-
             'signal_type' => Arr::get($targeting, 'TrackingSignalType'),
+            'tracking_signal_min' => Arr::get($targeting, 'TrackingSignalMin'),
+
             'lock_time' => Arr::get($targeting, 'LockTime'),
             'lock_range_max' => Arr::get($targeting, 'LockRangeMax'),
             'lock_range_min' => Arr::get($targeting, 'LockRangeMin'),
             'lock_angle' => Arr::get($targeting, 'LockingAngle'),
-            'tracking_signal_min' => Arr::get($targeting, 'TrackingSignalMin'),
-            'lock_signal_amplifier' => Arr::get($targeting, 'LockSignalAmplifier'),
-            'lock_increase_rate' => Arr::get($targeting, 'LockIncreaseRate'),
-            'allow_dumb_firing' => Arr::get($targeting, 'AllowDumbFiring'),
-
-            'signal_resilience_min' => Arr::get($targeting, 'SignalResilienceMin'),
-            'signal_resilience_max' => Arr::get($targeting, 'SignalResilienceMax'),
-
             'speed' => Arr::get($gcs, 'LinearSpeed'),
-            'boost_speed' => Arr::get($gcs, 'BoostSpeed'),
-            'boost_phase_duration' => Arr::get($gcs, 'BoostPhaseDuration'),
-            'intercept_speed' => Arr::get($gcs, 'InterceptSpeed'),
-            'terminal_speed' => Arr::get($gcs, 'TerminalSpeed'),
-            'terminal_phase_engagement_time' => Arr::get($gcs, 'TerminalPhaseEngagementTime'),
-            'terminal_phase_engagement_angle' => Arr::get($gcs, 'TerminalPhaseEngagementAngle'),
             'fuel_tank_size' => Arr::get($gcs, 'FuelTankSize'),
-
-            'max_lifetime' => Arr::get($missile, 'MaxLifetime'),
-            'enable_lifetime' => Arr::get($missile, 'EnableLifetime'),
-            'arm_time' => Arr::get($missile, 'ArmTime'),
-            'ignite_time' => Arr::get($missile, 'IgniteTime'),
-            'collision_delay_time' => Arr::get($missile, 'CollisionDelayTime'),
-
-            'explosion_safety_distance' => Arr::get($missile, 'ExplosionSafetyDistance'),
             'explosion_radius_min' => Arr::get($missile, 'ExplosionMinRadius'),
             'explosion_radius_max' => Arr::get($missile, 'ExplosionMaxRadius'),
+
+            'flight' => [
+                'enable_lifetime' => Arr::get($missile, 'EnableLifetime'),
+                'max_lifetime' => Arr::get($missile, 'MaxLifetime'),
+                'range' => Arr::get($missile, 'Distance'),
+
+                'speed' => Arr::get($gcs, 'LinearSpeed'),
+                'boost_speed' => Arr::get($gcs, 'BoostSpeed'),
+                'intercept_speed' => Arr::get($gcs, 'InterceptSpeed'),
+                'terminal_speed' => Arr::get($gcs, 'TerminalSpeed'),
+
+                'boost_phase_duration' => Arr::get($gcs, 'BoostPhaseDuration'),
+                'terminal_phase_engagement_time' => Arr::get($gcs, 'TerminalPhaseEngagementTime'),
+                'terminal_phase_engagement_angle' => Arr::get($gcs, 'TerminalPhaseEngagementAngle'),
+
+                'fuel_tank_size' => Arr::get($gcs, 'FuelTankSize'),
+            ],
+
+            'target_lock' => [
+                'signal_resilience_min' => Arr::get($targeting, 'SignalResilienceMin'),
+                'signal_resilience_max' => Arr::get($targeting, 'SignalResilienceMax'),
+
+                'range_max' => Arr::get($targeting, 'LockRangeMax'),
+                'range_min' => Arr::get($targeting, 'LockRangeMin'),
+
+                'angle' => Arr::get($targeting, 'LockingAngle'),
+
+                'signal_amplifier' => Arr::get($targeting, 'LockSignalAmplifier'),
+                'increase_rate' => Arr::get($targeting, 'LockIncreaseRate'),
+
+                'allow_dumb_firing' => Arr::get($targeting, 'AllowDumbFiring'),
+            ],
+
+            'explosion' => [
+                'is_cluster' => Arr::get($missile, 'IsCluster'),
+                'cluster_size' => Arr::has($missile, 'Cluster.Size') ? Arr::get($missile, 'Cluster.Size') : null,
+                'requires_launcher' => Arr::get($missile, 'RequiresLauncher'),
+                'allow_dumb_firing' => Arr::get($targeting, 'AllowDumbFiring'),
+
+                'radius_min' => Arr::get($missile, 'ExplosionMinRadius'),
+                'radius_max' => Arr::get($missile, 'ExplosionMaxRadius'),
+
+                'safety_distance' => Arr::get($missile, 'ExplosionSafetyDistance'),
+                'proximity' => Arr::get($missile, 'ProjectileProximity'),
+            ],
+
+            'delays' => [
+                'arm_time' => Arr::get($missile, 'ArmTime'),
+                'ignite_time' => Arr::get($missile, 'IgniteTime'),
+                'collision_delay_time' => Arr::get($missile, 'CollisionDelayTime'),
+                'lock_time' => Arr::get($targeting, 'LockTime'),
+            ],
+
             'damage_total' => $totalDamage > 0 ? $totalDamage : null,
             'damages' => WeaponDamageResource::collection($damages),
-            'damages_legacy' => $legacyDamages === [] ? null : $legacyDamages,
+            'damage_map' => $damageMap === [] ? null : $damageMap,
         ];
     }
 }

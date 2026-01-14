@@ -19,4 +19,10 @@ class Language extends Model
     public const GERMAN = 'de';
 
     public const CHINESE = 'zh';
+
+    public const OLD_LANG_MAP = [
+        self::ENGLISH => 'en_EN',
+        self::GERMAN => 'de_DE',
+        self::CHINESE => 'zh_CN',
+    ];
 }

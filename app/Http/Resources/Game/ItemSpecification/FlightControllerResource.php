@@ -405,11 +405,20 @@ class FlightControllerResource extends AbstractItemSpecificationResource
                 'minimum_recall_distance' => Arr::get($flightController, 'RecallParams.MinimumRecallDistance'),
                 'braking_distance_offset' => Arr::get($flightController, 'RecallParams.BrakingDistanceOffset'),
             ]),
+
             'collision_detection' => $this->collapseEmpty([
                 'collision_warn_speed' => Arr::get($flightController, 'CollisionDetection.CollisionWarnSpeed'),
                 'collision_warn_time' => Arr::get($flightController, 'CollisionDetection.CollisionWarnTime'),
                 'collision_danger_close_warn_time' => Arr::get($flightController, 'CollisionDetection.CollisionDangerCloseWarnTime'),
             ]),
+
+            'gravlev' => [
+                'max_speed' => Arr::get($flightController, 'Gravlev.HoverMaxSpeed'),
+                'turn_friction' => Arr::get($flightController, 'Gravlev.TurnFriction'),
+                'air_controller_multiplier' => Arr::get($flightController, 'Gravlev.AirControllerMultiplier'),
+                'anti_fall_multiplier' => Arr::get($flightController, 'Gravlev.AntiFallMultiplier'),
+                'lateral_strafe_multiplier' => Arr::get($flightController, 'Gravlev.LateralStafeMultiplier'),
+            ],
         ];
     }
 

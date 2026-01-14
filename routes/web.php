@@ -36,6 +36,8 @@ Route::get('/vehicle-items', [ItemController::class, 'index'])->name('web.vehicl
 Route::get('/vehicle-items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.vehicle-items.show');
 Route::get('/vehicle-items/{type}', [ItemController::class, 'index'])->name('web.vehicle-items.type');
 
+Route::get('/vehicle-flair-items', [ItemController::class, 'index'])->name('web.vehicle-flair-items.index');
+
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');
 Route::get('/ship-matrix/vehicles/{vehicle}', [ShipMatrixVehicleController::class, 'show'])

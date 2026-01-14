@@ -122,6 +122,7 @@ class ItemData extends Model
             'armor' => $query->armor(),
             'vehicle-weapons' => $query->vehicleWeapons(),
             'vehicle-items' => $query->vehicleItems(),
+            'vehicle-flair-items' => $query->vehicleFlairItems(),
             default => $query,
         };
     }
@@ -163,28 +164,34 @@ class ItemData extends Model
     public function scopeVehicleItems(Builder $query): Builder
     {
         return $query
-            ->where('class_name', 'NOT LIKE', '%test%')
-            ->where('class_name', 'NOT LIKE', '%lowpoly%')
-            ->where('class_name', 'NOT LIKE', '%dummy%')
-            ->where('class_name', 'NOT LIKE', '%_mm')
-            ->where('class_name', 'NOT LIKE', '%s%_idris_m')
-            ->where('class_name', 'NOT LIKE', '%s%_turret')
-            ->where('class_name', 'NOT LIKE', 'mrck_s05_orig_%')
-            ->where('class_name', 'NOT LIKE', 'mrck_s05_behr_quad_s03_a')
+            // ->where('class_name', 'NOT LIKE', '%test%')
+            // ->where('class_name', 'NOT LIKE', '%lowpoly%')
+            // ->where('class_name', 'NOT LIKE', '%dummy%')
+            // ->where('class_name', 'NOT LIKE', '%_mm')
+            // ->where('class_name', 'NOT LIKE', '%s%_idris_m')
+            // ->where('class_name', 'NOT LIKE', '%s%_turret')
+            // ->where('class_name', 'NOT LIKE', 'mrck_s05_orig_%')
+            // ->where('class_name', 'NOT LIKE', 'mrck_s05_behr_quad_s03_a')
             ->whereIn('type', [
                 'Arm',
                 'Battery',
                 'BombLauncher',
+                'Bomb',
                 'Cooler',
                 'EMP',
                 'ExternalFuelTank',
                 'FlightController',
+                'Flair_Cockpit',
+                'Flair_Wall',
+                'Flair_Floor',
+                'Flair_Surface',
                 'FuelIntake',
                 'FuelTank',
                 'JumpDrive',
                 'MainThruster',
                 'ManneuverThruster',
                 'MiningArm',
+                'MiningLaser',
                 'Missile',
                 'MissileLauncher',
                 'Mount',
@@ -209,6 +216,17 @@ class ItemData extends Model
                 'WeaponMount',
                 'WeaponMining',
                 'WheeledController',
+            ]);
+    }
+
+    public function scopeVehicleFlairItems(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('type', [
+                'Flair_Cockpit',
+                'Flair_Wall',
+                'Flair_Floor',
+                'Flair_Surface',
             ]);
     }
 

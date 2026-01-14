@@ -315,7 +315,7 @@
 
             <x-app.sidemenu-item
                 :route="'web.vehicle-items.type'"
-                :params="['type' => 'MiningLaser']"
+                :params="['type' => 'WeaponMining']"
             >
                 <x-slot:icon>
                     <x-icon name="target" class="size-4" />
@@ -345,12 +345,34 @@
 
             <x-app.sidemenu-item
                 :route="'web.vehicle-items.type'"
-                :params="['type' => 'TractorBeam']"
+                :params="['type' => 'TractorBeam,TowingBeam']"
             >
                 <x-slot:icon>
                     <x-icon name="magnet" class="size-4" />
                 </x-slot:icon>
                 Tractor Beams
+            </x-app.sidemenu-item>
+
+            <div class="divider m-0"></div>
+
+            <x-app.sidemenu-item
+                :route="'web.vehicle-items.type'"
+                :params="['type' => 'Paints']"
+            >
+                <x-slot:icon>
+                    <x-icon name="paint-bucket" class="size-4" />
+                </x-slot:icon>
+                Paints
+            </x-app.sidemenu-item>
+
+            <x-app.sidemenu-item
+                :route="'web.vehicle-flair-items.index'"
+
+            >
+                <x-slot:icon>
+                    <x-icon name="banana" class="size-4" />
+                </x-slot:icon>
+                Flairs
             </x-app.sidemenu-item>
 
 

@@ -106,7 +106,7 @@ class BombResource extends AbstractItemSpecificationResource
 
         $damages = $this->buildDamageArray($damageData);
         $totalDamage = $this->calculateTotalDamage($damageData);
-        $legacyDamages = array_filter([
+        $damageMap = array_filter([
             'physical' => Arr::get($damageData, 'Physical'),
             'energy' => Arr::get($damageData, 'Energy'),
             'distortion' => Arr::get($damageData, 'Distortion'),
@@ -123,11 +123,27 @@ class BombResource extends AbstractItemSpecificationResource
             'explosion_radius_min' => Arr::get($bomb, 'ExplosionMinRadius'),
             'explosion_radius_max' => Arr::get($bomb, 'ExplosionMaxRadius'),
             'maximum_drop_angle' => Arr::get($bomb, 'MaximumDropAngleFromFlatFlight'),
-            'is_cluster' => Arr::get($bomb, 'IsCluster'),
+
+            'explosion' => [
+                'requires_launcher' => Arr::get($bomb, 'RequiresLauncher'),
+
+                'radius_min' => Arr::get($bomb, 'ExplosionMinRadius'),
+                'radius_max' => Arr::get($bomb, 'ExplosionMaxRadius'),
+
+                'safety_distance' => Arr::get($bomb, 'ExplosionSafetyDistance'),
+                'proximity' => Arr::get($bomb, 'ProjectileProximity'),
+            ],
+
+            'delays' => [
+                'arm_time' => Arr::get($bomb, 'ArmTime'),
+                'ignite_time' => Arr::get($bomb, 'IgniteTime'),
+                'collision_delay_time' => Arr::get($bomb, 'CollisionDelayTime'),
+            ],
+
             'damage' => $totalDamage > 0 ? $totalDamage : null, // V2 compatibility
             'damage_total' => $totalDamage > 0 ? $totalDamage : null,
             'damages' => WeaponDamageResource::collection($damages),
-            'damages_legacy' => $legacyDamages === [] ? null : $legacyDamages,
+            'damage_map' => $damageMap === [] ? null : $damageMap,
         ];
     }
 }

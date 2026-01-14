@@ -110,11 +110,19 @@ use OpenApi\Attributes as OA;
 )]
 class QuantumDriveJumpProfileResource extends AbstractBaseResource
 {
+    public function __construct($resource, private readonly ?string $type = null)
+    {
+        parent::__construct($resource);
+    }
+
     public function toArray(Request $request): array
     {
         $profile = is_array($this->resource) ? $this->resource : [];
 
         return [
+            $this->mergeWhen($this->type !== null, [
+                'type' => $this->type,
+            ]),
             'drive_speed' => Arr::get($profile, 'DriveSpeed'),
             'cooldown_time' => Arr::get($profile, 'CooldownTime'),
             'stage_one_accel_rate' => Arr::get($profile, 'StageOneAccelRate'),

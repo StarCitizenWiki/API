@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -109,8 +110,7 @@ class MiningLaserResource extends AbstractItemSpecificationResource
             ?? $this->parseThroughput(Arr::get($description, 'Extraction Throughput'))
             ?? $this->parseThroughput(Arr::get($description, 'Collection Throughput'));
 
-        $collectionPointRadius = $this->toFloat(Arr::get($modifiers, 'CollectionPointRadius'))
-            ?? $this->parseMeters(Arr::get($description, 'Collection Point Radius'));
+        $collectionPointRadius = $this->toFloat(Arr::get($modifiers, 'CollectionPointRadius'));
 
         $handling = [
             'uses_power_throttle' => Arr::get($miningLaser, 'UsesPowerThrottle') === 1,
@@ -123,37 +123,17 @@ class MiningLaserResource extends AbstractItemSpecificationResource
         ];
 
         $modifierBlock = [
-            'optimal_charge_window_percent' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeWindow'))
-                ?? $this->parsePercent(Arr::get($description, 'Optimal Charge Window Size')),
-            'optimal_charge_rate_percent' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeRate'))
-                ?? $this->parsePercent(Arr::get($description, 'Optimal Charge Window Rate')),
-            'all_charge_rates_percent' => $this->toFloat(Arr::get($modifiers, 'AllChargeRates')),
-            'instability_percent' => $this->toFloat(Arr::get($modifiers, 'Instability'))
-                ?? $this->parsePercent(Arr::get($description, 'Laser Instability')),
-            'resistance_percent' => $this->toFloat(Arr::get($modifiers, 'Resistance'))
-                ?? $this->parsePercent(Arr::get($description, 'Resistance')),
+            'optimal_charge_window_size' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeWindow')),
+            'optimal_charge_rate' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeRate')),
+            'all_charge_rates' => $this->toFloat(Arr::get($modifiers, 'AllChargeRates')),
+            'laser_instability' => $this->toFloat(Arr::get($modifiers, 'Instability')),
+            'resistance' => $this->toFloat(Arr::get($modifiers, 'Resistance')),
             'collection_point_radius_m' => $collectionPointRadius,
             'throttle_responsiveness_delay' => Arr::get($handling, 'throttle_responsiveness_delay'),
             'throttle_speed' => Arr::get($handling, 'throttle_speed'),
         ];
 
-        $legacyModifiers = [
-            'all_charge_rates' => Arr::get($description, 'All Charge Rates', Arr::get($modifiers, 'AllChargeRates')),
-            'collection_point_radius' => Arr::get($description, 'Collection Point Radius', Arr::get($modifiers, 'CollectionPointRadius')),
-            'instability' => Arr::get($description, 'Instability', Arr::get($modifiers, 'Instability')),
-            'module' => Arr::get($description, 'Module'),
-            'optimal_charge_rate' => Arr::get($description, 'Optimal Charge Rate', Arr::get($modifiers, 'OptimalChargeRate')),
-            'optimal_charge_window' => Arr::get($description, 'Optimal Charge Window', Arr::get($description, 'Optimal Charge Window Size', Arr::get($modifiers, 'OptimalChargeWindow'))),
-            'overcharge_rate' => Arr::get($description, 'Overcharge Rate', Arr::get($description, 'Catastrophic Charge Rate', Arr::get($modifiers, 'OverchargeRate'))),
-            'resistance' => Arr::get($description, 'Resistance', Arr::get($modifiers, 'Resistance')),
-            'shatter_damage' => Arr::get($description, 'Shatter Damage', Arr::get($modifiers, 'ShatterDamage')),
-            'throttle_responsiveness_delay' => Arr::get($description, 'Throttle Responsiveness Delay', Arr::get($modifiers, 'ThrottleResponsivenessDelay', Arr::get($globalParams, 'ThrottleAccPeriod'))),
-            'throttle_speed' => Arr::get($description, 'Throttle Speed', Arr::get($modifiers, 'ThrottleSpeed', Arr::get($globalParams, 'ThrottleAccFactor'))),
-        ];
-
         return [
-            'item_type' => Arr::get($description, 'Item Type'),
-            'description' => Arr::get($stdItem, 'DescriptionText', Arr::get($stdItem, 'Description')),
             'mining_power' => [
                 'min' => $minPower,
                 'max' => $maxPower,
@@ -163,20 +143,30 @@ class MiningLaserResource extends AbstractItemSpecificationResource
                 'maximum' => $maximumRange,
             ],
             'extraction' => [
-                'throughput_scu_per_s' => $extractionThroughput,
+                'throughput_per_s' => $extractionThroughput,
                 'collection_point_radius_m' => $collectionPointRadius,
             ],
             'handling' => $handling,
-            'modifiers' => $modifierBlock,
+            'modifiers' => collect($modifierBlock)
+                ->map(static fn ($value, $key) => [
+                    'name' => $key,
+                    'display_name' => Str::of($key)->snake()->replace('_', ' ')->title()->toString(),
+                    'value' => $value,
+                ])->values()->toArray(),
             'module_slots' => Arr::get($stdItem, 'ModuleSlots'),
-            // Backward compatibility
-            'power_transfer' => Arr::get($description, 'Mining Laser Power') ?? $this->formatPowerRange($minPower, $maxPower),
+
+            'throttle_lerp_speed' => Arr::get($miningLaser, 'ThrottleLerpSpeed'),
+
+            'power_transfer' => /* Arr::get($description, 'Mining Laser Power') ?? */ $this->formatPowerRange($minPower, $maxPower),
+
             'optimal_range' => $optimalRange,
             'maximum_range' => $maximumRange,
+
             'extraction_throughput' => $extractionThroughput,
             'extraction_laser_power' => Arr::get($description, 'Extraction Laser Power'),
             'mining_laser_power' => Arr::get($description, 'Mining Laser Power'),
-            'modifiers_legacy' => array_filter($legacyModifiers, static fn ($value) => $value !== null),
+
+            'modifier_map' => array_filter($modifierBlock, static fn ($value) => $value !== null),
         ];
     }
 

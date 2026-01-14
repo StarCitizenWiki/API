@@ -29,6 +29,7 @@ class ItemController extends Controller
 
         $routeName = $request->route()?->getName() ?? '';
         $isVehicleItems = str_starts_with($routeName, 'web.vehicle-items.');
+        $isVehicleFlairItems = str_starts_with($routeName, 'web.vehicle-flair-items.');
 
         $categoryRouteMap = [
             'armor' => 'armor.index',
@@ -44,17 +45,6 @@ class ItemController extends Controller
             'weapon-attachments' => 'attachments.filters',
         ];
 
-        if ($isCategory) {
-            $indexRouteName = $categoryRouteMap[$normalizedType];
-            $filtersRouteName = $categoryFiltersRouteMap[$normalizedType];
-        } elseif ($isVehicleItems) {
-            $indexRouteName = 'vehicle-items.index';
-            $filtersRouteName = 'vehicle-items.filters';
-        } else {
-            $indexRouteName = 'items.index';
-            $filtersRouteName = 'items.filters';
-        }
-
         if (! empty($resolvedType) && ! $isCategory) {
             $request->merge([
                 'filter' => array_merge(
@@ -62,6 +52,26 @@ class ItemController extends Controller
                     ['type' => $resolvedType]
                 ),
             ]);
+        }
+
+        if ($isCategory) {
+            $indexRouteName = $categoryRouteMap[$normalizedType];
+            $filtersRouteName = $categoryFiltersRouteMap[$normalizedType];
+
+            $resolvedType = $normalizedType;
+        } elseif ($isVehicleItems) {
+            $indexRouteName = 'vehicle-items.index';
+            $filtersRouteName = 'vehicle-items.filters';
+
+            $resolvedType = 'vehicle-items';
+        } elseif ($isVehicleFlairItems) {
+            $indexRouteName = 'vehicle-flair-items.index';
+            $filtersRouteName = 'vehicle-items.filters';
+
+            $resolvedType = 'vehicle-flair-items';
+        } else {
+            $indexRouteName = 'items.index';
+            $filtersRouteName = 'items.filters';
         }
 
         $initialTableData = $this->apiJsonRequest->request(route($indexRouteName, [], false), $request);
@@ -74,7 +84,7 @@ class ItemController extends Controller
         return view('items.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $filterOptions,
-            'initialFilters' => $isCategory ? [] : $this->buildInitialFilters($resolvedType),
+            'initialFilters' => ($isCategory || $isVehicleFlairItems) ? [] : $this->buildInitialFilters($resolvedType),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],

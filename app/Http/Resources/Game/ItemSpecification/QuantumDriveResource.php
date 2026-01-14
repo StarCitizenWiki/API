@@ -83,46 +83,31 @@ class QuantumDriveResource extends AbstractItemSpecificationResource
 
         return [
             'quantum_fuel_requirement' => Arr::get($quantumDrive, 'QuantumFuelRequirement'),
-            'fuel_rate' => Arr::get($quantumDrive, 'FuelRate'),
             'jump_range' => Arr::get($quantumDrive, 'JumpRange'),
             'disconnect_range' => Arr::get($quantumDrive, 'DisconnectRange'),
-            'heat' => [
-                'pre_ramp_up_thermal_energy_draw' => Arr::get($heat, 'PreRampUpThermalEnergyDraw'),
-                'ramp_up_thermal_energy_draw' => Arr::get($heat, 'RampUpThermalEnergyDraw'),
-                'in_flight_thermal_energy_draw' => Arr::get($heat, 'InFlightThermalEnergyDraw'),
-                'ramp_down_thermal_energy_draw' => Arr::get($heat, 'RampDownThermalEnergyDraw'),
-                'post_ramp_down_thermal_energy_draw' => Arr::get($heat, 'PostRampDownThermalEnergyDraw'),
+            'fuel_rate' => Arr::get($quantumDrive, 'FuelRate'),
+            'thermal_energy_draw' => [
+                'pre_ramp_up' => Arr::get($heat, 'PreRampUpThermalEnergyDraw'),
+                'ramp_up' => Arr::get($heat, 'RampUpThermalEnergyDraw'),
+                'in_flight' => Arr::get($heat, 'InFlightThermalEnergyDraw'),
+                'ramp_down' => Arr::get($heat, 'RampDownThermalEnergyDraw'),
+                'post_ramp_down' => Arr::get($heat, 'PostRampDownThermalEnergyDraw'),
             ],
-            'standard_jump' => new QuantumDriveJumpProfileResource(Arr::get($quantumDrive, 'StandardJump', [])),
-            'spline_jump' => new QuantumDriveJumpProfileResource(Arr::get($quantumDrive, 'SplineJump', [])),
-            'pre_ramp_up_thermal_energy_draw' => Arr::get($heat, 'PreRampUpThermalEnergyDraw'),
-            'ramp_up_thermal_energy_draw' => Arr::get($heat, 'RampUpThermalEnergyDraw'),
-            'in_flight_thermal_energy_draw' => Arr::get($heat, 'InFlightThermalEnergyDraw'),
-            'ramp_down_thermal_energy_draw' => Arr::get($heat, 'RampDownThermalEnergyDraw'),
-            'post_ramp_down_thermal_energy_draw' => Arr::get($heat, 'PostRampDownThermalEnergyDraw'),
-            'modes' => [
-                'normal' => $this->mapLegacyJumpProfile($standardJump),
-                'spline' => $this->mapLegacyJumpProfile($splineJump),
-            ],
-        ];
-    }
+            'standard_jump' => new QuantumDriveJumpProfileResource($standardJump),
+            'spline_jump' => new QuantumDriveJumpProfileResource($splineJump),
 
-    private function mapLegacyJumpProfile(array $profile): array
-    {
-        return [
-            'drive_speed' => Arr::get($profile, 'DriveSpeed'),
-            'cooldown_time' => Arr::get($profile, 'CooldownTime'),
-            'stage_one_accel_rate' => Arr::get($profile, 'StageOneAccelRate'),
-            'stage_two_accel_rate' => Arr::get($profile, 'StageTwoAccelRate'),
-            'engage_speed' => Arr::get($profile, 'EngageSpeed'),
-            'interdiction_effect_time' => Arr::get($profile, 'InterdictionEffectTime'),
-            'calibration_rate' => Arr::get($profile, 'CalibrationRate'),
-            'min_calibration_requirement' => Arr::get($profile, 'MinCalibrationRequirement'),
-            'max_calibration_requirement' => Arr::get($profile, 'MaxCalibrationRequirement'),
-            'calibration_process_angle_limit' => Arr::get($profile, 'CalibrationProcessAngleLimit'),
-            'calibration_warning_angle_limit' => Arr::get($profile, 'CalibrationWarningAngleLimit'),
-            'calibration_delay_in_seconds' => Arr::get($profile, 'CalibrationDelayInSeconds'),
-            'spool_up_time' => Arr::get($profile, 'SpoolUpTime'),
+            'modes' => [
+                new QuantumDriveJumpProfileResource($standardJump, 'normal_jump'),
+                new QuantumDriveJumpProfileResource($splineJump, 'spline_jump'),
+            ],
+
+            'fuel_consumption_scu_per_gm' => Arr::get($quantumDrive, 'FuelConsumptionSCUPerGM'),
+            'fuel_efficiency' => Arr::get($quantumDrive, 'FuelEfficiencyGMPerSCU'),
+
+            'travel_time_10gm' => [
+                'seconds' => Arr::get($quantumDrive, 'TravelTimePer10GMSeconds'),
+                'formatted' => Arr::get($quantumDrive, 'TravelTime10GM'),
+            ],
         ];
     }
 }

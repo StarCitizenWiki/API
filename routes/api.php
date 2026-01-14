@@ -92,6 +92,8 @@ Route::group(
             Route::get('vehicle-items/filters', [ItemController::class, 'filters'])->defaults('category', 'vehicle-items')->name('vehicle-items.filters');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
 
+            Route::get('vehicle-flair-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-flair-items')->name('vehicle-flair-items.index');
+
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
             Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
