@@ -46,29 +46,6 @@ return [
     |
     */
     'shared_groups' => [
-        'resourceNetwork' => [
-            'title' => 'Resource Network',
-            'columns' => [
-                //                [
-                //                    'title' => 'Networked',
-                //                    'field' => 'resource_network.is_networked',
-                //                    'formatter' => 'tickCross',
-                //                ],
-                [
-                    'title' => 'Repairable',
-                    'field' => 'resource_network.repair.max_repair_count',
-                    'formatter' => 'tickCross',
-                ],
-                [
-                    'title' => 'Pwr. Usage',
-                    'field' => 'resource_network.usage.power.maximum',
-                ],
-                [
-                    'title' => 'Clnt. Usage',
-                    'field' => 'resource_network.usage.coolant.maximum',
-                ],
-            ],
-        ],
         'resourceNetwork.power_usage' => [
             'title' => 'Power Usage',
             'columns' => [
@@ -173,7 +150,7 @@ return [
                     ...suffix('s', space: false),
                 ],
                 [
-                    'title' => 'Damage Multiplier',
+                    'title' => 'Resistance Multiplier',
                     'columns' => [
                         [
                             'title' => 'Physical',
@@ -239,35 +216,6 @@ return [
                 ],
             ],
         ],
-        'damage_multiplier' => [
-            'title' => 'Damage Multiplier',
-            'columns' => [
-                [
-                    'title' => 'Physical',
-                    'field' => 'durability.resistance.physical',
-                ],
-                [
-                    'title' => 'Energy',
-                    'field' => 'durability.resistance.energy',
-                ],
-                [
-                    'title' => 'Distortion',
-                    'field' => 'durability.resistance.distortion',
-                ],
-                [
-                    'title' => 'Thermal',
-                    'field' => 'durability.resistance.thermal',
-                ],
-                [
-                    'title' => 'Biochemical',
-                    'field' => 'durability.resistance.biochemical',
-                ],
-                [
-                    'title' => 'Stun',
-                    'field' => 'durability.resistance.stun',
-                ],
-            ],
-        ],
         'occupancy' => [
             'title' => 'Occupancy',
             'columns' => [
@@ -278,9 +226,20 @@ return [
                 ],
                 [
                     'title' => 'Weight',
-                    'field' => 'dimension.volume',
-                    ...suffix('SCU'),
+                    'field' => 'dimension.volume_converted',
+                    'formatter' => 'volumeWithUnit',
+                    'formatterParams' => [
+                        'unitField' => 'dimension.volume_converted_unit',
+                    ],
                 ],
+            ],
+        ],
+        'inventory' => [
+            'title' => 'Inventory',
+            'field' => 'inventory.scu_converted',
+            'formatter' => 'volumeWithUnit',
+            'formatterParams' => [
+                'unitField' => 'inventory.unit',
             ],
         ],
     ],
@@ -426,11 +385,103 @@ return [
     |
     */
     'type_overrides' => [
+        'Armor' => [
+            'title' => 'Vehicle Armor',
+            'remove_fields' => ['classification'],
+            'shared' => ['durability', 'occupancy'],
+            'shared_insert_at' => 2,
+
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Signals',
+                    'columns' => [
+                        [
+                            'title' => 'Cross Section',
+                            'field' => 'armor.signal_multiplier.cross_section_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Infrared',
+                            'field' => 'armor.signal_multiplier.infrared_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Electromagnetic',
+                            'field' => 'armor.signal_multiplier.electromagnetic_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Damage',
+                    'columns' => [
+                        [
+                            'title' => 'Physical',
+                            'field' => 'armor.damage_multiplier.physical_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Energy',
+                            'field' => 'armor.damage_multiplier.energy_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Distortion',
+                            'field' => 'armor.damage_multiplier.distortion_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Thermal',
+                            'field' => 'armor.damage_multiplier.thermal_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Penetration Resistance',
+                    'columns' => [
+                        [
+                            'title' => 'Base',
+                            'field' => 'armor.penetration_resistance.base',
+                            'formatter' => 'pct',
+                        ],
+                        [
+                            'title' => 'Physical',
+                            'field' => 'armor.penetration_resistance.physical',
+                            'formatter' => 'pct',
+                        ],
+                        [
+                            'title' => 'Energy',
+                            'field' => 'armor.penetration_resistance.energy',
+                            'formatter' => 'pct',
+                        ],
+                        [
+                            'title' => 'Distortion',
+                            'field' => 'armor.penetration_resistance.distortion',
+                            'formatter' => 'pct',
+                        ],
+                        [
+                            'title' => 'Thermal',
+                            'field' => 'armor.penetration_resistance.thermal',
+                            'formatter' => 'pct',
+                        ],
+                        [
+                            'title' => 'Stun',
+                            'field' => 'armor.penetration_resistance.stun',
+                            'formatter' => 'pct',
+                        ],
+                    ],
+                ],
+            ],
+        ],
         'Bomb' => [
             'title' => 'Bombs',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
             'shared' => ['durability', 'occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Damages',
@@ -516,9 +567,10 @@ return [
         ],
         'Cooler' => [
             'title' => 'Coolers',
-            'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.emission', 'resourceNetwork.repair', 'durability', 'occupancy'],
-            'shared_insert_at' => -1,
-            'add_columns_insert_at' => -2,
+            'remove_fields' => ['sub_type', 'classification'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Coolant Generation',
@@ -528,9 +580,11 @@ return [
         ],
         'EMP' => [
             'title' => 'EMP',
-            'shared' => ['resourceNetwork.repair', 'durability', 'occupancy'],
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Damage',
@@ -577,9 +631,10 @@ return [
         ],
         'FlightController' => [
             'title' => 'Flight Blades',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
             'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.repair'],
-            'shared_insert_at' => -1,
-            'add_columns_insert_at' => -2,
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Speed',
@@ -846,9 +901,11 @@ return [
         ],
         'JumpDrive' => [
             'title' => 'Jump Drives',
-            'shared' => ['resourceNetwork.repair', 'durability', 'occupancy'],
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Alignment Rate',
@@ -872,28 +929,13 @@ return [
                 ],
             ],
         ],
-        'MissileLauncher' => [
-            'title' => 'Missile Racks',
-            'shared' => ['resourceNetwork.repair', 'occupancy'],
-
-            'add_columns_insert_at' => -1,
-            'add_columns' => [
-                [
-                    'title' => 'Capacity',
-                    'field' => 'missile_rack.missile_count',
-                ],
-                [
-                    'title' => 'Size',
-                    'field' => 'missile_rack.missile_size',
-                ],
-
-            ],
-        ],
         'Missile' => [
             'title' => 'Missiles & Torpedoes',
+            'remove_fields' => ['classification', 'grade', 'class'],
             'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Tracking',
@@ -1078,9 +1120,31 @@ return [
                 ],
             ],
         ],
+        'MissileLauncher' => [
+            'title' => 'Missile Racks',
+            'remove_fields' => ['classification', 'grade', 'class'],
+            'shared' => ['resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Capacity',
+                    'field' => 'missile_rack.missile_count',
+                ],
+                [
+                    'title' => 'Size',
+                    'field' => 'missile_rack.missile_size',
+                ],
+
+            ],
+        ],
         'Paints' => [
             'title' => 'Vehicle Paints',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
             'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Description',
@@ -1090,9 +1154,10 @@ return [
         ],
         'PowerPlant' => [
             'title' => 'Power Plants',
-            'shared' => ['resourceNetwork.cooling_usage', 'resourceNetwork.repair', 'temperature', 'durability', 'occupancy'],
-            'shared_insert_at' => -1,
-            'add_columns_insert_at' => -2,
+            'remove_fields' => ['sub_type', 'classification'],
+            'shared' => ['resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Power Generation',
@@ -1133,26 +1198,25 @@ return [
         ],
         'QuantumDrive' => [
             'title' => 'Quantum Drives',
-            'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.repair', 'resourceNetwork.emission', 'temperature', 'durability', 'occupancy'],
-
-            'add_columns_insert_at' => -1,
+            'remove_fields' => ['sub_type', 'classification'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Travel',
                     'columns' => [
                         [
-                            [
-                                'title' => 'SCU per GM',
-                                'field' => 'quantum_drive.fuel_consumption_scu_per_gm',
-                            ],
-                            [
-                                'title' => 'Efficiency',
-                                'field' => 'quantum_drive.fuel_efficiency',
-                            ],
-                            [
-                                'title' => 'Time per 10GM',
-                                'field' => 'quantum_drive.travel_time_10gm.formatted',
-                            ],
+                            'title' => 'SCU per GM',
+                            'field' => 'quantum_drive.fuel_consumption_scu_per_gm',
+                        ],
+                        [
+                            'title' => 'Efficiency',
+                            'field' => 'quantum_drive.fuel_efficiency',
+                        ],
+                        [
+                            'title' => 'Time per 10GM',
+                            'field' => 'quantum_drive.travel_time_10gm.formatted',
                         ],
                     ],
                 ],
@@ -1160,26 +1224,24 @@ return [
                     'title' => 'Delays',
                     'columns' => [
                         [
-                            [
-                                'title' => 'Spool-Up',
-                                'field' => 'quantum_drive.standard_jump.spool_up_time',
-                                ...suffix('s', space: false),
-                            ],
-                            [
-                                'title' => 'Cooldown',
-                                'field' => 'quantum_drive.standard_jump.cooldown_time',
-                                ...suffix('s', space: false),
-                            ],
-                            [
-                                'title' => 'Interdiction',
-                                'field' => 'quantum_drive.standard_jump.interdiction_effect_time',
-                                ...suffix('s', space: false),
-                            ],
-                            [
-                                'title' => 'Calibration',
-                                'field' => 'quantum_drive.standard_jump.calibration_delay_in_seconds',
-                                ...suffix('s', space: false),
-                            ],
+                            'title' => 'Spool-Up',
+                            'field' => 'quantum_drive.standard_jump.spool_up_time',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Cooldown',
+                            'field' => 'quantum_drive.standard_jump.cooldown_time',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Interdiction',
+                            'field' => 'quantum_drive.standard_jump.interdiction_effect_time',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Calibration',
+                            'field' => 'quantum_drive.standard_jump.calibration_delay_in_seconds',
+                            ...suffix('s', space: false),
                         ],
                     ],
                 ],
@@ -1187,37 +1249,36 @@ return [
                     'title' => 'Speed',
                     'columns' => [
                         [
-                            [
-                                'title' => 'Max',
-                                'field' => 'quantum_drive.standard_jump.drive_speed',
-                                ...suffix('m/s'),
-                            ],
-                            [
-                                'title' => 'Stage 1 Accel.',
-                                'field' => 'quantum_drive.standard_jump.stage_one_acceleration',
-                                ...suffix('m/s/s'),
-                            ],
-                            [
-                                'title' => 'Stage 2 Accel.',
-                                'field' => 'quantum_drive.standard_jump.stage_two_acceleration',
-                                ...suffix('m/s/s'),
-                            ],
-                            [
-                                'title' => 'Spline',
-                                'field' => 'quantum_drive.spline.drive_speed',
-                                ...suffix('m/s'),
-                            ],
+                            'title' => 'Max',
+                            'field' => 'quantum_drive.standard_jump.drive_speed',
+                            ...suffix('m/s'),
+                        ],
+                        [
+                            'title' => 'Stage 1 Accel.',
+                            'field' => 'quantum_drive.standard_jump.stage_one_accel_rate',
+                            ...suffix('m/s/s'),
+                        ],
+                        [
+                            'title' => 'Stage 2 Accel.',
+                            'field' => 'quantum_drive.standard_jump.stage_two_accel_rate',
+                            ...suffix('m/s/s'),
+                        ],
+                        [
+                            'title' => 'Spline',
+                            'field' => 'quantum_drive.spline_jump.drive_speed',
+                            ...suffix('m/s'),
                         ],
                     ],
                 ],
-
             ],
         ],
         'QuantumInterdictionGenerator' => [
             'title' => 'Quantum Interdiction Generators',
-            'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.emission'],
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Radius',
@@ -1244,22 +1305,22 @@ return [
                         ],
                         [
                             'title' => 'Activation',
-                            'field' => 'quantum_interdiction_generator.pulse.activation_duration',
+                            'field' => 'quantum_interdiction_generator.activation_duration',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Disperse Charge',
-                            'field' => 'quantum_interdiction_generator.pulse.disperse_charge_duration',
+                            'field' => 'quantum_interdiction_generator.disperse_charge_duration',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Discharge',
-                            'field' => 'quantum_interdiction_generator.pulse.discharge_duration',
+                            'field' => 'quantum_interdiction_generator.discharge_duration',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
-                            'field' => 'quantum_interdiction_generator.pulse.cooldown_duration',
+                            'field' => 'quantum_interdiction_generator.cooldown_duration',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1269,9 +1330,10 @@ return [
         ],
         'Radar' => [
             'title' => 'Radar',
-            'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.emission', 'resourceNetwork.repair', 'temperature', 'durability', 'occupancy'],
-            'shared_insert_at' => -1,
-            'add_columns_insert_at' => -2,
+            'remove_fields' => ['classification'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Sensitivity',
@@ -1352,8 +1414,10 @@ return [
         ],
         'SalvageModifier' => [
             'title' => 'Salvage Modules',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
             'shared' => ['occupancy'],
-            'add_columns_insert_at' => -1,
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Modifiers',
@@ -1376,7 +1440,8 @@ return [
         ],
         'SelfDestruct' => [
             'title' => 'Self Destructs',
-            'add_columns_insert_at' => -1,
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Self Destruct',
@@ -1412,9 +1477,10 @@ return [
         ],
         'Shield' => [
             'title' => 'Shields',
-            'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.emission', 'resourceNetwork.repair', 'temperature', 'durability', 'occupancy'],
-            'shared_insert_at' => -1,
-            'add_columns_insert_at' => -2,
+            'remove_fields' => ['sub_type', 'classification'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Shield',
@@ -1656,7 +1722,8 @@ return [
         ],
         'ShieldController' => [
             'title' => 'Shield Controllers',
-            'add_columns_insert_at' => -1,
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Face Type',
@@ -1669,6 +1736,7 @@ return [
                 [
                     'title' => 'Reconfiguration Cooldown',
                     'field' => 'shield_controller.reconfiguration_cooldown',
+                    ...suffix('s', space: false),
                 ],
                 [
                     'title' => 'Max Electrical Charge Dmg Rate',
@@ -1678,8 +1746,10 @@ return [
         ],
         'TractorBeam,TowingBeam' => [
             'title' => 'Tractor & Towing Beams',
-            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.repair', 'durability', 'occupancy'],
-            'add_columns_insert_at' => -1,
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Tractor',
@@ -1760,9 +1830,11 @@ return [
         ],
         'Turret' => [
             'title' => 'Turrets & Gimbals',
-            'shared' => ['resourceNetwork.repair', 'durability', 'occupancy'],
+            'remove_fields' => ['classification', 'grade', 'class'],
+            'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Mounts',
@@ -1821,11 +1893,19 @@ return [
                 ],
             ],
         ],
+        // 'weapon' => [
+        //     'title' => 'Weapons',
+        //     'add_columns' => [],
+        //     'remove_fields' => [],
+        //     'header_filter_options_map' => [],
+        // ],
         'WeaponDefensive' => [
             'title' => 'Countermeasures',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
             'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
 
-            'add_columns_insert_at' => -1,
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Type',
@@ -1878,9 +1958,569 @@ return [
                 ],
             ],
         ],
+        'WeaponMining' => [
+            'title' => 'Mining Lasers',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
+            'shared_insert_at' => 2,
 
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Module Slots',
+                    'field' => 'mining_laser.module_slots',
+                ],
+                [
+                    'title' => 'Throttle',
+                    'columns' => [
+                        [
+                            'title' => 'Lerp Speed',
+                            'field' => 'mining_laser.throttle_lerp_speed',
+                        ],
+                        [
+                            'title' => 'Min',
+                            'field' => 'mining_laser.throttle_minimumpower',
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Laser Power',
+                    'columns' => [
+                        [
+                            'title' => 'Min',
+                            'field' => 'mining_laser.laser_power.min',
+                        ],
+                        [
+                            'title' => 'Max',
+                            'field' => 'mining_laser.laser_power.max',
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Range',
+                    'columns' => [
+                        [
+                            'title' => 'Optimal',
+                            'field' => 'mining_laser.optimal_range',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Max',
+                            'field' => 'mining_laser.maximum_range',
+                            ...suffix('m'),
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Modifier',
+                    'columns' => [
+                        [
+                            'title' => 'Resistance',
+                            'field' => 'mining_laser.modifier_map.resistance',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Instability',
+                            'field' => 'mining_laser.modifier_map.instability',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Optimal Charge Window',
+                            'field' => 'mining_laser.modifier_map.optimal_charge_window_size',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Optimal Rate',
+                            'field' => 'mining_laser.modifier_map.optimal_charge_rate',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Inert Materials',
+                            'field' => 'mining_laser.modifier_map.inert_materials',
+                            ...suffix('%', space: false),
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
+        // Categories
+
+        'clothes' => [
+            'title' => 'Clothing',
+            'remove_fields' => ['grade', 'class'],
+            'shared' => ['inventory', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Clothing',
+                    'columns' => [
+                        [
+                            'title' => 'Slot',
+                            'field' => 'clothing.slot',
+                        ],
+                        [
+                            'title' => 'Type',
+                            'field' => 'clothing.type',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Resistance',
+                    'columns' => [
+
+                        [
+                            'title' => 'Temperature',
+                            'columns' => [
+                                [
+                                    'title' => 'Min',
+                                    'field' => 'clothing.temperature_resistance.min',
+                                    ...suffix('ºC'),
+                                ],
+                                [
+                                    'title' => 'Max',
+                                    'field' => 'clothing.temperature_resistance.max',
+                                    ...suffix('ºC'),
+                                ],
+                            ],
+                        ],
+                        [
+                            'title' => 'Radiation',
+                            'columns' => [
+                                [
+                                    'title' => 'Capacity',
+                                    'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
+                                ],
+                                [
+                                    'title' => 'Scrub Rate',
+                                    'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
+                                ],
+                            ],
+                        ],
+
+                    ],
+                ],
+
+            ],
+        ],
+        'food' => [
+            'title' => 'Food & Drinks',
+            'remove_fields' => ['grade', 'class'],
+            'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Nutrition',
+                    'columns' => [
+                        [
+                            'title' => 'Thirst',
+                            'field' => 'food.nutrition.thirst',
+                        ],
+                        [
+                            'title' => 'Hunger',
+                            'field' => 'food.nutrition.hunger',
+                        ],
+                        [
+                            'title' => 'Blood Drug Level',
+                            'field' => 'food.nutrition.blood_drug_level',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Buffs',
+                    'columns' => [
+                        [
+                            'title' => 'Hypertrophic',
+                            'field' => 'food.buffs.hypertrophic',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Hypo Metabolic',
+                            'field' => 'food.buffs.hypo_metabolic',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Hydrating',
+                            'field' => 'food.buffs.hydrating',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Cognitive Boost',
+                            'field' => 'food.buffs.cognitive_boost',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Energizing',
+                            'field' => 'food.buffs.energizing',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Immune',
+                            'field' => 'food.buffs.immune_boost',
+                            ...suffix('s', space: false),
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Debuffs',
+                    'columns' => [
+                        [
+                            'title' => 'Cognitive Impair',
+                            'field' => 'food.debuffs.cognitive_impair',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Dehydrating',
+                            'field' => 'food.debuffs.dehydrating',
+                            ...suffix('s', space: false),
+                        ],
+                        [
+                            'title' => 'Hyper Metabolic',
+                            'field' => 'food.debuffs.hyper_metabolic',
+                            ...suffix('s', space: false),
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Consumption',
+                    'columns' => [
+                        [
+                            'title' => 'Volume',
+                            'field' => 'food.consumption.volume',
+                            ...suffix('µSCU'),
+                        ],
+                        [
+                            'title' => 'One Shot',
+                            'field' => 'food.consumption.one_shot_consume',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Container',
+                    'columns' => [
+                        [
+                            'title' => 'Type',
+                            'field' => 'food.container.type',
+                        ],
+                        [
+                            'title' => 'Closed',
+                            'field' => 'food.container.closed',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Closable',
+                            'field' => 'food.container.can_be_reclosed',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Discard',
+                            'field' => 'food.container.discard_when_consumed',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+            ],
+        ],
+        'fps-armor' => [
+            'title' => 'FPS Armor',
+            'remove_fields' => ['grade', 'class'],
+            'shared' => ['inventory', 'occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Armor',
+                    'columns' => [
+                        [
+                            'title' => 'Slot',
+                            'field' => 'clothing.slot',
+                        ],
+                        // [
+                        //     'title' => 'Type',
+                        //     'field' => 'clothing.type',
+                        // ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Resistance',
+                    'columns' => [
+                        [
+                            'title' => 'Temperature',
+                            'columns' => [
+                                [
+                                    'title' => 'Min',
+                                    'field' => 'clothing.temperature_resistance.min',
+                                    ...suffix('ºC'),
+                                ],
+                                [
+                                    'title' => 'Max',
+                                    'field' => 'clothing.temperature_resistance.max',
+                                    ...suffix('ºC'),
+                                ],
+                            ],
+                        ],
+                        [
+                            'title' => 'Radiation',
+                            'columns' => [
+                                [
+                                    'title' => 'Capacity',
+                                    'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
+                                    ...suffix('REM'),
+                                ],
+                                [
+                                    'title' => 'Scrub Rate',
+                                    'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
+                                    ...suffix('REM/s'),
+                                ],
+                            ],
+                        ],
+                        [
+                            'title' => 'Damage',
+                            'columns' => [
+                                [
+                                    'title' => 'Impact',
+                                    'field' => 'clothing.damage_resistance_map.impact',
+                                    'formatter' => 'pct',
+                                ],
+                                [
+                                    'title' => 'Physical',
+                                    'field' => 'clothing.damage_resistance_map.physical',
+                                    'formatter' => 'pct',
+                                ],
+                                [
+                                    'title' => 'Energy',
+                                    'field' => 'clothing.damage_resistance_map.energy',
+                                    'formatter' => 'pct',
+                                ],
+                                [
+                                    'title' => 'Distortion',
+                                    'field' => 'clothing.damage_resistance_map.distortion',
+                                    'formatter' => 'pct',
+                                ],
+                                [
+                                    'title' => 'Thermal',
+                                    'field' => 'clothing.damage_resistance_map.thermal',
+                                    'formatter' => 'pct',
+                                ],
+                                [
+                                    'title' => 'Stun',
+                                    'field' => 'clothing.damage_resistance_map.stun',
+                                    'formatter' => 'pct',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Signature',
+                    'columns' => [
+                        [
+                            'title' => 'EM',
+                            'field' => 'clothing.signature.electromagnetic',
+                        ],
+                        [
+                            'title' => 'IR',
+                            'field' => 'clothing.signature.infrared',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'medical' => [
+            'title' => 'Medicine',
+            'remove_fields' => ['grade', 'class'],
+            'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Combat Buffs',
+                    'columns' => [
+                        [
+                            'title' => 'Stun Recovery',
+                            'field' => 'medical.combat_buffs.stun_recovery',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Move Speed',
+                            'field' => 'medical.combat_buffs.move_speed',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Weapon Sway',
+                            'field' => 'medical.combat_buffs.weapon_sway',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'ADS Enter',
+                            'field' => 'medical.combat_buffs.a_d_s_enter',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Impact Resistance',
+                    'columns' => [
+                        [
+                            'title' => 'Knockdown',
+                            'field' => 'medical.impact_resistances.knockdown',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Stagger',
+                            'field' => 'medical.impact_resistances.stagger',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Twitch',
+                            'field' => 'medical.impact_resistances.twitch',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Flinch',
+                            'field' => 'medical.impact_resistances.flinch',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Consumption',
+                    'columns' => [
+                        [
+                            'title' => 'Volume',
+                            'field' => 'medical.consumption.volume',
+                            ...suffix('µSCU'),
+                        ],
+                        [
+                            'title' => 'One Shot',
+                            'field' => 'medical.consumption.one_shot_consume',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Container',
+                    'columns' => [
+                        [
+                            'title' => 'Type',
+                            'field' => 'medical.container.type',
+                        ],
+                        [
+                            'title' => 'Closed',
+                            'field' => 'medical.container.closed',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Closable',
+                            'field' => 'medical.container.can_be_reclosed',
+                            'formatter' => 'tickCross',
+                        ],
+                        [
+                            'title' => 'Discard',
+                            'field' => 'medical.container.discard_when_consumed',
+                            'formatter' => 'tickCross',
+                        ],
+                    ],
+                ],
+
+            ],
+        ],
+        'mining-modifiers' => [
+            'title' => 'Mining Modules & Gadgets',
+            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'shared' => ['durability', 'occupancy'],
+            'shared_insert_at' => 2,
+
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Type',
+                    'field' => 'mining_modifier.item_type',
+                ],
+                [
+                    'title' => 'Status',
+                    'field' => 'mining_modifier.type',
+                ],
+                [
+                    'title' => 'Charges',
+                    'field' => 'mining_modifier.charges',
+                ],
+                [
+                    'title' => 'Duration',
+                    'field' => 'mining_modifier.duration',
+                    ...suffix('s', space: false),
+                ],
+                [
+                    'title' => 'Modifier (Mining/Extraction)',
+                    'field' => 'mining_modifier.power_modifier',
+                    'formatter' => 'pct',
+                ],
+                [
+                    'title' => 'Modifier',
+                    'columns' => [
+                        [
+                            'title' => 'Resistance',
+                            'field' => 'mining_modifier.modifier_map.resistance',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Instability',
+                            'field' => 'mining_modifier.modifier_map.instability',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Optimal Charge Window',
+                            'field' => 'mining_modifier.modifier_map.optimal_charge_window_size',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Optimal Rate',
+                            'field' => 'mining_modifier.modifier_map.optimal_charge_rate',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Shatter Damage',
+                            'field' => 'mining_modifier.modifier_map.shatter_damage',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Cluster Factor',
+                            'field' => 'mining_modifier.modifier_map.cluster_factor',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Overcharge Rate',
+                            'field' => 'mining_modifier.modifier_map.overcharge_rate',
+                            ...suffix('%', space: false),
+                        ],
+                        [
+                            'title' => 'Inert Materials',
+                            'field' => 'mining_modifier.modifier_map.inert_materials',
+                            ...suffix('%', space: false),
+                        ],
+                    ],
+                ],
+
+            ],
+        ],
         'vehicle-flair-items' => [
             'title' => 'Vehicle Flair Items',
+            'remove_fields' => ['grade', 'class', 'classification'],
+            'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
                     'title' => 'Description',
@@ -1888,12 +2528,204 @@ return [
                 ],
             ],
         ],
+        'weapon-attachments' => [
+            'title' => 'Personal Weapon Attachments',
+            'remove_fields' => ['grade', 'class'],
+            'shared' => ['occupancy'],
+            'shared_insert_at' => 2,
+            'add_columns_insert_at' => 1,
+            'add_columns' => [
+                [
+                    'title' => 'Weapon Modifier',
+                    'columns' => [
+                        [
+                            'title' => 'Damage',
+                            'field' => 'weapon_modifier.base.damage_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Projectile Speed',
+                            'field' => 'weapon_modifier.base.projectile_speed_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Ammo Cost',
+                            'field' => 'weapon_modifier.base.ammo_cost_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Audible Range',
+                            'field' => 'weapon_modifier.base.sound_radius_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Muzzle Flash',
+                            'field' => 'weapon_modifier.base.muzzle_flash_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Heat Generation',
+                            'field' => 'weapon_modifier.base.heat_generation_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
 
-        // 'weapon' => [
-        //     'title' => 'Weapons',
-        //     'add_columns' => [],
-        //     'remove_fields' => [],
-        //     'header_filter_options_map' => [],
-        // ],
+                [
+                    'title' => 'Recoil',
+                    'columns' => [
+                        [
+                            'title' => 'Recoil',
+                            'field' => 'weapon_modifier.recoil.multiplier_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Decay',
+                            'field' => 'weapon_modifier.recoil.decay_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Spread',
+                    'columns' => [
+                        [
+                            'title' => 'Min',
+                            'field' => 'weapon_modifier.spread.min_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Max',
+                            'field' => 'weapon_modifier.spread.max_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'First Attack',
+                            'field' => 'weapon_modifier.spread.first_attack_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Per Attack',
+                            'field' => 'weapon_modifier.spread.per_attack_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                        [
+                            'title' => 'Decay',
+                            'field' => 'weapon_modifier.spread.decay_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Iron Sight',
+                    'columns' => [
+                        [
+                            'title' => 'Default Range',
+                            'field' => 'iron_sight.default_range',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Max Range',
+                            'field' => 'iron_sight.max_range',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Range Increment',
+                            'field' => 'iron_sight.range_increment',
+                            'formatter' => 'number',
+                        ],
+                        [
+                            'title' => 'Auto Zeroing Time',
+                            'field' => 'iron_sight.auto_zeroing_time',
+                            'formatter' => 'number',
+                        ],
+                        [
+                            'title' => 'Zoom Scale',
+                            'field' => 'iron_sight.zoom_scale',
+                            ...suffix('x'),
+                        ],
+                        [
+                            'title' => 'Second Zoom Scale',
+                            'field' => 'weapon_modifier.aim.second_zoom_scale',
+                            ...suffix('x'),
+                        ],
+                        [
+                            'title' => 'Zoom Time',
+                            'field' => 'iron_sight.zoom_time_change',
+                            'formatter' => 'pctDelta',
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Flashlight',
+                    'columns' => [
+                        [
+                            'title' => 'Wide Mode',
+                            'columns' => [
+                                [
+                                    'title' => 'Type',
+                                    'field' => 'flashlight.wide.light_type',
+                                ],
+                                [
+                                    'title' => 'Radius',
+                                    'field' => 'flashlight.wide.light_radius',
+                                ],
+                                [
+                                    'title' => 'Intensity',
+                                    'field' => 'flashlight.wide.intensity',
+                                ],
+                                [
+                                    'title' => 'Color',
+                                    'field' => 'flashlight.wide.color_css',
+                                    'formatter' => 'color',
+                                ],
+                            ],
+                        ],
+                        [
+                            'title' => 'Narrow Mode',
+                            'columns' => [
+                                [
+                                    'title' => 'Type',
+                                    'field' => 'flashlight.narrow.light_type',
+                                ],
+                                [
+                                    'title' => 'Radius',
+                                    'field' => 'flashlight.narrow.light_radius',
+                                ],
+                                [
+                                    'title' => 'Intensity',
+                                    'field' => 'flashlight.narrow.intensity',
+                                ],
+                                [
+                                    'title' => 'Color',
+                                    'field' => 'flashlight.narrow.color_css',
+                                    'formatter' => 'color',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Laser Pointer',
+                    'columns' => [
+                        [
+                            'title' => 'Range',
+                            'field' => 'laser_pointer.range',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Color',
+                            'field' => 'laser_pointer.color_css',
+                            'formatter' => 'color',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
     ],
 ];

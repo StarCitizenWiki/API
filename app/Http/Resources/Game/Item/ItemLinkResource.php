@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -43,26 +44,30 @@ class ItemLinkResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->data->first();
+        /** @var ItemData $itemData */
+        $itemData = $this->resource;
+        $item = $itemData->item;
 
         return [
-            'uuid' => $this->uuid,
-            'name' => $data->name,
-            'class_name' => $data->class_name,
-            'type' => $data->type,
-            'sub_type' => $data->sub_type,
-            'classification' => $data->classification,
-            'is_base_variant' => $data->base_id === null,
-            'manufacturer' => new ManufacturerLinkResource($data->manufacturer),
-            'link' => route('items.show', ['identifier' => $this->uuid]),
-            $this->mergeWhen($data->base_id !== null, fn () => [
-                'base_variant' => route('items.show', ['identifier' => $data->baseVariant->uuid ?? '']),
+            'uuid' => $item->uuid,
+            'name' => $itemData->name,
+            'class_name' => $itemData->class_name,
+            'type' => $itemData->type,
+            'sub_type' => $itemData->sub_type,
+            'classification' => $itemData->classification,
+            'is_base_variant' => $itemData->base_id === null,
+            'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
+            'link' => route('items.show', ['identifier' => $item->uuid]),
+            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
+                'base_variant' => route('items.show', [
+                    'identifier' => $itemData->baseVariant?->item?->uuid ?? '',
+                ]),
             ]),
             'variants' => self::collection($this->whenLoaded('variants')),
             'shops' => [],
 
-            'updated_at' => $this->updated_at,
-            'version' => $data->gameVersion->code,
+            'updated_at' => $item->updated_at,
+            'version' => $itemData->gameVersion->code,
         ];
     }
 }

@@ -49,10 +49,11 @@
                 ],
                 [
                     'title' => 'Publication',
-                    'field' => 'created_at',
+                    'field' => 'created_at_human',
                     'headerSort' => true,
                     'headerFilter' => 'input',
                     'headerFilterPlaceholder' => 'Year (e.g. 2024)',
+                    'width' => 150,
                 ],
                 [
                     'title' => '',

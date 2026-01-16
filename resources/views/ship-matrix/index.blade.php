@@ -28,7 +28,7 @@
                 ['title' => 'Name', 'field' => 'name', 'sortField' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220],
                                 [
                     'title' => 'Foci',
-                    'field' => 'foci',
+                    'field' => 'foci.0.en',
                     'formatter' => 'translationList',
                     'sortField' => 'focus',
                     'headerSort' => true,

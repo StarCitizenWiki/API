@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -56,15 +57,7 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
         $stdItem = $this->extractStdItem($data);
-        $description = Arr::get($stdItem, 'DescriptionData', []);
         $weaponAttachment = Arr::get($stdItem, 'WeaponAttachment', []);
-        $ammo = Arr::get($stdItem, 'Ammunition', []);
-
-        $ammoData = $ammo !== [] ? [
-            'ammunition_uuid' => Arr::get($ammo, 'UUID'),
-            'initial_ammo_count' => Arr::get($ammo, 'InitialCapacity'),
-            'max_ammo_count' => Arr::get($ammo, 'Capacity'),
-        ] : null;
 
         $ironSight = Arr::get($weaponAttachment, 'IronSight', []);
         $ironSightData = $ironSight !== [] ? [
@@ -76,27 +69,66 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
             'zoom_time_scale' => Arr::get($ironSight, 'ZoomTimeScale'),
         ] : null;
 
-        $stdType = Arr::get($stdItem, 'Type');
-        $subType = null;
-        if (is_string($stdType) && str_contains($stdType, '.')) {
-            $parts = explode('.', $stdType);
-            $subType = $parts !== [] ? Arr::last($parts) : null;
+        $magazine = Arr::get($weaponAttachment, 'Magazine', []);
+        $magazineData = $magazine !== [] ? [
+            'initial_ammo_count' => Arr::get($magazine, 'InitialAmmoCount'),
+            'max_ammo_count' => Arr::get($magazine, 'MaxAmmoCount'),
+            'max_restock_count' => Arr::get($magazine, 'MaxRestockCount'),
+        ] : null;
+
+        $laserPointer = Arr::get($weaponAttachment, 'LaserPointer', []);
+        $laserPointerData = $laserPointer !== [] ? [
+            'range' => Arr::get($laserPointer, 'Range'),
+            'color' => Arr::get($laserPointer, 'Color') ? [
+                'r' => Arr::get($laserPointer, 'Color.R'),
+                'g' => Arr::get($laserPointer, 'Color.G'),
+                'b' => Arr::get($laserPointer, 'Color.B'),
+            ] : null,
+            'color_css' => Arr::get($laserPointer, 'ColorCss'),
+        ] : null;
+
+        $flashLightData = collect(Arr::get($weaponAttachment, 'Flashlight', []))
+            ->mapWithKeys(fn ($value) => [
+                str_contains($value['ClassName'], 'narrow') ? 'narrow' : 'wide' => [
+                    'port_name' => Arr::get($value, 'PortName'),
+                    'name' => Arr::get($value, 'Name'),
+                    'light_type' => Arr::get($value, 'LightType'),
+                    'light_radius' => Arr::get($value, 'LightRadius'),
+                    'intensity' => Arr::get($value, 'Intensity'),
+                    'color' => Arr::get($value, 'Color') ? [
+                        'r' => Arr::get($value, 'Color.R'),
+                        'g' => Arr::get($value, 'Color.G'),
+                        'b' => Arr::get($value, 'Color.B'),
+                    ] : null,
+                    'color_css' => Arr::get($value, 'ColorCss'),
+                ],
+            ])
+            ->toArray();
+
+        $barrelAttachment = Arr::get($weaponAttachment, 'Barrel', []);
+        $barrelAttachmentType = Arr::get($barrelAttachment, 'Type');
+
+        $key = $barrelAttachmentType === 'Compensator'
+            ? 'compensator'
+            : ($barrelAttachmentType === 'Flash Hider' ? 'flash_hider' : null);
+
+        $out = [
+            'iron_sight' => $ironSightData,
+            'laser_pointer' => $laserPointerData,
+            'flashlight' => $flashLightData,
+            'magazine' => $magazineData,
+        ];
+
+        if ($key) {
+            $out[$key] = collect($barrelAttachment)
+                ->mapWithKeys(fn ($value, $key) => [Str::snake($key) => $value])
+                ->push([
+                    'attachment_point' => Arr::get($weaponAttachment, 'AttachmentPoint'),
+                    'type' => Arr::get($weaponAttachment, 'AttachmentPoint'),
+                ])
+                ->toArray();
         }
 
-        return [
-            'description' => Arr::get($stdItem, 'DescriptionText', Arr::get($stdItem, 'Description')),
-            'name' => Arr::get($stdItem, 'Name'),
-            'size' => Arr::get($stdItem, 'Size'),
-            'grade' => Arr::get($stdItem, 'Grade'),
-            'type' => Arr::get($description, 'Type', $subType),
-            'sub_type' => $subType,
-            'item_type' => Arr::get($weaponAttachment, 'ItemType', Arr::get($description, 'Item Type')),
-            'attachment_point' => Arr::get($weaponAttachment, 'AttachmentPoint', Arr::get($description, 'Attachment Point')),
-            'magnification' => Arr::get($weaponAttachment, 'Magnification', Arr::get($description, 'Magnification')),
-            'capacity' => Arr::get($description, 'Capacity'),
-            'utility_class' => Arr::get($description, 'Class'),
-            'ammo' => $ammoData,
-            'iron_sight' => $ironSightData,
-        ];
+        return array_filter($out, static fn ($value) => ! empty($value));
     }
 }

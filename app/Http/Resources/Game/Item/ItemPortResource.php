@@ -76,9 +76,9 @@ class ItemPortResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $item = null;
+        $itemData = null;
         if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null && $request->routeIs('items.show')) {
-            $item = $this->loadItemForVersion(Arr::get($this, 'EquippedItem'));
+            $itemData = $this->loadItemDataForVersion(Arr::get($this, 'EquippedItem'));
         }
 
         return [
@@ -99,8 +99,8 @@ class ItemPortResource extends AbstractBaseResource
             'flags' => Arr::get($this, 'Flags', []),
             'uneditable' => Arr::get($this, 'Uneditable'),
             'equipped_item_uuid' => Arr::get($this, 'EquippedItem'),
-            $this->mergeWhen($item !== null, [
-                'equipped_item' => new ItemLinkResource($item),
+            $this->mergeWhen($itemData !== null, [
+                'equipped_item' => new ItemLinkResource($itemData),
             ]),
         ];
     }

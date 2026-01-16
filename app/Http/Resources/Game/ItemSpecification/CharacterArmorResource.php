@@ -156,13 +156,20 @@ class CharacterArmorResource extends AbstractItemSpecificationResource
                 'biochemical' => $this->mapTypeResistance($armor, 'Biochemical'),
                 'stun' => $this->mapTypeResistance($armor, 'Stun'),
             ],
+            'damage_resistance_map' => [
+                'impact' => Arr::get($armor, 'DamageResistance.Impact'),
+                'physical' => Arr::get($this->mapTypeResistance($armor, 'Physical'), 'multiplier'),
+                'energy' => Arr::get($this->mapTypeResistance($armor, 'Energy'), 'multiplier'),
+                'distortion' => Arr::get($this->mapTypeResistance($armor, 'Distortion'), 'multiplier'),
+                'thermal' => Arr::get($this->mapTypeResistance($armor, 'Thermal'), 'multiplier'),
+                'biochemical' => Arr::get($this->mapTypeResistance($armor, 'Biochemical'), 'multiplier'),
+                'stun' => Arr::get($this->mapTypeResistance($armor, 'Stun'), 'multiplier'),
+            ],
             'protected_body_parts' => Arr::get($armor, 'ProtectedBodyParts', []),
             'signature' => collect(Arr::get($armor, 'Signature', []))
-                ->map(static fn (array $signature) => [
-                    'type' => Arr::get($signature, 'Signature'),
-                    'emission' => Arr::get($signature, 'Emission'),
+                ->mapWithKeys(static fn (array $signature) => [
+                    strtolower(Arr::get($signature, 'Signature')) => Arr::get($signature, 'Emission'),
                 ])
-                ->values()
                 ->toArray(),
             'temperature_resistance' => Arr::has($stdItem, 'TemperatureResistance')
                 ? (new TemperatureResistanceResource(Arr::get($stdItem, 'TemperatureResistance')))->toArray($request)
@@ -180,6 +187,7 @@ class CharacterArmorResource extends AbstractItemSpecificationResource
         }
 
         return [
+            'type' => strtolower($key),
             'multiplier' => Arr::get($armor, "DamageResistance.{$key}.Multiplier"),
             'threshold' => Arr::get($armor, "DamageResistance.{$key}.Threshold"),
         ];

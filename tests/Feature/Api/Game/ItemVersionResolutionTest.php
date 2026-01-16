@@ -162,5 +162,6 @@ it('loads equipped items with correct game version', function (): void {
 
     $response->assertSuccessful()
         ->assertJsonPath('data.ports.0.equipped_item.name', 'Version-Specific Weapon')
+        ->assertJsonPath('data.ports.0.equipped_item.uuid', 'weapon-uuid')
         ->assertJsonPath('data.ports.0.equipped_item.version', '3.21.0-LIVE');
 });

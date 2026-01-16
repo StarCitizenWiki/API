@@ -87,15 +87,13 @@ class ClothingResource extends AbstractBaseResource
         $damageResistances = Arr::get($resource, 'data.stdItem.DamageResistances', Arr::get($resource, 'data.damageResistances', []));
 
         return [
-            'slot' => $slot,
             'clothing_type' => $type,
+
+            'slot' => $slot,
             'type' => $type,
             'damage_reduction' => Arr::get($descriptionData, 'Damage Reduction'),
             'carrying_capacity' => Arr::get($descriptionData, 'Carrying Capacity'),
-            'resistances' => $this->mapLegacyResistances(
-                Arr::get($resource, 'data.stdItem.TemperatureResistance', []),
-                $damageResistances
-            ),
+            'resistances' => $this->mapLegacyResistances($damageResistances),
             'temp_resistance_min' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Minimum'),
             'temp_resistance_max' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Maximum'),
             'temperature_resistance' => Arr::has($resource, 'data.stdItem.TemperatureResistance')
@@ -148,22 +146,16 @@ class ClothingResource extends AbstractBaseResource
         return $parts !== [] ? Arr::last($parts) : null;
     }
 
-    private function mapLegacyResistances(array $temperatureResistance, array $damageResistances): ?array
+    private function mapLegacyResistances(array $damageResistances): ?array
     {
-        $resistances = [
-            'temp_min' => Arr::get($temperatureResistance, 'MinResistance', Arr::get($temperatureResistance, 'Minimum')),
-            'temp_max' => Arr::get($temperatureResistance, 'MaxResistance', Arr::get($temperatureResistance, 'Maximum')),
-            'physical' => $this->mapDamageResistance($damageResistances, 'Physical'),
-            'energy' => $this->mapDamageResistance($damageResistances, 'Energy'),
-            'distortion' => $this->mapDamageResistance($damageResistances, 'Distortion'),
-            'thermal' => $this->mapDamageResistance($damageResistances, 'Thermal'),
-            'biochemical' => $this->mapDamageResistance($damageResistances, 'Biochemical'),
-            'stun' => $this->mapDamageResistance($damageResistances, 'Stun'),
-        ];
-
-        $hasValue = collect($resistances)->flatten()->contains(static fn ($value) => $value !== null);
-
-        return $hasValue ? $resistances : null;
+        return collect([
+            ['type' => 'physical', ...$this->mapDamageResistance($damageResistances, 'Physical')],
+            ['type' => 'energy', ...$this->mapDamageResistance($damageResistances, 'Energy')],
+            ['type' => 'distortion', ...$this->mapDamageResistance($damageResistances, 'Distortion')],
+            ['type' => 'thermal', ...$this->mapDamageResistance($damageResistances, 'Thermal')],
+            ['type' => 'biochemical', ...$this->mapDamageResistance($damageResistances, 'Biochemical')],
+            ['type' => 'stun', ...$this->mapDamageResistance($damageResistances, 'Stun')],
+        ])->filter(fn (array $entry) => isset($entry['multiplier']))->toArray();
     }
 
     private function mapDamageResistance(array $damageResistances, string $key): ?array
@@ -171,7 +163,7 @@ class ClothingResource extends AbstractBaseResource
         $entry = Arr::get($damageResistances, $key);
 
         if (! is_array($entry)) {
-            return null;
+            return [];
         }
 
         return [

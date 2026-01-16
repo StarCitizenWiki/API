@@ -72,16 +72,6 @@ trait ExtractsJsonData
     }
 
     /**
-     * Check if a specification exists in stdItem.
-     *
-     * @param  string  $type  Specification type
-     */
-    protected function hasSpecification(ItemData $itemData, string $type): bool
-    {
-        return Arr::has($itemData->data, "stdItem.{$type}");
-    }
-
-    /**
      * Extract entity tags from ItemData.
      */
     protected function extractEntityTags(ItemData $itemData): array

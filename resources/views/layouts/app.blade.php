@@ -48,7 +48,7 @@
                     <div class="flex-1">
                         @php
                             $homeUrl = Route::has('home')
-                                ? route('home', $selectedGameVersionCode ? ['version' => $selectedGameVersionCode] : [])
+                                ? route('home')
                                 : url('/');
                         @endphp
                         <a class="btn btn-ghost text-lg" href="{{ $homeUrl }}">

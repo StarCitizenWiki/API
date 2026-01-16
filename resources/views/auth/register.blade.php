@@ -1,22 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Create account')
+@section('title', 'Star Citizen Wiki API')
 @section('meta_description', 'Create a new account.')
 
 @section('content')
-    @php
-        $versionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
-        $versionQuery = $versionCode ? ['version' => $versionCode] : [];
-    @endphp
-
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
-            <h1 class="text-2xl font-semibold">Create account</h1>
-            <p class="text-sm text-base-content/70">Join the platform in seconds.</p>
+            <h1 class="text-2xl font-semibold">Star Citizen Wiki API</h1>
+            <p class="text-sm text-base-content/70">Create a new account.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('register.store', $versionQuery) }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('register.store') }}" class="card-body gap-4">
                 @csrf
 
                 @if ($errors->any())
@@ -81,7 +76,7 @@
 
         <div class="text-center text-sm">
             <span class="text-base-content/70">Already have an account?</span>
-            <a class="text-primary" href="{{ route('login', $versionQuery) }}">Sign in</a>
+            <a class="text-primary" href="{{ route('login') }}">Sign in</a>
         </div>
     </div>
 @endsection

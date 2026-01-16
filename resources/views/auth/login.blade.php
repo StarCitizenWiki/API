@@ -4,11 +4,6 @@
 @section('meta_description', 'Sign in to your account.')
 
 @section('content')
-    @php
-        $versionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
-        $versionQuery = $versionCode ? ['version' => $versionCode] : [];
-    @endphp
-
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold">Welcome back</h1>
@@ -16,7 +11,7 @@
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('login.store', $versionQuery) }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('login.store') }}" class="card-body gap-4">
                 @csrf
 
                 @if (session('status'))
@@ -49,7 +44,7 @@
                 <label class="form-control">
                     <div class="label justify-between">
                         <span class="label-text">Password</span>
-                        <a class="text-xs text-primary" href="{{ route('password.request', $versionQuery) }}">Forgot?</a>
+                        <a class="text-xs text-primary" href="{{ route('password.request') }}">Forgot?</a>
                     </div>
                     <input
                         type="password"
@@ -69,9 +64,11 @@
             </form>
         </div>
 
-        <div class="text-center text-sm">
-            <span class="text-base-content/70">New here?</span>
-            <a class="text-primary" href="{{ route('register', $versionQuery) }}">Create an account</a>
-        </div>
+        @if (Route::has('register'))
+            <div class="text-center text-sm">
+                <span class="text-base-content/70">New here?</span>
+                <a class="text-primary" href="{{ route('register') }}">Create an account</a>
+            </div>
+        @endif
     </div>
 @endsection

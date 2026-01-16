@@ -55,6 +55,16 @@ final class FilterCache
         return sprintf('filters:items:%s:%s', self::normalizeVersion($versionCode), $category);
     }
 
+    public static function itemsFiltersKey(?string $versionCode, string $category, string $filtersHash): string
+    {
+        return sprintf(
+            'filters:items:%s:%s:%s',
+            self::normalizeVersion($versionCode),
+            $category,
+            $filtersHash
+        );
+    }
+
     public static function vehiclesKey(?string $versionCode, string $vehicleType): string
     {
         return sprintf('filters:vehicles:%s:%s', self::normalizeVersion($versionCode), $vehicleType);

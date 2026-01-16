@@ -120,7 +120,7 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
                 'mode' => Arr::get($mode, 'Name'),
                 'localised' => Arr::get($mode, 'LocalisedName'),
                 'type' => Arr::get($mode, 'FireType'),
-                'rounds_per_minute' => Arr::get($mode, 'RoundsPerMinute'),
+                'rpm' => Arr::get($mode, 'RoundsPerMinute'),
                 'ammo_per_shot' => Arr::get($mode, 'AmmoPerShot'),
                 'pellets_per_shot' => Arr::get($mode, 'PelletsPerShot'),
                 'damage_per_second' => Arr::get($mode, 'DamagePerSecond'),
@@ -202,7 +202,7 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
                 ],
             ]),
 
-            'ammo' => new AmmunitionResource($this->resource),
+            'ammunition' => new AmmunitionResource($this->resource),
         ];
     }
 }

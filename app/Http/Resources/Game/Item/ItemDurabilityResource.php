@@ -32,7 +32,11 @@ class ItemDurabilityResource extends AbstractBaseResource
             'lifetime' => Arr::get($this, 'Lifetime'),
             'repairable' => Arr::get($this, 'Repairable') === 1,
             'salvageable' => Arr::get($this, 'Salvageable') === 1,
-            'resistance' => collect(Arr::get($this, 'Resistance', []))->mapWithKeys(fn ($value, $key) => [strtolower($key) => Arr::get($value, 'Multiplier')])->toArray(),
+            'resistance' => collect(Arr::get($this, 'Resistance', []))
+                ->mapWithKeys(fn ($value, $key) => [
+                    strtolower($key) => Arr::get($value, 'Multiplier'),
+                ])
+                ->toArray(),
         ];
     }
 }

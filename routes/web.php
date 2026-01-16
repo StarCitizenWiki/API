@@ -30,13 +30,6 @@ Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('web
 
 Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
 Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.items.show');
-Route::get('/items/{type}', [ItemController::class, 'index'])->name('web.items.type');
-
-Route::get('/vehicle-items', [ItemController::class, 'index'])->name('web.vehicle-items.index');
-Route::get('/vehicle-items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.vehicle-items.show');
-Route::get('/vehicle-items/{type}', [ItemController::class, 'index'])->name('web.vehicle-items.type');
-
-Route::get('/vehicle-flair-items', [ItemController::class, 'index'])->name('web.vehicle-flair-items.index');
 
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');

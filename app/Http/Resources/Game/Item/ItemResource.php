@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
-use App\Http\Resources\Game\ItemSpecification\BarrelAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
 use App\Http\Resources\Game\ItemSpecification\CargoGridResource;
 use App\Http\Resources\Game\ItemSpecification\CharacterArmorResource;
@@ -22,10 +21,11 @@ use App\Http\Resources\Game\ItemSpecification\FuelIntakeResource;
 use App\Http\Resources\Game\ItemSpecification\FuelTankResource;
 use App\Http\Resources\Game\ItemSpecification\GrenadeResource;
 use App\Http\Resources\Game\ItemSpecification\HackingChipResource;
-use App\Http\Resources\Game\ItemSpecification\IronSightResource;
 use App\Http\Resources\Game\ItemSpecification\JumpDriveResource;
+use App\Http\Resources\Game\ItemSpecification\MedicineResource;
 use App\Http\Resources\Game\ItemSpecification\MeleeWeaponResource;
 use App\Http\Resources\Game\ItemSpecification\MiningLaserResource;
+use App\Http\Resources\Game\ItemSpecification\MiningModifierResource;
 use App\Http\Resources\Game\ItemSpecification\MiningModuleResource;
 use App\Http\Resources\Game\ItemSpecification\MissileRackResource;
 use App\Http\Resources\Game\ItemSpecification\MissileResource;
@@ -45,6 +45,7 @@ use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
 use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
 use App\Http\Resources\Game\ItemSpecification\TurretResource;
 use App\Http\Resources\Game\ItemSpecification\VehicleWeaponResource;
+use App\Http\Resources\Game\ItemSpecification\WeaponAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\TranslationResolver;
@@ -277,6 +278,7 @@ class ItemResource extends AbstractBaseResource
 
         $this->addMetadata('deprecated_fields', [
             'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
+            'mining_module' => 'Use mining_modifier instead.',
         ]);
 
         $itemData = $this->data->first();
@@ -302,8 +304,10 @@ class ItemResource extends AbstractBaseResource
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
-            'grade' => $this->formatGrade($itemData),
-            'class' => $itemData->class,
+            $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
+                'grade' => $this->formatGrade($itemData),
+                'class' => $itemData->class,
+            ]),
             'description_data' => ItemDescriptionDataResource::collection($itemData->descriptionData),
             'manufacturer_description' => $itemData->getDescriptionDatum('Manufacturer'),
             'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
@@ -313,6 +317,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen(...$this->addAttachmentPosition($itemData)),
             $this->mergeWhen($this->isTurret($itemData), $this->addTurretData($itemData)),
             $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
+
             'dimension' => new ItemDimensionResource($itemData),
 
             $this->mergeWhen($this->hasInStdItem($itemData, 'InventoryContainer'), [
@@ -334,12 +339,6 @@ class ItemResource extends AbstractBaseResource
             'ports' => ItemPortResource::collection($this->when($this->hasInStdItem($itemData, 'Ports'), $this->extractPorts($itemData))),
             $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceContainer'), [
                 'resource_container' => new ResourceContainerResource($this->extractFromStdItem($itemData, 'ResourceContainer')),
-            ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Seat'), [
-                'seat' => new SeatResource($this->extractFromStdItem($itemData, 'Seat')),
-            ]),
-            $this->mergeWhen($this->hasSpecification($itemData, 'Ammunition'), [
-                'ammunition' => new AmmunitionResource($itemData),
             ]),
 
             $this->mergeWhen($this->hasInStdItem($itemData, 'RadiationResistance'), [
@@ -369,14 +368,13 @@ class ItemResource extends AbstractBaseResource
             ]),
 
             'shops' => [],
-            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant') && $itemData?->baseVariant?->item !== null, [
-                'base_variant' => fn () => new ItemLinkResource($itemData->baseVariant->item),
+            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
+                'base_variant' => new ItemLinkResource($itemData->baseVariant),
             ]),
             'variants' => $itemData->relationLoaded('variants')
                 ? ItemLinkResource::collection(
                     $itemData->variants
-                        ->filter(fn ($v) => $v->item !== null)
-                        ->map(fn ($v) => $v->item)
+                        ->filter(fn ($variant) => $variant->item !== null)
                 )
                 : [],
             $this->mergeWhen($includeRelated, [
@@ -403,8 +401,7 @@ class ItemResource extends AbstractBaseResource
         // FPS Armor
         if (str_starts_with($itemData->classification ?? '', 'FPS.Armor.')) {
             $hasMatch = true;
-            $specifications['character_armor'] = static fn () => new CharacterArmorResource($itemData);
-            $specifications['suit_armor'] = static fn () => new CharacterArmorResource($itemData);
+            $specifications['clothing'] = static fn () => new CharacterArmorResource($itemData);
         }
 
         // Ship Armor
@@ -555,34 +552,33 @@ class ItemResource extends AbstractBaseResource
             $specifications['salvage_modifier'] = static fn () => new SalvageModifierResource($itemData);
         }
 
-        // Barrel Attachment (specific type)
-        if ($itemData->type === 'WeaponAttachment' && $itemData->sub_type === 'Barrel') {
-            $hasMatch = true;
-            $specifications['barrel_attach'] = static fn () => new BarrelAttachmentResource($itemData);
-        }
-
-        // Weapon Modifier (can coexist with attachment types)
+        // Weapon Modifier
         if ($this->hasInStdItem($itemData, 'WeaponModifier')) {
             $hasMatch = true;
             $specifications['weapon_modifier'] = static fn () => new WeaponModifierResource($itemData);
         }
 
-        // Iron Sight (deprecated - can coexist with other specs)
-        if ($itemData->sub_type === 'IronSight') {
-            $hasMatch = true;
-            $specifications['iron_sight'] = static fn () => new IronSightResource($itemData);
-        }
-
         // Weapon Attachment
-        // if ($itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment')) {
-        //     $hasMatch = true;
-        //     $specifications['weapon_attachment'] = static fn () => new WeaponAttachmentResource($itemData);
-        // }
+        if ($itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment')) {
+            $hasMatch = true;
+
+            $attachment = new WeaponAttachmentResource($itemData)->resolve();
+
+            foreach ($attachment as $key => $data) {
+                $specifications[$key] = static fn () => $data;
+            }
+        }
 
         // Food/Drink
         if (in_array($itemData->type, ['Food', 'Bottle', 'Drink'], true) || $this->hasInStdItem($itemData, 'Food')) {
             $hasMatch = true;
             $specifications['food'] = static fn () => new FoodResource($itemData);
+        }
+
+        // Medicine
+        if ($this->hasInStdItem($itemData, 'Medical')) {
+            $hasMatch = true;
+            $specifications['medical'] = static fn () => new MedicineResource($itemData);
         }
 
         // Countermeasures
@@ -626,6 +622,21 @@ class ItemResource extends AbstractBaseResource
         if ($this->hasVehicleWeapon($itemData)) {
             $hasMatch = true;
             $specifications['vehicle_weapon'] = static fn () => new VehicleWeaponResource($itemData);
+        }
+
+        if ($this->hasInStdItem($itemData, 'Seat')) {
+            $hasMatch = true;
+            $specifications['seat'] = static fn () => new SeatResource($itemData);
+        }
+
+        if ($this->hasInStdItem($itemData, 'Ammunition')) {
+            $hasMatch = true;
+            $specifications['ammunition'] = static fn () => new AmmunitionResource($itemData);
+        }
+
+        if ($this->hasInStdItem($itemData, 'MiningModule')) {
+            $hasMatch = true;
+            $specifications['mining_modifier'] = static fn () => new MiningModifierResource($itemData);
         }
 
         if (! $hasMatch) {
@@ -729,7 +740,7 @@ class ItemResource extends AbstractBaseResource
             return null;
         }
 
-        $url = route('web.items.type', ['type' => $type]);
+        $url = route('web.items.index', ['filter' => ['type' => $type]]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {

@@ -105,16 +105,32 @@ class ArmorResource extends AbstractItemSpecificationResource
 
             'signal_multiplier' => [
                 'cross_section' => Arr::get($armor, 'SignalMultipliers.CrossSection'),
+                'cross_section_change' => round(Arr::get($armor, 'SignalMultipliers.CrossSection') - 1, 2),
+
                 'infrared' => Arr::get($armor, 'SignalMultipliers.Infrared'),
+                'infrared_change' => round(Arr::get($armor, 'SignalMultipliers.Infrared') - 1, 2),
+
                 'electromagnetic' => Arr::get($armor, 'SignalMultipliers.Electromagnetic'),
+                'electromagnetic_change' => round(Arr::get($armor, 'SignalMultipliers.Electromagnetic') - 1, 2),
             ],
             'damage_multiplier' => [
                 'physical' => Arr::get($armor, 'DamageMultipliers.Physical'),
+                'physical_change' => round(Arr::get($armor, 'DamageMultipliers.Physical') - 1, 2),
+
                 'energy' => Arr::get($armor, 'DamageMultipliers.Energy'),
+                'energy_change' => round(Arr::get($armor, 'DamageMultipliers.Energy') - 1, 2),
+
                 'distortion' => Arr::get($armor, 'DamageMultipliers.Distortion'),
+                'distortion_change' => round(Arr::get($armor, 'DamageMultipliers.Distortion') - 1, 2),
+
                 'thermal' => Arr::get($armor, 'DamageMultipliers.Thermal'),
+                'thermal_change' => round(Arr::get($armor, 'DamageMultipliers.Thermal') - 1, 2),
+
                 'biochemical' => Arr::get($armor, 'DamageMultipliers.Biochemical'),
+                'biochemical_change' => round(Arr::get($armor, 'DamageMultipliers.Biochemical') - 1, 2),
+
                 'stun' => Arr::get($armor, 'DamageMultipliers.Stun'),
+                'stun_change' => round(Arr::get($armor, 'DamageMultipliers.Stun') - 1, 2),
             ],
             'resistance_multiplier' => [
                 'physical' => Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier'),

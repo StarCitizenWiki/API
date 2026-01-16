@@ -92,158 +92,52 @@ class MiningLaserResource extends AbstractItemSpecificationResource
         $description = Arr::get($stdItem, 'DescriptionData', []);
         $miningLaser = Arr::get($stdItem, 'MiningLaser', []);
         $modifiers = is_array($miningLaser) ? Arr::get($miningLaser, 'Modifiers', []) : [];
-        $globalParams = is_array($miningLaser) ? Arr::get($miningLaser, 'GlobalParams', []) : [];
-
-        $minPower = $this->toFloat(Arr::get($miningLaser, 'MinPowerTransfer'))
-            ?? $this->parsePowerFromString(Arr::get($description, 'Mining Laser Power'), 'min');
-
-        $maxPower = $this->toFloat(Arr::get($miningLaser, 'PowerTransfer'))
-            ?? $this->parsePowerFromString(Arr::get($description, 'Mining Laser Power'), 'max');
-
-        $optimalRange = $this->toFloat(Arr::get($miningLaser, 'OptimalRange'))
-            ?? $this->parseMeters(Arr::get($description, 'Optimal Range'));
-
-        $maximumRange = $this->toFloat(Arr::get($miningLaser, 'MaximumRange'))
-            ?? $this->parseMeters(Arr::get($description, 'Maximum Range'));
-
-        $extractionThroughput = $this->toFloat(Arr::get($miningLaser, 'ExtractionThroughput'))
-            ?? $this->parseThroughput(Arr::get($description, 'Extraction Throughput'))
-            ?? $this->parseThroughput(Arr::get($description, 'Collection Throughput'));
-
-        $collectionPointRadius = $this->toFloat(Arr::get($modifiers, 'CollectionPointRadius'));
-
-        $handling = [
-            'uses_power_throttle' => Arr::get($miningLaser, 'UsesPowerThrottle') === 1,
-            'throttle_speed' => $this->toFloat(
-                Arr::get($modifiers, 'ThrottleSpeed') ?? Arr::get($globalParams, 'ThrottleAccFactor')
-            ),
-            'throttle_responsiveness_delay' => $this->toFloat(
-                Arr::get($modifiers, 'ThrottleResponsivenessDelay') ?? Arr::get($globalParams, 'ThrottleAccPeriod')
-            ),
-        ];
 
         $modifierBlock = [
+            'resistance' => $this->toFloat(Arr::get($modifiers, 'Resistance')),
+            'laser_instability' => $this->toFloat(Arr::get($modifiers, 'Instability')),
             'optimal_charge_window_size' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeWindow')),
             'optimal_charge_rate' => $this->toFloat(Arr::get($modifiers, 'OptimalChargeRate')),
+            'inert_materials' => $this->toFloat(Arr::get($modifiers, 'InertMaterials')),
+
             'all_charge_rates' => $this->toFloat(Arr::get($modifiers, 'AllChargeRates')),
-            'laser_instability' => $this->toFloat(Arr::get($modifiers, 'Instability')),
-            'resistance' => $this->toFloat(Arr::get($modifiers, 'Resistance')),
-            'collection_point_radius_m' => $collectionPointRadius,
-            'throttle_responsiveness_delay' => Arr::get($handling, 'throttle_responsiveness_delay'),
-            'throttle_speed' => Arr::get($handling, 'throttle_speed'),
         ];
 
         return [
-            'mining_power' => [
-                'min' => $minPower,
-                'max' => $maxPower,
+            'laser_power' => [
+                'min' => Arr::get($miningLaser, 'MinPowerTransfer'),
+                'max' => Arr::get($miningLaser, 'PowerTransfer'),
             ],
-            'ranges' => [
-                'optimal' => $optimalRange,
-                'maximum' => $maximumRange,
-            ],
-            'extraction' => [
-                'throughput_per_s' => $extractionThroughput,
-                'collection_point_radius_m' => $collectionPointRadius,
-            ],
-            'handling' => $handling,
+
             'modifiers' => collect($modifierBlock)
                 ->map(static fn ($value, $key) => [
                     'name' => $key,
                     'display_name' => Str::of($key)->snake()->replace('_', ' ')->title()->toString(),
                     'value' => $value,
-                ])->values()->toArray(),
-            'module_slots' => Arr::get($stdItem, 'ModuleSlots'),
+                ])
+                ->filter(static fn ($value) => $value['value'] !== null)
+                ->values()
+                ->toArray(),
+
+            'module_slots' => Arr::get($miningLaser, 'ModuleSlots'),
 
             'throttle_lerp_speed' => Arr::get($miningLaser, 'ThrottleLerpSpeed'),
+            'throttle_minimumpower' => Arr::get($miningLaser, 'ThrottleMinimum'),
 
-            'power_transfer' => /* Arr::get($description, 'Mining Laser Power') ?? */ $this->formatPowerRange($minPower, $maxPower),
+            'power_transfer' => Arr::get($miningLaser, 'PowerTransfer'),
 
-            'optimal_range' => $optimalRange,
-            'maximum_range' => $maximumRange,
+            'optimal_range' => Arr::get($miningLaser, 'OptimalRange'),
+            'maximum_range' => Arr::get($miningLaser, 'MaximumRange'),
 
-            'extraction_throughput' => $extractionThroughput,
+            'extraction_throughput' => Arr::get($miningLaser, 'ExtractionThroughput'),
             'extraction_laser_power' => Arr::get($description, 'Extraction Laser Power'),
-            'mining_laser_power' => Arr::get($description, 'Mining Laser Power'),
+            'mining_laser_power' => $this->formatPowerRange(
+                Arr::get($miningLaser, 'MinPowerTransfer'),
+                Arr::get($miningLaser, 'PowerTransfer'),
+            ),
 
             'modifier_map' => array_filter($modifierBlock, static fn ($value) => $value !== null),
         ];
-    }
-
-    private function parsePowerFromString(?string $value, string $bound): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (preg_match_all('/(-?\d+(?:\.\d+)?)/', $value, $matches) && $matches[0] !== []) {
-            if ($bound === 'min') {
-                return (float) Arr::first($matches[0]);
-            }
-
-            return (float) Arr::last($matches[0]);
-        }
-
-        return null;
-    }
-
-    private function parseMeters(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        if (is_string($value) && preg_match('/(-?\d+(?:\.\d+)?)/', $value, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return null;
-    }
-
-    private function parseThroughput(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        if (is_string($value) && preg_match('/(-?\d+(?:\.\d+)?)/', $value, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return null;
-    }
-
-    private function parsePercent(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = str_replace('%', '', $value);
-
-            if (is_numeric($normalized)) {
-                return (float) $normalized;
-            }
-
-            if (preg_match('/(-?\d+(?:\.\d+)?)/', $value, $matches)) {
-                return (float) $matches[1];
-            }
-        }
-
-        return null;
     }
 
     private function toFloat(mixed $value): ?float
@@ -278,7 +172,7 @@ class MiningLaserResource extends AbstractItemSpecificationResource
         }
 
         if ($min !== null && $max !== null) {
-            return rtrim(sprintf('%.0f - %.0f', $min, $max), '.0');
+            return sprintf('%d - %d', $min, $max);
         }
 
         return (string) ($max ?? $min);

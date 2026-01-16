@@ -65,6 +65,7 @@
 
     <x-app.sidemenu-item
         :route="'web.items.index'"
+        :active-when-filters-empty="true"
     >
         <x-slot:icon>
             <x-icon name="package" class="size-4" />
@@ -72,7 +73,14 @@
         All Items
     </x-app.sidemenu-item>
 
-    <x-app.sidemenu-item :route="'web.items.index'" collapsible>
+    <x-app.sidemenu-item
+        :route="'web.items.index'"
+        :active-filters-any="[
+            'category' => ['fps-armor', 'clothes', 'food', 'weapon-attachments', 'medical'],
+            'type' => ['WeaponPersonal'],
+        ]"
+        collapsible
+    >
         <x-slot:icon>
             <x-icon name="contact-round" class="size-4" />
         </x-slot:icon>
@@ -80,8 +88,8 @@
 
         <x-slot:children>
             <x-app.sidemenu-item
-                :route="'web.items.type'"
-                :params="['type' => 'WeaponPersonal']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'WeaponPersonal']]"
             >
                 <x-slot:icon>
                     <x-icon name="crosshair" class="size-4" />
@@ -89,28 +97,35 @@
                 Personal Weapons
             </x-app.sidemenu-item>
 
-            <x-app.sidemenu-item :route="'web.items.type'" :params="['type' => 'armor']">
+            <x-app.sidemenu-item :route="'web.items.index'" :params="['filter' => ['category' => 'fps-armor']]">
                 <x-slot:icon>
                     <x-icon name="shield" class="size-4" />
                 </x-slot:icon>
                 Armor
             </x-app.sidemenu-item>
 
-            <x-app.sidemenu-item :route="'web.items.type'" :params="['type' => 'clothes']">
+            <x-app.sidemenu-item :route="'web.items.index'" :params="['filter' => ['category' => 'clothes']]">
                 <x-slot:icon>
                     <x-icon name="shirt" class="size-4" />
                 </x-slot:icon>
                 Clothes
             </x-app.sidemenu-item>
 
-            <x-app.sidemenu-item :route="'web.items.type'" :params="['type' => 'food']">
+            <x-app.sidemenu-item :route="'web.items.index'" :params="['filter' => ['category' => 'food']]">
                 <x-slot:icon>
                     <x-icon name="utensils" class="size-4" />
                 </x-slot:icon>
                 Food & Drinks
             </x-app.sidemenu-item>
 
-            <x-app.sidemenu-item :route="'web.items.type'" :params="['type' => 'weapon-attachments']">
+            <x-app.sidemenu-item :route="'web.items.index'" :params="['filter' => ['category' => 'medical']]">
+                <x-slot:icon>
+                    <x-icon name="syringe" class="size-4" />
+                </x-slot:icon>
+                Medicine
+            </x-app.sidemenu-item>
+
+            <x-app.sidemenu-item :route="'web.items.index'" :params="['filter' => ['category' => 'weapon-attachments']]">
                 <x-slot:icon>
                     <x-icon name="puzzle" class="size-4" />
                 </x-slot:icon>
@@ -126,7 +141,40 @@
         </x-slot:children>
     </x-app.sidemenu-item>
 
-    <x-app.sidemenu-item :route="'web.vehicle-items.index'" collapsible>
+    <x-app.sidemenu-item
+        :route="'web.items.index'"
+        :params="['filter' => ['category' => 'vehicle-items']]"
+        :active-filters-any="[
+            'category' => ['vehicle-items', 'vehicle-flair-items', 'mining-modifiers'],
+            'type' => [
+                'Armor',
+                'Cooler',
+                'PowerPlant',
+                'QuantumDrive',
+                'Shield',
+                'FlightController',
+                'ShieldController',
+                'JumpDrive',
+                'Radar',
+                'SelfDestruct',
+                'WeaponDefensive',
+                'WeaponGun',
+                'MissileLauncher',
+                'Turret',
+                'Bomb',
+                'Missile',
+                'EMP',
+                'QuantumInterdictionGenerator',
+                'WeaponMining',
+                'MiningModifier',
+                'SalvageModifier',
+                'TractorBeam',
+                'TowingBeam',
+                'Paints',
+            ],
+        ]"
+        collapsible
+    >
         <x-slot:icon>
             <x-icon name="cpu" class="size-4" />
         </x-slot:icon>
@@ -134,8 +182,8 @@
 
         <x-slot:children>
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Cooler']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Cooler']]"
             >
                 <x-slot:icon>
                     <x-icon name="fan" class="size-4" />
@@ -144,8 +192,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'PowerPlant']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'PowerPlant']]"
             >
                 <x-slot:icon>
                     <x-icon name="plug" class="size-4" />
@@ -154,8 +202,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'QuantumDrive']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'QuantumDrive']]"
             >
                 <x-slot:icon>
                     <x-icon name="atom" class="size-4" />
@@ -164,8 +212,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Shield']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Shield']]"
             >
                 <x-slot:icon>
                     <x-icon name="shield" class="size-4" />
@@ -176,8 +224,8 @@
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'FlightController']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'FlightController']]"
             >
                 <x-slot:icon>
                     <x-icon name="drone" class="size-4" />
@@ -186,8 +234,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'ShieldController']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'ShieldController']]"
             >
                 <x-slot:icon>
                     <x-icon name="shield-user" class="size-4" />
@@ -198,8 +246,8 @@
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'JumpDrive']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'JumpDrive']]"
             >
                 <x-slot:icon>
                     <x-icon name="egg-fried" class="size-4" />
@@ -208,8 +256,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Radar']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Radar']]"
             >
                 <x-slot:icon>
                     <x-icon name="wifi" class="size-4" />
@@ -218,8 +266,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'SelfDestruct']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'SelfDestruct']]"
             >
                 <x-slot:icon>
                     <x-icon name="octagon-alert" class="size-4" />
@@ -227,11 +275,21 @@
                 Self-Destructs
             </x-app.sidemenu-item>
 
+            <x-app.sidemenu-item
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Armor']]"
+            >
+                <x-slot:icon>
+                    <x-icon name="brick-wall-shield" class="size-4" />
+                </x-slot:icon>
+                Armor
+            </x-app.sidemenu-item>
+
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'WeaponDefensive']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'WeaponDefensive']]"
             >
                 <x-slot:icon>
                     <x-icon name="activity" class="size-4" />
@@ -240,8 +298,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'WeaponGun']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'WeaponGun']]"
             >
                 <x-slot:icon>
                     <x-icon name="crosshair" class="size-4" />
@@ -250,8 +308,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'MissileLauncher']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'MissileLauncher']]"
             >
                 <x-slot:icon>
                     <x-icon name="square-stack" class="size-4" />
@@ -260,8 +318,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Turret']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Turret']]"
             >
                 <x-slot:icon>
                     <x-icon name="circle-plus" class="size-4" />
@@ -272,8 +330,8 @@
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Bomb']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Bomb']]"
             >
                 <x-slot:icon>
                     <x-icon name="bomb" class="size-4" />
@@ -282,8 +340,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Missile']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Missile']]"
             >
                 <x-slot:icon>
                     <x-icon name="arrow-up" class="size-4" />
@@ -292,8 +350,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'EMP']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'EMP']]"
             >
                 <x-slot:icon>
                     <x-icon name="zap" class="size-4" />
@@ -302,8 +360,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'QuantumInterdictionGenerator']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'QuantumInterdictionGenerator']]"
             >
                 <x-slot:icon>
                     <x-icon name="mouse-pointer-2-off" class="size-4" />
@@ -314,8 +372,8 @@
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'WeaponMining']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'WeaponMining']]"
             >
                 <x-slot:icon>
                     <x-icon name="target" class="size-4" />
@@ -324,8 +382,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'MiningModifier']"
+                :route="'web.items.index'"
+                :params="['filter' => ['category' => 'mining-modifiers']]"
             >
                 <x-slot:icon>
                     <x-icon name="cog" class="size-4" />
@@ -333,9 +391,10 @@
                 Mining Modifiers
             </x-app.sidemenu-item>
 
+
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'SalvageModifier']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'SalvageModifier']]"
             >
                 <x-slot:icon>
                     <x-icon name="refresh-cw" class="size-4" />
@@ -344,8 +403,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'TractorBeam,TowingBeam']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'TractorBeam,TowingBeam']]"
             >
                 <x-slot:icon>
                     <x-icon name="magnet" class="size-4" />
@@ -356,8 +415,8 @@
             <div class="divider m-0"></div>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-items.type'"
-                :params="['type' => 'Paints']"
+                :route="'web.items.index'"
+                :params="['filter' => ['type' => 'Paints']]"
             >
                 <x-slot:icon>
                     <x-icon name="paint-bucket" class="size-4" />
@@ -366,7 +425,8 @@
             </x-app.sidemenu-item>
 
             <x-app.sidemenu-item
-                :route="'web.vehicle-flair-items.index'"
+                :route="'web.items.index'"
+                :params="['filter' => ['category' => 'vehicle-flair-items']]"
 
             >
                 <x-slot:icon>

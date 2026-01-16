@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Concerns;
 
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
+use App\Models\Game\ItemData;
 use App\Models\Game\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -62,6 +63,21 @@ trait ResolvesGameVersion
         return Item::query()
             ->where('uuid', $uuid)
             ->withDataForVersion($this->gameVersionCode())
+            ->first();
+    }
+
+    /**
+     * Load ItemData for the current game version by item UUID.
+     *
+     * @param  string  $uuid  The item UUID to load
+     * @return ItemData|null The item data with required relations, or null if not found
+     */
+    protected function loadItemDataForVersion(string $uuid): ?ItemData
+    {
+        return ItemData::query()
+            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->whereHas('item', fn (Builder $query) => $query->where('uuid', $uuid))
+            ->with(['item', 'manufacturer', 'gameVersion'])
             ->first();
     }
 

@@ -4,11 +4,6 @@
 @section('meta_description', 'Verify your email address.')
 
 @section('content')
-    @php
-        $versionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
-        $versionQuery = $versionCode ? ['version' => $versionCode] : [];
-    @endphp
-
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold">Verify your email</h1>
@@ -25,7 +20,7 @@
                     Before continuing, please check your inbox for a verification link.
                 </p>
 
-                <form method="POST" action="{{ route('verification.send', $versionQuery) }}" class="flex flex-col gap-3">
+                <form method="POST" action="{{ route('verification.send') }}" class="flex flex-col gap-3">
                     @csrf
                     <button type="submit" class="btn btn-primary w-full">Resend verification email</button>
                 </form>

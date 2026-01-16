@@ -45,12 +45,24 @@ function get(obj, path, fallback = undefined) {
 }
 
 // Convert Tabulator params -> JSON:API query string
-function buildJsonApiUrl(baseUrl, params) {
+function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     const u = new URL(baseUrl, window.location.origin);
 
     // pagination
-    if (params.page != null) u.searchParams.set("page[number]", String(params.page));
-    if (params.size != null) u.searchParams.set("page[size]", String(params.size));
+    const defaultPage = defaults.page ?? 1;
+    const defaultSize = defaults.pageSize ?? null;
+
+    if (params.page != null && Number(params.page) !== defaultPage) {
+        u.searchParams.set("page[number]", String(params.page));
+    } else {
+        u.searchParams.delete("page[number]");
+    }
+
+    if (params.size != null && (defaultSize === null || Number(params.size) !== Number(defaultSize))) {
+        u.searchParams.set("page[size]", String(params.size));
+    } else {
+        u.searchParams.delete("page[size]");
+    }
 
     // sorting: sort=a,-b
     const sorters = params.sorters ?? params.sort ?? [];
@@ -197,6 +209,47 @@ function normalizeColumns(columns) {
             }
 
             return `${val.toFixed(0)}%`;
+        },
+        // Shows + / -N% values and hides 0%
+        pctDelta: (cell, params) => {
+            if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
+                return '';
+            }
+
+            const val = cell.getValue() * 100;
+
+            if (val === 0) {
+                return '';
+            }
+
+            if (params.suffix === false) {
+                return val.toFixed(0);
+            }
+
+            return `${val > 0 ? '+' : ''}${val.toFixed(0)}%`;
+        },
+        volumeWithUnit: (cell, params) => {
+            const value = cell.getValue();
+
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+
+            const unitField = params?.unitField ?? 'dimension.volume_converted_unit';
+            const unit = unitField ? get(cell.getData(), unitField, null) : null;
+            const numericValue = typeof value === "number" ? value : Number(value);
+            const formatted = Number.isFinite(numericValue)
+                ? new Intl.NumberFormat(params?.locale, {
+                    minimumFractionDigits: params?.minimumFractionDigits ?? 0,
+                    maximumFractionDigits: params?.maximumFractionDigits ?? 2,
+                }).format(numericValue)
+                : String(value);
+
+            if (!unit) {
+                return formatted;
+            }
+
+            return `${formatted}${params?.separator ?? ' '}${unit}`;
         },
         viewButton: (cell, params) => {
             const label = params?.label ?? "View";
@@ -382,7 +435,7 @@ export function initTabulatorTables() {
                     }));
                 }
 
-                const finalUrl = buildJsonApiUrl(url, params);
+                const finalUrl = buildJsonApiUrl(url, params, { pageSize });
 
                 syncBrowserUrl(finalUrl, apiUrlTargetId, historySyncMode, historySyncScope);
 

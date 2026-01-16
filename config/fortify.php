@@ -2,7 +2,7 @@
 
 use Laravel\Fortify\Features;
 
-$registrationEnabled = env('FORTIFY_ALLOW_REGISTRATION', true);
+$registrationEnabled = env('FORTIFY_ALLOW_REGISTRATION', false);
 
 return [
 

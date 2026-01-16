@@ -105,7 +105,7 @@ class QuantumDriveResource extends AbstractItemSpecificationResource
             'fuel_efficiency' => Arr::get($quantumDrive, 'FuelEfficiencyGMPerSCU'),
 
             'travel_time_10gm' => [
-                'seconds' => Arr::get($quantumDrive, 'TravelTimePer10GMSeconds'),
+                'seconds' => Arr::get($quantumDrive, 'TravelTime10GMSeconds'),
                 'formatted' => Arr::get($quantumDrive, 'TravelTime10GM'),
             ],
         ];

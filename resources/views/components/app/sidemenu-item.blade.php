@@ -4,6 +4,8 @@
     'routeIs' => null,
     'href' => null,
     'params' => [],
+    'activeFiltersAny' => [],
+    'activeWhenFiltersEmpty' => false,
     'versionCode' => null,
     'withVersion' => true,
     'collapsible' => false,
@@ -30,6 +32,10 @@
     }
 
     $isActive = false;
+    $queryFilters = request()->query('filter');
+    $resolvedQueryFilters = is_array($queryFilters) ? $queryFilters : [];
+    $hasQueryFilters = $resolvedQueryFilters !== [];
+    $hasCustomActive = $activeWhenFiltersEmpty || $activeFiltersAny !== [];
 
     if ($routeIs) {
         $isActive = request()->routeIs($routeIs);
@@ -39,7 +45,41 @@
         if ($isActive && !empty($params)) {
             $currentRoute = request()->route();
             foreach ($params as $key => $value) {
-                if ($currentRoute->parameter($key) !== $value) {
+                $routeValue = $currentRoute?->parameter($key);
+
+                if ($routeValue !== null) {
+                    if ((string) $routeValue !== (string) $value) {
+                        $isActive = false;
+                        break;
+                    }
+
+                    continue;
+                }
+
+                $queryValue = request()->query($key);
+
+                if (is_array($value)) {
+                    if (! is_array($queryValue)) {
+                        $isActive = false;
+                        break;
+                    }
+
+                    foreach ($value as $nestedKey => $nestedValue) {
+                        if (! array_key_exists($nestedKey, $queryValue)) {
+                            $isActive = false;
+                            break 2;
+                        }
+
+                        if ((string) $queryValue[$nestedKey] !== (string) $nestedValue) {
+                            $isActive = false;
+                            break 2;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if ((string) $queryValue !== (string) $value) {
                     $isActive = false;
                     break;
                 }
@@ -47,23 +87,46 @@
         }
     }
 
-    // Check if any child should be active (for collapsible parent items)
-    // We check for a broader pattern by extracting the base route prefix
-    if (!$isActive && $route && $collapsible) {
-        // Extract the base pattern (e.g., 'web.items' from 'web.items.index')
+    if ($route && $activeWhenFiltersEmpty) {
+        $isActive = request()->routeIs($route) && ! $hasQueryFilters;
+    } elseif ($route && $activeFiltersAny !== []) {
+        $matchesAny = false;
+
+        if ($hasQueryFilters) {
+            foreach ($activeFiltersAny as $filterKey => $allowed) {
+                if (! array_key_exists($filterKey, $resolvedQueryFilters)) {
+                    continue;
+                }
+
+                $currentValue = $resolvedQueryFilters[$filterKey];
+                $currentValues = is_array($currentValue)
+                    ? $currentValue
+                    : array_filter(array_map('trim', explode(',', (string) $currentValue)));
+
+                $allowedValues = is_array($allowed) ? $allowed : [$allowed];
+
+                foreach ($allowedValues as $allowedValue) {
+                    if (in_array((string) $allowedValue, array_map('strval', $currentValues), true)) {
+                        $matchesAny = true;
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $isActive = request()->routeIs($route) && $matchesAny;
+    }
+
+    if (!$isActive && $route && $collapsible && ! $hasCustomActive) {
         $routeParts = explode('.', $route);
         if (count($routeParts) > 1) {
-            // Try matching with the parent pattern (e.g., 'web.items.*')
             array_pop($routeParts);
             $basePattern = implode('.', $routeParts) . '.*';
             $isActive = request()->routeIs($basePattern);
         } else {
-            // Fallback to exact pattern
             $isActive = request()->routeIs($route . '.*');
         }
     }
-
-       // @dump($route, $isActive, request()->routeIs($route), Route::currentRouteName());
 
     $iconClass = $isActive ? 'menu-active-fg' : 'text-base-content/70';
 @endphp
@@ -79,7 +142,7 @@
                 @endisset
                 <span class="mr-auto">{{ $slot }}</span>
             </summary>
-            <ul class="menu menu-sm">
+            <ul class="menu">
                 {{ $children }}
             </ul>
         </details>

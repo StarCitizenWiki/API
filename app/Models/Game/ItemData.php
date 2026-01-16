@@ -55,6 +55,11 @@ class ItemData extends Model
         });
     }
 
+    public function scopeCategory(Builder $query, string $category): Builder
+    {
+        return $query->forCategory($category);
+    }
+
     public function getDescriptionDatum(string $name)
     {
         return $this->descriptionData()
@@ -89,12 +94,12 @@ class ItemData extends Model
 
     public function baseVariant(): BelongsTo
     {
-        return $this->belongsTo(self::class, 'base_id', 'id');
+        return $this->belongsTo(self::class, 'base_id', 'item_id');
     }
 
     public function variants(): HasMany
     {
-        return $this->hasMany(self::class, 'base_id', 'id');
+        return $this->hasMany(self::class, 'base_id', 'item_id');
     }
 
     public function gameVersion(): BelongsTo
@@ -116,10 +121,12 @@ class ItemData extends Model
     {
         return match ($category) {
             'food' => $query->food(),
+            'medical' => $query->medical(),
             'weapon-attachments' => $query->weaponAttachments(),
             'weapons' => $query->personalWeapons(),
+            'mining-modifiers' => $query->miningModifiers(),
             'clothes' => $query->clothes(),
-            'armor' => $query->armor(),
+            'fps-armor' => $query->armor(),
             'vehicle-weapons' => $query->vehicleWeapons(),
             'vehicle-items' => $query->vehicleItems(),
             'vehicle-flair-items' => $query->vehicleFlairItems(),
@@ -132,9 +139,36 @@ class ItemData extends Model
         return $query->whereIn('type', ['Food', 'Bottle', 'Drink']);
     }
 
+    public function scopeMedical(Builder $query): Builder
+    {
+        return $query->where('classification', 'FPS.Consumable.Medical');
+    }
+
+    public function scopeMiningModifiers(Builder $query): Builder
+    {
+        return $query->whereIn('classification', [
+            'Mining.Module',
+            'Mining.Gadget',
+        ]);
+    }
+
     public function scopeWeaponAttachments(Builder $query): Builder
     {
-        return $query->where('type', 'WeaponAttachment');
+        return $query->where('type', 'WeaponAttachment')
+            ->whereNotIn(
+                'sub_type',
+                [
+                    // Magazines
+                    'Magazine',
+                    'Missile',
+
+                    // Ship Weapon Attachments
+                    'FiringMechanism',
+                    'Ventilation',
+                    'PowerArray',
+                ]
+            )
+            ->whereNot('classification', 'Ship.WeaponAttachment.Barrel');
     }
 
     public function scopePersonalWeapons(Builder $query): Builder

@@ -37,15 +37,32 @@ final class ItemTableConfig
             }
 
             $sharedGroups = $this->resolveSharedGroups($overrides);
-            if ($sharedGroups !== []) {
-                $sharedInsertAt = Arr::get($overrides, 'shared_insert_at');
-                $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
-            }
+            $sharedInsertAt = Arr::get($overrides, 'shared_insert_at');
 
             $additionalColumns = Arr::get($overrides, 'add_columns', []);
-            if (is_array($additionalColumns) && $additionalColumns !== []) {
-                $addColumnsInsertAt = Arr::get($overrides, 'add_columns_insert_at');
-                $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+            $addColumnsInsertAt = Arr::get($overrides, 'add_columns_insert_at');
+
+            if ($sharedGroups !== [] && is_array($additionalColumns) && $additionalColumns !== []) {
+                if ($this->isPositiveInsertAt($addColumnsInsertAt) && $this->isPositiveInsertAt($sharedInsertAt)) {
+                    if ($addColumnsInsertAt < $sharedInsertAt) {
+                        $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+                        $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
+                    } else {
+                        $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
+                        $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+                    }
+                } else {
+                    $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
+                    $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+                }
+            } else {
+                if ($sharedGroups !== []) {
+                    $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
+                }
+
+                if (is_array($additionalColumns) && $additionalColumns !== []) {
+                    $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+                }
             }
         }
 
@@ -171,13 +188,7 @@ final class ItemTableConfig
      */
     private function findViewButtonIndex(array $columns): ?int
     {
-        foreach ($columns as $index => $column) {
-            if (($column['formatter'] ?? null) === 'viewButton') {
-                return $index;
-            }
-        }
-
-        return null;
+        return array_find_key($columns, fn ($column) => ($column['field'] ?? null) === 'uuid');
     }
 
     /**
@@ -204,6 +215,10 @@ final class ItemTableConfig
             return array_values(array_merge($columns, $newColumns));
         }
 
+        if ($this->isPositiveInsertAt($insertAt)) {
+            $insertAt = $this->findViewButtonIndex($columns) ?? count($columns);
+        }
+
         $columnCount = count($columns);
 
         // Handle negative indices (count from end)
@@ -228,5 +243,10 @@ final class ItemTableConfig
             $newColumns,
             array_slice($columns, $insertAt)
         ));
+    }
+
+    private function isPositiveInsertAt(?int $insertAt): bool
+    {
+        return $insertAt !== null && $insertAt > 0;
     }
 }

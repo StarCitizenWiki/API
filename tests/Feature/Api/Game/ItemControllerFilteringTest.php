@@ -114,6 +114,52 @@ it('filters items by variants flag', function (): void {
         ->assertJsonPath('data.0.uuid', $baseItem->uuid);
 });
 
+it('filters items by category', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '3.24.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Category Co',
+        'code' => 'CATEGORY',
+    ]);
+
+    $foodItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($foodItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Fruit Snack',
+            'type' => 'Food',
+            'class_name' => 'FoodSnack',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $weaponItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($weaponItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Laser Pistol',
+            'type' => 'WeaponPersonal',
+            'class_name' => 'WeaponPistol',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/items?filter[category]=food');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $foodItem->uuid);
+});
+
 it('filters search results by manufacturer', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '3.24.0-LIVE',

@@ -4,11 +4,6 @@
 @section('meta_description', 'Confirm your password to continue.')
 
 @section('content')
-    @php
-        $versionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
-        $versionQuery = $versionCode ? ['version' => $versionCode] : [];
-    @endphp
-
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold">Confirm your password</h1>
@@ -16,7 +11,7 @@
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('password.confirm.store', $versionQuery) }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('password.confirm.store') }}" class="card-body gap-4">
                 @csrf
 
                 @if ($errors->any())

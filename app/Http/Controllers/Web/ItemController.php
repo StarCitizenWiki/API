@@ -10,7 +10,6 @@ use App\Support\Items\ItemTableConfig;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ItemController extends Controller
@@ -20,62 +19,15 @@ class ItemController extends Controller
         private readonly ItemTableConfig $itemTableConfig,
     ) {}
 
-    public function index(Request $request, ?string $type = null): View
+    public function index(Request $request): View
     {
-        $knownCategories = ['armor', 'clothes', 'food', 'weapon-attachments'];
-        $resolvedType = is_string($type) ? trim($type) : null;
-        $normalizedType = $resolvedType !== null && $resolvedType !== '' ? Str::lower($resolvedType) : null;
-        $isCategory = $normalizedType !== null && in_array($normalizedType, $knownCategories, true);
+        $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
+        $category = $endpointFilters['category'] ?? null;
+        $type = $endpointFilters['type'] ?? null;
+        $resolvedType = $type ?? $category;
 
-        $routeName = $request->route()?->getName() ?? '';
-        $isVehicleItems = str_starts_with($routeName, 'web.vehicle-items.');
-        $isVehicleFlairItems = str_starts_with($routeName, 'web.vehicle-flair-items.');
-
-        $categoryRouteMap = [
-            'armor' => 'armor.index',
-            'clothes' => 'clothes.index',
-            'food' => 'food.index',
-            'weapon-attachments' => 'attachments.index',
-        ];
-
-        $categoryFiltersRouteMap = [
-            'armor' => 'armor.filters',
-            'clothes' => 'clothes.filters',
-            'food' => 'food.filters',
-            'weapon-attachments' => 'attachments.filters',
-        ];
-
-        if (! empty($resolvedType) && ! $isCategory) {
-            $request->merge([
-                'filter' => array_merge(
-                    $request->input('filter', []),
-                    ['type' => $resolvedType]
-                ),
-            ]);
-        }
-
-        if ($isCategory) {
-            $indexRouteName = $categoryRouteMap[$normalizedType];
-            $filtersRouteName = $categoryFiltersRouteMap[$normalizedType];
-
-            $resolvedType = $normalizedType;
-        } elseif ($isVehicleItems) {
-            $indexRouteName = 'vehicle-items.index';
-            $filtersRouteName = 'vehicle-items.filters';
-
-            $resolvedType = 'vehicle-items';
-        } elseif ($isVehicleFlairItems) {
-            $indexRouteName = 'vehicle-flair-items.index';
-            $filtersRouteName = 'vehicle-items.filters';
-
-            $resolvedType = 'vehicle-flair-items';
-        } else {
-            $indexRouteName = 'items.index';
-            $filtersRouteName = 'items.filters';
-        }
-
-        $initialTableData = $this->apiJsonRequest->request(route($indexRouteName, [], false), $request);
-        $filterPayload = $this->apiJsonRequest->request(route($filtersRouteName, [], false), $request);
+        $initialTableData = $this->apiJsonRequest->request(route('items.index', [], false), $request);
+        $filterPayload = $this->apiJsonRequest->request(route('items.filters', [], false), $request);
 
         $filterOptions = Arr::get($filterPayload, 'filters', []);
 
@@ -84,28 +36,106 @@ class ItemController extends Controller
         return view('items.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $filterOptions,
-            'initialFilters' => ($isCategory || $isVehicleFlairItems) ? [] : $this->buildInitialFilters($resolvedType),
+            'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
-            'endpointRouteName' => $indexRouteName,
+            'endpointRouteName' => 'items.index',
+            'endpointFilters' => $endpointFilters,
         ]);
     }
 
-    public function show(string $item): Response
+    public function show(Request $request, string $item): View
     {
-        return response('', Response::HTTP_NO_CONTENT);
+        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
+        $include = array_values(array_unique(array_merge($include, ['related_items'])));
+
+        $apiRequest = $request->duplicate();
+        $apiRequest->query->set('include', implode(',', $include));
+
+        $payload = $this->apiJsonRequest->request(route('items.show', ['identifier' => $item], false), $apiRequest);
+        $itemData = Arr::get($payload, 'data', []);
+
+        if ($itemData === []) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return view('items.show', [
+            'item' => $itemData,
+            'itemMeta' => Arr::get($payload, 'meta', []),
+            'pageTitle' => Arr::get($itemData, 'name', 'Item'),
+        ]);
     }
 
-    private function buildInitialFilters(?string $type): array
+    private function buildInitialFilters(array $filters): array
     {
-        if ($type === null || $type === '') {
+        if ($filters === []) {
             return [];
         }
 
-        return [[
-            'field' => 'type',
-            'value' => $type,
-        ]];
+        $initialFilters = [];
+
+        foreach ($filters as $field => $value) {
+            if ($field === 'category') {
+                continue;
+            }
+
+            $initialFilters[] = [
+                'field' => $field,
+                'value' => $value,
+            ];
+        }
+
+        return $initialFilters;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function normalizeFilterParams(mixed $filters): array
+    {
+        if (! is_array($filters) || $filters === []) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($filters as $field => $value) {
+            if (! is_string($field) || $field === '') {
+                continue;
+            }
+
+            $normalizedValue = $this->normalizeFilterValue($value);
+
+            if ($normalizedValue === null) {
+                continue;
+            }
+
+            $normalized[$field] = $normalizedValue;
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeFilterValue(mixed $value): ?string
+    {
+        if (is_array($value)) {
+            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
+            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
+
+            if ($values === []) {
+                return null;
+            }
+
+            return implode(',', $values);
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+
+        return $normalized === '' ? null : $normalized;
     }
 }

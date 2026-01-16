@@ -5,8 +5,6 @@
 
 @section('content')
     @php
-        $versionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
-        $versionQuery = $versionCode ? ['version' => $versionCode] : [];
         $resetToken = $request->route('token');
     @endphp
 
@@ -17,7 +15,7 @@
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('password.update', $versionQuery) }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('password.update') }}" class="card-body gap-4">
                 @csrf
 
                 @if ($errors->any())

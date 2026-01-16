@@ -74,35 +74,7 @@ class ItemController extends Controller
         return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
-            ->allowedFilters([
-                AllowedFilter::exact('type'),
-                AllowedFilter::exact('sub_type'),
-                AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
-                    $values = is_array($value) ? $value : [$value];
-
-                    $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                        $manufacturerQuery
-                            ->whereIn('name', $values)
-                            ->orWhereIn('code', $values);
-                    });
-                }),
-                AllowedFilter::partial('class_name'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::partial('classification'),
-                AllowedFilter::exact('size'),
-                AllowedFilter::exact('grade'),
-                AllowedFilter::exact('class'),
-                AllowedFilter::custom('variants', new ItemVariantsFilter),
-            ])
+            ->allowedFilters($this->allowedFilters())
             ->allowedSorts([
                 'name',
                 'class_name',
@@ -120,6 +92,43 @@ class ItemController extends Controller
             ->with(['item', 'gameVersion']);
     }
 
+    /**
+     * @return array<int, AllowedFilter>
+     */
+    private function allowedFilters(): array
+    {
+        return [
+            AllowedFilter::scope('category'),
+            AllowedFilter::exact('type'),
+            AllowedFilter::exact('sub_type'),
+            AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                    $manufacturerQuery
+                        ->whereIn('name', $values)
+                        ->orWhereIn('code', $values);
+                });
+            }),
+            AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                    $manufacturerQuery
+                        ->whereIn('name', $values)
+                        ->orWhereIn('code', $values);
+                });
+            }),
+            AllowedFilter::partial('class_name'),
+            AllowedFilter::partial('name'),
+            AllowedFilter::partial('classification'),
+            AllowedFilter::exact('size'),
+            AllowedFilter::exact('grade'),
+            AllowedFilter::exact('class'),
+            AllowedFilter::custom('variants', new ItemVariantsFilter),
+        ];
+    }
+
     #[OA\Get(
         path: '/api/items',
         description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
@@ -132,6 +141,7 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -212,7 +222,7 @@ class ItemController extends Controller
                     ->forRequestedOrDefaultVersion($versionCode)
                     ->whereHas('item', fn (Builder $q) => $q->where('uuid', $identifier))
                     ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
-                    ->with(['entityTags', 'item', 'gameVersion'])
+                    ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
                     ->first();
             }
 
@@ -273,6 +283,7 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -325,6 +336,7 @@ class ItemController extends Controller
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(name: 'version', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -354,15 +366,24 @@ class ItemController extends Controller
     public function filters(Request $request): JsonResponse
     {
         $versionCode = $this->gameVersionCode();
-        $category = $request->route()->defaults['category'] ?? 'items';
+        $category = $request->input('filter.category');
+
+        if (! is_string($category) || $category === '') {
+            $category = $request->route()->defaults['category'] ?? 'items';
+        } else {
+            $category = trim($category);
+        }
+
+        $filtersHash = $this->filtersCacheHash($request);
 
         $filters = FilterCache::rememberForever(
             FilterCache::NAMESPACE_ITEMS,
-            FilterCache::itemsKey($versionCode, $category),
-            static function () use ($versionCode, $category): array {
-                $baseQuery = ItemData::query()
+            FilterCache::itemsFiltersKey($versionCode, $category, $filtersHash),
+            function () use ($request, $versionCode, $category): array {
+                $baseQuery = QueryBuilder::for(ItemData::class, $request)
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->forCategory($category);
+                    ->forCategory($category)
+                    ->allowedFilters($this->allowedFilters());
 
                 $facets = [
                     'type' => [
@@ -438,10 +459,89 @@ class ItemController extends Controller
         ]);
     }
 
+    private function filtersCacheHash(Request $request): string
+    {
+        $filters = $this->normalizeFilterParams($request->input('filter', []));
+        unset($filters['category']);
+
+        if ($filters === []) {
+            return 'all';
+        }
+
+        return hash('sha256', json_encode($filters) ?: '');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function normalizeFilterParams(mixed $filters): array
+    {
+        if (! is_array($filters) || $filters === []) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($filters as $field => $value) {
+            if (! is_string($field) || $field === '') {
+                continue;
+            }
+
+            $normalizedValue = $this->normalizeFilterValue($value);
+
+            if ($normalizedValue === null) {
+                continue;
+            }
+
+            $normalized[$field] = $normalizedValue;
+        }
+
+        ksort($normalized);
+
+        return $normalized;
+    }
+
+    private function normalizeFilterValue(mixed $value): ?string
+    {
+        if (is_array($value)) {
+            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
+            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
+
+            if ($values === []) {
+                return null;
+            }
+
+            sort($values);
+
+            return implode(',', $values);
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $parts = array_map('trim', explode(',', $normalized));
+        $parts = array_values(array_filter($parts, static fn (string $entry): bool => $entry !== ''));
+
+        if ($parts === []) {
+            return null;
+        }
+
+        sort($parts);
+
+        return implode(',', $parts);
+    }
+
     /**
      * Transform ItemData collection to Items for resources.
      *
-     * ItemLinkResource expects Item models with loaded data relationship.
+     * ItemResource expects Item models with loaded data relationship.
      * This method transforms the ItemData query results back to Item models.
      */
     private function transformToItems($itemDataCollection, ?string $versionCode): mixed

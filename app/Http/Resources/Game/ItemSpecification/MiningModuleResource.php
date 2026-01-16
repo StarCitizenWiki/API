@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'mining_module',
     title: 'Mining Module',
-    description: 'Active and passive mining modules pulled from Item.stdItem.MiningModule in game data (Raw ignored). Focuses on player-facing usability (uses, duration, charges, lifetime) and modifiers that affect mining difficulty, yield quality, and safety. Legacy top-level fields remain for backwards compatibility; prefer the nested usage/modifiers objects.',
+    description: 'Deprecated: Use mining_modifier instead.',
     properties: [
         new OA\Property(property: 'type', type: 'string', example: 'Mining Module (Active)', nullable: true),
         new OA\Property(property: 'module_type', type: 'string', example: 'Active', nullable: true),
@@ -80,8 +80,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
     ],
-    type: 'object'
+    type: 'object',
+    deprecated: true
 )]
+/**
+ * @deprecated
+ */
 class MiningModuleResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
@@ -93,153 +97,64 @@ class MiningModuleResource extends AbstractItemSpecificationResource
         $miningModule = Arr::get($stdItem, 'MiningModule', []);
         $modifiers = is_array($miningModule) ? Arr::get($miningModule, 'Modifiers', []) : [];
 
-        $usage = [
-            'charges' => Arr::get($miningModule, 'Charges', Arr::get($stdItem, 'Charges')),
-            'lifetime_seconds' => $this->parseSeconds(Arr::get($miningModule, 'Lifetime', Arr::get($stdItem, 'Lifetime'))),
-            'uses' => $this->parseInt(Arr::get($description, 'Uses')),
-            'duration_seconds' => $this->parseDurationToSeconds(Arr::get($description, 'Duration')),
-        ];
-
         $legacyModifiers = [
-            'all_charge_rates' => Arr::get($description, 'All Charge Rates', Arr::get($modifiers, 'AllChargeRates')),
-            'collection_point_radius' => Arr::get($description, 'Collection Point Radius', Arr::get($modifiers, 'CollectionPointRadius')),
-            'instability' => Arr::get($description, 'Instability', Arr::get($modifiers, 'Instability')),
-            'module' => Arr::get($description, 'Module'),
-            'optimal_charge_rate' => Arr::get($description, 'Optimal Charge Rate', Arr::get($modifiers, 'OptimalChargeRate')),
-            'optimal_charge_window' => Arr::get($description, 'Optimal Charge Window', Arr::get($description, 'Optimal Charge Window Size', Arr::get($modifiers, 'OptimalChargeWindow'))),
-            'overcharge_rate' => Arr::get($description, 'Overcharge Rate', Arr::get($description, 'Catastrophic Charge Rate', Arr::get($modifiers, 'OverchargeRate'))),
-            'resistance' => Arr::get($description, 'Resistance', Arr::get($modifiers, 'Resistance')),
-            'shatter_damage' => Arr::get($description, 'Shatter Damage', Arr::get($modifiers, 'ShatterDamage')),
-            'throttle_responsiveness_delay' => Arr::get($description, 'Throttle Responsiveness Delay', Arr::get($modifiers, 'ThrottleResponsivenessDelay')),
-            'throttle_speed' => Arr::get($description, 'Throttle Speed', Arr::get($modifiers, 'ThrottleSpeed')),
-            'extraction_rate' => Arr::get($description, 'Extraction Rate', Arr::get($modifiers, 'ExtractionRate')),
-            'inert_materials' => Arr::get($description, 'Inert Materials', Arr::get($modifiers, 'InertMaterials')),
+            [
+                'name' => 'all_charge_rates',
+                'display_name' => 'All Charge Rates',
+                'value' => Arr::get($description, 'All Charge Rates', Arr::get($modifiers, 'AllChargeRates')),
+            ],
+            [
+                'name' => 'collection_point_radius',
+                'display_name' => 'Collection Point Radius',
+                'value' => Arr::get($description, 'Collection Point Radius', Arr::get($modifiers, 'CollectionPointRadius')),
+            ],
+            [
+                'name' => 'instability',
+                'display_name' => 'Instability',
+                'value' => Arr::get($description, 'Instability', Arr::get($modifiers, 'Instability')),
+            ],
+            [
+                'name' => 'optimal_charge_rate',
+                'display_name' => 'Optimal Charge Rate',
+                'value' => Arr::get($description, 'Optimal Charge Rate', Arr::get($modifiers, 'OptimalChargeRate')),
+            ],
+            [
+                'name' => 'optimal_charge_window',
+                'display_name' => 'Optimal Charge Window',
+                'value' => Arr::get($description, 'Optimal Charge Window', Arr::get($description, 'Optimal Charge Window Size', Arr::get($modifiers, 'OptimalChargeWindow'))),
+            ],
+            [
+                'name' => 'overcharge_rate',
+                'display_name' => 'Overcharge Rate',
+                'value' => Arr::get($description, 'Overcharge Rate', Arr::get($description, 'Catastrophic Charge Rate', Arr::get($modifiers, 'OverchargeRate'))),
+            ],
+            [
+                'name' => 'resistance',
+                'display_name' => 'Resistance',
+                'value' => Arr::get($description, 'Resistance', Arr::get($modifiers, 'Resistance')),
+            ],
+            [
+                'name' => 'shatter_damage',
+                'display_name' => 'Shatter Damage',
+                'value' => Arr::get($description, 'Shatter Damage', Arr::get($modifiers, 'ShatterDamage')),
+            ],
+            [
+                'name' => 'extraction_rate',
+                'display_name' => 'Extraction Rate',
+                'value' => Arr::get($description, 'Extraction Rate', Arr::get($modifiers, 'ExtractionRate')),
+            ],
+            [
+                'name' => 'inert_materials',
+                'display_name' => 'Inert Materials',
+                'value' => Arr::get($description, 'Inert Materials', Arr::get($modifiers, 'InertMaterials')),
+            ],
         ];
 
         return [
             'type' => Arr::get($description, 'Item Type'),
-            'module_type' => Arr::get($miningModule, 'Type'),
-            'usage' => $usage,
-            // Backwards-compatible top-level fields (prefer usage.*)
-            'charges' => $usage['charges'],
-            'lifetime_seconds' => $usage['lifetime_seconds'],
-            'uses' => $usage['uses'],
-            'duration_seconds' => $usage['duration_seconds'],
-            'modifier_map' => [
-                'mining_laser_power_percent' => $this->parsePercent(Arr::get($description, 'Mining Laser Power')),
-                'extraction_laser_power_percent' => $this->parsePercent(Arr::get($description, 'Extraction Laser Power')),
-                'optimal_charge_window_percent' => $this->parsePercent(
-                    Arr::get($description, 'Optimal Charge Window Size'),
-                    Arr::get($modifiers, 'OptimalChargeWindow')
-                ),
-                'optimal_charge_rate_percent' => $this->parsePercent(
-                    Arr::get($description, 'Optimal Charge Rate'),
-                    Arr::get($modifiers, 'OptimalChargeRate')
-                ),
-                'all_charge_rates_percent' => $this->parsePercent(Arr::get($modifiers, 'AllChargeRates')),
-                'inert_material_modifier_percent' => $this->parsePercent(
-                    Arr::get($description, 'Inert Material Level'),
-                    Arr::get($modifiers, 'InertMaterials')
-                ),
-                'resistance_percent' => $this->parsePercent(
-                    Arr::get($description, 'Resistance'),
-                    Arr::get($modifiers, 'Resistance')
-                ),
-                'instability_percent' => $this->parsePercent(
-                    Arr::get($description, 'Laser Instability'),
-                    Arr::get($modifiers, 'Instability')
-                ),
-                'shatter_damage_percent' => $this->parsePercent(
-                    Arr::get($description, 'Shatter Damage'),
-                    Arr::get($modifiers, 'ShatterDamage')
-                ),
-                'overcharge_rate_percent' => $this->parsePercent(
-                    Arr::get($description, 'Catastrophic Charge Rate'),
-                    Arr::get($modifiers, 'OverchargeRate')
-                ),
-                'cluster_factor' => Arr::get($modifiers, 'ClusterFactor'),
-                'damage_multiplier' => Arr::get($modifiers, 'DamageMultiplier'),
-            ],
-            'modifiers' => array_filter($legacyModifiers, static fn ($value) => $value !== null),
+            'uses' => Arr::get($description, 'Uses'),
+            'duration' => Arr::get($description, 'Duration'),
+            'modifiers' => array_filter($legacyModifiers, static fn ($value) => $value['value'] !== null),
         ];
-    }
-
-    private function parsePercent(mixed $value, mixed $fallback = null): ?float
-    {
-        $primary = $this->toFloat($value);
-
-        if ($primary !== null) {
-            return $primary;
-        }
-
-        return $this->toFloat($fallback);
-    }
-
-    private function parseDurationToSeconds(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $float = $this->toFloat($value);
-
-        if ($float !== null) {
-            return $float;
-        }
-
-        if (is_string($value) && preg_match('/(-?\\d+(?:\\.\\d+)?)/', $value, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return null;
-    }
-
-    private function parseSeconds(mixed $value): ?float
-    {
-        return $this->toFloat($value);
-    }
-
-    private function parseInt(mixed $value): ?int
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_int($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return (int) $value;
-        }
-
-        if (is_string($value) && preg_match('/(-?\\d+)/', $value, $matches)) {
-            return (int) $matches[1];
-        }
-
-        return null;
-    }
-
-    private function toFloat(mixed $value): ?float
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_float($value) || is_int($value)) {
-            return (float) $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = str_replace('%', '', $value);
-            if (is_numeric($normalized)) {
-                return (float) $normalized;
-            }
-            if (preg_match('/(-?\\d+(?:\\.\\d+)?)/', $value, $matches)) {
-                return (float) $matches[1];
-            }
-        }
-
-        return null;
     }
 }
