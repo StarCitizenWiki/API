@@ -19,7 +19,7 @@
                 ['title' => 'ID', 'field' => 'id', 'sorter' => 'number', 'sortField' => 'id', 'headerSort' => true, 'width' => 100],
                 [
                     'title' => 'System',
-                    'field' => 'starsystem',
+                    'field' => 'starsystem.name',
                     'formatter' => 'objectLabel',
                     'sortField' => 'starsystem',
                     'headerSort' => true,
@@ -103,18 +103,6 @@
                     'headerSort' => true,
                     'hozAlign' => 'right',
                     'width' => 120,
-                ],
-                [
-                    'title' => '',
-                    'field' => 'id',
-                    'formatter' => 'viewButton',
-                    'formatterParams' => [
-                        'label' => 'View',
-                        'hrefField' => 'web_url',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                    'width' => 100,
                 ],
             ],
         ];

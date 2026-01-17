@@ -2835,7 +2835,7 @@ return [
 
         'clothes' => [
             'title' => 'Clothing',
-            'remove_fields' => ['grade', 'class'],
+            'remove_fields' => ['sub_type', 'grade', 'class'],
             'shared' => ['inventory', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,

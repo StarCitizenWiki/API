@@ -75,21 +75,45 @@ class ItemController extends Controller
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
             ->allowedFilters($this->allowedFilters())
-            ->allowedSorts([
-                'name',
-                'class_name',
-                'class',
-                'size',
-                'grade',
-                'type',
-                'sub_type',
-                'classification',
-                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
-                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-            ])
+            ->allowedSorts(array_merge(
+                [
+                    'name',
+                    'class_name',
+                    'class',
+                    'size',
+                    'grade',
+                    'type',
+                    'sub_type',
+                    'classification',
+                    AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                    AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+                ],
+                $this->allowedJsonSorts()
+            ))
             ->defaultSort('name')
             ->allowedIncludes($this->allowedIncludes())
             ->with(['item', 'gameVersion']);
+    }
+
+    /**
+     * Get JSON-backed sort fields from configuration.
+     *
+     * @return array<AllowedSort>
+     */
+    private function allowedJsonSorts(): array
+    {
+        $sortConfig = config('sorts.items', []);
+        $allowedSorts = [];
+
+        foreach ($sortConfig as $sortKey => $config) {
+            $allowedSorts[] = $this->jsonSort(
+                $config['path'], // $sortKey,
+                'stdItem.'.$config['path'],
+                $config['cast'] ?? 'numeric'
+            );
+        }
+
+        return $allowedSorts;
     }
 
     /**
@@ -139,7 +163,15 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
-            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(
+                name: 'sort',
+                in: 'query',
+                description: 'Sort field. Prefix with "-" for descending. Supports 250+ JSON fields. Examples: name, -grade, weapon.damage.alpha_total, -shield_controller.face_type. Use comma for multiple: grade,-name',
+                schema: new OA\Schema(
+                    type: 'string',
+                    example: '-weapon.damage.alpha_total'
+                )
+            ),
             new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -164,6 +196,18 @@ class ItemController extends Controller
             ),
         ]
     )]
+    /**
+     * Get paginated list of items with optional sorting.
+     *
+     * Common sort examples:
+     * - Basic: ?sort=name, ?sort=-grade, ?sort=size
+     * - Manufacturer: ?sort=manufacturer.name
+     * - Weapons: ?sort=-weapon.damage.alpha_total, ?sort=weapon.rate_of_fire
+     * - Shields: ?sort=-shield.max_health, ?sort=shield_controller.face_type
+     * - Mining: ?sort=mining_laser.power_transfer, ?sort=-mining_module.charges
+     * - Power: ?sort=-resource_network.usage.power.maximum
+     * - Multiple: ?sort=grade,-weapon.damage.alpha_total
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $versionCode = $this->gameVersionCode();

@@ -92,6 +92,7 @@
                 'url' => route('web.items.index', array_merge($versionParams, ['filter' => $filterStack])),
             ];
         }
+
     @endphp
 
     <div class="flex flex-col gap-6">
@@ -113,5 +114,6 @@
             :config="$tableConfig"
             :initial="$initialTableData"
         />
+        <x-column-source-map :columns="$tableColumns" />
     </div>
 @endsection

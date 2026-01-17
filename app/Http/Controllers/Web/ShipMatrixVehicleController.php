@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -26,10 +25,5 @@ class ShipMatrixVehicleController extends Controller
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $allowedFilterValues,
         ]);
-    }
-
-    public function show(string $vehicle): Response
-    {
-        return response('', Response::HTTP_NO_CONTENT);
     }
 }

@@ -65,7 +65,6 @@ class ArticleResource extends AbstractBaseResource
             'properties',
             'tags',
             'related',
-            'translations',
         ];
     }
 

@@ -11,6 +11,7 @@
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,
+            'initialFilters' => $initialFilters ?? [],
             'columnDefaults' => [
                 'headerSortTristate' => true,
             ],
@@ -21,7 +22,15 @@
             ],
             'apiUrlTargetId' => 'comm-links-api-url',
             'columns' => [
-                ['title' => 'CIG ID', 'field' => 'id', 'sorter' => 'number', 'headerSort' => true, 'headerFilter' => 'input', 'width' => 100],
+                [
+                    'title' => 'CIG ID', 'field' => 'id', 'sorter' => 'number', 'headerSort' => true, 'headerFilter' => 'input', 'width' => 100,
+                    'formatter' => 'link',
+                    'formatterParams' => [
+                        'labelField' => 'id',
+                        'target' => 'blank',
+                        'urlField' => 'api_public_url',
+                    ],
+                ],
                 ['title' => 'Title', 'field' => 'title', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 260],
                 ['title' => 'Images', 'field' => 'images_count', 'hozAlign' => 'right', 'headerSort' => true, 'width' => 100],
                 ['title' => 'Links', 'field' => 'links_count', 'hozAlign' => 'right', 'headerSort' => true, 'width' => 100],
@@ -58,10 +67,11 @@
                 [
                     'title' => '',
                     'field' => 'id',
-                    'formatter' => 'viewButton',
+                    'formatter' => 'link',
                     'formatterParams' => [
-                        'label' => 'View',
-                        'hrefField' => 'api_public_url',
+                        'label' => 'API View',
+                        'target' => 'blank',
+                        'urlField' => 'api_url',
                     ],
                     'headerSort' => false,
                     'hozAlign' => 'right',
@@ -75,6 +85,31 @@
         <div class="flex flex-col gap-2">
             <h1 class="text-2xl font-semibold tracking-tight">Comm-Links</h1>
         </div>
+
+        @if (($searchType ?? null) === 'media-url')
+            <div class="card border border-base-200 bg-base-100 shadow">
+                <div class="card-body gap-3">
+                    <div class="flex flex-col gap-1">
+                        <h2 class="card-title">Media URL Results</h2>
+                        @if (! empty($searchUrl))
+                            <p class="text-sm text-base-content/70">{{ $searchUrl }}</p>
+                        @endif
+                    </div>
+
+                    @if (! empty($searchCommLinks))
+                        <div class="flex flex-col gap-2 text-sm">
+                            @foreach ($searchCommLinks as $commLink)
+                                <a class="link link-primary" href="{{ $commLink['url'] }}">
+                                    {{ $commLink['id'] }} - {{ $commLink['title'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-base-content/70">No comm-links found for that media URL.</p>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <x-tabulator-table
             :id="$tableId"

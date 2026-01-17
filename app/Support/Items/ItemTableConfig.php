@@ -10,6 +10,13 @@ use Illuminate\Support\Str;
 final class ItemTableConfig
 {
     /**
+     * Cached sorts configuration.
+     *
+     * @var array<string, array{path: string, cast: string}>|null
+     */
+    private ?array $sortsConfig = null;
+
+    /**
      * @return array{title:string,columns:array<int,array<string,mixed>>,headerFilterOptionsMap:array<string,string>}
      */
     public function build(?string $type): array
@@ -69,6 +76,13 @@ final class ItemTableConfig
         if ($type !== null) {
             $columns = $this->removeColumns($columns, ['type']);
         }
+
+        // Enrich all columns with sortField from sorts configuration
+        $sortsConfig = $this->getSortsConfig();
+        $columns = array_map(
+            fn (array $column): array => $this->enrichColumn($column, $sortsConfig),
+            $columns
+        );
 
         return $columns;
     }
@@ -248,5 +262,84 @@ final class ItemTableConfig
     private function isPositiveInsertAt(?int $insertAt): bool
     {
         return $insertAt !== null && $insertAt > 0;
+    }
+
+    /**
+     * Get sorts configuration, cached for the request lifecycle.
+     *
+     * @return array<string, array{path: string, cast: string}>
+     */
+    private function getSortsConfig(): array
+    {
+        if ($this->sortsConfig === null) {
+            $this->sortsConfig = config('sorts.items', []);
+        }
+
+        return $this->sortsConfig;
+    }
+
+    /**
+     * Enrich a single column with sortField from sorts configuration.
+     *
+     * Matches column 'field' to sort config key and adds 'sortField' from 'path'.
+     * Example: field='mass' → sortField='Mass' (from sorts config)
+     *
+     * @param  array<string, mixed>  $column  Column definition
+     * @param  array<string, array{path: string, cast: string}>  $sortsConfig  Sorts configuration
+     * @return array<string, mixed> Enriched column
+     */
+    private function enrichColumnSort(array $column, array $sortsConfig): array
+    {
+        // Skip if no field defined
+        if (! isset($column['field']) || ! is_string($column['field'])) {
+            return $column;
+        }
+
+        $field = $column['field'];
+
+        // Skip if field already has sortField (manual override)
+        if (isset($column['sortField'])) {
+            return $column;
+        }
+
+        // Lookup sort configuration by field name
+        if (! isset($sortsConfig[$field])) {
+            // Not all fields are sortable - this is normal
+            return $column;
+        }
+
+        $sortConfig = $sortsConfig[$field];
+
+        // Add sortField from path
+        $column['sortField'] = $sortConfig['path'];
+
+        // Optionally add complete sort metadata
+        $column['sort'] = [
+            'path' => $sortConfig['path'],
+            'cast' => $sortConfig['cast'] ?? 'text',
+        ];
+
+        return $column;
+    }
+
+    /**
+     * Recursively enrich a column and its nested columns with sortField.
+     *
+     * @param  array<string, mixed>  $column  Column definition (may contain nested columns)
+     * @param  array<string, array{path: string, cast: string}>  $sortsConfig  Sorts configuration
+     * @return array<string, mixed> Enriched column
+     */
+    private function enrichColumn(array $column, array $sortsConfig): array
+    {
+        // Handle nested column groups
+        if (isset($column['columns']) && is_array($column['columns'])) {
+            $column['columns'] = array_map(
+                fn (array $nestedColumn): array => $this->enrichColumn($nestedColumn, $sortsConfig),
+                $column['columns']
+            );
+        }
+
+        // Enrich this column's sortField
+        return $this->enrichColumnSort($column, $sortsConfig);
     }
 }

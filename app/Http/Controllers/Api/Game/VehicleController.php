@@ -55,7 +55,15 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
-            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(
+                name: 'sort',
+                description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity',
+                in: 'query',
+                schema: new OA\Schema(
+                    type: 'string',
+                    example: '-cargo_capacity'
+                )
+            ),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -612,40 +620,44 @@ class VehicleController extends Controller
      */
     private function allowedSorts(): array
     {
-        return [
-            'name',
-            'class_name',
-            'career',
-            'role',
-            'is_vehicle',
-            'is_gravlev',
-            'is_spaceship',
-            'size',
-            AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
-            AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-            AllowedSort::field('size_class', 'size'),
-            $this->jsonSort('length', 'Length'),
-            $this->jsonSort('width', 'Width'),
-            $this->jsonSort('height', 'Height'),
-            $this->jsonSort('mass_total', 'MassTotal'),
-            $this->jsonSort('cargo_capacity', 'Cargo'),
-            $this->jsonSort('cargo', 'Cargo'),
-            $this->jsonSort('vehicle_inventory', 'Stowage'),
-            $this->jsonSort('crew.min', 'Crew'),
-            $this->jsonSort('health', 'Health'),
-            $this->jsonSort('shield.hp', 'ShieldsTotal.Hp'),
-            $this->jsonSort('shield.face_type', 'ShieldController.FaceType', 'text'),
-            $this->jsonSort('speed.scm', 'FlightCharacteristics.Speeds.Scm'),
-            $this->jsonSort('speed.max', 'FlightCharacteristics.Speeds.Max'),
-            $this->jsonSort('armor.health', 'Armor.Health'),
-            $this->jsonSort('cross_section.length', 'CrossSection.X'),
-            $this->jsonSort('cross_section.width', 'CrossSection.Y'),
-            $this->jsonSort('cross_section.height', 'CrossSection.Z'),
-            $this->jsonSort('signature.ir_quantum', 'Emission.IrQuantum'),
-            $this->jsonSort('signature.ir_shields', 'Emission.IrShields'),
-            $this->jsonSort('signature.em_quantum', 'Emission.EmQuantum'),
-            $this->jsonSort('signature.em_shields', 'Emission.EmShields'),
-        ];
+        return array_merge(
+            [
+                'name',
+                'class_name',
+                'career',
+                'role',
+                'is_vehicle',
+                'is_gravlev',
+                'is_spaceship',
+                'size',
+                AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('msrp', new SortByRelation, 'shipmatrixVehicle.msrp'),
+                AllowedSort::field('size_class', 'size'),
+            ],
+            $this->allowedJsonSorts()
+        );
+    }
+
+    /**
+     * Get JSON-backed sort fields from configuration.
+     *
+     * @return array<AllowedSort>
+     */
+    private function allowedJsonSorts(): array
+    {
+        $sortConfig = config('sorts.vehicles', []);
+        $allowedSorts = [];
+
+        foreach ($sortConfig as $sortKey => $config) {
+            $allowedSorts[] = $this->jsonSort(
+                $config['path'],
+                $config['path'],
+                $config['cast'] ?? 'numeric'
+            );
+        }
+
+        return $allowedSorts;
     }
 
     /**

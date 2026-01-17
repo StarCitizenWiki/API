@@ -28,80 +28,86 @@
             ],
             'apiUrlTargetId' => 'vehicles-api-url',
             'columns' => [
-                ['title' => 'Name', 'field' => 'name','headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
+                ['title' => 'Name', 'field' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
                 ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
                 ['title' => 'Manufacturer', 'field' => 'manufacturer.name', 'sortField' => 'manufacturer.name', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 180],
-                ['title' => 'Size', 'field' => 'size_class', 'sorter' => 'number', 'sortField' => 'size_class', 'headerSort' => true, 'headerFilter' => 'list', 'hozAlign' => 'right', 'width' => 120],
+                ['title' => 'Size', 'field' => 'size_class', 'sorter' => 'number', 'sortField' => 'Size', 'headerSort' => true, 'headerFilter' => 'list', 'hozAlign' => 'right', 'width' => 120],
                 [
                     'title' => 'Dimensions',
                     'columns' => [
-                        ['title' => 'W', 'field' => 'dimension.width', 'sorter' => 'number', 'sortField' => 'width', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
-                        ['title' => 'L', 'field' => 'dimension.length', 'sorter' => 'number', 'sortField' => 'length', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
-                        ['title' => 'H', 'field' => 'dimension.height', 'sorter' => 'number', 'sortField' => 'height', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'W', 'field' => 'dimension.width', 'sorter' => 'number', 'sortField' => 'Width', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'L', 'field' => 'dimension.length', 'sorter' => 'number', 'sortField' => 'Length', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'H', 'field' => 'dimension.height', 'sorter' => 'number', 'sortField' => 'Height', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
                      ],
                 ],
 
-                ['title' => 'Crew', 'field' => 'crew.min', 'sorter' => 'number', 'sortField' => 'crew.min', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                ['title' => 'Mass Total', 'field' => 'mass_total', 'sorter' => 'number', 'sortField' => 'mass_total', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' kg'], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
+                ['title' => 'Crew', 'field' => 'crew.min', 'sorter' => 'number', 'sortField' => 'Crew', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                ['title' => 'Mass Total', 'field' => 'mass_total', 'sorter' => 'number', 'sortField' => 'MassTotal', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' kg'], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
 
                 [
                     'title' => 'Cargo',
                     'columns' => [
-                        ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'cargo_capacity', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                        ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'vehicle_inventory', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
+                        ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'Cargo', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'Stowage', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
                     ],
                 ],
 
                 [
                     'title' => 'Durability',
                     'columns' => [
-                        ['title' => 'Health', 'field' => 'health', 'sorter' => 'number', 'sortField' => 'health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                        ['title' => 'Armor', 'field' => 'armor.health', 'sorter' => 'number', 'sortField' => 'armor.health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
-                        ['title' => 'Shield', 'field' => 'shield.hp', 'sorter' => 'number', 'sortField' => 'shield.hp', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                        ['title' => 'Shield Face', 'field' => 'shield.face_type', 'sortField' => 'shield.face_type', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                        ['title' => 'Health', 'field' => 'health', 'sorter' => 'number', 'sortField' => 'Health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Armor', 'field' => 'armor.health', 'sorter' => 'number', 'sortField' => 'Armor.Health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
+                        ['title' => 'Shield', 'field' => 'shield.hp', 'sorter' => 'number', 'sortField' => 'ShieldsTotal.Hp', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Shield Face', 'field' => 'shield.face_type', 'sortField' => 'ShieldController.FaceType', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                     ],
                 ],
 
                 [
                     'title' => 'Speed',
                     'columns' => [
-                        ['title' => 'SCM', 'field' => 'speed.scm', 'sorter' => 'number', 'sortField' => 'speed.scm', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
-                        ['title' => 'NAV', 'field' => 'speed.max', 'sorter' => 'number', 'sortField' => 'speed.max', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'SCM', 'field' => 'speed.scm', 'sorter' => 'number', 'sortField' => 'FlightCharacteristics.IFCS.ScmSpeed', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
+                        ['title' => 'NAV', 'field' => 'speed.max', 'sorter' => 'number', 'sortField' => 'FlightCharacteristics.IFCS.MaxSpeed', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
                     ],
                 ],
 
                 [
                     'title' => 'X-Section',
                     'columns' => [
-                        ['title' => 'L', 'field' => 'cross_section.length', 'sorter' => 'number', 'sortField' => 'cross_section.length', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
-                        ['title' => 'W', 'field' => 'cross_section.width', 'sorter' => 'number', 'sortField' => 'cross_section.width', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
-                        ['title' => 'H', 'field' => 'cross_section.height', 'sorter' => 'number', 'sortField' => 'cross_section.height', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'L', 'field' => 'cross_section.length', 'sorter' => 'number', 'sortField' => 'CrossSection.X', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'W', 'field' => 'cross_section.width', 'sorter' => 'number', 'sortField' => 'CrossSection.Z', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'H', 'field' => 'cross_section.height', 'sorter' => 'number', 'sortField' => 'CrossSection.Y', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
                     ],
                 ],
 
-                ['title' => 'Vehicle', 'field' => 'is_vehicle', 'sortField' => 'is_vehicle', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
-                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'sortField' => 'is_gravlev', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
-                ['title' => 'Spaceship', 'field' => 'is_spaceship', 'sortField' => 'is_spaceship', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 120],
+                ['title' => 'Vehicle', 'field' => 'is_vehicle', 'sortField' => 'IsVehicle', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
+                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'sortField' => 'IsGravlev', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
+                ['title' => 'Spaceship', 'field' => 'is_spaceship', 'sortField' => 'IsSpaceship', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 120],
 
                 [
                     'title' => 'Signature',
                     'columns' => [
-                        ['title' => 'IR Quantum', 'field' => 'signature.ir_quantum', 'sorter' => 'number', 'sortField' => 'signature.ir_quantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
-                        ['title' => 'IR Shields', 'field' => 'signature.ir_shields', 'sorter' => 'number', 'sortField' => 'signature.ir_shields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
-                        ['title' => 'EM Quantum', 'field' => 'signature.em_quantum', 'sorter' => 'number', 'sortField' => 'signature.em_quantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
-                        ['title' => 'EM Shields', 'field' => 'signature.em_shields', 'sorter' => 'number', 'sortField' => 'signature.em_shields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'IR Quantum', 'field' => 'signature.ir_quantum', 'sorter' => 'number', 'sortField' => 'Emission.IrQuantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'IR Shields', 'field' => 'signature.ir_shields', 'sorter' => 'number', 'sortField' => 'Emission.IrShields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'EM Quantum', 'field' => 'signature.em_quantum', 'sorter' => 'number', 'sortField' => 'Emission.EmQuantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'EM Shields', 'field' => 'signature.em_shields', 'sorter' => 'number', 'sortField' => 'Emission.EmShields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
                     ],
                 ],
 
                 ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 [
-                    'title' => '',
+                    'title' => 'MSRP', 'field' => 'msrp', 'sortField' => 'msrp', 'headerSort' => true,
+                    'formatter' => 'money',
+                    'formatterParams' => ['symbol' => ' $', 'symbolAfter' => true]
+                ],
+                [
+                    'title' => 'API Url',
                     'field' => 'uuid',
-                    'formatter' => 'viewButton',
+                    'formatter' => 'link',
                     'formatterParams' => [
                         'label' => 'View',
-                        'hrefField' => 'web_url',
+                        'target' => 'blank',
+                        'urlField' => 'link',
                     ],
                     'headerSort' => false,
                     'hozAlign' => 'right',
@@ -121,5 +127,6 @@
             :config="$tableConfig"
             :initial="$initialTableData"
         />
+        <x-column-source-map :columns="$tableConfig['columns']" />
     </div>
 @endsection

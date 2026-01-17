@@ -208,7 +208,7 @@ class VehicleResource extends AbstractBaseResource
                 'code' => $this->manufacturer->name_short,
                 'name' => $this->manufacturer->name,
             ],
-            'web_url' => route('web.ship-matrix.vehicles.show', ['vehicle' => $this->cig_id]),
+            // 'web_url' => route('web.ship-matrix.vehicles.show', ['vehicle' => $this->cig_id]),
 
             $this->mergeWhen(in_array('components', $includes, true), [
                 'components' => ComponentResource::collection($this->components),

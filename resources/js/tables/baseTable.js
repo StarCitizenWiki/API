@@ -1,5 +1,6 @@
 import {
     Tabulator,
+    Module,
     FilterModule,
     AjaxModule,
     SortModule,
@@ -13,7 +14,49 @@ import {
     SelectRowModule
 } from 'tabulator-tables';
 
+/**
+ * Keeps horizontal scroll position across re-renders (remote sort/filter/pagination).
+ *
+ * Enable/disable per table with:
+ *   preserveHorizontalScroll: true/false
+ */
+class ScrollPositionModule extends Module {
+    static moduleName = "scrollPosition";
+    static moduleInitOrder = 1;
+
+    lastScrollLeft = 0;
+
+    constructor(table) {
+        super(table);
+
+        this.registerTableOption("preserveHorizontalScroll", true);
+    }
+
+    initialize() {
+        if (!this.table.options.preserveHorizontalScroll) return;
+
+        this.table.on("scrollHorizontal", (left) => {
+            if (left > 0) {
+                this.lastScrollLeft = left;
+            }
+        });
+
+        this.table.on("renderComplete", () => {
+            const holder = this.table.element?.querySelector?.(".tabulator-tableholder");
+            if (!holder) {
+                return;
+            }
+
+            // Defer a frame so Tabulator finishes its own scroll syncing
+            requestAnimationFrame(() => {
+                holder.scrollLeft = this.lastScrollLeft;
+            });
+        });
+    }
+}
+
 Tabulator.registerModule([
+    ScrollPositionModule,
     FilterModule,
     AjaxModule,
     SortModule,
@@ -383,6 +426,8 @@ export function initTabulatorTables() {
         const table = new Tabulator(mount, {
             layout: "fitData",
 
+            preserveHorizontalScroll: true,
+
             columnDefaults: {
                 ...(config.columnDefaults ?? {}),
                 resizable: true,
@@ -412,7 +457,7 @@ export function initTabulatorTables() {
 
             headerWordWrap: true,
 
-            // sortMode: "remote",
+            sortMode: "remote",
             sortOrderReverse: true,
             filterMode: "remote",
 

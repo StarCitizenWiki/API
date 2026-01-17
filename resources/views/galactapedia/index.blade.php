@@ -21,13 +21,19 @@
             ],
             'apiUrlTargetId' => 'galactapedia-api-url',
             'columns' => [
-                ['title' => 'CIG ID', 'field' => 'id', 'sorter' => 'string', 'headerSort' => false, 'width' => 120],
+                [
+                    'title' => 'CIG ID', 'field' => 'id', 'sorter' => 'string', 'headerSort' => false, 'width' => 120,
+                    'formatter' => 'link',
+                    'formatterParams' => [
+                        'labelField' => 'id',
+                        'target' => 'blank',
+                        'urlField' => 'web_url',
+                    ],
+                ],
                 ['title' => 'Title', 'field' => 'title', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 260],
                 ['title' => 'Type', 'field' => 'template', 'headerSort' => false, 'headerFilter' => 'list', 'minWidth' => 140],
                 ['title' => 'Category', 'field' => 'category', 'headerSort' => false, 'headerFilter' => 'list', 'minWidth' => 200],
                 ['title' => 'Tag', 'field' => 'tag', 'headerSort' => false, 'headerFilter' => 'list', 'minWidth' => 200],
-                // ['title' => 'Categories', 'field' => 'categories_count', 'sorter' => 'number', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                // ['title' => 'Tags', 'field' => 'tags_count', 'sorter' => 'number', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 100],
                 [
                     'title' => 'Related',
                     'field' => 'related_articles_count',
@@ -45,12 +51,13 @@
                     'width' => 150,
                 ],
                 [
-                    'title' => '',
-                    'field' => 'id',
-                    'formatter' => 'viewButton',
+                    'title' => 'API Url',
+                    'field' => 'api_url',
+                    'formatter' => 'link',
                     'formatterParams' => [
                         'label' => 'View',
-                        'hrefField' => 'web_url',
+                        'target' => 'blank',
+                        'urlField' => 'api_url',
                     ],
                     'headerSort' => false,
                     'hozAlign' => 'right',

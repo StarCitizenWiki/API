@@ -75,18 +75,6 @@
                     'hozAlign' => 'right',
                     'width' => 110,
                 ],
-                [
-                    'title' => '',
-                    'field' => 'id',
-                    'formatter' => 'viewButton',
-                    'formatterParams' => [
-                        'label' => 'View',
-                        'hrefField' => 'web_url',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                    'width' => 100,
-                ],
             ],
         ];
     @endphp

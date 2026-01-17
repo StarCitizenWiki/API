@@ -8,6 +8,8 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
+use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
+use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Models\Game\VehicleData;
 use App\Traits\CalculatesCargoGridSizeLimits;
 use Illuminate\Http\Request;
@@ -618,6 +620,11 @@ class VehicleResource extends AbstractBaseResource
 
             'web_url' => $this->buildWebUrl($request),
             'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $vehicleData->name]),
+
+            'loaner' => VehicleLoanerResource::collection($vehicleData->shipMatrixVehicle?->loaner),
+            'skus' => VehicleSkuResource::collection($vehicleData->shipMatrixVehicle?->skus),
+            'msrp' => $vehicleData->shipMatrixVehicle?->msrp,
+            'pledge_url' => $vehicleData->shipMatrixVehicle?->pledge_url,
 
             'updated_at' => $vehicleData->updated_at,
             'version' => $vehicleData->gameVersion?->code,

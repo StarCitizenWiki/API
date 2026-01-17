@@ -99,6 +99,7 @@
             <div class="breadcrumbs text-sm text-base-content/70">
                 <ul>
                     <li><a href="{{ route('web.items.index') }}">All Items</a></li>
+                    <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ $type }}</a></li>
                     <li>{{ $itemName }}</li>
                 </ul>
             </div>

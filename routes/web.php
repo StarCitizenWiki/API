@@ -18,6 +18,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
+Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');
+Route::match(['GET', 'POST'], '/comm-links/images', [CommLinkController::class, 'imagesIndex'])->name('web.comm-links.images.index');
+Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])->name('web.comm-links.images.show');
 Route::get('/comm-links/{id}', [CommLinkController::class, 'show'])->name('web.comm-links.show');
 
 Route::get('/stats', [StatController::class, 'index'])->name('web.stats.index');
@@ -33,8 +36,9 @@ Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')-
 
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');
-Route::get('/ship-matrix/vehicles/{vehicle}', [ShipMatrixVehicleController::class, 'show'])
-    ->name('web.ship-matrix.vehicles.show');
+Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 'index'])
+    ->name('web.ship-matrix.ground-vehicles.index');
+
 Route::get('/starmap/systems', [StarmapStarsystemController::class, 'index'])
     ->name('web.starmap.systems.index');
 Route::get('/starmap/systems/{id}', [StarmapStarsystemController::class, 'show'])
@@ -46,3 +50,8 @@ Route::get('/starmap/celestial-objects/{id}', [StarmapCelestialObjectController:
 
 Route::post('/game-version', GameVersionSelectionController::class)
     ->name('game-version.select');
+
+// Backwards compatibility
+
+Route::redirect('/starcitizen/vehicles/ships', '/ship-matrix/vehicles', 301);
+Route::redirect('/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles', 301);

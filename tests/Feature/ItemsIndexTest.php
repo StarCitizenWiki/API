@@ -64,7 +64,8 @@ it('filters items by type on the web route', function (): void {
         })
         ->assertViewHas('headerFilterOptionsMap', function (array $map): bool {
             return ! array_key_exists('type', $map);
-        });
+        })
+        ->assertSee('Column source map');
 });
 
 it('filters items by category on the web route', function (): void {
@@ -433,4 +434,21 @@ it('handles both shared and add_columns with different positions', function () {
             && $sharedIndex < $customIndex
             && $customIndex < $viewButtonIndex;
     });
+});
+
+it('provides enriched table columns to view', function () {
+    $response = $this->get('/starcitizenunpacked/items');
+
+    $response->assertOk();
+    $response->assertViewHas('tableColumns');
+
+    $columns = $response->viewData('tableColumns');
+    $sortableColumn = collect($columns)
+        ->flatMap(fn ($col) => $col['columns'] ?? [$col])
+        ->first(fn ($col) => isset($col['sortField']));
+
+    // Should have auto-added sortField
+    expect($sortableColumn)->toHaveKey('sortField')
+        ->and($sortableColumn)->toHaveKey('sort')
+        ->and($sortableColumn['sort'])->toHaveKeys(['path', 'cast']);
 });

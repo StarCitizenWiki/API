@@ -28,8 +28,25 @@ class GalactapediaController extends Controller
         ]);
     }
 
-    public function show(string $article): Response
+    public function show(Request $request, string $article): View
     {
-        return response('', Response::HTTP_NO_CONTENT);
+        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
+        $include = array_values(array_unique(array_merge($include, ['categories', 'tags', 'properties', 'related'])));
+
+        $apiRequest = $request->duplicate();
+        $apiRequest->query->set('include', implode(',', $include));
+
+        $payload = $this->apiJsonRequest->request(route('galactapedia.show', ['article' => $article], false), $apiRequest);
+        $articleData = Arr::get($payload, 'data', []);
+
+        if ($articleData === []) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return view('galactapedia.show', [
+            'article' => $articleData,
+            'articleMeta' => Arr::get($payload, 'meta', []),
+            'pageTitle' => Arr::get($articleData, 'title', 'Galactapedia'),
+        ]);
     }
 }

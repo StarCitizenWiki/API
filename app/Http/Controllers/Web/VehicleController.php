@@ -28,8 +28,25 @@ class VehicleController extends Controller
         ]);
     }
 
-    public function show(string $vehicle): Response
+    public function show(Request $request, string $item): View
     {
-        return response('', Response::HTTP_NO_CONTENT);
+        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
+        $include = array_values(array_unique(array_merge($include, ['shipMatrixVehicle'])));
+
+        $apiRequest = $request->duplicate();
+        $apiRequest->query->set('include', implode(',', $include));
+
+        $payload = $this->apiJsonRequest->request(route('vehicles.show', ['vehicle' => $item], false), $apiRequest);
+        $vehicleData = Arr::get($payload, 'data', []);
+
+        if ($vehicleData === []) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return view('vehicles.show', [
+            'vehicle' => $vehicleData,
+            'vehicleMeta' => Arr::get($payload, 'meta', []),
+            'pageTitle' => Arr::get($vehicleData, 'name', 'Vehicle'),
+        ]);
     }
 }

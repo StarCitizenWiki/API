@@ -8,74 +8,135 @@
     <meta property="og:description" content="Welcome to the API dashboard.">
 @endpush
 
-@section('sidemenu')
-    <x-app.sidemenu-group title="Overview">
-        <x-slot:icon>
-            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12l9-9 9 9" />
-                <path d="M9 21V9h6v12" />
-            </svg>
-        </x-slot:icon>
-        <x-app.sidemenu-item :route="'home'">Home</x-app.sidemenu-item>
-    </x-app.sidemenu-group>
-
-    <x-app.sidemenu-group title="Explore">
-        <x-slot:icon>
-            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-            </svg>
-        </x-slot:icon>
-        <x-app.sidemenu-item href="/docs" :with-version="false">API Docs</x-app.sidemenu-item>
-    </x-app.sidemenu-group>
-@endsection
-
 @section('content')
     <div class="flex flex-col gap-6">
         <div class="hero rounded-3xl bg-base-200">
             <div class="hero-content flex-col gap-6 text-center lg:flex-row lg:text-left">
                 <div class="max-w-xl">
-                    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Build with confidence.</h1>
-                    <p class="mt-2 text-base-content/70">
-                        Use the layout shell to compose navigation, game version selection, and SEO metadata per route.
-                    </p>
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <a class="btn btn-primary" href="#">Get Started</a>
-                        <a class="btn btn-ghost" href="#">View Changelog</a>
-                    </div>
+                    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Star Citizen Wiki API</h1>
+
                 </div>
-                <div class="card w-full max-w-sm border border-base-300 bg-base-100 shadow">
-                    <div class="card-body gap-4">
-                        <div class="flex items-center justify-between">
-                            <h2 class="card-title text-base">Active Game Version</h2>
-                            <span class="badge badge-outline">{{ $selectedGameVersion?->code ?? 'n/a' }}</span>
-                        </div>
-                        <p class="text-sm text-base-content/70">
-                            Switch versions in the top bar to update the request session and URL query.
-                        </p>
-                        <div class="card-actions justify-end">
-                            <button class="btn btn-sm">View Details</button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-3">
-            <div class="stat rounded-2xl border border-base-300 bg-base-100">
-                <div class="stat-title">Routes</div>
-                <div class="stat-value text-2xl">24</div>
-                <div class="stat-desc">With configurable SEO tags</div>
+        <div class="card border border-base-300 bg-base-100 shadow">
+            <form method="GET" action="{{ route('web.items.index') }}" class="card-body gap-4">
+                <div class="flex flex-col gap-2">
+                    <h2 class="card-title text-base">Search items</h2>
+                    <p class="text-sm text-base-content/70">Find items by name across the universe database.</p>
+                </div>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <label class="input input-bordered flex w-full items-center gap-2">
+                        <x-icon name="search" class="size-4 text-base-content/60" />
+                        <input
+                            type="search"
+                            name="filter[name]"
+                            class="w-full"
+                            placeholder="Search item names"
+                        />
+                    </label>
+                    <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex flex-col gap-4">
+            <div>
+                <h2 class="text-lg font-semibold">Categories</h2>
             </div>
-            <div class="stat rounded-2xl border border-base-300 bg-base-100">
-                <div class="stat-title">Menus</div>
-                <div class="stat-value text-2xl">3</div>
-                <div class="stat-desc">Grouped with icons and active states</div>
-            </div>
-            <div class="stat rounded-2xl border border-base-300 bg-base-100">
-                <div class="stat-title">Theme</div>
-                <div class="stat-value text-2xl">DaisyUI</div>
-                <div class="stat-desc">Light and dark modes</div>
+
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card-body gap-4">
+                        <h3 class="card-title text-base">Universe</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <ul class="menu">
+                                <li><a href="{{ route('web.vehicles.index') }}">Vehicles</a></li>
+                                <li>
+                                    <h2 class="menu-title">Items</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.items.index') }}">All Items</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['type' => 'WeaponPersonal']]) }}">Personal Weapons</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'fps-armor']]) }}">Personal Armor</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'weapon-attachments']]) }}">Weapon Attachments</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-items']]) }}">Components</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card-body ">
+                        <h3 class="card-title text-base">Communication</h3>
+                        <div class="flex flex-wrap">
+                            <ul class="menu">
+                                <li>
+                                    <h2 class="menu-title">Comm-Link</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
+                                        <li><a href="{{ route('web.comm-links.search') }}">Search</a></li>
+                                        <li><a href="{{ route('web.comm-links.images.index') }}">Comm-Link Images</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <h2 class="menu-title">Stats</h2>
+                                    <ul>
+
+                                        <li><a href="{{ route('web.stats.index') }}">Stats</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card-body gap-4">
+                        <h3 class="card-title text-base">Lore</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <ul class="menu">
+                                <li><a href="{{ route('web.galactapedia.index') }}">Galactapedia</a></li>
+                                <li>
+                                    <h2 class="menu-title">Starmap</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.starmap.systems.index') }}">Systems</a></li>
+                                        <li><a href="{{ route('web.starmap.celestial-objects.index') }}">Celestial Objects</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card-body gap-4">
+                        <h3 class="card-title text-base">Explore</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <a class="btn btn-sm btn-outline" href="https://docs.star-citizen.wiki">Api Documentation</a>
+                            <a class="btn btn-sm btn-outline" href="https://github.com/StarCitizenWiki/API">Source Code</a>
+                        </div>
+                    </div>
+                </div>
+
+                @can('access-admin')
+                    <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card-body gap-4">
+                            <h3 class="card-title text-base">Home</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <a class="btn btn-sm btn-outline" href="{{ route('home') }}">Home</a>
+                                @auth
+                                    @if (Route::has('admin.dashboard'))
+                                        <a class="btn btn-sm btn-outline" href="{{ route('admin.dashboard') }}">Admin</a>
+                                    @endif
+                                @endauth
+                            </div>
+                        </div>
+                    </div>
+                @endcan
             </div>
         </div>
     </div>

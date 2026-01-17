@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ImageController extends Controller
 {
@@ -42,14 +43,50 @@ class ImageController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-//            ->allowedFilters([
-//                AllowedFilter::custom('tags', new ImageTagFilter),
-//            ])
-            ->orderByDesc('id')
+            ->with(['commLinks'])
+            ->orderByDesc('created_at')
             ->jsonPaginate()
             ->appends(request()->query());
 
         return ImageResource::collection($query);
+    }
+
+    #[OA\Get(
+        path: '/api/comm-link-images/{image}',
+        description: 'Retrieve a single comm-link image with related metadata.',
+        summary: 'Comm-Link Image Detail',
+        tags: ['Comm-Links', 'RSI-Website', 'Images'],
+        parameters: [
+            new OA\Parameter(
+                name: 'image',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer'),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A singular Comm-Link Image',
+                content: new OA\JsonContent(ref: '#/components/schemas/comm_link_image')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Comm-Link image not found.',
+            ),
+        ]
+    )]
+    public function show(int $image): ImageResource
+    {
+        $model = Image::query()
+            ->with(['commLinks', 'duplicates', 'baseImage'])
+            ->find($image);
+
+        if ($model === null) {
+            throw new NotFoundHttpException('Comm-Link image not found.');
+        }
+
+        return new ImageResource($model);
     }
 
     #[OA\Get(

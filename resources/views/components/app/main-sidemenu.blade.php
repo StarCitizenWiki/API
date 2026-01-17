@@ -28,14 +28,24 @@
         Comm-Links
     </x-app.sidemenu-item>
     <x-app.sidemenu-item
-        :route="'web.stats.index'"
-        route-is="web.stats.*"
+        :route="'web.comm-links.search'"
+        route-is="web.comm-links.search"
         :with-version="false"
     >
         <x-slot:icon>
-            <x-icon name="line-chart" class="size-4" />
+            <x-icon name="search" class="size-4" />
         </x-slot:icon>
-        Stats
+        Search
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        :route="'web.comm-links.images.index'"
+        route-is="web.comm-links.images.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="image" class="size-4" />
+        </x-slot:icon>
+        Comm-Link Images
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 
@@ -438,6 +448,19 @@
 
 
         </x-slot:children>
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
+<x-app.sidemenu-group title="Statistics">
+    <x-app.sidemenu-item
+        :route="'web.stats.index'"
+        route-is="web.stats.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="line-chart" class="size-4" />
+        </x-slot:icon>
+        Stats
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 
