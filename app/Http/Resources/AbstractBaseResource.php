@@ -29,9 +29,21 @@ abstract class AbstractBaseResource extends JsonResource
     public function addMetadata(mixed $key, mixed $value = null): void
     {
         if (is_array($key)) {
-            $this->additional['meta'] += $key;
-        } else {
-            $this->additional['meta'][$key] = $value;
+            $this->additional['meta'] = array_replace_recursive($this->additional['meta'], $key);
+
+            return;
         }
+
+        if (
+            isset($this->additional['meta'][$key]) &&
+            is_array($this->additional['meta'][$key]) &&
+            is_array($value)
+        ) {
+            $this->additional['meta'][$key] = array_replace_recursive($this->additional['meta'][$key], $value);
+
+            return;
+        }
+
+        $this->additional['meta'][$key] = $value;
     }
 }

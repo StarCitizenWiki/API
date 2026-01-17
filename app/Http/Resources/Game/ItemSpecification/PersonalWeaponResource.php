@@ -18,28 +18,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'effective_range', type: 'double', example: 950, nullable: true),
         new OA\Property(property: 'rate_of_fire', description: 'Overall rate of fire in rounds per minute.', type: 'double', example: 925, nullable: true),
         new OA\Property(property: 'capacity', description: 'Weapon-level capacity field when provided.', type: 'integer', example: 50, nullable: true),
-        new OA\Property(
-            property: 'magazine',
-            properties: [
-                new OA\Property(property: 'max_ammo', type: 'integer', example: 50, nullable: true),
-                new OA\Property(property: 'initial_ammo', type: 'integer', example: 50, nullable: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'attachments',
-            description: 'Attachment ports and optional default class names.',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'port', type: 'string', example: 'magazine_attach', nullable: true),
-                    new OA\Property(property: 'class_name', type: 'string', example: 'gmni_smg_ballistic_01_mag', nullable: true),
-                ],
-                type: 'object'
-            ),
-            nullable: true
-        ),
+
         new OA\Property(
             property: 'modes',
             description: 'Fire modes as provided by game data; values are not derived.',
@@ -60,24 +39,26 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
-            property: 'ammunition',
-            ref: '#/components/schemas/ammunition',
-            description: 'Projectile and damage behaviour from Item.stdItem.Ammunition.',
-            nullable: true
-        ),
-        new OA\Property(
             property: 'consumption',
             description: 'Regen/cost values used by special weapons (e.g. extinguishers).',
             type: 'object',
             nullable: true
         ),
-        // Backward compatibility (v2)
+
         new OA\Property(property: 'class', type: 'string', example: 'Medium', nullable: true, deprecated: true),
-        new OA\Property(property: 'magazine_size', type: 'integer', example: 50, nullable: true, deprecated: true),
-        new OA\Property(property: 'damage_per_shot', type: 'double', example: 11.5, nullable: true, deprecated: true),
-        new OA\Property(property: 'rof', type: 'double', example: 925, nullable: true, deprecated: true),
+        new OA\Property(property: 'magazine_size', type: 'integer', example: 50, nullable: true, deprecated: true, description: 'Deprecated: Use capacity instead'),
+        new OA\Property(property: 'damage_per_shot', type: 'double', example: 11.5, nullable: true, deprecated: true, description: 'Deprecated: Use damages.alpha_total'),
+        new OA\Property(property: 'rof', type: 'double', example: 925, nullable: true, deprecated: true, description: 'Deprecated: Use rpm instead'),
+        new OA\Property(property: 'rpm', type: 'double', example: 925, nullable: true),
         new OA\Property(property: 'damages', type: 'array', items: new OA\Items(ref: '#/components/schemas/weapon_damage_entry'), nullable: true, deprecated: true),
         new OA\Property(property: 'magazine_type', type: 'string', nullable: true, deprecated: true),
+        new OA\Property(
+            property: 'ammunition',
+            description: 'Deprecated: use ammunition from root resource.',
+            type: 'object',
+            nullable: true,
+            deprecated: true
+        ),
     ],
     type: 'object'
 )]
@@ -98,6 +79,7 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
         $ammo = $this->extractFromStdItem($this->resource, 'Ammunition');
         $weapon = $this->extractFromStdItem($this->resource, 'Weapon');
         $mode = Arr::get($weapon, 'Modes.0');
+        $damage = Arr::get($weapon, 'Damage');
 
         $damages = array_filter([
             ['type' => 'impact', 'name' => 'physical', 'damage' => Arr::get($ammo, 'ImpactDamage.Physical')],
@@ -140,65 +122,73 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
             // deprecated
             'effective_range' => Arr::get($weapon, 'EffectiveRange'),
 
+            'capacity' => Arr::get($weapon, 'Capacity'),
+
             'range' => Arr::get($weapon, 'EffectiveRange'),
 
             'damage_per_shot' => Arr::get($mode, 'Alpha'),
+            'pellets_per_shot' => Arr::get($weapon, 'PelletsPerShot'),
+
+            // deprecated
+            'rof' => Arr::get($mode, 'RoundsPerMinute'),
 
             'rpm' => Arr::get($mode, 'RoundsPerMinute'),
 
             'damages' => $damages,
             'modes' => $modes,
 
+            'fire_mode' => Arr::get($weapon, 'FireMode'),
+
             'damage' => [
-                'dps_total' => Arr::get($mode, 'Dps'),
-                'alpha_total' => Arr::get($mode, 'Alpha'),
-                'maximum' => Arr::get($mode, 'MaxDamagePerMagazine') === 0 ? -1 : Arr::get($mode, 'MaxDamagePerMagazine'),
+                'dps_total' => Arr::get($damage, 'DpsTotal'),
+                'alpha_total' => Arr::get($damage, 'AlphaTotal'),
+                'maximum' => Arr::get($damage, 'MaxPerMag'),
                 'dps' => [
-                    'physical' => Arr::get($mode, 'DpsPhysical'),
-                    'energy' => Arr::get($mode, 'DpsEnergy'),
-                    'distortion' => Arr::get($mode, 'DpsDistortion'),
-                    'thermal' => Arr::get($mode, 'DpsThermal'),
-                    'biochemical' => Arr::get($mode, 'DpsBiochemical'),
-                    'stun' => Arr::get($mode, 'DpsStun'),
+                    'physical' => Arr::get($weapon, 'Damage.Dps.Physical'),
+                    'energy' => Arr::get($weapon, 'Damage.Dps.Energy'),
+                    'distortion' => Arr::get($weapon, 'Damage.Dps.Distortion'),
+                    'thermal' => Arr::get($weapon, 'Damage.Dps.Thermal'),
+                    'biochemical' => Arr::get($weapon, 'Damage.Dps.Biochemical'),
+                    'stun' => Arr::get($weapon, 'Damage.Dps.Stun'),
                 ],
                 'alpha' => [
-                    'physical' => Arr::get($mode, 'AlphaPhysical'),
-                    'energy' => Arr::get($mode, 'AlphaEnergy'),
-                    'distortion' => Arr::get($mode, 'AlphaDistortion'),
-                    'thermal' => Arr::get($mode, 'AlphaThermal'),
-                    'biochemical' => Arr::get($mode, 'AlphaBiochemical'),
-                    'stun' => Arr::get($mode, 'AlphaStun'),
+                    'physical' => Arr::get($weapon, 'Damage.Alpha.Physical'),
+                    'energy' => Arr::get($weapon, 'Damage.Alpha.Energy'),
+                    'distortion' => Arr::get($weapon, 'Damage.Alpha.Distortion'),
+                    'thermal' => Arr::get($weapon, 'Damage.Alpha.Thermal'),
+                    'biochemical' => Arr::get($weapon, 'Damage.Alpha.Biochemical'),
+                    'stun' => Arr::get($weapon, 'Damage.Alpha.Stun'),
                 ],
             ],
 
-            $this->mergeWhen(Arr::get($mode, 'Spread.Min') !== null, [
+            $this->mergeWhen(Arr::get($mode, 'Spread.Minimum') !== null, [
                 'spread' => [
-                    'min' => Arr::get($mode, 'Spread.Min'),
-                    'max' => Arr::get($mode, 'Spread.Max'),
-                    'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
-                    'per_attack' => Arr::get($mode, 'Spread.Attack'),
-                    'decay' => Arr::get($mode, 'Spread.Decay'),
+                    'min' => Arr::get($weapon, 'Spread.Minimum'),
+                    'max' => Arr::get($weapon, 'Spread.Maximum'),
+                    'first_attack' => Arr::get($weapon, 'Spread.FirstAttack'),
+                    'per_attack' => Arr::get($weapon, 'Spread.Attack'),
+                    'decay' => Arr::get($weapon, 'Spread.Decay'),
                 ],
                 'ads_spread' => [
-                    'min' => Arr::get($mode, 'AdsSpread.Min'),
-                    'max' => Arr::get($mode, 'AdsSpread.Max'),
-                    'first_attack' => Arr::get($mode, 'AdsSpread.FirstAttack'),
-                    'per_attack' => Arr::get($mode, 'AdsSpread.Attack'),
-                    'decay' => Arr::get($mode, 'AdsSpread.Decay'),
+                    'min' => Arr::get($weapon, 'AdsSpread.Minimum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),
+                    'max' => Arr::get($weapon, 'AdsSpread.Maximum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),
+                    'first_attack' => Arr::get($weapon, 'AdsSpread.FirstAttack') == 0 ? null : Arr::get($weapon, 'AdsSpread.FirstAttack'),
+                    'per_attack' => Arr::get($weapon, 'AdsSpread.Attack') == 0 ? null : Arr::get($weapon, 'AdsSpread.Attack'),
+                    'decay' => Arr::get($weapon, 'AdsSpread.Decay') == 0 ? null : Arr::get($weapon, 'AdsSpread.Decay'),
                 ],
             ]),
 
             $this->mergeWhen(Arr::get($mode, 'Charge') !== null, [
                 'charge' => [
-                    'time' => Arr::get($mode, 'Charge.ChargeTime'),
-                    'overcharge_time' => Arr::get($mode, 'Charge.OverchargeTime'),
-                    'overcharged_time' => Arr::get($mode, 'Charge.OverchargedTime'),
-                    'cooldown_time' => Arr::get($mode, 'Charge.CooldownTime'),
+                    'time' => Arr::get($weapon, 'Charge.ChargeTime'),
+                    'overcharge_time' => Arr::get($weapon, 'Charge.OverchargeTime'),
+                    'overcharged_time' => Arr::get($weapon, 'Charge.OverchargedTime'),
+                    'cooldown_time' => Arr::get($weapon, 'Charge.CooldownTime'),
                 ],
                 'charge_modifier' => [
-                    'damage' => Arr::get($mode, 'ChargeModifier.Damage'),
-                    'fire_rate' => Arr::get($mode, 'ChargeModifier.FireRate'),
-                    'ammo_speed' => Arr::get($mode, 'ChargeModifier.AmmoSpeed'),
+                    'damage' => Arr::get($weapon, 'ChargeModifier.Damage'),
+                    'fire_rate' => Arr::get($weapon, 'ChargeModifier.FireRate'),
+                    'ammo_speed' => Arr::get($weapon, 'ChargeModifier.AmmoSpeed'),
                 ],
             ]),
 

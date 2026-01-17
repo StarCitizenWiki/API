@@ -278,7 +278,6 @@ class ItemResource extends AbstractBaseResource
 
         $this->addMetadata('deprecated_fields', [
             'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
-            'mining_module' => 'Use mining_modifier instead.',
         ]);
 
         $itemData = $this->data->first();
@@ -445,6 +444,10 @@ class ItemResource extends AbstractBaseResource
         if ($itemData->type === 'MiningModifier') {
             $hasMatch = true;
             $specifications['mining_module'] = static fn () => new MiningModuleResource($itemData);
+
+            $this->addMetadata('deprecated_fields', [
+                'mining_module' => 'Use mining_modifier instead.',
+            ]);
         }
 
         // Mining Gadget
@@ -530,6 +533,7 @@ class ItemResource extends AbstractBaseResource
             $hasMatch = true;
             $specifications['grenade'] = static fn () => new GrenadeResource($itemData);
             $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
+
         }
 
         // Knife/Melee Weapon
@@ -544,6 +548,15 @@ class ItemResource extends AbstractBaseResource
             ! isset($specifications['grenade']) && ! isset($specifications['melee_weapon'])) {
             $hasMatch = true;
             $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
+
+            $this->addMetadata('deprecated_fields', [
+                'personal_weapon' => [
+                    'rof' => 'Use rpm instead',
+                    'effective_range' => 'Use range instead',
+                    'magazine_size' => 'Use capacity instead',
+                    'damage_per_shot' => 'Use damage.alpha_total instead',
+                ],
+            ]);
         }
 
         // Salvage Modifier
@@ -556,6 +569,19 @@ class ItemResource extends AbstractBaseResource
         if ($this->hasInStdItem($itemData, 'WeaponModifier')) {
             $hasMatch = true;
             $specifications['weapon_modifier'] = static fn () => new WeaponModifierResource($itemData);
+
+            $this->addMetadata('deprecated_fields', [
+                'weapon_modifier' => [
+                    'fire_rate_multiplier' => 'use `base.fire_rate_multiplier` instead.',
+                    'damage_multiplier' => 'use `base.damage_multiplier` instead.',
+                    'damage_over_time_multiplier' => 'use `base.damage_over_time_multiplier` instead.',
+                    'projectile_speed_multiplier' => 'use `base.projectile_speed_multiplier` instead.',
+                    'ammo_cost_multiplier' => 'use `base.ammo_cost_multiplier` instead.',
+                    'heat_generation_multiplier' => 'use `base.heat_generation_multiplier` instead.',
+                    'sound_radius_multiplier' => 'use `base.sound_radius_multiplier` instead.',
+                    'charge_time_multiplier' => 'use `base.charge_time_multiplier` instead.',
+                ],
+            ]);
         }
 
         // Weapon Attachment

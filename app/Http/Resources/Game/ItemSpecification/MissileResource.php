@@ -286,8 +286,8 @@ class MissileResource extends AbstractItemSpecificationResource
             'lock_angle' => Arr::get($targeting, 'LockingAngle'),
             'speed' => Arr::get($gcs, 'LinearSpeed'),
             'fuel_tank_size' => Arr::get($gcs, 'FuelTankSize'),
-            'explosion_radius_min' => Arr::get($missile, 'ExplosionMinRadius'),
-            'explosion_radius_max' => Arr::get($missile, 'ExplosionMaxRadius'),
+            'explosion_radius_min' => Arr::get($missile, 'ExplosionRadius.Min'),
+            'explosion_radius_max' => Arr::get($missile, 'ExplosionRadius.Max'),
 
             'flight' => [
                 'enable_lifetime' => Arr::get($missile, 'EnableLifetime'),
@@ -327,8 +327,8 @@ class MissileResource extends AbstractItemSpecificationResource
                 'requires_launcher' => Arr::get($missile, 'RequiresLauncher'),
                 'allow_dumb_firing' => Arr::get($targeting, 'AllowDumbFiring'),
 
-                'radius_min' => Arr::get($missile, 'ExplosionMinRadius'),
-                'radius_max' => Arr::get($missile, 'ExplosionMaxRadius'),
+                'radius_min' => Arr::get($missile, 'ExplosionRadius.Minimum'),
+                'radius_max' => Arr::get($missile, 'ExplosionRadius.Maximum'),
 
                 'safety_distance' => Arr::get($missile, 'ExplosionSafetyDistance'),
                 'proximity' => Arr::get($missile, 'ProjectileProximity'),

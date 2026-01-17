@@ -72,7 +72,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'damage',
-            description: 'V2 compatibility: Total combined damage from all damage types.',
+            description: 'Deprecated: use damage_total.',
             type: 'double',
             example: 46702.0,
             nullable: true,
@@ -87,7 +87,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'damages',
-            description: 'Array of individual damage components by type. Bombs typically deal Physical and Energy damage only.',
+            description: 'Deprecated: use damage_map.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/weapon_damage'),
             nullable: true

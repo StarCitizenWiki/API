@@ -166,10 +166,35 @@ class AmmunitionResource extends AbstractItemSpecificationResource
 
         $mapper = static fn ($value, $key) => [Str::snake($key) => $value];
 
-        $damageDropMinDistance = collect(Arr::get($ammunition, 'DamageDropMinDistance', []))->mapWithKeys($mapper)->toArray();
-        $damageDropPerMeter = collect(Arr::get($ammunition, 'DamageDropPerMeter', []))->mapWithKeys($mapper)->toArray();
-        $damageDropMinDamage = collect(Arr::get($ammunition, 'DamageDropMinDamage', []))->mapWithKeys($mapper)->toArray();
+        $damageDropMinDistance = collect(Arr::get($ammunition, 'DamageDropMinDistance', []))->mapWithKeys($mapper);
+        $damageDropPerMeter = collect(Arr::get($ammunition, 'DamageDropPerMeter', []))->mapWithKeys($mapper);
+        $damageDropMinDamage = collect(Arr::get($ammunition, 'DamageDropMinDamage', []))->mapWithKeys($mapper);
+
+        if ($damageDropMinDamage->isNotEmpty()) {
+            $damageDropMinDamage = $damageDropMinDamage->put('total', $damageDropMinDamage->sum())->toArray();
+        }
+
+        if ($damageDropPerMeter->isNotEmpty()) {
+            $damageDropPerMeter = $damageDropPerMeter->put('total', $damageDropPerMeter->sum())->toArray();
+        }
+
+        if ($damageDropMinDistance->isNotEmpty()) {
+            $damageDropMinDistance = $damageDropMinDistance->put('total', $damageDropMinDistance->sum())->toArray();
+        }
+
         $penetration = Arr::get($ammunition, 'Penetration');
+
+        $bulletImpulseFalloff = [
+            'min_distance' => Arr::get($ammunition, 'BulletImpulseFalloff.MinDistance'),
+            'drop_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.DropFalloff'),
+            'max_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.MaxFalloff'),
+        ];
+
+        $damageFalloffs = [
+            'min_distance' => $damageDropMinDistance,
+            'per_meter' => $damageDropPerMeter,
+            'min_damage' => $damageDropMinDamage,
+        ];
 
         return [
             'uuid' => Arr::get($ammunition, 'UUID'),
@@ -185,37 +210,59 @@ class AmmunitionResource extends AbstractItemSpecificationResource
             'damage_falloff_level_2' => Arr::get($ammunition, 'DamageFalloffLevel2'),
             'damage_falloff_level_3' => Arr::get($ammunition, 'DamageFalloffLevel3'),
             'max_penetration_thickness' => Arr::get($ammunition, 'MaxPenetrationThickness'),
+
             'penetration' => is_array($penetration) ? [
-                'base_penetration_distance' => Arr::get($penetration, 'BasePenetrationDistance'),
+                'base_distance' => Arr::get($penetration, 'BasePenetrationDistance'),
+                'near_radius' => Arr::get($penetration, 'NearRadius'),
+                'far_radius' => Arr::get($penetration, 'FarRadius'),
                 'angle' => Arr::get($penetration, 'Angle'),
             ] : null,
-            'impact_damage' => $impactDamage,
-            'detonation_damage' => $detonationDamage,
-            'damage_drop_min_distance' => $damageDropMinDistance,
-            'damage_drop_per_meter' => $damageDropPerMeter,
-            'damage_drop_min_damage' => $damageDropMinDamage,
-            'bullet_impulse_falloff' => [
-                'min_distance' => Arr::get($ammunition, 'BulletImpulseFalloff.MinDistance'),
-                'drop_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.DropFalloff'),
-                'max_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.MaxFalloff'),
-            ],
-            'bullet_electron' => Arr::get($ammunition, 'BulletElectron'),
+
+            $this->mergeWhen(! empty($impactDamage), [
+                'impact_damage' => $impactDamage,
+                'impact_damage_map' => collect($impactDamage)->mapWithKeys(static fn ($entry) => [Str::snake($entry['name']) => $entry['damage']])->toArray(),
+            ]),
+
+            $this->mergeWhen(! empty($detonationDamage), [
+                'detonation_damage' => $detonationDamage,
+                'detonation_damage_map' => collect($detonationDamage)->mapWithKeys(static fn ($entry) => [Str::snake($entry['name']) => $entry['damage']])->toArray(),
+            ]),
+
+            $this->mergeWhen(Arr::get($ammunition, 'ExplosionRadius') !== null, [
+                'explosion_radius' => [
+                    'min' => Arr::get($ammunition, 'ExplosionRadius.Minimum'),
+                    'max' => Arr::get($ammunition, 'ExplosionRadius.Maximum'),
+                ],
+            ]),
+
+            $this->mergeWhen(! empty($damageDropMinDistance), [
+                'damage_drop_min_distance' => $damageDropMinDistance,
+            ]),
+            $this->mergeWhen(! empty($damageDropPerMeter), [
+                'damage_drop_per_meter' => $damageDropPerMeter,
+            ]),
+            $this->mergeWhen(! empty($damageDropMinDamage), [
+                'damage_drop_min_damage' => $damageDropMinDamage,
+            ]),
+
+            $this->mergeWhen(collect($bulletImpulseFalloff)->filter()->isNotEmpty(), [
+                'bullet_impulse_falloff' => $bulletImpulseFalloff,
+            ]),
+
+            $this->mergeWhen(Arr::get($ammunition, 'BulletElectron') !== null, [
+                'bullet_electron' => [
+                    'jump_range' => Arr::get($ammunition, 'BulletElectron.JumpRange'),
+                    'maximum_jumps' => Arr::get($ammunition, 'BulletElectron.MaximumJumps'),
+                    'residual_charge_multiplier' => Arr::get($ammunition, 'BulletElectron.ResidualChargeMultiplier'),
+                ],
+            ]),
+
             'impulse_scale' => Arr::get($ammunition, 'ImpulseScale'),
             'bullet_type' => Arr::get($ammunition, 'BulletType'),
 
-            // Deprecated grouping to preserve v2 compatibility
-            'damage_falloffs' => [
-                'min_distance' => $damageDropMinDistance,
-                'per_meter' => $damageDropPerMeter,
-                'min_damage' => $damageDropMinDamage,
-            ],
-
-            'piercability' => [
-                'damage_falloff_level_1' => Arr::get($ammunition, 'DamageFalloffLevel1'),
-                'damage_falloff_level_2' => Arr::get($ammunition, 'DamageFalloffLevel2'),
-                'damage_falloff_level_3' => Arr::get($ammunition, 'DamageFalloffLevel3'),
-                'max_penetration_thickness' => Arr::get($ammunition, 'MaxPenetrationThickness'),
-            ],
+            $this->mergeWhen(collect($damageFalloffs)->filter()->isNotEmpty(), [
+                'damage_falloffs' => $damageFalloffs,
+            ]),
         ];
     }
 }

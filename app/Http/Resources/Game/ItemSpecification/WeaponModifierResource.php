@@ -128,18 +128,14 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         // Backwards compatibility with v2
-        new OA\Property(property: 'fire_rate_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'damage_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'damage_over_time_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'projectile_speed_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'ammo_cost_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'heat_generation_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'sound_radius_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'charge_time_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'recoil', type: 'array', items: new OA\Items(type: 'object'), nullable: true, deprecated: true),
-        new OA\Property(property: 'spread', type: 'array', items: new OA\Items(type: 'object'), nullable: true, deprecated: true),
-        new OA\Property(property: 'aim', type: 'array', items: new OA\Items(type: 'object'), nullable: true, deprecated: true),
-        new OA\Property(property: 'salvage', type: 'array', items: new OA\Items(type: 'object'), nullable: true, deprecated: true),
+        new OA\Property(property: 'fire_rate_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.fire_rate_multiplier` instead.'),
+        new OA\Property(property: 'damage_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.damage_multiplier` instead.'),
+        new OA\Property(property: 'damage_over_time_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.damage_over_time_multiplier` instead.'),
+        new OA\Property(property: 'projectile_speed_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.projectile_speed_multiplier` instead.'),
+        new OA\Property(property: 'ammo_cost_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.ammo_cost_multiplier` instead.'),
+        new OA\Property(property: 'heat_generation_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.heat_generation_multiplier` instead.'),
+        new OA\Property(property: 'sound_radius_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.sound_radius_multiplier` instead.'),
+        new OA\Property(property: 'charge_time_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.charge_time_multiplier` instead.'),
     ],
     type: 'object'
 )]
@@ -158,10 +154,6 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
         $regen = Arr::get($weaponStats, 'Regen', []);
         $salvage = Arr::get($weaponStats, 'Salvage', []);
         $zeroing = Arr::get($weaponModifier, 'Zeroing', []);
-
-        $weaponAttachment = $this->extractFromStdItem($this->resource, 'WeaponAttachment');
-
-        $ironSight = Arr::get($weaponAttachment, 'IronSight', []);
 
         return [
             'activate_on_attach' => Arr::get($weaponModifier, 'ActivateOnAttach'),

@@ -31,7 +31,7 @@ class ItemTemperatureResource extends AbstractBaseResource
             'cooling_threshold' => Arr::get($this, 'Calculated.CoolingThreshold'),
             'ir_threshold' => Arr::get($this, 'Calculated.IrThreshold'),
             'overheat_temperature' => Arr::get($this, 'Calculated.Overheat'),
-            'max_temperature' => Arr::get($this, 'Calculated.Max'),
+            'max_temperature' => Arr::get($this, 'Calculated.Maximum'),
             'recovery_temperature' => Arr::get($this, 'Calculated.Recovery'),
         ];
     }

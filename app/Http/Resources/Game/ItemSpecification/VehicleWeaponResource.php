@@ -14,20 +14,22 @@ use OpenApi\Attributes as OA;
     description: 'Vehicle weapon stats derived from stdItem.Weapon.',
     properties: [
         new OA\Property(property: 'class', description: 'V2 compatibility field', type: 'string', nullable: true, deprecated: true),
-        new OA\Property(property: 'type', description: 'V2 compatibility field', type: 'string', nullable: true, deprecated: true),
+        new OA\Property(property: 'type', description: 'Deprecated: Use value from description_data', type: 'string', nullable: true, deprecated: true),
         new OA\Property(property: 'speed', type: 'double', nullable: true),
         new OA\Property(property: 'range', type: 'double', nullable: true),
         new OA\Property(property: 'size', type: 'integer', nullable: true),
         new OA\Property(property: 'capacity', type: 'integer', nullable: true),
-        new OA\Property(property: 'damage_per_shot', description: 'V2 compatibility field', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'damage_per_shot', description: 'Deprecated: Use damage.alpha_total', type: 'double', nullable: true, deprecated: true),
         new OA\Property(
             property: 'damages',
+            description: 'Deprecated: Use damage.alpha',
             properties: [
                 new OA\Property(property: 'impact', type: 'object', nullable: true),
                 new OA\Property(property: 'detonation', type: 'object', nullable: true),
             ],
             type: 'object',
-            nullable: true
+            nullable: true,
+            deprecated: true
         ),
         new OA\Property(
             property: 'modes',
@@ -37,7 +39,14 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'regeneration',
-            description: 'V2 compatibility field',
+            description: 'Deprecated: Use capacitor.regen_per_second',
+            type: 'object',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'ammunition',
+            description: 'Deprecated: use ammunition from root resource.',
             type: 'object',
             nullable: true,
             deprecated: true
@@ -87,14 +96,12 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
         return [
             'class' => Arr::get($weapon, 'WeaponClass'),
             'type' => $this->extractFromStdItem($this->resource, 'DescriptionData.Item Type'),
-            // deprecated
             'capacity' => Arr::get($ammo, 'Capacity'),
             'range' => Arr::get($weapon, 'EffectiveRange'),
-            'damage_per_shot' => Arr::get($mode, 'Alpha'),
-            'regeneration' => Arr::get($weapon, 'Capacitor.MaxRegenPerSec'),
 
             // deprecated
-            'speed' => Arr::get($ammo, 'Speed'),
+            'damage_per_shot' => Arr::get($mode, 'Alpha'),
+            'regeneration' => Arr::get($weapon, 'Capacitor.MaxRegenPerSec'),
 
             'rpm' => Arr::get($mode, 'RoundsPerMinute'),
 
@@ -102,11 +109,10 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
             'modes' => $modes,
 
             'damage' => [
-                'sustained_60s' => Arr::get($weapon, 'Sustained.Damage60s'),
-                'burst' => Arr::get($weapon, 'Sustained.Dps60s'),
-                'dps_total' => Arr::get($mode, 'Dps'),
-                'alpha_total' => Arr::get($mode, 'Alpha'),
-                'maximum' => Arr::get($mode, 'MaxDamagePerMagazine') === 0 ? -1 : Arr::get($mode, 'MaxDamagePerMagazine'),
+                'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s'),
+                'burst' => Arr::get($weapon, 'Damage.Burst'),
+                'alpha_total' => Arr::get($weapon, 'Damage.Alpha'),
+                'maximum' => Arr::get($weapon, 'Damage.Maximum'),
                 'dps' => [
                     'physical' => Arr::get($mode, 'DpsPhysical'),
                     'energy' => Arr::get($mode, 'DpsEnergy'),
@@ -125,10 +131,13 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
                 ],
             ],
 
-            $this->mergeWhen(Arr::get($mode, 'Spread.Min') !== null, [
+            $this->mergeWhen(Arr::get($mode, 'Spread') !== null, [
                 'spread' => [
                     'min' => Arr::get($mode, 'Spread.Min'),
                     'max' => Arr::get($mode, 'Spread.Max'),
+                    'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
+                    'per_attack' => Arr::get($mode, 'Spread.Attack'),
+                    'decay' => Arr::get($mode, 'Spread.Decay'),
                 ],
             ]),
 
@@ -139,18 +148,20 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
                 ],
             ]),
 
-            'heat' => [
-                'per_shot' => Arr::get($heat, 'HeatPerShot'),
-                'cooling_delay' => Arr::get($heat, 'CoolingDelay'),
-                'cooling_per_second' => Arr::get($heat, 'CoolingPerSecond'),
-                'overheat_max_shots' => Arr::get($heat, 'ShotsToOverheat'),
-                'overheat_max_time' => Arr::get($heat, 'TimeToOverheat'),
-                'overheat_cooldown' => Arr::get($heat, 'OverheatFixTime'),
-            ],
+            $this->mergeWhen(! empty($heat), [
+                'heat' => [
+                    'per_shot' => Arr::get($heat, 'HeatPerShot'),
+                    'cooling_delay' => Arr::get($heat, 'CoolingDelay'),
+                    'cooling_per_second' => Arr::get($heat, 'CoolingPerSecond'),
+                    'overheat_max_shots' => Arr::get($heat, 'ShotsToOverheat'),
+                    'overheat_max_time' => Arr::get($heat, 'TimeToOverheat'),
+                    'overheat_cooldown' => Arr::get($heat, 'OverheatFixTime'),
+                ],
+            ]),
 
             $this->mergeWhen(Arr::get($weapon, 'Capacitor.MaxAmmoLoad') !== null, [
                 'capacitor' => [
-                    'ammo' => Arr::get($weapon, 'Capacitor.MaxAmmoLoad'),
+                    'max_ammo_load' => Arr::get($weapon, 'Capacitor.MaxAmmoLoad'),
                     'regen_per_second' => Arr::get($weapon, 'Capacitor.MaxRegenPerSec'),
                     'cooldown' => Arr::get($weapon, 'Capacitor.Cooldown'),
 
@@ -173,7 +184,7 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
                 ],
             ]),
 
-            'ammo' => new AmmunitionResource($this->resource),
+            'ammunition' => new AmmunitionResource($this->resource),
         ];
     }
 }

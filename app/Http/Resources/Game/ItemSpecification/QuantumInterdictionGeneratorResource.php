@@ -106,47 +106,47 @@ class QuantumInterdictionGeneratorResource extends AbstractItemSpecificationReso
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
-        $quantumInterdiction = Arr::get($data, 'stdItem.QuantumInterdiction', []);
+        $quantumInterdiction = Arr::get($data, 'stdItem.QuantumInterdictionGenerator', []);
 
         $jammer = Arr::get($quantumInterdiction, 'Jammer', []);
         $pulse = Arr::get($quantumInterdiction, 'Pulse', []);
 
         return [
             'power_fractions' => [
-                'base' => Arr::get($quantumInterdiction, 'basePowerDrawFraction'),
-                'pulse' => Arr::get($quantumInterdiction, 'pulsePowerFraction'),
-                'jammer' => Arr::get($quantumInterdiction, 'jammerPowerFraction'),
+                'base' => Arr::get($quantumInterdiction, 'BasePowerDrawFraction'),
+                'pulse' => Arr::get($quantumInterdiction, 'PulsePowerFraction'),
+                'jammer' => Arr::get($quantumInterdiction, 'JammerPowerFraction'),
             ],
             'jamming' => [
                 'range' => Arr::get($quantumInterdiction, 'JammingRange'),
-                'max_power_draw' => Arr::get($jammer, 'maxPowerDraw'),
-                'green_zone_check_range' => Arr::get($jammer, 'greenZoneCheckRange'),
+                'max_power_draw' => Arr::get($jammer, 'MaxPowerDraw'),
+                'green_zone_check_range' => Arr::get($jammer, 'GreenZoneCheckRange'),
             ],
             'pulse' => [
-                'charge_time' => Arr::get($pulse, 'chargeTimeSecs'),
-                'discharge_time' => Arr::get($pulse, 'dischargeTimeSecs'),
-                'cooldown_time' => Arr::get($pulse, 'cooldownTimeSecs'),
-                'radius' => Arr::get($pulse, 'radiusMeters'),
-                'decrease_charge_rate_time' => Arr::get($pulse, 'decreaseChargeRateTimeSeconds'),
-                'increase_charge_rate_time' => Arr::get($pulse, 'increaseChargeRateTimeSeconds'),
-                'activation_phase_duration' => Arr::get($pulse, 'activationPhaseDuration_seconds'),
-                'disperse_charge_time' => Arr::get($pulse, 'disperseChargeTimeSeconds'),
-                'max_power_draw' => Arr::get($pulse, 'maxPowerDraw'),
-                'stop_charging_power_fraction' => Arr::get($pulse, 'stopChargingPowerDrawFraction'),
-                'max_charge_rate_power_fraction' => Arr::get($pulse, 'maxChargeRatePowerDrawFraction'),
-                'active_power_fraction' => Arr::get($pulse, 'activePowerDrawFraction'),
-                'tethering_power_fraction' => Arr::get($pulse, 'tetheringPowerDrawFraction'),
-                'green_zone_check_range' => Arr::get($pulse, 'greenZoneCheckRange'),
+                'charge_time' => Arr::get($pulse, 'ChargeTimeSecs'),
+                'discharge_time' => Arr::get($pulse, 'DischargeTimeSecs'),
+                'cooldown_time' => Arr::get($pulse, 'CooldownTimeSecs'),
+                'radius' => Arr::get($pulse, 'RadiusMeters'),
+                'decrease_charge_rate_time' => Arr::get($pulse, 'DecreaseChargeRateTimeSeconds'),
+                'increase_charge_rate_time' => Arr::get($pulse, 'IncreaseChargeRateTimeSeconds'),
+                'activation_phase_duration' => Arr::get($pulse, 'ActivationPhaseDuration_seconds'),
+                'disperse_charge_time' => Arr::get($pulse, 'DisperseChargeTimeSeconds'),
+                'max_power_draw' => Arr::get($pulse, 'MaxPowerDraw'),
+                'stop_charging_power_fraction' => Arr::get($pulse, 'StopChargingPowerDrawFraction'),
+                'max_charge_rate_power_fraction' => Arr::get($pulse, 'MaxChargeRatePowerDrawFraction'),
+                'active_power_fraction' => Arr::get($pulse, 'ActivePowerDrawFraction'),
+                'tethering_power_fraction' => Arr::get($pulse, 'TetheringPowerDrawFraction'),
+                'green_zone_check_range' => Arr::get($pulse, 'GreenZoneCheckRange'),
             ],
 
             'interdiction_range' => Arr::get($quantumInterdiction, 'InterdictionRange'),
             'jammer_range' => Arr::get($quantumInterdiction, 'JammingRange'),
 
-            'charge_duration' => Arr::get($pulse, 'chargeTimeSecs'),
-            'activation_duration' => Arr::get($pulse, 'activationPhaseDuration_seconds'),
-            'discharge_duration' => Arr::get($pulse, 'dischargeTimeSecs'),
-            'cooldown_duration' => Arr::get($pulse, 'cooldownTimeSecs'),
-            'disperse_charge_duration' => Arr::get($pulse, 'disperseChargeTimeSeconds'),
+            'charge_duration' => Arr::get($pulse, 'ChargeTimeSecs'),
+            'activation_duration' => Arr::get($pulse, 'ActivationPhaseDuration_seconds'),
+            'discharge_duration' => Arr::get($pulse, 'DischargeTimeSecs'),
+            'cooldown_duration' => Arr::get($pulse, 'CooldownTimeSecs'),
+            'disperse_charge_duration' => Arr::get($pulse, 'DisperseChargeTimeSeconds'),
         ];
     }
 }

@@ -24,15 +24,10 @@ class MissileRackResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
         $stdItem = $this->extractStdItem($data);
-        $ports = Arr::get($stdItem, 'Ports', []);
-
-        if (! is_array($ports) || $ports === []) {
-            return [];
-        }
 
         return [
-            'missile_count' => count($ports),
-            'missile_size' => Arr::get($ports, '0.MaxSize', Arr::get($ports, '0.Size')),
+            'missile_count' => Arr::get($stdItem, 'MissileRack.MissileCount'),
+            'missile_size' => Arr::get($stdItem, 'MissileRack.MissileSize'),
         ];
     }
 }
