@@ -5,7 +5,7 @@
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!}
+    {!! $pageTitleDecoded !!} - Star Citizen Vehicle
 @endsection
 @section('meta_description', "{$pageTitle} vehicle details.")
 

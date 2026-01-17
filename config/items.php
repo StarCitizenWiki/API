@@ -3034,6 +3034,13 @@ return [
         ],
         'fps-armor' => [
             'title' => 'FPS Armor',
+            'matches' => [
+                'Char_Armor_Undersuit',
+                'Char_Armor_Arms',
+                'Char_Armor_Helmet',
+                'Char_Armor_Torso',
+                'Char_Armor_Legs',
+            ],
             'remove_fields' => ['grade', 'class'],
             'shared' => ['inventory', 'occupancy'],
             'shared_insert_at' => 2,

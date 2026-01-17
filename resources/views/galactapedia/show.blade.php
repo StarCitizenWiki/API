@@ -5,7 +5,7 @@
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!}
+    {!! $pageTitleDecoded !!} - Galactapedia Article
 @endsection
 @section('meta_description', "{$pageTitle} Galactapedia article details.")
 

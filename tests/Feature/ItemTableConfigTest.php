@@ -5,6 +5,14 @@ declare(strict_types=1);
 use App\Support\Items\ItemTableConfig;
 
 it('adds sortField to columns from sorts config', function () {
+    $originalColumns = config('items.table.columns');
+    $originalSorts = config('sorts.items');
+
+    config()->set('items.table.columns', [
+        ['title' => 'Mass', 'field' => 'mass'],
+    ]);
+    config()->set('sorts.items', $originalSorts);
+
     $config = new ItemTableConfig;
     $result = $config->build(null);
 
@@ -22,9 +30,25 @@ it('adds sortField to columns from sorts config', function () {
         'path' => 'Mass',
         'cast' => 'numeric',
     ]);
+
+    config()->set('items.table.columns', $originalColumns);
+    config()->set('sorts.items', $originalSorts);
 });
 
 it('adds sortField to nested columns in column groups', function () {
+    $originalColumns = config('items.table.columns');
+    $originalSorts = config('sorts.items');
+
+    config()->set('items.table.columns', [
+        [
+            'title' => 'Durability',
+            'columns' => [
+                ['title' => 'Health', 'field' => 'durability.health'],
+            ],
+        ],
+    ]);
+    config()->set('sorts.items', $originalSorts);
+
     $config = new ItemTableConfig;
     $result = $config->build(null);
 
@@ -36,6 +60,9 @@ it('adds sortField to nested columns in column groups', function () {
     expect($healthColumn['sortField'])->toBe('Durability.Health');
     expect($healthColumn['sort']['path'])->toBe('Durability.Health');
     expect($healthColumn['sort']['cast'])->toBe('numeric');
+
+    config()->set('items.table.columns', $originalColumns);
+    config()->set('sorts.items', $originalSorts);
 });
 
 it('does not modify columns without matching sort config', function () {
@@ -57,6 +84,38 @@ it('does not modify columns without matching sort config', function () {
         expect($nonSortableColumn)->not->toHaveKey('sortField');
         expect($nonSortableColumn)->not->toHaveKey('sort');
     }
+});
+
+it('resolves type overrides by matches aliases', function () {
+    $originalColumns = config('items.table.columns');
+    $originalHeaderFilterMap = config('items.table.header_filter_options_map');
+    $originalTypeOverrides = config('items.type_overrides');
+    $originalSorts = config('sorts.items');
+
+    config()->set('items.table.columns', [
+        ['title' => 'Name', 'field' => 'name'],
+    ]);
+    config()->set('items.table.header_filter_options_map', []);
+    config()->set('items.type_overrides', [
+        'fps-armor' => [
+            'title' => 'FPS Armor',
+            'matches' => [
+                'Char_Armor_Helmet',
+                'Char_Armor_Torso',
+            ],
+        ],
+    ]);
+    config()->set('sorts.items', []);
+
+    $config = new ItemTableConfig;
+    $result = $config->build('CHAR_ARMOR_HELMET');
+
+    expect($result['title'])->toBe('FPS Armor');
+
+    config()->set('items.table.columns', $originalColumns);
+    config()->set('items.table.header_filter_options_map', $originalHeaderFilterMap);
+    config()->set('items.type_overrides', $originalTypeOverrides);
+    config()->set('sorts.items', $originalSorts);
 });
 
 it('preserves existing sortField as manual override', function () {

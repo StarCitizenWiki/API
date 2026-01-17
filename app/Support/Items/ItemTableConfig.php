@@ -129,7 +129,33 @@ final class ItemTableConfig
         $overrides = config('items.type_overrides', []);
         $typeKey = Str::lower($type);
 
-        return $overrides[$type] ?? $overrides[$typeKey] ?? [];
+        $directOverride = $overrides[$type] ?? $overrides[$typeKey] ?? null;
+        if (is_array($directOverride)) {
+            return $directOverride;
+        }
+
+        foreach ($overrides as $override) {
+            if (! is_array($override)) {
+                continue;
+            }
+
+            $matches = Arr::get($override, 'matches', []);
+            if (! is_array($matches) || $matches === []) {
+                continue;
+            }
+
+            foreach ($matches as $match) {
+                if (! is_string($match) || $match === '') {
+                    continue;
+                }
+
+                if (Str::lower($match) === $typeKey) {
+                    return $override;
+                }
+            }
+        }
+
+        return [];
     }
 
     /**

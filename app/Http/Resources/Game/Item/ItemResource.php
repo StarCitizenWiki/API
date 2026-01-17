@@ -588,7 +588,7 @@ class ItemResource extends AbstractBaseResource
         if ($itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment')) {
             $hasMatch = true;
 
-            $attachment = new WeaponAttachmentResource($itemData)->resolve();
+            $attachment = (new WeaponAttachmentResource($itemData))->resolve();
 
             foreach ($attachment as $key => $data) {
                 $specifications[$key] = static fn () => $data;

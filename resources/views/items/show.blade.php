@@ -5,7 +5,7 @@
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!}
+    {!! $pageTitleDecoded !!} - Star Citizen Item
 @endsection
 @section('meta_description', "{$pageTitle} item details.")
 
@@ -50,6 +50,17 @@
         $apiLink = data_get($item, 'link');
         $version = data_get($item, 'version');
         $rawItemJson = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        $filter = ['type' => $type];
+        $filterKey = $type;
+
+        if (str_starts_with($classification, 'FPS.Clothing')) {
+            $filter = ['category' => 'clothes'];
+            $filterKey = 'Clothes';
+        } elseif (str_starts_with($classification, 'FPS.Armor')) {
+            $filter = ['category' => 'armor'];
+            $filterKey = 'Armor';
+        }
 
         $specKeys = [
             'inventory' => 'Inventory',
@@ -99,7 +110,10 @@
             <div class="breadcrumbs text-sm text-base-content/70">
                 <ul>
                     <li><a href="{{ route('web.items.index') }}">All Items</a></li>
-                    <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ $type }}</a></li>
+                    <li><a href="{{ route('web.items.index', ['filter' => $filter]) }}">{{ $filterKey }}</a></li>
+                    @if (isset($filter['category']))
+                        <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ $type }}</a></li>
+                    @endif
                     <li>{{ $itemName }}</li>
                 </ul>
             </div>

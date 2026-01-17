@@ -72,7 +72,7 @@
         </div>
 
         @if ($images !== [])
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 @foreach ($images as $image)
                     <x-comm-links.image-card :image="$image" />
                 @endforeach
