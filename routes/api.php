@@ -12,11 +12,24 @@ use App\Http\Controllers\Api\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Api\StarCitizen\StatController;
 use App\Http\Controllers\Api\StarCitizen\VehicleController as ShipMatrixVehicleController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::get('/v2/openapi', static function () {
+    return response(
+        File::get(storage_path('app/swagger.yaml'))
+    )->header('Content-Type', 'application/yaml');
+});
+
+Route::get('/openapi', static function () {
+    return response(
+        File::get(storage_path('app/swagger.yaml'))
+    )->header('Content-Type', 'application/yaml');
+});
 
 Route::group(
     [],

@@ -9,46 +9,65 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'melee_weapon_attack_damages',
+    title: 'Melee Weapon Attack Damages',
+    description: 'Damage breakdown for a melee attack mode.',
+    properties: [
+        new OA\Property(property: 'physical', type: 'double', example: 30, nullable: true),
+        new OA\Property(property: 'energy', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'distortion', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'stun', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'melee_weapon_attack_mode',
+    title: 'Melee Weapon Attack Mode',
+    description: 'Single attack configuration as returned by the resource.',
+    properties: [
+        new OA\Property(property: 'category', type: 'string', example: 'BladeSlash', nullable: true),
+        new OA\Property(property: 'damage', description: 'Total damage value (DamageTotal).', type: 'double', example: 30, nullable: true),
+
+        new OA\Property(property: 'stun_recovery_modifier', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'block_stun_reduction_modifier', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'block_stun_stamina_modifier', type: 'double', example: 0, nullable: true),
+
+        new OA\Property(property: 'attack_impulse', type: 'double', example: 20, nullable: true),
+        new OA\Property(property: 'ignore_body_part_impulse_scale', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'force_knockdown', type: 'string', example: 'None', nullable: true),
+
+        new OA\Property(
+            property: 'damages',
+            ref: '#/components/schemas/melee_weapon_attack_damages',
+            description: 'Damage breakdown by type.'
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'melee_weapon',
     title: 'Melee Weapon',
-    description: 'Melee weapon specification sourced from Item.stdItem.MeleeWeapon (or meleeWeapon). Captures player-relevant melee flags and attack configs without additional processing.',
+    description: 'Melee weapon specification sourced from Item.stdItem.MeleeWeapon (or meleeWeapon).',
     properties: [
         new OA\Property(property: 'can_be_used_for_take_down', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'can_block', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'can_be_used_in_prone', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'can_dodge', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'stance_transition_melee_delay', type: 'double', example: 0.6, nullable: true),
-        new OA\Property(property: 'melee_combat_config', description: 'UUID reference to the melee combat config record.', type: 'string', example: 'da909c53-195a-4289-8466-ecb4c418f930', nullable: true),
+        new OA\Property(
+            property: 'melee_combat_config',
+            description: 'UUID reference to the melee combat config record.',
+            type: 'string',
+            example: 'da909c53-195a-4289-8466-ecb4c418f930',
+            nullable: true
+        ),
         new OA\Property(
             property: 'attack_modes',
-            description: 'Attack configurations as provided by the game data.',
+            description: 'Attack configurations as returned by the resource.',
             type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'action_category', type: 'string', example: 'BladeSlash', nullable: true),
-                    new OA\Property(property: 'stun_recovery_modifier', type: 'double', example: 0, nullable: true),
-                    new OA\Property(property: 'block_stun_reduction_modifier', type: 'double', example: 0, nullable: true),
-                    new OA\Property(property: 'block_stun_stamina_modifier', type: 'double', example: 0, nullable: true),
-                    new OA\Property(property: 'attack_impulse', type: 'double', example: 20, nullable: true),
-                    new OA\Property(property: 'ignore_body_part_impulse_scale', type: 'boolean', example: false, nullable: true),
-                    new OA\Property(property: 'force_knockdown', type: 'string', example: 'None', nullable: true),
-                    new OA\Property(
-                        property: 'damage',
-                        properties: [
-                            new OA\Property(property: 'physical', type: 'double', example: 30, nullable: true),
-                            new OA\Property(property: 'energy', type: 'double', example: 0, nullable: true),
-                            new OA\Property(property: 'distortion', type: 'double', example: 0, nullable: true),
-                            new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
-                            new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
-                            new OA\Property(property: 'stun', type: 'double', example: 0, nullable: true),
-                        ],
-                        type: 'object',
-                        nullable: true
-                    ),
-                    new OA\Property(property: 'damage_total', type: 'double', example: 30, nullable: true),
-                ],
-                type: 'object'
-            ),
+            items: new OA\Items(ref: '#/components/schemas/melee_weapon_attack_mode'),
             nullable: true
         ),
     ],

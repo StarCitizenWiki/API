@@ -9,62 +9,105 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'quantum_drive_thermal_energy_draw',
+    title: 'Quantum Drive Thermal Energy Draw',
+    description: 'Thermal energy draw (heat units/s) for each quantum travel phase.',
+    properties: [
+        new OA\Property(property: 'pre_ramp_up', type: 'double', example: 8700, nullable: true),
+        new OA\Property(property: 'ramp_up', type: 'double', example: 8700, nullable: true),
+        new OA\Property(property: 'in_flight', type: 'double', example: 8700, nullable: true),
+        new OA\Property(property: 'ramp_down', type: 'double', example: 8700, nullable: true),
+        new OA\Property(property: 'post_ramp_down', type: 'double', example: 8700, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'quantum_drive_travel_time_10gm',
+    title: 'Quantum Drive Travel Time 10GM',
+    description: 'Travel time for a 10GM reference distance as provided by the source data.',
+    properties: [
+        new OA\Property(property: 'seconds', description: 'Travel time in seconds.', type: 'double', example: 56.0, nullable: true),
+        new OA\Property(property: 'formatted', description: 'Formatted travel time string.', type: 'string', example: '00:56', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'quantum_drive',
     title: 'Quantum Drive',
-    description: 'Quantum drive performance taken from stdItem.QuantumDrive in game data, including fuel usage, jump ranges, heat, and both standard and spline jump profiles.',
+    description: 'Quantum drive performance taken from stdItem.QuantumDrive in game data, including fuel usage, jump ranges, thermal draw, jump profiles, and derived mode listings.',
     properties: [
         new OA\Property(
             property: 'quantum_fuel_requirement',
-            description: 'Total quantum fuel consumed to complete a spool. In game data snub and size-1 drives start around 0.0049, capital drives peak near 1.0.',
+            description: 'Total quantum fuel consumed to complete a spool (QuantumFuelRequirement).',
             type: 'double',
             example: 0.006758,
             nullable: true
         ),
         new OA\Property(
             property: 'fuel_rate',
-            description: 'Continuous quantum fuel burn per meter travelled. Observed values span 4.9e-9 (small civilian) to 1e-6 (capital).',
+            description: 'Continuous quantum fuel burn per meter travelled (FuelRate).',
             type: 'double',
             example: 6.758e-9,
             nullable: true
         ),
         new OA\Property(
             property: 'jump_range',
-            description: 'Maximum permitted quantum jump distance in meters. Current game entries use float max (≈3.4e38) to represent uncapped range.',
+            description: 'Maximum permitted quantum jump distance in meters (JumpRange).',
             type: 'double',
             example: 3.402823e+38,
             nullable: true
         ),
         new OA\Property(
             property: 'disconnect_range',
-            description: 'Automatic disengage distance when approaching destination (meters). Dataset ranges roughly 14,000–73,000.',
+            description: 'Automatic disengage distance when approaching destination in meters (DisconnectRange).',
             type: 'double',
             example: 34693,
             nullable: true
         ),
+
         new OA\Property(
-            property: 'heat',
-            description: 'Thermal energy draw (heat units/s) for each phase. Small drives start near 101; largest entries approach 9.5M during ramp phases.',
-            properties: [
-                new OA\Property(property: 'pre_ramp_up_thermal_energy_draw', type: 'double', example: 8700, nullable: true),
-                new OA\Property(property: 'ramp_up_thermal_energy_draw', type: 'double', example: 8700, nullable: true),
-                new OA\Property(property: 'in_flight_thermal_energy_draw', type: 'double', example: 8700, nullable: true),
-                new OA\Property(property: 'ramp_down_thermal_energy_draw', type: 'double', example: 8700, nullable: true),
-                new OA\Property(property: 'post_ramp_down_thermal_energy_draw', type: 'double', example: 8700, nullable: true),
-            ],
-            type: 'object',
-            nullable: true
+            property: 'thermal_energy_draw',
+            ref: '#/components/schemas/quantum_drive_thermal_energy_draw',
+            description: 'Thermal energy draw values for each phase (from QuantumDrive.Heat.*).'
         ),
+
         new OA\Property(
             property: 'standard_jump',
             ref: '#/components/schemas/quantum_drive_jump_profile',
-            description: 'Primary point-to-point quantum travel profile. DriveSpeed ranges ~138,000,000–876,000,000; spool-up 4–9s; cooldown up to 92s depending on size/grade.',
-            nullable: true
+            description: 'Primary point-to-point quantum travel profile (from QuantumDrive.StandardJump).'
         ),
         new OA\Property(
             property: 'spline_jump',
             ref: '#/components/schemas/quantum_drive_jump_profile',
-            description: 'Spline (QT beacon) travel profile with lower speeds/accels. DriveSpeed typically 400,000–500,000 with matching calibration and spool parameters.',
+            description: 'Spline (QT beacon) travel profile (from QuantumDrive.SplineJump).'
+        ),
+
+        new OA\Property(
+            property: 'modes',
+            description: 'List of jump profiles with an explicit mode identifier.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/quantum_drive_jump_profile')
+        ),
+
+        new OA\Property(
+            property: 'fuel_consumption_scu_per_gm',
+            description: 'Fuel consumption in SCU per GM (FuelConsumptionSCUPerGM).',
+            type: 'double',
+            example: 0.12,
             nullable: true
+        ),
+        new OA\Property(
+            property: 'fuel_efficiency',
+            description: 'Fuel efficiency in GM per SCU (FuelEfficiencyGMPerSCU).',
+            type: 'double',
+            example: 8.3,
+            nullable: true
+        ),
+
+        new OA\Property(
+            property: 'travel_time_10gm',
+            ref: '#/components/schemas/quantum_drive_travel_time_10gm',
+            description: 'Travel time reference for 10GM.'
         ),
     ],
     type: 'object'

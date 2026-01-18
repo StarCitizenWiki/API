@@ -2615,12 +2615,12 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'clothing.temperature_resistance.min',
+                                    'field' => 'clothing.temperature_resistance.minimum',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'clothing.temperature_resistance.max',
+                                    'field' => 'clothing.temperature_resistance.maximum',
                                     ...suffix('ºC'),
                                 ],
                             ],
@@ -2819,12 +2819,12 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'clothing.temperature_resistance.min',
+                                    'field' => 'clothing.temperature_resistance.minimum',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'clothing.temperature_resistance.max',
+                                    'field' => 'clothing.temperature_resistance.maximum',
                                     ...suffix('ºC'),
                                 ],
                             ],

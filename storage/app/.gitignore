@@ -3,5 +3,5 @@
 !public/
 !.gitignore
 !api/
-!swagger.json
+!swagger.yaml
 !manufacturers.json

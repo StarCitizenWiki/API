@@ -61,6 +61,20 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/resource_network_delta'),
             nullable: true,
         ),
+        new OA\Property(
+            property: 'power_ranges',
+            description: 'Power range modifiers applied when this state is active.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'start', description: 'Start value of the power range.', type: 'double', nullable: true),
+                    new OA\Property(property: 'modifier', description: 'Modifier applied within this power range.', type: 'double', nullable: true),
+                    new OA\Property(property: 'register_range', description: 'Whether this range should be registered.', type: 'boolean', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true,
+        ),
     ],
     type: 'object'
 )]
@@ -77,6 +91,55 @@ use OpenApi\Attributes as OA;
             description: 'List of available network states and their resource deltas.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/resource_network_state'),
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'repair',
+            description: 'Repair configuration for this networked item.',
+            properties: [
+                new OA\Property(property: 'max_repair_count', description: 'Maximum number of repairs allowed.', type: 'integer', nullable: true),
+                new OA\Property(property: 'time_to_repair', description: 'Time required to perform a repair (seconds).', type: 'double', nullable: true),
+                new OA\Property(property: 'health_ratio', description: 'Health ratio threshold for repair eligibility.', type: 'double', nullable: true),
+            ],
+            type: 'object',
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'usage',
+            description: 'Resource usage configuration defining minimum and maximum consumption rates.',
+            properties: [
+                new OA\Property(
+                    property: 'power',
+                    description: 'Power usage range.',
+                    properties: [
+                        new OA\Property(property: 'minimum', description: 'Minimum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                        new OA\Property(property: 'maximum', description: 'Maximum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'coolant',
+                    description: 'Coolant usage range.',
+                    properties: [
+                        new OA\Property(property: 'minimum', description: 'Minimum coolant usage.', type: 'double', nullable: true),
+                        new OA\Property(property: 'maximum', description: 'Maximum coolant usage.', type: 'double', nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object',
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'generation',
+            description: 'Resource generation configuration defining production rates.',
+            properties: [
+                new OA\Property(property: 'coolant', description: 'Coolant generation rate.', type: 'double', nullable: true),
+                new OA\Property(property: 'power', description: 'Power generation rate.', type: 'double', nullable: true),
+            ],
+            type: 'object',
             nullable: true,
         ),
     ],

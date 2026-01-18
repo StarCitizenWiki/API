@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'power_plant',
     title: 'Power Plant',
-    description: 'Power plant output values derived from power connection data.',
+    description: 'Use Resource Network data for actual power segment generation. Power plant output values derived from power connection data.',
     properties: [
         new OA\Property(property: 'power_output', type: 'double', nullable: true),
     ],

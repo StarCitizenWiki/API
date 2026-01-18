@@ -9,48 +9,209 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'vehicle_weapon_damage_entry',
+    title: 'Vehicle Weapon Damage Entry',
+    description: 'Single damage component entry derived from Ammunition impact/detonation damage fields.',
+    properties: [
+        new OA\Property(property: 'type', description: 'Damage phase bucket.', type: 'string', example: 'impact', nullable: true),
+        new OA\Property(property: 'name', description: 'Damage type name (lowercase).', type: 'string', example: 'physical', nullable: true),
+        new OA\Property(property: 'damage', type: 'double', example: 11.5, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_mode',
+    title: 'Vehicle Weapon Mode',
+    description: 'Fire mode entry as emitted by the resource (no derived values).',
+    properties: [
+        new OA\Property(property: 'mode', type: 'string', example: 'Rapid', nullable: true),
+        new OA\Property(property: 'localised', type: 'string', example: '[AUTO]', nullable: true),
+        new OA\Property(property: 'type', type: 'string', example: 'rapid', nullable: true),
+        new OA\Property(property: 'rounds_per_minute', type: 'double', example: 925, nullable: true),
+        new OA\Property(property: 'ammo_per_shot', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'pellets_per_shot', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'damage_per_second', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_damage_types',
+    title: 'Vehicle Weapon Damage Types',
+    description: 'Damage values split by type.',
+    properties: [
+        new OA\Property(property: 'physical', type: 'double', nullable: true),
+        new OA\Property(property: 'energy', type: 'double', nullable: true),
+        new OA\Property(property: 'distortion', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal', type: 'double', nullable: true),
+        new OA\Property(property: 'biochemical', type: 'double', nullable: true),
+        new OA\Property(property: 'stun', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_damage',
+    title: 'Vehicle Weapon Damage',
+    description: 'Damage summary block from stdItem.Weapon plus per-type alpha and dps from the primary mode.',
+    properties: [
+        new OA\Property(property: 'sustained_60s', type: 'double', nullable: true),
+        new OA\Property(property: 'burst', type: 'double', nullable: true),
+        new OA\Property(property: 'alpha_total', type: 'double', nullable: true),
+        new OA\Property(property: 'maximum', type: 'double', nullable: true),
+        new OA\Property(property: 'dps', ref: '#/components/schemas/vehicle_weapon_damage_types', nullable: true),
+        new OA\Property(property: 'alpha', ref: '#/components/schemas/vehicle_weapon_damage_types', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_spread',
+    title: 'Vehicle Weapon Spread',
+    properties: [
+        new OA\Property(property: 'minimum', type: 'double', nullable: true),
+        new OA\Property(property: 'maximum', type: 'double', nullable: true),
+        new OA\Property(property: 'first_attack', type: 'double', nullable: true),
+        new OA\Property(property: 'per_attack', type: 'double', nullable: true),
+        new OA\Property(property: 'decay', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_barrel_spin_time',
+    title: 'Vehicle Weapon Barrel Spin Time',
+    properties: [
+        new OA\Property(property: 'up', type: 'double', nullable: true),
+        new OA\Property(property: 'down', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_heat',
+    title: 'Vehicle Weapon Heat',
+    properties: [
+        new OA\Property(property: 'per_shot', type: 'double', nullable: true),
+        new OA\Property(property: 'cooling_delay', type: 'double', nullable: true),
+        new OA\Property(property: 'cooling_per_second', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_max_shots', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_max_time', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_cooldown', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_capacitor',
+    title: 'Vehicle Weapon Capacitor',
+    properties: [
+        new OA\Property(property: 'max_ammo_load', type: 'double', nullable: true),
+        new OA\Property(property: 'regen_per_second', type: 'double', nullable: true),
+        new OA\Property(property: 'cooldown', type: 'double', nullable: true),
+        new OA\Property(property: 'requested_ammo_load', type: 'double', nullable: true),
+        new OA\Property(property: 'costs_per_shot', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_charge',
+    title: 'Vehicle Weapon Charge',
+    properties: [
+        new OA\Property(property: 'time', type: 'double', nullable: true),
+        new OA\Property(property: 'overcharge_time', type: 'double', nullable: true),
+        new OA\Property(property: 'overcharged_time', type: 'double', nullable: true),
+        new OA\Property(property: 'cooldown_time', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'vehicle_weapon_charge_modifier',
+    title: 'Vehicle Weapon Charge Modifier',
+    properties: [
+        new OA\Property(property: 'damage', type: 'double', nullable: true),
+        new OA\Property(property: 'fire_rate', type: 'double', nullable: true),
+        new OA\Property(property: 'ammo_speed', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'vehicle_weapon',
     title: 'Vehicle Weapon',
-    description: 'Vehicle weapon stats derived from stdItem.Weapon.',
+    description: 'Vehicle weapon stats derived from stdItem.Weapon and stdItem.Ammunition. Conditional blocks (spread, barrel_spin_time, heat, capacitor, charge, charge_modifier) may be omitted when source data is absent.',
     properties: [
-        new OA\Property(property: 'class', description: 'V2 compatibility field', type: 'string', nullable: true, deprecated: true),
-        new OA\Property(property: 'type', description: 'Deprecated: Use value from description_data', type: 'string', nullable: true, deprecated: true),
-        new OA\Property(property: 'speed', type: 'double', nullable: true),
-        new OA\Property(property: 'range', type: 'double', nullable: true),
-        new OA\Property(property: 'size', type: 'integer', nullable: true),
-        new OA\Property(property: 'capacity', type: 'integer', nullable: true),
-        new OA\Property(property: 'damage_per_shot', description: 'Deprecated: Use damage.alpha_total', type: 'double', nullable: true, deprecated: true),
         new OA\Property(
-            property: 'damages',
-            description: 'Deprecated: Use damage.alpha',
-            properties: [
-                new OA\Property(property: 'impact', type: 'object', nullable: true),
-                new OA\Property(property: 'detonation', type: 'object', nullable: true),
-            ],
-            type: 'object',
+            property: 'class',
+            description: 'Weapon class from stdItem.Weapon.WeaponClass.',
+            type: 'string',
+            example: 'LaserCannon',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'type',
+            description: 'Item type from DescriptionData.Item Type.',
+            type: 'string',
+            example: 'Weapon',
+            nullable: true
+        ),
+        new OA\Property(property: 'capacity', description: 'Ammunition capacity (stdItem.Ammunition.Capacity).', type: 'integer', example: 50, nullable: true),
+        new OA\Property(property: 'range', description: 'Effective range in meters (stdItem.Weapon.EffectiveRange).', type: 'double', example: 1800, nullable: true),
+
+        new OA\Property(
+            property: 'rpm',
+            description: 'Primary mode rounds per minute (Modes.0.RoundsPerMinute).',
+            type: 'double',
+            example: 400,
+            nullable: true
+        ),
+
+        new OA\Property(
+            property: 'damage',
+            ref: '#/components/schemas/vehicle_weapon_damage',
+            description: 'Damage summary and per-type alpha/dps.',
+            nullable: true
+        ),
+
+        new OA\Property(
+            property: 'modes',
+            description: 'Fire modes as provided by the game data.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_weapon_mode'),
+            nullable: true
+        ),
+
+        // Deprecated / backward-compatibility fields
+        new OA\Property(
+            property: 'damage_per_shot',
+            description: 'Deprecated. Use `damage.alpha_total` (and/or `damage.alpha.*` for per-type values).',
+            type: 'double',
             nullable: true,
             deprecated: true
         ),
         new OA\Property(
-            property: 'modes',
+            property: 'damages',
+            description: 'Deprecated. Use `damage` (and its `alpha`/`dps` breakdown).',
             type: 'array',
-            items: new OA\Items(type: 'object'),
-            nullable: true
+            items: new OA\Items(ref: '#/components/schemas/vehicle_weapon_damage_entry'),
+            nullable: true,
+            deprecated: true
         ),
         new OA\Property(
             property: 'regeneration',
-            description: 'Deprecated: Use capacitor.regen_per_second',
-            type: 'object',
+            description: 'Deprecated. Use `capacitor.regen_per_second`.',
+            type: 'double',
             nullable: true,
             deprecated: true
         ),
         new OA\Property(
             property: 'ammunition',
-            description: 'Deprecated: use ammunition from root resource.',
+            description: 'Deprecated: use ammunition from the root resource.',
             type: 'object',
             nullable: true,
             deprecated: true
         ),
+
+        // Conditional blocks (present only when source fields exist)
+        new OA\Property(property: 'spread', ref: '#/components/schemas/vehicle_weapon_spread', nullable: true),
+        new OA\Property(property: 'barrel_spin_time', ref: '#/components/schemas/vehicle_weapon_barrel_spin_time', nullable: true),
+        new OA\Property(property: 'heat', ref: '#/components/schemas/vehicle_weapon_heat', nullable: true),
+        new OA\Property(property: 'capacitor', ref: '#/components/schemas/vehicle_weapon_capacitor', nullable: true),
+        new OA\Property(property: 'charge', ref: '#/components/schemas/vehicle_weapon_charge', nullable: true),
+        new OA\Property(property: 'charge_modifier', ref: '#/components/schemas/vehicle_weapon_charge_modifier', nullable: true),
     ],
     type: 'object'
 )]
@@ -58,7 +219,6 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-
         $ammo = $this->extractFromStdItem($this->resource, 'Ammunition');
         $weapon = $this->extractFromStdItem($this->resource, 'Weapon');
         $mode = Arr::get($weapon, 'Modes.0');

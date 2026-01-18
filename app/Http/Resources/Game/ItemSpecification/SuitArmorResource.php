@@ -10,8 +10,71 @@ use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'suit_armor_type_resistance',
+    title: 'Suit Armor Type Resistance',
+    description: 'Per-damage-type resistance entry as returned by the resource.',
+    properties: [
+        new OA\Property(property: 'type', description: 'Damage type identifier (lowercase).', type: 'string', example: 'physical', nullable: true),
+        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'suit_armor_damage_resistance',
+    title: 'Suit Armor Damage Resistance',
+    description: 'Deprecated: Use damage_resistance_map. Damage resistance values for the armor piece.',
+    properties: [
+        new OA\Property(property: 'impact', type: 'double', example: 0.6925, nullable: true),
+
+        new OA\Property(property: 'physical', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+        new OA\Property(property: 'energy', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+        new OA\Property(property: 'distortion', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+        new OA\Property(property: 'thermal', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+        new OA\Property(property: 'biochemical', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+        new OA\Property(property: 'stun', ref: '#/components/schemas/suit_armor_type_resistance', nullable: true),
+    ],
+    type: 'object',
+    deprecated: true
+)]
+#[OA\Schema(
+    schema: 'suit_armor_damage_resistance_map',
+    title: 'Suit Armor Damage Resistance Map',
+    description: 'Flattened resistance values and deltas (multiplier change vs 1.0). Returned for convenience.',
+    properties: [
+        new OA\Property(property: 'impact', type: 'double', example: 0.6925, nullable: true),
+        new OA\Property(property: 'impact_change', type: 'double', example: -0.3075, nullable: true),
+
+        new OA\Property(property: 'physical', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'physical_change', type: 'double', example: -0.3, nullable: true),
+
+        new OA\Property(property: 'energy', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'energy_change', type: 'double', example: -0.3, nullable: true),
+
+        new OA\Property(property: 'distortion', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'distortion_change', type: 'double', example: -0.3, nullable: true),
+
+        new OA\Property(property: 'thermal', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'thermal_change', type: 'double', example: -0.3, nullable: true),
+
+        new OA\Property(property: 'biochemical', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'biochemical_change', type: 'double', example: -0.3, nullable: true),
+
+        new OA\Property(property: 'stun', type: 'double', example: 0.55, nullable: true),
+        new OA\Property(property: 'stun_change', type: 'double', example: -0.45, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'suit_armor_signature',
+    title: 'Suit Armor Signature',
+    description: 'Map of signature emission types (snake_case) to emission values.',
+    type: 'object',
+    additionalProperties: new OA\AdditionalProperties(type: 'double'),
+)]
+#[OA\Schema(
     schema: 'suit_armor',
-    title: 'Suit Armor Armor',
+    title: 'Suit Armor',
     description: 'Protective characteristics of FPS armor pieces (helmets, cores, arms, legs). Generated from SuitArmor data in Item.stdItem.',
     properties: [
         new OA\Property(
@@ -19,109 +82,67 @@ use OpenApi\Attributes as OA;
             description: 'Armor slot derived from the item classification (e.g. Arms, Core, Legs, Helmet).',
             type: 'string',
             example: 'Arms',
-            nullable: true,
+            nullable: true
         ),
         new OA\Property(
             property: 'armor_type',
-            description: 'Legacy armor type field, same as slot.',
+            description: 'Deprecated legacy field. Use `slot`.',
             type: 'string',
             example: 'Arms',
             nullable: true,
-            deprecated: true,
+            deprecated: true
         ),
+
         new OA\Property(
             property: 'damage_resistance',
-            properties: [
-                new OA\Property(property: 'impact', type: 'double', example: 0.6925, nullable: true),
-                new OA\Property(
-                    property: 'physical',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'energy',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'distortion',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'thermal',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'biochemical',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'stun',
-                    properties: [
-                        new OA\Property(property: 'multiplier', type: 'double', example: 0.55, nullable: true),
-                        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-            ],
-            type: 'object',
+            ref: '#/components/schemas/suit_armor_damage_resistance',
+            description: 'Structured resistance values.',
             nullable: true,
+            deprecated: true
         ),
+        new OA\Property(
+            property: 'damage_resistance_map',
+            ref: '#/components/schemas/suit_armor_damage_resistance_map',
+            description: 'Flattened resistance values and multiplier deltas.',
+            nullable: true
+        ),
+
         new OA\Property(
             property: 'protected_body_parts',
             description: 'UUIDs of body parts covered by this armor.',
             type: 'array',
             items: new OA\Items(type: 'string'),
-            example: ['b6d0be4f-bbdd-4a47-a168-8c9c9293c63a', 'e9c7c16d-d408-41c1-8d13-eec69cd2a013'],
-            nullable: true
+            example: ['b6d0be4f-bbdd-4a47-a168-8c9c9293c63a', 'e9c7c16d-d408-41c1-8d13-eec69cd2a013']
         ),
+
         new OA\Property(
             property: 'signature',
-            description: 'Signature emissions produced by the armor.',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'type', type: 'string', example: 'Electromagnetic', nullable: true),
-                    new OA\Property(property: 'emission', type: 'double', example: 5, nullable: true),
-                ],
-                type: 'object'
-            ),
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'temperature_resistance',
-            ref: '#/components/schemas/temperature_resistance',
-            description: 'Temperature protection range from TemperatureResistance.',
+            ref: '#/components/schemas/suit_armor_signature',
+            description: 'Signature emissions produced by the armor (map form).',
             example: [
-                'minimum' => -56,
-                'maximum' => 86,
+                'electromagnetic' => 5,
+                'infrared' => 2,
             ],
             nullable: true
         ),
+
+        new OA\Property(
+            property: 'temp_resistance_min',
+            description: 'Deprecated: Use temperature_resistance from root.',
+            type: 'double',
+            example: 2,
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'temp_resistance_max',
+            description: 'Deprecated: Use temperature_resistance from root.',
+            type: 'double',
+            example: 10,
+            nullable: true,
+            deprecated: true
+        ),
+
         new OA\Property(
             property: 'radiation_resistance',
             ref: '#/components/schemas/radiation_resistance',
@@ -179,9 +200,8 @@ class SuitArmorResource extends AbstractItemSpecificationResource
                     Str::snake($key) => $value,
                 ])
                 ->toArray(),
-            'temperature_resistance' => Arr::has($stdItem, 'TemperatureResistance')
-                ? (new TemperatureResistanceResource(Arr::get($stdItem, 'TemperatureResistance')))->toArray($request)
-                : null,
+            'temp_resistance_min' => Arr::get($stdItem, 'data.stdItem.TemperatureResistance.Minimum'),
+            'temp_resistance_max' => Arr::get($stdItem, 'data.stdItem.TemperatureResistance.Maximum'),
             'radiation_resistance' => Arr::has($stdItem, 'RadiationResistance')
                 ? (new RadiationResistanceResource(Arr::get($stdItem, 'RadiationResistance')))->toArray($request)
                 : null,

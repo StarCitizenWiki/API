@@ -36,9 +36,6 @@ class ItemPowerConnectionResource extends AbstractBaseResource
         return [
             'power_base' => Arr::get($this, 'PowerBase'),
             'power_draw' => Arr::get($this, 'PowerDraw'),
-            // 'time_to_reach_draw_request' => Arr::get($this, 'TimeToReachDrawRequest'),
-            // 'safeguard_priority' => Arr::get($this, 'SafeguardPriority'),
-            // 'displayed_in_powered_item_list' => Arr::get($this, 'DisplayedInPoweredItemList'),
             'throttleable' => Arr::get($this, 'IsThrottleable'),
             'overclockable' => Arr::get($this, 'IsOverclockable'),
             'overclock_threshold_min' => Arr::get($this, 'OverclockThresholdMin'),

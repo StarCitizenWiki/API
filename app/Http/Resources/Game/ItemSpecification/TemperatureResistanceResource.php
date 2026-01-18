@@ -15,13 +15,13 @@ use OpenApi\Attributes as OA;
     description: 'Temperature resistance range shared by clothing and armor.',
     properties: [
         new OA\Property(
-            property: 'min',
+            property: 'minimum',
             description: 'Minimum temperature supported.',
             type: 'double',
             nullable: true
         ),
         new OA\Property(
-            property: 'max',
+            property: 'maximum',
             description: 'Maximum temperature supported.',
             type: 'double',
             nullable: true
@@ -34,8 +34,8 @@ class TemperatureResistanceResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         return [
-            'min' => Arr::get($this, 'Minimum'),
-            'max' => Arr::get($this, 'Maximum'),
+            'minimum' => Arr::get($this, 'Minimum'),
+            'maximum' => Arr::get($this, 'Maximum'),
         ];
     }
 }

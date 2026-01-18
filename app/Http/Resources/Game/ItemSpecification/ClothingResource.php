@@ -36,8 +36,22 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(
+            property: 'resistances',
+            description: 'Array of damage resistance entries for this clothing. Each entry includes damage type (physical, energy, distortion, thermal, biochemical, stun), damage multiplier (lower = more resistant), and damage threshold. Only damage types with defined multipliers are included.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'type', description: 'Damage type (physical, energy, distortion, thermal, biochemical, stun).', type: 'string', example: 'physical', nullable: true),
+                    new OA\Property(property: 'multiplier', description: 'Damage multiplier for this resistance. Lower values mean more resistance.', type: 'double', example: 0.5, nullable: true),
+                    new OA\Property(property: 'threshold', description: 'Damage threshold value for this resistance type.', type: 'double', example: 10.0, nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true,
+        ),
+        new OA\Property(
             property: 'temp_resistance_min',
-            description: 'The minimum temperature this resource protects against. Value from TemperatureResistance->Minimum.',
+            description: 'Deprecated: Use temperature_resistance from root.',
             type: 'double',
             example: 2,
             nullable: true,
@@ -45,20 +59,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'temp_resistance_max',
-            description: 'The maximum temperature this resource protects against. Value from TemperatureResistance->Maximum.',
+            description: 'Deprecated: Use temperature_resistance from root.',
             type: 'double',
             example: 10,
             nullable: true,
             deprecated: true
-        ),
-        new OA\Property(
-            property: 'temperature_resistance',
-            ref: '#/components/schemas/temperature_resistance',
-            example: [
-                'minimum' => 2,
-                'maximum' => 32,
-            ],
-            nullable: true
         ),
         new OA\Property(
             property: 'radiation_resistance',
@@ -83,22 +88,15 @@ class ClothingResource extends AbstractBaseResource
             Arr::get($resource, 'type', ''),
             Arr::get($resource, 'name', '')
         );
-        $descriptionData = Arr::get($resource, 'data.stdItem.DescriptionData', []);
         $damageResistances = Arr::get($resource, 'data.stdItem.DamageResistances', Arr::get($resource, 'data.damageResistances', []));
 
         return [
             'clothing_type' => $type,
-
             'slot' => $slot,
             'type' => $type,
-            'damage_reduction' => Arr::get($descriptionData, 'Damage Reduction'),
-            'carrying_capacity' => Arr::get($descriptionData, 'Carrying Capacity'),
             'resistances' => $this->mapLegacyResistances($damageResistances),
             'temp_resistance_min' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Minimum'),
             'temp_resistance_max' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Maximum'),
-            'temperature_resistance' => Arr::has($resource, 'data.stdItem.TemperatureResistance')
-                ? (new TemperatureResistanceResource(Arr::get($resource, 'data.stdItem.TemperatureResistance')))->toArray($request)
-                : null,
             'radiation_resistance' => Arr::has($resource, 'data.stdItem.RadiationResistance')
                 ? (new RadiationResistanceResource(Arr::get($resource, 'data.stdItem.RadiationResistance')))->toArray($request)
                 : null,

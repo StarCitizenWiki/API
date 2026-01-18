@@ -9,52 +9,168 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'personal_weapon_mode',
+    title: 'Personal Weapon Mode',
+    description: 'Fire mode entries as returned by the game data mapping.',
+    properties: [
+        new OA\Property(property: 'mode', description: 'Mode name (Modes[].Name).', type: 'string', example: 'Rapid', nullable: true),
+        new OA\Property(property: 'localised', description: 'Localized label (Modes[].LocalisedName).', type: 'string', example: '[AUTO]', nullable: true),
+        new OA\Property(property: 'type', description: 'Fire type (Modes[].FireType).', type: 'string', example: 'rapid', nullable: true),
+        new OA\Property(property: 'rpm', description: 'Rounds per minute (Modes[].RoundsPerMinute).', type: 'double', example: 925, nullable: true),
+        new OA\Property(property: 'ammo_per_shot', description: 'Ammo consumed per shot (Modes[].AmmoPerShot).', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'pellets_per_shot', description: 'Pellets per shot (Modes[].PelletsPerShot).', type: 'integer', example: 12, nullable: true),
+        new OA\Property(property: 'damage_per_second', description: 'Mode DPS as provided (Modes[].DamagePerSecond).', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'personal_weapon_damage_vector',
+    title: 'Personal Weapon Damage Vector',
+    description: 'Damage values broken down by damage type.',
+    properties: [
+        new OA\Property(property: 'physical', type: 'double', example: 11.5, nullable: true),
+        new OA\Property(property: 'energy', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'distortion', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'stun', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'personal_weapon_damage',
+    title: 'Personal Weapon Damage',
+    description: 'Weapon damage totals and per-type breakdowns from Weapon.Damage.',
+    properties: [
+        new OA\Property(property: 'dps_total', type: 'double', example: 1150.0, nullable: true),
+        new OA\Property(property: 'alpha_total', type: 'double', example: 11.5, nullable: true),
+        new OA\Property(property: 'maximum', description: 'Maximum damage per magazine (Damage.MaxPerMag).', type: 'double', example: 575.0, nullable: true),
+        new OA\Property(property: 'dps', ref: '#/components/schemas/personal_weapon_damage_vector', nullable: true),
+        new OA\Property(property: 'alpha', ref: '#/components/schemas/personal_weapon_damage_vector', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'personal_weapon_spread',
+    title: 'Personal Weapon Spread',
+    description: 'Spread configuration. Only present when spread data exists in the source.',
+    properties: [
+        new OA\Property(property: 'minimum', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'maximum', type: 'double', example: 1.2, nullable: true),
+        new OA\Property(property: 'first_attack', type: 'double', example: 0.2, nullable: true),
+        new OA\Property(property: 'per_attack', type: 'double', example: 0.05, nullable: true),
+        new OA\Property(property: 'decay', type: 'double', example: 0.3, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'personal_weapon_charge',
+    title: 'Personal Weapon Charge',
+    description: 'Charge timings. Only present when charge data exists in the source.',
+    properties: [
+        new OA\Property(property: 'time', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'overcharge_time', type: 'double', example: 0.5, nullable: true),
+        new OA\Property(property: 'overcharged_time', type: 'double', example: 0.5, nullable: true),
+        new OA\Property(property: 'cooldown_time', type: 'double', example: 1.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'personal_weapon_charge_modifier',
+    title: 'Personal Weapon Charge Modifier',
+    description: 'Charge modifiers. Only present when charge data exists in the source.',
+    properties: [
+        new OA\Property(property: 'damage', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'fire_rate', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'ammo_speed', type: 'double', example: 1.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'personal_weapon',
     title: 'Personal Weapon',
-    description: 'FPS weapon specification sourced from Item.stdItem.Weapon and Item.stdItem.Ammunition for WeaponPersonal items. Focuses on player-relevant stats such as range, fire rates, magazine capacity, modes, and projectile behaviour. Legacy v2 fields are preserved and marked deprecated.',
+    description: 'FPS weapon specification sourced from Item.stdItem.Weapon and Item.stdItem.Ammunition for WeaponPersonal items. Legacy v2 fields are preserved and marked deprecated.',
     properties: [
-        new OA\Property(property: 'weapon_class', type: 'string', example: 'Medium', nullable: true),
-        new OA\Property(property: 'weapon_size', description: 'Weapon.Size from Item.stdItem.Weapon, distinct from the general item size.', type: 'integer', example: 2, nullable: true),
-        new OA\Property(property: 'effective_range', type: 'double', example: 950, nullable: true),
-        new OA\Property(property: 'rate_of_fire', description: 'Overall rate of fire in rounds per minute.', type: 'double', example: 925, nullable: true),
-        new OA\Property(property: 'capacity', description: 'Weapon-level capacity field when provided.', type: 'integer', example: 50, nullable: true),
+        new OA\Property(property: 'class', description: 'Class as provided by DescriptionData.Class.', type: 'string', example: 'Medium', nullable: true),
+        new OA\Property(property: 'type', description: 'Type as provided by DescriptionData.Item Type.', type: 'string', example: 'Rifle', nullable: true),
 
+        new OA\Property(
+            property: 'magazine_type',
+            description: 'Deprecated: legacy field, currently returned as an empty string; do not use.',
+            type: 'string',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'magazine_size',
+            description: 'Deprecated: use `capacity`.',
+            type: 'integer',
+            example: 50,
+            nullable: true,
+            deprecated: true
+        ),
+
+        new OA\Property(
+            property: 'effective_range',
+            description: 'Deprecated: use `range`.',
+            type: 'double',
+            example: 950,
+            nullable: true,
+            deprecated: true
+        ),
+
+        new OA\Property(property: 'capacity', description: 'Weapon capacity (Weapon.Capacity).', type: 'integer', example: 50, nullable: true),
+        new OA\Property(property: 'range', description: 'Effective range in meters (Weapon.EffectiveRange).', type: 'double', example: 950, nullable: true),
+
+        new OA\Property(
+            property: 'damage_per_shot',
+            description: 'Deprecated: use `damage.alpha_total` (or per-type `damage.alpha.*`) instead.',
+            type: 'double',
+            example: 11.5,
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(property: 'pellets_per_shot', description: 'Pellets per shot (Weapon.PelletsPerShot).', type: 'integer', example: 12, nullable: true),
+
+        new OA\Property(
+            property: 'rof',
+            description: 'Deprecated: use `rpm`.',
+            type: 'double',
+            example: 925,
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(property: 'rpm', description: 'Rounds per minute for the first mode (Modes[0].RoundsPerMinute).', type: 'double', example: 925, nullable: true),
+
+        new OA\Property(
+            property: 'damages',
+            description: 'Deprecated: legacy ammunition-derived entries. Prefer `damage` for weapon damage totals/breakdowns.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/weapon_damage_entry'),
+            nullable: true,
+            deprecated: true
+        ),
         new OA\Property(
             property: 'modes',
-            description: 'Fire modes as provided by game data; values are not derived.',
+            description: 'Fire modes returned from Weapon.Modes.',
             type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'name', type: 'string', example: 'Rapid', nullable: true),
-                    new OA\Property(property: 'label', type: 'string', example: '[AUTO]', nullable: true),
-                    new OA\Property(property: 'fire_type', type: 'string', example: 'rapid', nullable: true),
-                    new OA\Property(property: 'rounds_per_minute', type: 'double', example: 925, nullable: true),
-                    new OA\Property(property: 'ammo_per_shot', type: 'integer', example: 1, nullable: true),
-                    new OA\Property(property: 'pellets_per_shot', type: 'integer', example: 12, nullable: true),
-                    new OA\Property(property: 'damage_per_shot', type: 'double', example: 0, nullable: true),
-                    new OA\Property(property: 'damage_per_second', type: 'double', example: 0, nullable: true),
-                ],
-                type: 'object'
-            ),
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'consumption',
-            description: 'Regen/cost values used by special weapons (e.g. extinguishers).',
-            type: 'object',
+            items: new OA\Items(ref: '#/components/schemas/personal_weapon_mode'),
             nullable: true
         ),
 
-        new OA\Property(property: 'class', type: 'string', example: 'Medium', nullable: true, deprecated: true),
-        new OA\Property(property: 'magazine_size', type: 'integer', example: 50, nullable: true, deprecated: true, description: 'Deprecated: Use capacity instead'),
-        new OA\Property(property: 'damage_per_shot', type: 'double', example: 11.5, nullable: true, deprecated: true, description: 'Deprecated: Use damages.alpha_total'),
-        new OA\Property(property: 'rof', type: 'double', example: 925, nullable: true, deprecated: true, description: 'Deprecated: Use rpm instead'),
-        new OA\Property(property: 'rpm', type: 'double', example: 925, nullable: true),
-        new OA\Property(property: 'damages', type: 'array', items: new OA\Items(ref: '#/components/schemas/weapon_damage_entry'), nullable: true, deprecated: true),
-        new OA\Property(property: 'magazine_type', type: 'string', nullable: true, deprecated: true),
+        new OA\Property(property: 'fire_mode', description: 'Weapon fire mode (Weapon.FireMode).', type: 'string', example: 'Auto', nullable: true),
+
+        new OA\Property(property: 'damage', ref: '#/components/schemas/personal_weapon_damage'),
+
+        new OA\Property(property: 'spread', ref: '#/components/schemas/personal_weapon_spread', nullable: true),
+        new OA\Property(property: 'ads_spread', ref: '#/components/schemas/personal_weapon_spread', nullable: true),
+
+        new OA\Property(property: 'charge', ref: '#/components/schemas/personal_weapon_charge', nullable: true),
+        new OA\Property(property: 'charge_modifier', ref: '#/components/schemas/personal_weapon_charge_modifier', nullable: true),
+
         new OA\Property(
             property: 'ammunition',
-            description: 'Deprecated: use ammunition from root resource.',
+            description: 'Deprecated: use the root-level ammunition resource (outside this specification payload) where available.',
             type: 'object',
             nullable: true,
             deprecated: true
@@ -65,10 +181,11 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'weapon_damage_entry',
     title: 'Weapon Damage Entry',
+    description: 'Legacy ammo-derived damage entry.',
     properties: [
-        new OA\Property(property: 'type', type: 'string', example: 'Physical'),
-        new OA\Property(property: 'name', type: 'string', example: 'Physical'),
-        new OA\Property(property: 'damage', type: 'double', example: 11.5),
+        new OA\Property(property: 'type', description: 'Damage context.', type: 'string', example: 'impact', nullable: true),
+        new OA\Property(property: 'name', description: 'Damage type name.', type: 'string', example: 'physical', nullable: true),
+        new OA\Property(property: 'damage', type: 'double', example: 11.5, nullable: true),
     ],
     type: 'object'
 )]

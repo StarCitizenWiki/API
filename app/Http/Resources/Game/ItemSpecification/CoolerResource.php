@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'cooler',
     title: 'Cooler',
-    description: 'Ship cooler characteristics describing heat dissipation capacity and signature suppression factors.',
+    description: 'Use Resource Network data for actual cooling segment generation. Ship cooler characteristics describing heat dissipation capacity and signature suppression factors.',
     properties: [
         new OA\Property(
             property: 'cooling_rate',

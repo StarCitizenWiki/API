@@ -10,44 +10,105 @@ use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'weapon_attachment_rgb_color',
+    title: 'Weapon Attachment RGB Color',
+    description: 'RGB color triplet as provided by the game data.',
+    properties: [
+        new OA\Property(property: 'r', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'g', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'b', type: 'double', example: 0.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_iron_sight',
+    title: 'Weapon Attachment Iron Sight',
+    properties: [
+        new OA\Property(property: 'default_range', type: 'double', nullable: true),
+        new OA\Property(property: 'max_range', type: 'double', nullable: true),
+        new OA\Property(property: 'range_increment', type: 'double', nullable: true),
+        new OA\Property(property: 'auto_zeroing_time', type: 'double', nullable: true),
+        new OA\Property(property: 'zoom_scale', type: 'double', nullable: true),
+        new OA\Property(property: 'zoom_time_scale', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'zoom_time_change',
+            description: 'Computed as `1 - zoom_time_scale`.',
+            type: 'double',
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_magazine',
+    title: 'Weapon Attachment Magazine',
+    properties: [
+        new OA\Property(property: 'initial_ammo_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_ammo_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_restock_count', type: 'integer', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_laser_pointer',
+    title: 'Weapon Attachment Laser Pointer',
+    properties: [
+        new OA\Property(property: 'range', type: 'double', nullable: true),
+        new OA\Property(property: 'color', ref: '#/components/schemas/weapon_attachment_rgb_color', nullable: true),
+        new OA\Property(property: 'color_css', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_flashlight_profile',
+    title: 'Weapon Attachment Flashlight Profile',
+    description: 'Single flashlight profile (typically keyed as `narrow` or `wide`).',
+    properties: [
+        new OA\Property(property: 'port_name', type: 'string', nullable: true),
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'light_type', type: 'string', nullable: true),
+        new OA\Property(property: 'light_radius', type: 'double', nullable: true),
+        new OA\Property(property: 'intensity', type: 'double', nullable: true),
+        new OA\Property(property: 'color', ref: '#/components/schemas/weapon_attachment_rgb_color', nullable: true),
+        new OA\Property(property: 'color_css', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_flashlight',
+    title: 'Weapon Attachment Flashlight',
+    description: 'Flashlight profiles keyed by beam type (`narrow`, `wide`) when present.',
+    type: 'object',
+    additionalProperties: new OA\AdditionalProperties(ref: '#/components/schemas/weapon_attachment_flashlight_profile')
+)]
+#[OA\Schema(
+    schema: 'weapon_attachment_barrel_attachment',
+    title: 'Weapon Attachment Barrel Attachment',
+    description: 'Barrel attachment map. Keys reflect the raw barrel fields (snake_cased), plus `attachment_point` and `type` injected by the resource.',
+    properties: [
+        new OA\Property(property: 'attachment_point', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'type',
+            description: 'Currently mirrors `attachment_point` (overrides any snake-cased barrel `Type` field).',
+            type: 'string',
+            nullable: true
+        ),
+    ],
+    type: 'object',
+)]
+#[OA\Schema(
     schema: 'weapon_attachment',
     title: 'Weapon Attachment',
-    description: 'Weapon attachment details derived from stdItem.WeaponAttachment and description data.',
+    description: 'Weapon attachment details derived from stdItem.WeaponAttachment. Only non-empty blocks are returned.',
     properties: [
-        new OA\Property(property: 'description', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'size', type: 'integer', nullable: true),
-        new OA\Property(property: 'grade', type: 'integer', nullable: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true),
-        new OA\Property(property: 'sub_type', type: 'string', nullable: true),
-        new OA\Property(property: 'item_type', type: 'string', nullable: true),
-        new OA\Property(property: 'attachment_point', type: 'string', nullable: true),
-        new OA\Property(property: 'magnification', type: 'string', nullable: true),
-        new OA\Property(property: 'capacity', type: 'string', nullable: true),
-        new OA\Property(property: 'utility_class', type: 'string', nullable: true),
-        new OA\Property(
-            property: 'ammo',
-            properties: [
-                new OA\Property(property: 'ammunition_uuid', type: 'string', nullable: true),
-                new OA\Property(property: 'initial_ammo_count', type: 'integer', nullable: true),
-                new OA\Property(property: 'max_ammo_count', type: 'integer', nullable: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'iron_sight',
-            properties: [
-                new OA\Property(property: 'default_range', type: 'number', nullable: true),
-                new OA\Property(property: 'max_range', type: 'number', nullable: true),
-                new OA\Property(property: 'range_increment', type: 'number', nullable: true),
-                new OA\Property(property: 'auto_zeroing_time', type: 'number', nullable: true),
-                new OA\Property(property: 'zoom_scale', type: 'number', nullable: true),
-                new OA\Property(property: 'zoom_time_scale', type: 'number', nullable: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
+        new OA\Property(property: 'iron_sight', ref: '#/components/schemas/weapon_attachment_iron_sight', nullable: true),
+        new OA\Property(property: 'laser_pointer', ref: '#/components/schemas/weapon_attachment_laser_pointer', nullable: true),
+        new OA\Property(property: 'flashlight', ref: '#/components/schemas/weapon_attachment_flashlight', nullable: true),
+        new OA\Property(property: 'magazine', ref: '#/components/schemas/weapon_attachment_magazine', nullable: true),
+
+        // Conditional: only when Barrel.Type is Compensator or Flash Hider
+        new OA\Property(property: 'compensator', ref: '#/components/schemas/weapon_attachment_barrel_attachment', nullable: true),
+        new OA\Property(property: 'flash_hider', ref: '#/components/schemas/weapon_attachment_barrel_attachment', nullable: true),
     ],
     type: 'object'
 )]
@@ -123,10 +184,8 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
         if ($key) {
             $out[$key] = collect($barrelAttachment)
                 ->mapWithKeys(fn ($value, $key) => [Str::snake($key) => $value])
-                ->push([
-                    'attachment_point' => Arr::get($weaponAttachment, 'AttachmentPoint'),
-                    'type' => Arr::get($weaponAttachment, 'AttachmentPoint'),
-                ])
+                ->put('attachment_point', Arr::get($weaponAttachment, 'AttachmentPoint'))
+                ->put('type', Arr::get($weaponAttachment, 'AttachmentPoint'))
                 ->toArray();
         }
 

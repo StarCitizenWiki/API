@@ -9,24 +9,32 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'grenade',
-    title: 'Grenade',
-    description: 'Hand-thrown grenade specs sourced from Item.stdItem.Grenade.',
+    schema: 'grenade_aoe',
+    title: 'Grenade Area of Effect',
+    description: 'Area of effect radii in meters.',
     properties: [
         new OA\Property(
-            property: 'area_of_effect_min',
-            description: 'Minimum lethal radius in meters.',
+            property: 'minimum',
+            description: 'Minimum effective/lethal radius in meters.',
             type: 'double',
             example: 4.0,
             nullable: true
         ),
         new OA\Property(
-            property: 'area_of_effect_max',
-            description: 'Maximum lethal radius in meters.',
+            property: 'maximum',
+            description: 'Maximum effective/lethal radius in meters.',
             type: 'double',
             example: 5.5,
             nullable: true
         ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'grenade',
+    title: 'Grenade',
+    description: 'Hand-thrown grenade specs sourced from Item.stdItem.Grenade.',
+    properties: [
         new OA\Property(
             property: 'damage_type',
             description: 'Damage type reported by the grenade payload.',
@@ -41,7 +49,18 @@ use OpenApi\Attributes as OA;
             example: 20.0,
             nullable: true
         ),
-        new OA\Property(property: 'area_of_effect', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(
+            property: 'aoe',
+            ref: '#/components/schemas/grenade_aoe',
+            description: 'Preferred area-of-effect representation.'
+        ),
+        new OA\Property(
+            property: 'area_of_effect',
+            description: 'Deprecated. Use `aoe.maximum`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
     ],
     type: 'object'
 )]
@@ -54,17 +73,18 @@ class GrenadeResource extends AbstractItemSpecificationResource
         $grenade = Arr::get($stdItem, 'Grenade', []);
 
         $areaOfEffectMax = Arr::get($grenade, 'AreaOfEffect');
-        $descriptionData = Arr::get($stdItem, 'DescriptionData', []);
 
         return [
-            'area_of_effect_min' => Arr::get($grenade, 'MinAreaOfEffect'),
-            'area_of_effect_max' => $areaOfEffectMax,
+
             'damage_type' => Arr::get($grenade, 'DamageType'),
             'damage' => Arr::get($grenade, 'Damage'),
-            // Backward compatibility with v2
-            'description' => Arr::get($stdItem, 'DescriptionText', Arr::get($stdItem, 'Description')),
+
+            'aoe' => [
+                'minimum' => Arr::get($grenade, 'MinAreaOfEffect'),
+                'maximum' => $areaOfEffectMax,
+            ],
+
             'area_of_effect' => $areaOfEffectMax,
-            'aoe' => Arr::get($descriptionData, 'Area of Effect', $areaOfEffectMax),
         ];
     }
 }

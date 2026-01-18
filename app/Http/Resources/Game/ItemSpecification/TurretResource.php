@@ -9,14 +9,86 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'turret_axis',
+    title: 'Turret Axis',
+    description: 'Axis configuration for turret yaw or pitch as emitted by this resource.',
+    properties: [
+        new OA\Property(
+            property: 'slaved_only',
+            description: 'Whether the axis is slaved-only (computed from `*.SlavedOnly === 1`).',
+            type: 'boolean',
+            example: false,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'speed',
+            description: 'Axis rotation speed.',
+            type: 'double',
+            example: 60,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'time_to_full_speed',
+            description: 'Seconds to reach full speed (AccelerationTimeToFullSpeed).',
+            type: 'double',
+            example: 0.5,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'acceleration_decay',
+            description: 'Acceleration decay value.',
+            type: 'double',
+            example: 0.0,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'angle_limit_min',
+            description: 'Minimum target angle when RestrictTargetAngles is enabled.',
+            type: 'double',
+            example: -180,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'angle_limit_max',
+            description: 'Maximum target angle when RestrictTargetAngles is enabled.',
+            type: 'double',
+            example: 180,
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'turret',
     title: 'Turret & Gimbal',
+    description: 'Turret/gimbal configuration sourced from stdItem.Turret plus derived mount/size information from extracted ports.',
     properties: [
-        new OA\Property(property: 'rotation_style', type: 'string'),
-        new OA\Property(property: 'max_mounts', type: 'integer'),
-        new OA\Property(property: 'min_size', type: 'integer'),
-        new OA\Property(property: 'max_size', type: 'integer'),
+        new OA\Property(property: 'rotation_style', description: 'Rotation style from stdItem.Turret.RotationStyle.', type: 'string', nullable: true),
 
+        new OA\Property(
+            property: 'mounts',
+            description: 'Number of weapon mounts derived from the extracted ports count.',
+            type: 'integer',
+            example: 2,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'min_size',
+            description: 'Minimum supported weapon size derived from port MinSize/min_size.',
+            type: 'integer',
+            example: 1,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'max_size',
+            description: 'Maximum supported weapon size derived from port MaxSize/max_size.',
+            type: 'integer',
+            example: 3,
+            nullable: true
+        ),
+
+        new OA\Property(property: 'yaw_axis', ref: '#/components/schemas/turret_axis', nullable: true),
+        new OA\Property(property: 'pitch_axis', ref: '#/components/schemas/turret_axis', nullable: true),
     ],
     type: 'object'
 )]

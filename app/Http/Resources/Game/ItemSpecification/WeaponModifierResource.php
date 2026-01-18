@@ -10,132 +10,204 @@ use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'weapon_modifier_base',
+    title: 'Weapon Modifier Base',
+    description: 'Core scalar adjustments and derived delta fields (`*_change`). Only emitted when the modifier meaningfully differs from defaults.',
+    properties: [
+        new OA\Property(property: 'muzzle_flash_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'muzzle_flash_change', description: 'Computed as `round(muzzle_flash_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'fire_rate_multiplier', type: 'double', example: 1.1, nullable: true),
+        new OA\Property(property: 'fire_rate_change', description: 'Computed as `round(fire_rate_multiplier - 1, 2)`.', type: 'double', example: 0.1, nullable: true),
+
+        new OA\Property(property: 'damage_multiplier', type: 'double', example: 0.92, nullable: true),
+        new OA\Property(property: 'damage_change', description: 'Computed as `round(damage_multiplier - 1, 2)`.', type: 'double', example: -0.08, nullable: true),
+
+        new OA\Property(property: 'projectile_speed_multiplier', type: 'double', example: 0.875, nullable: true),
+        new OA\Property(property: 'projectile_speed_change', description: 'Computed as `round(projectile_speed_multiplier - 1, 2)`.', type: 'double', example: -0.13, nullable: true),
+
+        new OA\Property(property: 'ammo_cost_multiplier', type: 'double', example: 2.0, nullable: true),
+        new OA\Property(property: 'ammo_cost_change', description: 'Computed as `round(ammo_cost_multiplier - 1, 2)`.', type: 'double', example: 1.0, nullable: true),
+
+        new OA\Property(property: 'heat_generation_multiplier', type: 'double', example: 0.2, nullable: true),
+        new OA\Property(property: 'heat_generation_change', description: 'Computed as `round(heat_generation_multiplier - 1, 2)`.', type: 'double', example: -0.8, nullable: true),
+
+        new OA\Property(property: 'sound_radius_multiplier', type: 'double', example: 1.2, nullable: true),
+        new OA\Property(property: 'sound_radius_change', description: 'Computed as `round(sound_radius_multiplier - 1, 2)`.', type: 'double', example: 0.2, nullable: true),
+
+        new OA\Property(property: 'charge_time_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'charge_time_change', description: 'Computed as `round(charge_time_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_recoil',
+    title: 'Weapon Modifier Recoil',
+    description: 'Reduced recoil block as emitted by this resource (not a full recoil model export). Only emitted when values differ from defaults.',
+    properties: [
+        new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'decay_change', description: 'Computed as `round(decay_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'multiplier', description: 'Maps to source `RandomnessMultiplier`.', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'multiplier_change', description: 'Computed as `round(multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_spread',
+    title: 'Weapon Modifier Spread',
+    description: 'Spread tuning multipliers and derived deltas. Only emitted when values differ from defaults.',
+    properties: [
+        new OA\Property(property: 'min_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'min_change', description: 'Computed as `round(min_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'max_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'max_change', description: 'Computed as `round(max_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'first_attack_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'first_attack_change', description: 'Computed as `round(first_attack_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'per_attack_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'per_attack_change', description: 'Computed as `round(per_attack_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+
+        new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'decay_change', description: 'Computed as `round(decay_multiplier - 1, 2)`.', type: 'double', example: 0.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_aim',
+    title: 'Weapon Modifier Aim',
+    description: 'ADS/zoom adjustments. Only emitted when values differ from defaults.',
+    properties: [
+        new OA\Property(property: 'zoom_scale', type: 'double', example: 4, nullable: true),
+        new OA\Property(property: 'second_zoom_scale', type: 'double', example: 6, nullable: true),
+        new OA\Property(property: 'zoom_time_scale', type: 'double', example: 1.25, nullable: true),
+        new OA\Property(property: 'zoom_time_change', description: 'Computed as `round(zoom_time_scale - 1, 2)`.', type: 'double', example: 0.25, nullable: true),
+        new OA\Property(property: 'hide_weapon_in_ads', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'fstop_multiplier', type: 'double', example: 1.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_regen',
+    title: 'Weapon Modifier Regen',
+    description: 'Regeneration modifiers. Only emitted when values differ from defaults.',
+    properties: [
+        new OA\Property(property: 'power_ratio_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'max_ammo_load_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'max_regen_per_sec_multiplier', type: 'double', example: 1.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_salvage',
+    title: 'Weapon Modifier Salvage',
+    description: 'Salvage-related multipliers. Only emitted when present per resource logic.',
+    properties: [
+        new OA\Property(property: 'salvage_speed_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'radius_multiplier', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'extraction_efficiency', type: 'double', example: 1.0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'weapon_modifier_zeroing',
+    title: 'Weapon Modifier Zeroing',
+    description: 'Zeroing distances supported by the optic or attachment. Only emitted when present per resource logic.',
+    properties: [
+        new OA\Property(property: 'default_range', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'max_range', type: 'double', example: 500, nullable: true),
+        new OA\Property(property: 'range_increment', type: 'double', example: 100, nullable: true),
+        new OA\Property(property: 'auto_zeroing_time', type: 'double', example: 0, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'weapon_modifier',
     title: 'Weapon Modifier',
     description: 'Attachment and weapon modifier stats taken directly from Item.stdItem.WeaponModifier. Legacy v2 fields are kept (deprecated) for backwards compatibility.',
     properties: [
-        new OA\Property(property: 'activate_on_attach', type: 'boolean', example: true, nullable: true, description: 'Whether the modifier becomes active as soon as it is attached.'),
-        new OA\Property(property: 'ignore_wear', type: 'boolean', example: false, nullable: true, description: 'If true, the modifier ignores item wear/maintenance effects.'),
         new OA\Property(
-            property: 'weapon_stats',
-            properties: [
-                new OA\Property(
-                    property: 'base',
-                    description: 'Core scalar adjustments applied to the weapon.',
-                    properties: [
-                        new OA\Property(property: 'fire_rate', description: 'Base fire rate override (usually 0).', type: 'double', example: 0, nullable: true),
-                        new OA\Property(property: 'fire_rate_multiplier', description: 'Multiplier applied to fire rate.', type: 'double', example: 1.1, nullable: true),
-                        new OA\Property(property: 'damage_multiplier', type: 'double', example: 0.92, nullable: true, description: 'Damage output multiplier.'),
-                        new OA\Property(property: 'damage_over_time_multiplier', type: 'double', example: 1.0, nullable: true, description: 'DoT damage multiplier.'),
-                        new OA\Property(property: 'projectile_speed_multiplier', type: 'double', example: 0.875, nullable: true, description: 'Multiplier applied to projectile speed.'),
-                        new OA\Property(property: 'pellets', type: 'integer', example: 0, nullable: true, description: 'Additional pellets per shot.'),
-                        new OA\Property(property: 'burst_shots', type: 'integer', example: 0, nullable: true, description: 'Additional shots fired per burst.'),
-                        new OA\Property(property: 'ammo_cost', type: 'integer', example: 0, nullable: true, description: 'Flat ammo cost override.'),
-                        new OA\Property(property: 'ammo_cost_multiplier', type: 'double', example: 2.0, nullable: true, description: 'Multiplier applied to ammo usage.'),
-                        new OA\Property(property: 'heat_generation_multiplier', type: 'double', example: 0.2, nullable: true, description: 'Multiplier for heat generated per shot.'),
-                        new OA\Property(property: 'sound_radius_multiplier', type: 'double', example: 1.2, nullable: true, description: 'Multiplier for the audible radius of the shot.'),
-                        new OA\Property(property: 'charge_time_multiplier', type: 'double', example: 1.0, nullable: true, description: 'Charge-up time multiplier.'),
-                        new OA\Property(property: 'use_alternate_projectile_visuals', type: 'boolean', example: false, nullable: true, description: 'Switch to alternate projectile FX.'),
-                        new OA\Property(property: 'use_augmented_reality_projectiles', type: 'boolean', example: false, nullable: true, description: 'Enable AR projectiles rendering.'),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'recoil',
-                    description: 'Recoil tuning multipliers.',
-                    properties: [
-                        new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'end_decay_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'fire_recoil_time_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'fire_recoil_strength_first_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'fire_recoil_strength_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'angle_recoil_strength_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'randomness_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'randomness_back_push_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'frontal_oscillation_rotation_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'frontal_oscillation_strength_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'frontal_oscillation_decay_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'frontal_oscillation_randomness_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'animated_recoil_multiplier', type: 'double', example: 1.0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'spread',
-                    description: 'Spread behaviour tuning multipliers.',
-                    properties: [
-                        new OA\Property(property: 'min_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'max_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'first_attack_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'attack_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'decay_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'additive_modifier', type: 'double', example: 0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'aim',
-                    description: 'ADS and zoom behaviour adjustments.',
-                    properties: [
-                        new OA\Property(property: 'zoom_scale', type: 'double', example: 4, nullable: true),
-                        new OA\Property(property: 'second_zoom_scale', type: 'double', example: 6, nullable: true),
-                        new OA\Property(property: 'zoom_time_scale', type: 'double', example: 1.25, nullable: true),
-                        new OA\Property(property: 'hide_weapon_in_ads', type: 'boolean', example: false, nullable: true),
-                        new OA\Property(property: 'fstop_multiplier', type: 'double', example: 1.0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'regen',
-                    description: 'Resource regeneration modifiers for specialised tools.',
-                    properties: [
-                        new OA\Property(property: 'power_ratio_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'max_ammo_load_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'max_regen_per_sec_multiplier', type: 'double', example: 1.0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-                new OA\Property(
-                    property: 'salvage',
-                    description: 'Salvage efficiency modifiers.',
-                    properties: [
-                        new OA\Property(property: 'salvage_speed_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'radius_multiplier', type: 'double', example: 1.0, nullable: true),
-                        new OA\Property(property: 'extraction_efficiency', type: 'double', example: 1.0, nullable: true),
-                    ],
-                    type: 'object',
-                    nullable: true
-                ),
-            ],
-            type: 'object',
+            property: 'activate_on_attach',
+            description: 'Whether the modifier becomes active as soon as it is attached.',
+            type: 'boolean',
+            example: true,
             nullable: true
         ),
         new OA\Property(
-            property: 'zeroing',
-            description: 'Zeroing distances supported by the optic or attachment.',
-            properties: [
-                new OA\Property(property: 'default_range', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'max_range', type: 'double', example: 500, nullable: true),
-                new OA\Property(property: 'range_increment', type: 'double', example: 100, nullable: true),
-                new OA\Property(property: 'auto_zeroing_time', type: 'double', example: 0, nullable: true),
-            ],
-            type: 'object',
+            property: 'ignore_wear',
+            description: 'If true, the modifier ignores item wear/maintenance effects.',
+            type: 'boolean',
+            example: false,
             nullable: true
         ),
+
+        new OA\Property(property: 'base', ref: '#/components/schemas/weapon_modifier_base', nullable: true),
+        new OA\Property(property: 'recoil', ref: '#/components/schemas/weapon_modifier_recoil', nullable: true),
+        new OA\Property(property: 'spread', ref: '#/components/schemas/weapon_modifier_spread', nullable: true),
+        new OA\Property(property: 'aim', ref: '#/components/schemas/weapon_modifier_aim', nullable: true),
+        new OA\Property(property: 'regen', ref: '#/components/schemas/weapon_modifier_regen', nullable: true),
+        new OA\Property(property: 'salvage', ref: '#/components/schemas/weapon_modifier_salvage', nullable: true),
+        new OA\Property(property: 'zeroing', ref: '#/components/schemas/weapon_modifier_zeroing', nullable: true),
+
         // Backwards compatibility with v2
-        new OA\Property(property: 'fire_rate_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.fire_rate_multiplier` instead.'),
-        new OA\Property(property: 'damage_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.damage_multiplier` instead.'),
-        new OA\Property(property: 'damage_over_time_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.damage_over_time_multiplier` instead.'),
-        new OA\Property(property: 'projectile_speed_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.projectile_speed_multiplier` instead.'),
-        new OA\Property(property: 'ammo_cost_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.ammo_cost_multiplier` instead.'),
-        new OA\Property(property: 'heat_generation_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.heat_generation_multiplier` instead.'),
-        new OA\Property(property: 'sound_radius_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.sound_radius_multiplier` instead.'),
-        new OA\Property(property: 'charge_time_multiplier', type: 'double', nullable: true, deprecated: true, description: 'Deprecated: Use `base.charge_time_multiplier` instead.'),
+        new OA\Property(
+            property: 'fire_rate_multiplier',
+            description: 'Deprecated: Use `base.fire_rate_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'damage_multiplier',
+            description: 'Deprecated: Use `base.damage_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'damage_over_time_multiplier',
+            description: 'Deprecated: v2 compatibility field. No non-deprecated replacement is currently returned by this resource.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'projectile_speed_multiplier',
+            description: 'Deprecated: Use `base.projectile_speed_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'ammo_cost_multiplier',
+            description: 'Deprecated: Use `base.ammo_cost_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'heat_generation_multiplier',
+            description: 'Deprecated: Use `base.heat_generation_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'sound_radius_multiplier',
+            description: 'Deprecated: Use `base.sound_radius_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'charge_time_multiplier',
+            description: 'Deprecated: Use `base.charge_time_multiplier`.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
+        ),
     ],
     type: 'object'
 )]

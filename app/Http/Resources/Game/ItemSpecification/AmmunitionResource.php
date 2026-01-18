@@ -30,6 +30,7 @@ use OpenApi\Attributes as OA;
     title: 'Ammunition',
     description: 'Projectile behaviour and damage data from Item.stdItem.Ammunition. Values are taken directly from game data without simulation or derived calculations.',
     properties: [
+        new OA\Property(property: 'uuid', description: 'Unique identifier for this ammunition type.', type: 'string', nullable: true),
         new OA\Property(property: 'speed', description: 'Projectile speed in m/s.', type: 'double', example: 600, nullable: true),
         new OA\Property(property: 'lifetime', description: 'Lifetime in seconds before the projectile despawns.', type: 'double', example: 2.0, nullable: true),
         new OA\Property(property: 'range', description: 'Effective range in meters (speed × lifetime when provided by the game).', type: 'double', example: 1200, nullable: true),
@@ -44,7 +45,9 @@ use OpenApi\Attributes as OA;
             property: 'penetration',
             description: 'Penetration behaviour detailing distance and angle effectiveness.',
             properties: [
-                new OA\Property(property: 'base_penetration_distance', type: 'double', example: 60, nullable: true),
+                new OA\Property(property: 'base_distance', description: 'Base penetration distance.', type: 'double', example: 60, nullable: true),
+                new OA\Property(property: 'near_radius', description: 'Near radius for penetration falloff.', type: 'double', nullable: true),
+                new OA\Property(property: 'far_radius', description: 'Far radius for penetration falloff.', type: 'double', nullable: true),
                 new OA\Property(property: 'angle', description: 'Maximum impact angle (degrees) before ricochet/stop.', type: 'double', example: 14.6, nullable: true),
             ],
             type: 'object',
@@ -52,16 +55,56 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'impact_damage',
-            description: 'Direct hit damage per projectile, split by damage type. Zero values are omitted.',
+            description: 'Deprecated: Use impact_damage_map instead. Direct hit damage per projectile, split by damage type. Zero values are omitted.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/weapon_damage_entry'),
-            nullable: true
+            nullable: true,
+            deprecated: true
         ),
         new OA\Property(
             property: 'detonation_damage',
-            description: 'Explosion damage applied on detonation-capable projectiles.',
+            description: 'Deprecated: Use detonation_damage_map instead. Explosion damage applied on detonation-capable projectiles.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/weapon_damage_entry'),
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'impact_damage_map',
+            description: 'Direct hit damage mapped by snake_case damage type keys (e.g., physical, energy, distortion). Replacement for impact_damage array.',
+            properties: [
+                new OA\Property(property: 'physical', type: 'double', nullable: true),
+                new OA\Property(property: 'energy', type: 'double', nullable: true),
+                new OA\Property(property: 'distortion', type: 'double', nullable: true),
+                new OA\Property(property: 'thermal', type: 'double', nullable: true),
+                new OA\Property(property: 'biochemical', type: 'double', nullable: true),
+                new OA\Property(property: 'stun', type: 'double', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'detonation_damage_map',
+            description: 'Explosion damage mapped by snake_case damage type keys. Replacement for detonation_damage array.',
+            properties: [
+                new OA\Property(property: 'physical', type: 'double', nullable: true),
+                new OA\Property(property: 'energy', type: 'double', nullable: true),
+                new OA\Property(property: 'distortion', type: 'double', nullable: true),
+                new OA\Property(property: 'thermal', type: 'double', nullable: true),
+                new OA\Property(property: 'biochemical', type: 'double', nullable: true),
+                new OA\Property(property: 'stun', type: 'double', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'explosion_radius',
+            description: 'Minimum and maximum explosion radius for detonation-capable projectiles.',
+            properties: [
+                new OA\Property(property: 'min', description: 'Minimum explosion radius (meters).', type: 'double', nullable: true),
+                new OA\Property(property: 'max', description: 'Maximum explosion radius (meters).', type: 'double', nullable: true),
+            ],
+            type: 'object',
             nullable: true
         ),
         new OA\Property(property: 'impulse_scale', description: 'Impulse multiplier applied on impact (engine value).', type: 'double', example: 1, nullable: true),
@@ -130,10 +173,10 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
-        // Backward compatibility with v2 naming
+
         new OA\Property(
             property: 'damage_falloffs',
-            description: 'Legacy grouping of damage drop data.',
+            description: 'Deprecated: Use damage_drop* data.',
             properties: [
                 new OA\Property(property: 'min_distance', ref: '#/components/schemas/ammunition_damage_falloff', nullable: true),
                 new OA\Property(property: 'per_meter', ref: '#/components/schemas/ammunition_damage_falloff', nullable: true),
@@ -145,7 +188,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'piercability',
-            description: 'Deprecated: retained for v2 compatibility; maps to damage_falloff_level_* and max_penetration_thickness when present.',
+            description: 'Deprecated: use damage_falloff_level_* and max_penetration_thickness when present.',
             type: 'object',
             nullable: true,
             deprecated: true

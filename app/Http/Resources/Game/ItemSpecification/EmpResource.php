@@ -34,29 +34,27 @@ use OpenApi\Attributes as OA;
             example: 150.0,
             nullable: true
         ),
+
         new OA\Property(
             property: 'charge_duration',
             description: 'Seconds required to fully charge before firing. Current game data ranges 12–26 seconds across EMP sizes.',
             type: 'double',
             example: 12.0,
-            nullable: true,
-            deprecated: true
+            nullable: true
         ),
         new OA\Property(
             property: 'unleash_duration',
             description: 'Duration in seconds the pulse is actively released after charging completes. Values are either 0.75s (small) or 1.5s (large).',
             type: 'double',
             example: 0.75,
-            nullable: true,
-            deprecated: true
+            nullable: true
         ),
         new OA\Property(
             property: 'cooldown_duration',
             description: 'Cooldown in seconds before charging can restart. Current data spans 6–40 seconds depending on size and variant.',
             type: 'double',
             example: 6.0,
-            nullable: true,
-            deprecated: true
+            nullable: true
         ),
     ],
     type: 'object'
@@ -66,17 +64,20 @@ class EmpResource extends AbstractItemSpecificationResource
     public function toArray(Request $request): array
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
-
         $emp = Arr::get($data, 'stdItem.Emp', []);
+
+        $chargeDuration = Arr::get($emp, 'ChargeTime');
+        $unleashDuration = Arr::get($emp, 'UnleashTime');
+        $cooldownDuration = Arr::get($emp, 'CooldownTime');
 
         return [
             'distortion_damage' => Arr::get($emp, 'DistortionDamage'),
             'emp_radius' => Arr::get($emp, 'EmpRadius'),
             'min_emp_radius' => Arr::get($emp, 'MinEmpRadius'),
 
-            'charge_duration' => Arr::get($emp, 'ChargeTime'),
-            'unleash_duration' => Arr::get($emp, 'UnleashTime'),
-            'cooldown_duration' => Arr::get($emp, 'CooldownTime'),
+            'charge_duration' => $chargeDuration,
+            'unleash_duration' => $unleashDuration,
+            'cooldown_duration' => $cooldownDuration,
         ];
     }
 }
