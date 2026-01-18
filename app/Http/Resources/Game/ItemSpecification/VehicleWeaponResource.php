@@ -133,8 +133,8 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Spread') !== null, [
                 'spread' => [
-                    'min' => Arr::get($mode, 'Spread.Min'),
-                    'max' => Arr::get($mode, 'Spread.Max'),
+                    'minimum' => Arr::get($mode, 'Spread.Min'),
+                    'maximum' => Arr::get($mode, 'Spread.Max'),
                     'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
                     'per_attack' => Arr::get($mode, 'Spread.Attack'),
                     'decay' => Arr::get($mode, 'Spread.Decay'),

@@ -67,6 +67,7 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
             'auto_zeroing_time' => Arr::get($ironSight, 'AutoZeroingTime'),
             'zoom_scale' => Arr::get($ironSight, 'ZoomScale'),
             'zoom_time_scale' => Arr::get($ironSight, 'ZoomTimeScale'),
+            'zoom_time_change' => 1 - Arr::get($ironSight, 'ZoomTimeScale', 1),
         ] : null;
 
         $magazine = Arr::get($weaponAttachment, 'Magazine', []);

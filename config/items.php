@@ -52,12 +52,10 @@ return [
                 [
                     'title' => 'Min',
                     'field' => 'resource_network.usage.power.minimum',
-                    'sortField' => 'ResourceNetwork.Usage.Power.Minimum',
                 ],
                 [
                     'title' => 'Max',
                     'field' => 'resource_network.usage.power.maximum',
-                    'sortField' => 'ResourceNetwork.Usage.Power.Maximum',
                 ],
             ],
         ],
@@ -67,12 +65,10 @@ return [
                 [
                     'title' => 'Min',
                     'field' => 'resource_network.usage.coolant.minimum',
-                    'sortField' => 'ResourceNetwork.Usage.Coolant.Minimum',
                 ],
                 [
                     'title' => 'Max',
                     'field' => 'resource_network.usage.coolant.maximum',
-                    'sortField' => 'ResourceNetwork.Usage.Coolant.Maximum',
                 ],
             ],
         ],
@@ -107,13 +103,11 @@ return [
                         [
                             'title' => 'Min',
                             'field' => 'emission.em_min',
-                            'sortField' => 'Emission.Em.Minimum',
                             ...numFormat(),
                         ],
                         [
                             'title' => 'Max',
                             'field' => 'emission.em_max',
-                            'sortField' => 'Emission.Em.Maximum',
                             ...numFormat(),
                         ],
                         [
@@ -127,7 +121,6 @@ return [
                 [
                     'title' => 'IR Start',
                     'field' => 'emission.ir',
-                    'sortField' => 'Emission.Ir',
                     ...numFormat(),
                 ],
             ],
@@ -139,31 +132,26 @@ return [
                 [
                     'title' => 'Health',
                     'field' => 'durability.health',
-                    'sortField' => 'Durability.Health',
                     ...suffix('HP'),
                 ],
                 [
                     'title' => 'Shutdown Dmg',
                     'field' => 'distortion.maximum',
-                    'sortField' => 'Distortion.Maximum',
                     ...numFormat(),
                 ],
                 [
                     'title' => 'Shutdown Time',
                     'field' => 'distortion.shutdown_time',
-                    'sortField' => 'Distortion.ShutdownTime',
                     ...suffix('s', space: false),
                 ],
                 [
                     'title' => 'Decay Rate',
                     'field' => 'distortion.decay_rate',
-                    'sortField' => 'Distortion.DecayRate',
                     ...numFormat(),
                 ],
                 [
                     'title' => 'Decay Delay',
                     'field' => 'distortion.decay_delay',
-                    'sortField' => 'Distortion.DecayDelay',
                     ...suffix('s', space: false),
                 ],
                 [
@@ -250,13 +238,11 @@ return [
                 [
                     'title' => 'Mass',
                     'field' => 'mass',
-                    'sortField' => 'Mass',
                     ...suffix('kg'),
                 ],
                 [
                     'title' => 'Weight',
                     'field' => 'dimension.volume_converted',
-                    'sortField' => 'InventoryOccupancy.Volume.SCUConverted',
                     'formatter' => 'volumeWithUnit',
                     'formatterParams' => [
                         'unitField' => 'dimension.volume_converted_unit',
@@ -267,7 +253,6 @@ return [
         'inventory' => [
             'title' => 'Inventory',
             'field' => 'inventory.scu_converted',
-            'sortField' => 'InventoryContainer.SCU',
             'formatter' => 'volumeWithUnit',
             'formatterParams' => [
                 'unitField' => 'inventory.unit',
@@ -299,7 +284,6 @@ return [
                 'title' => 'Size',
                 'field' => 'size',
                 'sorter' => 'number',
-                'sortField' => 'size',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'hozAlign' => 'right',
@@ -309,7 +293,6 @@ return [
             [
                 'title' => 'Class Name',
                 'field' => 'class_name',
-                'sortField' => 'class_name',
                 'headerSort' => true,
                 'headerFilter' => 'input',
                 'minWidth' => 220,
@@ -317,7 +300,6 @@ return [
             [
                 'title' => 'Manufacturer',
                 'field' => 'manufacturer.name',
-                'sortField' => 'manufacturer.name',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 200,
@@ -325,7 +307,6 @@ return [
             [
                 'title' => 'Type',
                 'field' => 'type',
-                'sortField' => 'type',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 200,
@@ -338,7 +319,6 @@ return [
             [
                 'title' => 'Sub Type',
                 'field' => 'sub_type',
-                'sortField' => 'sub_type',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 200,
@@ -346,7 +326,6 @@ return [
             [
                 'title' => 'Classification',
                 'field' => 'classification',
-                'sortField' => 'classification',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 220,
@@ -354,7 +333,6 @@ return [
             [
                 'title' => 'Grade',
                 'field' => 'grade',
-                'sortField' => 'grade',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 120,
@@ -362,7 +340,6 @@ return [
             [
                 'title' => 'Class',
                 'field' => 'class',
-                'sortField' => 'class',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 140,
@@ -430,19 +407,16 @@ return [
                         [
                             'title' => 'Cross Section',
                             'field' => 'armor.signal_multiplier.cross_section_change',
-                            'sortField' => 'Armor.SignalMultipliers.CrossSection',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Infrared',
                             'field' => 'armor.signal_multiplier.infrared_change',
-                            'sortField' => 'Armor.SignalMultipliers.Infrared',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Electromagnetic',
                             'field' => 'armor.signal_multiplier.electromagnetic_change',
-                            'sortField' => 'Armor.SignalMultipliers.Electromagnetic',
                             'formatter' => 'pctDelta',
                         ],
                     ],
@@ -533,7 +507,6 @@ return [
                         [
                             'title' => 'Total',
                             'field' => 'bomb.damage_total',
-                            'sortField' => 'Bomb.DamageTotal',
                             ...numFormat(),
                         ],
                         [
@@ -571,13 +544,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'bomb.explosion.radius_min',
-                                    'sortField' => 'Bomb.ExplosionMinRadius',
                                     ...suffix('m'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'bomb.explosion.radius_max',
-                                    'sortField' => 'Bomb.ExplosionMaxRadius',
                                     ...suffix('m'),
                                 ],
                             ],
@@ -631,7 +602,6 @@ return [
                 [
                     'title' => 'Coolant Generation',
                     'field' => 'resource_network.generation.coolant',
-                    'sortField' => 'ResourceNetwork.Generation.Coolant',
                 ],
             ],
         ],
@@ -646,7 +616,6 @@ return [
                 [
                     'title' => 'Damage',
                     'field' => 'emp.distortion_damage',
-                    'sortField' => 'Emp.DistortionDamage',
                     ...numFormat(),
                 ],
                 [
@@ -655,13 +624,11 @@ return [
                         [
                             'title' => 'Min',
                             'field' => 'emp.min_emp_radius',
-                            'sortField' => 'Emp.MinEmpRadius',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max',
                             'field' => 'emp.emp_radius',
-                            'sortField' => 'Emp.EmpRadius',
                             ...suffix('m'),
                         ],
                     ],
@@ -672,20 +639,16 @@ return [
                         [
                             'title' => 'Charge',
                             'field' => 'emp.charge_duration',
-                            'sortField' => 'Emp.ChargeTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Unleash',
                             'field' => 'emp.unleash_duration',
-                            'sortField' => 'Emp.UnleashTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'emp.cooldown_duration',
-                            'sortField' => 'Emp.CooldownTime',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -705,25 +668,21 @@ return [
                         [
                             'title' => 'SCM',
                             'field' => 'flight_controller.scm_speed',
-                            'sortField' => 'Ifcs.ScmSpeed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'NAV',
                             'field' => 'flight_controller.max_speed',
-                            'sortField' => 'Ifcs.MaxSpeed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Boost Forward',
                             'field' => 'flight_controller.boost_speed_forward',
-                            'sortField' => 'Ifcs.BoostSpeedForward',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Boost Backward',
                             'field' => 'flight_controller.boost_speed_backward',
-                            'sortField' => 'Ifcs.BoostSpeedBackward',
                             ...suffix('m/s'),
                         ],
                     ],
@@ -734,37 +693,31 @@ return [
                         [
                             'title' => 'Pitch',
                             'field' => 'flight_controller.pitch',
-                            'sortField' => 'Ifcs.Pitch',
                             ...suffix('º/s'),
                         ],
                         [
                             'title' => 'Yaw',
                             'field' => 'flight_controller.yaw',
-                            'sortField' => 'Ifcs.Yaw',
                             ...suffix('º/s'),
                         ],
                         [
                             'title' => 'Roll',
                             'field' => 'flight_controller.roll',
-                            'sortField' => 'Ifcs.Roll',
                             ...suffix('º/s'),
                         ],
                         [
                             'title' => 'Pitch (Boosted)',
                             'field' => 'flight_controller.pitch_boosted',
-                            'sortField' => 'Ifcs.PitchBoosted',
                             ...suffix('º/s'),
                         ],
                         [
                             'title' => 'Yaw (Boosted)',
                             'field' => 'flight_controller.yaw_boosted',
-                            'sortField' => 'Ifcs.YawBoosted',
                             ...suffix('º/s'),
                         ],
                         [
                             'title' => 'Roll (Boosted)',
                             'field' => 'flight_controller.roll_boosted',
-                            'sortField' => 'Ifcs.RollBoosted',
                             ...suffix('º/s'),
                         ],
                     ],
@@ -775,12 +728,10 @@ return [
                         [
                             'title' => 'Linear',
                             'field' => 'flight_controller.thruster_decay.linear_accel',
-                            'sortField' => 'Ifcs.LinearAccelDecay',
                         ],
                         [
                             'title' => 'Angular',
                             'field' => 'flight_controller.thruster_decay.angular_accel',
-                            'sortField' => 'Ifcs.AngularAccelDecay',
                         ],
                     ],
                 ],
@@ -790,27 +741,22 @@ return [
                         [
                             'title' => 'Lift',
                             'field' => 'flight_controller.multiplier.lift',
-                            'sortField' => 'Ifcs.LiftMultiplier',
                         ],
                         [
                             'title' => 'Drag',
                             'field' => 'flight_controller.multiplier.drag',
-                            'sortField' => 'Ifcs.DragMultiplier',
                         ],
                         [
                             'title' => 'SCM Drag',
                             'field' => 'flight_controller.multiplier.scm_max_drag',
-                            'sortField' => 'Ifcs.ScmMaxDragMultiplier',
                         ],
                         [
                             'title' => 'Torque Imbalance',
                             'field' => 'flight_controller.multiplier.torque_imbalance',
-                            'sortField' => 'Ifcs.TorqueImbalanceMultiplier',
                         ],
                         [
                             'title' => 'Precision Landing',
                             'field' => 'flight_controller.multiplier.precision_landing',
-                            'sortField' => 'Ifcs.PrecisionLandingMultiplier',
                         ],
                     ],
                 ],
@@ -829,19 +775,16 @@ return [
                         [
                             'title' => 'Pre-Delay',
                             'field' => 'flight_controller.boost_activation.pre_delay_time',
-                            'sortField' => 'Ifcs.Afterburner.AfterburnerPreDelayTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Ramp-Up',
                             'field' => 'flight_controller.boost_activation.ramp_up_time',
-                            'sortField' => 'Ifcs.Afterburner.AfterburnerRampUpTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Ramp-Down',
                             'field' => 'flight_controller.boost_activation.ramp_down_time',
-                            'sortField' => 'Ifcs.Afterburner.AfterburnerRampDownTime',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -933,7 +876,6 @@ return [
                         [
                             'title' => 'Capacity',
                             'field' => 'flight_controller.boost_capacitor.capacity',
-                            'sortField' => 'Ifcs.Afterburner.CapacitorMax',
                         ],
                         [
                             'title' => 'Threshold Ratio',
@@ -980,28 +922,23 @@ return [
                         [
                             'title' => 'Max Speed',
                             'field' => 'flight_controller.gravlev.max_speed',
-                            'sortField' => 'Ifcs.Gravlev.HoverMaxSpeed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Turn Friction',
                             'field' => 'flight_controller.gravlev.turn_friction',
-                            'sortField' => 'Ifcs.Gravlev.TurnFriction',
                         ],
                         [
                             'title' => 'Air Controller Multiplier',
                             'field' => 'flight_controller.gravlev.air_controller_multiplier',
-                            'sortField' => 'Ifcs.Gravlev.AirControllerMultiplier',
                         ],
                         [
                             'title' => 'Anti-Fall Multiplier',
                             'field' => 'flight_controller.gravlev.anti_fall_multiplier',
-                            'sortField' => 'Ifcs.Gravlev.AntiFallMultiplier',
                         ],
                         [
                             'title' => 'Lateral Strafe Multiplier',
                             'field' => 'flight_controller.gravlev.lateral_strafe_multiplier',
-                            'sortField' => 'Ifcs.Gravlev.LateralStrafeMultiplier',
                         ],
                     ],
                 ],
@@ -1018,27 +955,22 @@ return [
                 [
                     'title' => 'Alignment Rate',
                     'field' => 'jump_drive.alignment_rate',
-                    'sortField' => 'JumpDrive.AlignmentRate',
                 ],
                 [
                     'title' => 'Alignment Decay Rate',
                     'field' => 'jump_drive.alignment_decay_rate',
-                    'sortField' => 'JumpDrive.AlignmentDecayRate',
                 ],
                 [
                     'title' => 'Tuning Rate',
                     'field' => 'jump_drive.tuning_rate',
-                    'sortField' => 'JumpDrive.TuningRate',
                 ],
                 [
                     'title' => 'Tuning Decay Rate',
                     'field' => 'jump_drive.tuning_decay_rate',
-                    'sortField' => 'JumpDrive.TuningDecayRate',
                 ],
                 [
                     'title' => 'Fuel Usage Efficiency Multiplier',
                     'field' => 'jump_drive.fuel_usage_efficiency_multiplier',
-                    'sortField' => 'JumpDrive.FuelUsageEfficiencyMultiplier',
                 ],
             ],
         ],
@@ -1056,12 +988,10 @@ return [
                         [
                             'title' => 'Signal',
                             'field' => 'missile.signal_type',
-                            'sortField' => 'Missile.Targeting.TrackingSignalType',
                         ],
                         [
                             'title' => 'Min',
                             'field' => 'missile.tracking_signal_min',
-                            'sortField' => 'Missile.Targeting.SignalResilienceMin',
                         ],
                     ],
                 ],
@@ -1071,7 +1001,6 @@ return [
                         [
                             'title' => 'Total',
                             'field' => 'missile.damage_total',
-                            'sortField' => 'Missile.DamageTotal',
                             ...numFormat(),
                         ],
                         [
@@ -1109,13 +1038,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'missile.explosion.radius_min',
-                                    'sortField' => 'Missile.ExplosionRadius.Minimum',
                                     ...suffix('m'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'missile.explosion.radius_max',
-                                    'sortField' => 'Missile.ExplosionRadius.Maximum',
                                     ...suffix('m'),
                                 ],
                             ],
@@ -1140,13 +1067,11 @@ return [
                         [
                             'title' => 'Arm',
                             'field' => 'missile.delays.arm_time',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Lock',
                             'field' => 'missile.delays.lock_time',
-                            'sortField' => 'Missile.Targeting.LockTime',
                             ...suffix('s', space: false),
                         ],
                         [
@@ -1169,7 +1094,6 @@ return [
                         [
                             'title' => 'Acquisition',
                             'field' => 'missile.target_lock.signal_resilience_max',
-                            'sortField' => 'Missile.Targeting.SignalResilienceMax',
                         ],
                         [
                             'title' => 'Range',
@@ -1177,13 +1101,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'missile.target_lock.range_min',
-                                    'headerSort' => false,
                                     ...suffix('m'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'missile.target_lock.range_max',
-                                    'headerSort' => false,
                                     ...suffix('m'),
                                 ],
                             ],
@@ -1197,7 +1119,6 @@ return [
                         [
                             'title' => 'Fire Without Lock',
                             'field' => 'missile.target_lock.allow_dumb_firing',
-                            'sortField' => 'Missile.Targeting.AllowDumbFiring',
                         ],
                     ],
                 ],
@@ -1207,55 +1128,46 @@ return [
                         [
                             'title' => 'Speed',
                             'field' => 'missile.flight.speed',
-                            'sortField' => 'Missile.GCS.LinearSpeed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Range',
                             'field' => 'missile.flight.range',
-                            'sortField' => 'Missile.Range',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max Lifetime',
                             'field' => 'missile.flight.max_lifetime',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Boost Duration',
                             'field' => 'missile.flight.boost_phase_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Terminal Phase Time',
                             'field' => 'missile.flight.terminal_phase_engagement_time',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Terminal Phase Angle',
                             'field' => 'missile.flight.terminal_phase_engagement_angle',
-                            'headerSort' => false,
                             ...suffix('°', space: false),
                         ],
                         [
                             'title' => 'Boost Speed',
                             'field' => 'missile.flight.boost_speed',
-                            'headerSort' => false,
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Intercept Speed',
                             'field' => 'missile.flight.intercept_speed',
-                            'headerSort' => false,
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Terminal Speed',
                             'field' => 'missile.flight.terminal_speed',
-                            'headerSort' => false,
                             ...suffix('m/s'),
                         ],
                     ],
@@ -1273,12 +1185,10 @@ return [
                 [
                     'title' => 'Capacity',
                     'field' => 'missile_rack.missile_count',
-                    'sortField' => 'MissileRack.MissileCount',
                 ],
                 [
                     'title' => 'Size',
                     'field' => 'missile_rack.missile_size',
-                    'sortField' => 'MissileRack.MissileSize',
                 ],
             ],
         ],
@@ -1316,13 +1226,11 @@ return [
                                 [
                                     'title' => 'Per Segment',
                                     'field' => 'emission.em_per_segment',
-                                    'sortField' => 'Emission.Em.PerSegment',
                                     ...numFormat(),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'emission.em_max',
-                                    'sortField' => 'Emission.Em.Maximum',
                                     ...numFormat(),
                                 ],
                                 [
@@ -1356,17 +1264,14 @@ return [
                         [
                             'title' => 'SCU per GM',
                             'field' => 'quantum_drive.fuel_consumption_scu_per_gm',
-                            'sortField' => 'QuantumDrive.FuelConsumptionSCUPerGM',
                         ],
                         [
                             'title' => 'Efficiency',
                             'field' => 'quantum_drive.fuel_efficiency',
-                            'sortField' => 'QuantumDrive.FuelEfficiencyGMPerSCU',
                         ],
                         [
                             'title' => 'Time per 10GM',
                             'field' => 'quantum_drive.travel_time_10gm.formatted',
-                            'sortField' => 'QuantumDrive.TravelTime10GMSeconds',
                         ],
                     ],
                 ],
@@ -1376,25 +1281,21 @@ return [
                         [
                             'title' => 'Spool-Up',
                             'field' => 'quantum_drive.standard_jump.spool_up_time',
-                            'sortField' => 'QuantumDrive.StandardJump.SpoolUpTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'quantum_drive.standard_jump.cooldown_time',
-                            'sortField' => 'QuantumDrive.StandardJump.CooldownTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Interdiction',
                             'field' => 'quantum_drive.standard_jump.interdiction_effect_time',
-                            'sortField' => 'QuantumDrive.StandardJump.InterdictionEffectTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Calibration',
                             'field' => 'quantum_drive.standard_jump.calibration_delay_in_seconds',
-                            'sortField' => 'QuantumDrive.StandardJump.CalibrationDelayInSeconds',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1405,25 +1306,21 @@ return [
                         [
                             'title' => 'Max',
                             'field' => 'quantum_drive.standard_jump.drive_speed',
-                            'headerSort' => false,
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Stage 1 Accel.',
                             'field' => 'quantum_drive.standard_jump.stage_one_accel_rate',
-                            'sortField' => 'QuantumDrive.StandardJump.StageOneAccelRate',
                             ...suffix('m/s/s'),
                         ],
                         [
                             'title' => 'Stage 2 Accel.',
                             'field' => 'quantum_drive.standard_jump.stage_two_accel_rate',
-                            'sortField' => 'QuantumDrive.StandardJump.StageTwoAccelRate',
                             ...suffix('m/s/s'),
                         ],
                         [
                             'title' => 'Spline',
                             'field' => 'quantum_drive.spline_jump.drive_speed',
-                            'sortField' => 'QuantumDrive.SplineJump.DriveSpeed',
                             ...suffix('m/s'),
                         ],
                     ],
@@ -1444,13 +1341,11 @@ return [
                         [
                             'title' => 'Jamming',
                             'field' => 'quantum_interdiction_generator.jammer_range',
-                            'sortField' => 'QuantumInterdictionGenerator.JammingRange',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Interdiction',
                             'field' => 'quantum_interdiction_generator.interdiction_range',
-                            'sortField' => 'QuantumInterdictionGenerator.InterdictionRange',
                             ...suffix('m'),
                         ],
                     ],
@@ -1461,31 +1356,26 @@ return [
                         [
                             'title' => 'Charge',
                             'field' => 'quantum_interdiction_generator.charge_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Activation',
                             'field' => 'quantum_interdiction_generator.activation_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Disperse Charge',
                             'field' => 'quantum_interdiction_generator.disperse_charge_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Discharge',
                             'field' => 'quantum_interdiction_generator.discharge_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'quantum_interdiction_generator.cooldown_duration',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1503,7 +1393,6 @@ return [
                 [
                     'title' => 'Cooldown',
                     'field' => 'cooldown',
-                    'sortField' => 'Cooldown',
                     ...suffix('s', space: false),
                 ],
                 [
@@ -1512,27 +1401,22 @@ return [
                         [
                             'title' => 'IR',
                             'field' => 'radar.sensitivity.infrared',
-                            'sortField' => 'Radar.Sensitivity.IR',
                         ],
                         [
                             'title' => 'CS',
                             'field' => 'radar.sensitivity.cross_section',
-                            'sortField' => 'Radar.Sensitivity.CS',
                         ],
                         [
                             'title' => 'EM',
                             'field' => 'radar.sensitivity.electromagnetic',
-                            'sortField' => 'Radar.Sensitivity.EM',
                         ],
                         [
                             'title' => 'RS',
                             'field' => 'radar.sensitivity.resource',
-                            'sortField' => 'Radar.Sensitivity.RS',
                         ],
                         [
                             'title' => 'dB',
                             'field' => 'radar.sensitivity.db',
-                            'sortField' => 'Radar.Sensitivity.dB',
                         ],
                     ],
                 ],
@@ -1542,27 +1426,22 @@ return [
                         [
                             'title' => 'IR',
                             'field' => 'radar.ground_vehicle_sensitivity.infrared',
-                            'sortField' => 'Radar.GroundVehicleSensitivity.IR',
                         ],
                         [
                             'title' => 'CS',
                             'field' => 'radar.ground_vehicle_sensitivity.cross_section',
-                            'sortField' => 'Radar.GroundVehicleSensitivity.CS',
                         ],
                         [
                             'title' => 'EM',
                             'field' => 'radar.ground_vehicle_sensitivity.electromagnetic',
-                            'sortField' => 'Radar.GroundVehicleSensitivity.EM',
                         ],
                         [
                             'title' => 'RS',
                             'field' => 'radar.ground_vehicle_sensitivity.resource',
-                            'sortField' => 'Radar.GroundVehicleSensitivity.RS',
                         ],
                         [
                             'title' => 'dB',
                             'field' => 'radar.ground_vehicle_sensitivity.db',
-                            'sortField' => 'Radar.GroundVehicleSensitivity.dB',
                         ],
                     ],
                 ],
@@ -1572,27 +1451,22 @@ return [
                         [
                             'title' => 'IR',
                             'field' => 'radar.piercing.infrared',
-                            'sortField' => 'Radar.Piercing.IR',
                         ],
                         [
                             'title' => 'CS',
                             'field' => 'radar.piercing.cross_section',
-                            'sortField' => 'Radar.Piercing.CS',
                         ],
                         [
                             'title' => 'EM',
                             'field' => 'radar.piercing.electromagnetic',
-                            'sortField' => 'Radar.Piercing.EM',
                         ],
                         [
                             'title' => 'RS',
                             'field' => 'radar.piercing.resource',
-                            'sortField' => 'Radar.Piercing.RS',
                         ],
                         [
                             'title' => 'dB',
                             'field' => 'radar.piercing.db',
-                            'sortField' => 'Radar.Piercing.dB',
                         ],
                     ],
                 ],
@@ -1608,17 +1482,14 @@ return [
                 [
                     'title' => 'Salvage Speed',
                     'field' => 'salvage_modifier.salvage_speed_multiplier',
-                    'sortField' => 'SalvageModifier.SalvageSpeedMultiplier',
                 ],
                 [
                     'title' => 'Radius',
                     'field' => 'salvage_modifier.radius_multiplier',
-                    'sortField' => 'SalvageModifier.RadiusMultiplier',
                 ],
                 [
                     'title' => 'Extraction Efficiency',
                     'field' => 'salvage_modifier.extraction_efficiency',
-                    'sortField' => 'SalvageModifier.ExtractionEfficiency',
                 ],
             ],
         ],
@@ -1630,13 +1501,11 @@ return [
                 [
                     'title' => 'Damage',
                     'field' => 'self_destruct.damage',
-                    'sortField' => 'SelfDestruct.Damage',
                     ...numFormat(),
                 ],
                 [
                     'title' => 'Countdown',
                     'field' => 'self_destruct.countdown',
-                    'sortField' => 'SelfDestruct.Countdown',
                     ...suffix('s', space: false),
                 ],
                 [
@@ -1645,13 +1514,11 @@ return [
                         [
                             'title' => 'Min',
                             'field' => 'self_destruct.min_radius',
-                            'sortField' => 'SelfDestruct.MinRadius',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max',
                             'field' => 'self_destruct.phys_radius',
-                            'sortField' => 'SelfDestruct.PhysRadius',
                             ...suffix('m'),
                         ],
                     ],
@@ -1671,31 +1538,26 @@ return [
                         [
                             'title' => 'Health',
                             'field' => 'shield.max_health',
-                            'sortField' => 'Shield.MaxShieldHealth',
                             ...numFormat(),
                         ],
                         [
                             'title' => 'Regen Rate',
                             'field' => 'shield.regen_rate',
-                            'sortField' => 'Shield.MaxShieldRegen',
                             ...numFormat(),
                         ],
                         [
                             'title' => 'Regen Time',
                             'field' => 'shield.regen_time',
-                            'sortField' => 'Shield.RegenerationTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Damage Delay',
                             'field' => 'shield.regen_delay.damage',
-                            'sortField' => 'Shield.DamagedDelay',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Downed Delay',
                             'field' => 'shield.regen_delay.downed',
-                            'sortField' => 'Shield.DownedDelay',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1706,13 +1568,11 @@ return [
                         [
                             'title' => 'Regen Rate',
                             'field' => 'shield.reserve_pool.regen_rate',
-                            'sortField' => 'Shield.ReservePool.MaxShieldRegen',
                             ...numFormat(),
                         ],
                         [
                             'title' => 'Regen Time',
                             'field' => 'shield.reserve_pool.regen_time',
-                            'sortField' => 'Shield.ReservePool.RegenerationTime',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1929,23 +1789,19 @@ return [
                 [
                     'title' => 'Face Type',
                     'field' => 'shield_controller.face_type',
-                    'sortField' => 'ShieldController.FaceType',
                 ],
                 [
                     'title' => 'Max Reallocation',
                     'field' => 'shield_controller.max_reallocation',
-                    'sortField' => 'ShieldController.MaxReallocation',
                 ],
                 [
                     'title' => 'Reconfiguration Cooldown',
                     'field' => 'shield_controller.reconfiguration_cooldown',
-                    'sortField' => 'ShieldController.ReconfigurationCooldown',
                     ...suffix('s', space: false),
                 ],
                 [
                     'title' => 'Max Electrical Charge Dmg Rate',
                     'field' => 'shield_controller.max_electrical_charge_damage_rate',
-                    'sortField' => 'ShieldController.MaxElectricalChargeDamageRate',
                 ],
             ],
         ],
@@ -1965,13 +1821,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'tractor_beam.force.min',
-                                    'sortField' => 'TractorBeam.MinForce',
                                     ...suffix('N'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'tractor_beam.force.max',
-                                    'sortField' => 'TractorBeam.MaxForce',
                                     ...suffix('N'),
                                 ],
                             ],
@@ -1982,13 +1836,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'tractor_beam.range.min',
-                                    'sortField' => 'TractorBeam.MinDistance',
                                     ...suffix('m'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'tractor_beam.range.max',
-                                    'sortField' => 'TractorBeam.MaxDistance',
                                     ...suffix('m'),
                                 ],
                             ],
@@ -1996,19 +1848,16 @@ return [
                         [
                             'title' => 'Full Strength',
                             'field' => 'tractor_beam.range.full_strength_distance',
-                            'sortField' => 'TractorBeam.FullStrengthDistance',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max Angle',
                             'field' => 'tractor_beam.range.max_angle',
-                            'sortField' => 'TractorBeam.MaxAngle',
                             ...suffix('°'),
                         ],
                         [
                             'title' => 'Max Volume',
                             'field' => 'tractor_beam.force.max_volume',
-                            'sortField' => 'TractorBeam.MaxVolume',
                             ...suffix('m³'),
                         ],
                     ],
@@ -2019,25 +1868,21 @@ return [
                         [
                             'title' => 'Force',
                             'field' => 'tractor_beam.towing.force',
-                            'sortField' => 'TractorBeam.Towing.TowingForce',
                             ...suffix('N'),
                         ],
                         [
                             'title' => 'Max Acceleration',
                             'field' => 'tractor_beam.towing.max_acceleration',
-                            'sortField' => 'TractorBeam.Towing.TowingMaxAcceleration',
                             ...suffix('m/s²'),
                         ],
                         [
                             'title' => 'Max Distance',
                             'field' => 'tractor_beam.towing.max_distance',
-                            'sortField' => 'TractorBeam.Towing.TowingMaxDistance',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'QT Mass Limit',
                             'field' => 'tractor_beam.towing.qt_mass_limit',
-                            'sortField' => 'TractorBeam.Towing.QuantumTowMassLimit',
                             ...suffix('kg'),
                         ],
                     ],
@@ -2133,7 +1978,6 @@ return [
                 [
                     'title' => 'Type',
                     'field' => 'counter_measure.type',
-                    'sortField' => 'WeaponDefensive.Type',
                 ],
                 [
                     'title' => 'Ammo',
@@ -2141,24 +1985,20 @@ return [
                         [
                             'title' => 'Capacity',
                             'field' => 'ammunition.capacity',
-                            'sortField' => 'WeaponDefensive.Capacity',
                         ],
                         [
                             'title' => 'Speed',
                             'field' => 'ammunition.speed',
-                            'sortField' => 'Ammunition.Speed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Range',
                             'field' => 'ammunition.range',
-                            'sortField' => 'Ammunition.Range',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Lifetime',
                             'field' => 'ammunition.lifetime',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -2169,22 +2009,18 @@ return [
                         [
                             'title' => 'IR',
                             'field' => 'counter_measure.signature.infrared',
-                            'sortField' => 'WeaponDefensive.Signatures.Infrared.End',
                         ],
                         [
                             'title' => 'CS',
                             'field' => 'counter_measure.signature.cross_section',
-                            'sortField' => 'WeaponDefensive.Signatures.CrossSection.End',
                         ],
                         [
                             'title' => 'EM',
                             'field' => 'counter_measure.signature.electromagnetic',
-                            'sortField' => 'WeaponDefensive.Signatures.Electromagnetic.End',
                         ],
                         [
                             'title' => 'dB',
                             'field' => 'counter_measure.signature.decibel',
-                            'sortField' => 'WeaponDefensive.Signatures.Decibel.End',
                         ],
                     ],
                 ],
@@ -2204,22 +2040,18 @@ return [
                         [
                             'title' => 'Sustained 60s',
                             'field' => 'vehicle_weapon.damage.sustained_60s',
-                            'sortField' => 'Weapon.Damage.Sustained60s',
                         ],
                         [
                             'title' => 'Burst',
                             'field' => 'vehicle_weapon.damage.burst',
-                            'sortField' => 'Weapon.Damage.Burst',
                         ],
                         [
                             'title' => 'Alpha',
                             'field' => 'vehicle_weapon.damage.alpha_total',
-                            'sortField' => 'Weapon.Damage.AlphaTotal',
                         ],
                         [
                             'title' => 'Maximum',
                             'field' => 'vehicle_weapon.damage.maximum',
-                            'sortField' => 'Weapon.Damage.Maximum',
                         ],
                     ],
                 ],
@@ -2229,17 +2061,14 @@ return [
                         [
                             'title' => 'Physical',
                             'field' => 'vehicle_weapon.damage.alpha.physical',
-                            'sortField' => 'Weapon.Damage.Alpha.Physical',
                         ],
                         [
                             'title' => 'Energy',
                             'field' => 'vehicle_weapon.damage.alpha.energy',
-                            'sortField' => 'Weapon.Damage.Alpha.Energy',
                         ],
                         [
                             'title' => 'Distortion',
                             'field' => 'vehicle_weapon.damage.alpha.distortion',
-                            'sortField' => 'Weapon.Damage.Alpha.Distortion',
                         ],
                     ],
                 ],
@@ -2249,25 +2078,21 @@ return [
                         [
                             'title' => 'Speed',
                             'field' => 'ammunition.speed',
-                            'sortField' => 'Ammunition.Speed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Lifetime',
                             'field' => 'ammunition.lifetime',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Range',
                             'field' => 'ammunition.range',
-                            'sortField' => 'Ammunition.Range',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Capacity',
                             'field' => 'ammunition.capacity',
-                            'sortField' => 'Ammunition.Capacity',
                         ],
                         [
                             'title' => 'Penetration',
@@ -2275,17 +2100,14 @@ return [
                                 [
                                     'title' => 'Base Distance',
                                     'field' => 'ammunition.penetration.base_distance',
-                                    'sortField' => 'Ammunition.Penetration.BasePenetrationDistance',
                                 ],
                                 [
                                     'title' => 'Near Radius',
                                     'field' => 'ammunition.penetration.near_radius',
-                                    'sortField' => 'Ammunition.Penetration.NearRadius',
                                 ],
                                 [
                                     'title' => 'Far Radius',
                                     'field' => 'ammunition.penetration.far_radius',
-                                    'sortField' => 'Ammunition.Penetration.FarRadius',
                                 ],
                             ],
                         ],
@@ -2295,12 +2117,10 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'ammunition.explosion_radius.min',
-                                    'sortField' => 'Ammunition.ExplosionRadius.Minimum',
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'ammunition.explosion_radius.max',
-                                    'sortField' => 'Ammunition.ExplosionRadius.Maximum',
                                 ],
                             ],
                         ],
@@ -2312,7 +2132,6 @@ return [
                         [
                             'title' => 'RPM',
                             'field' => 'vehicle_weapon.rpm',
-                            'sortField' => 'Weapon.RateOfFire',
                         ],
                         [
                             'title' => 'Spread',
@@ -2320,22 +2139,18 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'vehicle_weapon.spread.min',
-                                    'sortField' => 'Weapon.Spread.Minimum',
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'vehicle_weapon.spread.max',
-                                    'sortField' => 'Weapon.Spread.Maximum',
                                 ],
                                 [
                                     'title' => 'First Attack',
                                     'field' => 'vehicle_weapon.spread.first_attack',
-                                    'sortField' => 'Weapon.Spread.FirstAttack',
                                 ],
                                 [
                                     'title' => 'Per Attack',
                                     'field' => 'vehicle_weapon.spread.per_attack',
-                                    'sortField' => 'Weapon.Spread.Attack',
                                 ],
                             ],
                         ],
@@ -2347,18 +2162,15 @@ return [
                         [
                             'title' => 'Per Shot',
                             'field' => 'vehicle_weapon.heat.per_shot',
-                            'sortField' => 'Weapon.Heat.HeatPerShot',
                         ],
                         [
                             'title' => 'Cooling Delay',
                             'field' => 'vehicle_weapon.heat.cooling_delay',
-                            'sortField' => 'Weapon.Heat.CoolingDelay',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooling/s',
                             'field' => 'vehicle_weapon.heat.cooling_per_second',
-                            'sortField' => 'Weapon.Heat.CoolingPerSecond',
                         ],
                     ],
                 ],
@@ -2368,18 +2180,15 @@ return [
                         [
                             'title' => 'Max Shots',
                             'field' => 'vehicle_weapon.heat.overheat_max_shots',
-                            'sortField' => 'Weapon.Heat.ShotsToOverheat',
                         ],
                         [
                             'title' => 'Max Time',
                             'field' => 'vehicle_weapon.heat.overheat_max_time',
-                            'sortField' => 'Weapon.Heat.TimeToOverheat',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'vehicle_weapon.heat.overheat_cooldown',
-                            'sortField' => 'Weapon.Heat.OverheatFixTime',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -2390,17 +2199,14 @@ return [
                         [
                             'title' => 'Max Ammo',
                             'field' => 'vehicle_weapon.capacitor.max_ammo_load',
-                            'sortField' => 'Weapon.Capacitor.MaxAmmoLoad',
                         ],
                         [
                             'title' => 'Regen/s',
                             'field' => 'vehicle_weapon.capacitor.regen_per_second',
-                            'sortField' => 'Weapon.Capacitor.MaxRegenPerSec',
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'vehicle_weapon.capacitor.cooldown',
-                            'sortField' => 'Weapon.Capacitor.Cooldown',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -2411,31 +2217,26 @@ return [
                         [
                             'title' => 'Time',
                             'field' => 'vehicle_weapon.charge.time',
-                            'sortField' => 'Weapon.Charge.ChargeTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Overcharge',
                             'field' => 'vehicle_weapon.charge.overcharge',
-                            'sortField' => 'Weapon.Charge.OverchargeTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Overcharged',
                             'field' => 'vehicle_weapon.charge.overcharged',
-                            'sortField' => 'Weapon.Charge.OverchargedTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'vehicle_weapon.charge.cooldown',
-                            'sortField' => 'Weapon.Charge.Cooldown',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Damage Modifier',
                             'field' => 'vehicle_weapon.charge_modifier.damage',
-                            'sortField' => 'Weapon.ChargeModifier.Damage',
                             ...suffix('x', space: false),
                         ],
                     ],
@@ -2453,7 +2254,6 @@ return [
                 [
                     'title' => 'Module Slots',
                     'field' => 'mining_laser.module_slots',
-                    'sortField' => 'MiningLaser.ModuleSlots',
                 ],
                 [
                     'title' => 'Throttle',
@@ -2461,12 +2261,10 @@ return [
                         [
                             'title' => 'Lerp Speed',
                             'field' => 'mining_laser.throttle_lerp_speed',
-                            'sortField' => 'MiningLaser.ThrottleLerpSpeed',
                         ],
                         [
                             'title' => 'Min',
-                            'field' => 'mining_laser.throttle_minimumpower',
-                            'sortField' => 'MiningLaser.ThrottleMinimum',
+                            'field' => 'mining_laser.throttle_minimum',
                         ],
                     ],
                 ],
@@ -2475,13 +2273,11 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'mining_laser.laser_power.min',
-                            'sortField' => 'MiningLaser.MinPowerTransfer',
+                            'field' => 'mining_laser.laser_power.minimum',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'mining_laser.laser_power.max',
-                            'sortField' => 'MiningLaser.PowerTransfer',
+                            'field' => 'mining_laser.laser_power.maximum',
                         ],
                     ],
                 ],
@@ -2491,13 +2287,11 @@ return [
                         [
                             'title' => 'Optimal',
                             'field' => 'mining_laser.optimal_range',
-                            'sortField' => 'MiningLaser.OptimalRange',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max',
                             'field' => 'mining_laser.maximum_range',
-                            'sortField' => 'MiningLaser.MaximumRange',
                             ...suffix('m'),
                         ],
                     ],
@@ -2508,31 +2302,26 @@ return [
                         [
                             'title' => 'Resistance',
                             'field' => 'mining_laser.modifier_map.resistance',
-                            'sortField' => 'MiningLaser.Modifiers.Resistance',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Instability',
-                            'field' => 'mining_laser.modifier_map.instability',
-                            'sortField' => 'MiningLaser.Modifiers.Instability',
+                            'field' => 'mining_laser.modifier_map.laser_instability',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Optimal Charge Window',
                             'field' => 'mining_laser.modifier_map.optimal_charge_window_size',
-                            'sortField' => 'MiningLaser.Modifiers.OptimalChargeWindow',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Optimal Rate',
                             'field' => 'mining_laser.modifier_map.optimal_charge_rate',
-                            'sortField' => 'MiningLaser.Modifiers.OptimalChargeRate',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Inert Materials',
                             'field' => 'mining_laser.modifier_map.inert_materials',
-                            'sortField' => 'MiningLaser.Modifiers.InertMaterials',
                             ...suffix('%', space: false),
                         ],
                     ],
@@ -2564,7 +2353,6 @@ return [
                         [
                             'title' => 'RPM',
                             'field' => 'personal_weapon.rpm',
-                            'sortField' => 'Weapon.RateOfFire',
                         ],
                     ],
                 ],
@@ -2574,17 +2362,14 @@ return [
                         [
                             'title' => 'Burst',
                             'field' => 'personal_weapon.damage.dps_total',
-                            'sortField' => 'Weapon.Damage.DpsTotal',
                         ],
                         [
                             'title' => 'Alpha',
                             'field' => 'personal_weapon.damage.alpha_total',
-                            'sortField' => 'Weapon.Damage.AlphaTotal',
                         ],
                         [
                             'title' => 'Per Mag',
                             'field' => 'personal_weapon.damage.maximum',
-                            'sortField' => 'Weapon.Damage.MaxPerMag',
                         ],
                     ],
                 ],
@@ -2594,22 +2379,18 @@ return [
                         [
                             'title' => 'Physical',
                             'field' => 'personal_weapon.damage.alpha.physical',
-                            'sortField' => 'Weapon.Damage.Alpha.Physical',
                         ],
                         [
                             'title' => 'Energy',
                             'field' => 'personal_weapon.damage.alpha.energy',
-                            'sortField' => 'Weapon.Damage.Alpha.Energy',
                         ],
                         [
                             'title' => 'Distortion',
                             'field' => 'personal_weapon.damage.alpha.distortion',
-                            'sortField' => 'Weapon.Damage.Alpha.Distortion',
                         ],
                         [
                             'title' => 'Stun',
                             'field' => 'personal_weapon.damage.alpha.stun',
-                            'sortField' => 'Weapon.Damage.Alpha.Stun',
                         ],
                     ],
                 ],
@@ -2619,22 +2400,18 @@ return [
                         [
                             'title' => 'Physical',
                             'field' => 'personal_weapon.damage.dps.physical',
-                            'sortField' => 'Weapon.Damage.Dps.Physical',
                         ],
                         [
                             'title' => 'Energy',
                             'field' => 'personal_weapon.damage.dps.energy',
-                            'sortField' => 'Weapon.Damage.Dps.Energy',
                         ],
                         [
                             'title' => 'Distortion',
                             'field' => 'personal_weapon.damage.dps.distortion',
-                            'sortField' => 'Weapon.Damage.Dps.Distortion',
                         ],
                         [
                             'title' => 'Stun',
                             'field' => 'personal_weapon.damage.dps.stun',
-                            'sortField' => 'Weapon.Damage.Dps.Stun',
                         ],
                     ],
                 ],
@@ -2644,30 +2421,25 @@ return [
                         [
                             'title' => 'Speed',
                             'field' => 'ammunition.speed',
-                            'sortField' => 'Ammunition.Speed',
                             ...suffix('m/s'),
                         ],
                         [
                             'title' => 'Lifetime',
                             'field' => 'ammunition.lifetime',
-                            'headerSort' => false,
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Range',
                             'field' => 'ammunition.range',
-                            'sortField' => 'Ammunition.Range',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Capacity',
                             'field' => 'ammunition.capacity',
-                            'sortField' => 'Ammunition.Capacity',
                         ],
                         [
                             'title' => 'Pellets per Shot',
                             'field' => 'personal_weapon.pellets_per_shot',
-                            'sortField' => 'Weapon.PelletsPerShot',
                         ],
                         [
                             'title' => 'Penetration',
@@ -2675,17 +2447,14 @@ return [
                                 [
                                     'title' => 'Base Distance',
                                     'field' => 'ammunition.penetration.base_distance',
-                                    'sortField' => 'Ammunition.Penetration.BasePenetrationDistance',
                                 ],
                                 [
                                     'title' => 'Near Radius',
                                     'field' => 'ammunition.penetration.near_radius',
-                                    'sortField' => 'Ammunition.Penetration.NearRadius',
                                 ],
                                 [
                                     'title' => 'Far Radius',
                                     'field' => 'ammunition.penetration.far_radius',
-                                    'sortField' => 'Ammunition.Penetration.FarRadius',
                                 ],
                             ],
                         ],
@@ -2695,12 +2464,10 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'ammunition.explosion_radius.min',
-                                    'sortField' => 'Ammunition.ExplosionRadius.Minimum',
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'ammunition.explosion_radius.max',
-                                    'sortField' => 'Ammunition.ExplosionRadius.Maximum',
                                 ],
                             ],
                         ],
@@ -2731,23 +2498,19 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'personal_weapon.spread.min',
-                            'sortField' => 'Weapon.Spread.Minimum',
+                            'field' => 'personal_weapon.spread.minimum',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'personal_weapon.spread.max',
-                            'sortField' => 'Weapon.Spread.Maximum',
+                            'field' => 'personal_weapon.spread.maximum',
                         ],
                         [
                             'title' => 'First Attack',
                             'field' => 'personal_weapon.spread.first_attack',
-                            'sortField' => 'Weapon.Spread.FirstAttack',
                         ],
                         [
                             'title' => 'Per Attack',
                             'field' => 'personal_weapon.spread.per_attack',
-                            'sortField' => 'Weapon.Spread.Attack',
                         ],
                     ],
                 ],
@@ -2756,23 +2519,19 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'personal_weapon.ads_spread.min',
-                            'sortField' => 'Weapon.AdsSpread.Minimum',
+                            'field' => 'personal_weapon.ads_spread.minimum',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'personal_weapon.ads_spread.max',
-                            'sortField' => 'Weapon.AdsSpread.Maximum',
+                            'field' => 'personal_weapon.ads_spread.maximum',
                         ],
                         [
                             'title' => 'First Attack',
                             'field' => 'personal_weapon.ads_spread.first_attack',
-                            'sortField' => 'Weapon.AdsSpread.FirstAttack',
                         ],
                         [
                             'title' => 'Per Attack',
                             'field' => 'personal_weapon.ads_spread.per_attack',
-                            'sortField' => 'Weapon.AdsSpread.Attack',
                         ],
                     ],
                 ],
@@ -2782,25 +2541,21 @@ return [
                         [
                             'title' => 'Charge Time',
                             'field' => 'personal_weapon.charge.time',
-                            'sortField' => 'Weapon.Charge.ChargeTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Overcharge',
                             'field' => 'personal_weapon.charge.overcharge_time',
-                            'sortField' => 'Weapon.Charge.OverchargeTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Overcharged',
                             'field' => 'personal_weapon.charge.overcharged_time',
-                            'sortField' => 'Weapon.Charge.OverchargedTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
                             'field' => 'personal_weapon.charge.cooldown_time',
-                            'sortField' => 'Weapon.Charge.CooldownTime',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -2811,19 +2566,16 @@ return [
                         [
                             'title' => 'Damage',
                             'field' => 'personal_weapon.charge_modifier.damage',
-                            'sortField' => 'Weapon.ChargeModifier.Damage',
                             ...suffix('x', space: false),
                         ],
                         [
                             'title' => 'Fire Rate',
                             'field' => 'personal_weapon.charge_modifier.fire_rate',
-                            'sortField' => 'Weapon.ChargeModifier.FireRate',
                             ...suffix('x', space: false),
                         ],
                         [
                             'title' => 'Ammo Speed',
                             'field' => 'personal_weapon.charge_modifier.ammo_speed',
-                            'sortField' => 'Weapon.ChargeModifier.AmmoSpeed',
                             ...suffix('x', space: false),
                         ],
                     ],
@@ -2864,13 +2616,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'clothing.temperature_resistance.min',
-                                    'sortField' => 'Clothing.TemperatureResistance.Minimum',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'clothing.temperature_resistance.max',
-                                    'sortField' => 'Clothing.TemperatureResistance.Maximum',
                                     ...suffix('ºC'),
                                 ],
                             ],
@@ -2881,12 +2631,10 @@ return [
                                 [
                                     'title' => 'Capacity',
                                     'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
-                                    'sortField' => 'Clothing.RadiationResistance.MaximumRadiationCapacity',
                                 ],
                                 [
                                     'title' => 'Scrub Rate',
                                     'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
-                                    'sortField' => 'Clothing.RadiationResistance.RadiationDissipationRate',
                                 ],
                             ],
                         ],
@@ -2896,6 +2644,11 @@ return [
         ],
         'food' => [
             'title' => 'Food & Drinks',
+            'matches' => [
+                'Food',
+                'Bottle',
+                'Drink',
+            ],
             'remove_fields' => ['grade', 'class'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
@@ -2907,17 +2660,14 @@ return [
                         [
                             'title' => 'Thirst',
                             'field' => 'food.nutrition.thirst',
-                            'sortField' => 'Food.Nutrition.Thirst.Total',
                         ],
                         [
                             'title' => 'Hunger',
                             'field' => 'food.nutrition.hunger',
-                            'sortField' => 'Food.Nutrition.Hunger.Total',
                         ],
                         [
                             'title' => 'Blood Drug Level',
                             'field' => 'food.nutrition.blood_drug_level',
-                            'sortField' => 'Food.Nutrition.BloodDrugLevel.Total',
                         ],
                     ],
                 ],
@@ -3070,13 +2820,11 @@ return [
                                 [
                                     'title' => 'Min',
                                     'field' => 'clothing.temperature_resistance.min',
-                                    'sortField' => 'Clothing.TemperatureResistance.Minimum',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
                                     'field' => 'clothing.temperature_resistance.max',
-                                    'sortField' => 'Clothing.TemperatureResistance.Maximum',
                                     ...suffix('ºC'),
                                 ],
                             ],
@@ -3087,13 +2835,11 @@ return [
                                 [
                                     'title' => 'Capacity',
                                     'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
-                                    'sortField' => 'Clothing.RadiationResistance.MaximumRadiationCapacity',
                                     ...suffix('REM'),
                                 ],
                                 [
                                     'title' => 'Scrub Rate',
                                     'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
-                                    'sortField' => 'Clothing.RadiationResistance.RadiationDissipationRate',
                                     ...suffix('REM/s'),
                                 ],
                             ],
@@ -3103,39 +2849,33 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Impact',
-                                    'field' => 'clothing.damage_resistance_map.impact',
-                                    'sortField' => 'SuitArmor.DamageResistance.Impact',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.impact_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Physical',
-                                    'field' => 'clothing.damage_resistance_map.physical',
-                                    'sortField' => 'SuitArmor.DamageResistance.Physical.Multiplier',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.physical_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Energy',
-                                    'field' => 'clothing.damage_resistance_map.energy',
-                                    'sortField' => 'SuitArmor.DamageResistance.Energy.Multiplier',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.energy_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Distortion',
-                                    'field' => 'clothing.damage_resistance_map.distortion',
-                                    'sortField' => 'SuitArmor.DamageResistance.Distortion.Multiplier',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.distortion_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Thermal',
-                                    'field' => 'clothing.damage_resistance_map.thermal',
-                                    'sortField' => 'SuitArmor.DamageResistance.Thermal.Multiplier',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.thermal_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Stun',
-                                    'field' => 'clothing.damage_resistance_map.stun',
-                                    'sortField' => 'SuitArmor.DamageResistance.Stun.Multiplier',
-                                    'formatter' => 'pct',
+                                    'field' => 'clothing.damage_resistance_map.stun_change',
+                                    'formatter' => 'pctDelta',
                                 ],
                             ],
                         ],
@@ -3147,12 +2887,10 @@ return [
                         [
                             'title' => 'EM',
                             'field' => 'clothing.signature.electromagnetic',
-                            'headerSort' => false,
                         ],
                         [
                             'title' => 'IR',
                             'field' => 'clothing.signature.infrared',
-                            'headerSort' => false,
                         ],
                     ],
                 ],
@@ -3286,23 +3024,19 @@ return [
                 [
                     'title' => 'Status',
                     'field' => 'mining_modifier.type',
-                    'sortField' => 'MiningModule.Type',
                 ],
                 [
                     'title' => 'Charges',
                     'field' => 'mining_modifier.charges',
-                    'sortField' => 'MiningModule.Charges',
                 ],
                 [
                     'title' => 'Duration',
                     'field' => 'mining_modifier.duration',
-                    'sortField' => 'MiningModule.Lifetime',
                     ...suffix('s', space: false),
                 ],
                 [
                     'title' => 'Modifier (Mining/Extraction)',
                     'field' => 'mining_modifier.power_modifier',
-                    'sortField' => 'MiningModule.Modifiers.DamageMultiplierChange',
                     'formatter' => 'pct',
                 ],
                 [
@@ -3311,49 +3045,41 @@ return [
                         [
                             'title' => 'Resistance',
                             'field' => 'mining_modifier.modifier_map.resistance',
-                            'sortField' => 'MiningModule.Modifiers.Resistance',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Instability',
-                            'field' => 'mining_modifier.modifier_map.instability',
-                            'sortField' => 'MiningModule.Modifiers.Instability',
+                            'field' => 'mining_modifier.modifier_map.laser_instability',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Optimal Charge Window',
                             'field' => 'mining_modifier.modifier_map.optimal_charge_window_size',
-                            'sortField' => 'MiningModule.Modifiers.OptimalChargeWindow',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Optimal Rate',
                             'field' => 'mining_modifier.modifier_map.optimal_charge_rate',
-                            'sortField' => 'MiningModule.Modifiers.OptimalChargeRate',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Shatter Damage',
                             'field' => 'mining_modifier.modifier_map.shatter_damage',
-                            'sortField' => 'MiningModule.Modifiers.ShatterDamage',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Cluster Factor',
                             'field' => 'mining_modifier.modifier_map.cluster_factor',
-                            'sortField' => 'MiningModule.Modifiers.ClusterFactor',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Overcharge Rate',
                             'field' => 'mining_modifier.modifier_map.overcharge_rate',
-                            'sortField' => 'MiningModule.Modifiers.OverchargeRate',
                             ...suffix('%', space: false),
                         ],
                         [
                             'title' => 'Inert Materials',
                             'field' => 'mining_modifier.modifier_map.inert_materials',
-                            'sortField' => 'MiningModule.Modifiers.InertMaterials',
                             ...suffix('%', space: false),
                         ],
                     ],
@@ -3375,6 +3101,12 @@ return [
         ],
         'weapon-attachments' => [
             'title' => 'Personal Weapon Attachments',
+            'matches' => [
+                'WeaponAttachment',
+                'BottomAttachment',
+                'IronSight',
+                'Barrel',
+            ],
             'remove_fields' => ['grade', 'class'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
@@ -3386,37 +3118,31 @@ return [
                         [
                             'title' => 'Damage',
                             'field' => 'weapon_modifier.base.damage_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.DamageMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Projectile Speed',
                             'field' => 'weapon_modifier.base.projectile_speed_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.ProjectileSpeedMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Ammo Cost',
                             'field' => 'weapon_modifier.base.ammo_cost_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.AmmoCostMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Audible Range',
                             'field' => 'weapon_modifier.base.sound_radius_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.SoundRadiusMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Muzzle Flash',
                             'field' => 'weapon_modifier.base.muzzle_flash_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.MuzzleFlashScale',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Heat Generation',
                             'field' => 'weapon_modifier.base.heat_generation_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Base.HeatGenerationMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                     ],
@@ -3428,13 +3154,11 @@ return [
                         [
                             'title' => 'Recoil',
                             'field' => 'weapon_modifier.recoil.multiplier_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Recoil.RandomnessMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Decay',
                             'field' => 'weapon_modifier.recoil.decay_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Recoil.DecayMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                     ],
@@ -3446,31 +3170,26 @@ return [
                         [
                             'title' => 'Min',
                             'field' => 'weapon_modifier.spread.min_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Spread.MinMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Max',
                             'field' => 'weapon_modifier.spread.max_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Spread.MaxMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'First Attack',
                             'field' => 'weapon_modifier.spread.first_attack_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Spread.FirstAttackMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Per Attack',
                             'field' => 'weapon_modifier.spread.per_attack_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Spread.AttackMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                         [
                             'title' => 'Decay',
                             'field' => 'weapon_modifier.spread.decay_change',
-                            'sortField' => 'WeaponModifier.WeaponStats.Spread.DecayMultiplier',
                             'formatter' => 'pctDelta',
                         ],
                     ],
@@ -3482,43 +3201,36 @@ return [
                         [
                             'title' => 'Default Range',
                             'field' => 'iron_sight.default_range',
-                            'sortField' => 'WeaponAttachment.IronSight.DefaultRange',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Max Range',
                             'field' => 'iron_sight.max_range',
-                            'sortField' => 'WeaponAttachment.IronSight.MaxRange',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Range Increment',
                             'field' => 'iron_sight.range_increment',
-                            'sortField' => 'WeaponAttachment.IronSight.RangeIncrement',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Auto Zeroing Time',
                             'field' => 'iron_sight.auto_zeroing_time',
-                            'sortField' => 'WeaponAttachment.IronSight.AutoZeroingTime',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Zoom Scale',
                             'field' => 'iron_sight.zoom_scale',
-                            'sortField' => 'WeaponAttachment.IronSight.ZoomScale',
                             ...suffix('x'),
                         ],
                         [
                             'title' => 'Second Zoom Scale',
                             'field' => 'weapon_modifier.aim.second_zoom_scale',
-                            'sortField' => 'WeaponModifier.WeaponStats.Aim.SecondZoomScale',
                             ...suffix('x'),
                         ],
                         [
                             'title' => 'Zoom Time',
                             'field' => 'iron_sight.zoom_time_change',
-                            'sortField' => 'WeaponAttachment.IronSight.ZoomTimeScale',
                             'formatter' => 'pctDelta',
                         ],
                     ],
@@ -3588,7 +3300,6 @@ return [
                         [
                             'title' => 'Range',
                             'field' => 'laser_pointer.range',
-                            'sortField' => 'WeaponAttachment.LaserPointer.Range',
                             ...suffix('m'),
                         ],
                         [

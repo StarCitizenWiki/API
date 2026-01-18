@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tabulator-tables/dist/css/tabulator_simple.min.css';
+@import './tabulator.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -12,7 +13,7 @@
 }
 
 
-@plugin "daisyui/theme" {
+/*@plugin "daisyui/theme" {
     name: "api-dark";
     default: false;
     prefersdark: true;
@@ -81,161 +82,126 @@
     --border: 2px;
     --depth: 1;
     --noise: 0;
+}*/
+
+
+@plugin "daisyui/theme" {
+    name: "api-dark";
+    default: false;
+    prefersdark: true;
+    color-scheme: "dark";
+
+    /* Deep space navy surfaces (blue-tinted neutrals, not flat gray) */
+    --color-base-100: oklch(17.81% 0.016 244.775); /* ~ #0B1218 */
+    --color-base-200: oklch(23.16% 0.027 240.545); /* ~ #111F29 */
+    --color-base-300: oklch(29.09% 0.036 240.210); /* ~ #1A2E3C */
+    --color-base-content: oklch(95.38% 0.012 239.907); /* ~ #E9F1F7 */
+
+    /* mobiGlas blue as primary */
+    --color-primary: oklch(73.11% 0.133 231.177); /* ~ #35B6EC */
+    --color-primary-content: oklch(17.81% 0.016 244.775); /* dark text on bright cyan */
+
+    /* “Steel/navy” supporting brand color */
+    --color-secondary: oklch(40.35% 0.076 241.779); /* ~ #1C4D6E */
+    --color-secondary-content: oklch(95.38% 0.012 239.907);
+
+    /* Complementary highlight (alerts, emphasis) */
+    --color-accent: oklch(81.45% 0.167 83.878); /* amber */
+    --color-accent-content: oklch(19.01% 0.039 92.204); /* dark text */
+
+    /* Neutral tokens (used by many daisy components) */
+    --color-neutral: oklch(0.369 0.051 246.414); /* slightly different navy neutral */
+    --color-neutral-content: oklch(95.38% 0.012 239.907);
+
+    /* Semantic colors aligned to the same visual language */
+    --color-info: oklch(73.11% 0.133 231.177); /* cyan info */
+    --color-info-content: oklch(17.81% 0.016 244.775);
+
+    --color-success: oklch(74.59% 0.181 152.327); /* vivid green */
+    --color-success-content: oklch(17.81% 0.016 244.775);
+
+    --color-warning: oklch(81.45% 0.167 83.878); /* amber */
+    --color-warning-content: oklch(19.01% 0.039 92.204);
+
+    --color-error: oklch(60.16% 0.202 24.603); /* strong red */
+    --color-error-content: oklch(95.38% 0.012 239.907); /* light text */
+
+    /* Keep your existing geometry */
+    --radius-selector: 1rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.5rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 1;
+    --noise: 0;
 }
 
+@plugin "daisyui/theme" {
+    name: "api-light";
+    default: true;
+    prefersdark: false;
+    color-scheme: "light";
 
+    /* Light “ice-blue” surfaces so the light theme still feels Star Citizen-ish */
+    --color-base-100: oklch(98.29% 0.006 239.818); /* ~ #F6FAFD */
+    --color-base-200: oklch(96.56% 0.011 234.817); /* ~ #EDF5FA */
+    --color-base-300: oklch(92.97% 0.018 234.508); /* ~ #DDEAF2 */
+    --color-base-content: oklch(19.81% 0.025 242.004); /* ~ #0B1720 */
 
+    /* Same hue family as dark, but deeper so it reads on light surfaces */
+    --color-primary: oklch(61.39% 0.137 242.226); /* ~ #1D8CCF */
+    --color-primary-content: oklch(98.29% 0.006 239.818);
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Supporting navy/steel blue */
+    --color-secondary: oklch(40.35% 0.076 241.779); /* ~ #1C4D6E */
+    --color-secondary-content: oklch(98.29% 0.006 239.818);
+
+    /* Amber highlight remains consistent across light/dark */
+    --color-accent: oklch(81.45% 0.167 83.878);
+    --color-accent-content: oklch(19.01% 0.039 92.204);
+
+    /* Neutral for badges, buttons, etc. */
+    --color-neutral: oklch(43.72% 0.039 239.122); /* ~ #3E5565 */
+    --color-neutral-content: oklch(98.29% 0.006 239.818);
+
+    /* Semantics: keep consistent meanings, keep contrast sane */
+    --color-info: oklch(73.11% 0.133 231.177); /* cyan */
+    --color-info-content: oklch(19.81% 0.025 242.004);
+
+    --color-success: oklch(74.59% 0.181 152.327);
+    --color-success-content: oklch(19.81% 0.025 242.004);
+
+    --color-warning: oklch(81.45% 0.167 83.878);
+    --color-warning-content: oklch(19.01% 0.039 92.204);
+
+    --color-error: oklch(60.16% 0.202 24.603);
+    --color-error-content: oklch(98.29% 0.006 239.818);
+
+    /* Keep your existing geometry */
+    --radius-selector: 1rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.5rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 1;
+    --noise: 0;
 }
 
-.tabulator.tabulator,
-.tabulator.tabulator .tabulator-tableholder,
-.tabulator.tabulator .tabulator-table,
-.tabulator.tabulator .tabulator-placeholder {
-    background-color: var(--color-base-100);
-    color: var(--color-base-content);
-    border-color: var(--color-base-300);
+@layer components {
+    /* Stronger menu hover (was bg-base-content/10) */
+    .menu :where(
+    li:not(.menu-title, .disabled) > *:not(ul, details, .menu-title, .btn):hover,
+    li:not(.menu-title, .disabled) > details > summary:not(.menu-title):hover
+  ) {
+        @apply bg-base-content/20;
+    }
+
+    /* Stronger navbar "ghost button" hover */
+    .navbar .btn.btn-ghost:hover {
+        @apply bg-base-content/15;
+    }
 }
 
-.tabulator.tabulator {
-    border: var(--border) solid var(--color-base-300);
-    border-radius: var(--radius-box);
-    overflow: hidden;
-    line-height: 1.25rem;
-}
-
-.tabulator.tabulator .tabulator-header {
-    background-color: var(--color-base-300);
-    color: var(--color-base-content);
-    border-bottom: var(--border) solid var(--color-base-200);
-}
-
-.tabulator.tabulator .tabulator-col {
-    border-right: var(--border) solid var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-header .tabulator-col {
-    background-color: var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
-    color: var(--color-base-content);
-}
-
-.tabulator.tabulator .tabulator-header .tabulator-col.tabulator-sortable.tabulator-col-sorter-element:hover {
-    background-color: color-mix(in oklab, var(--color-base-200) 70%, var(--color-base-300));
-    cursor: pointer;
-}
-
-.tabulator.tabulator .tabulator-col .tabulator-col-content {
-    padding: 0.5rem 0.75rem;
-}
-
-.tabulator.tabulator .tabulator-arrow {
-    border-top-color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
-    border-bottom-color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
-}
-
-.tabulator.tabulator .tabulator-row {
-    background-color: var(--color-base-100);
-    border-bottom: var(--border) solid var(--color-base-200);
-}
-
-.tabulator.tabulator .tabulator-row.tabulator-row-odd {
-    background-color: var(--color-base-200);
-}
-
-.tabulator.tabulator .tabulator-row.tabulator-row-even {
-    background-color: var(--color-base-100);
-    /*background-color: color-mix(in oklab, var(--color-base-100) 85%, var(--color-base-200));*/
-}
-
-.tabulator.tabulator .tabulator-row:hover {
-    background-color: var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-cell {
-    padding: 0.5rem 0.75rem;
-    border-right: none;/*var(--border) solid var(--color-base-200);*/
-}
-
-.tabulator.tabulator .tabulator-row.tabulator-selected {
-    background-color: var(--color-primary);
-    color: var(--color-primary-content);
-}
-
-.tabulator.tabulator .tabulator-loader {
-    background-color: var(--color-base-100);
-    color: var(--color-base-content);
-}
-
-.tabulator.tabulator .tabulator-loader .tabulator-loader-msg {
-    background-color: var(--color-base-200);
-    color: var(--color-base-content);
-    border: var(--border) solid var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-footer {
-    background-color: var(--color-base-100);
-    color: var(--color-base-content);
-    border-top: var(--border) solid var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-paginator {
-    padding: 0.5rem 0.75rem;
-    gap: 0.25rem;
-}
-
-.tabulator.tabulator .tabulator-page {
-    padding: 0.35rem 0.6rem;
-    border-radius: var(--radius-field);
-    border: var(--border) solid var(--color-base-300);
-    background-color: var(--color-base-100);
-}
-
-.tabulator.tabulator .tabulator-page {
-    color: var(--color-base-content);
-    border-color: var(--color-base-300);
-}
-
-.tabulator.tabulator .tabulator-page:hover {
-    background-color: var(--color-base-200);
-}
-
-.tabulator.tabulator .tabulator-page.active {
-    background-color: var(--color-primary);
-    color: var(--color-primary-content);
-    border-color: var(--color-primary);
-}
-
-.tabulator.tabulator .tabulator-header-filter input {
-    background-color: color-mix(in oklab, var(--color-base-200) 85%, var(--color-base-100));
-    color: var(--color-base-content);
-    border: var(--border) solid color-mix(in oklab, var(--color-base-300) 80%, var(--color-base-content));
-    border-radius: var(--radius-field);
-    padding: 0.5rem 0.75rem;
-
-}
-
-.tabulator.tabulator .tabulator-header-filter input:focus {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-    border-color: var(--color-primary);
-}
-
-.tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left,
-.tabulator-row .tabulator-cell.tabulator-frozen.tabulator-frozen-left {
-    border-color: var(--color-base-300);
-}
-
-.tabulator-row .tabulator-cell a {
-    text-decoration: underline;
-}
-
-.tabulator .tabulator-footer .tabulator-paginator {
-    color: var(--color-base-content);
-}
 

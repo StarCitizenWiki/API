@@ -208,8 +208,8 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
                     'first_attack_multiplier' => Arr::get($spread, 'FirstAttackMultiplier'),
                     'first_attack_change' => round(Arr::get($spread, 'FirstAttackMultiplier', 1) - 1, 2),
 
-                    'attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
-                    'attack_change' => round(Arr::get($spread, 'AttackMultiplier', 1) - 1, 2),
+                    'per_attack_multiplier' => Arr::get($spread, 'AttackMultiplier'),
+                    'per_attack_change' => round(Arr::get($spread, 'AttackMultiplier', 1) - 1, 2),
 
                     'decay_multiplier' => Arr::get($spread, 'DecayMultiplier'),
                     'decay_change' => round(Arr::get($spread, 'DecayMultiplier', 1) - 1, 2),

@@ -424,7 +424,7 @@ export function initTabulatorTables() {
         let servedInitial = false;
 
         const table = new Tabulator(mount, {
-            layout: "fitData",
+            layout: "fitDataFill",
 
             preserveHorizontalScroll: true,
 

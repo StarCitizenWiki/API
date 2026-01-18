@@ -42,6 +42,7 @@
         $variants = data_get($item, 'variants', []);
         $baseVariant = data_get($item, 'related_items.base_item');
         $relatedVariants = data_get($item, 'related_items.variant_items', []);
+
         if (! is_array($variants) || $variants === []) {
             $variants = is_array($relatedVariants) ? $relatedVariants : [];
         }
@@ -60,6 +61,12 @@
         } elseif (str_starts_with($classification, 'FPS.Armor')) {
             $filter = ['category' => 'armor'];
             $filterKey = 'Armor';
+        } elseif (str_starts_with($classification, 'FPS.WeaponAttachment')) {
+            $filter = ['category' => 'weapon-attachments'];
+            $filterKey = 'Weapon Attachments (Category)';
+        } elseif (in_array($type, ['Food', 'Bottle', 'Drink'], true)) {
+            $filter = ['category' => 'food'];
+            $filterKey = 'Food (Category)';
         }
 
         $specKeys = [
@@ -112,7 +119,7 @@
                     <li><a href="{{ route('web.items.index') }}">All Items</a></li>
                     <li><a href="{{ route('web.items.index', ['filter' => $filter]) }}">{{ $filterKey }}</a></li>
                     @if (isset($filter['category']))
-                        <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ $type }}</a></li>
+                        <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ \Illuminate\Support\Str::headline($type) }}</a></li>
                     @endif
                     <li>{{ $itemName }}</li>
                 </ul>

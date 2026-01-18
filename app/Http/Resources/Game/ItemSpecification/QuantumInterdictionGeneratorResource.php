@@ -143,7 +143,7 @@ class QuantumInterdictionGeneratorResource extends AbstractItemSpecificationReso
             'jammer_range' => Arr::get($quantumInterdiction, 'JammingRange'),
 
             'charge_duration' => Arr::get($pulse, 'ChargeTimeSecs'),
-            'activation_duration' => Arr::get($pulse, 'ActivationPhaseDuration_seconds'),
+            'activation_duration' => Arr::get($pulse, 'ActivationPhaseDurationSeconds'),
             'discharge_duration' => Arr::get($pulse, 'DischargeTimeSecs'),
             'cooldown_duration' => Arr::get($pulse, 'CooldownTimeSecs'),
             'disperse_charge_duration' => Arr::get($pulse, 'DisperseChargeTimeSeconds'),

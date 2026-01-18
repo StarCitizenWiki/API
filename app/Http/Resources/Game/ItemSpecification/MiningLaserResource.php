@@ -105,8 +105,8 @@ class MiningLaserResource extends AbstractItemSpecificationResource
 
         return [
             'laser_power' => [
-                'min' => Arr::get($miningLaser, 'MinPowerTransfer'),
-                'max' => Arr::get($miningLaser, 'PowerTransfer'),
+                'minimum' => Arr::get($miningLaser, 'MinPowerTransfer'),
+                'maximum' => Arr::get($miningLaser, 'PowerTransfer'),
             ],
 
             'modifiers' => collect($modifierBlock)
@@ -122,7 +122,7 @@ class MiningLaserResource extends AbstractItemSpecificationResource
             'module_slots' => Arr::get($miningLaser, 'ModuleSlots'),
 
             'throttle_lerp_speed' => Arr::get($miningLaser, 'ThrottleLerpSpeed'),
-            'throttle_minimumpower' => Arr::get($miningLaser, 'ThrottleMinimum'),
+            'throttle_minimum' => Arr::get($miningLaser, 'ThrottleMinimum'),
 
             'power_transfer' => Arr::get($miningLaser, 'PowerTransfer'),
 

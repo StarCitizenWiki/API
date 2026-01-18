@@ -33,6 +33,7 @@ return [
     'resource_network.usage.coolant.minimum' => ['path' => 'ResourceNetwork.Usage.Coolant.Minimum', 'cast' => 'numeric'],
     'resource_network.usage.coolant.maximum' => ['path' => 'ResourceNetwork.Usage.Coolant.Maximum', 'cast' => 'numeric'],
     'resource_network.generation.coolant' => ['path' => 'ResourceNetwork.Generation.Coolant', 'cast' => 'numeric'],
+    'resource_network.generation.power' => ['path' => 'ResourceNetwork.Generation.Power', 'cast' => 'numeric'],
 
     // =====================================================================
     // EMISSION & SIGNATURE
@@ -62,11 +63,12 @@ return [
     'ammunition.capacity' => ['path' => 'Ammunition.Capacity', 'cast' => 'numeric'],
     'ammunition.speed' => ['path' => 'Ammunition.Speed', 'cast' => 'numeric'],
     'ammunition.range' => ['path' => 'Ammunition.Range', 'cast' => 'numeric'],
-    'ammunition.penetration.base_penetration_distance' => ['path' => 'Ammunition.Penetration.BasePenetrationDistance', 'cast' => 'numeric'],
+    'ammunition.lifetime' => ['path' => 'Ammunition.Lifetime', 'cast' => 'numeric'],
+    'ammunition.penetration.base_distance' => ['path' => 'Ammunition.Penetration.BasePenetrationDistance', 'cast' => 'numeric'],
     'ammunition.penetration.near_radius' => ['path' => 'Ammunition.Penetration.NearRadius', 'cast' => 'numeric'],
     'ammunition.penetration.far_radius' => ['path' => 'Ammunition.Penetration.FarRadius', 'cast' => 'numeric'],
-    'ammunition.explosion_radius.minimum' => ['path' => 'Ammunition.ExplosionRadius.Minimum', 'cast' => 'numeric'],
-    'ammunition.explosion_radius.maximum' => ['path' => 'Ammunition.ExplosionRadius.Maximum', 'cast' => 'numeric'],
+    'ammunition.explosion_radius.min' => ['path' => 'Ammunition.ExplosionRadius.Minimum', 'cast' => 'numeric'],
+    'ammunition.explosion_radius.max' => ['path' => 'Ammunition.ExplosionRadius.Maximum', 'cast' => 'numeric'],
 
     // =====================================================================
     // EMP
@@ -131,6 +133,7 @@ return [
     'quantum_drive.standard_jump.cooldown_time' => ['path' => 'QuantumDrive.StandardJump.CooldownTime', 'cast' => 'numeric'],
     'quantum_drive.standard_jump.interdiction_effect_time' => ['path' => 'QuantumDrive.StandardJump.InterdictionEffectTime', 'cast' => 'numeric'],
     'quantum_drive.standard_jump.calibration_delay_in_seconds' => ['path' => 'QuantumDrive.StandardJump.CalibrationDelayInSeconds', 'cast' => 'numeric'],
+    'quantum_drive.standard_jump.drive_speed' => ['path' => 'QuantumDrive.StandardJump.DriveSpeed', 'cast' => 'numeric'],
     'quantum_drive.standard_jump.stage_one_accel_rate' => ['path' => 'QuantumDrive.StandardJump.StageOneAccelRate', 'cast' => 'numeric'],
     'quantum_drive.standard_jump.stage_two_accel_rate' => ['path' => 'QuantumDrive.StandardJump.StageTwoAccelRate', 'cast' => 'numeric'],
     'quantum_drive.spline_jump.drive_speed' => ['path' => 'QuantumDrive.SplineJump.DriveSpeed', 'cast' => 'numeric'],
@@ -140,20 +143,36 @@ return [
     // =====================================================================
     'quantum_interdiction_generator.jammer_range' => ['path' => 'QuantumInterdictionGenerator.JammingRange', 'cast' => 'numeric'],
     'quantum_interdiction_generator.interdiction_range' => ['path' => 'QuantumInterdictionGenerator.InterdictionRange', 'cast' => 'numeric'],
+    'quantum_interdiction_generator.charge_duration' => ['path' => 'QuantumInterdictionGenerator.Pulse.ChargeTimeSecs', 'cast' => 'numeric'],
+    'quantum_interdiction_generator.activation_duration' => ['path' => 'QuantumInterdictionGenerator.Pulse.ActivationPhaseDurationSeconds', 'cast' => 'numeric'],
+    'quantum_interdiction_generator.disperse_charge_duration' => ['path' => 'QuantumInterdictionGenerator.Pulse.DisperseChargeTimeSeconds', 'cast' => 'numeric'],
+    'quantum_interdiction_generator.discharge_duration' => ['path' => 'QuantumInterdictionGenerator.Pulse.DischargeTimeSecs', 'cast' => 'numeric'],
+    'quantum_interdiction_generator.cooldown_duration' => ['path' => 'QuantumInterdictionGenerator.Pulse.CooldownTimeSecs', 'cast' => 'numeric'],
 
     // =====================================================================
     // MISSILE & MISSILE RACK
     // =====================================================================
     'missile.signal_type' => ['path' => 'Missile.Targeting.TrackingSignalType', 'cast' => 'text'],
-    'missile.tracking_signal_min' => ['path' => 'Missile.Targeting.SignalResilienceMin', 'cast' => 'numeric'],
+    'missile.tracking_signal_min' => ['path' => 'Missile.Targeting.TrackingSignalMin', 'cast' => 'numeric'],
     'missile.target_lock.signal_resilience_max' => ['path' => 'Missile.Targeting.SignalResilienceMax', 'cast' => 'numeric'],
+    'missile.delays.arm_time' => ['path' => 'Missile.ArmTime', 'cast' => 'numeric'],
     'missile.delays.lock_time' => ['path' => 'Missile.Targeting.LockTime', 'cast' => 'numeric'],
+    'missile.target_lock.range_min' => ['path' => 'Missile.Targeting.LockRangeMin', 'cast' => 'numeric'],
+    'missile.target_lock.range_max' => ['path' => 'Missile.Targeting.LockRangeMax', 'cast' => 'numeric'],
+    'missile.target_lock.angle' => ['path' => 'Missile.Targeting.LockingAngle', 'cast' => 'numeric'],
     'missile.target_lock.allow_dumb_firing' => ['path' => 'Missile.Targeting.AllowDumbFiring', 'cast' => 'text'],
     'missile.damage_total' => ['path' => 'Missile.DamageTotal', 'cast' => 'numeric'],
     'missile.explosion.radius_min' => ['path' => 'Missile.ExplosionRadius.Minimum', 'cast' => 'numeric'],
     'missile.explosion.radius_max' => ['path' => 'Missile.ExplosionRadius.Maximum', 'cast' => 'numeric'],
     'missile.flight.speed' => ['path' => 'Missile.GCS.LinearSpeed', 'cast' => 'numeric'],
-    'missile.flight.range' => ['path' => 'Missile.Range', 'cast' => 'numeric'],
+    'missile.flight.range' => ['path' => 'Missile.Distance', 'cast' => 'numeric'],
+    'missile.flight.max_lifetime' => ['path' => 'Missile.MaxLifetime', 'cast' => 'numeric'],
+    'missile.flight.boost_phase_duration' => ['path' => 'Missile.GCS.BoostPhaseDuration', 'cast' => 'numeric'],
+    'missile.flight.terminal_phase_engagement_time' => ['path' => 'Missile.GCS.TerminalPhaseEngagementTime', 'cast' => 'numeric'],
+    'missile.flight.terminal_phase_engagement_angle' => ['path' => 'Missile.GCS.TerminalPhaseEngagementAngle', 'cast' => 'numeric'],
+    'missile.flight.intercept_speed' => ['path' => 'Missile.GCS.InterceptSpeed', 'cast' => 'numeric'],
+    'missile.flight.terminal_speed' => ['path' => 'Missile.GCS.TerminalSpeed', 'cast' => 'numeric'],
+    'missile.flight.boost_speed' => ['path' => 'Missile.GCS.BoostSpeed', 'cast' => 'numeric'],
     'missile_rack.missile_count' => ['path' => 'MissileRack.MissileCount', 'cast' => 'numeric'],
     'missile_rack.missile_size' => ['path' => 'MissileRack.MissileSize', 'cast' => 'numeric'],
 
@@ -177,70 +196,106 @@ return [
     'radar.piercing.db' => ['path' => 'Radar.Piercing.dB', 'cast' => 'numeric'],
 
     // =====================================================================
-    // WEAPONS - GENERAL
+    // WEAPON GUN (Hardpoint Weapons)
     // =====================================================================
-    'weapon.rate_of_fire' => ['path' => 'Weapon.RateOfFire', 'cast' => 'numeric'],
-    'weapon.pellets_per_shot' => ['path' => 'Weapon.PelletsPerShot', 'cast' => 'numeric'],
+    'vehicle_weapon.rpm' => ['path' => 'Weapon.RateOfFire', 'cast' => 'numeric'],
+    'vehicle_weapon.pellets_per_shot' => ['path' => 'Weapon.PelletsPerShot', 'cast' => 'numeric'],
 
     // Weapon Damage
-    'weapon.damage.alpha.physical' => ['path' => 'Weapon.Damage.Alpha.Physical', 'cast' => 'numeric'],
-    'weapon.damage.alpha.energy' => ['path' => 'Weapon.Damage.Alpha.Energy', 'cast' => 'numeric'],
-    'weapon.damage.alpha.distortion' => ['path' => 'Weapon.Damage.Alpha.Distortion', 'cast' => 'numeric'],
-    'weapon.damage.alpha.stun' => ['path' => 'Weapon.Damage.Alpha.Stun', 'cast' => 'numeric'],
-    'weapon.damage.alpha_total' => ['path' => 'Weapon.Damage.AlphaTotal', 'cast' => 'numeric'],
-    'weapon.damage.maximum' => ['path' => 'Weapon.Damage.Maximum', 'cast' => 'numeric'],
-    'weapon.damage.dps.physical' => ['path' => 'Weapon.Damage.Dps.Physical', 'cast' => 'numeric'],
-    'weapon.damage.dps.energy' => ['path' => 'Weapon.Damage.Dps.Energy', 'cast' => 'numeric'],
-    'weapon.damage.dps.distortion' => ['path' => 'Weapon.Damage.Dps.Distortion', 'cast' => 'numeric'],
-    'weapon.damage.dps.stun' => ['path' => 'Weapon.Damage.Dps.Stun', 'cast' => 'numeric'],
-    'weapon.damage.dps_total' => ['path' => 'Weapon.Damage.DpsTotal', 'cast' => 'numeric'],
-    'weapon.damage.burst' => ['path' => 'Weapon.Damage.Burst', 'cast' => 'numeric'],
-    'weapon.damage.max_per_mag' => ['path' => 'Weapon.Damage.MaxPerMag', 'cast' => 'numeric'],
-    'weapon.damage.sustained_60s' => ['path' => 'Weapon.Damage.Sustained60s', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.alpha.physical' => ['path' => 'Weapon.Damage.Alpha.Physical', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.alpha.energy' => ['path' => 'Weapon.Damage.Alpha.Energy', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.alpha.distortion' => ['path' => 'Weapon.Damage.Alpha.Distortion', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.alpha.stun' => ['path' => 'Weapon.Damage.Alpha.Stun', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.alpha_total' => ['path' => 'Weapon.Damage.AlphaTotal', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.maximum' => ['path' => 'Weapon.Damage.Maximum', 'cast' => 'text'],
+    'vehicle_weapon.damage.dps.physical' => ['path' => 'Weapon.Damage.Dps.Physical', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.dps.energy' => ['path' => 'Weapon.Damage.Dps.Energy', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.dps.distortion' => ['path' => 'Weapon.Damage.Dps.Distortion', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.dps.stun' => ['path' => 'Weapon.Damage.Dps.Stun', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.dps_total' => ['path' => 'Weapon.Damage.DpsTotal', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.burst' => ['path' => 'Weapon.Damage.Burst', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.max_per_mag' => ['path' => 'Weapon.Damage.MaxPerMag', 'cast' => 'numeric'],
+    'vehicle_weapon.damage.sustained_60s' => ['path' => 'Weapon.Damage.Sustained60s', 'cast' => 'numeric'],
 
     // Weapon Heat
-    'weapon.heat.heat_per_shot' => ['path' => 'Weapon.Heat.HeatPerShot', 'cast' => 'numeric'],
-    'weapon.heat.time_to_overheat' => ['path' => 'Weapon.Heat.TimeToOverheat', 'cast' => 'numeric'],
-    'weapon.heat.shots_to_overheat' => ['path' => 'Weapon.Heat.ShotsToOverheat', 'cast' => 'numeric'],
-    'weapon.heat.overheat_fix_time' => ['path' => 'Weapon.Heat.OverheatFixTime', 'cast' => 'numeric'],
-    'weapon.heat.cooling_delay' => ['path' => 'Weapon.Heat.CoolingDelay', 'cast' => 'numeric'],
-    'weapon.heat.cooling_per_second' => ['path' => 'Weapon.Heat.CoolingPerSecond', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.per_shot' => ['path' => 'Weapon.Heat.HeatPerShot', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.overheat_max_time' => ['path' => 'Weapon.Heat.TimeToOverheat', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.overheat_max_shots' => ['path' => 'Weapon.Heat.ShotsToOverheat', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.overheat_cooldown' => ['path' => 'Weapon.Heat.OverheatFixTime', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.cooling_delay' => ['path' => 'Weapon.Heat.CoolingDelay', 'cast' => 'numeric'],
+    'vehicle_weapon.heat.cooling_per_second' => ['path' => 'Weapon.Heat.CoolingPerSecond', 'cast' => 'numeric'],
 
     // Weapon Spread
-    'weapon.spread.minimum' => ['path' => 'Weapon.Spread.Minimum', 'cast' => 'numeric'],
-    'weapon.spread.maximum' => ['path' => 'Weapon.Spread.Maximum', 'cast' => 'numeric'],
-    'weapon.spread.first_attack' => ['path' => 'Weapon.Spread.FirstAttack', 'cast' => 'numeric'],
-    'weapon.spread.per_attack' => ['path' => 'Weapon.Spread.Attack', 'cast' => 'numeric'],
-    'weapon.ads_spread.minimum' => ['path' => 'Weapon.AdsSpread.Minimum', 'cast' => 'numeric'],
-    'weapon.ads_spread.maximum' => ['path' => 'Weapon.AdsSpread.Maximum', 'cast' => 'numeric'],
-    'weapon.ads_spread.first_attack' => ['path' => 'Weapon.AdsSpread.FirstAttack', 'cast' => 'numeric'],
-    'weapon.ads_spread.per_attack' => ['path' => 'Weapon.AdsSpread.Attack', 'cast' => 'numeric'],
+    'vehicle_weapon.spread.minimum' => ['path' => 'Weapon.Spread.Minimum', 'cast' => 'numeric'],
+    'vehicle_weapon.spread.maximum' => ['path' => 'Weapon.Spread.Maximum', 'cast' => 'numeric'],
+    'vehicle_weapon.spread.first_attack' => ['path' => 'Weapon.Spread.FirstAttack', 'cast' => 'numeric'],
+    'vehicle_weapon.spread.per_attack' => ['path' => 'Weapon.Spread.Attack', 'cast' => 'numeric'],
 
     // Weapon Charge
-    'weapon.charge.charge_duration' => ['path' => 'Weapon.Charge.ChargeTime', 'cast' => 'numeric'],
-    'weapon.charge.overcharge_time' => ['path' => 'Weapon.Charge.OverchargeTime', 'cast' => 'numeric'],
-    'weapon.charge.overcharged_duration' => ['path' => 'Weapon.Charge.OverchargedTime', 'cast' => 'numeric'],
-    'weapon.charge.cooldown_time' => ['path' => 'Weapon.Charge.CooldownTime', 'cast' => 'numeric'],
+    'vehicle_weapon.charge.time' => ['path' => 'Weapon.Charge.ChargeTime', 'cast' => 'numeric'],
+    'vehicle_weapon.charge.overcharge' => ['path' => 'Weapon.Charge.OverchargeTime', 'cast' => 'numeric'],
+    'vehicle_weapon.charge.overcharged' => ['path' => 'Weapon.Charge.OverchargedTime', 'cast' => 'numeric'],
+    'vehicle_weapon.charge.cooldown' => ['path' => 'Weapon.Charge.CooldownTime', 'cast' => 'numeric'],
 
     // Weapon Capacitor
-    'weapon.capacitor.max_ammo_load' => ['path' => 'Weapon.Capacitor.MaxAmmoLoad', 'cast' => 'numeric'],
-    'weapon.capacitor.max_regen_per_sec' => ['path' => 'Weapon.Capacitor.MaxRegenPerSec', 'cast' => 'numeric'],
-    'weapon.capacitor.cooldown_time' => ['path' => 'Weapon.Capacitor.Cooldown', 'cast' => 'numeric'],
+    'vehicle_weapon.capacitor.max_ammo_load' => ['path' => 'Weapon.Capacitor.MaxAmmoLoad', 'cast' => 'numeric'],
+    'vehicle_weapon.capacitor.regen_per_sec' => ['path' => 'Weapon.Capacitor.MaxRegenPerSec', 'cast' => 'numeric'],
+    'vehicle_weapon.capacitor.cooldown_time' => ['path' => 'Weapon.Capacitor.Cooldown', 'cast' => 'numeric'],
 
     // Weapon Charge Modifier
-    'weapon.charge_modifier.damage' => ['path' => 'Weapon.ChargeModifier.Damage', 'cast' => 'numeric'],
-    'weapon.charge_modifier.ammo_speed' => ['path' => 'Weapon.ChargeModifier.AmmoSpeed', 'cast' => 'numeric'],
-    'weapon.charge_modifier.fire_rate' => ['path' => 'Weapon.ChargeModifier.FireRate', 'cast' => 'numeric'],
+    'vehicle_weapon.charge_modifier.damage' => ['path' => 'Weapon.ChargeModifier.Damage', 'cast' => 'numeric'],
+    'vehicle_weapon.charge_modifier.ammo_speed' => ['path' => 'Weapon.ChargeModifier.AmmoSpeed', 'cast' => 'numeric'],
+    'vehicle_weapon.charge_modifier.fire_rate' => ['path' => 'Weapon.ChargeModifier.FireRate', 'cast' => 'numeric'],
+
+    // =====================================================================
+    // WEAPONS PERSONAL (FPS Personal)
+    // =====================================================================
+    'personal_weapon.rpm' => ['path' => 'Weapon.RateOfFire', 'cast' => 'numeric'],
+    'personal_weapon.pellets_per_shot' => ['path' => 'Weapon.PelletsPerShot', 'cast' => 'numeric'],
+
+    // Weapon Damage
+    'personal_weapon.damage.alpha.physical' => ['path' => 'Weapon.Damage.Alpha.Physical', 'cast' => 'numeric'],
+    'personal_weapon.damage.alpha.energy' => ['path' => 'Weapon.Damage.Alpha.Energy', 'cast' => 'numeric'],
+    'personal_weapon.damage.alpha.distortion' => ['path' => 'Weapon.Damage.Alpha.Distortion', 'cast' => 'numeric'],
+    'personal_weapon.damage.alpha.stun' => ['path' => 'Weapon.Damage.Alpha.Stun', 'cast' => 'numeric'],
+    'personal_weapon.damage.alpha_total' => ['path' => 'Weapon.Damage.AlphaTotal', 'cast' => 'numeric'],
+    'personal_weapon.damage.dps.physical' => ['path' => 'Weapon.Damage.Dps.Physical', 'cast' => 'numeric'],
+    'personal_weapon.damage.dps.energy' => ['path' => 'Weapon.Damage.Dps.Energy', 'cast' => 'numeric'],
+    'personal_weapon.damage.dps.distortion' => ['path' => 'Weapon.Damage.Dps.Distortion', 'cast' => 'numeric'],
+    'personal_weapon.damage.dps.stun' => ['path' => 'Weapon.Damage.Dps.Stun', 'cast' => 'numeric'],
+    'personal_weapon.damage.dps_total' => ['path' => 'Weapon.Damage.DpsTotal', 'cast' => 'numeric'],
+    'personal_weapon.damage.burst' => ['path' => 'Weapon.Damage.Burst', 'cast' => 'numeric'],
+    'personal_weapon.damage.maximum' => ['path' => 'Weapon.Damage.MaxPerMag', 'cast' => 'numeric'],
+
+    // Weapon Spread
+    'personal_weapon.spread.minimum' => ['path' => 'Weapon.Spread.Minimum', 'cast' => 'numeric'],
+    'personal_weapon.spread.maximum' => ['path' => 'Weapon.Spread.Maximum', 'cast' => 'numeric'],
+    'personal_weapon.spread.first_attack' => ['path' => 'Weapon.Spread.FirstAttack', 'cast' => 'numeric'],
+    'personal_weapon.spread.per_attack' => ['path' => 'Weapon.Spread.Attack', 'cast' => 'numeric'],
+    'personal_weapon.ads_spread.minimum' => ['path' => 'Weapon.AdsSpread.Minimum', 'cast' => 'numeric'],
+    'personal_weapon.ads_spread.maximum' => ['path' => 'Weapon.AdsSpread.Maximum', 'cast' => 'numeric'],
+    'personal_weapon.ads_spread.first_attack' => ['path' => 'Weapon.AdsSpread.FirstAttack', 'cast' => 'numeric'],
+    'personal_weapon.ads_spread.per_attack' => ['path' => 'Weapon.AdsSpread.Attack', 'cast' => 'numeric'],
+
+    // Weapon Charge
+    'personal_weapon.charge.charge_duration' => ['path' => 'Weapon.Charge.ChargeTime', 'cast' => 'numeric'],
+    'personal_weapon.charge.overcharge_time' => ['path' => 'Weapon.Charge.OverchargeTime', 'cast' => 'numeric'],
+    'personal_weapon.charge.overcharged_duration' => ['path' => 'Weapon.Charge.OverchargedTime', 'cast' => 'numeric'],
+    'personal_weapon.charge.cooldown_time' => ['path' => 'Weapon.Charge.CooldownTime', 'cast' => 'numeric'],
+
+    // Weapon Charge Modifier
+    'personal_weapon.charge_modifier.damage' => ['path' => 'Weapon.ChargeModifier.Damage', 'cast' => 'numeric'],
+    'personal_weapon.charge_modifier.ammo_speed' => ['path' => 'Weapon.ChargeModifier.AmmoSpeed', 'cast' => 'numeric'],
+    'personal_weapon.charge_modifier.fire_rate' => ['path' => 'Weapon.ChargeModifier.FireRate', 'cast' => 'numeric'],
 
     // =====================================================================
     // WEAPON DEFENSIVE
     // =====================================================================
-    'weapon_defensive.type' => ['path' => 'WeaponDefensive.Type', 'cast' => 'text'],
-    'weapon_defensive.capacity' => ['path' => 'WeaponDefensive.Capacity', 'cast' => 'numeric'],
-    'weapon_defensive.signatures.cross_section_end' => ['path' => 'WeaponDefensive.Signatures.CrossSection.End', 'cast' => 'numeric'],
-    'weapon_defensive.signatures.infrared_end' => ['path' => 'WeaponDefensive.Signatures.Infrared.End', 'cast' => 'numeric'],
-    'weapon_defensive.signatures.electromagnetic_end' => ['path' => 'WeaponDefensive.Signatures.Electromagnetic.End', 'cast' => 'numeric'],
-    'weapon_defensive.signatures.decibel_end' => ['path' => 'WeaponDefensive.Signatures.Decibel.End', 'cast' => 'numeric'],
+    'counter_measure.type' => ['path' => 'WeaponDefensive.Type', 'cast' => 'text'],
+    'counter_measure.signature.cross_section' => ['path' => 'WeaponDefensive.Signatures.CrossSection.End', 'cast' => 'numeric'],
+    'counter_measure.signature.infrared' => ['path' => 'WeaponDefensive.Signatures.Infrared.End', 'cast' => 'numeric'],
+    'counter_measure.signature.electromagnetic' => ['path' => 'WeaponDefensive.Signatures.Electromagnetic.End', 'cast' => 'numeric'],
+    'counter_measure.signature.decibel' => ['path' => 'WeaponDefensive.Signatures.Decibel.End', 'cast' => 'numeric'],
 
     // =====================================================================
     // WEAPON MODIFIER
@@ -304,8 +359,10 @@ return [
     'mining_laser.throttle_minimum' => ['path' => 'MiningLaser.ThrottleMinimum', 'cast' => 'numeric'],
     'mining_laser.throttle_lerp_speed' => ['path' => 'MiningLaser.ThrottleLerpSpeed', 'cast' => 'numeric'],
     'mining_laser.module_slots' => ['path' => 'MiningLaser.ModuleSlots', 'cast' => 'numeric'],
+    'mining_laser.laser_power.minimum' => ['path' => 'MiningLaser.MinPowerTransfer', 'cast' => 'numeric'],
+    'mining_laser.laser_power.maximum' => ['path' => 'MiningLaser.PowerTransfer', 'cast' => 'numeric'],
     'mining_laser.modifier_map.resistance' => ['path' => 'MiningLaser.Modifiers.Resistance', 'cast' => 'numeric'],
-    'mining_laser.modifier_map.instability' => ['path' => 'MiningLaser.Modifiers.Instability', 'cast' => 'numeric'],
+    'mining_laser.modifier_map.laser_instability' => ['path' => 'MiningLaser.Modifiers.Instability', 'cast' => 'numeric'],
     'mining_laser.modifier_map.optimal_charge_window_size' => ['path' => 'MiningLaser.Modifiers.OptimalChargeWindow', 'cast' => 'numeric'],
     'mining_laser.modifier_map.optimal_charge_rate' => ['path' => 'MiningLaser.Modifiers.OptimalChargeRate', 'cast' => 'numeric'],
     'mining_laser.modifier_map.inert_materials' => ['path' => 'MiningLaser.Modifiers.InertMaterials', 'cast' => 'numeric'],
@@ -318,7 +375,7 @@ return [
     'mining_modifier.duration' => ['path' => 'MiningModule.Lifetime', 'cast' => 'numeric'],
     'mining_modifier.power_modifier' => ['path' => 'MiningModule.Modifiers.DamageMultiplierChange', 'cast' => 'numeric'],
     'mining_modifier.modifier_map.resistance' => ['path' => 'MiningModule.Modifiers.Resistance', 'cast' => 'numeric'],
-    'mining_modifier.modifier_map.instability' => ['path' => 'MiningModule.Modifiers.Instability', 'cast' => 'numeric'],
+    'mining_modifier.modifier_map.laser_instability' => ['path' => 'MiningModule.Modifiers.Instability', 'cast' => 'numeric'],
     'mining_modifier.modifier_map.optimal_charge_window_size' => ['path' => 'MiningModule.Modifiers.OptimalChargeWindow', 'cast' => 'numeric'],
     'mining_modifier.modifier_map.optimal_charge_rate' => ['path' => 'MiningModule.Modifiers.OptimalChargeRate', 'cast' => 'numeric'],
     'mining_modifier.modifier_map.shatter_damage' => ['path' => 'MiningModule.Modifiers.ShatterDamage', 'cast' => 'numeric'],
@@ -331,13 +388,15 @@ return [
     // =====================================================================
     'tractor_beam.range.min' => ['path' => 'TractorBeam.MinDistance', 'cast' => 'numeric'],
     'tractor_beam.range.max' => ['path' => 'TractorBeam.MaxDistance', 'cast' => 'numeric'],
+    'tractor_beam.range.max_angle' => ['path' => 'TractorBeam.MaxAngle', 'cast' => 'numeric'],
+    'tractor_beam.range.max_volume' => ['path' => 'TractorBeam.MaxVolume', 'cast' => 'numeric'],
     'tractor_beam.range.full_strength_distance' => ['path' => 'TractorBeam.FullStrengthDistance', 'cast' => 'numeric'],
     'tractor_beam.force.min' => ['path' => 'TractorBeam.MinForce', 'cast' => 'numeric'],
     'tractor_beam.force.max' => ['path' => 'TractorBeam.MaxForce', 'cast' => 'numeric'],
-    'tractor_beam.towing.towing_force' => ['path' => 'TractorBeam.Towing.TowingForce', 'cast' => 'numeric'],
-    'tractor_beam.towing.towing_max_distance' => ['path' => 'TractorBeam.Towing.TowingMaxDistance', 'cast' => 'numeric'],
-    'tractor_beam.towing.towing_max_acceleration' => ['path' => 'TractorBeam.Towing.TowingMaxAcceleration', 'cast' => 'numeric'],
-    'tractor_beam.towing.quantum_tow_mass_limit' => ['path' => 'TractorBeam.Towing.QuantumTowMassLimit', 'cast' => 'numeric'],
+    'tractor_beam.towing.force' => ['path' => 'TractorBeam.Towing.TowingForce', 'cast' => 'numeric'],
+    'tractor_beam.towing.max_distance' => ['path' => 'TractorBeam.Towing.TowingMaxDistance', 'cast' => 'numeric'],
+    'tractor_beam.towing.max_acceleration' => ['path' => 'TractorBeam.Towing.TowingMaxAcceleration', 'cast' => 'numeric'],
+    'tractor_beam.towing.qt_mass_limit' => ['path' => 'TractorBeam.Towing.QuantumTowMassLimit', 'cast' => 'numeric'],
 
     // =====================================================================
     // SALVAGE MODIFIER
@@ -350,7 +409,7 @@ return [
     // SELF DESTRUCT
     // =====================================================================
     'self_destruct.damage' => ['path' => 'SelfDestruct.Damage', 'cast' => 'numeric'],
-    'self_destruct.countdown' => ['path' => 'SelfDestruct.Countdown', 'cast' => 'numeric'],
+    'self_destruct.countdown' => ['path' => 'SelfDestruct.Time', 'cast' => 'numeric'],
     'self_destruct.min_radius' => ['path' => 'SelfDestruct.MinRadius', 'cast' => 'numeric'],
     'self_destruct.phys_radius' => ['path' => 'SelfDestruct.PhysRadius', 'cast' => 'numeric'],
 
@@ -362,25 +421,28 @@ return [
     // =====================================================================
     // CLOTHING & ARMOR
     // =====================================================================
-    'clothing.temperature_resistance.minimum' => ['path' => 'Clothing.TemperatureResistance.Minimum', 'cast' => 'numeric'],
-    'clothing.temperature_resistance.maximum' => ['path' => 'Clothing.TemperatureResistance.Maximum', 'cast' => 'numeric'],
-    'clothing.radiation_resistance.maximum_radiation_capacity' => ['path' => 'Clothing.RadiationResistance.MaximumRadiationCapacity', 'cast' => 'numeric'],
-    'clothing.radiation_resistance.radiation_dissipation_rate' => ['path' => 'Clothing.RadiationResistance.RadiationDissipationRate', 'cast' => 'numeric'],
+    'clothing.temperature_resistance.min' => ['path' => 'TemperatureResistance.Minimum', 'cast' => 'numeric'],
+    'clothing.temperature_resistance.max' => ['path' => 'TemperatureResistance.Maximum', 'cast' => 'numeric'],
+    'clothing.radiation_resistance.maximum_radiation_capacity' => ['path' => 'RadiationResistance.MaximumRadiationCapacity', 'cast' => 'numeric'],
+    'clothing.radiation_resistance.radiation_dissipation_rate' => ['path' => 'RadiationResistance.RadiationDissipationRate', 'cast' => 'numeric'],
 
     // =====================================================================
     // SUIT ARMOR
     // =====================================================================
-    'suit_armor.damage_resistance.physical' => ['path' => 'SuitArmor.DamageResistance.Physical.Multiplier', 'cast' => 'numeric'],
-    'suit_armor.damage_resistance.energy' => ['path' => 'SuitArmor.DamageResistance.Energy.Multiplier', 'cast' => 'numeric'],
-    'suit_armor.damage_resistance.distortion' => ['path' => 'SuitArmor.DamageResistance.Distortion.Multiplier', 'cast' => 'numeric'],
-    'suit_armor.damage_resistance.thermal' => ['path' => 'SuitArmor.DamageResistance.Thermal.Multiplier', 'cast' => 'numeric'],
-    'suit_armor.damage_resistance.stun' => ['path' => 'SuitArmor.DamageResistance.Stun.Multiplier', 'cast' => 'numeric'],
-    'suit_armor.damage_resistance.impact' => ['path' => 'SuitArmor.DamageResistance.Impact', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.physical_change' => ['path' => 'SuitArmor.DamageResistance.Physical.Multiplier', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.energy_change' => ['path' => 'SuitArmor.DamageResistance.Energy.Multiplier', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.distortion_change' => ['path' => 'SuitArmor.DamageResistance.Distortion.Multiplier', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.thermal_change' => ['path' => 'SuitArmor.DamageResistance.Thermal.Multiplier', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.stun_change' => ['path' => 'SuitArmor.DamageResistance.Stun.Multiplier', 'cast' => 'numeric'],
+    'clothing.damage_resistance_map.impact_change' => ['path' => 'SuitArmor.DamageResistance.Impact', 'cast' => 'numeric'],
+    'clothing.signature.electromagnetic' => ['path' => 'SuitArmor.Signature.Electromagnetic', 'cast' => 'numeric'],
+    'clothing.signature.infrared' => ['path' => 'SuitArmor.Signature.Infrared', 'cast' => 'numeric'],
 
     // =====================================================================
     // FOOD & NUTRITION
     // =====================================================================
-    'food.nutrition.hunger.total' => ['path' => 'Food.Nutrition.Hunger.Total', 'cast' => 'numeric'],
-    'food.nutrition.thirst.total' => ['path' => 'Food.Nutrition.Thirst.Total', 'cast' => 'numeric'],
-    'food.nutrition.blood_drug_level.total' => ['path' => 'Food.Nutrition.BloodDrugLevel.Total', 'cast' => 'numeric'],
+    'food.nutrition.hunger' => ['path' => 'Food.Nutrition.Hunger.Total', 'cast' => 'numeric'],
+    'food.nutrition.thirst' => ['path' => 'Food.Nutrition.Thirst.Total', 'cast' => 'numeric'],
+    'food.nutrition.blood_drug_level' => ['path' => 'Food.Nutrition.BloodDrugLevel.Total', 'cast' => 'numeric'],
+
 ];

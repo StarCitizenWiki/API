@@ -163,15 +163,15 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Spread.Minimum') !== null, [
                 'spread' => [
-                    'min' => Arr::get($weapon, 'Spread.Minimum'),
-                    'max' => Arr::get($weapon, 'Spread.Maximum'),
+                    'minimum' => Arr::get($weapon, 'Spread.Minimum'),
+                    'maximum' => Arr::get($weapon, 'Spread.Maximum'),
                     'first_attack' => Arr::get($weapon, 'Spread.FirstAttack'),
                     'per_attack' => Arr::get($weapon, 'Spread.Attack'),
                     'decay' => Arr::get($weapon, 'Spread.Decay'),
                 ],
                 'ads_spread' => [
-                    'min' => Arr::get($weapon, 'AdsSpread.Minimum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),
-                    'max' => Arr::get($weapon, 'AdsSpread.Maximum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),
+                    'minimum' => Arr::get($weapon, 'AdsSpread.Minimum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),
+                    'maximum' => Arr::get($weapon, 'AdsSpread.Maximum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),
                     'first_attack' => Arr::get($weapon, 'AdsSpread.FirstAttack') == 0 ? null : Arr::get($weapon, 'AdsSpread.FirstAttack'),
                     'per_attack' => Arr::get($weapon, 'AdsSpread.Attack') == 0 ? null : Arr::get($weapon, 'AdsSpread.Attack'),
                     'decay' => Arr::get($weapon, 'AdsSpread.Decay') == 0 ? null : Arr::get($weapon, 'AdsSpread.Decay'),

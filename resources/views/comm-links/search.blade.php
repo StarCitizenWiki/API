@@ -14,7 +14,6 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h1 class="text-2xl font-semibold tracking-tight">Comm-Link Search</h1>
-                <p class="text-sm text-base-content/70">Search results open in the matching index view.</p>
             </div>
         </div>
 
@@ -29,7 +28,7 @@
         @endif
 
         <div class="grid gap-4 lg:grid-cols-2">
-            <div class="card border border-base-200 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4">
                     <input type="hidden" name="search" value="title">
 
@@ -38,14 +37,13 @@
                         <p class="text-sm text-base-content/70">Search by comm-link title or exact CIG ID.</p>
                     </div>
 
-                    <label class="form-control">
-                        <span class="label-text">Title or CIG ID</span>
+                    <label class="input w-full">
+                        <span class="label">Title or CIG ID</span>
                         <input
                             type="text"
                             name="query"
                             value="{{ old('query') }}"
                             placeholder="Banu Merchantman"
-                            class="input input-bordered"
                             required
                         />
                     </label>
@@ -54,7 +52,7 @@
                 </form>
             </div>
 
-            <div class="card border border-base-200 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4">
                     <input type="hidden" name="search" value="media-url">
 
@@ -63,27 +61,28 @@
                         <p class="text-sm text-base-content/70">Find comm-links that reference a specific RSI-hosted image URL.</p>
                     </div>
 
-                    <label class="form-control">
-                        <span class="label-text">Image URL</span>
-                        <input
-                            type="url"
-                            name="url"
-                            value="{{ old('url') }}"
-                            placeholder="https://robertsspaceindustries.com/media/..."
-                            pattern="http?s:\/\/(?:media\.)?robertsspaceindustries.com\/.*"
-                            class="input input-bordered"
-                            required
-                        />
+                    <div class="flex flex-col gap-1">
+                        <label class="input w-full">
+                            <span class="label">Image URL</span>
+                            <input
+                                type="url"
+                                name="url"
+                                value="{{ old('url') }}"
+                                placeholder="https://robertsspaceindustries.com/media/..."
+                                pattern="http?s:\/\/(?:media\.)?robertsspaceindustries.com\/.*"
+                                required
+                            />
+                        </label>
                         <span class="label-text-alt text-base-content/60">
                             Use https://robertsspaceindustries.com/media/... or https://media.robertsspaceindustries.com/...
                         </span>
-                    </label>
+                    </div>
 
                     <button type="submit" class="btn btn-primary">Search media URL</button>
                 </form>
             </div>
 
-            <div class="card border border-base-200 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <form method="GET" action="{{ route('web.comm-links.images.index') }}" class="card-body gap-4">
                     <input type="hidden" name="search" value="media-name">
 
@@ -92,14 +91,13 @@
                         <p class="text-sm text-base-content/70">Search comm-link images by filename.</p>
                     </div>
 
-                    <label class="form-control">
-                        <span class="label-text">Filename contains</span>
+                    <label class="input w-full">
+                        <span class="label">Filename contains</span>
                         <input
                             type="text"
                             name="query"
                             value="{{ old('query') }}"
                             placeholder="Carrack"
-                            class="input input-bordered"
                             required
                         />
                     </label>
@@ -108,7 +106,7 @@
                 </form>
             </div>
 
-            <div class="card border border-base-200 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <form
                     method="POST"
                     action="{{ route('web.comm-links.images.index') }}"
@@ -123,15 +121,15 @@
                         <p class="text-sm text-base-content/70">Upload an image to find similar comm-link visuals.</p>
                     </div>
 
-                    <label class="form-control">
-                        <span class="label-text">Image file</span>
-                        <input type="file" name="image" accept="image/*" class="file-input file-input-bordered" required />
+                    <div class="flex flex-col gap-1 w-full">
+                        <span class="label">Image file</span>
+                        <input type="file" name="image" accept="image/*" class="file-input w-full" required />
                         <span class="label-text-alt text-base-content/60">Max file size 5 MB.</span>
-                    </label>
+                    </div>
 
-                    <label class="form-control">
-                        <span class="label-text">Similarity threshold</span>
-                        <select name="similarity" class="select select-bordered">
+                    <div class="flex flex-col gap-1 w-full">
+                        <span class="label">Similarity threshold</span>
+                        <select name="similarity" class="select w-full">
                             <option value="">Default (75%)</option>
                             <option value="95">95% (Exact)</option>
                             <option value="80">80% (Very similar)</option>
@@ -140,7 +138,7 @@
                             <option value="25">25% (Very loose)</option>
                         </select>
                         <span class="label-text-alt text-base-content/60">Lower values return more results.</span>
-                    </label>
+                    </div>
 
                     <button type="submit" class="btn btn-primary">Search by image</button>
                 </form>

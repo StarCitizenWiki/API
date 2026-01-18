@@ -87,7 +87,7 @@
         :route="'web.items.index'"
         :active-filters-any="[
             'category' => ['fps-armor', 'clothes', 'food', 'weapon-attachments', 'medical'],
-            'type' => ['WeaponPersonal'],
+            'type' => ['WeaponPersonal', 'Food', 'Bottle', 'Drink'],
         ]"
         collapsible
     >

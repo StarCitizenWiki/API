@@ -10,7 +10,6 @@ use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
 use App\Http\Resources\Game\ItemSpecification\CargoGridResource;
-use App\Http\Resources\Game\ItemSpecification\CharacterArmorResource;
 use App\Http\Resources\Game\ItemSpecification\ClothingResource;
 use App\Http\Resources\Game\ItemSpecification\CoolerResource;
 use App\Http\Resources\Game\ItemSpecification\CounterMeasureResource;
@@ -40,6 +39,7 @@ use App\Http\Resources\Game\ItemSpecification\SeatResource;
 use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\Game\ItemSpecification\ShieldControllerResource;
 use App\Http\Resources\Game\ItemSpecification\ShieldResource;
+use App\Http\Resources\Game\ItemSpecification\SuitArmorResource;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
 use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
 use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
@@ -170,8 +170,6 @@ use OpenApi\Attributes as OA;
 
         // Item Specifications
         new OA\Property(property: 'clothing', ref: '#/components/schemas/clothing', nullable: true),
-        new OA\Property(property: 'character_armor', ref: '#/components/schemas/character_armor', nullable: true),
-        new OA\Property(property: 'suit_armor', ref: '#/components/schemas/character_armor', nullable: true, deprecated: true),
         new OA\Property(property: 'bomb', ref: '#/components/schemas/bomb', nullable: true),
         new OA\Property(property: 'missile', ref: '#/components/schemas/missile', nullable: true),
         new OA\Property(property: 'emp', ref: '#/components/schemas/emp', nullable: true),
@@ -400,7 +398,7 @@ class ItemResource extends AbstractBaseResource
         // FPS Armor
         if (str_starts_with($itemData->classification ?? '', 'FPS.Armor.')) {
             $hasMatch = true;
-            $specifications['clothing'] = static fn () => new CharacterArmorResource($itemData);
+            $specifications['clothing'] = static fn () => new SuitArmorResource($itemData);
         }
 
         // Ship Armor
