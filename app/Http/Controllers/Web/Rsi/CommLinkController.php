@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Rsi;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
@@ -92,71 +92,8 @@ class CommLinkController extends Controller
         ]);
     }
 
-    public function imagesIndex(Request $request, PdqHasher $hasher): View
+    public function imagesIndex(Request $request): View
     {
-        $searchType = (string) $request->input('search', '');
-        $searchQuery = trim((string) $request->input('query', ''));
-
-        if ($searchType === 'media-name') {
-            $results = $searchQuery === ''
-                ? collect()
-                : Image::query()
-                    ->with(['commLinks', 'tags'])
-                    ->whereNull('base_image_id')
-                    ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($searchQuery))])
-                    ->whereRelation('metadata', 'size', '>', 0)
-                    ->limit(100)
-                    ->orderByDesc('created_at')
-                    ->get();
-
-            $images = ImageResource::collection($results)->resolve();
-
-            return view('comm-links.images.index', [
-                'images' => $images,
-                'pagination' => $this->paginationSummary(count($images)),
-                'paginationLinks' => [],
-                'pageTitle' => 'Comm-Link Images',
-                'searchType' => $searchType,
-                'searchQuery' => $searchQuery,
-            ]);
-        }
-
-        if ($searchType === 'reverse-image') {
-            $validated = $request->validate([
-                'image' => ['required', 'image', 'max:5120'],
-                'similarity' => ['nullable', 'integer', 'min:1', 'max:100'],
-            ]);
-
-            $file = $request->file('image');
-            $contents = $file ? file_get_contents($file->getPathname()) : false;
-
-            if ($contents === false) {
-                throw new HttpException(422, 'Unable to read uploaded image.');
-            }
-
-            try {
-                $hashResult = $hasher->hashContents($contents);
-            } catch (RuntimeException $exception) {
-                throw new HttpException(422, $exception->getMessage(), $exception);
-            }
-
-            $similarity = (int) ($validated['similarity'] ?? 75);
-            $matches = ImageHashModel::similarImagesForHash($hashResult->toBitString(), $similarity);
-
-            $matches->loadMissing(['commLinks', 'tags']);
-
-            $images = ImageHashResource::collection($matches)->resolve();
-
-            return view('comm-links.images.index', [
-                'images' => $images,
-                'pagination' => $this->paginationSummary(count($images)),
-                'paginationLinks' => [],
-                'pageTitle' => 'Comm-Link Images',
-                'searchType' => $searchType,
-                'searchQuery' => $searchQuery,
-            ]);
-        }
-
         $payload = $this->apiJsonRequest->request(route('comm-link-images.index', [], false), $request);
         $imageData = Arr::get($payload, 'data', []);
         $pagination = Arr::get($payload, 'meta', []);
@@ -169,6 +106,70 @@ class CommLinkController extends Controller
             'pageTitle' => 'Comm-Link Images',
             'searchType' => null,
             'searchQuery' => null,
+        ]);
+    }
+
+    public function searchImagesByName(Request $request): View
+    {
+        $searchQuery = trim((string) $request->input('query', ''));
+
+        $results = $searchQuery === ''
+            ? collect()
+            : Image::query()
+                ->with(['commLinks', 'tags'])
+                ->whereNull('base_image_id')
+                ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($searchQuery))])
+                ->whereRelation('metadata', 'size', '>', 0)
+                ->limit(100)
+                ->orderByDesc('created_at')
+                ->get();
+
+        $images = ImageResource::collection($results)->resolve();
+
+        return view('comm-links.images.index', [
+            'images' => $images,
+            'pagination' => $this->paginationSummary(count($images)),
+            'paginationLinks' => [],
+            'pageTitle' => 'Comm-Link Images',
+            'searchType' => 'media-name',
+            'searchQuery' => $searchQuery,
+        ]);
+    }
+
+    public function reverseImageSearch(Request $request, PdqHasher $hasher): View
+    {
+        $validated = $request->validate([
+            'image' => ['required', 'image', 'max:5120'],
+            'similarity' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $file = $request->file('image');
+        $contents = $file ? file_get_contents($file->getPathname()) : false;
+
+        if ($contents === false) {
+            throw new HttpException(422, 'Unable to read uploaded image.');
+        }
+
+        try {
+            $hashResult = $hasher->hashContents($contents);
+        } catch (RuntimeException $exception) {
+            throw new HttpException(422, $exception->getMessage(), $exception);
+        }
+
+        $similarity = (int) ($validated['similarity'] ?? 75);
+        $matches = ImageHashModel::similarImagesForHash($hashResult->toBitString(), $similarity);
+
+        $matches->loadMissing(['commLinks', 'tags']);
+
+        $images = ImageHashResource::collection($matches)->resolve();
+
+        return view('comm-links.images.index', [
+            'images' => $images,
+            'pagination' => $this->paginationSummary(count($images)),
+            'paginationLinks' => [],
+            'pageTitle' => 'Comm-Link Images',
+            'searchType' => 'reverse-image',
+            'searchQuery' => '',
         ]);
     }
 

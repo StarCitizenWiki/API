@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\StarCitizen;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;

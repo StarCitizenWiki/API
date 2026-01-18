@@ -1,0 +1,6 @@
+.git
+.github
+node_modules
+vendor
+resources/assets
+bootstrap/cache/*

@@ -45,6 +45,7 @@ class ImageController extends Controller
         $query = QueryBuilder::for(Image::class, $request)
             ->with(['commLinks'])
             ->orderByDesc('created_at')
+            ->whereNull('base_image_id')
             ->jsonPaginate()
             ->appends(request()->query());
 

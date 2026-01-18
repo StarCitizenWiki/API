@@ -8,7 +8,7 @@ Schedule::command('comm-link:schedule')
     ->withoutOverlapping();
 
 Schedule::command('comm-link:download-new-versions', ['--skip' => false])
-    ->monthly()
+    ->yearly()
     ->withoutOverlapping();
 
 // Stats

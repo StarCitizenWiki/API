@@ -80,7 +80,7 @@
                             <div class="space-y-3">
                                 @foreach ($translations as $locale => $translation)
                                     @php
-                                        $label = is_string($locale) ? strtoupper($locale) : 'Translation '.$loop->iteration;
+                                        $label = is_string($locale) ? \App\Models\System\Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
                                         $translationText = is_string($translation)
                                             ? $translation
                                             : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

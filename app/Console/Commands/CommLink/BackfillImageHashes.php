@@ -7,6 +7,7 @@ namespace App\Console\Commands\CommLink;
 use App\Jobs\Rsi\CommLink\Image\ComputeImageHash;
 use App\Models\Rsi\CommLink\Image\Image;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class BackfillImageHashes extends Command
 {
@@ -33,7 +34,14 @@ class BackfillImageHashes extends Command
         $queue = (string) $this->option('queue');
         $includeAll = (bool) $this->option('all');
 
-        $query = Image::query()->select('id');
+        $query = Image::query()
+            ->where(function (Builder $query) {
+                $query->whereRelation('metadata', 'mime', 'LIKE', 'video%')
+                    ->orWhereRelation('metadata', 'mime', 'LIKE', 'image%');
+            })
+            ->where('src', 'NOT LIKE', '%.svg')
+            ->where('src', 'NOT LIKE', '%.tiff')
+            ->select('id');
 
         if (! $includeAll) {
             $query->whereDoesntHave('hash');
@@ -41,7 +49,7 @@ class BackfillImageHashes extends Command
 
         $dispatched = 0;
 
-        $query->orderBy('id')->chunkById($chunkSize, function ($images) use (&$dispatched, $queue): void {
+        $query->where('id', '>', 43482)->orderByDesc('id')->chunkById($chunkSize, function ($images) use (&$dispatched, $queue): void {
             foreach ($images as $image) {
                 ComputeImageHash::dispatch($image->id)
                     ->onConnection('database')

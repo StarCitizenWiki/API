@@ -18,8 +18,7 @@ it('shows comm-link images filtered by media name', function (): void {
         'last_modified' => now(),
     ]);
 
-    $response = $this->get(route('web.comm-links.images.index', [
-        'search' => 'media-name',
+    $response = $this->get(route('web.comm-links.images.search', [
         'query' => 'carrack',
     ]));
 

@@ -22,6 +22,12 @@ class DispatchImageHashes implements ShouldQueue
     {
         $query = Image::query()
             ->whereHas('commLinks')
+            ->where(function (Builder $query) {
+                $query->whereRelation('metadata', 'mime', 'LIKE', 'video%')
+                    ->orWhereRelation('metadata', 'mime', 'LIKE', 'image%');
+            })
+            ->where('src', 'NOT LIKE', '%.svg')
+            ->where('src', 'NOT LIKE', '%.tiff')
             ->whereDoesntHave('hash');
 
         if ($this->commLinkIds !== []) {

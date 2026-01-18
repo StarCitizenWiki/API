@@ -83,8 +83,7 @@
             </div>
 
             <div class="card card-border bg-base-100 shadow">
-                <form method="GET" action="{{ route('web.comm-links.images.index') }}" class="card-body gap-4">
-                    <input type="hidden" name="search" value="media-name">
+                <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4">
 
                     <div class="flex flex-col gap-1">
                         <h2 class="card-title">Media Name</h2>
@@ -109,12 +108,11 @@
             <div class="card card-border bg-base-100 shadow">
                 <form
                     method="POST"
-                    action="{{ route('web.comm-links.images.index') }}"
+                    action="{{ route('web.comm-links.images.reverse-search') }}"
                     enctype="multipart/form-data"
                     class="card-body gap-4"
                 >
                     @csrf
-                    <input type="hidden" name="search" value="reverse-image">
 
                     <div class="flex flex-col gap-1">
                         <h2 class="card-title">Reverse Image Search</h2>

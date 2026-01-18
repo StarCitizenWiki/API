@@ -91,42 +91,35 @@
     prefersdark: true;
     color-scheme: "dark";
 
-    /* Deep space navy surfaces (blue-tinted neutrals, not flat gray) */
-    --color-base-100: oklch(17.81% 0.016 244.775); /* ~ #0B1218 */
-    --color-base-200: oklch(23.16% 0.027 240.545); /* ~ #111F29 */
-    --color-base-300: oklch(29.09% 0.036 240.210); /* ~ #1A2E3C */
-    --color-base-content: oklch(95.38% 0.012 239.907); /* ~ #E9F1F7 */
+    --color-base-100: oklch(17.81% 0.016 244.775);
+    --color-base-200: oklch(23.16% 0.027 240.545);
+    --color-base-300: oklch(29.09% 0.036 240.210);
+    --color-base-content: oklch(95.38% 0.012 239.907);
 
-    /* mobiGlas blue as primary */
-    --color-primary: oklch(73.11% 0.133 231.177); /* ~ #35B6EC */
-    --color-primary-content: oklch(17.81% 0.016 244.775); /* dark text on bright cyan */
+    --color-primary: oklch(73.11% 0.133 231.177);
+    --color-primary-content: oklch(17.81% 0.016 244.775);
 
-    /* “Steel/navy” supporting brand color */
-    --color-secondary: oklch(40.35% 0.076 241.779); /* ~ #1C4D6E */
+    --color-secondary: oklch(40.35% 0.076 241.779);
     --color-secondary-content: oklch(95.38% 0.012 239.907);
 
-    /* Complementary highlight (alerts, emphasis) */
-    --color-accent: oklch(81.45% 0.167 83.878); /* amber */
-    --color-accent-content: oklch(19.01% 0.039 92.204); /* dark text */
+    --color-accent: oklch(81.45% 0.167 83.878);
+    --color-accent-content: oklch(19.01% 0.039 92.204);
 
-    /* Neutral tokens (used by many daisy components) */
-    --color-neutral: oklch(0.369 0.051 246.414); /* slightly different navy neutral */
+    --color-neutral: oklch(0.369 0.051 246.414);
     --color-neutral-content: oklch(95.38% 0.012 239.907);
 
-    /* Semantic colors aligned to the same visual language */
-    --color-info: oklch(73.11% 0.133 231.177); /* cyan info */
+    --color-info: oklch(73.11% 0.133 231.177);
     --color-info-content: oklch(17.81% 0.016 244.775);
 
-    --color-success: oklch(74.59% 0.181 152.327); /* vivid green */
+    --color-success: oklch(74.59% 0.181 152.327);
     --color-success-content: oklch(17.81% 0.016 244.775);
 
-    --color-warning: oklch(81.45% 0.167 83.878); /* amber */
+    --color-warning: oklch(81.45% 0.167 83.878);
     --color-warning-content: oklch(19.01% 0.039 92.204);
 
-    --color-error: oklch(60.16% 0.202 24.603); /* strong red */
-    --color-error-content: oklch(95.38% 0.012 239.907); /* light text */
+    --color-error: oklch(60.16% 0.202 24.603);
+    --color-error-content: oklch(95.38% 0.012 239.907);
 
-    /* Keep your existing geometry */
     --radius-selector: 1rem;
     --radius-field: 0.25rem;
     --radius-box: 0.5rem;
@@ -143,30 +136,24 @@
     prefersdark: false;
     color-scheme: "light";
 
-    /* Light “ice-blue” surfaces so the light theme still feels Star Citizen-ish */
-    --color-base-100: oklch(98.29% 0.006 239.818); /* ~ #F6FAFD */
-    --color-base-200: oklch(96.56% 0.011 234.817); /* ~ #EDF5FA */
-    --color-base-300: oklch(92.97% 0.018 234.508); /* ~ #DDEAF2 */
-    --color-base-content: oklch(19.81% 0.025 242.004); /* ~ #0B1720 */
+    --color-base-100: oklch(98.29% 0.006 239.818);
+    --color-base-200: oklch(96.56% 0.011 234.817);
+    --color-base-300: oklch(92.97% 0.018 234.508);
+    --color-base-content: oklch(19.81% 0.025 242.004);
 
-    /* Same hue family as dark, but deeper so it reads on light surfaces */
-    --color-primary: oklch(61.39% 0.137 242.226); /* ~ #1D8CCF */
+    --color-primary: oklch(61.39% 0.137 242.226);
     --color-primary-content: oklch(98.29% 0.006 239.818);
 
-    /* Supporting navy/steel blue */
-    --color-secondary: oklch(40.35% 0.076 241.779); /* ~ #1C4D6E */
+    --color-secondary: oklch(40.35% 0.076 241.779);
     --color-secondary-content: oklch(98.29% 0.006 239.818);
 
-    /* Amber highlight remains consistent across light/dark */
     --color-accent: oklch(81.45% 0.167 83.878);
     --color-accent-content: oklch(19.01% 0.039 92.204);
 
-    /* Neutral for badges, buttons, etc. */
-    --color-neutral: oklch(43.72% 0.039 239.122); /* ~ #3E5565 */
+    --color-neutral: oklch(43.72% 0.039 239.122);
     --color-neutral-content: oklch(98.29% 0.006 239.818);
 
-    /* Semantics: keep consistent meanings, keep contrast sane */
-    --color-info: oklch(73.11% 0.133 231.177); /* cyan */
+    --color-info: oklch(73.11% 0.133 231.177);
     --color-info-content: oklch(19.81% 0.025 242.004);
 
     --color-success: oklch(74.59% 0.181 152.327);
@@ -178,7 +165,6 @@
     --color-error: oklch(60.16% 0.202 24.603);
     --color-error-content: oklch(98.29% 0.006 239.818);
 
-    /* Keep your existing geometry */
     --radius-selector: 1rem;
     --radius-field: 0.25rem;
     --radius-box: 0.5rem;
@@ -190,7 +176,6 @@
 }
 
 @layer components {
-    /* Stronger menu hover (was bg-base-content/10) */
     .menu :where(
     li:not(.menu-title, .disabled) > *:not(ul, details, .menu-title, .btn):hover,
     li:not(.menu-title, .disabled) > details > summary:not(.menu-title):hover
@@ -198,7 +183,6 @@
         @apply bg-base-content/20;
     }
 
-    /* Stronger navbar "ghost button" hover */
     .navbar .btn.btn-ghost:hover {
         @apply bg-base-content/15;
     }

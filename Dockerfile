@@ -1,0 +1,70 @@
+# Stage 0: base with PHP extensions (runtime-safe)
+FROM php:8.5-apache AS base
+WORKDIR /var/www/html
+
+# helper to install extensions + dependencies correctly
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/install-php-extensions
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ffmpeg; \
+    rm -rf /var/lib/apt/lists/*; \
+    install-php-extensions \
+        bcmath \
+        gmp \
+        intl \
+        pdo_pgsql \
+        zip \
+        gd \
+        mbstring \
+        curl \
+        dom \
+        xml; \
+    a2enmod rewrite
+
+# OPcache is built-in on PHP 8.5; just configure it.
+RUN set -eux; \
+    { \
+      echo 'opcache.enable=1'; \
+      echo 'opcache.memory_consumption=256'; \
+      echo 'opcache.interned_strings_buffer=16'; \
+      echo 'opcache.max_accelerated_files=16000'; \
+      echo 'opcache.validate_timestamps=0'; \
+      echo 'opcache.save_comments=1'; \
+    } > /usr/local/etc/php/conf.d/docker-opcache.ini; \
+    echo 'memory_limit = 1G' > /usr/local/etc/php/conf.d/docker-php-memlimit.ini; \
+    echo 'max_execution_time = 60' > /usr/local/etc/php/conf.d/docker-php-executiontime.ini
+
+COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Stage 1: composer deps
+FROM base AS vendor
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends git unzip zip; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY --chown=www-data:www-data composer.json composer.lock /var/www/html/
+
+USER www-data
+RUN set -eux; \
+    composer install --no-dev --no-ansi --no-interaction --no-progress --prefer-dist
+
+COPY --chown=www-data:www-data . /var/www/html
+RUN set -eux; \
+    composer dump-autoload --optimize --classmap-authoritative
+
+# Stage 2: final runtime
+FROM base AS app
+WORKDIR /var/www/html
+
+COPY --from=vendor --chown=www-data:www-data /var/www/html /var/www/html
+
+COPY --chown=www-data:www-data --chmod=770 ./docker/start.sh /usr/local/bin/start
+
+USER www-data
+
+CMD ["/usr/local/bin/start"]

@@ -91,7 +91,7 @@
                             <div class="space-y-3">
                                 @foreach ($translations as $locale => $translation)
                                     @php
-                                        $label = is_string($locale) ? strtoupper($locale) : 'Translation '.$loop->iteration;
+                                        $label = is_string($locale) ? \App\Models\System\Language::LABEL_MAP[$locale]  : 'Translation '.$loop->iteration;
                                         $translationText = is_string($translation)
                                             ? $translation
                                             : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -207,7 +207,7 @@
                         </dl>
                         <div class="flex flex-wrap gap-2">
                             @if ($rsiUrl)
-                                <a class="btn btn-outline btn-sm" href="https://robertsspaceindustries.com{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI Article</a>
+                                <a class="btn btn-outline btn-sm" href="{{ config('services.rsi_url') }}{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI Article</a>
                             @endif
                             @if ($apiUrl)
                                 <a class="btn btn-outline btn-sm" href="{{ $apiUrl }}" target="_blank" rel="noreferrer">API</a>

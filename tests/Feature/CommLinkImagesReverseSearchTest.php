@@ -33,8 +33,7 @@ it('shows reverse image search results', function (): void {
         'pdq_quality' => $hashResult->quality,
     ]);
 
-    $response = $this->post(route('web.comm-links.images.index'), [
-        'search' => 'reverse-image',
+    $response = $this->post(route('web.comm-links.images.reverse-search'), [
         'image' => $uploadedImage,
         'similarity' => 95,
     ]);

@@ -31,7 +31,8 @@ class RedownloadCommLinks extends Command
 
         ReDownloadDbCommLinks::withChain([
             new ImportCommLinks(-1),
-        ])->dispatch($skipExisting);
+        ])
+            ->dispatch($skipExisting);
 
         return self::SUCCESS;
     }

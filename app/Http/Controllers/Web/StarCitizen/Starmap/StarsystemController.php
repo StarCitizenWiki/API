@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
@@ -11,7 +11,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
-class StarmapStarsystemController extends Controller
+class StarsystemController extends Controller
 {
     public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
 

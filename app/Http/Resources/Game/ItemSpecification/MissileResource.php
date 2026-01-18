@@ -246,8 +246,8 @@ class MissileResource extends AbstractItemSpecificationResource
             'lock_angle' => Arr::get($targeting, 'LockingAngle'),
             'speed' => Arr::get($gcs, 'LinearSpeed'),
             'fuel_tank_size' => Arr::get($gcs, 'FuelTankSize'),
-            'explosion_radius_min' => Arr::get($missile, 'ExplosionRadius.Min'),
-            'explosion_radius_max' => Arr::get($missile, 'ExplosionRadius.Max'),
+            'explosion_radius_min' => Arr::get($missile, 'ExplosionRadius.Minimum'),
+            'explosion_radius_max' => Arr::get($missile, 'ExplosionRadius.Maximum'),
 
             'flight' => [
                 'enable_lifetime' => Arr::get($missile, 'EnableLifetime'),

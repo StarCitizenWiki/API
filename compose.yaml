@@ -1,0 +1,118 @@
+services:
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            - "8080:80"
+        env_file:
+            - ./.env
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: app
+        volumes:
+            - ./storage:/var/www/html/storage
+            - /etc/localtime:/etc/localtime:ro
+        networks:
+            - internal
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        depends_on:
+            db:
+                condition: service_healthy
+        env_file:
+            - ./.env
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: scheduler
+        volumes:
+            - ./storage:/var/www/html/storage
+            - /etc/localtime:/etc/localtime:ro
+        networks:
+            - internal
+
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        depends_on:
+            db:
+                condition: service_healthy
+        env_file:
+            - ./.env
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: queue
+            QUEUE_NAME: default
+            QUEUE_TRIES: 3
+            QUEUE_MAX_JOBS: 20
+            QUEUE_SLEEP: 3
+        volumes:
+            - ./storage:/var/www/html/storage
+            - /etc/localtime:/etc/localtime:ro
+        networks:
+            - internal
+
+    queue_image_hashes:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        depends_on:
+            db:
+                condition: service_healthy
+        env_file:
+            - ./.env
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: queue
+            QUEUE_NAME: comm-link-hashes
+            QUEUE_TRIES: 3
+            QUEUE_MAX_JOBS: 20
+            QUEUE_SLEEP: 3
+        volumes:
+            - ./storage:/var/www/html/storage
+            - /etc/localtime:/etc/localtime:ro
+        networks:
+            - internal
+
+    db:
+        image: postgres:16
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        volumes:
+            - ./var/lib/db:/var/lib/postgresql/data
+            - /etc/localtime:/etc/localtime:ro
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+            interval: 5s
+            timeout: 3s
+            retries: 20
+        networks:
+            - internal
+
+networks:
+    internal:
+        driver: bridge

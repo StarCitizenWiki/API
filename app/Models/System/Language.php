@@ -25,4 +25,13 @@ class Language extends Model
         self::GERMAN => 'de_DE',
         self::CHINESE => 'zh_CN',
     ];
+
+    public const LABEL_MAP = [
+        'en_EN' => 'English',
+        self::ENGLISH => 'English',
+        'de_DE' => 'German',
+        self::GERMAN => 'German',
+        'zh_CN' => 'Chinese',
+        self::CHINESE => 'Chinese',
+    ];
 }

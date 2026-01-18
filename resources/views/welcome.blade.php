@@ -14,7 +14,7 @@
             <div class="hero-content flex-col gap-6 text-center lg:flex-row lg:text-left">
                 <div class="max-w-xl">
                     <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Star Citizen Wiki API</h1>
-
+                    <h2 class="text-xl  tracking-tight">Data Guide</h2>
                 </div>
 
             </div>
@@ -49,10 +49,16 @@
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div class="card border border-base-300 bg-base-100 shadow">
                     <div class="card-body gap-4">
-                        <h3 class="card-title text-base">Universe</h3>
+                        <h3 class="card-title text-base">Universe <span class="badge badge-primary badge-sm ml-auto">In-Game Data</span></h3>
                         <div class="flex flex-wrap gap-2">
                             <ul class="menu">
-                                <li><a href="{{ route('web.vehicles.index') }}">Vehicles</a></li>
+                                <li>
+                                    <h2 class="menu-title">Vehicles</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.vehicles.index') }}">Ships & Vehicles</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-items']]) }}">Components</a></li>
+                                    </ul>
+                                </li>
                                 <li>
                                     <h2 class="menu-title">Items</h2>
                                     <ul>
@@ -60,18 +66,16 @@
                                         <li><a href="{{ route('web.items.index', ['filter' => ['type' => 'WeaponPersonal']]) }}">Personal Weapons</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'fps-armor']]) }}">Personal Armor</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'weapon-attachments']]) }}">Weapon Attachments</a></li>
-                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-items']]) }}">Components</a></li>
                                     </ul>
                                 </li>
                             </ul>
-
                         </div>
                     </div>
                 </div>
 
                 <div class="card border border-base-300 bg-base-100 shadow">
                     <div class="card-body ">
-                        <h3 class="card-title text-base">Communication</h3>
+                        <h3 class="card-title text-base">Communication <span class="badge badge-secondary badge-sm ml-auto">Website Data</span></h3>
                         <div class="flex flex-wrap">
                             <ul class="menu">
                                 <li>
@@ -80,6 +84,13 @@
                                         <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
                                         <li><a href="{{ route('web.comm-links.search') }}">Search</a></li>
                                         <li><a href="{{ route('web.comm-links.images.index') }}">Comm-Link Images</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <h2 class="menu-title">Ship-Matrix</h2>
+                                    <ul>
+
+                                        <li><a href="{{ route('web.ship-matrix.vehicles.index') }}">Ships & Vehicles</a></li>
                                     </ul>
                                 </li>
                                 <li>
@@ -99,7 +110,12 @@
                         <h3 class="card-title text-base">Lore</h3>
                         <div class="flex flex-wrap gap-2">
                             <ul class="menu">
-                                <li><a href="{{ route('web.galactapedia.index') }}">Galactapedia</a></li>
+                                <li>
+                                    <h2 class="menu-title">Galactapedia</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.galactapedia.index') }}">Articles</a></li>
+                                    </ul>
+                                </li>
                                 <li>
                                     <h2 class="menu-title">Starmap</h2>
                                     <ul>

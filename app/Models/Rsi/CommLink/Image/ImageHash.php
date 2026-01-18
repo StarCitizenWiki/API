@@ -69,10 +69,6 @@ class ImageHash extends Model
                             return null;
                         }
 
-                        $image->similarity = 100;
-                        $image->similarity_method = 'PDQ';
-                        $image->pdq_distance = 0;
-
                         return $image;
                     }
                 )
@@ -107,16 +103,8 @@ class ImageHash extends Model
             ->map(
                 static function (ImageHash $hash): ?Image {
                     $image = $hash->image;
-                    if ($image === null) {
-                        return null;
-                    }
 
-                    $distance = (int) ($hash->pdq_distance ?? self::HASH_BITS);
-                    $image->similarity = round((1 - ($distance / self::HASH_BITS)) * 100);
-                    $image->similarity_method = 'PDQ';
-                    $image->pdq_distance = $distance;
-
-                    return $image;
+                    return $image ?? null;
                 }
             )
             ->filter()

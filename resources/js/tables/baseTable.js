@@ -87,6 +87,117 @@ function get(obj, path, fallback = undefined) {
     return path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : undefined), obj) ?? fallback;
 }
 
+function mapFilterFieldToApiField(field) {
+    if (!field) return field;
+    return field === "created_at_human" ? "created_at" : field;
+}
+
+function mapApiFilterFieldToColumnField(apiField, columnFieldsSet) {
+    if (!apiField) return apiField;
+
+    if (apiField === "created_at" && columnFieldsSet?.has?.("created_at_human")) {
+        return "created_at_human";
+    }
+
+    return apiField;
+}
+
+function collectColumnFields(columns, set = new Set()) {
+    (columns ?? []).forEach((column) => {
+        if (Array.isArray(column?.columns) && column.columns.length > 0) {
+            collectColumnFields(column.columns, set);
+        } else if (column?.field) {
+            set.add(column.field);
+        }
+    });
+    return set;
+}
+
+function collectManagedHeaderFilterApiFields(columns, set = new Set()) {
+    (columns ?? []).forEach((column) => {
+        if (Array.isArray(column?.columns) && column.columns.length > 0) {
+            collectManagedHeaderFilterApiFields(column.columns, set);
+            return;
+        }
+
+        if (!column?.field) return;
+
+        if (column.headerFilter !== undefined && column.headerFilter !== false) {
+            set.add(mapFilterFieldToApiField(column.field));
+        }
+    });
+
+    return set;
+}
+
+function buildInverseSortFieldMap(sortFieldMap) {
+    const inverse = {};
+    Object.entries(sortFieldMap ?? {}).forEach(([columnField, apiField]) => {
+        if (!apiField) return;
+        if (inverse[apiField] == null) {
+            inverse[apiField] = columnField;
+        }
+    });
+    return inverse;
+}
+
+function parsePositiveInt(value) {
+    if (value == null) return null;
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    const i = Math.trunc(n);
+    return i > 0 ? i : null;
+}
+
+function parseJsonApiStateFromLocation({ columnFields, apiToColumnSortFieldMap }) {
+    const pageUrl = new URL(window.location.href);
+
+    // sort=a,-b
+    const sortParam = pageUrl.searchParams.get("sort");
+    const initialSort = [];
+    if (sortParam) {
+        for (const raw of sortParam.split(",").map(s => s.trim()).filter(Boolean)) {
+            const desc = raw.startsWith("-");
+            const apiField = desc ? raw.slice(1) : raw;
+
+            const columnField = apiToColumnSortFieldMap?.[apiField] ?? apiField;
+
+            if (columnFields.has(columnField)) {
+                initialSort.push({
+                    column: columnField,
+                    dir: desc ? "desc" : "asc",
+                });
+            }
+        }
+    }
+
+    // filters: filter[field]=value
+    const initialHeaderFilter = [];
+    for (const [key, value] of pageUrl.searchParams.entries()) {
+        const match = key.match(/^filter\[([^\]]+)\]$/);
+        if (!match) continue;
+
+        const apiField = match[1];
+        if (value == null || String(value).length === 0) continue;
+
+        const columnField = mapApiFilterFieldToColumnField(apiField, columnFields);
+        if (!columnFields.has(columnField)) continue;
+
+        initialHeaderFilter.push({ field: columnField, value: String(value) });
+    }
+
+    // JSON:API pagination
+    const paginationSize = parsePositiveInt(pageUrl.searchParams.get("page[size]"));
+    const paginationInitialPage = parsePositiveInt(pageUrl.searchParams.get("page[number]"));
+
+    return {
+        initialSort: initialSort.length ? initialSort : null,
+        initialHeaderFilter: initialHeaderFilter.length ? initialHeaderFilter : null,
+        paginationSize,
+        paginationInitialPage,
+    };
+}
+
 // Convert Tabulator params -> JSON:API query string
 function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     const u = new URL(baseUrl, window.location.origin);
@@ -122,8 +233,16 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     // filters: filter[field]=value (simple mapping)
     const filters = params.filter ?? params.filters ?? [];
 
-    // Build a Set of fields that Tabulator is managing
-    const managedFields = new Set(filters.map(f => f?.field).filter(Boolean));
+    // Build a Set of API-field-names that are managed by Tabulator.
+    // Important: this must include fields even when the current filter is cleared,
+    // otherwise we'd "preserve" stale filter[...] params from the base URL.
+    const managedDefaults = defaults.managedFilterFields
+        ? Array.from(defaults.managedFilterFields)
+        : [];
+    const managedFields = new Set([
+        ...managedDefaults,
+        ...filters.map(f => mapFilterFieldToApiField(f?.field)).filter(Boolean),
+    ]);
 
     // Preserve existing filter[...] keys that aren't managed by Tabulator
     const preservedFilters = new Map();
@@ -131,9 +250,9 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
         if (key.startsWith("filter[")) {
             const match = key.match(/^filter\[([^\]]+)\]$/);
             if (match) {
-                const field = match[1];
+                const apiField = match[1];
                 // Only preserve if NOT managed by Tabulator
-                if (!managedFields.has(field)) {
+                if (!managedFields.has(apiField)) {
                     preservedFilters.set(key, u.searchParams.get(key));
                 }
             }
@@ -153,7 +272,7 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     // Then add/override with Tabulator's filters
     for (const f of filters) {
         if (f?.field && f?.value != null && String(f.value).length) {
-            const name = f.field === 'created_at_human' ? 'created_at' : f.field;
+            const name = mapFilterFieldToApiField(f.field);
             u.searchParams.set(`filter[${name}]`, String(f.value));
         }
     }
@@ -395,7 +514,7 @@ export function initTabulatorTables() {
             ?? (Array.isArray(config.initialHeaderFilter)
                 ? null
                 : config.initialHeaderFilter ?? null);
-        const initialHeaderFilter = Array.isArray(config.initialFilters)
+        const configInitialHeaderFilter = Array.isArray(config.initialFilters)
             ? config.initialFilters
             : (Array.isArray(config.initialHeaderFilter)
                 ? config.initialHeaderFilter
@@ -410,12 +529,31 @@ export function initTabulatorTables() {
         const historySyncMode = config.historySyncMode ?? "replace";
         const historySyncScope = config.historySyncScope ?? "all";
         const sortFieldMap = buildSortFieldMap(config.columns ?? []);
+        const apiToColumnSortFieldMap = buildInverseSortFieldMap(sortFieldMap);
 
         const columns = headerFilterOptionsSeed && headerFilterOptionsMap
             ? applyHeaderFilterOptionsToColumns(config.columns ?? [], headerFilterOptionsMap, {
                 filters: headerFilterOptionsSeed,
             })
             : (config.columns ?? []);
+
+        const columnFields = collectColumnFields(columns);
+
+        // Persistent set of API filter fields that Tabulator manages for this table instance.
+        // This is what prevents "sticky" filter[...] params when a header filter is cleared.
+        const managedApiFilterFields = collectManagedHeaderFilterApiFields(columns);
+
+        // Seed table state from the current browser URL so reload keeps sort/filter/page.
+        const urlState = parseJsonApiStateFromLocation({
+            columnFields,
+            apiToColumnSortFieldMap,
+        });
+
+        const effectiveInitialHeaderFilter = urlState.initialHeaderFilter ?? configInitialHeaderFilter;
+        const effectiveInitialSort = urlState.initialSort ?? (Array.isArray(config.initialSort) ? config.initialSort : null);
+
+        const effectivePaginationSize = urlState.paginationSize ?? pageSize;
+        const effectivePaginationInitialPage = urlState.paginationInitialPage ?? null;
 
         // Use ajaxRequestFunc so we can:
         // - serve initial payload without an extra HTTP request
@@ -446,14 +584,18 @@ export function initTabulatorTables() {
             columns: normalizeColumns(columns),
             movableColumns: true,
             movableRows: true,
-            selectableRows:true,
+            selectableRows: true,
 
             pagination: true,
             paginationMode: "remote",
-            paginationSize: pageSize,
+            paginationSize: effectivePaginationSize,
             paginationSizeSelector: [25, 50, 100],
-            initialHeaderFilter,
+            ...(effectivePaginationInitialPage ? { paginationInitialPage: effectivePaginationInitialPage } : {}),
+
+            initialHeaderFilter: effectiveInitialHeaderFilter,
             headerFilterLiveFilterDelay: 600,
+
+            ...(effectiveInitialSort ? { initialSort: effectiveInitialSort } : {}),
 
             headerWordWrap: true,
 
@@ -471,16 +613,29 @@ export function initTabulatorTables() {
             },
 
             ajaxRequestFunc: (url, ajaxConfig, params) => {
-                const sorters = params.sorters ?? params.sort ?? [];
+                // Do not mutate Tabulator's params object.
+                const requestParams = { ...params };
 
+                // Track filters as "managed" once seen (important when cleared later).
+                const requestFilters = requestParams.filter ?? requestParams.filters ?? [];
+                for (const f of requestFilters) {
+                    const apiField = mapFilterFieldToApiField(f?.field);
+                    if (apiField) managedApiFilterFields.add(apiField);
+                }
+
+                // Map UI sort fields -> API sort fields for the request only.
+                const sorters = requestParams.sorters ?? requestParams.sort ?? [];
                 if (Array.isArray(sorters) && sorters.length) {
-                    params.sorters = sorters.map((sorter) => ({
+                    requestParams.sorters = sorters.map((sorter) => ({
                         ...sorter,
                         field: sortFieldMap[sorter.field] ?? sorter.field,
                     }));
                 }
 
-                const finalUrl = buildJsonApiUrl(url, params, { pageSize });
+                const finalUrl = buildJsonApiUrl(url, requestParams, {
+                    pageSize,
+                    managedFilterFields: managedApiFilterFields,
+                });
 
                 syncBrowserUrl(finalUrl, apiUrlTargetId, historySyncMode, historySyncScope);
 

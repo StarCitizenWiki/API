@@ -8,7 +8,10 @@ use App\Models\User;
 use App\Services\Translation\TranslationService;
 use App\View\Composers\AppShellComposer;
 use DeepL\Translator;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -33,6 +36,14 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('access-admin', static function (User $user): bool {
             return $user->is_admin === true;
+        });
+
+        RateLimiter::for('reverse-image-search', static function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->ip())
+                ->response(function (Request $request, array $headers) {
+                    return response('Too many reverse image searches. Please try again later.', 429, $headers);
+                });
         });
     }
 

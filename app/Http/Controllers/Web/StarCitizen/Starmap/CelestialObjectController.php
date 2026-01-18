@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
-class StarmapCelestialObjectController extends Controller
+class CelestialObjectController extends Controller
 {
     public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
 
