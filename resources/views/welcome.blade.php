@@ -14,7 +14,7 @@
             <div class="hero-content flex-col gap-6 text-center lg:flex-row lg:text-left">
                 <div class="max-w-xl">
                     <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Star Citizen Wiki API</h1>
-                    <h2 class="text-xl  tracking-tight">Data Guide</h2>
+                    <h2 class="text-xl tracking-tight">Verse Data Mine</h2>
                 </div>
 
             </div>

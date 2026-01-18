@@ -1,50 +1,17 @@
 @extends('layouts.app')
 
-@section('sidemenu')
-    <x-app.sidemenu-group title="Admin">
-        <x-app.sidemenu-item route="admin.dashboard" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="home" class="size-4" />
-            </x-slot:icon>
-            Dashboard
-        </x-app.sidemenu-item>
-        <x-app.sidemenu-item route="admin.jobs.index" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="database" class="size-4" />
-            </x-slot:icon>
-            Jobs
-        </x-app.sidemenu-item>
-        <x-app.sidemenu-item route="admin.commands.index" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="terminal" class="size-4" />
-            </x-slot:icon>
-            Commands
-        </x-app.sidemenu-item>
-    </x-app.sidemenu-group>
-
-    <x-app.sidemenu-group title="Manage">
-        <x-app.sidemenu-item route="admin.users.index" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="users" class="size-4" />
-            </x-slot:icon>
-            Users
-        </x-app.sidemenu-item>
-        <x-app.sidemenu-item route="admin.game-versions.index" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="server" class="size-4" />
-            </x-slot:icon>
-            Game Versions
-        </x-app.sidemenu-item>
-        <x-app.sidemenu-item route="admin.translations.index" :withVersion="false">
-            <x-slot:icon>
-                <x-icon name="languages" class="size-4" />
-            </x-slot:icon>
-            Translations</x-app.sidemenu-item>
-    </x-app.sidemenu-group>
-@endsection
 
 @section('content')
     <div class="flex flex-col gap-6">
+        <div class="breadcrumbs text-sm">
+            <ul>
+                <li><a href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                @hasSection('breadcrumbs')
+                    @yield('breadcrumbs')
+                @endif
+            </ul>
+        </div>
+
         @if (session('success'))
             <div class="alert alert-success">
                 <span>{{ session('success') }}</span>

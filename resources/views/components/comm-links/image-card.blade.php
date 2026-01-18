@@ -42,12 +42,14 @@
                 <source src="{{ $rsiUrl }}" type="{{ $mimeType }}">
             </video>
         @elseif ($isImage)
-            <img
-                src="{{ $rsiUrl }}"
-                alt="{{ $alt ?? 'Comm-Link image' }}"
-                class="h-48 w-full rounded-t-box object-cover"
-                loading="lazy"
-            >
+            <a href="{{ $rsiUrl }}" target="_blank" rel="noreferrer" class="block">
+                <img
+                    src="{{ $rsiUrl }}"
+                    alt="{{ $alt ?? 'Comm-Link image' }}"
+                    class="h-48 w-full rounded-t-box object-cover"
+                    loading="lazy"
+                >
+            </a>
         @elseif ($isAudio)
             <audio class="w-full px-4 py-4" controls>
                 <source src="{{ $rsiUrl }}" type="{{ $mimeType }}">
@@ -75,7 +77,7 @@
         <dl class="grid gap-2 text-xs text-base-content/70">
             <div class="flex items-center justify-between">
                 <dt>Last Modified</dt>
-                <dd>{{ $lastModified ?? '-' }}</dd>
+                <dd>{{ $lastModified ? \Carbon\Carbon::parse($lastModified)->format('Y-m-d') : '-' }}</dd>
             </div>
             <div class="flex items-center justify-between">
                 <dt>Size</dt>

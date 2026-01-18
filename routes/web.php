@@ -59,3 +59,4 @@ Route::post('/game-version', GameVersionSelectionController::class)
 
 Route::redirect('/starcitizen/vehicles/ships', '/ship-matrix/vehicles', 301);
 Route::redirect('/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles', 301);
+Route::redirect('/dashboard', '/', 301);

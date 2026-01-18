@@ -71,9 +71,11 @@
                                 @if ($apiUrl)
                                     <a class="btn btn-outline btn-sm" href="{{ $apiUrl }}" target="_blank" rel="noreferrer">API</a>
                                 @endif
-                                @if ($isImage && $similarUrl)
-                                    <a class="btn btn-outline btn-sm" href="{{ $similarUrl }}" target="_blank" rel="noreferrer">Similar</a>
-                                @endif
+                                @auth
+                                    @if ($isImage && $similarUrl)
+                                        <a class="btn btn-outline btn-sm" href="{{ $similarUrl }}" target="_blank" rel="noreferrer">Similar</a>
+                                    @endif
+                                @endauth
                             </div>
                         </div>
                     </div>
