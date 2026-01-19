@@ -1,3 +1,9 @@
 [submodule "storage/app/api/StarCitizenDeutsch"]
 	path = storage/app/api/StarCitizenDeutsch
 	url = https://github.com/rjcncpt/StarCitizen-Deutsch-INI
+[submodule "storage/app/api/scunpacked-data"]
+	path = storage/app/api/scunpacked-data
+	url = https://github.com/StarCitizenWiki/scunpacked-data.git
+[submodule "storage/app/api/ScToolBoxLocales"]
+	path = storage/app/api/ScToolBoxLocales
+	url = https://github.com/StarCitizenToolBox/LocalizationData
