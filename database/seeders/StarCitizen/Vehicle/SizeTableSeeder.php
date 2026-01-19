@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\StarCitizen\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Size\Size;
-use Carbon\Carbon;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,30 +19,14 @@ class SizeTableSeeder extends Seeder
             return;
         }
 
-        $now = Carbon::now();
-
-        DB::table('vehicle_sizes')->insert(
+        DB::table('shipmatrix_vehicle_sizes')->insert(
             [
                 'id' => 1,
                 'slug' => 'undefined',
-            ]
-        );
-        DB::table('vehicle_size_translations')->insert(
-            [
-                'locale_code' => 'en_EN',
-                'size_id' => 1,
-                'translation' => 'undefined',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
-        );
-        DB::table('vehicle_size_translations')->insert(
-            [
-                'locale_code' => 'de_DE',
-                'size_id' => 1,
-                'translation' => 'Undefiniert',
-                'created_at' => $now,
-                'updated_at' => $now,
+                'translations' => json_encode([
+                    'en' => 'Undefined',
+                    'de' => 'Undefiniert',
+                ], JSON_THROW_ON_ERROR),
             ]
         );
     }

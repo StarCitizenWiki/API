@@ -4,112 +4,108 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
 
-use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
-use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
+use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-/**
- * Downloads the Whole Page Content.
- */
-class DownloadCommLink extends BaseDownloadData implements ShouldQueue
+class DownloadCommLink implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
-    public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+    private const COMM_LINK_PATH = '/comm-link/SCW/%d-IMPORT';
 
-    public const DISK = 'comm_links';
+    private const TOKEN_PATTERN = "/'token'\\s?\\:\\s?'[A-Za-z0-9\\+\\:\\-_\\/]+'/";
 
-    /**
-     * @var int Post ID
-     */
-    private int $commLinkId = 0;
+    private const CONTENT_MARKERS = [
+        'id="post"',
+        'id="subscribers"',
+        'id="layout-system"',
+    ];
 
-    private bool $skipExisting = false;
+    public int $timeout = 120;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(int $commLinkId, bool $skipExisting = false)
+    public function __construct(
+        public readonly int $commLinkId,
+        public readonly bool $skipExisting = true,
+    ) {}
+
+    public function handle(RsiDownloadClient $client): void
     {
-        $this->commLinkId = $commLinkId;
-        $this->skipExisting = $skipExisting;
-    }
-
-    /**
-     * Execute the job.
-     */
-    public function handle(): void
-    {
-        if ($this->skipExisting && Storage::disk(self::DISK)->exists($this->commLinkId)) {
-            app('Log')::debug(
-                "Skipping existing Comm-Link {$this->commLinkId}",
-                [
-                    'id' => $this->commLinkId,
-                ]
-            );
+        if ($this->skipExisting && Storage::disk('comm_links')->exists((string) $this->commLinkId)) {
+            Log::debug('Skipping existing Comm-Link download.', ['id' => $this->commLinkId]);
 
             return;
         }
 
-        app('Log')::info(
-            "Downloading Comm-Link with ID {$this->commLinkId}",
-            [
+        $response = $client->base()->get($this->buildUrl());
+
+        if ($response->serverError()) {
+            Log::warning('Comm-Link download failed with server error.', [
                 'id' => $this->commLinkId,
-            ]
-        );
+                'status' => $response->status(),
+            ]);
 
-        $response = $this->makeClient()->get(
-            sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->commLinkId)
-        );
-
-        if (! $response->successful()) {
-            $this->fail(new RequestException($response));
+            $this->release(300);
 
             return;
         }
 
-        $content = $this->removeRsiToken($response->body());
-
-        if (! Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
-            app('Log')::info(
-                "Comm-Link with ID {$this->commLinkId} does not exist",
-                [
-                    'id' => $this->commLinkId,
-                ]
-            );
+        if ($response->clientError()) {
+            Log::info('Comm-Link download failed with client error.', [
+                'id' => $this->commLinkId,
+                'status' => $response->status(),
+            ]);
 
             return;
         }
 
-        $this->writeFile($content);
+        $content = $this->sanitizeContent($response->body());
+
+        if (! Str::contains($content, self::CONTENT_MARKERS)) {
+            Log::info('Comm-Link download skipped due to missing content markers.', [
+                'id' => $this->commLinkId,
+            ]);
+
+            return;
+        }
+
+        Storage::disk('comm_links')->put($this->filePath(), $content);
+        $this->pruneStoredFiles();
     }
 
-    /**
-     * Strips the X-RSI Token from the Page.
-     */
-    private function removeRsiToken(string $content): string
+    private function buildUrl(): string
     {
-        return preg_replace('/\'token\'\s?\:\s?\'[A-Za-z0-9\+\:\-\_\/]+\'/', '\'token\' : \'\'', $content);
+        return rtrim((string) config('services.rsi_url'), '/').sprintf(self::COMM_LINK_PATH, $this->commLinkId);
     }
 
-    /**
-     * Write the Comm-Link to disk
-     */
-    private function writeFile(string $content): void
+    private function sanitizeContent(string $content): string
     {
-        Storage::disk(self::DISK)->put(
-            sprintf('%d/%s.html', $this->commLinkId, Carbon::now()->format('Y-m-d_His')),
-            $content
-        );
+        return preg_replace(self::TOKEN_PATTERN, "'token' : ''", $content) ?? $content;
+    }
+
+    private function filePath(): string
+    {
+        $filename = Carbon::now()->format('Y-m-d_His');
+
+        return sprintf('%d/%s.html', $this->commLinkId, $filename);
+    }
+
+    private function pruneStoredFiles(): void
+    {
+        $files = Storage::disk('comm_links')->files((string) $this->commLinkId);
+
+        if (count($files) <= 2) {
+            return;
+        }
+
+        sort($files);
+
+        $filesToDelete = array_slice($files, 1, -1);
+
+        Storage::disk('comm_links')->delete($filesToDelete);
     }
 }

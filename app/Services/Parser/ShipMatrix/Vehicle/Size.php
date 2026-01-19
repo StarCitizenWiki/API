@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Size\Size as VehicleSize;
-use App\Models\StarCitizen\Vehicle\Size\SizeTranslation;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as VehicleSize;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -33,42 +32,33 @@ class Size extends BaseElement
         }
 
         try {
-            /** @var SizeTranslation $sizeTranslation */
-            $sizeTranslation = SizeTranslation::query()->where(
-                'translation',
-                $size
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return VehicleSize::query()
+                ->where('translation->'.config('language.english'), $size)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Vehicle Size not found in DB');
 
             return $this->createNewVehicleSize();
         }
-
-        return $sizeTranslation->size;
     }
 
     private function createNewVehicleSize(): VehicleSize
     {
-        app('Log')::debug('Creating new Vehicle Size');
+        $slug = Str::slug($this->rawData->get(self::VEHICLE_SIZE));
+        $translation = $this->rawData->get(self::VEHICLE_SIZE);
 
         /** @var VehicleSize $size */
-        $size = VehicleSize::create(
-            [
-                'slug' => Str::slug($this->rawData->get(self::VEHICLE_SIZE)),
-            ]
+        $size = VehicleSize::query()->firstOrCreate(
+            ['slug' => $slug],
+            ['slug' => $slug]
         );
 
-        $size->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::VEHICLE_SIZE),
-            ]
-        );
+        if ($translation !== null && $translation !== '') {
+            $size->setTranslation('translation', config('language.english'), $translation);
+            $size->save();
+        }
 
-        app('Log')::debug('Vehicle Size created');
+        app('Log')::debug('Vehicle Size created', ['id' => $size->id]);
 
         return $size;
     }

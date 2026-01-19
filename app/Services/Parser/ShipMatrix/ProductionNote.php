@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Models\StarCitizen\ProductionNote\ProductionNote as ProductionNoteModel;
-use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Models\StarCitizen\ShipMatrix\ProductionNote as ProductionNoteModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -29,8 +28,6 @@ class ProductionNote extends BaseElement
      */
     public function getProductionNote(): ProductionNoteModel
     {
-        app('Log')::debug('Getting Production Note');
-
         $note = $this->getNormalizedStatus();
         if ($note === null) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
@@ -39,21 +36,14 @@ class ProductionNote extends BaseElement
         }
 
         try {
-            /** @var ProductionNoteTranslation $productionNoteTranslation */
-            $productionNoteTranslation = ProductionNoteTranslation::query()->where(
-                'translation',
-                $note
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return ProductionNoteModel::query()
+                ->where('translation->'.config('language.english'), $note)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Production Note not found in DB');
 
             return $this->createNewProductionNote();
         }
-
-        return $productionNoteTranslation->productionNote;
     }
 
     /**
@@ -76,19 +66,21 @@ class ProductionNote extends BaseElement
 
     private function createNewProductionNote(): ProductionNoteModel
     {
-        app('Log')::debug('Creating new Production Note');
+        $translation = $this->getNormalizedStatus();
+        $contentHash = md5($translation ?? '');
 
         /** @var ProductionNoteModel $productionNote */
-        $productionNote = ProductionNoteModel::create();
-
-        $productionNote->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->getNormalizedStatus(),
-            ]
+        $productionNote = ProductionNoteModel::query()->firstOrCreate(
+            ['content_hash' => $contentHash],
+            ['content_hash' => $contentHash]
         );
 
-        app('Log')::debug('Production Note created');
+        if ($translation !== null && $translation !== '') {
+            $productionNote->setTranslation('translation', config('language.english'), $translation);
+            $productionNote->save();
+        }
+
+        app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
 
         return $productionNote;
     }

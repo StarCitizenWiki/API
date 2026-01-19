@@ -4,101 +4,105 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\Image\CreateImageHashes;
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
-use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
-use App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages;
-use App\Models\Rsi\CommLink\CommLink;
-use App\Traits\Jobs\GetFoldersTrait;
-use Illuminate\Bus\Queueable;
+use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
-/**
- * Dispatches a ParseCommLink Job for the newest file in every Comm-Link Folder.
- */
 class ImportCommLinks implements ShouldQueue
 {
-    use Dispatchable;
-    use GetFoldersTrait;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
-    /**
-     * @var int Offset to start parsing from
-     */
-    private int $modifiedFolderTime;
+    public int $timeout = 120;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param  int  $modifiedFolderTime  Include folders that were created in the last x minutes. -1 = all
-     */
-    public function __construct(int $modifiedFolderTime = 5)
-    {
-        $this->modifiedFolderTime = $modifiedFolderTime;
-    }
+    public function __construct(public readonly int $modifiedFolderTime = 5) {}
 
-    /**
-     * Import Comm-Links that where created in the last modifiedFolderTime minutes
-     * Also create Metadata, Image Hashes, Translations and Wiki Pages for each imported Comm-Link
-     */
     public function handle(): void
     {
-        $commLinks = CommLink::query()->get();
-        $commLinks = $commLinks->keyBy('cig_id');
+        $directories = $this->filterDirectories('comm_links', $this->modifiedFolderTime);
 
-        $newCommLinkIds = $this->filterDirectories('comm_links', $this->modifiedFolderTime)
-            ->each(
-                function ($commLinkDir) use ($commLinks) {
-                    $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
+        if ($directories->isEmpty()) {
+            return;
+        }
 
-                    if ($file !== null) {
-                        $file = preg_split('/\/|\\\/', $file);
-                        $commLink = $commLinks->get((int) $commLinkDir, null);
+        $jobs = [];
+        $commLinkIds = [];
 
-                        dispatch(new ImportCommLink((int) $commLinkDir, Arr::last($file), $commLink));
-                    }
+        foreach ($directories as $directory) {
+            $file = $this->latestFile($directory);
+
+            if ($file === null) {
+                continue;
+            }
+
+            $commLinkId = (int) $directory;
+            $jobs[] = new ImportCommLink($commLinkId, $file);
+            $commLinkIds[] = $commLinkId;
+        }
+
+        if ($jobs === []) {
+            return;
+        }
+
+        Bus::batch($jobs)
+            ->name('Comm-Link import')
+            ->allowFailures()
+            ->then(function () use ($commLinkIds): void {
+                if ($commLinkIds === []) {
+                    return;
                 }
-            )
-            ->map(
-                function ($directory) {
-                    return (int) $directory;
-                }
-            )
-            ->toArray();
 
-        $this->dispatchChain($newCommLinkIds);
+                CreateImageMetadata::dispatch($commLinkIds);
+                DispatchImageHashes::dispatch($commLinkIds);
+            })
+            ->dispatch();
+    }
+
+    private function latestFile(string $directory): ?string
+    {
+        $files = Storage::disk('comm_links')->files($directory);
+
+        if ($files === []) {
+            return null;
+        }
+
+        sort($files);
+        $file = end($files);
+
+        if ($file === false) {
+            return null;
+        }
+
+        return Str::afterLast($file, '/');
     }
 
     /**
-     * Create Metadata, Image Hashes, Translations and Wiki Pages
+     * Filter folders that where created in the last X minutes on a given disk
+     *
+     * @param  string  $disk  The disk name to filter
+     * @param  int  $findTimeMinutes  Include directories created in the last X minutes or all if -1
      */
-    private function dispatchChain(array $commLinkIds): void
+    private function filterDirectories(string $disk, int $findTimeMinutes): Collection
     {
-        CreateImageMetadata::withChain(
-            [
-                new CreateImageHashes($commLinkIds),
-            ]
-        )->dispatch($commLinkIds);
+        $now = Carbon::now()->subMinutes($findTimeMinutes);
 
-        if (config('services.deepl.auth_key', null) !== null) {
-            dispatch(new TranslateCommLinks($commLinkIds));
-        }
+        return collect(Storage::disk($disk)->directories())
+            ->filter(
+                function (string $dir) use ($disk, $now, $findTimeMinutes) {
+                    $mTime = Carbon::createFromTimestamp(File::lastModified(Storage::disk($disk)->path($dir)));
 
-        $clientNotNull = config('services.mediawiki.client_id') !== null;
-        $apiUrlNotNull = config('mediawiki.api_url') !== null;
+                    if ($findTimeMinutes === -1) {
+                        return true;
+                    }
 
-        if ($clientNotNull && $apiUrlNotNull) {
-            dispatch(new CreateCommLinkWikiPages)->delay(90);
-        }
-
-        Artisan::call('comm-links:compute-similar-image-ids --recent');
+                    return $mTime->greaterThanOrEqualTo($now);
+                }
+            );
     }
 }

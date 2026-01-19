@@ -1,54 +1,28 @@
----
-###########################
-###########################
-## Linter GitHub Actions ##
-###########################
-###########################
 name: Lint Code Base
 
-#
-# Documentation:
-# https://help.github.com/en/articles/workflow-syntax-for-github-actions
-#
-
-#############################
-# Start the job on all push #
-#############################
 on:
   push:
-    branches: [ develop, feature/** ]
+    branches: [ develop, "feature/**" ]
   pull_request:
-    branches: [ develop, master ]
+    branches: [ develop, main ]
 
-###############
-# Set the Job #
-###############
 jobs:
-  build:
-    # Name the Job
-    name: Lint Code Base
-    # Set the agent to run on
+  php-lint:
+    name: PHP (Composer + Pint)
     runs-on: ubuntu-latest
-
-    ##################
-    # Load all steps #
-    ##################
     steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      ################################
-      # Run Linter against code base #
-      ################################
-      - name: Lint Code Base
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: develop
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_INCLUDE: .*app/.*
-          OUTPUT_FORMAT: tap
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+          extensions: gd, pdo, session, fileinfo, xml
 
-          VALIDATE_PHP_BUILTIN: true
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pint
+        run: ./vendor/bin/pint --test

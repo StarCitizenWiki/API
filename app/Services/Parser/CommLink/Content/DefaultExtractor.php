@@ -18,33 +18,22 @@ final class DefaultExtractor implements ContentExtractorInterface
         $this->page = $page;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getContent(): string
     {
         $content = $this->getIntroduction($this->page);
 
-        $this->page->filter(self::getFilter())->each(
-            function (Crawler $crawler) use (&$content) {
-                $content .= ltrim($crawler->html());
-            }
-        );
+        $this->page->filter(self::getFilter())->each(function (Crawler $crawler) use (&$content): void {
+            $content .= ltrim($crawler->html() ?? '');
+        });
 
         return $content;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function getFilter(): string
     {
         return '.segment';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function canParse(Crawler $page): array
     {
         $count = $page->filter(self::getFilter())->count();

@@ -1,1 +1,0 @@
-@component('components.forms.fields.method_field', ['method' => 'DELETE'])@endcomponent

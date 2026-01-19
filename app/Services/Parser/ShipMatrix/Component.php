@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Models\StarCitizen\Vehicle\Component\Component as ComponentModel;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Component as ComponentModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -41,8 +41,6 @@ class Component extends BaseElement
      */
     public function getComponents(): array
     {
-        app('Log')::debug('Getting Component IDs');
-
         if (! $this->rawData->has(self::COMPONENTS)) {
             return [];
         }
@@ -87,8 +85,6 @@ class Component extends BaseElement
 
     public function getComponent(Collection $data): ?Model
     {
-        app('Log')::debug('Getting Component');
-
         /** @var ComponentModel $component */
         $component = ComponentModel::query()->updateOrCreate(
             [

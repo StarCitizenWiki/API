@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use Carbon\Carbon;
@@ -7,38 +9,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class AbstractBaseResource extends JsonResource
 {
-    public const COMM_LINKS_SHOW = 'comm-links/';
-
-    public const COMM_LINK_IMAGES_SIMILAR = 'comm-link-images/';
-
-    public const VEHICLES_SHOW = 'vehicles/';
-
-    public const STARMAP_STARSYSTEM_SHOW = 'starsystems/';
-
-    public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'celestial-objects/';
-
-    public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia/';
-
-    public const ITEMS_SHOW = 'items/';
-
-    public const FOOD_SHOW = 'food/';
-
-    public const PERSONAL_WEAPONS_SHOW = 'weapons/';
-
-    public const ARMOR_SHOW = 'armor/';
-
-    public const CLOTHES_SHOW = 'clothes/';
-
-    public const SHOPS_SHOW = 'shops/';
-
-    public const MANUFACTURERS_SHOW = 'manufacturers/';
-
-    public const MISSIONS_SHOW = 'missions/';
-
-    public const MISSION_GIVERS_SHOW = 'mission-givers/';
-
-    public const FACTIONS_SHOW = 'factions/';
-
     public function __construct($resource)
     {
         parent::__construct($resource);
@@ -49,34 +19,29 @@ abstract class AbstractBaseResource extends JsonResource
         ];
     }
 
-    /**
-     * Formats the fragment and returns an absolute api url
-     *
-     * @param  mixed  ...$routeKey
-     */
-    protected function makeApiUrl(string $fragment, ...$routeKey): string
-    {
-        return sprintf('%s/api/v2/%s%s', config('app.url'), $fragment, ...$routeKey);
-    }
-
     public static function validIncludes(): array
     {
-        return [
-            'variants',
-        ];
+        return [];
     }
 
     public function addMetadata(mixed $key, mixed $value = null): void
     {
         if (is_array($key)) {
-            $this->additional['meta'] += $key;
-        } else {
-            $this->additional['meta'][$key] = $value;
-        }
-    }
+            $this->additional['meta'] = array_replace_recursive($this->additional['meta'], $key);
 
-    protected function cleanType(): string
-    {
-        return str_replace('NOITEM_', '', ($this->type ?? ''));
+            return;
+        }
+
+        if (
+            isset($this->additional['meta'][$key]) &&
+            is_array($this->additional['meta'][$key]) &&
+            is_array($value)
+        ) {
+            $this->additional['meta'][$key] = array_replace_recursive($this->additional['meta'][$key], $value);
+
+            return;
+        }
+
+        $this->additional['meta'][$key] = $value;
     }
 }

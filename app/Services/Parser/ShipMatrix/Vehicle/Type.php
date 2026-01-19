@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Type\Type as VehicleType;
-use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as VehicleType;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -22,8 +21,6 @@ class Type extends BaseElement
      */
     public function getVehicleType(): VehicleType
     {
-        app('Log')::debug('Getting Vehicle Type');
-
         $type = $this->rawData->get(self::VEHICLE_TYPE);
 
         if ($type === null) {
@@ -33,42 +30,31 @@ class Type extends BaseElement
         }
 
         try {
-            /** @var TypeTranslation $typeTranslation */
-            $typeTranslation = TypeTranslation::query()->where(
-                'translation',
-                $type
-            )->where(
-                'locale_code',
-                config('language.english')
-            )->firstOrFail();
+            return VehicleType::query()
+                ->where('translation->'.config('language.english'), $type)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Vehicle Type not found in DB');
-
             return $this->createNewVehicleType();
         }
-
-        return $typeTranslation->type;
     }
 
     private function createNewVehicleType(): VehicleType
     {
-        app('Log')::debug('Creating new Vehicle Type');
+        $slug = Str::slug($this->rawData->get(self::VEHICLE_TYPE));
+        $translation = $this->rawData->get(self::VEHICLE_TYPE);
 
         /** @var VehicleType $type */
-        $type = VehicleType::create(
-            [
-                'slug' => Str::slug($this->rawData->get(self::VEHICLE_TYPE)),
-            ]
+        $type = VehicleType::query()->firstOrCreate(
+            ['slug' => $slug],
+            ['slug' => $slug]
         );
 
-        $type->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::VEHICLE_TYPE),
-            ]
-        );
+        if ($translation !== null && $translation !== '') {
+            $type->setTranslation('translation', config('language.english'), $translation);
+            $type->save();
+        }
 
-        app('Log')::debug('Vehicle Type created');
+        app('Log')::debug('Vehicle Type created', ['id' => $type->id]);
 
         return $type;
     }

@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\TranslationResolver;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'celestial_object_v2',
+    schema: 'celestial_object',
     title: 'Celestial Object',
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
         new OA\Property(property: 'code', type: 'string'),
         new OA\Property(property: 'system_id', type: 'integer'),
         new OA\Property(property: 'celestial_object_api_url', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'type', type: 'string'),
         new OA\Property(property: 'age', type: 'integer'),
@@ -40,11 +42,21 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'size', type: 'float'),
         new OA\Property(property: 'parent_id', type: 'integer'),
+        new OA\Property(
+            property: 'starsystem',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', nullable: true),
+                new OA\Property(property: 'code', type: 'string', nullable: true),
+                new OA\Property(property: 'name', type: 'string', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
         new OA\Property(property: 'time_modified', type: 'string'),
     ],
     type: 'object'
 )]
-class CelestialObjectResource extends AbstractTranslationResource
+class CelestialObjectResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
@@ -60,10 +72,11 @@ class CelestialObjectResource extends AbstractTranslationResource
             'id' => $this->cig_id,
             'code' => $this->code,
             'system_id' => $this->starsystem_id,
-            'link' => $this->makeApiUrl(
-                self::STARMAP_CELESTIAL_OBJECTS_SHOW,
-                $this->code
+            'link' => route(
+                'celestial-objects.show',
+                ['code' => $this->code]
             ),
+            'web_url' => route('web.starmap.celestial-objects.show', ['id' => $this->cig_id]),
             'name' => $this->name,
             'type' => $this->type,
 
@@ -81,7 +94,7 @@ class CelestialObjectResource extends AbstractTranslationResource
 
             'info_url' => $this->info_url,
 
-            'description' => $this->getTranslation($this, $request),
+            'description' => TranslationResolver::resolve($this, $request),
 
             'sensor' => [
                 'population' => $this->sensor_population,
@@ -94,7 +107,13 @@ class CelestialObjectResource extends AbstractTranslationResource
             'parent_id' => $this->parent_id,
 
             'affiliation' => AffiliationResource::collection($this->whenLoaded('affiliation')),
-            'starsystem' => new StarsystemResource($this->whenLoaded('starsystem')),
+            'starsystem' => $this->whenLoaded('starsystem', function (): array {
+                return [
+                    'id' => $this->starsystem?->cig_id,
+                    'code' => $this->starsystem?->code,
+                    'name' => $this->starsystem?->name,
+                ];
+            }),
             $this->mergeWhen($this->whenLoaded('subtype'), [
                 'sub_type' => [
                     'id' => $this->subtype->id,

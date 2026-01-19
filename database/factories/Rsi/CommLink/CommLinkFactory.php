@@ -4,58 +4,35 @@ declare(strict_types=1);
 
 namespace Database\Factories\Rsi\CommLink;
 
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Models\Rsi\CommLink\Category;
+use App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Series\Series;
-use Carbon\Carbon;
+use App\Models\Rsi\CommLink\Series;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rsi\CommLink\CommLink>
+ */
 class CommLinkFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = CommLink::class;
 
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
-        static $cigId = 12663;
-
         return [
-            'cig_id' => $cigId++,
-
-            'title' => $this->faker->sentence(),
-            'comment_count' => $this->faker->numberBetween(0, 2000),
-            'url' => $this->faker->boolean() ? '/comm-link/SCW/'.$cigId.'-IMPORT' : null,
-
-            'file' => Carbon::now()->format('Y-m-d_His').'.html',
-
+            'cig_id' => fake()->unique()->numberBetween(1000, 99999),
+            'title' => fake()->sentence(),
+            'comment_count' => fake()->numberBetween(0, 100),
+            'url' => fake()->url(),
+            'file' => fake()->dateTime()->format('Y-m-d_His').'.html',
             'channel_id' => Channel::factory(),
             'category_id' => Category::factory(),
             'series_id' => Series::factory(),
-
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
         ];
-    }
-
-    public function german()
-    {
-        return $this->state(
-            function (array $attributes) {
-                return [
-                    'locale_code' => 'de_DE',
-                    'translation' => $this->faker->randomHtml(2, 3),
-                ];
-            }
-        );
     }
 }

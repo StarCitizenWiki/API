@@ -4,34 +4,24 @@ declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink;
 
-use App\Events\ModelUpdating;
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Link\Link;
-use App\Models\Rsi\CommLink\Series\Series;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * Comm-Link
  */
-class CommLink extends HasTranslations
+class CommLink extends Model
 {
-    use ModelChangelog;
+    use HasFactory;
+    use HasTranslations;
 
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
+    public array $translatable = ['translation'];
 
     protected $fillable = [
         'cig_id',
@@ -43,6 +33,8 @@ class CommLink extends HasTranslations
         'category_id',
         'series_id',
         'created_at',
+        'created_at_file',
+        'translation',
     ];
 
     protected $withCount = [
@@ -58,6 +50,7 @@ class CommLink extends HasTranslations
 
     protected $casts = [
         'cig_id' => 'int',
+        'created_at_file' => 'datetime',
     ];
 
     /**
@@ -134,7 +127,9 @@ class CommLink extends HasTranslations
      */
     public function images(): BelongsToMany
     {
-        return $this->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id');
+        return $this
+            ->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id')
+            ->whereNull('comm_link_images.base_image_id');
     }
 
     /**
@@ -143,21 +138,6 @@ class CommLink extends HasTranslations
     public function links(): BelongsToMany
     {
         return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(CommLinkTranslation::class);
-    }
-
-    public function translationChangelogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            CommLinkTranslation::class,
-            'comm_link_id',
-            'changelog_id'
-        )->where('changelog_type', CommLinkTranslation::class);
     }
 
     public function getUrlAttribute($url): string

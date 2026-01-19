@@ -1,8 +1,7 @@
 *
+!private/
 !public/
-!tools/
-!api/
-!scdb
 !.gitignore
-!swagger.json
+!api/
+!swagger.yaml
 !manufacturers.json

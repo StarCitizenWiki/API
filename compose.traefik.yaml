@@ -1,0 +1,16 @@
+services:
+  api:
+    ports: []
+    networks:
+      - internal
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.api.rule=Host(`${TRAEFIK_HOST}`)"
+      - "traefik.http.routers.api.entryPoints=https"
+      - "traefik.http.routers.api.tls=true"
+
+networks:
+  traefik:
+    external: true

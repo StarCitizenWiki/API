@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Galactapedia;
 
-use App\Jobs\AbstractBaseDownloadData;
 use App\Models\StarCitizen\Galactapedia\Category;
-use Illuminate\Bus\Queueable;
+use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class ImportCategories extends AbstractBaseDownloadData implements ShouldQueue
+class ImportCategories implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
+
+    public int $timeout = 120;
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(RsiDownloadClient $client): void
     {
-        app('Log')::info('Importing Galactapedia categories.');
+        Log::info('Importing Galactapedia categories.');
 
-        $result = $this->makeClient()->post('galactapedia/graphql', [
+        $result = $client->forRsi()->post('galactapedia/graphql', [
             'query' => <<<'QUERY'
 query GetCategories {
   allCategory {

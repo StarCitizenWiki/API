@@ -4,35 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use App\Services\Parser\CommLink\Content\ContentExtractorFactory;
 use Closure;
-use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Comm-Link Content Parser
- */
-class Content extends BaseElement
+class Content extends AbstractBaseElement
 {
     private Crawler $commLink;
 
-    /**
-     * Remove node closure
-     */
     private Closure $removeNode;
 
-    /**
-     * Content constructor.
-     */
     public function __construct(Crawler $commLinkDocument)
     {
         $this->commLink = $commLinkDocument;
 
-        $this->removeNode = static function (Crawler $crawler) {
+        $this->removeNode = static function (Crawler $crawler): Crawler {
             $node = $crawler->getNode(0);
             if ($node !== null) {
-                $node->parentNode->removeChild($node);
+                $node->parentNode?->removeChild($node);
             }
 
             return $crawler;
@@ -40,9 +29,6 @@ class Content extends BaseElement
     }
 
     /**
-     * Tries to extract the Comm-Link Content as Text
-     *
-     *
      * @throws InvalidArgumentException
      */
     public function getContent(): string
@@ -52,62 +38,40 @@ class Content extends BaseElement
         return empty($content) ? '' : $this->cleanContent($content);
     }
 
-    /**
-     * Removes some Tags, converts newlines to br
-     */
     private function cleanContent(string $content): string
     {
         $content = $this->removeElements($content);
 
-        // Replace non-breaking spaces with normal ones
         $content = str_replace(' ', ' ', $content);
         $content = (string) str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
-        // Remove empty p Tags
-        $content = preg_replace('/<p>\s*?<\/p>/m', '', $content);
+        $content = preg_replace('/<p>\s*?<\/p>/m', '', $content) ?? $content;
 
-        // Remove Multiline Breaks
-        //$content = preg_replace('/^\s+/m', '', $content);
+        $content = preg_replace('/\s+/Sm', ' ', $content) ?? $content;
 
-        // Replace multiple Whitespaces with one
-        $content = preg_replace('/\s+/Sm', ' ', $content);
-
-        // Remove all Tags except p, br and headings
         $content = trim(strip_tags($content, '<p><li><br><h1><h2><h3><h4><h5><h6>'));
 
-        // Add New Line to ending heading tags
-        $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content);
+        $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content) ?? $content;
 
-        // Add New Lines to ending p tags
         $content = (string) str_replace('</p>', "</p>\n\n", $content);
 
-        // Replace multiple br with one
-        $content = preg_replace("/(?:<br>\n?){2,}+/m", '<br>', $content);
+        $content = preg_replace("/(?:<br>\n?){2,}+/m", '<br>', $content) ?? $content;
 
-        // Replace br with new line
         $content = (string) str_replace('<br>', "\n", $content);
 
-        // Replace li with new line
         $content = (string) str_replace('</li>', "</li>\n\n", $content);
 
-        // Remove all tags
         $content = strip_tags($content);
 
-        // Replace multiple spaces with one
-        $content = preg_replace('/[ \t]+/m', ' ', $content);
+        $content = preg_replace('/[ \t]+/m', ' ', $content) ?? $content;
 
-        // Trim each Start of Line
-        $content = preg_replace('/^[ \t]+/m', '', $content);
+        $content = preg_replace('/^[ \t]+/m', '', $content) ?? $content;
 
-        // Remove Trailing whitespace
-        $content = preg_replace('/[ \t]+$/m', '', $content);
+        $content = preg_replace('/[ \t]+$/m', '', $content) ?? $content;
 
         return trim(html_entity_decode($content));
     }
 
-    /**
-     * Removes problematic HTML Elements
-     */
     private function removeElements(string $html): string
     {
         $crawler = new Crawler;
@@ -120,12 +84,9 @@ class Content extends BaseElement
         $crawler = $this->removeAudioVideoElements($crawler);
         $crawler = $this->removeCommonElements($crawler);
 
-        return $crawler->html();
+        return $crawler->html() ?? '';
     }
 
-    /**
-     * Removes all script and style Elements
-     */
     private function removeScriptStyleElements(Crawler $crawler): Crawler
     {
         $remover = $this->removeNode;
@@ -133,7 +94,7 @@ class Content extends BaseElement
         $crawler->filter('script')->each($this->removeNode);
         $crawler->filter('style')->each($this->removeNode);
 
-        $crawler->filter('component')->each(function (Crawler $crawler) use ($remover) {
+        $crawler->filter('component')->each(function (Crawler $crawler) use ($remover): void {
             if ($crawler->attr('is') === 'script') {
                 $remover($crawler);
             }
@@ -142,28 +103,20 @@ class Content extends BaseElement
         return $crawler;
     }
 
-    /**
-     * Removes Store Sections from Special Ship Pages
-     */
     private function removeStoreSections(Crawler $crawler): Crawler
     {
-        $crawler->filter('section')->each(
-            function (Crawler $crawler) {
-                if (str_contains($crawler->text(), 'USD')) { //Disgusting
-                    $node = $crawler->getNode(0);
-                    if ($node !== null) {
-                        $node->parentNode->removeChild($node);
-                    }
+        $crawler->filter('section')->each(function (Crawler $crawler): void {
+            if (str_contains($crawler->text(), 'USD')) {
+                $node = $crawler->getNode(0);
+                if ($node !== null) {
+                    $node->parentNode?->removeChild($node);
                 }
             }
-        );
+        });
 
         return $crawler;
     }
 
-    /**
-     * Removes Annotation Elements
-     */
     private function removeSupElements(Crawler $crawler): Crawler
     {
         $crawler->filter('sup')->each($this->removeNode);
@@ -171,9 +124,6 @@ class Content extends BaseElement
         return $crawler;
     }
 
-    /**
-     * Removes the Comment container
-     */
     private function removeCommentsContainer(Crawler $crawler): Crawler
     {
         $crawler->filter('.wrapper.force-one-column')->each($this->removeNode);
@@ -181,36 +131,21 @@ class Content extends BaseElement
         return $crawler;
     }
 
-    /**
-     * Remove Audio/Video Elements
-     */
     private function removeAudioVideoElements(Crawler $crawler): Crawler
     {
         $crawler->filter('audio')->each($this->removeNode);
-
         $crawler->filter('video')->each($this->removeNode);
-
         $crawler->filter('img')->each($this->removeNode);
 
         return $crawler;
     }
 
-    /**
-     * Remove Common Comm-Link Elements
-     * .clearfix, .cboth (clear both), image links, .centerimage, hr, c-slider
-     */
     private function removeCommonElements(Crawler $crawler): Crawler
     {
         $crawler->filter('.clearfix')->each($this->removeNode);
-
         $crawler->filter('.cboth')->each($this->removeNode);
-
-        $crawler->filter('a.image')->each($this->removeNode);
-
         $crawler->filter('.centerimage')->each($this->removeNode);
-
         $crawler->filter('hr')->each($this->removeNode);
-
         $crawler->filter('c-slider')->each($this->removeNode);
 
         return $crawler;

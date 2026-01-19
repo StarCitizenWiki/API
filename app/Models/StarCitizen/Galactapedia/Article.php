@@ -4,30 +4,22 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Galactapedia;
 
-use App\Contracts\HasChangelogsInterface;
-use App\Events\ModelUpdating;
-use App\Models\System\Translation\AbstractHasTranslations;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Query\Builder;
 use Normalizer;
+use Spatie\Translatable\HasTranslations;
 
-class Article extends AbstractHasTranslations implements HasChangelogsInterface
+class Article extends Model
 {
     use HasFactory;
-    use ModelChangelog;
+    use HasTranslations;
+
+    public array $translatable = ['translation'];
 
     protected $table = 'galactapedia_articles';
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
 
     protected $fillable = [
         'cig_id',
@@ -36,6 +28,7 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'in_wiki',
         'disabled',
         'thumbnail',
+        'translation',
     ];
 
     protected $casts = [
@@ -110,11 +103,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         return self::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
     }
 
-    public function translations(): HasMany
-    {
-        return $this->hasMany(ArticleTranslation::class);
-    }
-
     /**
      * Categories of the article
      */
@@ -177,13 +165,24 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         );
     }
 
-    public function translationChangelogs(): HasManyThrough
+    public function scopeCategory(Builder $query, mixed $value): Builder
     {
-        return $this->hasManyThrough(
-            \App\Models\System\ModelChangelog::class,
-            ArticleTranslation::class,
-            'article_id',
-            'changelog_id'
-        )->where('changelog_type', ArticleTranslation::class);
+        return $query->whereHas('categories', function (Builder $categoryQuery) use ($value): void {
+            $categoryQuery->where('name', $value);
+        });
+    }
+
+    public function scopeTag(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('tags', function (Builder $tagQuery) use ($value): void {
+            $tagQuery->where('name', $value);
+        });
+    }
+
+    public function scopeTemplate(Builder $query, mixed $value): Builder
+    {
+        return $query->whereHas('templates', function (Builder $templateQuery) use ($value): void {
+            $templateQuery->where('template', $value);
+        });
     }
 }

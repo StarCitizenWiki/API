@@ -18,33 +18,42 @@ class ComputeSimilarImageIds implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private Image $image;
+    public int $timeout = 300;
 
-    public function __construct(Image $image)
+    public function __construct(public readonly int $imageId)
     {
-        $this->image = $image;
+        //
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        $this->image->refresh();
-        if ($this->image->base_image_id !== null) {
+        $image = Image::query()->find($this->imageId);
+
+        if ($image === null) {
             return;
         }
 
-        $this->image->similarImages(95, 50)->each(function (Image $duplicate) {
-            unset($duplicate->similarity, $duplicate->similarity_method, $duplicate->pdq_distance);
+        if ($image->base_image_id !== null) {
+            return;
+        }
 
-            if ($duplicate->base_image_id === $this->image->id) {
-                return;
+        $similarImages = $image->similarImages(95, 50);
+
+        foreach ($similarImages as $duplicate) {
+            // Skip if duplicate already points to this image
+            if ($duplicate->base_image_id === $image->id) {
+                continue;
             }
 
-            $duplicate->update([
-                'base_image_id' => $this->image->id,
-            ]);
-        });
+            unset(
+                $duplicate->similarity,
+                $duplicate->similarity_method,
+                $duplicate->pdq_hash,
+                $duplicate->pdq_quality,
+                $duplicate->distance
+            );
+
+            $duplicate->update(['base_image_id' => $image->id]);
+        }
     }
 }

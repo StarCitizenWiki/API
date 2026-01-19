@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'vehicle_component_v2',
+    schema: 'vehicle_component',
     title: 'Vehicle Component',
     description: 'Components from in-game files',
     properties: [
@@ -28,12 +28,7 @@ use OpenApi\Attributes as OA;
 )]
 class ComponentResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'type' => $this->type,

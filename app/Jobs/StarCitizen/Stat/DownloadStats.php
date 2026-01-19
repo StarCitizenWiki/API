@@ -4,99 +4,111 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Stat;
 
-use App\Exceptions\InvalidDataException;
-use App\Jobs\StarCitizen\AbstractRSIDownloadData as RSIDownloadData;
-use Illuminate\Bus\Queueable;
+use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Client\RequestException;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
+use RuntimeException;
+use stdClass;
 
-/**
- * Class DownloadStats
- */
-class DownloadStats extends RSIDownloadData implements ShouldQueue
+class DownloadStats implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
     private const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
 
     private const STATS_DISK = 'stats';
 
-    private bool $force = false;
+    public int $timeout = 120;
 
-    /**
-     * DownloadShipMatrix constructor.
-     *
-     * @param  bool  $force  Set to true do force download even if file already exists
-     */
-    public function __construct($force = false)
-    {
-        $this->force = $force;
+    private string $statFileName;
+
+    private int $year;
+
+    public function __construct(
+        ?string $statFileName = null,
+        ?int $year = null,
+        public readonly bool $force = false,
+    ) {
+        $this->statFileName = $statFileName ?? sprintf('stats_%s.json', now()->format('Y-m-d'));
+        $this->year = $year ?? $this->inferYear($this->statFileName);
     }
 
     /**
      * Execute the job.
-     *
-     * @throws JsonException
      */
-    public function handle(): void
+    public function handle(RsiDownloadClient $client): void
     {
-        app('Log')::info('Starting Stats Download Job.');
+        Log::info('Starting Stats Download Job.');
 
-        $path = sprintf('%d/stats_%s.json', now()->year, now()->format('Y-m-d'));
+        $path = sprintf('%d/%s', $this->year, $this->statFileName);
 
         if (! $this->force && Storage::disk(self::STATS_DISK)->exists($path)) {
             return;
         }
 
-        try {
-            $response = $this->makeClient()
-                ->asForm()
-                ->post(
-                    self::STATS_ENDPOINT,
-                    [
-                        'fans' => true,
-                        'fleet' => true,
-                        'funds' => true,
-                    ]
-                )->throw();
-        } catch (RequestException $e) {
-            app('Log')::critical(
-                'Could not connect to RSI Stats Endpoint',
+        $response = $client->forRsi()
+            ->asForm()
+            ->post(
+                self::STATS_ENDPOINT,
                 [
-                    'message' => $e->getMessage(),
+                    'fans' => true,
+                    'fleet' => true,
+                    'funds' => true,
                 ]
             );
 
-            $this->fail($e);
+        if ($response->serverError()) {
+            Log::critical('Could not connect to RSI Stats Endpoint', [
+                'status' => $response->status(),
+            ]);
+
+            $this->release(300);
+
+            return;
+        }
+
+        if ($response->clientError()) {
+            Log::warning('Stats request failed with client error', [
+                'status' => $response->status(),
+            ]);
 
             return;
         }
 
         $this->saveStats($response, $path);
 
-        app('Log')::info('Stat Download finished');
+        Log::info('Stat Download finished');
+    }
+
+    private function validateRsiResponse(string $body): stdClass
+    {
+        try {
+            $response = json_decode($body, false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            throw new RuntimeException('Invalid JSON response from RSI');
+        }
+
+        if (($response->success ?? 0) !== 1) {
+            throw new RuntimeException(
+                sprintf('RSI API returned failure. Expected success=1, got %d', $response->success ?? 0)
+            );
+        }
+
+        return $response;
     }
 
     private function saveStats(Response $response, string $path): void
     {
         try {
-            $response = $this->parseResponseBody($response->body());
-        } catch (InvalidDataException $e) {
-            app('Log')::error(
-                'Stats data is not valid json',
-                [
-                    'message' => $e->getMessage(),
-                ]
-            );
+            $validated = $this->validateRsiResponse($response->body());
+        } catch (RuntimeException $e) {
+            Log::error('Stats data is not valid', [
+                'message' => $e->getMessage(),
+            ]);
 
             $this->fail($e);
 
@@ -105,7 +117,16 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
 
         Storage::disk(self::STATS_DISK)->put(
             $path,
-            json_encode($response->data, JSON_THROW_ON_ERROR)
+            json_encode($validated->data, JSON_THROW_ON_ERROR)
         );
+    }
+
+    private function inferYear(string $statFileName): int
+    {
+        if (preg_match('/^stats_(\d{4})-\d{2}-\d{2}\.json$/', $statFileName, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return now()->year;
     }
 }

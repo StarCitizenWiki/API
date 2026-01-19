@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\System;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,28 +14,24 @@ class Language extends Model
 {
     use HasFactory;
 
-    public const ENGLISH = 'en_EN';
+    public const ENGLISH = 'en';
 
-    public const GERMAN = 'de_DE';
+    public const GERMAN = 'de';
 
-    public const CHINESE = 'zh_CN';
+    public const CHINESE = 'zh';
 
-    public $incrementing = false;
+    public const OLD_LANG_MAP = [
+        self::ENGLISH => 'en_EN',
+        self::GERMAN => 'de_DE',
+        self::CHINESE => 'zh_CN',
+    ];
 
-    protected $primaryKey = 'locale_code';
-
-    public function scopeGerman(Builder $query): Builder
-    {
-        return $query->where('local_code', self::GERMAN);
-    }
-
-    public function scopeEnglish(Builder $query): Builder
-    {
-        return $query->where('local_code', self::ENGLISH);
-    }
-
-    public function scopeChinese(Builder $query): Builder
-    {
-        return $query->where('local_code', self::CHINESE);
-    }
+    public const LABEL_MAP = [
+        'en_EN' => 'English',
+        self::ENGLISH => 'English',
+        'de_DE' => 'German',
+        self::GERMAN => 'German',
+        'zh_CN' => 'Chinese',
+        self::CHINESE => 'Chinese',
+    ];
 }

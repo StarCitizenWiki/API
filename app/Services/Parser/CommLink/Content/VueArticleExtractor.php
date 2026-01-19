@@ -18,9 +18,6 @@ final class VueArticleExtractor implements ContentExtractorInterface
         $this->page = $page;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getContent(bool $withIntroduction = true): string
     {
         $content = '';
@@ -29,37 +26,25 @@ final class VueArticleExtractor implements ContentExtractorInterface
             $content = $this->getIntroduction($this->page);
         }
 
-        $this->page->filterXPath(self::getFilter())->each(
-            function (Crawler $crawler) use (&$content) {
-                $data = [];
-                $data[] = $crawler->attr('headline');
-                $data[] = $crawler->attr('byline');
-                $data[] = $crawler->attr('body');
+        $this->page->filterXPath(self::getFilter())->each(function (Crawler $crawler) use (&$content): void {
+            $data = [];
+            $data[] = $crawler->attr('headline');
+            $data[] = $crawler->attr('byline');
+            $data[] = $crawler->attr('body');
 
-                $content .= ltrim(
-                    collect($data)->filter(
-                        function ($data) {
-                            return $data !== null;
-                        }
-                    )->implode('<br>')
-                );
-            }
-        );
+            $content .= ltrim(
+                collect($data)->filter(static fn ($entry) => $entry !== null)->implode('<br>')
+            );
+        });
 
         return $content;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function getFilter(): string
     {
         return '//g-article';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function canParse(Crawler $page): array
     {
         $count = $page->filterXPath(self::getFilter())->count();

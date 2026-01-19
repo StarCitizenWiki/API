@@ -8,28 +8,14 @@ use Symfony\Component\DomCrawler\Crawler;
 
 interface ContentExtractorInterface
 {
-    /**
-     * ContentParserInterface constructor.
-     *
-     * @param  Crawler  $page  The page to parse
-     */
     public function __construct(Crawler $page);
 
-    /**
-     * The raw HTML text content.
-     */
     public function getContent(): string;
 
-    /**
-     * The filter used by the crawler, CSS Selector of XPath.
-     */
     public static function getFilter(): string;
 
     /**
-     * Check if a parser can parse the page
-     * Usually checks if the element filter exists in the page.
-     *
-     * @return array Two element array containing a bool on position 0 and the number of matched elements on position 1
+     * @return array{0: bool, 1: int}
      */
     public static function canParse(Crawler $page): array;
 }

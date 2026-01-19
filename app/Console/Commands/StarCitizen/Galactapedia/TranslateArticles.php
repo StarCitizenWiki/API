@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
-use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\StarCitizen\Galactapedia\TranslateArticle;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\System\Language;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 
-class TranslateArticles extends AbstractQueueCommand
+class TranslateArticles extends Command
 {
     /**
      * The name and signature of the console command.
@@ -33,25 +32,10 @@ class TranslateArticles extends AbstractQueueCommand
     public function handle(): int
     {
         Article::query()
-            ->whereHas(
-                'translations',
-                function (Builder $query) {
-                    $query
-                        ->where('locale_code', Language::ENGLISH)
-                        ->whereRaw("translation <> ''");
-                }
-            )
-            ->chunk(
-                100,
-                function (Collection $articles) {
-                    $articles->each(
-                        function (Article $article) {
-                            TranslateArticle::dispatch($article);
-                        }
-                    );
-                }
-            );
+            ->whereNotNull('translation->'.Language::ENGLISH)
+            ->where('translation->'.Language::ENGLISH, '!=', '')
+            ->chunk(100, fn (Collection $articles) => $articles->each(fn (Article $article) => TranslateArticle::dispatch($article)));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

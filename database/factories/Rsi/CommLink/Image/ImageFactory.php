@@ -5,38 +5,28 @@ declare(strict_types=1);
 namespace Database\Factories\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
+/**
+ * @extends Factory<Image>
+ */
 class ImageFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Image::class;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
-        $dir = Str::random(14);
-        $fileName = Str::random(4);
-
-        $file = sprintf('/media/%s/source/%s.jpg', $dir, $fileName);
+        $basename = fake()->uuid();
 
         return [
-            'src' => $file,
-            'alt' => $this->faker->boolean() ? 'Lorem Ipsum' : '',
+            'src' => sprintf('/i/%s/%s.webp', $basename, $basename),
+            'alt' => fake()->words(3, true),
             'local' => false,
-            'dir' => $dir,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'dir' => 'i',
+            'base_image_id' => null,
         ];
     }
 }

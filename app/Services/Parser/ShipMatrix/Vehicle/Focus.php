@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Focus\Focus as VehicleFocus;
-use App\Models\StarCitizen\Vehicle\Focus\FocusTranslation;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus as VehicleFocus;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -31,8 +30,6 @@ class Focus extends BaseElement
      */
     public function getVehicleFociIDs(): array
     {
-        app('Log')::debug('Getting Vehicle Foci IDs');
-
         $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
 
         if ($rawFocus === null) {
@@ -51,15 +48,9 @@ class Focus extends BaseElement
                 try {
                     $vehicleFocus = $this->getNormalizedFocus($vehicleFocus);
 
-                    /** @var FocusTranslation $focus */
-                    $focus = FocusTranslation::query()->where(
-                        'translation',
-                        $vehicleFocus
-                    )->where(
-                        'locale_code',
-                        config('language.english')
-                    )->firstOrFail();
-                    $focus = $focus->focus;
+                    $focus = VehicleFocus::query()
+                        ->where('translation->'.config('language.english'), $vehicleFocus)
+                        ->firstOrFail();
                 } catch (ModelNotFoundException $e) {
                     $focus = $this->createNewVehicleFocus($vehicleFocus);
                 }
@@ -90,21 +81,18 @@ class Focus extends BaseElement
      */
     private function createNewVehicleFocus(string $focus): VehicleFocus
     {
-        app('Log')::debug('Creating new Vehicle Focus');
-
         /** @var VehicleFocus $vehicleFocus */
-        $vehicleFocus = VehicleFocus::create(
+        $vehicleFocus = VehicleFocus::query()->updateOrCreate(
+            [
+                'slug' => Str::slug($focus),
+            ],
             [
                 'slug' => Str::slug($focus),
             ]
         );
 
-        $vehicleFocus->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $focus,
-            ]
-        );
+        $vehicleFocus->setTranslation('translation', config('language.english'), $focus);
+        $vehicleFocus->save();
 
         return $vehicleFocus;
     }

@@ -5,57 +5,35 @@ declare(strict_types=1);
 namespace App\Jobs\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
+use Illuminate\Foundation\Queue\Queueable;
 
 class CreateImageMetadata implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
     /**
-     * @var int Comm-Link IDs to operate on
+     * @param  array<int, int>  $commLinkIds
      */
-    private $commLinkIds;
+    public function __construct(public readonly array $commLinkIds = []) {}
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(array $commLinkIds = [])
-    {
-        $this->commLinkIds = $commLinkIds;
-    }
-
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $query = Image::query()
-            ->whereHas(
-                'commLinks',
-                function (Builder $query) {
-                    $query->whereIn('cig_id', $this->commLinkIds);
-                }
-            )
+            ->whereHas('commLinks')
             ->whereDoesntHave('metadata');
 
-        $query->chunk(
-            100,
-            function (Collection $images) {
-                $images->each(
-                    function (Image $image) {
-                        dispatch(new CreateImageMetadatum($image));
-                    }
-                );
+        if ($this->commLinkIds !== []) {
+            $query->whereHas('commLinks', function (Builder $builder): void {
+                $builder->whereIn('cig_id', $this->commLinkIds);
+            });
+        }
+
+        $query->orderBy('id')->chunkById(100, function ($images): void {
+            foreach ($images as $image) {
+                dispatch(new CreateImageMetadatum($image->id));
             }
-        );
+        });
     }
 }

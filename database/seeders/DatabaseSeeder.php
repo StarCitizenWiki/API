@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Database\Seeders\Accounts\UserGroupTableSeeder;
+use App\Models\Game\Manufacturer;
 use Database\Seeders\Rsi\CommLink\CategoryTableSeeder;
 use Database\Seeders\Rsi\CommLink\ChannelTableSeeder;
 use Database\Seeders\Rsi\CommLink\SeriesTableSeeder;
@@ -29,9 +29,15 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->seedSystemTables();
-        $this->seedAccountTables();
         $this->seedApiTables();
         $this->seedRsiTables();
+
+        Manufacturer::query()->updateOrCreate([
+            'uuid' => '00000000-0000-0000-0000-000000000000',
+        ], [
+            'name' => 'Unknown Manufacturer',
+            'code' => 'UNKN',
+        ]);
     }
 
     /**
@@ -43,20 +49,12 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Account Tables: Groups, Admin, Users
-     */
-    private function seedAccountTables()
-    {
-        $this->call(UserGroupTableSeeder::class);
-    }
-
-    /**
      * API Tables
      */
     private function seedApiTables()
     {
         /** Stats */
-        $this->call(StatTableSeeder::class);
+        // $this->call(StatTableSeeder::class);
 
         /** Star Citizen General */
         $this->call(ProductionStatusTableSeeder::class);

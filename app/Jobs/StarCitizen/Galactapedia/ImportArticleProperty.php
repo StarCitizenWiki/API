@@ -4,44 +4,47 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Galactapedia;
 
-use App\Jobs\AbstractBaseDownloadData;
 use App\Models\StarCitizen\Galactapedia\Article;
-use Illuminate\Bus\Queueable;
+use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
-class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQueue
+class ImportArticleProperty implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
+
+    public int $timeout = 120;
 
     private Article $article;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(Article $article)
-    {
-        $this->article = $article;
-    }
+    public function __construct(
+        public readonly int $articleId,
+    ) {}
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(RsiDownloadClient $client): void
     {
+        $article = Article::query()
+            ->with('templates')
+            ->find($this->articleId);
+
+        if ($article === null) {
+            return;
+        }
+
+        $this->article = $article;
+
         if ($this->article->templates->isEmpty()) {
-            app('Log')::info(sprintf('Article "%s" has no Templates, skipping.', $this->article->title));
+            Log::info(sprintf('Article "%s" has no Templates, skipping.', $this->article->title));
 
             return;
         }
 
-        $fields = $this->getTemplateFields();
+        $fields = $this->getTemplateFields($client);
 
         if ($fields === null) {
             $this->delete();
@@ -51,7 +54,7 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
 
         $strFields = implode("\n", $fields->toArray());
 
-        $result = $this->makeClient()->post('galactapedia/graphql', [
+        $result = $client->forRsi()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 {
   Article(id: "{$this->article->cig_id}") {
@@ -108,9 +111,9 @@ QUERY,
         });
     }
 
-    private function getTemplateFields(): ?Collection
+    private function getTemplateFields(RsiDownloadClient $client): ?Collection
     {
-        $result = $this->makeClient()->post('galactapedia/graphql', [
+        $result = $client->forRsi()->post('galactapedia/graphql', [
             'query' => <<<'QUERY'
 query ArticleAfterCursor($type: String!) {
   template: __type(name: $type) {

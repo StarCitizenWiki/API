@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Rsi\CommLink;
 
-use App\Http\Requests\AbstractSearchRequest;
+use App\Http\Requests\Api\Game\SearchRequest;
 
-class CommLinkSearchRequest extends AbstractSearchRequest
+class CommLinkSearchRequest extends SearchRequest
 {
     /**
      * Determine if the user is authorized to make this request.

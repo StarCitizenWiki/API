@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'comm_link_link_v2',
+    schema: 'comm_link_link',
     title: 'Comm-Link Link',
     description: 'Resource link to a Comm-Link',
     properties: [
@@ -19,12 +19,7 @@ use OpenApi\Attributes as OA;
 )]
 class CommLinkLinkResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'href' => $this->href,

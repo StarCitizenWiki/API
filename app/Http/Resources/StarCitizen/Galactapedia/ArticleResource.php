@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Galactapedia;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\TranslationResourceFactory;
+use App\Http\Resources\TranslationResolver;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactapedia_article_v2',
+    schema: 'galactapedia_article',
     title: 'Galactapedia Article',
     description: 'An article form the Galactapedia',
     properties: [
@@ -25,22 +25,22 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'categories',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/galactapedia_category_v2'),
+            items: new OA\Items(ref: '#/components/schemas/galactapedia_category'),
         ),
         new OA\Property(
             property: 'tags',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/galactapedia_tag_v2'),
+            items: new OA\Items(ref: '#/components/schemas/galactapedia_tag'),
         ),
         new OA\Property(
             property: 'properties',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/galactapedia_property_v2'),
+            items: new OA\Items(ref: '#/components/schemas/galactapedia_property'),
         ),
         new OA\Property(
             property: 'related_articles',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/galactpedia_related_article_v2'),
+            items: new OA\Items(ref: '#/components/schemas/galactpedia_related_article'),
         ),
         new OA\Property(
             property: 'translations',
@@ -48,10 +48,11 @@ use OpenApi\Attributes as OA;
                 new OA\Schema(type: 'string'),
                 new OA\Schema(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/translation_v2'),
+                    items: new OA\Items(ref: '#/components/schemas/translation'),
                 ),
             ],
         ),
+        new OA\Property(property: 'created_at_human', type: 'string', example: '1 hour ago'),
     ],
     type: 'object'
 )]
@@ -64,34 +65,43 @@ class ArticleResource extends AbstractBaseResource
             'properties',
             'tags',
             'related',
-            'translations',
         ];
     }
 
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
+        $template = $this->templates->isEmpty() ? null : $this->templates[0]->template;
+        $categoryList = $this->categories->pluck('name')->filter()->implode(', ');
+        $tagList = $this->tags->pluck('name')->filter()->implode(', ');
+
         return [
             'id' => $this->cig_id,
             'title' => $this->title,
             'slug' => $this->slug,
             'thumbnail' => $this->thumbnail,
-            'type' => $this->templates->isEmpty() ? null : $this->templates[0]->template,
+            'type' => $template,
+            'template' => $template,
+            'category' => $categoryList !== '' ? $categoryList : null,
+            'tag' => $tagList !== '' ? $tagList : null,
             'rsi_url' => $this->url,
-            'api_url' => $this->makeApiUrl(
-                self::GALACTAPEDIA_ARTICLE_SHOW,
-                $this->getRouteKey(),
+            'api_url' => route(
+                'galactapedia.show',
+                ['article' => $this->getRouteKey()],
+            ),
+            'web_url' => route(
+                'web.galactapedia.show',
+                ['article' => $this->getRouteKey()],
             ),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'categories_count' => $this->categories_count,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'tags_count' => $this->tags_count,
             'properties' => PropertyResource::collection($this->whenLoaded('properties')),
             'related_articles' => RelatedArticleResource::collection($this->whenLoaded('related')),
-            'translations' => TranslationResourceFactory::getTranslationResource($request, $this->whenLoaded('translations')),
-            'created_at' => $this->created_at,
+            'related_articles_count' => $this->related_articles_count,
+            'translations' => TranslationResolver::resolve($this, $request),
+            'created_at' => $this->created_at->toIso8601String(),
+            'created_at_human' => $this->created_at->diffForHumans(),
         ];
     }
 }

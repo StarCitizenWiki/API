@@ -6,86 +6,62 @@ namespace App\Services\Parser\CommLink;
 
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Extracts and Creates Image Models from Comm-Link Contents.
- */
-class Image extends BaseElement
+class Image extends AbstractBaseElement
 {
     private const RSI_DOMAINS = [
         'robertsspaceindustries.com',
         'media.robertsspaceindustries.com',
     ];
 
-    /**
-     * Post Background CSS Selector.
-     */
     private const POST_BACKGROUND = '#post-background';
 
     private Crawler $commLink;
 
     /**
-     * @var array Image Data Array
+     * @var array<int, array{src: string, alt?: string}>
      */
     private array $images = [];
 
-    /**
-     * Image constructor.
-     */
     public function __construct(Crawler $commLinkDocument)
     {
         $this->commLink = $commLinkDocument;
     }
 
     /**
-     * Returns an array with image ids from the image table.
-     *
-     * @return array Image IDs
+     * @return array<int, int>
      */
     public function getImageIds(): array
     {
         $this->extractImages();
-        $imageIDs = [];
+        $imageIds = [];
 
         $contentImages = collect($this->images);
-        $contentImages->filter(
-            static function ($image) {
-                $host = parse_url($image['src'], PHP_URL_HOST);
+        $contentImages->filter(static function (array $image): bool {
+            $host = parse_url($image['src'], PHP_URL_HOST);
 
-                return $host === null || in_array($host, self::RSI_DOMAINS, true);
-            }
-        )
-            ->filter(
-                function (array $image) {
-                    $extension = pathinfo(parse_url($image['src'], PHP_URL_PATH), PATHINFO_EXTENSION);
+            return $host === null || in_array($host, self::RSI_DOMAINS, true);
+        })
+            ->filter(function (array $image): bool {
+                $extension = pathinfo(parse_url($image['src'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
-                    return $extension !== null && $extension !== '';
-                }
-            )
-            ->each(
-                function ($image) use (&$imageIDs) {
-                    $src = self::cleanImgSource($image['src']);
+                return $extension !== null && $extension !== '';
+            })
+            ->each(function (array $image) use (&$imageIds): void {
+                $src = self::cleanImgSource($image['src']);
 
-                    $imageIDs[] = ImageModel::query()->firstOrCreate(
-                        [
-                            'src' => $this->cleanText($src),
-                            'alt' => $this->cleanText($image['alt'] ?? ''),
-                            'dir' => self::getDirHash($src),
-                        ]
-                    )->id;
-                }
-            );
+                $imageIds[] = ImageModel::query()->firstOrCreate([
+                    'src' => $this->cleanText($src),
+                    'alt' => $this->cleanText($image['alt'] ?? ''),
+                    'dir' => self::getDirHash($src),
+                ])->id;
+            });
 
-        return array_unique($imageIDs);
+        return array_values(array_unique($imageIds));
     }
 
-    /**
-     * Extracts all <img> Elements from the Crawler
-     * Saves src and alt attributes.
-     */
     private function extractImages(): void
     {
         $this->extractImgTags();
@@ -99,52 +75,46 @@ class Image extends BaseElement
         $this->extractAlexandriaImages();
 
         if ($this->isSpecialPage($this->commLink)) {
-            $this->commLink->filterXPath('//template')->each(
-                function (Crawler $crawler) {
-                    preg_match_all(
-                        "/'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
-                        $crawler->html(),
-                        $matches
-                    );
+            $this->commLink->filterXPath('//template')->each(function (Crawler $crawler): void {
+                preg_match_all(
+                    "/'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
+                    $crawler->html() ?? '',
+                    $matches
+                );
 
-                    $this->addImages($matches);
-                }
-            );
+                $this->addImages($matches);
+            });
         }
     }
 
     private function extractImgTags(): void
     {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//img')->each(
-            function (Crawler $crawler) {
-                $src = $crawler->attr('src');
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//img')->each(function (Crawler $crawler): void {
+            $src = $crawler->attr('src');
 
-                if ($src !== null && ! empty($src)) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => $crawler->attr('alt') ?? '',
-                    ];
-                }
+            if ($src !== null && $src !== '') {
+                $this->images[] = [
+                    'src' => trim($src),
+                    'alt' => $crawler->attr('alt') ?? '',
+                ];
             }
-        );
+        });
     }
 
     private function extractCFeatureTemplateImages(): void
     {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//c-feature')->each(
-            function (Crawler $crawler) {
-                $src = trim($crawler->attr('background-url') ?? '');
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//c-feature')->each(function (Crawler $crawler): void {
+            $src = trim($crawler->attr('background-url') ?? '');
 
-                if (empty($src)) {
-                    return;
-                }
-
-                $this->images[] = [
-                    'src' => $src,
-                    'alt' => 'c-feature',
-                ];
+            if ($src === '') {
+                return;
             }
-        );
+
+            $this->images[] = [
+                'src' => $src,
+                'alt' => 'c-feature',
+            ];
+        });
     }
 
     private function extractGElementImages(): void
@@ -169,85 +139,87 @@ class Image extends BaseElement
         foreach ($elements as $path => $attr) {
             $this->commLink
                 ->filter($this->getFilterSelector())->filterXPath(sprintf('//%s', $path))
-                ->each(
-                    function (Crawler $crawler) use ($path, $attr) {
-                        $attributes = $attr;
-                        if (! is_array($attributes)) {
-                            $attributes = [$attr];
+                ->each(function (Crawler $crawler) use ($path, $attr): void {
+                    $attributes = $attr;
+                    if (! is_array($attributes)) {
+                        $attributes = [$attr];
+                    }
+
+                    foreach ($attributes as $attribute) {
+                        $images = trim($crawler->attr($attribute) ?? '');
+                        $data = [];
+
+                        try {
+                            $images = json_decode($images, true, 512, JSON_THROW_ON_ERROR);
+                        } catch (JsonException $exception) {
+                            continue;
                         }
 
-                        foreach ($attributes as $attr) {
-                            $images = trim($crawler->attr($attr) ?? '');
-                            $data = [];
+                        if ($path === 'g-banner-advanced') {
+                            if ($attribute === ':content' && isset($images['logo']['picture'])) {
+                                $images = $images['logo']['picture'];
+                            } elseif ($attribute === ':media' && isset($images['background']['picture'])) {
+                                $images = $images['background']['picture'];
+                            }
+                        }
 
-                            try {
-                                $images = json_decode($images, true, 512, JSON_THROW_ON_ERROR);
-                            } catch (JsonException $e) {
-                                continue;
+                        if (! is_array($images)) {
+                            $images = [$images];
+                        }
+
+                        foreach ($images as $image) {
+                            if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
+                                $data = [
+                                    'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
+                                    'alt' => $image['alt'] ?? $path,
+                                ];
                             }
 
-                            if ($path === 'g-banner-advanced') {
-                                if ($attr === ':content' && isset($images['logo']['picture'])) {
-                                    $images = $images['logo']['picture'];
-                                } elseif ($attr === ':media' && isset($images['background']['picture'])) {
-                                    $images = $images['background']['picture'];
-                                }
+                            if (isset($image['max']) || isset($image['source'])) {
+                                $data = [
+                                    'src' => $image['max'] ?? $image['source'],
+                                    'alt' => $image['alt'] ?? $path,
+                                ];
                             }
 
-                            if (! is_array($images)) {
-                                $images = [$images];
+                            if (isset($image['originalFormat']) || isset($image['webp'])) {
+                                $data = [
+                                    'src' => $image['webp']['max'] ?? $image['originalFormat']['max'],
+                                    'alt' => $image['alt'] ?? $path,
+                                ];
                             }
 
-                            foreach ($images as $image) {
-                                if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
-                                    $data = [
-                                        'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
-                                        'alt' => $image['alt'] ?? $path,
-                                    ];
-                                }
-
-                                if (isset($image['max']) || isset($image['source'])) {
-                                    $data = [
-                                        'src' => $image['max'] ?? $image['source'],
-                                        'alt' => $image['alt'] ?? $path,
-                                    ];
-                                }
-
-                                if (isset($image['originalFormat']) || isset($image['webp'])) {
-                                    $data = [
-                                        'src' => $image['webp']['max'] ?? $image['originalFormat']['max'],
-                                        'alt' => $image['alt'] ?? $path,
-                                    ];
-                                }
-
-                                if (! empty($data) && $data['src'] !== null) {
-                                    $this->images[] = $data;
-                                }
+                            if (! empty($data) && $data['src'] !== null) {
+                                $this->images[] = $data;
                             }
                         }
                     }
-                );
+                });
         }
     }
 
     private function extractPostBackground(): void
     {
-        if ($this->commLink->filter(self::POST_BACKGROUND)->count() > 0) {
-            $background = $this->commLink->filter(self::POST_BACKGROUND);
-            $src = $background->attr('style');
+        if ($this->commLink->filter(self::POST_BACKGROUND)->count() === 0) {
+            return;
+        }
 
-            if ($src !== null && ! empty($src)) {
-                if (preg_match('/(\/media\/.*\.\w+)/', $src, $src)) {
-                    $src = $src[1];
-                }
+        $background = $this->commLink->filter(self::POST_BACKGROUND);
+        $src = $background->attr('style');
 
-                if (! empty($src)) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => self::POST_BACKGROUND,
-                    ];
-                }
-            }
+        if ($src === null || $src === '') {
+            return;
+        }
+
+        if (preg_match('/(\/media\/.*\.\w+)/', $src, $matches)) {
+            $src = $matches[1];
+        }
+
+        if ($src !== '') {
+            $this->images[] = [
+                'src' => trim($src),
+                'alt' => self::POST_BACKGROUND,
+            ];
         }
     }
 
@@ -255,99 +227,76 @@ class Image extends BaseElement
     {
         preg_match_all(
             "/source:\s?'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
-            $this->commLink->html(),
+            $this->commLink->html() ?? '',
             $matches
         );
 
         $this->addImages($matches);
     }
 
-    /**
-     * Extract CSS image urls from media.robertsspaceindustries.com or robertsspaceindustries.com
-     */
     private function extractCssBackgrounds(): void
     {
-        //phpcs:disable
         preg_match_all(
             "/url\([\"']?((?:https:\/\/(?:media\.)?robertsspaceindustries\.com)?\/(?:\w{13,16}\/\w+|media\/\w{13,16}\/\w+\/[\w\-.]+)+\.\w{2,6})[\"']?\)/",
-            $this->commLink->filterXPath('//head')->html(),
+            $this->commLink->filterXPath('//head')->html() ?? '',
             $matches
         );
-        //phpcs:enable
 
         $this->addImages($matches);
     }
 
-    /**
-     * Extract images from media.robertsspaceindustries.com
-     */
     private function extractMediaImages(): void
     {
         preg_match_all(
             "/(https:\/\/media\.robertsspaceindustries\.com\/\w{13,16}\/\w+\.\w{2,6})/",
-            $this->commLink->filterXPath('//body')->html(),
+            $this->commLink->filterXPath('//body')->html() ?? '',
             $matches
         );
 
         $this->addImages($matches);
     }
 
-    /**
-     * robertsspaceincustries.com/media
-     */
     private function extractRsiImages(): void
     {
         preg_match_all(
             "/(https:\/\/robertsspaceindustries\.com\/media\/\w{13,16}\/\w+\/[\w\-.]+\.\w{2,6})/",
-            $this->commLink->filterXPath('//body')->html(),
+            $this->commLink->filterXPath('//body')->html() ?? '',
             $matches
         );
 
         $this->addImages($matches);
     }
 
-    /**
-     * Extracts images from Alexandria content
-     */
     private function extractAlexandriaImages(): void
     {
-        // Extract from g-platform-client-component elements
-        $this->commLink->filterXPath('//g-platform-client-component')->each(
-            function (Crawler $component) {
-                try {
-                    $properties = $component->attr(':properties');
-                    if (! empty($properties)) {
-                        $this->extractImagesFromProperties($properties);
-                    }
-                } catch (\InvalidArgumentException $e) {
-                    // Do Nothing
+        $this->commLink->filterXPath('//g-platform-client-component')->each(function (Crawler $component): void {
+            try {
+                $properties = $component->attr(':properties');
+                if (! empty($properties)) {
+                    $this->extractImagesFromProperties($properties);
                 }
+            } catch (\InvalidArgumentException $exception) {
+                // Ignore invalid component.
             }
-        );
+        });
 
-        // Extract from g-banner-advanced elements
-        $this->commLink->filterXPath('//g-banner-advanced')->each(
-            function (Crawler $banner) {
-                try {
-                    $mediaAttr = $banner->attr(':media');
-                    if (! empty($mediaAttr)) {
-                        $mediaJson = json_decode($mediaAttr, true);
-                        if (isset($mediaJson['background']['picture']['originalFormat']['max'])) {
-                            $this->images[] = [
-                                'src' => trim($mediaJson['background']['picture']['originalFormat']['max']),
-                            ];
-                        }
+        $this->commLink->filterXPath('//g-banner-advanced')->each(function (Crawler $banner): void {
+            try {
+                $mediaAttr = $banner->attr(':media');
+                if (! empty($mediaAttr)) {
+                    $mediaJson = json_decode($mediaAttr, true);
+                    if (isset($mediaJson['background']['picture']['originalFormat']['max'])) {
+                        $this->images[] = [
+                            'src' => trim($mediaJson['background']['picture']['originalFormat']['max']),
+                        ];
                     }
-                } catch (\InvalidArgumentException $e) {
-                    // Do Nothing
                 }
+            } catch (\InvalidArgumentException $exception) {
+                // Ignore invalid banner.
             }
-        );
+        });
     }
 
-    /**
-     * Extract images from component properties
-     */
     private function extractImagesFromProperties(string $properties): void
     {
         $json = json_decode($properties, true);
@@ -356,7 +305,6 @@ class Image extends BaseElement
             return;
         }
 
-        // Check for backgrounds in layers
         if (isset($json['componentProps']['layers']) && is_array($json['componentProps']['layers'])) {
             foreach ($json['componentProps']['layers'] as $layer) {
                 if (isset($layer['backgroundImage']['heapImage']['source'])) {
@@ -373,7 +321,6 @@ class Image extends BaseElement
             }
         }
 
-        // Check for image components
         if (isset($json['componentProps']['image'])) {
             if (isset($json['componentProps']['image']['source'])) {
                 $this->images[] = [
@@ -392,6 +339,7 @@ class Image extends BaseElement
     private function getFilterSelector(): string
     {
         $filter = ImportCommLink::POST_SELECTOR;
+
         if ($this->isSubscriberPage($this->commLink)) {
             $filter = '#subscribers .album-wrapper';
         } elseif ($this->isSpecialPage($this->commLink)) {
@@ -402,33 +350,25 @@ class Image extends BaseElement
     }
 
     /**
-     * Adds all found image matches
+     * @param  array<int, array<int, string>>  $matches
      */
     private function addImages(array $matches, string $alt = ''): void
     {
         if (! empty($matches[1])) {
-            collect($matches[1])->each(
-                function ($src) use ($alt) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => $alt,
-                    ];
-                }
-            );
+            collect($matches[1])->each(function (string $src) use ($alt): void {
+                $this->images[] = [
+                    'src' => trim($src),
+                    'alt' => $alt,
+                ];
+            });
         }
     }
 
-    /**
-     * Cleans the IMG SRC.
-     *
-     * @param  string  $src  IMG SRC
-     */
     public static function cleanImgSource(string $src): string
     {
         $srcUrlPath = parse_url($src, PHP_URL_PATH);
         $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
 
-        // if host is media.robertsspaceindustries.com
         if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
             $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
             $replacement = '$1/source.$2';
@@ -437,17 +377,13 @@ class Image extends BaseElement
             $replacement = 'media/$1/source/';
         }
 
-        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
-
+        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath ?? '') ?? $srcUrlPath;
         $srcUrlPath = str_replace('//', '/', $srcUrlPath);
         $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
 
         return "/{$srcUrlPath}";
     }
 
-    /**
-     * Try to get Original RSI Hash.
-     */
     public static function getDirHash(string $src): ?string
     {
         $src = substr($src, 1);

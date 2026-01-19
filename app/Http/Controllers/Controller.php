@@ -4,25 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
+use OpenApi\Attributes as OA;
 
-/**
- * Class Controller
- */
-class Controller extends BaseController
+#[OA\Info(
+    version: '3.0.0',
+    title: 'Star Citizen API',
+    contact: new OA\Contact(email: 'foxftw@star-citizen.wiki'),
+)]
+#[OA\Server(url: 'https://api.star-citizen.wiki')]
+abstract class Controller
 {
-    use AuthorizesRequests;
-    use DispatchesJobs;
-    use ValidatesRequests;
-
     /**
-     * Controller constructor.
+     * Clean the name for query use.
      */
-    public function __construct()
+    protected function cleanQueryName(string $name): string
     {
-        // Base Constructor
+        return str_replace('_', ' ', urldecode($name));
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources\Rsi\CommLink\Image;
 
 use App\Http\Resources\AbstractBaseResource;
@@ -7,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'comm_link_image_v2',
+    schema: 'comm_link_image',
     title: 'Comm-Link Image',
     description: 'Image used in a Comm-Link',
     properties: [
@@ -29,24 +31,45 @@ use OpenApi\Attributes as OA;
 )]
 class ImageResource extends AbstractBaseResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
+            'name' => $this->name,
             'rsi_url' => $this->url,
-            'api_url' => $this->local ? asset("storage/comm_link_images/{$this->dir}/{$this->name}") : null,
             'alt' => $this->alt,
             'size' => $this->metadata->size,
             'mime_type' => $this->metadata->mime,
-            'last_modified' => $this->metadata->last_modified,
-            $this->mergeWhen($this->whenLoaded('tags'), [
-                'tags' => $this->tags->map(fn ($tag) => $tag->translated_name),
+            'last_modified' => $this->metadata->last_modified->toIso8601String(),
+            $this->mergeWhen($this->relationLoaded('tags'), [
+                'tags' => $this->tags->map(fn ($tag) => [
+                    'name' => $tag->name,
+                    'translated_name' => $tag->translated_name,
+                    'images_count' => $tag->images_count,
+                ]),
             ]),
-            'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey().'/similar'),
+            $this->mergeWhen($this->relationLoaded('commLinks'), [
+                'comm_links' => $this->commLinks->map(fn ($commLink) => [
+                    'id' => $commLink->cig_id,
+                    'title' => $commLink->title,
+                    'api_url' => route('comm-links.show', ['id' => $commLink->cig_id]),
+                    'web_url' => route('web.comm-links.show', $commLink->cig_id),
+                ]),
+            ]),
+            $this->mergeWhen($this->relationLoaded('duplicates'), [
+                'duplicates' => $this->duplicates->map(fn ($image) => [
+                    'id' => $image->id,
+                    'name' => $image->name,
+                ]),
+            ]),
+            $this->mergeWhen($this->relationLoaded('baseImage'), [
+                'base_image' => $this->baseImage === null ? null : [
+                    'id' => $this->baseImage->id,
+                    'name' => $this->baseImage->name,
+                ],
+            ]),
+            'api_url' => route('comm-link-images.show', ['image' => $this->getRouteKey()]),
+            'similar_url' => route('comm-link-images.similar', ['image' => $this->getRouteKey()]),
         ];
     }
 }

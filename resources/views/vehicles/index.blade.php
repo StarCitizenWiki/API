@@ -1,0 +1,132 @@
+@extends('layouts.app')
+
+@section('title', 'Vehicles')
+@section('meta_description', 'Browse Vehicles.')
+
+@section('content')
+    @php
+        $tableId = 'vehicles-table';
+        $resolvedVersionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
+        $versionParams = $resolvedVersionCode ? ['version' => $resolvedVersionCode] : [];
+        $tableConfig = [
+            'endpoint' => route('vehicles.index', $versionParams),
+            'pageSize' => 25,
+            'progressiveLoad' => 'scroll',
+            'initialHeaderFilter' => $initialHeaderFilter,
+            'columnDefaults' => [
+                'headerSortTristate' => true,
+            ],
+            'headerFilterOptionsMap' => [
+                'manufacturer.name' => 'manufacturer',
+                'size_class' => 'size',
+                'career' => 'career',
+                'role' => 'role',
+                'is_vehicle' => 'is_vehicle',
+                'is_gravlev' => 'is_gravlev',
+                'is_spaceship' => 'is_spaceship',
+                'shield.face_type' => 'shield.face_type',
+            ],
+            'apiUrlTargetId' => 'vehicles-api-url',
+            'columns' => [
+                ['title' => 'Name', 'field' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
+                ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
+                ['title' => 'Manufacturer', 'field' => 'manufacturer.name', 'sortField' => 'manufacturer.name', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 180],
+                ['title' => 'Size', 'field' => 'size_class', 'sorter' => 'number', 'sortField' => 'Size', 'headerSort' => true, 'headerFilter' => 'list', 'hozAlign' => 'right', 'width' => 120],
+                [
+                    'title' => 'Dimensions',
+                    'columns' => [
+                        ['title' => 'W', 'field' => 'dimension.width', 'sorter' => 'number', 'sortField' => 'Width', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'L', 'field' => 'dimension.length', 'sorter' => 'number', 'sortField' => 'Length', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'H', 'field' => 'dimension.height', 'sorter' => 'number', 'sortField' => 'Height', 'formatter' => 'money', 'formatterParams' => ['symbol' => ' m', 'symbolAfter' => true], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                     ],
+                ],
+
+                ['title' => 'Crew', 'field' => 'crew.min', 'sorter' => 'number', 'sortField' => 'Crew', 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                ['title' => 'Mass Total', 'field' => 'mass_total', 'sorter' => 'number', 'sortField' => 'MassTotal', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' kg'], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
+
+                [
+                    'title' => 'Cargo',
+                    'columns' => [
+                        ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'Cargo', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'Stowage', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
+                    ],
+                ],
+
+                [
+                    'title' => 'Durability',
+                    'columns' => [
+                        ['title' => 'Health', 'field' => 'health', 'sorter' => 'number', 'sortField' => 'Health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Armor', 'field' => 'armor.health', 'sorter' => 'number', 'sortField' => 'Armor.Health', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 140],
+                        ['title' => 'Shield', 'field' => 'shield.hp', 'sorter' => 'number', 'sortField' => 'ShieldsTotal.Hp', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' HP', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Shield Face', 'field' => 'shield.face_type', 'sortField' => 'ShieldController.FaceType', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                    ],
+                ],
+
+                [
+                    'title' => 'Speed',
+                    'columns' => [
+                        ['title' => 'SCM', 'field' => 'speed.scm', 'sorter' => 'number', 'sortField' => 'FlightCharacteristics.IFCS.ScmSpeed', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 110],
+                        ['title' => 'NAV', 'field' => 'speed.max', 'sorter' => 'number', 'sortField' => 'FlightCharacteristics.IFCS.MaxSpeed', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' m/s', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                    ],
+                ],
+
+                [
+                    'title' => 'X-Section',
+                    'columns' => [
+                        ['title' => 'L', 'field' => 'cross_section.length', 'sorter' => 'number', 'sortField' => 'CrossSection.X', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'W', 'field' => 'cross_section.width', 'sorter' => 'number', 'sortField' => 'CrossSection.Z', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                        ['title' => 'H', 'field' => 'cross_section.height', 'sorter' => 'number', 'sortField' => 'CrossSection.Y', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 90],
+                    ],
+                ],
+
+                ['title' => 'Vehicle', 'field' => 'is_vehicle', 'sortField' => 'IsVehicle', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
+                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'sortField' => 'IsGravlev', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
+                ['title' => 'Spaceship', 'field' => 'is_spaceship', 'sortField' => 'IsSpaceship', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 120],
+
+                [
+                    'title' => 'Signature',
+                    'columns' => [
+                        ['title' => 'IR Quantum', 'field' => 'signature.ir_quantum', 'sorter' => 'number', 'sortField' => 'Emission.IrQuantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'IR Shields', 'field' => 'signature.ir_shields', 'sorter' => 'number', 'sortField' => 'Emission.IrShields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'EM Quantum', 'field' => 'signature.em_quantum', 'sorter' => 'number', 'sortField' => 'Emission.EmQuantum', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                        ['title' => 'EM Shields', 'field' => 'signature.em_shields', 'sorter' => 'number', 'sortField' => 'Emission.EmShields', 'formatter' => 'money', 'formatterParams' => ['precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 130],
+                    ],
+                ],
+
+                ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                [
+                    'title' => 'MSRP', 'field' => 'msrp', 'sortField' => 'msrp', 'headerSort' => true,
+                    'formatter' => 'money',
+                    'formatterParams' => ['symbol' => ' $', 'symbolAfter' => true]
+                ],
+                [
+                    'title' => 'API Url',
+                    'field' => 'uuid',
+                    'formatter' => 'link',
+                    'formatterParams' => [
+                        'label' => 'View',
+                        'target' => 'blank',
+                        'urlField' => 'link',
+                    ],
+                    'headerSort' => false,
+                    'hozAlign' => 'right',
+                    'width' => 100,
+                ],
+            ],
+        ];
+    @endphp
+
+    <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-2xl font-semibold tracking-tight">Vehicles</h1>
+        </div>
+
+        <x-tabulator-table
+            :id="$tableId"
+            :config="$tableConfig"
+            :initial="$initialTableData"
+        />
+        <x-column-source-map :columns="$tableConfig['columns']" />
+    </div>
+@endsection

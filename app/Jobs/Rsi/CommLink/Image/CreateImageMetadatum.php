@@ -4,44 +4,37 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Image;
 
-use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
 use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Client\Response;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
+class CreateImageMetadatum implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
-    private Image $image;
+    public int $timeout = 120;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(Image $image)
-    {
-        $this->image = $image;
-    }
+    public function __construct(public readonly int $imageId) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        $url = $this->image->url;
+        $image = Image::query()->with('metadata')->find($this->imageId);
 
-        $response = $this->makeClient()->head($url);
+        if ($image === null) {
+            return;
+        }
+
+        $response = Http::timeout(30)->head($image->url);
 
         if ($response->serverError()) {
-            app('Log')::debug('Header request failed. Retrying in 300 seconds.', [$url, $response->status()]);
+            Log::warning('Comm-Link image metadata request failed with server error.', [
+                'image_id' => $image->id,
+                'status' => $response->status(),
+            ]);
 
             $this->release(300);
 
@@ -49,43 +42,42 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
         }
 
         if ($response->clientError()) {
-            app('Log')::info("Header request resulted in code {$response->status()}", [$url]);
+            Log::info('Comm-Link image metadata request failed with client error.', [
+                'image_id' => $image->id,
+                'status' => $response->status(),
+            ]);
 
-            if ($this->image->metadata === null) {
-                $this->image->metadata()->create(
-                    [
-                        'mime' => 'undefined',
-                        'size' => 0,
-                        'last_modified' => '0001-01-01 00:00:00',
-                    ]
-                );
+            if ($image->metadata === null || $image->metadata->mime === 'undefined') {
+                $image->metadata()->updateOrCreate([
+                    'comm_link_image_id' => $image->id,
+                ], [
+                    'mime' => 'undefined',
+                    'size' => 0,
+                    'last_modified' => '0001-01-01 00:00:00',
+                ]);
             }
 
             return;
         }
 
-        $this->saveMetadata($response);
-    }
-
-    /**
-     * Saves response data as metadata
-     */
-    private function saveMetadata(Response $response): void
-    {
         $data = [
             'mime' => $response->header('content-type'),
             'size' => $response->header('content-length'),
-            'last_modified' => Carbon::parse($response->header('last-modified'))->toDateTimeString(),
+            'last_modified' => $response->header('last-modified'),
         ];
 
-        foreach ($data as $key => $datum) {
-            if ($datum === '') {
-                unset($data[$key]);
+        if ($data['last_modified'] !== null) {
+            try {
+                $data['last_modified'] = Carbon::parse($data['last_modified'])->toDateTimeString();
+            } catch (Exception $exception) {
+                $data['last_modified'] = null;
             }
         }
 
-        if ($this->image->metadata->mime === 'undefined') {
-            $this->image->metadata()->create($data);
-        }
+        $data = array_filter($data, static fn ($value) => $value !== null && $value !== '');
+
+        $image->metadata()->updateOrCreate([
+            'comm_link_image_id' => $image->id,
+        ], $data);
     }
 }

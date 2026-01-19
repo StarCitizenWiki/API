@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Starmap;
 
-use App\Console\Commands\AbstractQueueCommand as QueueCommand;
+use Illuminate\Console\Command;
 
-class TranslateSystems extends QueueCommand
+class TranslateSystems extends Command
 {
     /**
      * The name and signature of the console command.

@@ -68,9 +68,8 @@ class Image extends Model
         return $this->hasOne(ImageHash::class, 'comm_link_image_id')
             ->withDefault(
                 [
-                    'perceptual_hash' => 0xDEADBEEF,
-                    'difference_hash' => 0xDEADBEEF,
-                    'average_hash' => 0xDEADBEEF,
+                    'pdq_hash' => null,
+                    'pdq_quality' => null,
                 ]
             );
     }
@@ -94,58 +93,17 @@ class Image extends Model
      */
     public function similarImages(int $similarity = 90, int $limit = 15): Collection
     {
-        if ($this->hash->pdq_hash1 === null) {
+        if (empty($this->hash->pdq_hash)) {
             return collect();
         }
 
-        return ImageHash::query()
-            ->select(['comm_link_image_hashes.comm_link_image_id', 'pdq_quality'])
-            ->selectRaw(
-                <<<'SQL'
-(BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(?, 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(?, 16, 10))) as pdq_distance,
-BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(?, 16, 10)) AS p_distance
-SQL,
-                [
-                    bin2hex($this->hash->pdq_hash1),
-                    bin2hex($this->hash->pdq_hash2),
-                    bin2hex($this->hash->pdq_hash3),
-                    bin2hex($this->hash->pdq_hash4),
-                    bin2hex($this->hash->perceptual_hash),
-                ]
-            )
-            ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
-            ->where('comm_link_images.id', '!=', $this->id)
-            ->whereNotNull('pdq_quality')
-            ->whereNull('comm_link_images.base_image_id')
-            ->orderBy('pdq_distance')
-            ->limit($limit)
-            ->get()
-            ->map(
-                function (object $data) {
-                    $id = $data->comm_link_image_id;
-
-                    $image = Image::query()->find($id);
-
-                    if ($data->pdq_distance === null) {
-                        $image->similarity = round((1 - ($data->p_distance / 64)) * 100);
-                        $image->similarity_method = __('Basierend auf Merkmalen des Inhalts');
-                    } else {
-                        $image->similarity = round((1 - ($data->pdq_distance / 256)) * 100);
-                        $image->similarity_method = ''; //PDQ
-                    }
-
-                    $image->pdq_distance = $data->pdq_distance ?? $image->p_distance;
-
-                    return $image;
-                }
-            )
-            ->filter()
-            ->sortByDesc('similarity')
-            ->filter(fn (object $image) => $image->similarity >= $similarity)
-            ->slice(0, $limit);
+        return ImageHash::similarImagesForHash(
+            $this->hash->pdq_hash,
+            $similarity,
+            $limit,
+            $this->id,
+            true
+        );
     }
 
     /**
@@ -153,7 +111,7 @@ SQL,
      */
     public function isHashed(): bool
     {
-        return $this->hash->perceptual_hash !== 'DEADBEEF';
+        return ! empty($this->hash->pdq_hash);
     }
 
     public function metadata(): HasOne
@@ -163,7 +121,7 @@ SQL,
                 [
                     'size' => 0,
                     'mime' => 'undefined',
-                    'last_modified' => Carbon::minValue(),
+                    'last_modified' => Carbon::createFromTimestamp(0),
                 ]
             );
     }
@@ -181,7 +139,7 @@ SQL,
      */
     public function getUrlAttribute(): string
     {
-        $url = config('api.rsi_url');
+        $url = config('services.rsi_url');
 
         if (! Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache', '/i/'])) {
             $url = 'https://media.robertsspaceindustries.com';
@@ -217,7 +175,7 @@ SQL,
         return $ext !== '' ? sprintf('.%s', $ext) : '';
     }
 
-    public function getLocalPathAttribute()
+    public function getLocalPathAttribute(): string
     {
         return storage_path("app/public/comm_link_images/{$this->dir}/{$this->name}");
     }

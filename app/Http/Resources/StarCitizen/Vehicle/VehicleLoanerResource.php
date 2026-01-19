@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'vehicle_loaner_v2',
+    schema: 'vehicle_loaner',
     title: 'Vehicle Loaner',
     properties: [
         new OA\Property(property: 'name', type: 'string'),
@@ -20,20 +20,14 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleLoanerResource extends AbstractBaseResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'name' => $this->name,
-            'link' => $this->makeApiUrl(
-                self::VEHICLES_SHOW,
-                $this->sc?->exists ? $this->sc->item_uuid : urlencode($this->name)
+            'link' => route(
+                'vehicles.show',
+                ['vehicle' => $this->sc?->exists ? $this->sc->vehicle->uuid : ($this->name ?? '')]
             ),
-
             'version' => $this->pivot->version,
         ];
     }

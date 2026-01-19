@@ -4,62 +4,70 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Carbon\Carbon;
-use FilesystemIterator;
-use Illuminate\Pagination\Paginator;
+use App\Models\User;
+use App\Services\Translation\TranslationService;
+use App\View\Composers\AppShellComposer;
+use DeepL\Translator;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
-use URL;
 
-/**
- * Class AppServiceProvider.
- */
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function register(): void
     {
-        $this->loadMigrations();
+        $this->app->singleton(Translator::class, function () {
+            return new Translator(config('services.deepl.auth_key'));
+        });
 
-        Paginator::useBootstrap();
-        Carbon::setLocale(config('app.locale'));
+        $this->app->singleton(TranslationService::class);
+    }
 
-        if (config('app.env') === 'production') {
-            URL::forceScheme('https');
-        }
+    public function boot(): void
+    {
+        $paths = $this->allMigrationDirectories(database_path('migrations'));
+
+        $this->loadMigrationsFrom($paths);
+
+        View::composer('layouts.app', AppShellComposer::class);
+
+        Gate::define('access-admin', static function (User $user): bool {
+            return $user->is_admin === true;
+        });
+
+        RateLimiter::for('reverse-image-search', static function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->ip())
+                ->response(function (Request $request, array $headers) {
+                    return response('Too many reverse image searches. Please try again later.', 429, $headers);
+                });
+        });
     }
 
     /**
-     * Loads migrations in Sub-folders.
+     * Recursively collect all directories under the given folder.
      */
-    private function loadMigrations()
+    protected function allMigrationDirectories(string $dir): array
     {
-        $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
-        $migrationDirectories = new RecursiveIteratorIterator(
-            $directoryIterator,
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-        $migrationDirectories = collect($migrationDirectories);
+        $dirs = [$dir];
 
-        $migrationDirectories->filter(
-            function (SplFileInfo $filename) {
-                return $filename->isDir();
+        $items = scandir($dir);
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
             }
-        );
 
-        $this->loadMigrationsFrom($migrationDirectories->toArray());
+            $path = $dir.DIRECTORY_SEPARATOR.$item;
+
+            if (is_dir($path)) {
+                $dirs = array_merge($dirs, $this->allMigrationDirectories($path));
+            }
+        }
+
+        return array_unique($dirs);
     }
-
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register() {}
 }

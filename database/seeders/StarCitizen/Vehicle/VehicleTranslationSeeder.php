@@ -16,11 +16,10 @@ class VehicleTranslationSeeder extends Seeder
      */
     public function run()
     {
-        DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/focus.sql')));
-        DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/size.sql')));
-        DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/type.sql')));
-
-        DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/production_note.sql')));
-        DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/production_status.sql')));
+        // DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/focus.sql')));
+        // DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/size.sql')));
+        // DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/type.sql')));
+        // DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/production_note.sql')));
+        // DB::unprepared(file_get_contents(database_path('dumps/vehicle_translations/production_status.sql')));
     }
 }

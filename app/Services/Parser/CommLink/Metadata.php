@@ -4,60 +4,31 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
-use App\Models\Rsi\CommLink\Series\Series;
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
+use App\Models\Rsi\CommLink\Category;
+use App\Models\Rsi\CommLink\Channel;
+use App\Models\Rsi\CommLink\Series;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Comm-Link Metadata Parser
- */
-class Metadata extends BaseElement
+class Metadata extends AbstractBaseElement
 {
-    /**
-     * Default Creation Date no Date was found in the Comm-Link
-     */
     public const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
 
-    /**
-     * Channel CSS Selector
-     */
     private const CHANNEL_SELECTOR = '.title-bar .title h1';
 
-    /**
-     * Category CSS Selector
-     */
     private const CATEGORY_SELECTOR = '.title-bar .title h2';
 
-    /**
-     * Series CSS Selector
-     */
     private const SERIES_SELECTOR = '.presented-by + div + h1';
 
-    /**
-     * Created At CSS Selector
-     */
     private const CREATED_AT_SELECTOR = '.title-section .details div:nth-of-type(3) p';
 
-    /**
-     * Default Title Ending
-     */
     private const RSI_DEFAULT_TITLE_ENDING = ' - Roberts Space Industries | Follow the development of Star Citizen and Squadron 42';
 
-    /**
-     * Subscriber Channel
-     */
     private const SUBSCRIBER = 'Subscriber';
 
-    /**
-     * This maps a common Comm-Link Title to pre-defined Channel / Category / Series
-     * As the "new" Layout Systems hides the top-bar that includes this information we need to manually set this...
-     */
     private const MANUAL_SETTINGS = [
         '/Inside Star Citizen/' => [
             'channel' => 'Transmission',
@@ -69,29 +40,23 @@ class Metadata extends BaseElement
             'category' => 'General',
             'series' => 'Star Citizen LIVE',
         ],
-        // Q&A: ... Posts
         '/^Q\s?&\s?A:?.+/' => [
             'channel' => 'Engineering',
             'category' => 'Development',
-            // TODO: Is this correct for all?
             'series' => 'Concept Ship Q&A',
         ],
-        // ... Q&A Posts
         '/.+Q\s?&\s?A$/' => [
             'channel' => 'Engineering',
             'category' => 'Development',
         ],
-        // Roadmap Roundup ... Posts
         '/Roadmap Roundup.+/' => [
             'channel' => 'Spectrum Dispatch',
             'category' => 'Lore',
             'series' => 'Roadmap Roundup',
         ],
-        // ... Subscriber Promotions
         '/.+Subscriber Promotions$/' => [
             'channel' => 'Transmission',
             'category' => 'General',
-            // This is not an official series
             'series' => 'Subscriber Promotions',
         ],
         '/Calling All Devs/' => [
@@ -99,18 +64,14 @@ class Metadata extends BaseElement
             'category' => 'General',
             'series' => 'Calling All Devs',
         ],
-        // Star Citizen Patch Infos ... Posts
         '/^(Star Citizen )?(Alpha|Beta|Patch) v?[\d\.a-g]+\s?(?:Available!?)?$/' => [
             'channel' => 'Transmission',
             'category' => 'General',
-            // This is not an official series
             'series' => 'Release Info',
         ],
-        // Alpha - ... Posts
         '/(Alpha|Beta) - .+/' => [
             'channel' => 'Transmission',
             'category' => 'General',
-            // This is not an official series
             'series' => 'Release Info',
         ],
         '/^Design Notes:\s.+/' => [
@@ -135,21 +96,12 @@ class Metadata extends BaseElement
         ],
     ];
 
-    /**
-     * Title used if no title could be found
-     */
     private const NO_TITLE_FOUND = 'No Title Found';
 
     private Crawler $commLink;
 
-    /**
-     * @var Collection MetaData Collection
-     */
     private Collection $metaData;
 
-    /**
-     * Metadata constructor.
-     */
     public function __construct(Crawler $commLinkDocument)
     {
         $this->commLink = $commLinkDocument;
@@ -171,9 +123,6 @@ class Metadata extends BaseElement
         return $this->metaData;
     }
 
-    /**
-     * Extracts the Comm-Link title from the <title> Element
-     */
     private function extractTitle(): void
     {
         if ($this->isSubscriberPage($this->commLink)) {
@@ -184,49 +133,32 @@ class Metadata extends BaseElement
 
         try {
             $title = $this->commLink->filterXPath('//title')->text();
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $exception) {
             $title = self::NO_TITLE_FOUND;
         }
 
-        $title = preg_replace(
-            [
-                "/\r|\n/",
-                '/\s+/',
-            ],
-            [
-                '',
-                ' ',
-            ],
-            str_replace(
-                self::RSI_DEFAULT_TITLE_ENDING,
-                '',
-                $title
-            )
-        );
+        $title = preg_replace([
+            "/\r|\n/",
+            '/\s+/',
+        ], [
+            '',
+            ' ',
+        ], str_replace(self::RSI_DEFAULT_TITLE_ENDING, '', $title)) ?? $title;
 
         $this->metaData->put('title', $this->cleanText($title));
     }
 
-    /**
-     * Extracts the Comm-Link title for a Subscriber Page
-     */
     private function extractSubscriberPageTitle(): void
     {
         try {
             $title = $this->commLink->filter('.title-section h2')->first()->text();
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $exception) {
             $title = self::NO_TITLE_FOUND;
         }
 
         $this->metaData->put('title', $this->cleanText($title));
     }
 
-    /**
-     * Tries to Extract the Comm-Link Category
-     * Defaults to 'Undefined' if not found
-     *
-     * @param  string|null  $category  Manual category to use
-     */
     private function extractCategory(?string $category = null): void
     {
         $categoryId = 1;
@@ -240,152 +172,121 @@ class Metadata extends BaseElement
         }
 
         if (! empty($category)) {
-            $categoryId = Category::query()->firstOrCreate(
-                [
-                    'name' => $category,
-                    'slug' => Str::slug($category, '-'),
-                ]
-            )->id;
+            $categoryId = Category::query()->firstOrCreate([
+                'name' => $category,
+                'slug' => Str::slug($category, '-'),
+            ])->id;
         }
 
         $this->metaData->put('category_id', $categoryId);
     }
 
-    /**
-     * Tries to Extract the Comm-Link Channel
-     * Defaults to 'Undefined' if not found
-     *
-     * @param  string|null  $channel  Manual channel to use
-     */
     private function extractChannel(?string $channel = null): void
     {
         $channelId = 1;
 
-        // phpcs:ignore Generic.Files.LineLength.TooLong
-        if ($channel === null && ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0 || $this->isSubscriberPage($this->commLink))) {
-            if ($this->isSubscriberPage($this->commLink)) {
-                $channel = self::SUBSCRIBER;
-            } else {
-                $channel = $this->commLink->filter(self::CHANNEL_SELECTOR)->text();
+        if ($channel === null && $this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0) {
+            $channel = $this->commLink->filter(self::CHANNEL_SELECTOR)->text();
+
+            if (! empty($channel)) {
+                $channel = $this->cleanText($channel);
             }
         }
 
         if (! empty($channel)) {
-            $channel = $this->cleanText($channel);
-
-            $channelId = Channel::query()->firstOrCreate(
-                [
-                    'name' => $channel,
-                    'slug' => Str::slug($channel, '-'),
-                ]
-            )->id;
+            $channelId = Channel::query()->firstOrCreate([
+                'name' => $channel,
+                'slug' => Str::slug($channel, '-'),
+            ])->id;
         }
 
         $this->metaData->put('channel_id', $channelId);
     }
 
-    /**
-     * Tries to Extract the Comm-Link Series
-     * Defaults to 'None' if not found
-     *
-     * @param  string|null  $series  Manual series to use
-     */
     private function extractSeries(?string $series = null): void
     {
-        $seriesId = Series::query()->first()->id;
+        $seriesId = 1;
 
         if ($series === null && $this->commLink->filter(self::SERIES_SELECTOR)->count() > 0) {
             $series = $this->commLink->filter(self::SERIES_SELECTOR)->text();
+
+            if (! empty($series)) {
+                $series = $this->cleanText($series);
+            }
         }
 
         if (! empty($series)) {
-            $series = $this->cleanText($series);
-
-            $seriesId = Series::query()->firstOrCreate(
-                [
-                    'name' => $series,
-                    'slug' => Str::slug($series, '-'),
-                ]
-            )->id;
+            $seriesId = Series::query()->firstOrCreate([
+                'name' => $series,
+                'slug' => Str::slug($series, '-'),
+            ])->id;
         }
 
         $this->metaData->put('series_id', $seriesId);
     }
 
-    /**
-     * Tries to get the original Comm-Link URL from the 'Add-Comment' Link
-     */
     private function extractOriginalUrl(): void
     {
-        $href = null;
+        if ($this->commLink->filter('meta[property="og:url"]')->count() === 0) {
+            $this->metaData->put('url', null);
 
-        if ($this->commLink->filter('a.add-comment')->count() > 0) {
-            $href = $this->commLink->filter('a.add-comment')->attr('href');
-        }
-
-        if (! empty($href)) {
-            $href = $this->cleanText(str_replace('/connect?jumpto=', '', $href));
-        }
-
-        $this->metaData->put('url', $href);
-    }
-
-    /**
-     * Tries to extract the Comment Count from the .title-section Element
-     */
-    private function extractCommentCount(): void
-    {
-        $count = 0;
-        if ($this->commLink->filter('.comment-count')->count() > 0) {
-            $count = (int) $this->commLink->filter('.comment-count')->first()->text();
-        }
-
-        $this->metaData->put('comment_count', $count);
-    }
-
-    /**
-     * Tries to extract the Creation Date from the .title-section Element
-     * Defaults to '2012-01-01 00:00:00' if no Date was found
-     */
-    private function extractCreatedAt(): void
-    {
-        $createdAt = self::DEFAULT_CREATION_DATE;
-
-        if ($this->commLink->filter(self::CREATED_AT_SELECTOR)->count() > 0) {
-            $createdAt = $this->commLink->filter(self::CREATED_AT_SELECTOR)->text();
-
-            if (! empty($createdAt)) {
-                $createdAt = Carbon::parse($createdAt)->toDateTimeString();
-            }
-        }
-
-        $this->metaData->put('created_at', $createdAt);
-    }
-
-    /**
-     * @see Metadata::MANUAL_SETTINGS
-     */
-    private function runManualFixes(): void
-    {
-        $title = $this->metaData->get('title');
-        if ($title === self::NO_TITLE_FOUND) {
             return;
         }
 
-        foreach (self::MANUAL_SETTINGS as $matcher => $data) {
-            if (preg_match($matcher, $title) === 1) {
-                if (isset($data['channel'])) {
-                    $this->extractChannel($data['channel']);
-                }
-                if (isset($data['category'])) {
-                    $this->extractCategory($data['category']);
-                }
-                if (isset($data['series'])) {
-                    $this->extractSeries($data['series']);
-                }
+        $this->metaData->put('url', $this->commLink->filter('meta[property="og:url"]')->attr('content'));
+    }
 
-                return;
+    private function extractCommentCount(): void
+    {
+        if ($this->commLink->filter('.comment-count')->count() === 0) {
+            $this->metaData->put('comment_count', 0);
+
+            return;
+        }
+
+        $count = (int) $this->commLink->filter('.comment-count')->text();
+        $this->metaData->put('comment_count', $count);
+    }
+
+    private function extractCreatedAt(): void
+    {
+        $date = null;
+
+        if ($this->commLink->filter(self::CREATED_AT_SELECTOR)->count() > 0) {
+            $date = $this->commLink->filter(self::CREATED_AT_SELECTOR)->text();
+        }
+
+        if ($date === null || $date === '') {
+            $this->metaData->put('created_at', self::DEFAULT_CREATION_DATE);
+
+            return;
+        }
+
+        try {
+            $this->metaData->put('created_at', Carbon::parse($date)->format('Y-m-d H:i:s'));
+        } catch (InvalidArgumentException $exception) {
+            $this->metaData->put('created_at', self::DEFAULT_CREATION_DATE);
+        }
+    }
+
+    private function runManualFixes(): void
+    {
+        $title = (string) $this->metaData->get('title');
+
+        if ($this->metaData->get('channel_id') === 1) {
+            foreach (self::MANUAL_SETTINGS as $pattern => $settings) {
+                if (preg_match($pattern, $title)) {
+                    $this->extractChannel($settings['channel'] ?? null);
+                    $this->extractCategory($settings['category'] ?? null);
+                    $this->extractSeries($settings['series'] ?? null);
+                }
             }
+        }
+
+        $channel = optional(Channel::query()->find($this->metaData->get('channel_id')))->name;
+        if ($channel === self::SUBSCRIBER) {
+            $this->extractCategory('General');
+            $this->extractSeries('Subscription');
         }
     }
 }

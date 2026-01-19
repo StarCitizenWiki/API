@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\StarCitizen\Vehicle;
 
-use App\Models\StarCitizen\Vehicle\Type\Type;
-use Carbon\Carbon;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,30 +19,14 @@ class TypeTableSeeder extends Seeder
             return;
         }
 
-        $now = Carbon::now();
-
-        DB::table('vehicle_types')->insert(
+        DB::table('shipmatrix_vehicle_types')->insert(
             [
                 'id' => 1,
                 'slug' => 'undefined',
-            ]
-        );
-        DB::table('vehicle_type_translations')->insert(
-            [
-                'locale_code' => 'en_EN',
-                'type_id' => 1,
-                'translation' => 'undefined',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
-        );
-        DB::table('vehicle_type_translations')->insert(
-            [
-                'locale_code' => 'de_DE',
-                'type_id' => 1,
-                'translation' => 'Undefiniert',
-                'created_at' => $now,
-                'updated_at' => $now,
+                'translations' => json_encode([
+                    'en' => 'Undefined',
+                    'de' => 'Undefiniert',
+                ], JSON_THROW_ON_ERROR),
             ]
         );
     }

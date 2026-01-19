@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'jumppoint_v2',
+    schema: 'jumppoint',
     title: 'Jumppoint',
     description: 'A jumppoint from the starmap',
     properties: [
@@ -42,7 +42,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class JumppointResource extends AbstractTranslationResource
+class JumppointResource extends AbstractBaseResource
 {
     private bool $hideCO;
 
@@ -61,13 +61,13 @@ class JumppointResource extends AbstractTranslationResource
             'entry' => [
                 'id' => $this->entry->cig_id,
                 'system_id' => $this->entry->starsystem_id,
-                'system_api_url' => $this->makeApiUrl(
-                    self::STARMAP_STARSYSTEM_SHOW,
-                    $this->entry->starsystem_id
+                'system_api_url' => route(
+                    'starsystems.show',
+                    ['code' => $this->entry->starsystem_id]
                 ),
-                'celestial_object_api_url' => $this->makeApiUrl(
-                    self::STARMAP_CELESTIAL_OBJECTS_SHOW,
-                    $this->entry->code
+                'celestial_object_api_url' => route(
+                    'celestial-objects.show',
+                    ['code' => $this->entry->code]
                 ),
                 'status' => $this->entry_status,
                 'code' => $this->entry->code,
@@ -76,13 +76,13 @@ class JumppointResource extends AbstractTranslationResource
             'exit' => [
                 'id' => $this->exit->cig_id,
                 'system_id' => $this->exit->starsystem_id,
-                'system_api_url' => $this->makeApiUrl(
-                    self::STARMAP_STARSYSTEM_SHOW,
-                    $this->exit->starsystem_id
+                'system_api_url' => route(
+                    'starsystems.show',
+                    ['code' => $this->exit->starsystem_id]
                 ),
-                'celestial_object_api_url' => $this->makeApiUrl(
-                    self::STARMAP_CELESTIAL_OBJECTS_SHOW,
-                    $this->exit->code
+                'celestial_object_api_url' => route(
+                    'celestial-objects.show',
+                    ['code' => $this->exit->code]
                 ),
                 'status' => $this->exit_status,
                 'code' => $this->exit->code,

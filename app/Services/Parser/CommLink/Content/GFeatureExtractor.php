@@ -18,17 +18,14 @@ final class GFeatureExtractor implements ContentExtractorInterface
         $this->page = $page;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getContent(): string
     {
         $content = $this->getIntroduction($this->page);
 
-        $extract = function (Crawler $crawler) use (&$content) {
+        $extract = function (Crawler $crawler) use (&$content): void {
             $this->getGFeaturesIntro($crawler, $content);
 
-            $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content) {
+            $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content): void {
                 $slot = $crawler->attr('slot');
                 switch ($slot) {
                     case 'title':
@@ -49,23 +46,16 @@ final class GFeatureExtractor implements ContentExtractorInterface
             });
         };
 
-        //$this->page->filterXPath('//g-features')->each($extract);
         $this->page->filterXPath('//g-feature')->each($extract);
 
         return $content;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function getFilter(): string
     {
         return '//g-feature';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function canParse(Crawler $page): array
     {
         $count = $page->filterXPath(self::getFilter())->count();
@@ -76,13 +66,10 @@ final class GFeatureExtractor implements ContentExtractorInterface
         ];
     }
 
-    /**
-     * <g-features> Intro
-     */
     private function getGFeaturesIntro(Crawler $crawler, string &$content): void
     {
         if ($crawler->attr(':is-header-declared') === 'true') {
-            $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content) {
+            $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content): void {
                 if ($crawler->attr('slot') === 'title') {
                     $content .= sprintf('<h1>%s</h1>', $crawler->text());
                 }

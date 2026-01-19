@@ -4,159 +4,98 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
 
-use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Download all missing Comm-Links based on the last DB entry.
- * Extracts the highest Comm-Link-Id from 'https://robertsspaceindustries.com/comm-link'
- * And Dispatches download-jobs for ID - DB_ID
- *
- * If No Comm-Link was found in the DB, the first Comm-Link ID (12663) will be used.
- *
- * Existing Comm-Links are skipped.
- */
-class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
+class DownloadMissingCommLinks implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
 
     public const FIRST_COMM_LINK_ID = 12663;
 
-    public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+    public int $timeout = 120;
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        app('Log')::info('Starting Missing Comm-Links Download Job');
+        Log::info('Starting Comm-Link missing download scan.');
 
-        $response = $this->makeClient()->get(self::COMM_LINK_BASE_URL);
+        $response = Http::timeout(60)->get($this->hubUrl());
 
-        if (! $response->successful()) {
-            app('Log')::error('Could not connect to RSI, retrying in 5 minutes.');
+        if ($response->serverError()) {
+            Log::warning('Comm-Link hub request failed with server error.', [
+                'status' => $response->status(),
+            ]);
+
             $this->release(300);
+
+            return;
+        }
+
+        if ($response->clientError()) {
+            Log::info('Comm-Link hub request failed with client error.', [
+                'status' => $response->status(),
+            ]);
 
             return;
         }
 
         $postIds = $this->extractPostIds($response->body());
 
-        if (empty($postIds)) {
-            app('Log')::info('Could not retrieve latest Comm-Link ID, retrying in 1 minute.');
+        if ($postIds === []) {
+            Log::info('Comm-Link hub returned no IDs.');
             $this->release(60);
 
             return;
         }
 
         $latestPostId = max($postIds);
+        $latestDbId = CommLink::query()->max('cig_id') ?? self::FIRST_COMM_LINK_ID - 1;
 
-        app('Log')::info(
-            "Latest Comm-Link ID is: {$latestPostId}",
-            [
-                'id' => $latestPostId,
-            ]
-        );
+        foreach ($postIds as $postId) {
+            dispatch(new DownloadCommLink($postId, true));
+        }
 
-        $this->downloadCommLinks($postIds);
+        $startId = max(self::FIRST_COMM_LINK_ID, $latestDbId + 1);
+        for ($id = $startId; $id <= $latestPostId; $id++) {
+            dispatch(new DownloadCommLink($id, true));
+        }
+    }
+
+    private function hubUrl(): string
+    {
+        return rtrim((string) config('services.rsi_url'), '/').'/comm-link';
     }
 
     /**
-     * Extracts Post ids from html
-     *
-     *
-     * @return array Ids
+     * @return array<int, int>
      */
     private function extractPostIds(string $body): array
     {
-        $postIds = [];
-
         $crawler = new Crawler;
-
         $crawler->addHtmlContent($body, 'UTF-8');
-        $crawler->filter('#channel .hub-blocks .hub-block')
-            ->each(
-                function (Crawler $crawler) use (&$postIds) {
-                    $link = $crawler->filter('a');
-                    $postIds[] = $this->extractIdFromLink($link);
+
+        $ids = $crawler->filter('#channel .hub-blocks .hub-block')
+            ->each(function (Crawler $crawler): int {
+                $href = $crawler->filter('a')->attr('href');
+
+                if ($href === null) {
+                    return 0;
                 }
-            );
 
-        return $postIds;
-    }
+                $segments = explode('/', $href);
+                $slug = end($segments) ?: '';
+                $parts = explode('-', $slug);
 
-    /**
-     * Extract latest Comm-Link id from Website
-     */
-    private function extractIdFromLink(Crawler $link): int
-    {
-        $linkHref = $link->attr('href');
+                return (int) ($parts[0] ?? 0);
+            });
 
-        if ($linkHref === null) {
-            return 0;
-        }
-
-        $linkHref = explode('/', $linkHref);
-        $linkHref = end($linkHref);
-        $linkHref = explode('-', $linkHref);
-
-        return (int) $linkHref[0];
-    }
-
-    /**
-     * Dispatches download jobs for all missing ids
-     */
-    private function downloadCommLinks(array $postIDs): void
-    {
-        $latestPostId = max($postIDs);
-
-        try {
-            $dbIds = CommLink::query()
-                ->select('cig_id')
-                ->take(count($postIDs))
-                ->orderByDesc('cig_id')
-                ->get()
-                ->pluck('cig_id');
-        } catch (ModelNotFoundException $e) {
-            $dbIds = collect([self::FIRST_COMM_LINK_ID - 1]);
-        }
-
-        $missing = collect($postIDs)->diff($dbIds);
-
-        $missing->each(
-            function (int $id) {
-                dispatch(new DownloadCommLink($id, true));
-            }
-        );
-
-        $dbId = $dbIds->max();
-        if ($dbId > 0) {
-            app('Log')::info(
-                "Latest DB Comm-Link ID is: {$dbId}",
-                [
-                    'id' => $dbId,
-                ]
-            );
-            $dbId++;
-        } else {
-            app('Log')::info('No Comm-Links in DB found');
-            $dbId = self::FIRST_COMM_LINK_ID;
-        }
-
-        for ($id = $dbId; $id <= $latestPostId; $id++) {
-            if (! $missing->contains($id)) {
-                dispatch(new DownloadCommLink($id, true));
-            }
-        }
+        return collect($ids)
+            ->filter(static fn (int $id) => $id >= self::FIRST_COMM_LINK_ID)
+            ->values()
+            ->all();
     }
 }

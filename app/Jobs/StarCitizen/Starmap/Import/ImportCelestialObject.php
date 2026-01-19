@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Starmap\Import;
 
-use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject as CelestialObjectModel;
+use App\Models\StarCitizen\Starmap\Affiliation;
+use App\Models\StarCitizen\Starmap\CelestialObject as CelestialObjectModel;
+use App\Models\StarCitizen\Starmap\CelestialObjectSubtype;
 use App\Models\System\Language;
-use App\Services\Parser\Starmap\Affiliation;
-use App\Services\Parser\Starmap\CelestialSubtype;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -48,10 +49,6 @@ class ImportCelestialObject implements ShouldQueue
      */
     public function handle(): void
     {
-        if (empty($this->rawData['subtype'])) {
-            app('Log')::debug('Parse Celestial Object: empty=true');
-        }
-
         $data = $this->getData();
         $description = $data->pull('description');
 
@@ -64,16 +61,9 @@ class ImportCelestialObject implements ShouldQueue
             $data->toArray()
         );
 
-        if ($description !== null) {
-            $celestialObject->translations()->updateOrCreate(
-                [
-                    'celestial_object_id' => $celestialObject->id,
-                    'locale_code' => Language::ENGLISH,
-                ],
-                [
-                    'translation' => $description,
-                ]
-            );
+        if ($description !== null && $description !== '') {
+            $celestialObject->setTranslation('translation', Language::ENGLISH, $description);
+            $celestialObject->save();
         }
 
         $celestialObject->affiliation()->sync($this->getAffiliationIds($this->rawData->pull('affiliation')));
@@ -120,9 +110,16 @@ class ImportCelestialObject implements ShouldQueue
      */
     private function getCelestialSubtypeId()
     {
-        $parser = new CelestialSubtype($this->rawData['subtype']);
+        if (empty(Arr::get($this->rawData, 'subtype.id'))) {
+            return null;
+        }
 
-        return optional($parser->getCelestialSubtype())->id;
+        return CelestialObjectSubtype::query()->updateOrCreate([
+            'id' => Arr::get($this->rawData, 'subtype.id'),
+        ], [
+            'name' => Arr::get($this->rawData, 'subtype.name'),
+            'type' => Arr::get($this->rawData, 'subtype.type'),
+        ])->id;
     }
 
     private function getAffiliationIds(array $affiliations): array
@@ -135,11 +132,16 @@ class ImportCelestialObject implements ShouldQueue
             )
             ->map(
                 function ($affiliationData) {
-                    return (new Affiliation($affiliationData))->getAffiliation();
+                    return Affiliation::query()->updateOrCreate(['cig_id' => $affiliationData['id']], [
+                        'name' => Arr::get($affiliationData, 'name'),
+                        'code' => Arr::get($affiliationData, 'code'),
+                        'color' => Arr::get($affiliationData, 'color'),
+                        'membership_id' => Arr::get($affiliationData, 'membership.id', null),
+                    ]);
                 }
             )
             ->map(
-                function (\App\Models\StarCitizen\Starmap\Affiliation $affiliation) {
+                function (Affiliation $affiliation) {
                     return $affiliation->id;
                 }
             )

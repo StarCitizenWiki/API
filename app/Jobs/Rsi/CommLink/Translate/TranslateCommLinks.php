@@ -4,88 +4,102 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Translate;
 
+use App\Exceptions\Translation\AuthenticationException;
+use App\Exceptions\Translation\QuotaExceededException;
+use App\Exceptions\Translation\RateLimitException;
+use App\Exceptions\Translation\TranslationException;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\System\Language;
-use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
-use App\Traits\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Services\Translation\TranslationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use RuntimeException;
+use Illuminate\Support\Collection;
 
 /**
- * Translate new Comm-Links
+ * Translate all Comm-Links without German translation
  */
 class TranslateCommLinks implements ShouldQueue
 {
     use Dispatchable;
-    use GetCommLinkWikiPageInfo;
     use InteractsWithQueue;
-    use LoginWikiBotAccount;
     use Queueable;
     use SerializesModels;
 
     /**
-     * @var int Comm-Link IDs to operate on
+     * Categories that should be translated with more formal German
      */
-    private $commLinkIds;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(array $commLinkIds = [])
-    {
-        $this->commLinkIds = $commLinkIds;
-    }
+    private array $formalCategories = ['Lore', 'Short Stories'];
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(TranslationService $translator): void
     {
-        app('Log')::info('Starting Comm-Link Translations');
+        app('Log')::info('Translating Comm-Links');
 
-        $this->loginWikiBotAccount('services.wiki_translations');
+        $targetLocale = config('services.deepl.target_locale', 'de');
 
-        CommLink::query()->whereHas(
-            'translations',
-            function (Builder $query) {
-                $query->where('locale_code', Language::ENGLISH)->whereRaw("translation <> ''");
-            }
-        )
-            ->whereIn('cig_id', $this->commLinkIds)
+        CommLink::query()
+            ->with(['category'])
+            ->whereNotNull('translation')
             ->chunk(
-                100,
-                function (Collection $commLinks) {
-                    try {
-                        $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                    } catch (RuntimeException $e) {
-                        app('Log')::error($e->getMessage());
-
-                        if (str_contains($e->getMessage(), 'Guru Meditation')) {
-                            $this->release(60);
-                        } else {
-                            $this->fail($e);
-                        }
-
-                        return;
-                    }
-
+                25,
+                function (Collection $commLinks) use ($translator, $targetLocale) {
                     $commLinks->each(
-                        function (CommLink $commLink) use ($pageInfoCollection) {
-                            $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+                        function (CommLink $commLink) use ($translator, $targetLocale) {
+                            $english = $commLink->getTranslation('translation', Language::ENGLISH, false);
+                            $german = $commLink->getTranslation('translation', Language::GERMAN, false);
 
-                            if (isset($wikiPage['missing'])) {
-                                dispatch(new TranslateCommLink($commLink));
+                            if ($english === null || $english === '') {
+                                return;
                             }
+
+                            if ($german !== null && $german !== '') {
+                                return;
+                            }
+
+                            $formality = 'less';
+                            if ($commLink->category !== null && in_array($commLink->category->name, $this->formalCategories, true)) {
+                                $formality = 'more';
+                            }
+
+                            try {
+                                app('Log')::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
+                                $translation = $translator->translate($english, $targetLocale, 'en', $formality);
+                            } catch (QuotaExceededException $e) {
+                                app('Log')::warning('DeepL quota exceeded');
+
+                                $this->fail($e);
+
+                                return;
+                            } catch (RateLimitException $e) {
+                                app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+
+                                $this->release(60);
+
+                                return;
+                            } catch (AuthenticationException $e) {
+                                app('Log')::error('DeepL authentication failed', ['error' => $e->getMessage()]);
+
+                                $this->fail($e);
+
+                                return;
+                            } catch (TranslationException $e) {
+                                app('Log')::warning('Translation failed', [
+                                    'comm_link_id' => $commLink->cig_id,
+                                    'error' => $e->getMessage(),
+                                ]);
+
+                                return;
+                            }
+
+                            $commLink->setTranslation('translation', Language::GERMAN, $translation);
+                            $commLink->save();
                         }
                     );
-
-                    usleep(100000);
                 }
             );
     }

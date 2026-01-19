@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Starmap;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\TranslationResolver;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'starsystem_v2',
+    schema: 'starsystem',
     title: 'Starsystem',
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
@@ -18,6 +19,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'status', type: 'string'),
         new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(
             property: 'position',
             properties: [
@@ -57,7 +59,7 @@ use OpenApi\Attributes as OA;
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            ref: '#/components/schemas/celestial_object_v2',
+                            ref: '#/components/schemas/celestial_object',
                             type: 'array',
                             items: new OA\Items,
                         ),
@@ -76,7 +78,7 @@ use OpenApi\Attributes as OA;
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            ref: '#/components/schemas/jumppoint_v2',
+                            ref: '#/components/schemas/jumppoint',
                             type: 'array',
                             items: new OA\Items,
                         ),
@@ -90,7 +92,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class StarsystemResource extends AbstractTranslationResource
+class StarsystemResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
@@ -105,10 +107,11 @@ class StarsystemResource extends AbstractTranslationResource
         return [
             'id' => $this->cig_id,
             'code' => $this->code,
-            'system_api_url' => $this->makeApiUrl(self::STARMAP_STARSYSTEM_SHOW, $this->code),
+            'system_api_url' => route('starsystems.show', ['code' => $this->code]),
             'name' => $this->name,
             'status' => $this->status,
             'type' => $this->type,
+            'web_url' => route('web.starmap.systems.show', ['id' => $this->cig_id]),
 
             'position' => [
                 'x' => $this->position_x,
@@ -122,7 +125,7 @@ class StarsystemResource extends AbstractTranslationResource
 
             'info_url' => $this->info_url,
 
-            'description' => $this->getTranslation($this, $request),
+            'description' => TranslationResolver::resolve($this, $request),
 
             'aggregated' => [
                 'size' => $this->aggregated_size,

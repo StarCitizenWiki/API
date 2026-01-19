@@ -1,14 +1,39 @@
 <?php
 
-declare(strict_types=1);
+use Illuminate\Support\Facades\Schedule;
 
-/*
-|--------------------------------------------------------------------------
-| Console Routes
-|--------------------------------------------------------------------------
-|
-| This file is where you may define all of your Closure based console
-| commands. Each Closure is bound to a command instance allowing a
-| simple approach to interacting with each command's IO methods.
-|
-*/
+// Comm-Link schedules
+Schedule::command('comm-link:schedule')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('comm-link:download-new-versions', ['--skip' => false])
+    ->yearly()
+    ->withoutOverlapping();
+
+// Stats
+Schedule::command('stats:sync')
+    ->dailyAt('20:00');
+
+// Vehicles/Ship Matrix
+Schedule::command('vehicles:import-ship-matrix')
+    ->daily();
+
+Schedule::command('vehicles:import-msrp')
+    ->daily();
+
+Schedule::command('vehicles:import-loaner')
+    ->daily();
+
+// Starmap
+Schedule::command('starmap:sync')
+    ->monthly();
+
+// Galactapedia
+Schedule::command('galactapedia:sync')
+    ->dailyAt('2:00')
+    ->withoutOverlapping();
+
+Schedule::command('galactapedia:translate')
+    ->dailyAt('3:00')
+    ->withoutOverlapping();
