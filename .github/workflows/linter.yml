@@ -21,7 +21,7 @@ jobs:
       - name: Lint Code Base
         uses: super-linter/super-linter@v8.3.2
         env:
-          DEFAULT_BRANCH: main
+          DEFAULT_BRANCH: develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_INCLUDE: .*app/.*
           OUTPUT_FORMAT: tap
