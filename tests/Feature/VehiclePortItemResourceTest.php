@@ -161,7 +161,7 @@ it('returns null when the equipped item cannot be resolved for the version', fun
                 [
                     'HardpointName' => 'powerport',
                     'Type' => 'PowerPlant.UNDEFINED',
-                    'UUID' => 'non-existent-uuid',
+                    'UUID' => fake()->uuid(),
                 ],
             ],
         ],

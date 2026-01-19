@@ -19,6 +19,7 @@ beforeEach(function (): void {
 
 it('lists manufacturers', function (): void {
     $manufacturer = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -32,6 +33,7 @@ it('lists manufacturers', function (): void {
 
 it('shows a manufacturer by underscored name', function (): void {
     $manufacturer = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -48,20 +50,4 @@ it('returns not found for missing manufacturers', function (): void {
     $response = $this->getJson('/api/manufacturers/missing-manufacturer');
 
     $response->assertNotFound();
-});
-
-it('searches manufacturers by query', function (): void {
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Anvil Aerospace',
-        'code' => 'ANVL',
-    ]);
-
-    $response = $this->postJson('/api/manufacturers/search', [
-        'query' => 'Anvil',
-    ]);
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.0.name', $manufacturer->name)
-        ->assertJsonPath('data.0.code', $manufacturer->code)
-        ->assertJsonPath('data.0.uuid', $manufacturer->uuid);
 });

@@ -13,10 +13,10 @@ uses(RefreshDatabase::class);
 it('skips items and vehicles when flags are provided', function (): void {
     Storage::fake('scunpacked');
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode([
-        ['reference' => 'm-1', 'name' => 'ACME', 'code' => 'AC'],
+        ['reference' => fake()->uuid(), 'name' => 'ACME', 'code' => 'AC'],
     ], JSON_THROW_ON_ERROR));
     Storage::disk('scunpacked')->put('tags.json', json_encode([
-        'tag-1' => 'Tag 1',
+        fake()->uuid() => 'Tag 1',
     ], JSON_THROW_ON_ERROR));
 
     GameVersion::query()->create([

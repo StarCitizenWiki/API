@@ -7,14 +7,13 @@ on:
     branches: [ develop, main ]
 
 jobs:
-  build:
-    name: Lint Code Base
+  super-linter:
+    name: Super-Linter (non-PHP)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
         with:
-          submodules: false
           fetch-depth: 0
           clean: true
 
@@ -25,4 +24,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_INCLUDE: .*app/.*
           OUTPUT_FORMAT: tap
-          VALIDATE_PHP_BUILTIN: true
+          VALIDATE_PHP_BUILTIN: false
+
+  php-lint:
+    name: PHP (Composer + Pint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+          extensions: gd, pdo, session, fileinfo, xml
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pint
+        run: ./vendor/bin/pint --test

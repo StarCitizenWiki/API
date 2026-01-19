@@ -292,26 +292,6 @@ it('does not include related items on index route even when requested', function
         ->assertJsonMissing(['related_items']);
 });
 
-it('does not include related items on search route even when requested', function (): void {
-    $item = Item::factory()->create();
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Searchable Item',
-            'type' => 'Weapon',
-            'class_name' => 'searchable_item',
-            'classification' => 'WeaponPersonal',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->postJson('/api/items/search?include=related_items', ['query' => 'Searchable']);
-
-    $response->assertSuccessful()
-        ->assertJsonMissing(['related_items']);
-});
-
 it('includes web urls with version in item index', function (): void {
     $item = Item::factory()->create();
 

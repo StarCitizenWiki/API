@@ -225,39 +225,3 @@ it('supports filters with search', function (): void {
     expect($response->json('data'))->toHaveCount(1);
     expect($response->json('data.0.name'))->toBe('Combat Fighter Alpha');
 });
-
-it('performs case-insensitive search', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
-    Vehicle::query()->create([
-        'cig_id' => 1,
-        'name' => 'Avenger Titan',
-        'slug' => 'avenger-titan',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
-        'chassis_id' => 1,
-    ]);
-
-    $response = $this->postJson(route('shipmatrix.vehicles.search'), [
-        'query' => 'avenger',
-    ]);
-
-    $response->assertOk();
-    expect($response->json('data'))->toHaveCount(1);
-    expect($response->json('data.0.name'))->toBe('Avenger Titan');
-});

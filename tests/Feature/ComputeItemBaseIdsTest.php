@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->manufacturer = Manufacturer::query()->create([
-        'uuid' => 'test-manufacturer',
+        'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -56,7 +56,8 @@ it('computes base ids from class name patterns', function (): void {
         'is_default' => true,
     ]);
 
-    $baseItem = Item::query()->create(['uuid' => 'base-uuid']);
+    $baseUuid = fake()->uuid();
+    $baseItem = Item::query()->create(['uuid' => $baseUuid]);
     $baseData = ItemData::query()->create([
         'item_id' => $baseItem->id,
         'game_version_id' => $version->id,
@@ -67,7 +68,8 @@ it('computes base ids from class name patterns', function (): void {
         'data' => [],
     ]);
 
-    $variantItem = Item::query()->create(['uuid' => 'variant-uuid']);
+    $variantUuid = fake()->uuid();
+    $variantItem = Item::query()->create(['uuid' => $variantUuid]);
     $variantData = ItemData::query()->create([
         'item_id' => $variantItem->id,
         'game_version_id' => $version->id,
@@ -80,8 +82,8 @@ it('computes base ids from class name patterns', function (): void {
 
     (new ComputeItemBaseIdsJob($version->id))->handle();
 
-    expect($variantData->fresh()->base_id)->toBe($baseData->id);
-    expect($baseData->fresh()->base_id)->toBeNull();
+    expect($variantData->fresh()->base_id)->toBe($baseData->id)
+        ->and($baseData->fresh()->base_id)->toBeNull();
 });
 
 it('computes base ids from stdItem tags when class names do not match', function (): void {
@@ -92,7 +94,8 @@ it('computes base ids from stdItem tags when class names do not match', function
         'is_default' => true,
     ]);
 
-    $baseItem = Item::query()->create(['uuid' => 'tag-base-uuid']);
+    $tagBaseUuid = fake()->uuid();
+    $baseItem = Item::query()->create(['uuid' => $tagBaseUuid]);
     $baseData = ItemData::query()->create([
         'item_id' => $baseItem->id,
         'game_version_id' => $version->id,
@@ -107,7 +110,8 @@ it('computes base ids from stdItem tags when class names do not match', function
         ],
     ]);
 
-    $variantItem = Item::query()->create(['uuid' => 'tag-variant-uuid']);
+    $variantUuid = fake()->uuid();
+    $variantItem = Item::query()->create(['uuid' => $variantUuid]);
     $variantData = ItemData::query()->create([
         'item_id' => $variantItem->id,
         'game_version_id' => $version->id,
@@ -124,6 +128,6 @@ it('computes base ids from stdItem tags when class names do not match', function
 
     (new ComputeItemBaseIdsJob($version->id))->handle();
 
-    expect($variantData->fresh()->base_id)->toBe($baseData->id);
-    expect($baseData->fresh()->base_id)->toBeNull();
+    expect($variantData->fresh()->base_id)->toBe($baseData->id)
+        ->and($baseData->fresh()->base_id)->toBeNull();
 });

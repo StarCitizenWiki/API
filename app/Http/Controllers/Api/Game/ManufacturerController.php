@@ -28,7 +28,7 @@ class ManufacturerController extends Controller
         $query = QueryBuilder::for(Manufacturer::class, $request)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
-            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
+            ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
             ->where('name', '<>', '');
 
         if ($request->has('filter.name')) {
@@ -159,7 +159,7 @@ class ManufacturerController extends Controller
         $manufacturers = QueryBuilder::for(Manufacturer::class)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
-            ->selectRaw("MIN(NULLIF(uuid, '')) AS uuid")
+            ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
             ->where(function (Builder $q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('uuid', $query)

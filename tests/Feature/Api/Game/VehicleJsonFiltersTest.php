@@ -88,7 +88,7 @@ it('sorts vehicles by json length', function (): void {
             ],
         ]);
 
-    $response = $this->getJson('/api/vehicles?sort=length');
+    $response = $this->getJson('/api/vehicles?sort=Length');
 
     $response->assertSuccessful()
         ->assertJsonPath('data.0.uuid', $shortVehicle->uuid)

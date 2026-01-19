@@ -118,11 +118,6 @@ it('resolves type overrides by matches aliases', function () {
     config()->set('sorts.items', $originalSorts);
 });
 
-it('preserves existing sortField as manual override', function () {
-    // This test would require temporarily adding a column with sortField
-    // to verify it's preserved instead of being overwritten
-})->skip('Requires config manipulation');
-
 it('validates all sort config keys match actual column fields', function () {
     $itemsConfig = config('items.table.columns', []);
     $sortsConfig = config('sorts.items', []);

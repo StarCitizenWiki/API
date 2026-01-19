@@ -15,13 +15,13 @@ uses(RefreshDatabase::class);
 it('runs the full sync flow and dispatches item and vehicle batches', function (): void {
     Storage::fake('scunpacked');
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode([
-        ['reference' => 'm-1', 'name' => 'ACME', 'code' => 'AC'],
+        ['reference' => fake()->uuid(), 'name' => 'ACME', 'code' => 'AC'],
     ], JSON_THROW_ON_ERROR));
     Storage::disk('scunpacked')->put('tags.json', json_encode([
-        'tag-1' => 'Tag 1',
+        fake()->uuid() => 'Tag 1',
     ], JSON_THROW_ON_ERROR));
-    Storage::disk('scunpacked')->put('items/item-1.json', json_encode(['Item' => ['reference' => 'i-1']], JSON_THROW_ON_ERROR));
-    Storage::disk('scunpacked')->put('ships/ship-1.json', json_encode(['UUID' => 'v-1', 'Manufacturer' => ['UUID' => 'm-1']], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('items/item-1.json', json_encode(['Item' => ['reference' => fake()->uuid()]], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('ships/ship-1.json', json_encode(['UUID' => fake()->uuid(), 'Manufacturer' => ['UUID' => fake()->uuid()]], JSON_THROW_ON_ERROR));
 
     GameVersion::query()->create([
         'code' => '3.23.0',

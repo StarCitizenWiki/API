@@ -301,7 +301,7 @@ class MissileResource extends AbstractItemSpecificationResource
                 'lock_time' => Arr::get($targeting, 'LockTime'),
             ],
 
-            'damage_total' => $totalDamage > 0 ? $totalDamage : null,
+            'damage_total' => Arr::get($missile, 'DamageTotal'),
             // Deprecated:
             'damages' => WeaponDamageResource::collection($damages),
             'damage_map' => $damageMap === [] ? null : $damageMap,
