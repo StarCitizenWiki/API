@@ -28,7 +28,7 @@ beforeEach(function () {
 
     // Create a manufacturer
     $this->manufacturer = Manufacturer::create([
-        'uuid' => 'test-manufacturer-uuid',
+        'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
         'code' => 'TEST',
     ]);
@@ -36,7 +36,8 @@ beforeEach(function () {
 
 it('builds related items with default game version', function () {
     // Create base item
-    $baseItem = Item::create(['uuid' => 'base-uuid']);
+    $base = fake()->uuid();
+    $baseItem = Item::create(['uuid' => $base]);
     ItemData::create([
         'item_id' => $baseItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -48,7 +49,8 @@ it('builds related items with default game version', function () {
     ]);
 
     // Create variant
-    $variantItem = Item::create(['uuid' => 'variant-uuid']);
+    $variant = fake()->uuid();
+    $variantItem = Item::create(['uuid' => $variant]);
     $variantData = ItemData::create([
         'item_id' => $variantItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -68,15 +70,17 @@ it('builds related items with default game version', function () {
     $builder = new RelatedItemsBuilder;
     $result = $builder->build($variantItem);
 
-    expect($result)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items']);
-    expect($result['base_item'])->not->toBeNull();
-    expect($result['base_item']['uuid'])->toBe('base-uuid');
-    expect($result['base_item']['name'])->toBe('Test Base');
+    expect($result)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items'])
+        ->and($result['base_item'])->not->toBeNull()
+        ->and($result['base_item']['uuid'])->toBe($base)
+        ->and($result['base_item']['name'])->toBe('Test Base');
 });
 
 it('builds related items with specific game version', function () {
+    $base = fake()->uuid();
+
     // Create base item with data for both versions
-    $baseItem = Item::create(['uuid' => 'base-uuid-2']);
+    $baseItem = Item::create(['uuid' => $base]);
 
     $oldBaseData = ItemData::create([
         'item_id' => $baseItem->id,
@@ -99,7 +103,8 @@ it('builds related items with specific game version', function () {
     ]);
 
     // Create variant with data for both versions
-    $variantItem = Item::create(['uuid' => 'variant-uuid-2']);
+    $variant = fake()->uuid();
+    $variantItem = Item::create(['uuid' => $variant]);
 
     $oldVariantData = ItemData::create([
         'item_id' => $variantItem->id,
@@ -138,7 +143,8 @@ it('builds related items with specific game version', function () {
 
 it('detects variant items for correct game version', function () {
     // Create base item
-    $baseItem = Item::create(['uuid' => 'base-uuid-3']);
+    $base = fake()->uuid();
+    $baseItem = Item::create(['uuid' => $base]);
     $baseData = ItemData::create([
         'item_id' => $baseItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -150,7 +156,8 @@ it('detects variant items for correct game version', function () {
     ]);
 
     // Create variant 1
-    $variant1 = Item::create(['uuid' => 'variant-1-uuid']);
+    $variant1Uuid = fake()->uuid();
+    $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
         'item_id' => $variant1->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -163,7 +170,8 @@ it('detects variant items for correct game version', function () {
     ]);
 
     // Create variant 2
-    $variant2 = Item::create(['uuid' => 'variant-2-uuid']);
+    $variant2Uuid = fake()->uuid();
+    $variant2 = Item::create(['uuid' => $variant2Uuid]);
     ItemData::create([
         'item_id' => $variant2->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -180,14 +188,15 @@ it('detects variant items for correct game version', function () {
     $result = $builder->build($variant1);
 
     expect($result['base_item'])->not->toBeNull()
-        ->and($result['base_item']['uuid'])->toBe('base-uuid-3')
+        ->and($result['base_item']['uuid'])->toBe($base)
         ->and($result['variant_items'])->toHaveCount(1)
-        ->and($result['variant_items'][0]['uuid'])->toBe('variant-2-uuid')
+        ->and($result['variant_items'][0]['uuid'])->toBe($variant2Uuid)
         ->and($result['variant_items'][0]['name'])->toBe('Weapon Red');
 });
 
 it('falls back to stdItem tags for variant grouping', function () {
-    $firstItem = Item::create(['uuid' => 'tag-variant-1']);
+    $firstUuid = fake()->uuid();
+    $firstItem = Item::create(['uuid' => $firstUuid]);
     ItemData::create([
         'item_id' => $firstItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -202,7 +211,8 @@ it('falls back to stdItem tags for variant grouping', function () {
         ],
     ]);
 
-    $secondItem = Item::create(['uuid' => 'tag-variant-2']);
+    $secondUuid = fake()->uuid();
+    $secondItem = Item::create(['uuid' => $secondUuid]);
     ItemData::create([
         'item_id' => $secondItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -217,7 +227,8 @@ it('falls back to stdItem tags for variant grouping', function () {
         ],
     ]);
 
-    $thirdItem = Item::create(['uuid' => 'tag-variant-3']);
+    $thirdUuid = fake()->uuid();
+    $thirdItem = Item::create(['uuid' => $thirdUuid]);
     ItemData::create([
         'item_id' => $thirdItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -240,12 +251,13 @@ it('falls back to stdItem tags for variant grouping', function () {
         ->and($result['variant_items'])->toHaveCount(2);
 
     $variantUuids = collect($result['variant_items'])->pluck('uuid')->all();
-    expect($variantUuids)->toContain('tag-variant-2', 'tag-variant-3');
+    expect($variantUuids)->toContain($secondUuid, $thirdUuid);
 });
 
 it('finds set items filtered by game version', function () {
     // Create helmet item for default version
-    $helmetItem = Item::create(['uuid' => 'helmet-uuid']);
+    $helmetUuid = fake()->uuid();
+    $helmetItem = Item::create(['uuid' => $helmetUuid]);
     ItemData::create([
         'item_id' => $helmetItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -257,7 +269,8 @@ it('finds set items filtered by game version', function () {
     ]);
 
     // Create core item for default version
-    $coreItem = Item::create(['uuid' => 'core-uuid']);
+    $codeUuid = fake()->uuid();
+    $coreItem = Item::create(['uuid' => $codeUuid]);
     ItemData::create([
         'item_id' => $coreItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -269,7 +282,8 @@ it('finds set items filtered by game version', function () {
     ]);
 
     // Create arms item for default version
-    $armsItem = Item::create(['uuid' => 'arms-uuid']);
+    $armsUuid = fake()->uuid();
+    $armsItem = Item::create(['uuid' => $armsUuid]);
     ItemData::create([
         'item_id' => $armsItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -281,7 +295,8 @@ it('finds set items filtered by game version', function () {
     ]);
 
     // Create legs item for default version
-    $legsItem = Item::create(['uuid' => 'legs-uuid']);
+    $legsUuid = fake()->uuid();
+    $legsItem = Item::create(['uuid' => $legsUuid]);
     ItemData::create([
         'item_id' => $legsItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -299,13 +314,14 @@ it('finds set items filtered by game version', function () {
     expect($result['set_items'])->toHaveCount(3);
 
     $setItemUuids = collect($result['set_items'])->pluck('uuid')->all();
-    expect($setItemUuids)->toContain('core-uuid', 'arms-uuid', 'legs-uuid');
-    expect($setItemUuids)->not->toContain('helmet-uuid');
+    expect($setItemUuids)->toContain($codeUuid, $armsUuid, $legsUuid)
+        ->and($setItemUuids)->not->toContain($helmetUuid);
 });
 
 it('filters set items by game version correctly', function () {
     // Create helmet for both versions
-    $helmetItem = Item::create(['uuid' => 'helmet-uuid-versioned']);
+    $helmetUuid = fake()->uuid();
+    $helmetItem = Item::create(['uuid' => $helmetUuid]);
     ItemData::create([
         'item_id' => $helmetItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -327,7 +343,8 @@ it('filters set items by game version correctly', function () {
     ]);
 
     // Create core only for old version
-    $coreOldItem = Item::create(['uuid' => 'core-old-uuid']);
+    $coreOldUuid = fake()->uuid();
+    $coreOldItem = Item::create(['uuid' => $coreOldUuid]);
     ItemData::create([
         'item_id' => $coreOldItem->id,
         'game_version_id' => $this->oldVersion->id,
@@ -339,7 +356,8 @@ it('filters set items by game version correctly', function () {
     ]);
 
     // Create core only for new version
-    $coreNewItem = Item::create(['uuid' => 'core-new-uuid']);
+    $coreNewUuid = fake()->uuid();
+    $coreNewItem = Item::create(['uuid' => $coreNewUuid]);
     ItemData::create([
         'item_id' => $coreNewItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -354,22 +372,23 @@ it('filters set items by game version correctly', function () {
     $builder = new RelatedItemsBuilder($this->oldVersion->code);
     $result = $builder->build($helmetItem);
 
-    expect($result['set_items'])->toHaveCount(1);
-    expect($result['set_items'][0]['uuid'])->toBe('core-old-uuid');
-    expect($result['set_items'][0]['name'])->toBe('Old Core');
+    expect($result['set_items'])->toHaveCount(1)
+        ->and($result['set_items'][0]['uuid'])->toBe($coreOldUuid)
+        ->and($result['set_items'][0]['name'])->toBe('Old Core');
 
     // Build with new version - should find new core
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($helmetItem);
 
-    expect($result['set_items'])->toHaveCount(1);
-    expect($result['set_items'][0]['uuid'])->toBe('core-new-uuid');
-    expect($result['set_items'][0]['name'])->toBe('New Core');
+    expect($result['set_items'])->toHaveCount(1)
+        ->and($result['set_items'][0]['uuid'])->toBe($coreNewUuid)
+        ->and($result['set_items'][0]['name'])->toBe('New Core');
 });
 
 it('computes correct set names for variant groups', function () {
     // Create base item
-    $baseItem = Item::create(['uuid' => 'base-uuid-name']);
+    $baseUuid = fake()->uuid();
+    $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
         'item_id' => $baseItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -381,7 +400,8 @@ it('computes correct set names for variant groups', function () {
     ]);
 
     // Create variants
-    $variant1 = Item::create(['uuid' => 'variant-1-name']);
+    $variant1Uuid = fake()->uuid();
+    $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
         'item_id' => $variant1->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -393,7 +413,8 @@ it('computes correct set names for variant groups', function () {
         'data' => [],
     ]);
 
-    $variant2 = Item::create(['uuid' => 'variant-2-name']);
+    $variant2Uuid = fake()->uuid();
+    $variant2 = Item::create(['uuid' => $variant2Uuid]);
     ItemData::create([
         'item_id' => $variant2->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -417,7 +438,8 @@ it('computes correct set names for variant groups', function () {
 
 it('handles multi-word color variant names correctly', function () {
     // Create base item
-    $baseItem = Item::create(['uuid' => 'lynx-arms-base']);
+    $baseUuid = fake()->uuid();
+    $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
         'item_id' => $baseItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -429,7 +451,8 @@ it('handles multi-word color variant names correctly', function () {
     ]);
 
     // Create multi-word color variants
-    $variant1 = Item::create(['uuid' => 'lynx-arms-dark-green']);
+    $colorUuid1 = fake()->uuid();
+    $variant1 = Item::create(['uuid' => $colorUuid1]);
     ItemData::create([
         'item_id' => $variant1->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -441,7 +464,8 @@ it('handles multi-word color variant names correctly', function () {
         'data' => [],
     ]);
 
-    $variant2 = Item::create(['uuid' => 'lynx-arms-dark-red']);
+    $colorUuid2 = fake()->uuid();
+    $variant2 = Item::create(['uuid' => $colorUuid2]);
     ItemData::create([
         'item_id' => $variant2->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -465,7 +489,8 @@ it('handles multi-word color variant names correctly', function () {
 
 it('handles quoted variant names correctly', function () {
     // Create base item
-    $baseItem = Item::create(['uuid' => 'a03-base']);
+    $baseUuid = fake()->uuid();
+    $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
         'item_id' => $baseItem->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -477,7 +502,8 @@ it('handles quoted variant names correctly', function () {
     ]);
 
     // Create quoted variants
-    $variant1 = Item::create(['uuid' => 'a03-scorched']);
+    $variant1Uuid = fake()->uuid();
+    $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
         'item_id' => $variant1->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -489,7 +515,8 @@ it('handles quoted variant names correctly', function () {
         'data' => [],
     ]);
 
-    $variant2 = Item::create(['uuid' => 'a03-red-alert']);
+    $variant2Uuid = fake()->uuid();
+    $variant2 = Item::create(['uuid' => $variant2Uuid]);
     ItemData::create([
         'item_id' => $variant2->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -501,7 +528,8 @@ it('handles quoted variant names correctly', function () {
         'data' => [],
     ]);
 
-    $variant3 = Item::create(['uuid' => 'a03-lodestone']);
+    $variant3Uuid = fake()->uuid();
+    $variant3 = Item::create(['uuid' => $variant3Uuid]);
     ItemData::create([
         'item_id' => $variant3->id,
         'game_version_id' => $this->defaultVersion->id,
@@ -517,13 +545,13 @@ it('handles quoted variant names correctly', function () {
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
-    expect($result['set_name'])->toBe('A03');
-    expect($result['base_item']['variant_name'])->toBe('Sniper Rifle');
+    expect($result['set_name'])->toBe('A03')
+        ->and($result['base_item']['variant_name'])->toBe('Sniper Rifle');
 
     // Extract variant names from result
     $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
 
-    expect($variantNames)->toContain('Scorched');
-    expect($variantNames)->toContain('Red Alert');
-    expect($variantNames)->toContain('Lodestone');
+    expect($variantNames)->toContain('Scorched')
+        ->and($variantNames)->toContain('Red Alert')
+        ->and($variantNames)->toContain('Lodestone');
 });

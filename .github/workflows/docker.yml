@@ -67,9 +67,6 @@ jobs:
           DB_DATABASE: "db.sqlite"
         run: touch database/db.sqlite; php artisan migrate
 
-      - name: Update submodules
-        run: git submodule update --init
-
       - name: Execute tests via Pest
         env:
           DB_CONNECTION: "sqlite"
@@ -148,9 +145,6 @@ jobs:
           DB_USERNAME: "scw__api"
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: php artisan migrate
-
-      - name: Update submodules
-        run: git submodule update --init
 
       - name: Execute tests via Pest
         env:

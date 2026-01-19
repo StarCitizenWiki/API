@@ -24,8 +24,9 @@ beforeEach(function () {
         'is_default' => true,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $this->gameManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-test-manufacturer',
+        'uuid' => $manufacturerUuid,
         'name' => 'Aegis Dynamics',
         'code' => 'AEGS',
     ]);

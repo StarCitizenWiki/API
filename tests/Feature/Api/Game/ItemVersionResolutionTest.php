@@ -40,9 +40,10 @@ it('resolves default game version when no version parameter provided', function 
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
+    $this->assertEquals('3.21.0-LIVE', $response->json('data.version'));
+
     $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'Default Version Item')
-        ->assertJsonPath('data.version', '3.21.0-LIVE');
+        ->assertJsonPath('data.name', 'Default Version Item');
 });
 
 it('resolves specific game version from version parameter', function (): void {

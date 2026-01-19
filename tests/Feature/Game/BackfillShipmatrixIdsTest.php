@@ -47,7 +47,7 @@ beforeEach(function (): void {
     ]);
 
     $this->gameManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-anvil',
+        'uuid' => fake()->uuid(),
         'name' => 'Anvil Aerospace',
         'code' => 'ANV',
     ]);
@@ -73,7 +73,7 @@ it('backfills unmatched vehicles successfully', function (): void {
         'chassis_id' => 1,
     ]);
 
-    $vehicle = Vehicle::query()->create(['uuid' => 'uuid-hornet']);
+    $vehicle = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
     $gameVehicleData = VehicleData::query()->create([
         'vehicle_id' => $vehicle->id,
@@ -110,7 +110,7 @@ it('handles dry-run mode without modifying data', function (): void {
         'chassis_id' => 2,
     ]);
 
-    $vehicle = Vehicle::query()->create(['uuid' => 'uuid-aurora']);
+    $vehicle = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
     $gameVehicleData = VehicleData::query()->create([
         'vehicle_id' => $vehicle->id,
@@ -140,8 +140,8 @@ it('filters by game version', function (): void {
         'is_default' => false,
     ]);
 
-    $vehicle1 = Vehicle::query()->create(['uuid' => 'uuid-1']);
-    $vehicle2 = Vehicle::query()->create(['uuid' => 'uuid-2']);
+    $vehicle1 = Vehicle::query()->create(['uuid' => fake()->uuid()]);
+    $vehicle2 = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
     VehicleData::query()->create([
         'vehicle_id' => $vehicle1->id,
@@ -176,7 +176,7 @@ it('filters by game version', function (): void {
 
 it('limits number of records processed', function (): void {
     for ($i = 1; $i <= 5; $i++) {
-        $vehicle = Vehicle::query()->create(['uuid' => "uuid-{$i}"]);
+        $vehicle = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
         VehicleData::query()->create([
             'vehicle_id' => $vehicle->id,
@@ -210,7 +210,7 @@ it('reports no unmatched vehicles when all have shipmatrix_id', function (): voi
         'chassis_id' => 3,
     ]);
 
-    $vehicle = Vehicle::query()->create(['uuid' => 'uuid-gladius']);
+    $vehicle = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
     VehicleData::query()->create([
         'vehicle_id' => $vehicle->id,
@@ -231,7 +231,7 @@ it('reports no unmatched vehicles when all have shipmatrix_id', function (): voi
 });
 
 it('reports failed matches and suggests manual review', function (): void {
-    $vehicle = Vehicle::query()->create(['uuid' => 'uuid-unknown']);
+    $vehicle = Vehicle::query()->create(['uuid' => fake()->uuid()]);
 
     VehicleData::query()->create([
         'vehicle_id' => $vehicle->id,

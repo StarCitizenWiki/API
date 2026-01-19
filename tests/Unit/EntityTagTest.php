@@ -14,24 +14,26 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 
 it('can create an entity tag', function (): void {
+    $uuid = fake()->uuid();
     $tag = EntityTag::query()->create([
-        'uuid' => 'test-uuid-123',
+        'uuid' => $uuid,
         'name' => 'TestTag',
     ]);
 
-    expect($tag->uuid)->toBe('test-uuid-123');
+    expect($tag->uuid)->toBe($uuid);
     expect($tag->name)->toBe('TestTag');
 });
 
 it('enforces unique uuid constraint', function (): void {
+    $uuid = fake()->uuid();
     EntityTag::query()->create([
-        'uuid' => 'duplicate-uuid',
+        'uuid' => $uuid,
         'name' => 'First Tag',
     ]);
 
-    expect(function () {
+    expect(function () use ($uuid) {
         EntityTag::query()->create([
-            'uuid' => 'duplicate-uuid',
+            'uuid' => $uuid,
             'name' => 'Second Tag',
         ]);
     })->toThrow(Exception::class);
@@ -45,13 +47,16 @@ it('has many-to-many relationship with item data', function (): void {
         'is_default' => true,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
+
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-manu',
+        'uuid' => $manufacturerUuid,
         'name' => 'Test Manufacturer',
         'code' => 'TST',
     ]);
 
-    $item = Item::query()->create(['uuid' => 'item-uuid']);
+    $itemUuid = fake()->uuid();
+    $item = Item::query()->create(['uuid' => $itemUuid]);
 
     $itemData = ItemData::query()->create([
         'item_id' => $item->id,
@@ -63,12 +68,12 @@ it('has many-to-many relationship with item data', function (): void {
     ]);
 
     $tag1 = EntityTag::query()->create([
-        'uuid' => 'tag-uuid-1',
+        'uuid' => fake()->uuid(),
         'name' => 'Tag1',
     ]);
 
     $tag2 = EntityTag::query()->create([
-        'uuid' => 'tag-uuid-2',
+        'uuid' => fake()->uuid(),
         'name' => 'Tag2',
     ]);
 

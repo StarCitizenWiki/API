@@ -42,9 +42,9 @@ it('dispatches an import job for each ship file, skipping raw files', function (
         'is_default' => false,
     ]);
 
-    Storage::disk('scunpacked')->put('ships/alpha.json', json_encode(['UUID' => 'uuid-alpha'], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('ships/alpha.json', json_encode(['UUID' => fake()->uuid()], JSON_THROW_ON_ERROR));
     Storage::disk('scunpacked')->put('ships/alpha-raw.json', '{}');
-    Storage::disk('scunpacked')->put('ships/beta.json', json_encode(['UUID' => 'uuid-beta'], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('ships/beta.json', json_encode(['UUID' => fake()->uuid()], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-vehicles', ['version' => $version->code])
         ->assertExitCode(Command::SUCCESS)
@@ -63,14 +63,16 @@ it('imports vehicle data and upserts when re-run', function (): void {
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-manufacturer',
+        'uuid' => $manufacturerUuid,
         'name' => 'Test Manufacturer',
         'code' => 'TST',
     ]);
 
+    $vehicleUuid = fake()->uuid();
     $payload = [
-        'UUID' => 'uuid-test',
+        'UUID' => $vehicleUuid,
         'ClassName' => 'TEST_SHIP',
         'Name' => 'Test Ship',
         'Career' => 'Test Career',
@@ -154,13 +156,12 @@ it('imports vehicle data and upserts when re-run', function (): void {
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->class_name)->toBe($payload['ClassName']);
-    expect(data_get($data->data, 'Mass'))->toBe($payload['Mass']);
-    expect(data_get($data->data, 'Quantum.QuantumSpeed'))->toEqual($payload['Quantum']['QuantumSpeed']);
-    expect(data_get($data->data, 'Fuel.Usage.Main'))->toBe($payload['Fuel']['Usage']['Main']);
-
-    expect($data->manufacturer_id)->toBe($manufacturer->id);
+    expect($data)->not->toBeNull()
+        ->and($data->class_name)->toBe($payload['ClassName'])
+        ->and(data_get($data->data, 'Mass'))->toBe($payload['Mass'])
+        ->and(data_get($data->data, 'Quantum.QuantumSpeed'))->toEqual($payload['Quantum']['QuantumSpeed'])
+        ->and(data_get($data->data, 'Fuel.Usage.Main'))->toBe($payload['Fuel']['Usage']['Main'])
+        ->and($data->manufacturer_id)->toBe($manufacturer->id);
 
     // Re-run with updated payload to verify upsert
     $payload['Mass'] = 999;
@@ -169,8 +170,8 @@ it('imports vehicle data and upserts when re-run', function (): void {
     (new ImportVehicleData($version->id, 'ships/test.json'))->handle();
 
     $data->refresh();
-    expect(data_get($data->data, 'Mass'))->toBe(999);
-    expect(VehicleData::query()->where('vehicle_id', $vehicle->id)->where('game_version_id', $version->id)->count())->toBe(1);
+    expect(data_get($data->data, 'Mass'))->toBe(999)
+        ->and(VehicleData::query()->where('vehicle_id', $vehicle->id)->where('game_version_id', $version->id)->count())->toBe(1);
 });
 
 it('imports vehicle item data from vehicle payload and raw data', function (): void {
@@ -189,14 +190,16 @@ it('imports vehicle item data from vehicle payload and raw data', function (): v
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-test-manufacturer',
+        'uuid' => $manufacturerUuid,
         'name' => 'Test Manufacturer',
         'code' => 'TST',
     ]);
 
+    $vehicleUuid = fake()->uuid();
     $payload = [
-        'UUID' => 'uuid-test-vehicle',
+        'UUID' => $vehicleUuid,
         'ClassName' => 'TEST_Vehicle',
         'Name' => 'Test Vehicle',
         'Description' => 'English description',
@@ -254,29 +257,29 @@ it('imports vehicle item data from vehicle payload and raw data', function (): v
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($itemData)->not->toBeNull();
-    expect($itemData->manufacturer_id)->toBe($manufacturer->id);
-    expect($itemData->name)->toBe($payload['Name']);
-    expect($itemData->class_name)->toBe($payload['ClassName']);
-    expect($itemData->type)->toBe('NOITEM_Vehicle');
-    expect($itemData->sub_type)->toBe('Vehicle_Spaceship');
-    expect($itemData->size)->toBe(2);
-    expect($itemData->grade)->toBe(1);
+    expect($itemData)->not->toBeNull()
+        ->and($itemData->manufacturer_id)->toBe($manufacturer->id)
+        ->and($itemData->name)->toBe($payload['Name'])
+        ->and($itemData->class_name)->toBe($payload['ClassName'])
+        ->and($itemData->type)->toBe('NOITEM_Vehicle')
+        ->and($itemData->sub_type)->toBe('Vehicle_Spaceship')
+        ->and($itemData->size)->toBe(2)
+        ->and($itemData->grade)->toBe(1);
 
     $descriptionData = ItemDescriptionData::query()
         ->where('item_id', $item->id)
         ->orderBy('name')
         ->get();
 
-    expect($descriptionData)->toHaveCount(2);
-    expect($descriptionData->first()->name)->toBe('Focus');
-    expect($descriptionData->first()->value)->toBe('Test Focus');
-    expect($descriptionData->last()->name)->toBe('Manufacturer');
-    expect($descriptionData->last()->value)->toBe('Test Manufacturer');
+    expect($descriptionData)->toHaveCount(2)
+        ->and($descriptionData->first()->name)->toBe('Focus')
+        ->and($descriptionData->first()->value)->toBe('Test Focus')
+        ->and($descriptionData->last()->name)->toBe('Manufacturer')
+        ->and($descriptionData->last()->value)->toBe('Test Manufacturer')
+        ->and($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description')
+        ->and($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述')
+        ->and($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
 
-    expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description');
-    expect($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述');
-    expect($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
 });
 
 it('matches shipmatrix vehicle using override name and manufacturer code', function (): void {
@@ -289,8 +292,9 @@ it('matches shipmatrix vehicle using override name and manufacturer code', funct
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $gameManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-aegis',
+        'uuid' => $manufacturerUuid,
         'name' => 'Aegis Dynamics',
         'code' => 'AEG',
     ]);
@@ -319,8 +323,9 @@ it('matches shipmatrix vehicle using override name and manufacturer code', funct
         'chassis_id' => 1,
     ]);
 
+    $vehicleUuid = fake()->uuid();
     $payload = [
-        'UUID' => 'uuid-retaliator',
+        'UUID' => $vehicleUuid,
         'ClassName' => 'AEGS_Retaliator_Bomber',
         'Name' => 'Aegis Retaliator',
         'Manufacturer' => [
@@ -334,7 +339,7 @@ it('matches shipmatrix vehicle using override name and manufacturer code', funct
 
     (new ImportVehicleData($version->id, 'ships/retaliator.json'))->handle();
 
-    $vehicle = Vehicle::query()->firstWhere('uuid', 'uuid-retaliator');
+    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
     expect($vehicle)->not->toBeNull();
 
     $data = VehicleData::query()
@@ -342,8 +347,8 @@ it('matches shipmatrix vehicle using override name and manufacturer code', funct
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->shipmatrix_id)->toBe($shipmatrixVehicle->id);
+    expect($data)->not->toBeNull()
+        ->and($data->shipmatrix_id)->toBe($shipmatrixVehicle->id);
 });
 
 it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): void {
@@ -356,8 +361,9 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $gameManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-anvil',
+        'uuid' => $manufacturerUuid,
         'name' => 'Anvil Aerospace',
         'code' => 'ANV',
     ]);
@@ -386,8 +392,9 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
         'chassis_id' => 2,
     ]);
 
+    $vehicleUuid = fake()->uuid();
     $payload = [
-        'UUID' => 'uuid-hornet',
+        'UUID' => $vehicleUuid,
         'ClassName' => 'ANVL_Hornet_F7C',
         'Name' => 'Anvil F7C Hornet',
         'Manufacturer' => [
@@ -401,7 +408,7 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
 
     (new ImportVehicleData($version->id, 'ships/hornet.json'))->handle();
 
-    $vehicle = Vehicle::query()->firstWhere('uuid', 'uuid-hornet');
+    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
     expect($vehicle)->not->toBeNull();
 
     $data = VehicleData::query()
@@ -409,8 +416,8 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->shipmatrix_id)->toBe($shipmatrixVehicle->id);
+    expect($data)->not->toBeNull()
+        ->and($data->shipmatrix_id)->toBe($shipmatrixVehicle->id);
 });
 
 it('generates display_name by stripping manufacturer prefix', function (): void {
@@ -423,15 +430,17 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-rsi',
+        'uuid' => $manufacturerUuid,
         'name' => 'Roberts Space Industries',
         'code' => 'RSI',
     ]);
 
     // Test with manufacturer name prefix
+    $vehicleUuid = fake()->uuid();
     $payload = [
-        'UUID' => 'uuid-constellation',
+        'UUID' => $vehicleUuid,
         'ClassName' => 'RSI_Constellation_Andromeda',
         'Name' => 'Roberts Space Industries Constellation Andromeda',
         'Manufacturer' => [
@@ -444,18 +453,19 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/constellation.json', json_encode($payload, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/constellation.json'))->handle();
 
-    $vehicle = Vehicle::query()->firstWhere('uuid', 'uuid-constellation');
+    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
     $data = VehicleData::query()
         ->where('vehicle_id', $vehicle->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data->name)->toBe('Roberts Space Industries Constellation Andromeda');
-    expect($data->display_name)->toBe('Constellation Andromeda');
+    expect($data->name)->toBe('Roberts Space Industries Constellation Andromeda')
+        ->and($data->display_name)->toBe('Constellation Andromeda');
 
     // Test with manufacturer code prefix (tests special case mapping)
+    $vehicleUuid2 = fake()->uuid();
     $payload2 = [
-        'UUID' => 'uuid-aurora',
+        'UUID' => $vehicleUuid2,
         'ClassName' => 'RSI_Aurora',
         'Name' => 'RSI Aurora',
         'Manufacturer' => [
@@ -468,18 +478,19 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/aurora.json', json_encode($payload2, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/aurora.json'))->handle();
 
-    $vehicle2 = Vehicle::query()->firstWhere('uuid', 'uuid-aurora');
+    $vehicle2 = Vehicle::query()->firstWhere('uuid', $vehicleUuid2);
     $data2 = VehicleData::query()
         ->where('vehicle_id', $vehicle2->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data2->name)->toBe('RSI Aurora');
-    expect($data2->display_name)->toBe('Aurora');
+    expect($data2->name)->toBe('RSI Aurora')
+        ->and($data2->display_name)->toBe('Aurora');
 
     // Test without manufacturer prefix
+    $vehicleUuid3 = fake()->uuid();
     $payload3 = [
-        'UUID' => 'uuid-no-prefix',
+        'UUID' => $vehicleUuid3,
         'ClassName' => 'Some_Ship',
         'Name' => 'F8C Lightning PYAM Exec',
         'Manufacturer' => [
@@ -492,24 +503,26 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/no-prefix.json', json_encode($payload3, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/no-prefix.json'))->handle();
 
-    $vehicle3 = Vehicle::query()->firstWhere('uuid', 'uuid-no-prefix');
+    $vehicle3 = Vehicle::query()->firstWhere('uuid', $vehicleUuid3);
     $data3 = VehicleData::query()
         ->where('vehicle_id', $vehicle3->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data3->name)->toBe('F8C Lightning PYAM Exec');
-    expect($data3->display_name)->toBe('F8C Lightning PYAM Exec');
+    expect($data3->name)->toBe('F8C Lightning PYAM Exec')
+        ->and($data3->display_name)->toBe('F8C Lightning PYAM Exec');
 
     // Test Aegis manufacturer (first word extraction)
+    $aegisUuid = fake()->uuid();
     $aegisManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-aegis',
+        'uuid' => $aegisUuid,
         'name' => 'Aegis Dynamics',
         'code' => 'AEG',
     ]);
 
+    $vehicleUuid4 = fake()->uuid();
     $payload4 = [
-        'UUID' => 'uuid-avenger',
+        'UUID' => $vehicleUuid4,
         'ClassName' => 'AEGS_Avenger_Stalker',
         'Name' => 'Aegis Avenger Stalker',
         'Manufacturer' => [
@@ -521,24 +534,26 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/avenger.json', json_encode($payload4, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/avenger.json'))->handle();
 
-    $vehicle4 = Vehicle::query()->firstWhere('uuid', 'uuid-avenger');
+    $vehicle4 = Vehicle::query()->firstWhere('uuid', $vehicleUuid4);
     $data4 = VehicleData::query()
         ->where('vehicle_id', $vehicle4->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data4->name)->toBe('Aegis Avenger Stalker');
-    expect($data4->display_name)->toBe('Avenger Stalker');
+    expect($data4->name)->toBe('Aegis Avenger Stalker')
+        ->and($data4->display_name)->toBe('Avenger Stalker');
 
     // Test Anvil manufacturer (first word extraction)
+    $anvilUuid = fake()->uuid();
     $anvilManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-anvil',
+        'uuid' => $anvilUuid,
         'name' => 'Anvil Aerospace',
         'code' => 'ANVL',
     ]);
 
+    $vehicleUuid5 = fake()->uuid();
     $payload5 = [
-        'UUID' => 'uuid-arrow',
+        'UUID' => $vehicleUuid5,
         'ClassName' => 'ANVL_Arrow',
         'Name' => 'Anvil Arrow',
         'Manufacturer' => [
@@ -550,24 +565,26 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/arrow.json', json_encode($payload5, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/arrow.json'))->handle();
 
-    $vehicle5 = Vehicle::query()->firstWhere('uuid', 'uuid-arrow');
+    $vehicle5 = Vehicle::query()->firstWhere('uuid', $vehicleUuid5);
     $data5 = VehicleData::query()
         ->where('vehicle_id', $vehicle5->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data5->name)->toBe('Anvil Arrow');
-    expect($data5->display_name)->toBe('Arrow');
+    expect($data5->name)->toBe('Anvil Arrow')
+        ->and($data5->display_name)->toBe('Arrow');
 
     // Test Consolidated Outland manufacturer (special case: C.O.)
+    $cnoUuid = fake()->uuid();
     $cnoManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-cno',
+        'uuid' => $cnoUuid,
         'name' => 'Consolidated Outland',
         'code' => 'CNOU',
     ]);
 
+    $vehicleUuid6 = fake()->uuid();
     $payload6 = [
-        'UUID' => 'uuid-mustang',
+        'UUID' => $vehicleUuid6,
         'ClassName' => 'CNOU_Mustang',
         'Name' => 'C.O. Mustang Alpha',
         'Manufacturer' => [
@@ -579,24 +596,26 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/mustang.json', json_encode($payload6, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/mustang.json'))->handle();
 
-    $vehicle6 = Vehicle::query()->firstWhere('uuid', 'uuid-mustang');
+    $vehicle6 = Vehicle::query()->firstWhere('uuid', $vehicleUuid6);
     $data6 = VehicleData::query()
         ->where('vehicle_id', $vehicle6->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data6->name)->toBe('C.O. Mustang Alpha');
-    expect($data6->display_name)->toBe('Mustang Alpha');
+    expect($data6->name)->toBe('C.O. Mustang Alpha')
+        ->and($data6->display_name)->toBe('Mustang Alpha');
 
     // Test MISC manufacturer (special case)
+    $miscUuid = fake()->uuid();
     $miscManufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-misc',
+        'uuid' => $miscUuid,
         'name' => 'Musashi Industrial & Starflight Concern',
         'code' => 'MIS',
     ]);
 
+    $vehicleUuid7 = fake()->uuid();
     $payload7 = [
-        'UUID' => 'uuid-prospector',
+        'UUID' => $vehicleUuid7,
         'ClassName' => 'MISC_Prospector',
         'Name' => 'MISC Prospector',
         'Manufacturer' => [
@@ -608,12 +627,12 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
     Storage::disk('scunpacked')->put('ships/prospector.json', json_encode($payload7, JSON_THROW_ON_ERROR));
     (new ImportVehicleData($version->id, 'ships/prospector.json'))->handle();
 
-    $vehicle7 = Vehicle::query()->firstWhere('uuid', 'uuid-prospector');
+    $vehicle7 = Vehicle::query()->firstWhere('uuid', $vehicleUuid7);
     $data7 = VehicleData::query()
         ->where('vehicle_id', $vehicle7->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data7->name)->toBe('MISC Prospector');
-    expect($data7->display_name)->toBe('Prospector');
+    expect($data7->name)->toBe('MISC Prospector')
+        ->and($data7->display_name)->toBe('Prospector');
 });

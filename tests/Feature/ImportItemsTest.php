@@ -63,15 +63,17 @@ it('imports item data, description data, and translations and upserts on re-run'
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-rsi',
+        'uuid' => $manufacturerUuid,
         'name' => 'Roberts Space Industries',
         'code' => 'RSI',
     ]);
 
+    $itemUuid = fake()->uuid();
     $payload = [
         'Item' => [
-            'reference' => 'uuid-item',
+            'reference' => $itemUuid,
             'className' => 'RSI_Test_Item',
             'itemName' => 'Test Item Name',
             'name' => 'Test Item',
@@ -91,7 +93,7 @@ it('imports item data, description data, and translations and upserts on re-run'
                 ],
                 'Manufacturer' => [
                     'Code' => 'RSI',
-                    'UUID' => 'uuid-rsi',
+                    'UUID' => $manufacturerUuid,
                 ],
             ],
         ],
@@ -118,7 +120,7 @@ it('imports item data, description data, and translations and upserts on re-run'
 
     (new ImportItemData($version->id, 'items/test.json', $labels))->handle();
 
-    $item = Item::query()->firstWhere('uuid', 'uuid-item');
+    $item = Item::query()->firstWhere('uuid', $itemUuid);
     expect($item)->not->toBeNull();
 
     $data = ItemData::query()
@@ -126,24 +128,23 @@ it('imports item data, description data, and translations and upserts on re-run'
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->manufacturer_id)->toBe($manufacturer->id);
-    expect($data->name)->toBe('Test Item');
-    expect($data->data)->toHaveKey('tags');
-    expect($data->data)->not->toHaveKey('name');
+    expect($data)->not->toBeNull()
+        ->and($data->manufacturer_id)->toBe($manufacturer->id)
+        ->and($data->name)->toBe('Test Item')
+        ->and($data->data)->toHaveKey('tags')
+        ->and($data->data)->not->toHaveKey('name');
 
     $descriptionData = ItemDescriptionData::query()
         ->where('item_id', $item->id)
         ->orderBy('name')
         ->get();
 
-    expect($descriptionData)->toHaveCount(2);
-    expect($descriptionData->first()->name)->toBe('Damage');
-    expect($descriptionData->first()->value)->toBe('10');
-
-    expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description');
-    expect($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述');
-    expect($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
+    expect($descriptionData)->toHaveCount(2)
+        ->and($descriptionData->first()->name)->toBe('Damage')
+        ->and($descriptionData->first()->value)->toBe('10')
+        ->and($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description')
+        ->and($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述')
+        ->and($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
 
     // Re-run with updated payload to verify upsert behaviour
     $payload['Item']['grade'] = 4;
@@ -179,15 +180,17 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
         'is_default' => false,
     ]);
 
+    $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-unknown',
+        'uuid' => $manufacturerUuid,
         'name' => 'Unknown Manufacturer',
         'code' => 'UNKN',
     ]);
 
+    $itemUuid = fake()->uuid();
     $payload = [
         'Item' => [
-            'reference' => 'uuid-unknown-item',
+            'reference' => $itemUuid,
             'className' => 'Unknown_Test_Item',
             'itemName' => 'Unknown Item Name',
             'type' => 'Misc',
@@ -198,7 +201,7 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
             'stdItem' => [
                 'Manufacturer' => [
                     'Code' => 'UNKN',
-                    'UUID' => 'uuid-unknown',
+                    'UUID' => $manufacturerUuid,
                 ],
                 'Description' => 'Fallback description',
             ],
@@ -226,7 +229,7 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
 
     (new ImportItemData($version->id, 'items/unknown.json', $labels))->handle();
 
-    $item = Item::query()->firstWhere('uuid', 'uuid-unknown-item');
+    $item = Item::query()->firstWhere('uuid', $itemUuid);
     expect($item)->not->toBeNull();
 
     $data = ItemData::query()
@@ -234,11 +237,11 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->manufacturer_id)->toBe($manufacturer->id);
+    expect($data)->not->toBeNull()
+        ->and($data->manufacturer_id)->toBe($manufacturer->id)
+        ->and($item->getTranslation('translation', Language::CHINESE, false))->toBeEmpty()
+        ->and($item->getTranslation('translation', Language::ENGLISH, false))->not->toBeNull();
 
-    expect($item->getTranslation('translation', Language::CHINESE, false))->toBeEmpty();
-    expect($item->getTranslation('translation', Language::ENGLISH, false))->not->toBeNull();
 });
 
 it('imports and syncs entity tags and removes outdated tags on re-run', function (): void {
@@ -251,6 +254,13 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
         germanPath: base_path('tests/Fixtures/translations/global_de.ini')
     );
 
+    $manufacturerUuid = fake()->uuid();
+    $manufacturer = Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Unknown Manufacturer',
+        'code' => 'UNKN',
+    ]);
+
     $version = GameVersion::query()->create([
         'code' => '3.24.0',
         'channel' => 'live',
@@ -258,22 +268,17 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
         'is_default' => false,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-manu',
-        'name' => 'Test Manufacturer',
-        'code' => 'TST',
-    ]);
-
+    $itemUuid = fake()->uuid();
     $payload = [
         'Item' => [
-            'reference' => 'uuid-tagged-item',
+            'reference' => $itemUuid,
             'className' => 'TST_Tagged_Item',
             'itemName' => 'Tagged Item',
             'type' => 'Clothing',
             'stdItem' => [
                 'Manufacturer' => [
                     'Code' => 'TST',
-                    'UUID' => 'uuid-manu',
+                    'UUID' => $manufacturerUuid,
                 ],
             ],
             'entity_tag_map' => [
@@ -294,7 +299,7 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
 
     (new ImportItemData($version->id, 'items/tagged.json', $labels))->handle();
 
-    $item = Item::query()->firstWhere('uuid', 'uuid-tagged-item');
+    $item = Item::query()->firstWhere('uuid', $itemUuid);
     expect($item)->not->toBeNull();
 
     $data = ItemData::query()
@@ -305,14 +310,14 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
     expect($data)->not->toBeNull();
 
     $entityTags = $data->entityTags;
-    expect($entityTags)->toHaveCount(2);
-    expect($entityTags->pluck('name')->sort()->values()->all())->toBe(['EveryDay', 'Fashionable']);
-    expect($entityTags->pluck('uuid')->all())->toContain('65124877-3571-4f63-b4a5-650a79e5bfb6');
+    expect($entityTags)->toHaveCount(2)
+        ->and($entityTags->pluck('name')->sort()->values()->all())->toBe(['EveryDay', 'Fashionable'])
+        ->and($entityTags->pluck('uuid')->all())->toContain('65124877-3571-4f63-b4a5-650a79e5bfb6');
 
     // Verify tags are normalized (shared across items)
     $fashionableTag = EntityTag::query()->where('name', 'Fashionable')->first();
-    expect($fashionableTag)->not->toBeNull();
-    expect($fashionableTag->uuid)->toBe('65124877-3571-4f63-b4a5-650a79e5bfb6');
+    expect($fashionableTag)->not->toBeNull()
+        ->and($fashionableTag->uuid)->toBe('65124877-3571-4f63-b4a5-650a79e5bfb6');
 
     // Re-run with updated tags to verify sync behavior
     $payload['Item']['entity_tag_map'] = [
@@ -321,7 +326,7 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
             'name' => 'Fashionable',
         ],
         [
-            'tag' => 'new-uuid-123',
+            'tag' => fake()->uuid(),
             'name' => 'NewTag',
         ],
     ];
@@ -332,9 +337,9 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
 
     $data->refresh();
     $entityTags = $data->entityTags;
-    expect($entityTags)->toHaveCount(2);
-    expect($entityTags->pluck('name')->sort()->values()->all())->toBe(['Fashionable', 'NewTag']);
-    expect($entityTags->pluck('name')->all())->not->toContain('EveryDay');
+    expect($entityTags)->toHaveCount(2)
+        ->and($entityTags->pluck('name')->sort()->values()->all())->toBe(['Fashionable', 'NewTag'])
+        ->and($entityTags->pluck('name')->all())->not->toContain('EveryDay');
 });
 
 it('handles items with no entity tags', function (): void {
@@ -347,6 +352,13 @@ it('handles items with no entity tags', function (): void {
         germanPath: base_path('tests/Fixtures/translations/global_de.ini')
     );
 
+    $manufacturerUuid = fake()->uuid();
+    $manufacturer = Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Unknown Manufacturer',
+        'code' => 'UNKN',
+    ]);
+
     $version = GameVersion::query()->create([
         'code' => '3.24.1',
         'channel' => 'live',
@@ -354,22 +366,18 @@ it('handles items with no entity tags', function (): void {
         'is_default' => false,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-manu2',
-        'name' => 'Test Manufacturer 2',
-        'code' => 'TS2',
-    ]);
+    $itemUuid = fake()->uuid();
 
     $payload = [
         'Item' => [
-            'reference' => 'uuid-no-tags',
+            'reference' => $itemUuid,
             'className' => 'TST_No_Tags',
             'itemName' => 'Item Without Tags',
             'type' => 'Misc',
             'stdItem' => [
                 'Manufacturer' => [
                     'Code' => 'TS2',
-                    'UUID' => 'uuid-manu2',
+                    'UUID' => $manufacturerUuid,
                 ],
             ],
         ],
@@ -380,7 +388,7 @@ it('handles items with no entity tags', function (): void {
 
     (new ImportItemData($version->id, 'items/notags.json', $labels))->handle();
 
-    $item = Item::query()->firstWhere('uuid', 'uuid-no-tags');
+    $item = Item::query()->firstWhere('uuid', $itemUuid);
     expect($item)->not->toBeNull();
 
     $data = ItemData::query()
@@ -388,8 +396,8 @@ it('handles items with no entity tags', function (): void {
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data)->not->toBeNull();
-    expect($data->entityTags)->toHaveCount(0);
+    expect($data)->not->toBeNull()
+        ->and($data->entityTags)->toHaveCount(0);
 });
 
 it('optimizes entity tag lookups with in-memory caching', function (): void {
@@ -402,6 +410,13 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
         germanPath: base_path('tests/Fixtures/translations/global_de.ini')
     );
 
+    $manufacturerUuid = fake()->uuid();
+    $manufacturer = Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Unknown Manufacturer',
+        'code' => 'UNKN',
+    ]);
+
     $version = GameVersion::query()->create([
         'code' => '3.25.0',
         'channel' => 'live',
@@ -409,46 +424,43 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
         'is_default' => false,
     ]);
 
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => 'uuid-manu-opt',
-        'name' => 'Optimization Test',
-        'code' => 'OPT',
-    ]);
-
     // Pre-create some entity tags to test the caching
+    $tag1Uuid = fake()->uuid();
     EntityTag::query()->create([
-        'uuid' => 'existing-tag-1',
+        'uuid' => $tag1Uuid,
         'name' => 'Existing One',
     ]);
 
+    $tag2Uuid = fake()->uuid();
     EntityTag::query()->create([
-        'uuid' => 'existing-tag-2',
+        'uuid' => $tag2Uuid,
         'name' => 'Existing Two',
     ]);
 
+    $itemUuid = fake()->uuid();
     $payload = [
         'Item' => [
-            'reference' => 'uuid-opt-item',
+            'reference' => $itemUuid,
             'className' => 'OPT_Item',
             'itemName' => 'Optimized Item',
             'type' => 'Test',
             'stdItem' => [
                 'Manufacturer' => [
                     'Code' => 'OPT',
-                    'UUID' => 'uuid-manu-opt',
+                    'UUID' => $manufacturerUuid,
                 ],
             ],
             'entity_tag_map' => [
                 [
-                    'tag' => 'existing-tag-1',
+                    'tag' => $tag1Uuid,
                     'name' => 'Existing One',
                 ],
                 [
-                    'tag' => 'existing-tag-2',
+                    'tag' => $tag2Uuid,
                     'name' => 'Existing Two',
                 ],
                 [
-                    'tag' => 'new-tag-1',
+                    'tag' => fake()->uuid(),
                     'name' => 'New One',
                 ],
             ],
@@ -476,13 +488,13 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
     // 2. Refresh cache after creating new tags (whereIn to get newly created tags)
     expect($entityTagSelectQueries)->toBeLessThanOrEqual(2);
 
-    $item = Item::query()->firstWhere('uuid', 'uuid-opt-item');
+    $item = Item::query()->firstWhere('uuid', $itemUuid);
     $data = ItemData::query()
         ->where('item_id', $item->id)
         ->where('game_version_id', $version->id)
         ->first();
 
     $entityTags = $data->entityTags;
-    expect($entityTags)->toHaveCount(3);
-    expect($entityTags->pluck('name')->sort()->values()->all())->toBe(['Existing One', 'Existing Two', 'New One']);
+    expect($entityTags)->toHaveCount(3)
+        ->and($entityTags->pluck('name')->sort()->values()->all())->toBe(['Existing One', 'Existing Two', 'New One']);
 });
