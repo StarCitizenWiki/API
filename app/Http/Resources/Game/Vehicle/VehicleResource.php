@@ -369,19 +369,14 @@ class VehicleResource extends AbstractBaseResource
     public static function validIncludes(): array
     {
         return [
-            'manufacturer',
-            'shipMatrixVehicle',
+            'ports',
+            'hardpoints',
             'components',
         ];
     }
 
     public function toArray(Request $request): array
     {
-        $includes = collect(explode(',', $request->get('include', '')))
-            ->map('trim')
-            ->map('strtolower')
-            ->toArray();
-
         $vehicleData = $this->data->first();
 
         if ($vehicleData === null) {
@@ -421,6 +416,7 @@ class VehicleResource extends AbstractBaseResource
             'game_name' => $vehicleData->name,
             'slug' => Str::slug($vehicleData->display_name ?? $vehicleData->name),
             'class_name' => $vehicleData->class_name,
+            'data' => $payload,
 
             'sizes' => [
                 'length' => $vehicleData->length ?? Arr::get($payload, 'Length'),
@@ -447,7 +443,7 @@ class VehicleResource extends AbstractBaseResource
             'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
             'cargo_grids' => $cargoGrids,
             $this->mergeWhen(
-                $cargoLimits !== null,
+                ! empty($cargoLimits),
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
             'vehicle_inventory' => round(Arr::get($payload, 'Stowage', 0), 2),
@@ -495,6 +491,7 @@ class VehicleResource extends AbstractBaseResource
             'fuel' => $this->buildFuel($payload),
             'quantum' => $this->buildQuantum($payload),
 
+            // TODO
             'agility' => $this->buildAgility($flight),
 
             'armor' => [
@@ -614,7 +611,7 @@ class VehicleResource extends AbstractBaseResource
             'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
 
             $this->mergeWhen(
-                $this->shouldIncludeComponents($includes, $vehicleData) && $this->isVehicleShowRoute($request),
+                $this->whenLoaded('shipmatrixVehicle.components') && $this->isVehicleShowRoute($request),
                 fn () => ['components' => $this->getComponents($vehicleData)]
             ),
 
@@ -642,10 +639,10 @@ class VehicleResource extends AbstractBaseResource
             'max' => Arr::get($flight, 'Speeds.Max'),
             'boost_forward' => Arr::get($flight, 'Speeds.BoostForward'),
             'boost_backward' => Arr::get($flight, 'Speeds.BoostBackward'),
-            'zero_to_scm' => Arr::get($flight, 'Timing.ZeroToScm'),
-            'zero_to_max' => Arr::get($flight, 'Timing.ZeroToMax'),
-            'scm_to_zero' => Arr::get($flight, 'Timing.ScmToZero'),
-            'max_to_zero' => Arr::get($flight, 'Timing.MaxToZero'),
+            'zero_to_scm' => $this->roundNullable(Arr::get($flight, 'Timing.ZeroToScm')),
+            'zero_to_max' => $this->roundNullable(Arr::get($flight, 'Timing.ZeroToMax')),
+            'scm_to_zero' => $this->roundNullable(Arr::get($flight, 'Timing.ScmToZero')),
+            'max_to_zero' => $this->roundNullable(Arr::get($flight, 'Timing.MaxToZero')),
         ];
     }
 
@@ -655,20 +652,20 @@ class VehicleResource extends AbstractBaseResource
             'pitch' => Arr::get($flight, 'AngularRates.Pitch'),
             'yaw' => Arr::get($flight, 'AngularRates.Yaw'),
             'roll' => Arr::get($flight, 'AngularRates.Roll'),
-            'pitch_boosted' => Arr::get($flight, 'AngularRatesBoosted.Pitch'),
-            'yaw_boosted' => Arr::get($flight, 'AngularRatesBoosted.Yaw'),
-            'roll_boosted' => Arr::get($flight, 'AngularRatesBoosted.Roll'),
+            'pitch_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Pitch')),
+            'yaw_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Yaw')),
+            'roll_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Roll')),
 
             'acceleration' => array_filter([
-                'main' => round(Arr::get($flight, 'Acceleration.Raw.Forward', 0), 2),
-                'retro' => round(Arr::get($flight, 'Acceleration.Raw.Backward', 0), 2),
-                'vtol' => round(Arr::get($flight, 'Acceleration.Raw.Vtol', 0), 2),
-                'maneuvering' => round(Arr::get($flight, 'Acceleration.Raw.Maneuvering', 0), 2),
+                'main' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Forward')),
+                'retro' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Backward')),
+                'vtol' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Vtol')),
+                'maneuvering' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Maneuvering')),
 
-                'main_g' => round(Arr::get($flight, 'Acceleration.RawG.Forward', 0), 2),
-                'retro_g' => round(Arr::get($flight, 'Acceleration.RawG.Backward', 0), 2),
-                'vtol_g' => round(Arr::get($flight, 'Acceleration.RawG.Vtol', 0), 2),
-                'maneuvering_g' => round(Arr::get($flight, 'Acceleration.RawG.Maneuvering', 0), 2),
+                'main_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Forward')),
+                'retro_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Backward')),
+                'vtol_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Vtol')),
+                'maneuvering_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Maneuvering')),
             ], static fn ($value) => $value !== null),
         ];
     }
@@ -693,9 +690,9 @@ class VehicleResource extends AbstractBaseResource
             'quantum_speed' => Arr::get($payload, 'QuantumTravel.Speed'),
             'quantum_spool_time' => Arr::get($payload, 'QuantumTravel.SpoolTime'),
             'quantum_fuel_capacity' => Arr::get($payload, 'QuantumTravel.FuelCapacity') / 1000,
-            'quantum_range' => Arr::get($payload, 'QuantumTravel.Range'),
-            'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime'),
-            'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel'),
+            'quantum_range' => Arr::get($payload, 'QuantumTravel.Range') ? round(Arr::get($payload, 'QuantumTravel.Range')) : null,
+            'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime') ? round(Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime')) : null,
+            'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel') ? round(Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel')) : null,
         ];
     }
 
@@ -750,6 +747,7 @@ class VehicleResource extends AbstractBaseResource
             'pledge_url' => 'pledge_url',
             'loaner' => 'loaner',
             'skus' => 'skus',
+            'components' => 'components',
         ];
 
         foreach ($fieldMap as $sourceKey => $targetKey) {
@@ -757,32 +755,6 @@ class VehicleResource extends AbstractBaseResource
                 $data[$targetKey] = $matrixVehicle[$sourceKey];
             }
         }
-    }
-
-    /**
-     * Determine if components should be included in the response.
-     */
-    private function shouldIncludeComponents(array $includes, ?VehicleData $vehicleData): bool
-    {
-        if (! in_array('components', $includes, true) && ! in_array('shipmatrixvehicle.components', $includes, true)) {
-            return false;
-        }
-
-        if ($vehicleData === null) {
-            return false;
-        }
-
-        if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
-            return false;
-        }
-
-        $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
-
-        if (! $shipMatrixVehicle->exists) {
-            return false;
-        }
-
-        return $shipMatrixVehicle->relationLoaded('components');
     }
 
     /**

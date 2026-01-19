@@ -18,7 +18,7 @@ class BackfillImageHashes extends Command
      */
     protected $signature = 'comm-link:backfill-image-hashes
         {--chunk=500 : Number of images to process per chunk}
-        {--queue=comm-link-hashes : Queue name for hashing jobs}
+        {--queue=expensive : Queue name for hashing jobs}
         {--all : Include images that already have hashes}';
 
     /**
@@ -49,7 +49,7 @@ class BackfillImageHashes extends Command
 
         $dispatched = 0;
 
-        $query->where('id', '>', 43482)->orderByDesc('id')->chunkById($chunkSize, function ($images) use (&$dispatched, $queue): void {
+        $query->orderByDesc('id')->chunkById($chunkSize, function ($images) use (&$dispatched, $queue): void {
             foreach ($images as $image) {
                 ComputeImageHash::dispatch($image->id)
                     ->onConnection('database')

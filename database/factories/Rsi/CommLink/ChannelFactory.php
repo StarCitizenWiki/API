@@ -21,7 +21,7 @@ class ChannelFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->randomElement(['Transmission', 'Spectrum Dispatch', 'Development', 'News', 'Media']);
+        $name = fake()->unique()->word();
 
         return [
             'name' => $name,

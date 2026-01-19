@@ -8,6 +8,72 @@ servers:
   -
     url: 'https://api.star-citizen.wiki'
 paths:
+  /api/game-versions:
+    get:
+      tags:
+        - In-Game
+        - 'Game Version'
+      summary: 'List imported Game Versions'
+      description: 'Returns paginated game versions with optional filtering and sorting.'
+      operationId: d50197240879fbad3c30053885d65b9c
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          name: 'filter[code]'
+          in: query
+          description: 'Filter by exact version code (e.g., 3.24.1-LIVE)'
+          schema:
+            type: string
+        -
+          name: 'filter[channel]'
+          in: query
+          description: 'Filter by channel (live, ptu, eptu)'
+          schema:
+            type: string
+        -
+          name: 'filter[is_default]'
+          in: query
+          description: 'Filter by default status (1 or 0)'
+          schema:
+            type: integer
+        -
+          name: sort
+          in: query
+          description: 'Sort by field (prefix with - for descending). Available: code, channel, released_at'
+          schema:
+            type: string
+            example: '-released_at'
+      responses:
+        '200':
+          description: 'List of Game Versions'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/game_version'
+  /api/game-versions/default:
+    get:
+      tags:
+        - In-Game
+        - 'Game Version'
+      summary: 'Get Default Game Version'
+      description: 'Returns the default game version (where is_default = true).'
+      operationId: 4264185b623abd31430cebd231e316d8
+      responses:
+        '200':
+          description: 'The default game version'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/game_version'
+        '404':
+          description: 'No default version found'
   /api/items:
     get:
       tags:
@@ -25,6 +91,8 @@ paths:
           $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/include'
+        -
+          $ref: '#/components/parameters/version'
         -
           name: sort
           in: query
@@ -114,6 +182,8 @@ paths:
           $ref: '#/components/parameters/locale'
         -
           $ref: '#/components/parameters/include'
+        -
+          $ref: '#/components/parameters/version'
         -
           name: identifier
           in: path
@@ -238,12 +308,64 @@ paths:
       operationId: 8cd032a0b4591c3e203c00e9e5779194
       parameters:
         -
-          name: version
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[variants]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[category]'
           in: query
           schema:
             type: string
         -
-          name: 'filter[category]'
+          name: 'filter[type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[sub_type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[manufacturer]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[manufacturer.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[class_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[classification]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[size]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[grade]'
+          in: query
+          schema:
+            type: number
+        -
+          name: 'filter[class]'
           in: query
           schema:
             type: string
@@ -360,6 +482,8 @@ paths:
           $ref: '#/components/parameters/page_size'
         -
           $ref: '#/components/parameters/include'
+        -
+          $ref: '#/components/parameters/version'
         -
           name: sort
           in: query
@@ -534,6 +658,8 @@ paths:
             type: string
         -
           $ref: '#/components/parameters/include'
+        -
+          $ref: '#/components/parameters/version'
       responses:
         '200':
           description: 'A Vehicle'
@@ -747,10 +873,7 @@ paths:
       operationId: 57e041d605c3ed0ffabeccf150c51a5e
       parameters:
         -
-          name: version
-          in: query
-          schema:
-            type: string
+          $ref: '#/components/parameters/version'
       responses:
         '200':
           description: 'Available filters for in-game vehicles.'
@@ -1749,6 +1872,23 @@ components:
           type: string
         count:
           type: integer
+      type: object
+    game_version:
+      title: 'Game Version'
+      properties:
+        code:
+          type: string
+          example: 3.24.1-LIVE
+        channel:
+          type: string
+          example: live
+        released_at:
+          type: string
+          format: date-time
+          example: '2024-12-15T10:00:00+00:00'
+        is_default:
+          type: boolean
+          example: true
       type: object
     item_description_data:
       title: 'Item Description Data'
@@ -4447,13 +4587,13 @@ components:
       description: 'Dynamic map of nutrient name (snake_case) to total amount for the item.'
       type: object
       additionalProperties:
-        type: double
+        type: number
     food_effect_durations:
       title: 'Food Effect Durations'
       description: 'Dynamic map of effect/buff type (snake_case) to duration in seconds.'
       type: object
       additionalProperties:
-        type: double
+        type: number
     food_container:
       title: 'Food Container'
       description: 'Container metadata from stdItem.Food.Container.'
@@ -4681,12 +4821,12 @@ components:
               description: 'Dynamic map of nutrient name (snake_case) to total amount.'
               type: object
               additionalProperties:
-                type: double
+                type: number
             debuffs:
               description: 'Dynamic map of debuff type (snake_case) to duration in seconds.'
               type: object
               additionalProperties:
-                type: double
+                type: number
             container:
               description: 'Container metadata from stdItem.Medical.Container.'
               properties:
@@ -4933,7 +5073,7 @@ components:
           type: object
           nullable: false
           additionalProperties:
-            type: double
+            type: number
         extraction_laser_power:
           description: 'Deprecated. Prefer `extraction_throughput` when available (this value is taken from description text).'
           type: string
@@ -5395,7 +5535,7 @@ components:
       description: 'Map of damage type to value. Only non-null damage types are included; null when no damage values are present.'
       type: object
       additionalProperties:
-        type: double
+        type: number
     missile:
       title: Missile
       description: 'Missile specifications sourced from stdItem.Missile.'
@@ -6763,7 +6903,7 @@ components:
       description: 'Map of signature emission types (snake_case) to emission values.'
       type: object
       additionalProperties:
-        type: double
+        type: number
     suit_armor:
       title: 'Suit Armor'
       description: 'Protective characteristics of FPS armor pieces (helmets, cores, arms, legs). Generated from SuitArmor data in Item.stdItem.'
@@ -9856,10 +9996,22 @@ components:
       allowReserved: true
       schema:
         type: string
+    version:
+      name: version
+      in: query
+      description: 'Game version to get data from, if omitted uses default version.'
+      required: false
+      explode: false
+      allowReserved: true
+      schema:
+        type: string
 tags:
   -
     name: In-Game
     description: In-Game
+  -
+    name: 'Game Version'
+    description: 'Game Version'
   -
     name: Items
     description: Items

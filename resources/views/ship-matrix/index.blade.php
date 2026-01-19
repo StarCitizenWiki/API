@@ -96,18 +96,19 @@
                     'formatter' => 'money',
                     'formatterParams' => ['symbol' => ' $', 'symbolAfter' => true]
                 ],
-                // [
-                //     'title' => '',
-                //     'field' => 'id',
-                //     'formatter' => 'viewButton',
-                //     'formatterParams' => [
-                //         'label' => 'View',
-                //         'hrefField' => 'web_url',
-                //     ],
-                //     'headerSort' => false,
-                //     'hozAlign' => 'right',
-                //     'width' => 100,
-                // ],
+                [
+                    'title' => 'API Url',
+                    'field' => 'id',
+                    'formatter' => 'link',
+                    'formatterParams' => [
+                        'label' => 'View',
+                        'target' => 'blank',
+                        'urlField' => 'link',
+                    ],
+                    'headerSort' => false,
+                    'hozAlign' => 'right',
+                    'width' => 100,
+                ],
             ],
         ];
     @endphp

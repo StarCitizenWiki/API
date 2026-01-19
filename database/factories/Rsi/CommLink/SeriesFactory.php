@@ -21,7 +21,7 @@ class SeriesFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->randomElement(['Jump Point', 'Galactic Guide', 'Showdown', 'None']);
+        $name = fake()->unique()->word();
 
         return [
             'name' => $name,

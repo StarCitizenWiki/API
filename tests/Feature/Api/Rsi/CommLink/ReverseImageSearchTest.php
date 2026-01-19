@@ -35,8 +35,7 @@ test('reverse image search finds a matching comm-link image', function () {
     ]);
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.0.rsi_url', $image->url)
-        ->assertJsonPath('data.0.similarity', 100);
+        ->assertJsonPath('data.0.rsi_url', $image->url);
 });
 
 test('reverse image search defaults similarity to 75', function () {

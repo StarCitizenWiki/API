@@ -10,8 +10,6 @@
         @yield('meta')
         @stack('meta')
 
-
-
         <script>
             window.AppThemes = {
                 light: @json(config('app.ui.themes.light', 'nord')),

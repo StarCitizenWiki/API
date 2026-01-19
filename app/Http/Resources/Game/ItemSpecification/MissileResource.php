@@ -85,7 +85,7 @@ use OpenApi\Attributes as OA;
     title: 'Missile Damage Map',
     description: 'Map of damage type to value. Only non-null damage types are included; null when no damage values are present.',
     type: 'object',
-    additionalProperties: new OA\AdditionalProperties(type: 'double')
+    additionalProperties: new OA\AdditionalProperties(type: 'number')
 )]
 #[OA\Schema(
     schema: 'missile',

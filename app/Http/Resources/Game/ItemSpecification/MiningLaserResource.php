@@ -92,7 +92,7 @@ use OpenApi\Attributes as OA;
             property: 'modifier_map',
             type: 'object',
             nullable: false,
-            additionalProperties: new OA\AdditionalProperties(type: 'double'),
+            additionalProperties: new OA\AdditionalProperties(type: 'number'),
         ),
         new OA\Property(
             property: 'extraction_laser_power',

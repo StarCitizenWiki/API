@@ -34,7 +34,7 @@ class MigrateTranslations extends Command
         $this->migrateSimple($from, $to, 'shipmatrix_vehicle_sizes', 'vehicle_size_translations', 'size_id', $chunk);
         $this->migrateSimple($from, $to, 'shipmatrix_vehicle_types', 'vehicle_type_translations', 'type_id', $chunk);
         $this->migrateSimple($from, $to, 'shipmatrix_vehicle_foci', 'vehicle_focus_translations', 'focus_id', $chunk);
-        $this->migrateSimple($from, $to, 'galactapedia_articles', 'galactapedia_article_translations', 'galactapedia_article_id', $chunk);
+        $this->migrateSimple($from, $to, 'galactapedia_articles', 'galactapedia_article_translations', 'article_id', $chunk);
         $this->migrateSimple($from, $to, 'starmap_starsystems', 'starsystem_translations', 'starsystem_id', $chunk);
         $this->migrateSimple($from, $to, 'starmap_celestial_objects', 'celestial_object_translations', 'celestial_object_id', $chunk);
         $this->migrateSimple($from, $to, 'shipmatrix_vehicles', 'vehicle_translations', 'vehicle_id', $chunk);

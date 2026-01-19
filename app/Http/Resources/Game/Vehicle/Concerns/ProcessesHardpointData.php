@@ -37,13 +37,14 @@ trait ProcessesHardpointData
 
     protected function buildCompatibleTypes(): array
     {
-        return array_map(
-            static fn ($type) => [
-                'type' => Arr::get($type, 'Type'),
-                'subtype' => [Arr::get($type, 'SubType')],
-            ],
-            Arr::get($this->resource, 'ItemTypes', [])
-        );
+        return collect(Arr::get($this->resource, 'ItemTypes', []))
+            ->map(static function ($type) {
+                return [
+                    'type' => Arr::get($type, 'Type'),
+                    'sub_types' => Arr::get($type, 'SubTypes', []),
+                ];
+            })
+            ->toArray();
     }
 
     protected function shouldIncludeChildren(): bool

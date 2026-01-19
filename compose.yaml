@@ -68,7 +68,7 @@ services:
         networks:
             - internal
 
-    queue_image_hashes:
+    queue_expensive:
         build:
             context: .
             dockerfile: Dockerfile
@@ -83,7 +83,7 @@ services:
         environment:
             APP_ENV: production
             CONTAINER_ROLE: queue
-            QUEUE_NAME: comm-link-hashes
+            QUEUE_NAME: expensive
             QUEUE_TRIES: 3
             QUEUE_MAX_JOBS: 20
             QUEUE_SLEEP: 3

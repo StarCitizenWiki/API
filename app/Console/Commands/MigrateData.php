@@ -43,7 +43,6 @@ class MigrateData extends Command
         {--truncate : Truncate destination tables before inserting}
         {--force : Migrate even if destination table already has rows (may cause PK conflicts)}
         {--dry-run : Read and map rows but do not write to destination}
-        {--sync-sequences : For Postgres, attempt to sync SERIAL/IDENTITY sequences (best-effort)}
         {--no-progress : Disable progress bars}';
 
     protected $description = 'Migrate selected table groups from MariaDB to Postgres.';
@@ -82,7 +81,6 @@ class MigrateData extends Command
         $truncate = (bool) $this->option('truncate');
         $force = (bool) $this->option('force');
         $dryRun = (bool) $this->option('dry-run');
-        $syncSeq = (bool) $this->option('sync-sequences');
         $noProgress = (bool) $this->option('no-progress');
 
         foreach ($selectedGroups as $group) {
@@ -101,7 +99,6 @@ class MigrateData extends Command
                         truncate: $truncate,
                         force: $force,
                         dryRun: $dryRun,
-                        syncSequences: $syncSeq,
                         noProgress: $noProgress,
                     );
                 } catch (Throwable $e) {
@@ -194,7 +191,6 @@ class MigrateData extends Command
         bool $truncate,
         bool $force,
         bool $dryRun,
-        bool $syncSequences,
         bool $noProgress,
     ): void {
         $sourceTable = $tableDef['table'];
@@ -297,9 +293,7 @@ class MigrateData extends Command
                 $to->table($targetTable)->insert($payload);
             }
 
-            if ($bar) {
-                $bar->advance(count($rows));
-            }
+            $bar?->advance(count($rows));
         };
 
         $useChunkById = $pk && in_array($pk, $sourceCols, true);
@@ -327,7 +321,23 @@ class MigrateData extends Command
             );
         }
 
-        if ($syncSequences && ! $dryRun) {
+        // Automatically sync sequences for PostgreSQL unless explicitly disabled
+        $isPostgres = $to->getDriverName() === 'pgsql';
+        $isPivot = in_array(
+            $targetTable, [
+                'comm_link_image',
+                'comm_link_link',
+                'shipmatrix_vehicle_loaners',
+                'shipmatrix_vehicle_vehicle_focus',
+                'galactapedia_article_templates',
+                'galactapedia_article_tags',
+                'galactapedia_article_relates',
+                'galactapedia_article_categories',
+            ],
+            true
+        );
+
+        if ($isPostgres && ! $dryRun && ! $isPivot) {
             $this->syncPostgresSequenceBestEffort($to, $targetTable, $pk ?: 'id');
         }
     }
@@ -423,9 +433,7 @@ class MigrateData extends Command
                     $to->table($targetTable)->upsert($payload, [$pk], [$column]);
                 }
 
-                if ($bar) {
-                    $bar->advance(count($rows));
-                }
+                $bar?->advance(count($rows));
             }, $pk);
 
             if ($bar) {
@@ -458,6 +466,18 @@ class MigrateData extends Command
             $wrappedTable = $to->getQueryGrammar()->wrapTable($table);
             $wrappedPk = $to->getQueryGrammar()->wrap($pk);
 
+            // Get current sequence value before syncing
+            $seqName = $to->selectOne('SELECT pg_get_serial_sequence(?, ?)', [$table, $pk])?->pg_get_serial_sequence;
+
+            if ($seqName === null) {
+                $this->warn("    No sequence found for {$table}.{$pk} - skipping sync");
+
+                return;
+            }
+
+            $beforeValue = $to->selectOne("SELECT last_value FROM {$seqName}")?->last_value;
+            $maxId = $to->selectOne("SELECT MAX({$wrappedPk}) FROM {$wrappedTable}")?->max;
+
             $sql = "
                 SELECT setval(
                     pg_get_serial_sequence(?, ?),
@@ -467,8 +487,16 @@ class MigrateData extends Command
             ";
 
             $to->select($sql, [$table, $pk]);
+
+            $afterValue = $maxId ?? 1;
+
+            if ($beforeValue !== $afterValue) {
+                $this->info("    ✓ Synced sequence {$seqName}: {$beforeValue} → {$afterValue}");
+            } else {
+                $this->line("    ✓ Sequence {$seqName} already in sync ({$beforeValue})");
+            }
         } catch (Throwable $e) {
-            $this->warn("    Sequence sync skipped: {$e->getMessage()}");
+            $this->error("    ✗ Sequence sync failed for {$table}.{$pk}: {$e->getMessage()}");
         }
     }
 }

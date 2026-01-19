@@ -173,30 +173,6 @@ it('imports vehicle data and upserts when re-run', function (): void {
     expect(VehicleData::query()->where('vehicle_id', $vehicle->id)->where('game_version_id', $version->id)->count())->toBe(1);
 });
 
-it('fails when manufacturer uuid is missing or unknown', function (): void {
-    Storage::fake('scunpacked');
-
-    $version = GameVersion::query()->create([
-        'code' => '3.22.2',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => false,
-    ]);
-
-    $payload = [
-        'UUID' => 'uuid-test',
-        'Manufacturer' => [
-            'UUID' => 'missing-uuid',
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/test.json', json_encode($payload, JSON_THROW_ON_ERROR));
-
-    $job = new ImportVehicleData($version->id, 'ships/test.json');
-
-    expect(fn () => $job->handle())->toThrow(RuntimeException::class, 'Manufacturer with UUID missing-uuid does not exist.');
-});
-
 it('imports vehicle item data from vehicle payload and raw data', function (): void {
     Storage::fake('scunpacked');
 

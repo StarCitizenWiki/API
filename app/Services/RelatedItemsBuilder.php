@@ -33,14 +33,14 @@ class RelatedItemsBuilder
         [$setName, $variantNames] = $this->computeSetNameAndVariantNames($names, $baseItem, $groupItems);
 
         $base = $baseItem !== null ? $this->toBaseLink($baseItem, $setName, true) : null;
+
         $variants = collect($groupItems)
-            ->filter(fn (ItemData $i) => $i->item->uuid !== $item->uuid) // exclude current item
+            ->filter(fn (ItemData $i) => $i->item->uuid !== $item->uuid)
             ->map(function (ItemData $it) use ($variantNames) {
                 $link = $this->toBaseLink($it, null, false);
-                $fullVariantName = $variantNames[$it->item->uuid] ?? null;
-                $link['variant_name'] = $fullVariantName !== null
-                    ? $this->extractVariantSuffix($fullVariantName)
-                    : null;
+
+                $raw = $variantNames[$it->item->uuid] ?? null;
+                $link['variant_name'] = $this->normalizeVariantName($raw);
 
                 return $link;
             })
@@ -66,13 +66,15 @@ class RelatedItemsBuilder
     {
         $itemData = $this->getItemDataForVersion($item);
 
+        $versionId = $itemData->game_version_id;
+
         if ($itemData->base_id === null) {
             $base = $itemData;
-            $siblings = $itemData->variants()->get()->all();
+            $siblings = $itemData->variants()->where('game_version_id', $versionId)->get()->all();
             $shouldFallbackToTags = $siblings === [];
         } else {
-            $base = $itemData->baseVariant()->first();
-            $siblings = $base?->variants()->get()->all() ?? [];
+            $base = $itemData->baseVariant()->where('game_version_id', $versionId)->first();
+            $siblings = $base?->variants()->where('game_version_id', $versionId)->get()->all() ?? [];
             $shouldFallbackToTags = count($siblings) <= 1;
         }
 
@@ -88,8 +90,8 @@ class RelatedItemsBuilder
 
     /**
      * Compute set name and per-item variant names.
-     * - set name: longest common prefix among names
-     * - variant name: item name with the set name prefix removed (trimmed); if empty, "Base".
+     * - set name: longest common prefix among names (with a base-aware trim rule)
+     * - variant name: item name with the chosen prefix removed (trimmed); if empty, "Base".
      *
      * @param  array<int,string>  $names
      * @param  array<int,ItemData>  $group
@@ -97,29 +99,82 @@ class RelatedItemsBuilder
      */
     public function computeSetNameAndVariantNames(array $names, ?ItemData $base, array $group): array
     {
+        // --- compute set label (what you expose as set_name) ---
         $rawPrefix = $this->longestCommonPrefix($names);
+
+        $setName = null;
         if ($rawPrefix !== null) {
-            $endsWithSpace = str_ends_with($rawPrefix, ' ');
-            $setName = rtrim($rawPrefix);
-            if (! $endsWithSpace) {
-                $lastSpace = strrpos($setName, ' ');
-                if ($lastSpace !== false) {
-                    $setName = substr($setName, 0, $lastSpace);
+            $candidate = rtrim($rawPrefix);
+            if ($candidate !== '') {
+                $isWordBoundary =
+                    str_ends_with($rawPrefix, ' ')
+                    || in_array($candidate, $names, true)
+                    || collect($names)->contains(fn (string $n) => str_starts_with($n, $candidate.' '));
+
+                if (! $isWordBoundary) {
+                    $lastSpace = strrpos($candidate, ' ');
+                    if ($lastSpace !== false) {
+                        $candidate = substr($candidate, 0, $lastSpace);
+                    }
                 }
+
+                $candidate = trim($candidate);
+                $setName = $candidate !== '' ? $candidate : null;
             }
-            $setName = $setName === '' ? null : $setName;
-        } else {
-            $setName = null;
         }
 
+        /**
+         * Base-aware refinement:
+         * If the computed set name collapses to the full base item name (common when the base is the shortest string),
+         * trim a trailing slot/type word so the base can expose it as variant_name.
+         *
+         * Examples:
+         * - "Lynx Arms" -> set_name "Lynx", base variant_name "Arms"
+         * - "Gemini A03 Sniper Rifle" -> set_name "Gemini A03 Sniper", base variant_name "Rifle"
+         */
+        if ($base !== null && $setName !== null && $setName === $base->name) {
+            $trimmed = $this->trimTrailingSlotOrTypeWord($setName);
+            if ($trimmed !== null) {
+                $setName = $trimmed;
+            }
+        }
+
+        // --- decide what prefix to strip to get the variant remainder ---
+        $stripPrefix = $setName;
+
+        if ($base !== null) {
+            $baseName = $base->name;
+
+            $allPrefixedByBase = true;
+            foreach ($names as $n) {
+                if ($n === $baseName) {
+                    continue;
+                }
+                if (! str_starts_with($n, $baseName.' ')) {
+                    $allPrefixedByBase = false;
+                    break;
+                }
+            }
+
+            // If variants are literally "<base> <suffix>", prefer stripping the base name
+            if ($allPrefixedByBase) {
+                $stripPrefix = $baseName;
+            }
+        }
+
+        // --- build uuid => remainder map ---
         $map = [];
         if ($base !== null) {
             $map[$base->item->uuid] = 'Base';
         }
 
         foreach ($group as $it) {
-            $variant = $this->stripPrefix($it->name, (string) $setName);
-            $map[$it->item->uuid] = $variant === '' ? 'Base' : $variant;
+            $remainder = $stripPrefix !== null
+                ? $this->stripPrefix($it->name, $stripPrefix)
+                : $it->name;
+
+            $remainder = trim($remainder);
+            $map[$it->item->uuid] = $remainder === '' ? 'Base' : $remainder;
         }
 
         return [$setName, $map];
@@ -166,6 +221,7 @@ class RelatedItemsBuilder
                     'name' => $found->name,
                     'type' => $found->type,
                     'sub_type' => $found->sub_type,
+                    'classification' => $found->classification,
                     'link' => $this->makeLink($found->item->uuid),
                 ];
             }
@@ -181,9 +237,11 @@ class RelatedItemsBuilder
             'name' => $it->name,
             'link' => $this->makeLink($it->item->uuid),
         ];
+
         if ($includeVariantName && $setName !== null) {
             $variant = $this->stripPrefix($it->name, $setName);
-            $link['variant_name'] = $variant === '' ? 'Base' : $variant;
+            $variant = $variant === '' ? 'Base' : $variant;
+            $link['variant_name'] = $this->normalizeVariantName($variant) ?? 'Base';
         }
 
         return $link;
@@ -239,6 +297,42 @@ class RelatedItemsBuilder
         }
 
         return $name;
+    }
+
+    /**
+     * If the name ends with a known slot/type word, remove that last word.
+     * Returns null if no safe trim is possible.
+     */
+    private function trimTrailingSlotOrTypeWord(string $name): ?string
+    {
+        $name = trim($name);
+        $parts = preg_split('/\s+/u', $name) ?: [];
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $last = (string) end($parts);
+        $lastLower = mb_strtolower($last);
+
+        // Extend as needed; keep it conservative to avoid over-trimming.
+        $tailWords = [
+            'helmet',
+            'arms',
+            'legs',
+            'core',
+            'undersuit',
+            'backpack',
+            'rifle',
+        ];
+
+        if (! in_array($lastLower, $tailWords, true)) {
+            return null;
+        }
+
+        array_pop($parts);
+        $trimmed = trim(implode(' ', $parts));
+
+        return $trimmed !== '' ? $trimmed : null;
     }
 
     /**
@@ -393,29 +487,67 @@ class RelatedItemsBuilder
      */
     private function getItemDataForVersion(Item $item): ItemData
     {
-        return $item->data()
-            ->whereHas('gameVersion', fn ($q) => $q->where('id', $this->resolveGameVersion()->id))
+        return ItemData::query()
+            ->where('item_id', $item->getAttribute('id'))
+            ->where('game_version_id', $this->resolveGameVersion()->id)
+            ->with('item')
             ->firstOrFail();
     }
 
-    /**
-     * Extract the color/variant suffix by removing the part/type name.
-     * Handles quoted variant names (e.g., "Red Alert") and regular variants.
-     */
-    private function extractVariantSuffix(string $variantName): string
+    private function normalizeVariantName(?string $value): ?string
     {
-        $trimmed = trim($variantName);
-        if ($trimmed === '') {
-            return '';
+        if ($value === null) {
+            return null;
         }
 
-        if (preg_match('/"([^"]+)"/', $trimmed, $matches)) {
-            return $matches[1];
+        $s = trim($value);
+        if ($s === '' || strcasecmp($s, 'Base') === 0) {
+            return 'Base';
         }
 
-        $words = preg_split('/\s+/', $trimmed);
-        array_shift($words);
+        // Prefer quoted: "Rust Society" -> Rust Society
+        if (preg_match('/"([^"]+)"/u', $s, $m)) {
+            $q = trim($m[1]);
 
-        return implode(' ', $words);
+            return $q !== '' ? $q : null;
+        }
+
+        // (Modified) or （Modified）
+        if (preg_match('/^[\(\x{FF08}]\s*(.+?)\s*[\)\x{FF09}]$/u', $s, $m)) {
+            $s = trim($m[1]);
+        }
+
+        // Hurston Edition -> Hurston
+        $s = preg_replace('/\s+Edition$/iu', '', $s) ?? $s;
+        $s = trim($s);
+
+        // If this still looks like a full item name, keep only the tail after the last slot word.
+        $slotWords = ['Helmet', 'Arms', 'Legs', 'Core', 'Undersuit', 'Backpack'];
+        $slotAlternation = implode('|', array_map(static fn (string $w): string => preg_quote($w, '/'), $slotWords));
+
+        // e.g. "CSP-68L Backpack Forest Camo" -> "Forest Camo"
+        if (preg_match('/\b(?:'.$slotAlternation.')\b\s+(.+)$/iu', $s, $m)) {
+            $candidate = trim($m[1]);
+            if ($candidate !== '' && strcasecmp($candidate, $s) !== 0) {
+                $s = $candidate;
+            }
+        }
+
+        // Remove leading/trailing slot words if they still remain
+        foreach ($slotWords as $slot) {
+            if (preg_match('/^'.preg_quote($slot, '/').'\s+(.+)$/iu', $s, $m)) {
+                $s = trim($m[1]);
+                break;
+            }
+        }
+
+        foreach ($slotWords as $slot) {
+            if (preg_match('/^(.+)\s+'.preg_quote($slot, '/').'\s*$/iu', $s, $m)) {
+                $s = trim($m[1]);
+                break;
+            }
+        }
+
+        return $s !== '' ? $s : null;
     }
 }

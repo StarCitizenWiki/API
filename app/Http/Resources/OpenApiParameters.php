@@ -58,4 +58,14 @@ use OpenApi\Attributes as OA;
     explode: false,
     allowReserved: true
 )]
+#[OA\Parameter(
+    parameter: 'version',
+    name: 'version',
+    description: 'Game version to get data from, if omitted uses default version.',
+    in: 'query',
+    required: false,
+    schema: new OA\Schema(type: 'string'),
+    explode: false,
+    allowReserved: true
+)]
 final class OpenApiParameters {}

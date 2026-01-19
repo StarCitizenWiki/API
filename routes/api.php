@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
 use App\Http\Controllers\Api\Game\VehicleController;
@@ -177,3 +178,11 @@ Route::group(
         });
     }
 );
+
+// Game Versions - OUTSIDE game.version middleware
+Route::get('game-versions', [GameVersionController::class, 'index'])
+    ->name('game-versions.index');
+Route::get('game-versions/default', [GameVersionController::class, 'default'])
+    ->name('game-versions.default');
+Route::get('game-versions/{identifier}', [GameVersionController::class, 'show'])
+    ->name('game-versions.show');

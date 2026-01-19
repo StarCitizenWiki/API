@@ -10,7 +10,7 @@
 
         <div role="tablist" class="tabs tabs-lifted">
             {{-- CommLinks Tab --}}
-            <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="CommLinks" checked />
+            <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="CommLinks" @if(!request()->has('articles_page')) checked @endif />
             <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
@@ -24,6 +24,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Title</th>
+                                    <th>Created</th>
                                     <th>Translation Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -31,8 +32,9 @@
                             <tbody>
                                 @forelse ($commLinks as $commLink)
                                     <tr>
-                                        <td><a href="{{ route('web.comm-links.show', $commLink->cig_id) }}" target="_blank">{{$commLink->cig_id}}</a> </td>
-                                        <td><a href="{{ route('web.comm-links.show', $commLink->cig_id) }}" target="_blank">{{$commLink->title}}</a> </td>
+                                        <td><a class="link" href="{{ route('web.comm-links.show', $commLink->cig_id) }}" target="_blank">{{$commLink->cig_id}}</a> </td>
+                                        <td><a class="link" href="{{ route('web.comm-links.show', $commLink->cig_id) }}" target="_blank">{{$commLink->title}}</a> </td>
+                                        <td>{{ $commLink->created_at->diffForHumans() }}</td>
                                         <td>
                                             <div class="flex gap-1">
                                                 @php
@@ -73,7 +75,7 @@
             </div>
 
             {{-- Articles Tab --}}
-            <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="Galctapedia" />
+            <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="Galctapedia" @if(request()->has('articles_page')) checked @endif />
             <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
@@ -87,6 +89,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Title</th>
+                                    <th>Created</th>
                                     <th>Translation Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -96,6 +99,7 @@
                                     <tr>
                                         <td><a href="{{ route('web.galactapedia.show', $article->cig_id) }}" target="_blank">{{ $article->id }}</a></td>
                                         <td><a href="{{ route('web.galactapedia.show', $article->cig_id) }}" target="_blank">{{ $article->title }}</a></td>
+                                        <td>{{ $article->created_at->diffForHumans() }}</td>
                                         <td>
                                             <div class="flex gap-1">
                                                 @php

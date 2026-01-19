@@ -111,7 +111,7 @@ class ImportItemData implements ShouldQueue
 
     private function resolveManufacturerId(array $itemPayload, string $uuid): int
     {
-        $manufacturerUuid = Arr::get($itemPayload, 'stdItem.Manufacturer.UUID');
+        $manufacturerUuid = Arr::get($itemPayload, 'stdItem.Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
 
         $manufacturer = Manufacturer::query()
             ->where('uuid', $manufacturerUuid)

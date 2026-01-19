@@ -14,14 +14,14 @@ use OpenApi\Attributes as OA;
     title: 'Food Nutrition',
     description: 'Dynamic map of nutrient name (snake_case) to total amount for the item.',
     type: 'object',
-    additionalProperties: new OA\AdditionalProperties(type: 'double')
+    additionalProperties: new OA\AdditionalProperties(type: 'number')
 )]
 #[OA\Schema(
     schema: 'food_effect_durations',
     title: 'Food Effect Durations',
     description: 'Dynamic map of effect/buff type (snake_case) to duration in seconds.',
     type: 'object',
-    additionalProperties: new OA\AdditionalProperties(type: 'double')
+    additionalProperties: new OA\AdditionalProperties(type: 'number')
 )]
 #[OA\Schema(
     schema: 'food_container',

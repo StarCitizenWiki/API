@@ -42,8 +42,8 @@ it('returns emp specification when item type is emp', function (): void {
     $empData = Arr::get($itemData->data, 'stdItem.Emp', []);
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.emp.charge_time', Arr::get($empData, 'ChargeTime'))
+        ->assertJsonPath('data.emp.charge_duration', Arr::get($empData, 'ChargeTime'))
         ->assertJsonPath('data.emp.emp_radius', Arr::get($empData, 'EmpRadius'))
-        ->assertJsonPath('data.emp.cooldown_time', Arr::get($empData, 'CooldownTime'))
+        ->assertJsonPath('data.emp.cooldown_duration', Arr::get($empData, 'CooldownTime'))
         ->assertJsonPath('data.emp.distortion_damage', Arr::get($empData, 'DistortionDamage'));
 });

@@ -50,8 +50,8 @@ it('returns all translations keyed by locale with missing locales filled by engl
     $result = TranslationResolver::resolve($item, $request);
 
     expect($result)->toMatchArray([
-        Language::ENGLISH => 'Hello',
-        Language::GERMAN => 'Hallo',
-        Language::CHINESE => 'Hello',
+        Language::OLD_LANG_MAP[Language::ENGLISH] => 'Hello',
+        Language::OLD_LANG_MAP[Language::GERMAN] => 'Hallo',
+        Language::OLD_LANG_MAP[Language::CHINESE] => 'Hello',
     ]);
 });

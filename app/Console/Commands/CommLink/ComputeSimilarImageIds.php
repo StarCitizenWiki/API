@@ -16,6 +16,7 @@ class ComputeSimilarImageIds extends Command
      * @var string
      */
     protected $signature = 'comm-link:compute-similar-image-ids
+        {--queue=expensive : Queue name for hashing jobs}
         {--recent : Only compute for images created in the last week}';
 
     /**
@@ -28,6 +29,7 @@ class ComputeSimilarImageIds extends Command
     public function handle(): int
     {
         $recentOnly = (bool) $this->option('recent');
+        $queue = (string) $this->option('queue');
 
         $query = Image::query()
             ->select('id', 'base_image_id', 'created_at')
@@ -42,7 +44,7 @@ class ComputeSimilarImageIds extends Command
 
         $dispatched = 0;
 
-        $query->orderBy('created_at')->chunk(25, function ($images) use (&$dispatched): void {
+        $query->orderBy('created_at')->chunk(25, function ($images) use (&$dispatched, $queue): void {
             foreach ($images as $image) {
                 // Refresh to check if another job already set base_image_id
                 $image->refresh();
@@ -53,7 +55,7 @@ class ComputeSimilarImageIds extends Command
 
                 ComputeSimilarImageIdsJob::dispatch($image->id)
                     ->onConnection('database')
-                    ->onQueue('comm-link-images');
+                    ->onQueue($queue);
                 $dispatched++;
             }
         });

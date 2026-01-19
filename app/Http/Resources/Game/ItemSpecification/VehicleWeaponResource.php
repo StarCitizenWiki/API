@@ -271,7 +271,7 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
             'damage' => [
                 'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s'),
                 'burst' => Arr::get($weapon, 'Damage.Burst'),
-                'alpha_total' => Arr::get($weapon, 'Damage.Alpha'),
+                'alpha_total' => Arr::get($weapon, 'Damage.AlphaTotal'),
                 'maximum' => Arr::get($weapon, 'Damage.Maximum'),
                 'dps' => [
                     'physical' => Arr::get($mode, 'DpsPhysical'),
@@ -293,8 +293,8 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Spread') !== null, [
                 'spread' => [
-                    'minimum' => Arr::get($mode, 'Spread.Min'),
-                    'maximum' => Arr::get($mode, 'Spread.Max'),
+                    'minimum' => Arr::get($mode, 'Spread.Minimum'),
+                    'maximum' => Arr::get($mode, 'Spread.Maximum'),
                     'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
                     'per_attack' => Arr::get($mode, 'Spread.Attack'),
                     'decay' => Arr::get($mode, 'Spread.Decay'),

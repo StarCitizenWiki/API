@@ -19,6 +19,11 @@ return [
         'de_DE' => storage_path('app/api/StarCitizenDeutsch/live/global.ini'),
     ],
 
+    'sources_git' => [
+        'de_DE' => 'https://github.com/rjcncpt/StarCitizen-Deutsch-INI',
+        'zh_CN' => 'https://github.com/StarCitizenToolBox/LocalizationData',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Labels JSON Path

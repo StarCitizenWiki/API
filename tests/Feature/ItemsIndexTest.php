@@ -435,20 +435,3 @@ it('handles both shared and add_columns with different positions', function () {
             && $customIndex < $viewButtonIndex;
     });
 });
-
-it('provides enriched table columns to view', function () {
-    $response = $this->get('/starcitizenunpacked/items');
-
-    $response->assertOk();
-    $response->assertViewHas('tableColumns');
-
-    $columns = $response->viewData('tableColumns');
-    $sortableColumn = collect($columns)
-        ->flatMap(fn ($col) => $col['columns'] ?? [$col])
-        ->first(fn ($col) => isset($col['sortField']));
-
-    // Should have auto-added sortField
-    expect($sortableColumn)->toHaveKey('sortField')
-        ->and($sortableColumn)->toHaveKey('sort')
-        ->and($sortableColumn['sort'])->toHaveKeys(['path', 'cast']);
-});

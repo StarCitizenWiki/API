@@ -70,7 +70,7 @@ use OpenApi\Attributes as OA;
     title: 'Suit Armor Signature',
     description: 'Map of signature emission types (snake_case) to emission values.',
     type: 'object',
-    additionalProperties: new OA\AdditionalProperties(type: 'double'),
+    additionalProperties: new OA\AdditionalProperties(type: 'number'),
 )]
 #[OA\Schema(
     schema: 'suit_armor',

@@ -89,17 +89,17 @@ class ItemData extends Model
 
     public function descriptionData(): HasMany
     {
-        return $this->hasMany(ItemDescriptionData::class, 'item_id');
+        return $this->hasMany(ItemDescriptionData::class, 'item_id', 'item_id')->orderBy('name');
     }
 
     public function baseVariant(): BelongsTo
     {
-        return $this->belongsTo(self::class, 'base_id', 'item_id');
+        return $this->belongsTo(self::class, 'base_id', 'id');
     }
 
     public function variants(): HasMany
     {
-        return $this->hasMany(self::class, 'base_id', 'item_id');
+        return $this->hasMany(self::class, 'base_id', 'id')->orderBy('name');
     }
 
     public function gameVersion(): BelongsTo

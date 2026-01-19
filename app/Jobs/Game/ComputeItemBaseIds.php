@@ -40,12 +40,10 @@ class ComputeItemBaseIds implements ShouldQueue
                 foreach ($items as $itemData) {
                     $baseId = $this->resolveBaseId($itemData, $classBaseCache, $tagBaseCache);
 
-                    if ($baseId !== $itemData->base_id) {
-                        if (! $this->dryRun) {
-                            ItemData::query()
-                                ->whereKey($itemData->id)
-                                ->update(['base_id' => $baseId]);
-                        }
+                    if (($baseId !== $itemData->base_id) && ! $this->dryRun) {
+                        ItemData::query()
+                            ->whereKey($itemData->id)
+                            ->update(['base_id' => $baseId]);
                     }
                 }
             });

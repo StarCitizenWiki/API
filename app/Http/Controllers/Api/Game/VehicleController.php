@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -55,6 +56,7 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'sort',
                 description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity',
@@ -130,6 +132,7 @@ class VehicleController extends Controller
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
             new OA\Response(
@@ -217,6 +220,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.loaner',
                 'shipMatrixVehicle.skus',
                 'shipMatrixVehicle.manufacturer',
+                'shipMatrixVehicle.components',
             ];
 
             if ($this->requestIncludesComponents($request)) {
@@ -335,7 +339,7 @@ class VehicleController extends Controller
         summary: 'In-Game Vehicle Filters',
         tags: ['In-Game', 'Vehicles'],
         parameters: [
-            new OA\Parameter(name: 'version', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
             new OA\Response(
@@ -528,9 +532,8 @@ class VehicleController extends Controller
     private function allowedIncludes(): array
     {
         return [
-            'manufacturer',
-            'shipMatrixVehicle',
-            'shipMatrixVehicle.components',
+            'components',
+            AllowedInclude::relationship('shipMatrixVehicle.components', 'components'),
         ];
     }
 
@@ -651,6 +654,7 @@ class VehicleController extends Controller
 
         foreach ($sortConfig as $sortKey => $config) {
             $allowedSorts[] = $this->jsonSort(
+                // Filter only by path in raw json
                 $config['path'],
                 $config['path'],
                 $config['cast'] ?? 'numeric'

@@ -20,6 +20,7 @@ it('sorts vehicles by name ascending', function () {
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
             'name' => $name,
+            'display_name' => null,
         ]);
     }
 
@@ -38,6 +39,7 @@ it('sorts vehicles by size descending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'size' => $size,
             'name' => "Ship Size {$size}",
+            'display_name' => null,
         ]);
     }
 
@@ -58,6 +60,7 @@ it('sorts vehicles by cargo capacity descending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['Cargo' => $cargo],
             'name' => "Ship Cargo {$cargo}",
+            'display_name' => null,
         ]);
     }
 
@@ -76,8 +79,14 @@ it('sorts vehicles by SCM speed ascending', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
-            'data' => ['FlightCharacteristics' => ['Speeds' => ['Scm' => $speed]]],
+            'data' => [
+                'FlightCharacteristics' => [
+                    'IFCS' => ['ScmSpeed' => $speed],
+                    'Speeds' => ['Scm' => $speed],
+                ],
+            ],
             'name' => "Ship Speed {$speed}",
+            'display_name' => null,
         ]);
     }
 
@@ -98,6 +107,7 @@ it('sorts vehicles by shield face type alphabetically', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['ShieldController' => ['FaceType' => $faceType]],
             'name' => "{$faceType} Shield",
+            'display_name' => null,
         ]);
     }
 
@@ -117,6 +127,7 @@ it('places null values last when sorting ascending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['Cargo' => $cargo],
             'name' => "Cargo {$cargo}",
+            'display_name' => null,
         ]);
     }
 
@@ -128,6 +139,7 @@ it('places null values last when sorting ascending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => [],
             'name' => $name,
+            'display_name' => null,
         ]);
     }
 
@@ -137,8 +149,8 @@ it('places null values last when sorting ascending', function () {
     $data = collect($response->json('data'));
 
     // First 3 should have values, last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['data']['Cargo'])))->toBeTrue();
-    expect($data->slice(3)->every(fn ($item) => ! isset($item['data']['Cargo'])))->toBeTrue();
+    expect($data->take(3)->every(fn ($item) => isset($item['data']['Cargo'])))->toBeTrue()
+        ->and($data->slice(3)->every(fn ($item) => ! isset($item['data']['Cargo'])))->toBeTrue();
 });
 
 it('places null values last when sorting descending', function () {
@@ -150,6 +162,7 @@ it('places null values last when sorting descending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['Health' => $health],
             'name' => "Health {$health}",
+            'display_name' => null,
         ]);
     }
 
@@ -161,6 +174,7 @@ it('places null values last when sorting descending', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => [],
             'name' => $name,
+            'display_name' => null,
         ]);
     }
 
@@ -170,8 +184,8 @@ it('places null values last when sorting descending', function () {
     $data = collect($response->json('data'));
 
     // First 3 should have values (descending), last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['data']['Health'])))->toBeTrue();
-    expect($data->slice(3)->every(fn ($item) => ! isset($item['data']['Health'])))->toBeTrue();
+    expect($data->take(3)->every(fn ($item) => isset($item['data']['Health'])))->toBeTrue()
+        ->and($data->slice(3)->every(fn ($item) => ! isset($item['data']['Health'])))->toBeTrue();
 });
 
 it('supports multiple field sorting', function () {
@@ -181,6 +195,7 @@ it('supports multiple field sorting', function () {
         'game_version_id' => $this->defaultVersion->id,
         'size' => 1,
         'name' => 'Zulu',
+        'display_name' => null,
     ]);
 
     $vehicle2 = Vehicle::factory()->create();
@@ -189,6 +204,7 @@ it('supports multiple field sorting', function () {
         'game_version_id' => $this->defaultVersion->id,
         'size' => 1,
         'name' => 'Alpha',
+        'display_name' => null,
     ]);
 
     $vehicle3 = Vehicle::factory()->create();
@@ -197,6 +213,7 @@ it('supports multiple field sorting', function () {
         'game_version_id' => $this->defaultVersion->id,
         'size' => 2,
         'name' => 'Charlie',
+        'display_name' => null,
     ]);
 
     $vehicle4 = Vehicle::factory()->create();
@@ -205,6 +222,7 @@ it('supports multiple field sorting', function () {
         'game_version_id' => $this->defaultVersion->id,
         'size' => 2,
         'name' => 'Bravo',
+        'display_name' => null,
     ]);
 
     $response = $this->getJson('/api/vehicles?sort=size,-name');
@@ -225,6 +243,7 @@ it('combines JSON sorting with filtering', function () {
             'is_spaceship' => true,
             'data' => ['Cargo' => $cargo],
             'name' => "Spaceship {$cargo}",
+            'display_name' => null,
         ]);
     }
 
@@ -236,6 +255,7 @@ it('combines JSON sorting with filtering', function () {
             'is_vehicle' => true,
             'data' => ['Cargo' => $cargo],
             'name' => "Vehicle {$cargo}",
+            'display_name' => null,
         ]);
     }
 
@@ -254,16 +274,17 @@ it('works with pagination', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
-            'size' => rand(1, 4),
+            'size' => random_int(1, 4),
             'name' => "Ship {$i}",
+            'display_name' => null,
         ]);
     }
 
     $response = $this->getJson('/api/vehicles?sort=-size&page[size]=5&page[number]=1');
 
     $response->assertSuccessful();
-    expect($response->json('meta.per_page'))->toBe(5);
-    expect($response->json('meta.current_page'))->toBe(1);
+    expect($response->json('meta.per_page'))->toBe(5)
+        ->and($response->json('meta.current_page'))->toBe(1);
 
     $sizes = collect($response->json('data'))->pluck('size')->toArray();
     expect($sizes)->toBe(collect($sizes)->sortDesc()->values()->toArray());
@@ -283,6 +304,7 @@ it('sorts by cross section dimensions', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['CrossSection' => $dim],
             'name' => "Ship {$idx}",
+            'display_name' => null,
         ]);
     }
 
@@ -303,6 +325,7 @@ it('sorts by emission signature', function () {
             'game_version_id' => $this->defaultVersion->id,
             'data' => ['Emission' => ['EmQuantum' => $em]],
             'name' => "Ship EM {$em}",
+            'display_name' => null,
         ]);
     }
 

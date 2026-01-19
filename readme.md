@@ -267,7 +267,7 @@ The `CONTAINER_ROLE` environment variable determines what each container runs:
 The application uses multiple queue workers for specialized workloads:
 
 - **Default Queue** (`queue` service): Handles general background jobs (imports, syncs, translations)
-- **Comm-Link Hashes Queue** (`queue_image_hashes` service): Dedicated to image hashing operations for better performance isolation
+- **Expensive Queue** (`expensive` service): Dedicated to expensive tasks like image hashing
 
 ### Volume Management
 

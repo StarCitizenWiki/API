@@ -127,7 +127,9 @@ class CommLink extends Model
      */
     public function images(): BelongsToMany
     {
-        return $this->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id');
+        return $this
+            ->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id')
+            ->whereNull('comm_link_images.base_image_id');
     }
 
     /**

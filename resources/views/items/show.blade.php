@@ -32,16 +32,16 @@
 
         $entityTagMap = data_get($item, 'entity_tag_map', []);
 
-        $description = data_get($item, 'description');
-        $descriptionText = is_array($description)
-            ? (data_get($description, 'en_EN') ?? collect($description)->first())
-            : $description;
+        $translations = data_get($item, 'description');
+
         $descriptionData = data_get($item, 'description_data', []);
 
         $ports = data_get($item, 'ports', []);
         $variants = data_get($item, 'variants', []);
         $baseVariant = data_get($item, 'related_items.base_item');
         $relatedVariants = data_get($item, 'related_items.variant_items', []);
+        $setItems = data_get($item, 'related_items.set_items');
+        $setName = data_get($item, 'related_items.set_name');
 
         if (! is_array($variants) || $variants === []) {
             $variants = is_array($relatedVariants) ? $relatedVariants : [];
@@ -126,6 +126,8 @@
             </div>
             <h1 class="text-2xl font-semibold tracking-tight">{{ $itemName }} <span class="text-secondary">({{ $type }})</span> </h1>
         </div>
+
+        <x-item-search />
 
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
@@ -227,7 +229,42 @@
                     <div class="space-y-2">
                         <div class="text-sm text-base-content/80">
                             <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Description</span>
-                            <div class="mt-1 whitespace-pre-line">{{ $descriptionText ?? '-' }}</div>
+                            @if ($translations !== [])
+                                <div class="space-y-3">
+                                    @foreach ($translations as $locale => $translation)
+                                        @php
+                                            $label = is_string($locale) ? \App\Models\System\Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
+                                            $translationText = is_string($translation)
+                                                ? $translation
+                                                : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                                        @endphp
+                                        <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                            <input type="checkbox" name="collapse-{{ $locale }}" @if($locale === 'en_EN') checked="checked" @endif />
+                                            <div class="collapse-title text-sm font-semibold">{{ $label }}</div>
+                                            <div class="collapse-content">
+                                                @if ($translationText)
+                                                    <div class="text-sm leading-relaxed text-base-content/80">
+                                                        {!! nl2br(e($translationText)) !!}
+                                                    </div>
+                                                    @if(in_array(\App\Models\System\Language::LABEL_MAP[$locale], ['German', 'Chinese'], true))
+                                                        <div class="text-xs text-base-content/70 mt-4">
+                                                            {{ \App\Models\System\Language::LABEL_MAP[$locale] ?? $locale }} translation from
+                                                            <a class="link"
+                                                               href="{{ config("translations.sources_git.$locale") }}"
+                                                               target="_blank" rel="noopener noreferrer nofollow"
+                                                               referrerpolicy="no-referrer">{{ config("translations.sources_git.$locale") }}</a>
+                                                        </div>
+                                                    @endif
+                                                @else
+                                                    <div class="text-sm text-base-content/70">No content available.</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-sm text-base-content/70">No translations available.</div>
+                            @endif
                         </div>
                         <div class="text-sm text-base-content/80">
                             <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Description Data</span>
@@ -410,11 +447,50 @@
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Variants</h2>
+                    <h2 class="card-title text-base">Related Items</h2>
+
+                    @if (is_array($setItems) && $setItems !== [])
+                        <div class="overflow-x-auto">
+
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th colspan="3">Set Items: {{ $setName ?? 'Unknown Set' }}</th>
+                                </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Slot</th>
+                                    <th>Link</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                @foreach ($setItems as $setItem)
+                                    <tr>
+                                        <td class="whitespace-nowrap">{{ $setItem['name'] ?? '-' }}</td>
+                                        <td>{{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}</td>
+                                        <td>
+                                            @if (! empty($setItem['uuid']))
+                                                <a href="{{ route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-sm text-base-content/70">No Set Items available.</div>
+                    @endif
                     @if (is_array($variants) && $variants !== [])
                         <div class="overflow-x-auto">
                             <table class="table table-sm">
                                 <thead>
+                                <tr>
+                                    <th colspan="3">Variants</th>
+                                </tr>
                                 <tr>
                                     <th>Name</th>
                                     <th>Variant</th>

@@ -163,10 +163,11 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'sort',
-                in: 'query',
                 description: 'Sort field. Prefix with "-" for descending. Supports 250+ JSON fields. Examples: name, -grade, weapon.damage.alpha_total, -shield_controller.face_type. Use comma for multiple: grade,-name',
+                in: 'query',
                 schema: new OA\Schema(
                     type: 'string',
                     example: '-weapon.damage.alpha_total'
@@ -233,6 +234,7 @@ class ItemController extends Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'identifier',
                 in: 'path',
@@ -379,8 +381,19 @@ class ItemController extends Controller
         summary: 'In-Game Item Filters',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'version', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(

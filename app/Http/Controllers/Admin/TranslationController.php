@@ -21,12 +21,12 @@ class TranslationController extends Controller
     public function index(): View
     {
         $commLinks = CommLink::query()
-            ->select('id', 'cig_id', 'title', 'translation')
+            ->select('id', 'cig_id', 'title', 'translation', 'created_at')
             ->orderBy('cig_id', 'desc')
             ->paginate(25, ['*'], 'commlinks_page');
 
         $articles = Article::query()
-            ->select('id', 'cig_id', 'title', 'translation')
+            ->select('id', 'cig_id', 'title', 'translation', 'created_at')
             ->orderBy('created_at', 'desc')
             ->paginate(25, ['*'], 'articles_page');
 

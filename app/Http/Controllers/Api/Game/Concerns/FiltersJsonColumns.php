@@ -121,19 +121,35 @@ trait FiltersJsonColumns
     }
 
     /**
-     * Build a PostgreSQL JSONB path expression with optional casting.
+     * Build a database-agnostic JSON path expression with optional casting.
      *
-     * Creates a PostgreSQL expression using the #>> operator for text extraction,
-     * with optional casting to a specific PostgreSQL type.
+     * Creates an expression using PostgreSQL or SQLite syntax depending on the database driver.
      *
-     * Example without cast: (game_vehicle_data.data #>> '{FlightCharacteristics,Speeds,Scm}')
-     * Example with cast: ((game_vehicle_data.data #>> '{FlightCharacteristics,Speeds,Scm}')::numeric)
+     * PostgreSQL Example without cast: (game_vehicle_data.data #>> '{FlightCharacteristics,Speeds,Scm}')
+     * PostgreSQL Example with cast: ((game_vehicle_data.data #>> '{FlightCharacteristics,Speeds,Scm}')::numeric)
+     *
+     * SQLite Example without cast: json_extract(game_vehicle_data.data, '$.FlightCharacteristics.Speeds.Scm')
+     * SQLite Example with cast: CAST(json_extract(game_vehicle_data.data, '$.FlightCharacteristics.Speeds.Scm') AS REAL)
      *
      * @param  string  $path  Dot-notation JSON path
-     * @param  string|null  $cast  PostgreSQL cast type or null for no casting
-     * @return string PostgreSQL JSONB expression
+     * @param  string|null  $cast  Cast type (numeric/text) or null for no casting
+     * @return string Database-specific JSON expression
      */
     protected function jsonExpression(string $path, ?string $cast = null): string
+    {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            return $this->sqliteJsonExpression($path, $cast);
+        }
+
+        return $this->postgresqlJsonExpression($path, $cast);
+    }
+
+    /**
+     * Build a PostgreSQL JSONB path expression with optional casting.
+     */
+    protected function postgresqlJsonExpression(string $path, ?string $cast = null): string
     {
         $segments = array_map('trim', explode('.', $path));
         $pathExpression = implode(',', $segments);
@@ -145,5 +161,34 @@ trait FiltersJsonColumns
         }
 
         return sprintf('(%s)::%s', $expression, $cast);
+    }
+
+    /**
+     * Build a SQLite JSON path expression with optional casting.
+     */
+    protected function sqliteJsonExpression(string $path, ?string $cast = null): string
+    {
+        $segments = array_map('trim', explode('.', $path));
+        $jsonPath = '$.'.implode('.', $segments);
+
+        $expression = sprintf(
+            "json_extract(%s.%s, '%s')",
+            $this->getJsonTableName(),
+            $this->getJsonColumnName(),
+            $jsonPath
+        );
+
+        if ($cast === null || $cast === '') {
+            return $expression;
+        }
+
+        $sqliteCast = match ($cast) {
+            'numeric' => 'REAL',
+            'integer' => 'INTEGER',
+            'text' => 'TEXT',
+            default => $cast,
+        };
+
+        return sprintf('CAST(%s AS %s)', $expression, $sqliteCast);
     }
 }

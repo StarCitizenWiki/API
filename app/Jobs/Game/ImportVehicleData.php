@@ -55,7 +55,7 @@ class ImportVehicleData implements ShouldQueue
             ['uuid' => $payload['UUID']]
         );
 
-        $manufacturerId = $this->resolveManufacturer($payload);
+        $manufacturerId = $this->resolveManufacturerId($payload);
         $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
 
         VehicleData::query()->updateOrCreate(
@@ -111,27 +111,19 @@ class ImportVehicleData implements ShouldQueue
         $importer->importFromVehiclePayload($this->gameVersionId, $payload, $rawPayload, $manufacturerId);
     }
 
-    private function resolveManufacturer(array $payload): int
+    private function resolveManufacturerId(array $payload): int
     {
-        $manufacturer = $payload['Manufacturer'] ?? null;
+        $manufacturerUuid = Arr::get($payload, 'Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
 
-        if (! is_array($manufacturer)) {
-            throw new RuntimeException('Manufacturer data missing from payload. UUID: '.$payload['UUID'] ?? 'unknown');
+        $manufacturer = Manufacturer::query()
+            ->where('uuid', $manufacturerUuid)
+            ->first();
+
+        if ($manufacturer === null) {
+            throw new RuntimeException(sprintf('Manufacturer with uuid %s does not exist for vehicle %s.', $manufacturerUuid, $payload['UUID']));
         }
 
-        $uuid = $manufacturer['UUID'] ?? null;
-
-        if (! is_string($uuid) || $uuid === '') {
-            throw new RuntimeException('Manufacturer UUID missing from payload. UUID: '.$payload['UUID'] ?? 'unknown');
-        }
-
-        $record = Manufacturer::query()->where('uuid', $uuid)->first();
-
-        if ($record === null) {
-            throw new RuntimeException(sprintf('Manufacturer with UUID %s does not exist.', $uuid));
-        }
-
-        return $record->id;
+        return $manufacturer->id;
     }
 
     private function mapVehicleData(array $payload, ?int $manufacturerId, ?int $shipmatrixId): array

@@ -179,11 +179,11 @@ it('detects variant items for correct game version', function () {
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($variant1);
 
-    expect($result['base_item'])->not->toBeNull();
-    expect($result['base_item']['uuid'])->toBe('base-uuid-3');
-    expect($result['variant_items'])->toHaveCount(1);
-    expect($result['variant_items'][0]['uuid'])->toBe('variant-2-uuid');
-    expect($result['variant_items'][0]['name'])->toBe('Weapon Red');
+    expect($result['base_item'])->not->toBeNull()
+        ->and($result['base_item']['uuid'])->toBe('base-uuid-3')
+        ->and($result['variant_items'])->toHaveCount(1)
+        ->and($result['variant_items'][0]['uuid'])->toBe('variant-2-uuid')
+        ->and($result['variant_items'][0]['name'])->toBe('Weapon Red');
 });
 
 it('falls back to stdItem tags for variant grouping', function () {
@@ -235,9 +235,9 @@ it('falls back to stdItem tags for variant grouping', function () {
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($firstItem);
 
-    expect($result['base_item'])->toBeNull();
-    expect($result['set_name'])->toBe('Geist Armor');
-    expect($result['variant_items'])->toHaveCount(2);
+    expect($result['base_item'])->toBeNull()
+        ->and($result['set_name'])->toBe('Geist Armor Helmet')
+        ->and($result['variant_items'])->toHaveCount(2);
 
     $variantUuids = collect($result['variant_items'])->pluck('uuid')->all();
     expect($variantUuids)->toContain('tag-variant-2', 'tag-variant-3');
@@ -409,10 +409,10 @@ it('computes correct set names for variant groups', function () {
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
-    expect($result['set_name'])->toBe('Gemini A03 Sniper');
-    expect($result['base_item']['variant_name'])->toBe('Rifle');
-    expect($result['variant_items'][0]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
-    expect($result['variant_items'][1]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
+    expect($result['set_name'])->toBe('Gemini A03 Sniper')
+        ->and($result['base_item']['variant_name'])->toBe('Rifle')
+        ->and($result['variant_items'][0]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder'])
+        ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
 });
 
 it('handles multi-word color variant names correctly', function () {
@@ -457,10 +457,10 @@ it('handles multi-word color variant names correctly', function () {
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
-    expect($result['set_name'])->toBe('Lynx');
-    expect($result['base_item']['variant_name'])->toBe('Arms');
-    expect($result['variant_items'][0]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
-    expect($result['variant_items'][1]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
+    expect($result['set_name'])->toBe('Lynx')
+        ->and($result['base_item']['variant_name'])->toBe('Arms')
+        ->and($result['variant_items'][0]['variant_name'])->toBeIn(['Dark Green', 'Dark Red'])
+        ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
 });
 
 it('handles quoted variant names correctly', function () {

@@ -20,8 +20,6 @@ use function Laravel\Prompts\select;
 
 class SyncGameData extends Command
 {
-    private const BATCH_SIZE = 1000;
-
     /**
      * The name and signature of the console command.
      *
@@ -171,23 +169,16 @@ class SyncGameData extends Command
      */
     private function dispatchChunkedBatch(Collection $jobs, ?Closure $then): void
     {
-        $jobChunks = $jobs->chunk(self::BATCH_SIZE)->values();
-        $firstChunk = $jobChunks->shift();
-
-        if ($firstChunk === null) {
+        if ($jobs->isEmpty()) {
             return;
         }
 
-        $pendingBatch = Bus::batch($firstChunk->values());
+        $pendingBatch = Bus::batch($jobs->values());
 
         if ($then !== null) {
             $pendingBatch->then($then);
         }
 
-        $batch = $pendingBatch->dispatch();
-
-        $jobChunks->each(static function (Collection $chunk) use ($batch): void {
-            $batch->add($chunk->values());
-        });
+        $pendingBatch->dispatch();
     }
 }

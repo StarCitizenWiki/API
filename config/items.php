@@ -2040,18 +2040,22 @@ return [
                         [
                             'title' => 'Sustained 60s',
                             'field' => 'vehicle_weapon.damage.sustained_60s',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Burst',
                             'field' => 'vehicle_weapon.damage.burst',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Alpha',
                             'field' => 'vehicle_weapon.damage.alpha_total',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Maximum',
                             'field' => 'vehicle_weapon.damage.maximum',
+                            ...numFormat(),
                         ],
                     ],
                 ],
@@ -2061,14 +2065,17 @@ return [
                         [
                             'title' => 'Physical',
                             'field' => 'vehicle_weapon.damage.alpha.physical',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Energy',
                             'field' => 'vehicle_weapon.damage.alpha.energy',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Distortion',
                             'field' => 'vehicle_weapon.damage.alpha.distortion',
+                            ...numFormat(),
                         ],
                     ],
                 ],
@@ -2093,6 +2100,7 @@ return [
                         [
                             'title' => 'Capacity',
                             'field' => 'ammunition.capacity',
+                            ...numFormat(),
                         ],
                         [
                             'title' => 'Penetration',
@@ -2138,11 +2146,11 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'vehicle_weapon.spread.min',
+                                    'field' => 'vehicle_weapon.spread.minimum',
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'vehicle_weapon.spread.max',
+                                    'field' => 'vehicle_weapon.spread.maximum',
                                 ],
                                 [
                                     'title' => 'First Attack',
@@ -2221,17 +2229,17 @@ return [
                         ],
                         [
                             'title' => 'Overcharge',
-                            'field' => 'vehicle_weapon.charge.overcharge',
+                            'field' => 'vehicle_weapon.charge.overcharge_time',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Overcharged',
-                            'field' => 'vehicle_weapon.charge.overcharged',
+                            'field' => 'vehicle_weapon.charge.overcharged_time',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
-                            'field' => 'vehicle_weapon.charge.cooldown',
+                            'field' => 'vehicle_weapon.charge.cooldown_time',
                             ...suffix('s', space: false),
                         ],
                         [

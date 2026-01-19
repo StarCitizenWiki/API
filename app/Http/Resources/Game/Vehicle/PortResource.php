@@ -64,7 +64,11 @@ class PortResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $resolvedItem = null;
-        if ($request->routeIs('vehicles.show')) {
+        if (
+            $request->routeIs('vehicles.show') ||
+            $request->routeIs('v2.vehicles.show') ||
+            $request->routeIs('v3.vehicles.show')
+        ) {
             $resolvedItem = $this->loadEquippedItem();
         }
 

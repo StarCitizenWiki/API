@@ -18,13 +18,13 @@ use OpenApi\Attributes as OA;
             property: 'nutrition',
             description: 'Dynamic map of nutrient name (snake_case) to total amount.',
             type: 'object',
-            additionalProperties: new OA\AdditionalProperties(type: 'double')
+            additionalProperties: new OA\AdditionalProperties(type: 'number')
         ),
         new OA\Property(
             property: 'debuffs',
             description: 'Dynamic map of debuff type (snake_case) to duration in seconds.',
             type: 'object',
-            additionalProperties: new OA\AdditionalProperties(type: 'double')
+            additionalProperties: new OA\AdditionalProperties(type: 'number')
         ),
 
         new OA\Property(

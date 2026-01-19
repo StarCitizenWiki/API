@@ -179,10 +179,23 @@ class ImportCommLink implements ShouldQueue
         $data = $this->getCommLinkData();
         $data['created_at'] = $data['created_at_file'] ?? $data['created_at'];
 
-        $commLink = CommLink::query()->updateOrCreate(
-            ['cig_id' => $this->commLinkId],
-            $data
-        );
+        try {
+            $commLink = CommLink::query()->updateOrCreate(
+                ['cig_id' => $this->commLinkId],
+                $data
+            );
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            // Check if this is a primary key constraint violation
+            if (str_contains($e->getMessage(), 'comm_links_pkey')) {
+                Log::error('CommLink import failed due to sequence out of sync', [
+                    'cig_id' => $this->commLinkId,
+                    'error' => $e->getMessage(),
+                    'hint' => 'Run: php artisan data:migrate --group=CommLinks --sync-sequences --force',
+                ]);
+            }
+
+            throw $e;
+        }
 
         $this->addEnglishTranslation($commLink);
         $this->syncImageIds($commLink);
