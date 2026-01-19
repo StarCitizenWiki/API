@@ -165,6 +165,12 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
 
     steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+          fetch-depth: 1
+          clean: true
+
       - name: Set Docker tag
         id: docker-tag
         run: |
@@ -197,6 +203,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: .
+          file: ./Dockerfile
           tags: scwiki/api:${{ steps.docker-tag.outputs.tag }}
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
