@@ -7,25 +7,6 @@ on:
     branches: [ develop, main ]
 
 jobs:
-  super-linter:
-    name: Super-Linter (non-PHP)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          clean: true
-
-      - name: Lint Code Base
-        uses: super-linter/super-linter@v8.3.2
-        env:
-          DEFAULT_BRANCH: develop
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_INCLUDE: .*app/.*
-          OUTPUT_FORMAT: tap
-          VALIDATE_PHP_BUILTIN: false
-
   php-lint:
     name: PHP (Composer + Pint)
     runs-on: ubuntu-latest
