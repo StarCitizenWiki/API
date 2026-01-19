@@ -374,7 +374,6 @@ class ItemResource extends AbstractBaseResource
     {
         return [
             'variants',
-            // 'related_items', // Set in Controller
         ];
     }
 

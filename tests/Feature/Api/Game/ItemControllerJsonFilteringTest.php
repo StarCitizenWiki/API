@@ -38,24 +38,34 @@ test('getJsonColumnName returns correct column name', function () {
     expect($columnName)->toBe('data');
 });
 
-test('jsonExpression builds correct PostgreSQL expression without cast', function () {
+test('jsonExpression builds correct expression', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'jsonExpression');
     $reflection->setAccessible(true);
 
     $expression = $reflection->invoke($controller, 'stdItem.Mass', null);
 
-    expect($expression)->toBe("game_item_data.data #>> '{stdItem,Mass}'");
+    // Check for either PostgreSQL or SQLite syntax
+    if (config('database.default') === 'pgsql') {
+        expect($expression)->toBe("game_item_data.data #>> '{stdItem,Mass}'");
+    } else {
+        expect($expression)->toBe("json_extract(game_item_data.data, '$.stdItem.Mass')");
+    }
 });
 
-test('jsonExpression builds correct PostgreSQL expression with cast', function () {
+test('jsonExpression builds correct expression with cast', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'jsonExpression');
     $reflection->setAccessible(true);
 
     $expression = $reflection->invoke($controller, 'stdItem.Shield.MaxShieldHealth', 'numeric');
 
-    expect($expression)->toBe("(game_item_data.data #>> '{stdItem,Shield,MaxShieldHealth}')::numeric");
+    // Check for either PostgreSQL or SQLite syntax
+    if (config('database.default') === 'pgsql') {
+        expect($expression)->toBe("(game_item_data.data #>> '{stdItem,Shield,MaxShieldHealth}')::numeric");
+    } else {
+        expect($expression)->toBe("CAST(json_extract(game_item_data.data, '$.stdItem.Shield.MaxShieldHealth') AS REAL)");
+    }
 });
 
 test('laravelJsonColumn builds correct Laravel JSON path', function () {

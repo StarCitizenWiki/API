@@ -39,7 +39,7 @@ class VehicleController extends Controller
         $payload = $this->apiJsonRequest->request(route('vehicles.show', ['vehicle' => $item], false), $apiRequest);
         $vehicleData = Arr::get($payload, 'data', []);
 
-        if ($vehicleData === []) {
+        if (empty($vehicleData)) {
             abort(Response::HTTP_NOT_FOUND);
         }
 

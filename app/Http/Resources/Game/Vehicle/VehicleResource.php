@@ -416,7 +416,6 @@ class VehicleResource extends AbstractBaseResource
             'game_name' => $vehicleData->name,
             'slug' => Str::slug($vehicleData->display_name ?? $vehicleData->name),
             'class_name' => $vehicleData->class_name,
-            'data' => $payload,
 
             'sizes' => [
                 'length' => $vehicleData->length ?? Arr::get($payload, 'Length'),

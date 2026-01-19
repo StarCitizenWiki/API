@@ -46,7 +46,7 @@ it('sorts vehicles by size descending', function () {
     $response = $this->getJson('/api/vehicles?sort=-size');
 
     $response->assertSuccessful();
-    $sizes = collect($response->json('data'))->pluck('size')->toArray();
+    $sizes = collect($response->json('data'))->pluck('size_class')->toArray();
     expect($sizes)->toBe([4, 3, 2, 1]);
 });
 
@@ -64,10 +64,11 @@ it('sorts vehicles by cargo capacity descending', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-cargo_capacity');
+    $response = $this->getJson('/api/vehicles?sort=-Cargo');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('data.Cargo')->toArray();
+
+    $returned = collect($response->json('data'))->pluck('cargo_capacity')->toArray();
     expect($returned)->toBe([1000, 500, 250, 100]);
 });
 
@@ -90,10 +91,10 @@ it('sorts vehicles by SCM speed ascending', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=speed.scm');
+    $response = $this->getJson('/api/vehicles?sort=FlightCharacteristics.IFCS.ScmSpeed');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('data.FlightCharacteristics.Speeds.Scm')->toArray();
+    $returned = collect($response->json('data'))->pluck('speed.scm')->toArray();
     expect($returned)->toBe([150, 180, 220]);
 });
 
@@ -111,10 +112,10 @@ it('sorts vehicles by shield face type alphabetically', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=shield.face_type');
+    $response = $this->getJson('/api/vehicles?sort=ShieldController.FaceType');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('data.ShieldController.FaceType')->toArray();
+    $returned = collect($response->json('data'))->pluck('shield.face_type')->toArray();
     expect($returned)->toBe(['Dual', 'Quad', 'Single']); // Alphabetical
 });
 
@@ -143,14 +144,14 @@ it('places null values last when sorting ascending', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=cargo_capacity');
+    $response = $this->getJson('/api/vehicles?sort=Cargo');
 
     $response->assertSuccessful();
     $data = collect($response->json('data'));
 
     // First 3 should have values, last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['data']['Cargo'])))->toBeTrue()
-        ->and($data->slice(3)->every(fn ($item) => ! isset($item['data']['Cargo'])))->toBeTrue();
+    expect($data->take(3)->every(fn ($item) => isset($item['cargo_capacity'])))->toBeTrue()
+        ->and($data->slice(3)->every(fn ($item) => ! isset($item['cargo_capacity'])))->toBeTrue();
 });
 
 it('places null values last when sorting descending', function () {
@@ -178,14 +179,14 @@ it('places null values last when sorting descending', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-health');
+    $response = $this->getJson('/api/vehicles?sort=-Health');
 
     $response->assertSuccessful();
     $data = collect($response->json('data'));
 
     // First 3 should have values (descending), last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['data']['Health'])))->toBeTrue()
-        ->and($data->slice(3)->every(fn ($item) => ! isset($item['data']['Health'])))->toBeTrue();
+    expect($data->take(3)->every(fn ($item) => empty($item['health'])))->toBeFalse()
+        ->and($data->slice(3)->every(fn ($item) => empty($item['health'])))->toBeTrue();
 });
 
 it('supports multiple field sorting', function () {
@@ -253,18 +254,19 @@ it('combines JSON sorting with filtering', function () {
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
             'is_vehicle' => true,
+            'is_spaceship' => false,
             'data' => ['Cargo' => $cargo],
             'name' => "Vehicle {$cargo}",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?filter[is_spaceship]=true&sort=-cargo_capacity');
+    $response = $this->getJson('/api/vehicles?filter[is_spaceship]=true&sort=-Cargo');
 
     $response->assertSuccessful();
     expect($response->json('meta.total'))->toBe(3);
 
-    $returned = collect($response->json('data'))->pluck('data.Cargo')->toArray();
+    $returned = collect($response->json('data'))->pluck('cargo_capacity')->toArray();
     expect($returned)->toBe([200, 150, 100]);
 });
 
@@ -286,7 +288,7 @@ it('works with pagination', function () {
     expect($response->json('meta.per_page'))->toBe(5)
         ->and($response->json('meta.current_page'))->toBe(1);
 
-    $sizes = collect($response->json('data'))->pluck('size')->toArray();
+    $sizes = collect($response->json('data'))->pluck('size_class')->toArray();
     expect($sizes)->toBe(collect($sizes)->sortDesc()->values()->toArray());
 });
 
@@ -308,10 +310,10 @@ it('sorts by cross section dimensions', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=cross_section.length');
+    $response = $this->getJson('/api/vehicles?sort=CrossSection.X');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('data.CrossSection.X')->toArray();
+    $returned = collect($response->json('data'))->pluck('cross_section.length')->toArray();
     expect($returned)->toBe([10, 15, 20]);
 });
 
@@ -329,9 +331,9 @@ it('sorts by emission signature', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-signature.em_quantum');
+    $response = $this->getJson('/api/vehicles?sort=-Emission.EmQuantum');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('data.Emission.EmQuantum')->toArray();
+    $returned = collect($response->json('data'))->pluck('signature.em_quantum')->toArray();
     expect($returned)->toBe([1000, 750, 500]);
 });

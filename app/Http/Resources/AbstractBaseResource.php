@@ -21,9 +21,7 @@ abstract class AbstractBaseResource extends JsonResource
 
     public static function validIncludes(): array
     {
-        return [
-            'variants',
-        ];
+        return [];
     }
 
     public function addMetadata(mixed $key, mixed $value = null): void

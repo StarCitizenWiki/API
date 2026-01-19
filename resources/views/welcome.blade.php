@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Welcome')
-@section('meta_description', 'Welcome to the API dashboard.')
+@section('title', 'Star Citizen Wiki API')
+@section('meta_description', 'Welcome to the Star Citizen Wiki API. Your Verse Data Mine.')
 
 @push('meta')
-    <meta property="og:title" content="Welcome">
-    <meta property="og:description" content="Welcome to the API dashboard.">
+    <meta property="og:title" content="Star Citizen Wiki API">
+    <meta property="og:description" content="Welcome to the Star Citizen Wiki API. Your Verse Data Mine.">
 @endpush
 
 @section('content')
