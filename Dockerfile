@@ -37,6 +37,7 @@ RUN set -eux; \
 
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 
+
 # Stage 1: composer deps
 FROM base AS vendor
 
@@ -47,24 +48,55 @@ RUN set -eux; \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Make composer cache writable for www-data (optional but avoids warnings)
+ENV COMPOSER_HOME=/tmp/composer
+
 COPY --chown=www-data:www-data composer.json composer.lock /var/www/html/
 
 USER www-data
 RUN set -eux; \
-    composer install --no-dev --no-ansi --no-interaction --no-progress --prefer-dist
+    composer install \
+      --no-dev \
+      --no-ansi \
+      --no-interaction \
+      --no-progress \
+      --prefer-dist \
+      --no-scripts
 
+# Now bring in the full app (includes artisan)
 COPY --chown=www-data:www-data . /var/www/html
+
+# Run Laravel composer scripts now that artisan exists, then optimize autoload
 RUN set -eux; \
+    composer run-script post-autoload-dump; \
     composer dump-autoload --optimize --classmap-authoritative
 
-# Stage 2: final runtime
+
+# Stage 2: frontend build (Vite)
+FROM node:22-alpine AS frontend
+WORKDIR /var/www/html
+
+# Install deps first for better caching
+COPY package.json package-lock.json* /var/www/html/
+RUN set -eux; \
+    if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+# Copy sources needed for the build and build assets
+COPY . /var/www/html
+RUN set -eux; \
+    npm run build
+
+
+# Stage 3: final runtime
 FROM base AS app
 WORKDIR /var/www/html
 
 COPY --from=vendor --chown=www-data:www-data /var/www/html /var/www/html
 
+# Copy built Vite assets into the runtime image
+COPY --from=frontend --chown=www-data:www-data /var/www/html/public/build /var/www/html/public/build
+
 COPY --chown=www-data:www-data --chmod=770 ./docker/start.sh /usr/local/bin/start
 
 USER www-data
-
 CMD ["/usr/local/bin/start"]
