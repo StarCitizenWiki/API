@@ -134,15 +134,6 @@ class ItemController extends Controller
                         ->orWhereIn('code', $values);
                 });
             }),
-            AllowedFilter::callback('manufacturer.name', static function ($query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-
-                $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                    $manufacturerQuery
-                        ->whereIn('name', $values)
-                        ->orWhereIn('code', $values);
-                });
-            }),
             AllowedFilter::partial('class_name'),
             AllowedFilter::partial('name'),
             AllowedFilter::partial('classification'),
@@ -261,32 +252,23 @@ class ItemController extends Controller
         $isUuid = Str::isUuid($identifier);
 
         try {
-            $itemData = null;
+            $itemData = QueryBuilder::for(ItemData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->where(function (Builder $q) use ($identifier, $isUuid, $original) {
+                    if ($isUuid) {
+                        $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier));
+                    }
 
-            if ($isUuid) {
-                $itemData = QueryBuilder::for(ItemData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->whereHas('item', fn (Builder $q) => $q->where('uuid', $identifier))
-                    ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
-                    ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
-                    ->first();
-            }
-
-            if ($itemData === null) {
-                $underscored = str_replace(' ', '_', $identifier);
-                $itemData = QueryBuilder::for(ItemData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->where(function (Builder $q) use ($identifier, $underscored, $original) {
-                        $q->where('name', $identifier)
-                            ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
-                            ->orWhere('class_name', $underscored)
-                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
-                            ->orWhere('class_name', 'LIKE', "%_{$underscored}");
-                    })
-                    ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
-                    ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
-                    ->first();
-            }
+                    $underscored = str_replace(' ', '_', $identifier);
+                    $q->orWhere('name', $identifier)
+                        ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
+                        ->orWhere('class_name', $underscored)
+                        ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
+                        ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                })
+                ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
+                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
+                ->first();
 
             if ($itemData === null) {
                 throw new ModelNotFoundException;
