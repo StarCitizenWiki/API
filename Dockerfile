@@ -7,8 +7,13 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ffmpeg; \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        libicu-dev \
+        libpq-dev \
+        libzip-dev; \
     rm -rf /var/lib/apt/lists/*; \
+    \
     install-php-extensions \
         bcmath \
         gmp \
@@ -20,6 +25,7 @@ RUN set -eux; \
         curl \
         dom \
         xml; \
+    \
     a2enmod rewrite
 
 # OPcache is built-in on PHP 8.5; just configure it.
