@@ -19,6 +19,7 @@ RUN set -eux; \
         gmp \
         intl \
         pdo_pgsql \
+        pdo_mysql \
         zip \
         gd \
         mbstring \
