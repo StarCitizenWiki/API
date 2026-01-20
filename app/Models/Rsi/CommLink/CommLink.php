@@ -27,6 +27,8 @@ class CommLink extends Model
         'cig_id',
         'title',
         'comment_count',
+        'images_count',
+        'links_count',
         'url',
         'file',
         'channel_id',
@@ -37,11 +39,6 @@ class CommLink extends Model
         'translation',
     ];
 
-    protected $withCount = [
-        'images',
-        'links',
-    ];
-
     protected $with = [
         'channel',
         'category',
@@ -50,6 +47,9 @@ class CommLink extends Model
 
     protected $casts = [
         'cig_id' => 'int',
+        'comment_count' => 'int',
+        'images_count' => 'int',
+        'links_count' => 'int',
         'created_at_file' => 'datetime',
     ];
 

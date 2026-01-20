@@ -22,27 +22,6 @@ services:
     networks:
       - internal
 
-  scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - ./.env
-    environment:
-      APP_ENV: production
-      CONTAINER_ROLE: scheduler
-    volumes:
-      - ./storage:/var/www/html/storage
-      - /etc/localtime:/etc/localtime:ro
-    networks:
-      - internal
-
   queue:
     build:
       context: .

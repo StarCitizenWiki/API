@@ -41,12 +41,16 @@ it('sorts by images and links count and filters by publication date', function (
 
     $images = Image::factory()->count(2)->create();
     $commLink2024May->images()->attach($images->pluck('id'));
+    $commLink2024May->update(['images_count' => 2]);
 
     $linkOne = Link::factory()->create();
     $linkTwo = Link::factory()->create();
 
     $commLink2023->links()->attach([$linkOne->id]);
+    $commLink2023->update(['links_count' => 1]);
+
     $commLink2024May->links()->attach([$linkOne->id, $linkTwo->id]);
+    $commLink2024May->update(['links_count' => 2]);
 
     $this->getJson(route('comm-links.index', ['sort' => '-images_count']))
         ->assertSuccessful()

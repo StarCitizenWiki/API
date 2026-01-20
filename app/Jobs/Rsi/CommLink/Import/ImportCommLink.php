@@ -200,6 +200,7 @@ class ImportCommLink implements ShouldQueue
         $this->addEnglishTranslation($commLink);
         $this->syncImageIds($commLink);
         $this->syncLinkIds($commLink);
+        $this->updateCounts($commLink);
     }
 
     private function updateCommLink(CommLink $commLink): void
@@ -224,6 +225,7 @@ class ImportCommLink implements ShouldQueue
         $commLink->update($data);
         $this->syncImageIds($commLink);
         $this->syncLinkIds($commLink);
+        $this->updateCounts($commLink);
     }
 
     /**
@@ -273,6 +275,13 @@ class ImportCommLink implements ShouldQueue
     {
         $linkParser = new Link($this->crawler);
         $commLink->links()->sync($linkParser->getLinkIds());
+    }
+
+    private function updateCounts(CommLink $commLink): void
+    {
+        $commLink->images_count = $commLink->images()->count();
+        $commLink->links_count = $commLink->links()->count();
+        $commLink->save();
     }
 
     private function contentHasChanged(CommLink $commLink): bool

@@ -139,7 +139,13 @@ class CommLinkSearchController extends Controller
             }
         );
 
-        return CommLinkResource::collection(optional($image)->commLinks);
+        if ($image instanceof Image) {
+            $commLinks = $image->commLinks()->get();
+
+            return CommLinkResource::collection($commLinks);
+        }
+
+        return CommLinkResource::collection([]);
     }
 
     #[OA\Post(

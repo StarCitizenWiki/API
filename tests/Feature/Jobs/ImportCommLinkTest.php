@@ -52,16 +52,17 @@ HTML;
 
     expect($commLink)->not->toBeNull()
         ->and($commLink->title)->toBe('Test Comm-Link')
-        ->and($commLink->comment_count)->toBe(5);
+        ->and($commLink->comment_count)->toBe(5)
+        ->and($commLink->images_count)->toBeGreaterThanOrEqual(1)
+        ->and($commLink->links_count)->toBe(1);
 
     $translation = $commLink?->getTranslation('translation', Language::ENGLISH, false);
 
     expect($translation)->not->toBeNull()
-        ->and($translation)->toContain('Hello world');
+        ->and($translation)->toContain('Hello world')
+        ->and(Image::query()->count())->toBeGreaterThanOrEqual(1)
+        ->and($commLink->images_count)->toBeGreaterThanOrEqual(1)
+        ->and(Link::query()->count())->toBe(1)
+        ->and($commLink->links_count)->toBe(1);
 
-    expect(Image::query()->count())->toBeGreaterThanOrEqual(1)
-        ->and($commLink?->images()->count())->toBeGreaterThanOrEqual(1);
-
-    expect(Link::query()->count())->toBe(1)
-        ->and($commLink?->links()->count())->toBe(1);
 });
