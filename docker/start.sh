@@ -7,7 +7,10 @@ env="${APP_ENV:-production}"
 if [ "$env" != "local" ]; then
   echo "Caching configuration..."
   php artisan config:cache
-  php artisan view:cache
+
+  if [ "$role" = "app" ]; then
+    php artisan view:cache
+  fi
 fi
 
 case "$role" in
