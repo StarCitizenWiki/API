@@ -187,6 +187,8 @@ The API provides specialized Artisan commands for managing game data, comm-links
 | `comm-link:download-new-versions` | Re-download and import existing Comm-Links | `--skip` - Skip certain operations |
 | `comm-link:translate` | Translate all untranslated Comm-Links using DeepL | Requires `DEEPL_AUTH_KEY` |
 | `comm-link:backfill-image-hashes` | Dispatch comm-link image hashing jobs | Processes images for deduplication |
+| `comm-link:backfill-counts` | Backfill comm-link images_count and links_count from pivot tables | `--chunk` - Process per chunk size, `--dry-run` - Preview changes |
+| `comm-link:compute-similar-image-ids` | Compute and mark similar/duplicate comm-link images | `--queue` - Queue name (default: expensive), `--recent` - Only recent images |
 
 ### Game Data Management
 
@@ -250,7 +252,7 @@ The application uses a multi-container Docker architecture with specialized serv
 | `api` | Web Server | Serves the Laravel application via PHP-FPM and Nginx |
 | `scheduler` | Task Scheduler | Runs Laravel's scheduled tasks (cron replacement) |
 | `queue` | Default Queue Worker | Processes jobs from the `default` queue |
-| `queue_image_hashes` | Specialized Queue Worker | Processes `comm-link-hashes` queue jobs |
+| `queue_expensive` | Specialized Queue Worker | Processes `expensive` queue jobs |
 | `db` | Database | PostgreSQL 16 database server |
 
 ### Container Roles
@@ -267,7 +269,7 @@ The `CONTAINER_ROLE` environment variable determines what each container runs:
 The application uses multiple queue workers for specialized workloads:
 
 - **Default Queue** (`queue` service): Handles general background jobs (imports, syncs, translations)
-- **Expensive Queue** (`expensive` service): Dedicated to expensive tasks like image hashing
+- **Expensive Queue** (`queue_expensive` service): Dedicated to expensive tasks like image hashing and similarity computation
 
 ### Volume Management
 
