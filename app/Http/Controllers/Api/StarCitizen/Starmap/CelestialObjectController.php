@@ -28,7 +28,7 @@ class CelestialObjectController extends Controller
      */
     private function buildBaseQuery(Request $request): QueryBuilder
     {
-        return QueryBuilder::for(CelestialObject::class, $request)
+        $query = QueryBuilder::for(CelestialObject::class, $request)
             ->allowedIncludes(CelestialObjectResource::validIncludes())
             ->allowedFilters([
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
@@ -36,7 +36,6 @@ class CelestialObjectController extends Controller
                 AllowedFilter::exact('designation'),
                 AllowedFilter::exact('type'),
             ])
-            ->with(['starsystem'])
             ->allowedSorts([
                 AllowedSort::field('id', 'cig_id'),
                 AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
@@ -51,6 +50,18 @@ class CelestialObjectController extends Controller
                 'sensor_economy',
                 'sensor_danger',
             ]);
+
+        $includes = $request->get('include', '');
+
+        if (str_contains($includes, 'starsystem')) {
+            $query->with(['starsystem']);
+        }
+
+        if (str_contains($includes, 'jumppoints')) {
+            $query->with(['jumppointEntry', 'jumppointExit']);
+        }
+
+        return $query;
     }
 
     #[OA\Get(
@@ -146,12 +157,25 @@ class CelestialObjectController extends Controller
         $code = mb_strtoupper(urldecode($code));
 
         try {
-            /** @var CelestialObject $starsystem */
-            $starsystem = QueryBuilder::for(CelestialObject::class, $request)
-                ->where('code', $code)
+            $query = QueryBuilder::for(CelestialObject::class, $request)
+                ->allowedIncludes(CelestialObjectResource::validIncludes());
+
+            $includes = $request->get('include', '');
+
+            if (str_contains($includes, 'starsystem')) {
+                $query->with(['starsystem']);
+            }
+
+            if (str_contains($includes, 'jumppoints')) {
+                $query->with(['jumppointEntry', 'jumppointExit']);
+            }
+
+            $starsystem = $query->where('code', $code)
                 ->orWhere('cig_id', $code)
-                ->orWhere('name', 'LIKE', "%$code%")
-                ->allowedIncludes(CelestialObjectResource::validIncludes())
+                ->when(
+                    strlen($code) > 3,
+                    fn ($q) => $q->orWhere('name', 'LIKE', "{$code}%")
+                )
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Celestial Object with specified Code or Name found.');
@@ -206,7 +230,10 @@ class CelestialObjectController extends Controller
             ->where(function (Builder $builder) use ($query) {
                 $builder->where('code', $query)
                     ->orWhere('cig_id', $query)
-                    ->orWhere('name', 'LIKE', "%$query%");
+                    ->when(
+                        strlen($query) > 3,
+                        fn ($q) => $q->orWhere('name', 'LIKE', "{$query}%")
+                    );
             })
             ->jsonPaginate()
             ->appends(request()->query());

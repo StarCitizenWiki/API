@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 use Spatie\Translatable\HasTranslations;
 
@@ -99,7 +100,19 @@ class Starsystem extends Model
         return $this->celestialObjects()->where('type', 'MANMADE');
     }
 
-    public function jumppoints(): Collection
+    public function jumppoints(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Jumppoint::class,
+            CelestialObject::class,
+            'starsystem_id',
+            'entry_id',
+            'cig_id',
+            'cig_id'
+        );
+    }
+
+    public function jumppointsAll(): Collection
     {
         return Jumppoint::query()
             ->whereIn('entry_id', $this->celestialObjects->pluck('cig_id'))

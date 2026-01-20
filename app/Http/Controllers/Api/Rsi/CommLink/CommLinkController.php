@@ -101,7 +101,9 @@ class CommLinkController extends Controller
                 AllowedSort::custom('series', new SortByRelation, 'series.name'),
                 'created_at',
             ])
-            ->orderByDesc('cig_id')
+            ->when(! request()->has('sort'), function ($query) {
+                $query->orderByDesc('cig_id');
+            })
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -240,16 +242,16 @@ class CommLinkController extends Controller
             $commLink = QueryBuilder::for(CommLink::class)
                 ->where('cig_id', $commLink)
                 ->allowedIncludes(CommLinkResource::validIncludes())
+                ->withNavigation()
                 ->firstOrFail();
-            $commLink->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Comm-Link with specified ID found.');
         }
 
         $resource = new CommLinkResource($commLink);
         $resource->addMetadata([
-            'prev_id' => optional($commLink->prev)->cig_id ?? -1,
-            'next_id' => optional($commLink->next)->cig_id ?? -1,
+            'prev_id' => $commLink->prev_id ?? -1,
+            'next_id' => $commLink->next_id ?? -1,
         ]);
 
         return $resource;

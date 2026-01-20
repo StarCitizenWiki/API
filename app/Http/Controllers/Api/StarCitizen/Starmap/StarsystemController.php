@@ -28,7 +28,7 @@ class StarsystemController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Starsystem::class, $request)
-            ->allowedIncludes([])
+            ->allowedIncludes(StarsystemResource::validIncludes())
             ->allowedFilters([
                 AllowedFilter::exact('affiliation', 'affiliation.name'),
                 AllowedFilter::exact('code'),
@@ -87,11 +87,15 @@ class StarsystemController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = $this->buildBaseQuery($request)
+        $collection = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return StarsystemResource::collection($query);
+        if ($request->has('include') && str_contains($request->input('include'), 'jumppoints')) {
+            $collection->load('jumppoints.entry', 'jumppoints.exit');
+        }
+
+        return StarsystemResource::collection($collection);
     }
 
     #[OA\Get(
@@ -143,13 +147,22 @@ class StarsystemController extends Controller
 
         $code = mb_strtoupper(urldecode($code));
 
-        /** @var Starsystem $starsystem */
-        $starsystem = QueryBuilder::for(Starsystem::class, $request)
+        $query = QueryBuilder::for(Starsystem::class, $request)
             ->where('code', $code)
-            ->orWhere('cig_id', $code)
-            ->orWhere('name', 'LIKE', "%$code%")
+            ->orWhere('name', 'LIKE', "%$code%");
+
+        if (is_numeric($code)) {
+            $query->orWhere('cig_id', (int) $code);
+        }
+
+        /** @var Starsystem $starsystem */
+        $starsystem = $query
             ->allowedIncludes(StarsystemResource::validIncludes())
             ->firstOrFail();
+
+        if ($starsystem->relationLoaded('jumppoints')) {
+            $starsystem->load('jumppoints.entry', 'jumppoints.exit');
+        }
 
         return new StarsystemResource($starsystem);
     }
@@ -196,12 +209,18 @@ class StarsystemController extends Controller
     {
         $query = mb_strtoupper($request->validated('query'));
 
-        $starsystems = $this->buildBaseQuery($request)
-            ->where(function (Builder $builder) use ($query) {
-                $builder->where('code', $query)
-                    ->orWhere('cig_id', $query)
-                    ->orWhere('name', 'LIKE', "%$query%");
-            })
+        $builder = $this->buildBaseQuery($request);
+
+        $builder->where(function (Builder $b) use ($query) {
+            $b->where('code', $query)
+                ->orWhere('name', 'LIKE', "%$query%");
+
+            if (is_numeric($query)) {
+                $b->orWhere('cig_id', (int) $query);
+            }
+        });
+
+        $starsystems = $builder
             ->jsonPaginate()
             ->appends(request()->query());
 

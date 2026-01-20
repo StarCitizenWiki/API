@@ -54,40 +54,48 @@ class JumppointResource extends AbstractBaseResource
 
     public function toArray($request): array
     {
+        $entry = $this->whenLoaded('entry');
+        $exit = $this->whenLoaded('exit');
+
+        $entryData = $entry ? [
+            'id' => $entry->cig_id,
+            'system_id' => $entry->starsystem_id,
+            'system_api_url' => route(
+                'starsystems.show',
+                ['code' => $entry->starsystem_id]
+            ),
+            'celestial_object_api_url' => route(
+                'celestial-objects.show',
+                ['code' => $entry->code]
+            ),
+            'status' => $this->entry_status,
+            'code' => $entry->code,
+            'designation' => $entry->designation,
+        ] : null;
+
+        $exitData = $exit ? [
+            'id' => $exit->cig_id,
+            'system_id' => $exit->starsystem_id,
+            'system_api_url' => route(
+                'starsystems.show',
+                ['code' => $exit->starsystem_id]
+            ),
+            'celestial_object_api_url' => route(
+                'celestial-objects.show',
+                ['code' => $exit->code]
+            ),
+            'status' => $this->exit_status,
+            'code' => $exit->code,
+            'designation' => $exit->designation,
+        ] : null;
+
         return [
             'id' => $this->cig_id,
+            'name' => $this->name,
             'size' => $this->size,
             'direction' => $this->direction,
-            'entry' => [
-                'id' => $this->entry->cig_id,
-                'system_id' => $this->entry->starsystem_id,
-                'system_api_url' => route(
-                    'starsystems.show',
-                    ['code' => $this->entry->starsystem_id]
-                ),
-                'celestial_object_api_url' => route(
-                    'celestial-objects.show',
-                    ['code' => $this->entry->code]
-                ),
-                'status' => $this->entry_status,
-                'code' => $this->entry->code,
-                'designation' => $this->entry->designation,
-            ],
-            'exit' => [
-                'id' => $this->exit->cig_id,
-                'system_id' => $this->exit->starsystem_id,
-                'system_api_url' => route(
-                    'starsystems.show',
-                    ['code' => $this->exit->starsystem_id]
-                ),
-                'celestial_object_api_url' => route(
-                    'celestial-objects.show',
-                    ['code' => $this->exit->code]
-                ),
-                'status' => $this->exit_status,
-                'code' => $this->exit->code,
-                'designation' => $this->exit->designation,
-            ],
+            'entry' => $entryData,
+            'exit' => $exitData,
             $this->mergeWhen(! $this->hideCO, [
                 'celestial_object_entry' => new CelestialObjectResource($this->whenLoaded('entry')),
                 'celestial_object_exit' => new CelestialObjectResource($this->whenLoaded('exit')),

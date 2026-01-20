@@ -63,11 +63,14 @@ class CelestialObjectResource extends AbstractBaseResource
         return [
             'affiliation',
             'starsystem',
+            'jumppoints',
         ];
     }
 
     public function toArray($request): array
     {
+        $jumppoint = $this->whenLoaded('jumppointEntry') ?? $this->whenLoaded('jumppointExit') ?? $this->jumppoint();
+
         return [
             'id' => $this->cig_id,
             'code' => $this->code,
@@ -121,7 +124,7 @@ class CelestialObjectResource extends AbstractBaseResource
                     'type' => $this->subtype->type,
                 ],
             ]),
-            'jumppoints' => new JumppointResource($this->jumppoint(), true),
+            'jumppoints' => new JumppointResource($jumppoint, true),
             'time_modified' => $this->time_modified,
         ];
     }

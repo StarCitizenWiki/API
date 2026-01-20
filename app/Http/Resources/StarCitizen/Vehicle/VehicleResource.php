@@ -210,9 +210,11 @@ class VehicleResource extends AbstractBaseResource
             ],
             // 'web_url' => route('web.ship-matrix.vehicles.show', ['vehicle' => $this->cig_id]),
 
-            $this->mergeWhen(in_array('components', $includes, true), [
-                'components' => ComponentResource::collection($this->components),
-            ]),
+            $this->mergeWhen(in_array('components', $includes, true), function () {
+                return [
+                    'components' => ComponentResource::collection($this->components),
+                ];
+            }),
 
             'loaner' => VehicleLoanerResource::collection($this->loaner),
 

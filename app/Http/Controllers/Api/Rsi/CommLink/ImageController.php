@@ -112,13 +112,15 @@ class ImageController extends Controller
     )]
     public function random(Request $request): AnonymousResourceCollection
     {
+        $limit = $request->has('limit') ? min($request->get('limit'), 100) : 1;
+
         $query = QueryBuilder::for(Image::class, $request)
             ->allowedFilters([
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->inRandomOrder()
-            ->limit($request->has('limit') ? min($request->get('limit'), 100) : 1)
+            ->limit($limit)
             ->get();
 
         return ImageResource::collection($query);
@@ -150,7 +152,7 @@ class ImageController extends Controller
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereNull('base_image_id')
-            ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($request->validated('query')))])
+            ->whereRaw('src ILIKE ?', [sprintf('%%%s%%', $request->validated('query'))])
             ->whereRelation('metadata', 'size', '>', 0)
             ->limit(100)
             ->orderByDesc('created_at')

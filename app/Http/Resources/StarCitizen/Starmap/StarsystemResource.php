@@ -99,6 +99,7 @@ class StarsystemResource extends AbstractBaseResource
         return [
             'affiliation',
             'celestialObjects',
+            'jumppoints',
         ];
     }
 
@@ -141,7 +142,7 @@ class StarsystemResource extends AbstractBaseResource
 
             'affiliation' => AffiliationResource::collection($this->whenLoaded('affiliation')),
             'celestial_objects' => CelestialObjectResource::collection($this->whenLoaded('celestialObjects')),
-            'jumppoints' => JumppointResource::collection($this->jumppoints()),
+            'jumppoints' => JumppointResource::collection($this->whenLoaded('jumppoints')),
 
             'updated_at' => $this->time_modified,
         ];

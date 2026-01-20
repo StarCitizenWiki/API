@@ -51,7 +51,6 @@ class VehicleController extends Controller
                 'cargo_capacity',
                 AllowedSort::field('min_crew'),
                 AllowedSort::field('max_crew'),
-                AllowedSort::field('msrp'),
                 AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('focus', new SortByRelation, 'focus.slug'),
                 AllowedSort::custom('type', new SortByRelation, 'type.slug'),
@@ -87,7 +86,8 @@ class VehicleController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = $this->buildBaseQuery($request);
+        $query = $this->buildBaseQuery($request)
+            ->with(['skus', 'loaner']);
         $vehicles = $query->jsonPaginate();
 
         return VehicleResource::collection($vehicles);
@@ -233,21 +233,14 @@ class VehicleController extends Controller
                 ->firstOrFail();
 
             // Handle optional includes
-            $includes = collect(explode(',', $request->get('include', '')))
+            $requestedIncludes = collect(explode(',', $request->get('include', '')))
                 ->map('trim')
                 ->filter()
+                ->intersect(['components', 'loaner', 'skus'])
                 ->toArray();
 
-            if (in_array('components', $includes, true)) {
-                $vehicle->load('components');
-            }
-
-            if (in_array('loaner', $includes, true)) {
-                $vehicle->load('loaner');
-            }
-
-            if (in_array('skus', $includes, true)) {
-                $vehicle->load('skus');
+            if (! empty($requestedIncludes)) {
+                $vehicle->load($requestedIncludes);
             }
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified slug found.');
@@ -301,7 +294,8 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request)
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%");
-            });
+            })
+            ->with(['skus', 'loaner']);
 
         $vehicles = $query->jsonPaginate();
 

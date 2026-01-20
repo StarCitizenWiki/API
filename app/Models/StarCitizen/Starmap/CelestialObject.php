@@ -104,6 +104,22 @@ class CelestialObject extends Model
     /**
      * A jumppoint with its entry or exit id equal to this cig_id
      */
+    public function jumppointEntry(): BelongsTo
+    {
+        return $this->belongsTo(Jumppoint::class, 'cig_id', 'entry_id');
+    }
+
+    /**
+     * A jumppoint with its entry or exit id equal to this cig_id
+     */
+    public function jumppointExit(): BelongsTo
+    {
+        return $this->belongsTo(Jumppoint::class, 'cig_id', 'exit_id');
+    }
+
+    /**
+     * Get jumppoint (entry or exit) for this celestial object
+     */
     public function jumppoint(): ?Jumppoint
     {
         return Jumppoint::query()

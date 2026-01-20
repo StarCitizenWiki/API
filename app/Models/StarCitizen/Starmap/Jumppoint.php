@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Starmap;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Jumppoint extends Model
 {
+    use HasFactory;
+
     protected $table = 'starmap_jumppoints';
 
     protected $fillable = [

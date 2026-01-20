@@ -79,22 +79,60 @@ class CommLink extends Model
     }
 
     /**
+     * Previous Comm-Link ID
+     *
+     * @return Builder|Model|object|null
+     *
+     * @deprecated Use withNavigationScope for better performance
+     */
+    protected function getPrevIdAttribute(): ?int
+    {
+        return CommLink::query()
+            ->where('cig_id', '<', $this->cig_id)
+            ->orderBy('cig_id', 'desc')
+            ->value('cig_id');
+    }
+
+    /**
      * Previous Comm-Link
      *
      * @return Builder|Model|object|null
+     *
+     * @deprecated Use prevId attribute instead
      */
     public function getPrevAttribute()
     {
+        if ($this->relationLoaded('prev')) {
+            return $this->getRelation('prev');
+        }
+
         return CommLink::query()->where('cig_id', '<', $this->cig_id)->orderBy('cig_id', 'desc')->first(['cig_id']);
+    }
+
+    /**
+     * Next Comm-Link ID
+     */
+    protected function getNextIdAttribute(): ?int
+    {
+        return CommLink::query()
+            ->where('cig_id', '>', $this->cig_id)
+            ->orderBy('cig_id')
+            ->value('cig_id');
     }
 
     /**
      * Next Comm-Link
      *
      * @return Builder|Model|object|null
+     *
+     * @deprecated Use nextId attribute instead
      */
     public function getNextAttribute()
     {
+        if ($this->relationLoaded('next')) {
+            return $this->getRelation('next');
+        }
+
         return CommLink::query()->where('cig_id', '>', $this->cig_id)->orderBy('cig_id')->first(['cig_id']);
     }
 
@@ -120,6 +158,25 @@ class CommLink extends Model
     public function series(): BelongsTo
     {
         return $this->belongsTo(Series::class);
+    }
+
+    /**
+     * Scope to load prev/next navigation IDs using subqueries
+     */
+    public function scopeWithNavigation(Builder $query): Builder
+    {
+        return $query->addSelect([
+            'prev_id' => CommLink::query()
+                ->select('cig_id')
+                ->whereColumn('cig_id', '<', 'comm_links.cig_id')
+                ->orderByDesc('cig_id')
+                ->limit(1),
+            'next_id' => CommLink::query()
+                ->select('cig_id')
+                ->whereColumn('cig_id', '>', 'comm_links.cig_id')
+                ->orderBy('cig_id')
+                ->limit(1),
+        ]);
     }
 
     /**

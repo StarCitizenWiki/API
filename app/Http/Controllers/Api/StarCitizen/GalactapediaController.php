@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -45,8 +46,7 @@ class GalactapediaController extends Controller
                 'tags_count',
                 'related_articles_count',
             ])
-            ->defaultSort('-id')
-            ->with(['categories', 'tags', 'templates']);
+            ->defaultSort('-id');
     }
 
     #[OA\Get(
@@ -236,10 +236,12 @@ class GalactapediaController extends Controller
 
         $identifier = $this->cleanQueryName($identifier);
 
+        $includes = $request->has('include') ? ArticleResource::validIncludes() : [];
+
         try {
             $model = QueryBuilder::for(Article::class, $request)
                 ->where('cig_id', $identifier)
-                ->with(ArticleResource::validIncludes())
+                ->with($includes)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Article with specified ID found.');
@@ -283,11 +285,14 @@ class GalactapediaController extends Controller
         $query = $request->validated('query');
 
         $queryBuilder = QueryBuilder::for(Article::class, $request)
-            ->where('title', 'ilike', "%{$query}%")
-            ->orWhere('slug', 'like', "%{$query}%")
-            ->orWhere('cig_id', $query)
-            ->orWhereHas('templates', function (Builder $builder) use ($query) {
-                return $builder->where('template', 'like', "%{$query}%");
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'ilike', "%{$query}%")
+                    ->orWhere('slug', 'like', "%{$query}%")
+                    ->orWhere('cig_id', $query);
+            })
+            ->when(Str::length($query) >= 3, function ($q) use ($query) {
+                return $q->orWhereHas('templates', fn (Builder $builder) => $builder->where('template', 'like', "%{$query}%")
+                );
             })
             ->jsonPaginate()
             ->appends(request()->query());

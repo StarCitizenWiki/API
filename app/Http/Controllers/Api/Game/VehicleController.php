@@ -158,32 +158,24 @@ class VehicleController extends Controller
         $this->normalizeIncludes($request, $allowedIncludes);
 
         try {
-            $vehicleData = null;
+            $vehicleData = QueryBuilder::for(VehicleData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->where(function (Builder $q) use ($identifier, $isUuid, $original) {
+                    $underscored = str_replace(' ', '_', $identifier);
 
-            if ($isUuid) {
-                $vehicleData = QueryBuilder::for(VehicleData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->whereHas('vehicle', fn (Builder $q) => $q->where('uuid', $identifier))
-                    ->allowedIncludes($allowedIncludes)
-                    ->with(['vehicle', 'gameVersion'])
-                    ->first();
-            }
+                    if ($isUuid) {
+                        $q->whereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier));
+                    }
 
-            if ($vehicleData === null) {
-                $underscored = str_replace(' ', '_', $identifier);
-                $vehicleData = QueryBuilder::for(VehicleData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->where(function (Builder $q) use ($identifier, $underscored, $original) {
-                        $q->where('name', $identifier)
-                            ->orWhereRaw('upper(display_name) = ?', [strtoupper($identifier)])
-                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
-                            ->orWhere('class_name', strtoupper($underscored))
-                            ->orWhere('class_name', 'LIKE', "%_{$underscored}");
-                    })
-                    ->allowedIncludes($allowedIncludes)
-                    ->with(['vehicle', 'gameVersion'])
-                    ->first();
-            }
+                    $q->orWhere('name', $identifier)
+                        ->orWhereRaw('upper(display_name) = ?', [strtoupper($identifier)])
+                        ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
+                        ->orWhere('class_name', strtoupper($underscored))
+                        ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                })
+                ->allowedIncludes($allowedIncludes)
+                ->with(['vehicle', 'gameVersion'])
+                ->first();
 
             if ($vehicleData === null) {
                 $shipMatrixVehicle = ShipMatrixVehicle::query()
@@ -554,7 +546,6 @@ class VehicleController extends Controller
 
         return [
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
-            AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
             AllowedFilter::partial('class_name'),
             AllowedFilter::partial('name'),
             AllowedFilter::partial('career'),
@@ -634,7 +625,6 @@ class VehicleController extends Controller
                 'is_spaceship',
                 'size',
                 AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
-                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('msrp', new SortByRelation, 'shipmatrixVehicle.msrp'),
                 AllowedSort::field('size_class', 'size'),
             ],
