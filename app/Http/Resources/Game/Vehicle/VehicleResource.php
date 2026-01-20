@@ -282,6 +282,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'ports',
+            description: 'Only included on show route, excluded from index route.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_port'),
             nullable: true
@@ -702,7 +703,10 @@ class VehicleResource extends AbstractBaseResource
                 'before_destruction' => Arr::get($payload, 'DamageBeforeDestruction'),
                 'before_detach' => Arr::get($payload, 'DamageBeforeDetach'),
             ],
-            $portKey => $hardpoints,
+            $this->mergeWhen(
+                $this->isVehicleShowRoute($request),
+                fn () => [$portKey => $hardpoints]
+            ),
             'parts' => PartResource::collection(Arr::get($payload, 'Parts', [])),
             'turrets' => [
                 'manned' => TurretSummaryResource::collection(Arr::get($payload, 'MannedTurrets', [])),
