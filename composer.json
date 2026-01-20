@@ -87,7 +87,7 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ],
         "openapi": [
-            "vendor/bin/openapi app -o storage/app/swagger.yaml --format yaml"
+            "vendor/bin/openapi app -o swagger.yaml --format yaml"
         ]
     },
     "extra": {

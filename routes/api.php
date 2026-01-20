@@ -22,13 +22,13 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/v2/openapi', static function () {
     return response(
-        File::get(storage_path('app/swagger.yaml'))
+        File::get(base_path('swagger.yaml'))
     )->header('Content-Type', 'application/yaml');
 });
 
 Route::get('/openapi', static function () {
     return response(
-        File::get(storage_path('app/swagger.yaml'))
+        File::get(base_path('swagger.yaml'))
     )->header('Content-Type', 'application/yaml');
 });
 
