@@ -11,9 +11,16 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'power_plant',
     title: 'Power Plant',
-    description: 'Use Resource Network data for actual power segment generation. Power plant output values derived from power connection data.',
+    description: 'Power plant specifications including power output and segment generation from resource network.',
     properties: [
         new OA\Property(property: 'power_output', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'power_segment_generation',
+            description: 'Power segment generation rate from resource network. Use this for actual power segment generation.',
+            type: 'double',
+            example: 1000,
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -31,6 +38,7 @@ class PowerPlantResource extends AbstractItemSpecificationResource
 
         return [
             'power_output' => Arr::get($power, 'PowerDraw', Arr::get($power, 'powerDraw')),
+            'power_segment_generation' => Arr::get($stdItem, 'ResourceNetwork.Generation.Power'),
         ];
     }
 }

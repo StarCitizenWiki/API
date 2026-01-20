@@ -2,11 +2,13 @@
     "agents": [
         "claude_code",
         "codex",
+        "opencode",
         "phpstorm"
     ],
     "editors": [
         "claude_code",
         "codex",
+        "opencode",
         "phpstorm"
     ],
     "guidelines": [

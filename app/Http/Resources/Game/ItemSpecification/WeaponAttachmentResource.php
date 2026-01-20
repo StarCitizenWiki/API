@@ -170,9 +170,12 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
         $barrelAttachment = Arr::get($weaponAttachment, 'Barrel', []);
         $barrelAttachmentType = Arr::get($barrelAttachment, 'Type');
 
-        $key = $barrelAttachmentType === 'Compensator'
-            ? 'compensator'
-            : ($barrelAttachmentType === 'Flash Hider' ? 'flash_hider' : null);
+        $key = match ($barrelAttachmentType) {
+            'Compensator' => 'compensator',
+            'Flash Hider' => 'flash_hider',
+            'Stabilizer' => 'stabilizer',
+            default => null,
+        };
 
         $out = [
             'iron_sight' => $ironSightData,

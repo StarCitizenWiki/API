@@ -4,6 +4,22 @@
 ])
 
 @php
+    if (!function_exists('formatFileSize')) {
+         function formatFileSize(float $bytes): string
+        {
+            if ($bytes >= 1073741824) {
+                return number_format($bytes / 1073741824, 2) . ' GB';
+            }
+            if ($bytes >= 1048576) {
+                return number_format($bytes / 1048576, 2) . ' MB';
+            }
+            if ($bytes >= 1024) {
+                return number_format($bytes / 1024, 2) . ' KB';
+            }
+            return $bytes . ' B';
+        }
+    }
+
     $imageId = data_get($image, 'id');
     $name = data_get($image, 'name');
     $alt = data_get($image, 'alt');
@@ -13,16 +29,28 @@
     $lastModified = data_get($image, 'last_modified');
     $tags = data_get($image, 'tags', []);
     $commLinks = data_get($image, 'comm_links', []);
+    $duplicates = data_get($image, 'duplicates', []);
+    $baseImage = data_get($image, 'base_image');
+    $similarUrl = data_get($image, 'similar_url');
     $showFooter = filter_var($showFooter, FILTER_VALIDATE_BOOLEAN);
 
     $isVideo = is_string($mimeType) && str_contains($mimeType, 'video');
     $isImage = is_string($mimeType) && str_contains($mimeType, 'image');
     $isAudio = is_string($mimeType) && str_contains($mimeType, 'audio');
-    $sizeKb = $size !== null ? number_format(((float) $size) / 1024, 1) : null;
+
+
+    $sizeFormatted = $size !== null ? formatFileSize((float) $size) : null;
+    $lastModifiedFormatted = $lastModified ? \Carbon\Carbon::parse($lastModified)->diffForHumans() : null;
+    $lastModifiedAbsolute = $lastModified ? \Carbon\Carbon::parse($lastModified)->format('Y-m-d') : null;
+
     $previewTag = is_array($tags) ? (collect($tags)->first() ?? null) : null;
     $commLinks = is_array($commLinks) ? $commLinks : [];
     $commLinksPreview = collect($commLinks)->sortByDesc('id')->take(3);
+    $duplicates = is_array($duplicates) ? $duplicates : [];
+    $duplicatesCount = count($duplicates);
+    $hasBaseImage = is_array($baseImage) && $baseImage !== null;
 @endphp
+
 
 <div class="card border border-base-200 bg-base-100 shadow-sm">
     <div class="relative">
@@ -34,6 +62,16 @@
         @if ($mimeType)
             <span class="badge badge-info absolute right-3 top-3 z-10">
                 {{ $mimeType }}
+            </span>
+        @endif
+        @if ($duplicatesCount > 0)
+            <span class="badge badge-secondary absolute left-3 bottom-3 z-10 tooltip" data-tip="{{ $duplicatesCount }} duplicate{{ $duplicatesCount > 1 ? 's' : '' }}">
+                ×{{ $duplicatesCount }}
+            </span>
+        @endif
+        @if ($hasBaseImage)
+            <span class="badge badge-secondary absolute right-3 bottom-3 z-10 tooltip" data-tip="Duplicate of {{ $baseImage['name'] }}">
+                Duplicate
             </span>
         @endif
 
@@ -77,11 +115,13 @@
         <dl class="grid gap-2 text-xs text-base-content/70">
             <div class="flex items-center justify-between">
                 <dt>Last Modified</dt>
-                <dd>{{ $lastModified ? \Carbon\Carbon::parse($lastModified)->format('Y-m-d') : '-' }}</dd>
+                <dd class="tooltip" data-tip="{{ $lastModifiedAbsolute }}">
+                    {{ $lastModifiedFormatted ?? '-' }}
+                </dd>
             </div>
             <div class="flex items-center justify-between">
                 <dt>Size</dt>
-                <dd>{{ $sizeKb !== null ? "{$sizeKb} KB" : '-' }}</dd>
+                <dd>{{ $sizeFormatted ?? '-' }}</dd>
             </div>
         </dl>
 
@@ -92,9 +132,34 @@
             @if ($imageId)
                 <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
             @endif
+            @auth
+                @if ($isImage && $similarUrl)
+                    <a class="btn btn-outline btn-xs" href="{{ $similarUrl }}" target="_blank" rel="noreferrer">Find Similar</a>
+                @endif
+            @endauth
         </div>
 
-        @if ($commLinksPreview->isNotEmpty())
+        @if (count($commLinks) > 3)
+            <div class="flex items-center gap-2">
+                <div class="text-xs text-base-content/70">Used in Comm-Links</div>
+                <span class="badge badge-neutral badge-xs">{{ count($commLinks) }}</span>
+            </div>
+            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                <input type="checkbox" />
+                <div class="collapse-title text-xs font-semibold">
+                    Show all {{ count($commLinks) }} Comm-Links
+                </div>
+                <div class="collapse-content">
+                    <div class="flex flex-col gap-1 text-xs">
+                        @foreach ($commLinks as $commLink)
+                            <a class="link link-primary" href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">
+                                {{ $commLink['id'] ?? '-' }} - {{ $commLink['title'] ?? 'Comm-Link' }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @elseif ($commLinksPreview->isNotEmpty())
             <div class="text-xs text-base-content/70">Used in Comm-Links</div>
             <div class="flex flex-col gap-1 text-xs">
                 @foreach ($commLinksPreview as $commLink)

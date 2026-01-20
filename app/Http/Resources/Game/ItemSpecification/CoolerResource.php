@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'cooler',
     title: 'Cooler',
-    description: 'Use Resource Network data for actual cooling segment generation. Ship cooler characteristics describing heat dissipation capacity and signature suppression factors.',
+    description: 'Ship cooler specifications including heat dissipation capacity, signature suppression factors, and coolant segment generation.',
     properties: [
         new OA\Property(
             property: 'cooling_rate',
@@ -34,6 +34,13 @@ use OpenApi\Attributes as OA;
             example: 0.1,
             nullable: true
         ),
+        new OA\Property(
+            property: 'coolant_segment_generation',
+            description: 'Coolant segment generation rate from resource network. Use this for actual cooling segment generation.',
+            type: 'double',
+            example: 22,
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -42,13 +49,14 @@ class CoolerResource extends AbstractItemSpecificationResource
     public function toArray(Request $request): array
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
-
-        $cooler = Arr::get($data, 'stdItem.Cooler', []);
+        $stdItem = $this->extractStdItem($data);
+        $cooler = Arr::get($stdItem, 'Cooler', []);
 
         return [
             'cooling_rate' => Arr::get($cooler, 'CoolingRate'),
             'suppression_ir_factor' => Arr::get($cooler, 'SuppressionIRFactor'),
             'suppression_heat_factor' => Arr::get($cooler, 'SuppressionHeatFactor'),
+            'coolant_segment_generation' => Arr::get($stdItem, 'ResourceNetwork.Generation.Coolant'),
         ];
     }
 }

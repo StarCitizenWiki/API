@@ -126,7 +126,7 @@ return [
     'ui' => [
         'themes' => [
             'light' => 'api-light',
-            'dark' => 'api-dark',
+            'dark' => 'night',
         ],
     ],
 

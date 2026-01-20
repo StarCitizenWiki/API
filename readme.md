@@ -392,6 +392,12 @@ This project integrates data and translations from the following external commun
 
 ---
 
+## Inspiration
+
+The datatables used in this project are inspired by [spviewer.eu](https://spviewer.eu).
+
+---
+
 ## License Compliance
 
 ### StarCitizenDeutsch (CC BY-NC-SA 4.0)
