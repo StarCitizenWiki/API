@@ -4,96 +4,86 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\SC;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\Models\Game\GameLabel;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
-use JsonException;
+use Illuminate\Support\Facades\Cache;
 
 final class Labels
 {
-    private Collection $labels;
+    private static ?Collection $staticLabelsLookup = null;
 
-    private Collection $zhTranslations;
+    private static ?Collection $staticZhTranslations = null;
 
-    private Collection $deTranslations;
+    private static ?Collection $staticDeTranslations = null;
 
-    /**
-     * Labels contain all available translations.
-     *
-     * @throws FileNotFoundException
-     * @throws JsonException
-     */
-    public function __construct(
-        ?string $labelsPath = null,
-        ?string $chinesePath = null,
-        ?string $germanPath = null
-    ) {
-        $labelsPath ??= storage_path('app/api/scunpacked-data/labels.json');
-        $chinesePath ??= storage_path('app/api/ScToolBoxLocales/chinese_(simplified)/global.ini');
-        $germanPath ??= storage_path('app/api/StarCitizenDeutsch/live/full/global.ini');
+    private ?Collection $labelsLookup = null;
 
-        $items = File::get($labelsPath);
-        $this->labels = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
-        $this->loadChinese($chinesePath);
-        $this->loadGerman($germanPath);
-    }
+    private ?Collection $zhTranslations = null;
+
+    private ?Collection $deTranslations = null;
 
     public function getData(): Collection
     {
-        return $this->labels;
+        if (self::$staticLabelsLookup === null) {
+            $this->loadFromDatabase();
+        }
+
+        return self::$staticLabelsLookup;
     }
 
     public function getDataZh(): Collection
     {
-        return $this->zhTranslations;
+        if (self::$staticZhTranslations === null) {
+            $this->loadFromDatabase();
+        }
+
+        return self::$staticZhTranslations;
     }
 
     public function getDataDe(): Collection
     {
-        return $this->deTranslations;
+        if (self::$staticDeTranslations === null) {
+            $this->loadFromDatabase();
+        }
+
+        return self::$staticDeTranslations;
     }
 
-    /**
-     * Get translation for a specific language.
-     */
     public function getTranslation(string $localeCode, string $key): ?string
     {
         $normalized = ltrim($key, '@');
 
         return match ($localeCode) {
-            'zh' => $this->zhTranslations->get($normalized),
-            'zh_CN' => $this->zhTranslations->get($normalized),
-            'de' => $this->deTranslations->get($normalized),
-            'de_DE' => $this->deTranslations->get($normalized),
+            'zh' => $this->getDataZh()->get($normalized),
+            'zh_CN' => $this->getDataZh()->get($normalized),
+            'de' => $this->getDataDe()->get($normalized),
+            'de_DE' => $this->getDataDe()->get($normalized),
             default => null,
         };
     }
 
-    private function loadChinese(string $path): void
+    private function loadFromDatabase(): void
     {
-        if (! file_exists($path)) {
-            $this->zhTranslations = collect();
+        self::$staticLabelsLookup = Cache::remember('labels:all', now()->addHours(24), function () {
+            return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) {
+                return [$label->key => $label->getTranslation('translation', 'en')];
+            });
+        });
 
-            return;
-        }
+        self::$staticZhTranslations = Cache::remember('labels:zh', now()->addHours(24), function () {
+            $labels = GameLabel::all(['key', 'translation']);
 
-        $this->zhTranslations = collect(parse_ini_file(
-            $path,
-            scanner_mode: INI_SCANNER_RAW
-        ) ?: []);
-    }
+            return $labels->mapWithKeys(function (GameLabel $label) {
+                return [$label->key => $label->getTranslation('translation', 'zh')];
+            })->filter();
+        });
 
-    private function loadGerman(string $path): void
-    {
-        if (! file_exists($path)) {
-            $this->deTranslations = collect();
+        self::$staticDeTranslations = Cache::remember('labels:de', now()->addHours(24), function () {
+            $labels = GameLabel::all(['key', 'translation']);
 
-            return;
-        }
-
-        $this->deTranslations = collect(parse_ini_file(
-            $path,
-            scanner_mode: INI_SCANNER_RAW
-        ) ?: []);
+            return $labels->mapWithKeys(function (GameLabel $label) {
+                return [$label->key => $label->getTranslation('translation', 'de')];
+            })->filter();
+        });
     }
 }

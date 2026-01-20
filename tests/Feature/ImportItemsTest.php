@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\Game\ImportItemData;
 use App\Models\Game\EntityTag;
+use App\Models\Game\GameLabel;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -49,12 +50,8 @@ it('dispatches an import job for each item file', function (): void {
 it('imports item data, description data, and translations and upserts on re-run', function (): void {
     Storage::fake('scunpacked');
 
-    // Use test fixtures instead of overwriting production files
-    $labels = new \App\Services\Parser\SC\Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new \App\Services\Parser\SC\Labels;
 
     $version = GameVersion::query()->create([
         'code' => '3.23.1',
@@ -166,12 +163,8 @@ it('imports item data, description data, and translations and upserts on re-run'
 it('skips chinese translation when the key is missing and uses stdItem manufacturer fallback', function (): void {
     Storage::fake('scunpacked');
 
-    // Use test fixtures - the missing_key exists but item_Desc_test will be looked up
-    $labels = new \App\Services\Parser\SC\Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    // Test with no labels in database to test missing key lookup
+    $labels = new \App\Services\Parser\SC\Labels;
 
     $version = GameVersion::query()->create([
         'code' => '3.23.2',
@@ -247,12 +240,8 @@ it('skips chinese translation when the key is missing and uses stdItem manufactu
 it('imports and syncs entity tags and removes outdated tags on re-run', function (): void {
     Storage::fake('scunpacked');
 
-    // Use test fixtures
-    $labels = new \App\Services\Parser\SC\Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new \App\Services\Parser\SC\Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
@@ -345,12 +334,8 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
 it('handles items with no entity tags', function (): void {
     Storage::fake('scunpacked');
 
-    // Use test fixtures
-    $labels = new \App\Services\Parser\SC\Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new \App\Services\Parser\SC\Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
@@ -403,12 +388,8 @@ it('handles items with no entity tags', function (): void {
 it('optimizes entity tag lookups with in-memory caching', function (): void {
     Storage::fake('scunpacked');
 
-    // Use test fixtures
-    $labels = new \App\Services\Parser\SC\Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new \App\Services\Parser\SC\Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([

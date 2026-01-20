@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ImportVehicleData;
+use App\Models\Game\GameLabel;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -177,11 +178,8 @@ it('imports vehicle data and upserts when re-run', function (): void {
 it('imports vehicle item data from vehicle payload and raw data', function (): void {
     Storage::fake('scunpacked');
 
-    $labels = new Labels(
-        labelsPath: base_path('tests/Fixtures/translations/labels.json'),
-        chinesePath: base_path('tests/Fixtures/translations/global_zh.ini'),
-        germanPath: base_path('tests/Fixtures/translations/global_de.ini')
-    );
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new Labels;
 
     $version = GameVersion::query()->create([
         'code' => '3.24.0',

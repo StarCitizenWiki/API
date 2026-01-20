@@ -9,6 +9,7 @@ use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
+use App\Models\Game\Manufacturer;
 use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -67,9 +68,20 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
+        if (Artisan::call('game:import-labels') !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
         if (Artisan::call('game:import-manufacturers') !== self::SUCCESS) {
             return self::FAILURE;
         }
+
+        Manufacturer::query()->updateOrCreate([
+            'uuid' => '00000000-0000-0000-0000-000000000000',
+        ], [
+            'name' => 'Unknown',
+            'code' => 'UNKN',
+        ]);
 
         if (Artisan::call('game:import-tags') !== self::SUCCESS) {
             return self::FAILURE;
