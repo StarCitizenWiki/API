@@ -13,6 +13,7 @@ uses(RefreshDatabase::class);
 
 it('skips compute base ids and backfill shipmatrix when flags are set', function (): void {
     Storage::fake('scunpacked');
+    Storage::disk('scunpacked')->put('labels.json', json_encode([], JSON_THROW_ON_ERROR));
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode([
         ['reference' => fake()->uuid(), 'name' => 'ACME', 'code' => 'AC'],
     ], JSON_THROW_ON_ERROR));

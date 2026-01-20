@@ -12,6 +12,7 @@ uses(RefreshDatabase::class);
 
 it('runs the full sync flow and dispatches item and vehicle batches', function (): void {
     Storage::fake('scunpacked');
+    Storage::disk('scunpacked')->put('labels.json', json_encode([], JSON_THROW_ON_ERROR));
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode([
         ['reference' => fake()->uuid(), 'name' => 'ACME', 'code' => 'AC'],
     ], JSON_THROW_ON_ERROR));
