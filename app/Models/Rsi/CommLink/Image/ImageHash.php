@@ -43,7 +43,9 @@ class ImageHash extends Model
 
         if (config('database.default') === 'sqlite') {
             return static::query()
-                ->with(['image' => static fn ($query) => $query->withOnly([])])
+                ->with(['image' => static fn ($query) => $query->with([
+                    'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
+                ])])
                 ->whereNotNull('pdq_hash')
                 ->when(
                     $excludeImageId !== null,
@@ -83,7 +85,9 @@ class ImageHash extends Model
         return static::query()
             ->select('comm_link_image_hashes.*')
             ->selectRaw($distanceExpression.' as pdq_distance', [$normalizedHash])
-            ->with(['image' => static fn ($query) => $query->withOnly([])])
+            ->with(['image' => static fn ($query) => $query->with([
+                'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
+            ])])
             ->whereNotNull('pdq_hash')
             ->when(
                 $excludeImageId !== null,

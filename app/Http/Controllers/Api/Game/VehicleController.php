@@ -174,7 +174,7 @@ class VehicleController extends Controller
                         ->orWhere('class_name', 'LIKE', "%_{$underscored}");
                 })
                 ->allowedIncludes($allowedIncludes)
-                ->with(['vehicle', 'gameVersion'])
+                ->with(['vehicle', 'gameVersion', 'manufacturer'])
                 ->first();
 
             if ($vehicleData === null) {
@@ -515,7 +515,7 @@ class VehicleController extends Controller
             ->allowedSorts($this->allowedSorts())
             ->defaultSort('name')
             ->allowedIncludes($allowedIncludes)
-            ->with(['vehicle', 'gameVersion']);
+            ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner', 'shipMatrixVehicle.skus']);
     }
 
     /**
@@ -546,6 +546,7 @@ class VehicleController extends Controller
 
         return [
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
+            AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
             AllowedFilter::partial('class_name'),
             AllowedFilter::partial('name'),
             AllowedFilter::partial('career'),

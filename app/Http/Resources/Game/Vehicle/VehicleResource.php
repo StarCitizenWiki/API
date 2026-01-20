@@ -720,13 +720,19 @@ class VehicleResource extends AbstractBaseResource
             'web_url' => $this->buildWebUrl($request),
             'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $vehicleData->name]),
 
-            'loaner' => VehicleLoanerResource::collection($vehicleData->shipMatrixVehicle?->loaner),
-            'skus' => VehicleSkuResource::collection($vehicleData->shipMatrixVehicle?->skus),
-            'msrp' => $vehicleData->shipMatrixVehicle?->msrp,
-            'pledge_url' => $vehicleData->shipMatrixVehicle?->pledge_url,
+            'loaner' => $this->getLoaner($vehicleData),
+            'skus' => $this->getSkus($vehicleData),
+            'msrp' => $vehicleData->relationLoaded('shipMatrixVehicle')
+                ? $vehicleData->shipMatrixVehicle?->msrp
+                : null,
+            'pledge_url' => $vehicleData->relationLoaded('shipMatrixVehicle')
+                ? $vehicleData->shipMatrixVehicle?->pledge_url
+                : null,
 
             'updated_at' => $vehicleData->updated_at,
-            'version' => $vehicleData->gameVersion?->code,
+            'version' => $vehicleData->relationLoaded('gameVersion')
+                ? $vehicleData->gameVersion?->code
+                : null,
         ];
 
         $this->loadShipMatrixData($data, $request);
@@ -864,7 +870,19 @@ class VehicleResource extends AbstractBaseResource
      */
     private function getComponents(VehicleData $vehicleData): array
     {
+        if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
+            return [];
+        }
+
         $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
+
+        if (! $shipMatrixVehicle->exists) {
+            return [];
+        }
+
+        if (! $shipMatrixVehicle->relationLoaded('components')) {
+            return [];
+        }
 
         return ComponentResource::collection($shipMatrixVehicle->components)->resolve();
     }
@@ -877,5 +895,43 @@ class VehicleResource extends AbstractBaseResource
     private function getApiVersion(Request $request): ?string
     {
         return $request->route('api_version');
+    }
+
+    private function getLoaner(VehicleData $vehicleData): array
+    {
+        if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
+            return [];
+        }
+
+        $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
+
+        if (! $shipMatrixVehicle || ! $shipMatrixVehicle->exists) {
+            return [];
+        }
+
+        if (! $shipMatrixVehicle->relationLoaded('loaner')) {
+            return [];
+        }
+
+        return VehicleLoanerResource::collection($shipMatrixVehicle->loaner)->resolve();
+    }
+
+    private function getSkus(VehicleData $vehicleData): array
+    {
+        if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
+            return [];
+        }
+
+        $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
+
+        if (! $shipMatrixVehicle || ! $shipMatrixVehicle->exists) {
+            return [];
+        }
+
+        if (! $shipMatrixVehicle->relationLoaded('skus')) {
+            return [];
+        }
+
+        return VehicleSkuResource::collection($shipMatrixVehicle->skus)->resolve();
     }
 }

@@ -56,7 +56,9 @@ class ItemLinkResource extends AbstractBaseResource
             'sub_type' => $itemData->sub_type,
             'classification' => $itemData->classification,
             'is_base_variant' => $itemData->base_id === null,
-            'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
+            'manufacturer' => $itemData->relationLoaded('manufacturer')
+                ? new ManufacturerLinkResource($itemData->manufacturer)
+                : null,
             'link' => route('items.show', ['identifier' => $item->uuid]),
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
                 'base_variant' => route('items.show', [
@@ -67,7 +69,9 @@ class ItemLinkResource extends AbstractBaseResource
             'shops' => [],
 
             'updated_at' => $item->updated_at,
-            'version' => $itemData->gameVersion->code,
+            'version' => $itemData->relationLoaded('gameVersion')
+                ? $itemData->gameVersion->code
+                : null,
         ];
     }
 }

@@ -62,6 +62,11 @@ class ItemData extends Model
 
     public function getDescriptionDatum(string $name)
     {
+        if ($this->relationLoaded('descriptionData')) {
+            return $this->descriptionData
+                ->firstWhere('name', $name)?->value;
+        }
+
         return $this->descriptionData()
             ->where('name', $name)
             ->first()?->value;

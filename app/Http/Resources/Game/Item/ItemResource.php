@@ -416,7 +416,9 @@ class ItemResource extends AbstractBaseResource
             ]),
             'description_data' => ItemDescriptionDataResource::collection($itemData->descriptionData),
             'manufacturer_description' => $itemData->getDescriptionDatum('Manufacturer'),
-            'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
+            'manufacturer' => $itemData->relationLoaded('manufacturer')
+                ? new ManufacturerLinkResource($itemData->manufacturer)
+                : null,
             'type' => $type,
             'type_web_url' => $this->buildTypeWebUrl($type, $request),
             'sub_type' => $itemData->sub_type,
@@ -483,13 +485,18 @@ class ItemResource extends AbstractBaseResource
                         ->filter(fn ($variant) => $variant->item !== null)
                 )
                 : [],
-            $this->mergeWhen($includeRelated, [
-                'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
-            ]),
+            $this->mergeWhen(
+                $includeRelated && $itemData->relationLoaded('gameVersion'),
+                fn () => [
+                    'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
+                ]
+            ),
             'web_url' => $this->buildWebUrl($request),
             'link' => route('items.show', ['identifier' => $this->uuid]),
             'updated_at' => $this->updated_at,
-            'version' => $itemData->gameVersion->code,
+            'version' => $itemData->relationLoaded('gameVersion')
+                ? $itemData->gameVersion->code
+                : null,
         ];
     }
 

@@ -43,7 +43,12 @@ class ImageController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-            ->with(['commLinks'])
+            ->with([
+                'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
+                'tags',
+                'duplicates',
+                'baseImage',
+            ])
             ->orderByDesc('created_at')
             ->whereNull('base_image_id')
             ->jsonPaginate()
@@ -80,7 +85,12 @@ class ImageController extends Controller
     public function show(int $image): ImageResource
     {
         $model = Image::query()
-            ->with(['commLinks', 'duplicates', 'baseImage'])
+            ->with([
+                'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
+                'tags',
+                'duplicates',
+                'baseImage',
+            ])
             ->find($image);
 
         if ($model === null) {

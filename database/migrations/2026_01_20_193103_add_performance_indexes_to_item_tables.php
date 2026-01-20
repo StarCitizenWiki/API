@@ -11,8 +11,13 @@ return new class extends Migration
     {
         $this->createIndexIfNotExists('game_item_data', 'name');
         $this->createIndexIfNotExists('game_item_data', 'class_name');
+        $this->createIndexIfNotExists('game_item_data', 'classification');
         $this->createIndexIfNotExists('game_item_data', ['type', 'sub_type']);
         $this->createIndexIfNotExists('game_item_data', ['manufacturer_id', 'type']);
+        $this->createIndexIfNotExists('game_item_data', ['game_version_id', 'class_name']);
+        $this->createIndexIfNotExists('game_item_data', ['base_id', 'game_version_id']);
+        $this->createIndexIfNotExists('game_item_data', ['base_id', 'game_version_id', 'name']);
+
         $this->createIndexIfNotExists('game_manufacturers', 'name');
 
         $this->createIndexIfNotExists('game_vehicle_data', 'name');
@@ -26,8 +31,13 @@ return new class extends Migration
     {
         $this->dropIndexIfExists('game_item_data', 'name');
         $this->dropIndexIfExists('game_item_data', 'class_name');
+        $this->dropIndexIfExists('game_item_data', 'classification');
         $this->dropIndexIfExists('game_item_data', ['type', 'sub_type']);
         $this->dropIndexIfExists('game_item_data', ['manufacturer_id', 'type']);
+        $this->dropIndexIfExists('game_item_data', ['game_version_id', 'class_name']);
+        $this->dropIndexIfExists('game_item_data', ['base_id', 'game_version_id']);
+        $this->dropIndexIfExists('game_item_data', ['base_id', 'game_version_id', 'name']);
+
         $this->dropIndexIfExists('game_manufacturers', 'name');
 
         $this->dropIndexIfExists('game_vehicle_data', 'name');

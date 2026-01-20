@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use App\Support\Cache\RelatedItemsCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -64,28 +65,37 @@ class RelatedItemsBuilder
      */
     public function gatherVariantGroup(Item $item): array
     {
-        $itemData = $this->getItemDataForVersion($item);
+        $versionCode = $this->gameVersionCode;
+        $itemId = $item->getAttribute('id');
 
-        $versionId = $itemData->game_version_id;
+        return RelatedItemsCache::rememberVariantGroup(
+            $versionCode,
+            $itemId,
+            function () use ($item) {
+                $itemData = $this->getItemDataForVersion($item);
 
-        if ($itemData->base_id === null) {
-            $base = $itemData;
-            $siblings = $itemData->variants()->where('game_version_id', $versionId)->get()->all();
-            $shouldFallbackToTags = $siblings === [];
-        } else {
-            $base = $itemData->baseVariant()->where('game_version_id', $versionId)->first();
-            $siblings = $base?->variants()->where('game_version_id', $versionId)->get()->all() ?? [];
-            $shouldFallbackToTags = count($siblings) <= 1;
-        }
+                $versionId = $itemData->game_version_id;
 
-        if ($shouldFallbackToTags) {
-            $tagGroup = $this->findVariantGroupFromTags($itemData);
-            if (count($tagGroup) > 1) {
-                return [null, $tagGroup];
+                if ($itemData->base_id === null) {
+                    $base = $itemData;
+                    $siblings = $itemData->variants()->with(['item', 'gameVersion'])->where('game_version_id', $versionId)->get()->all();
+                    $shouldFallbackToTags = $siblings === [];
+                } else {
+                    $base = $itemData->baseVariant()->with(['item', 'gameVersion'])->where('game_version_id', $versionId)->first();
+                    $siblings = $base?->variants()->with(['item', 'gameVersion'])->where('game_version_id', $versionId)->get()->all() ?? [];
+                    $shouldFallbackToTags = count($siblings) <= 1;
+                }
+
+                if ($shouldFallbackToTags) {
+                    $tagGroup = $this->findVariantGroupFromTags($itemData);
+                    if (count($tagGroup) > 1) {
+                        return [null, $tagGroup];
+                    }
+                }
+
+                return [$base, $siblings];
             }
-        }
-
-        return [$base, $siblings];
+        );
     }
 
     /**
@@ -193,41 +203,48 @@ class RelatedItemsBuilder
             return [];
         }
 
-        $parts = config('item_sets.parts', ['helmet', 'core', 'arms', 'legs']);
-        $currentPart = null;
-        foreach ($parts as $part) {
-            if (str_contains($className, '_'.$part.'_')) {
-                $currentPart = $part;
-                break;
-            }
-        }
-        if ($currentPart === null) {
-            return [];
-        }
+        return RelatedItemsCache::rememberSetItems(
+            $this->gameVersionCode,
+            $className,
+            function () use ($item, $className) {
+                $parts = config('item_sets.parts', ['helmet', 'core', 'arms', 'legs']);
+                $currentPart = null;
+                foreach ($parts as $part) {
+                    if (str_contains($className, '_'.$part.'_')) {
+                        $currentPart = $part;
+                        break;
+                    }
+                }
+                if ($currentPart === null) {
+                    return [];
+                }
 
-        $set = [];
-        foreach ($parts as $part) {
-            if ($part === $currentPart) {
-                continue;
-            }
-            $candidate = $this->replaceFirst('_'.$currentPart.'_', '_'.$part.'_', $className);
-            $found = ItemData::query()
-                ->where('class_name', $candidate)
-                ->where('game_version_id', $this->resolveGameVersion()->id)
-                ->first();
-            if ($found !== null && $found->item->uuid !== $item->uuid) {
-                $set[] = [
-                    'uuid' => $found->item->uuid,
-                    'name' => $found->name,
-                    'type' => $found->type,
-                    'sub_type' => $found->sub_type,
-                    'classification' => $found->classification,
-                    'link' => $this->makeLink($found->item->uuid),
-                ];
-            }
-        }
+                $set = [];
+                foreach ($parts as $part) {
+                    if ($part === $currentPart) {
+                        continue;
+                    }
+                    $candidate = $this->replaceFirst('_'.$currentPart.'_', '_'.$part.'_', $className);
+                    $found = ItemData::query()
+                        ->where('class_name', $candidate)
+                        ->where('game_version_id', $this->resolveGameVersion()->id)
+                        ->with('item')
+                        ->first();
+                    if ($found !== null && $found->item->uuid !== $item->uuid) {
+                        $set[] = [
+                            'uuid' => $found->item->uuid,
+                            'name' => $found->name,
+                            'type' => $found->type,
+                            'sub_type' => $found->sub_type,
+                            'classification' => $found->classification,
+                            'link' => $this->makeLink($found->item->uuid),
+                        ];
+                    }
+                }
 
-        return $set;
+                return $set;
+            }
+        );
     }
 
     private function toBaseLink(ItemData $it, ?string $setName, bool $includeVariantName): array
@@ -490,7 +507,7 @@ class RelatedItemsBuilder
         return ItemData::query()
             ->where('item_id', $item->getAttribute('id'))
             ->where('game_version_id', $this->resolveGameVersion()->id)
-            ->with('item')
+            ->with(['item', 'gameVersion'])
             ->firstOrFail();
     }
 

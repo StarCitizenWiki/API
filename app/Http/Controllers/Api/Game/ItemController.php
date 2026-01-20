@@ -71,6 +71,13 @@ class ItemController extends Controller
         $versionCode = $this->gameVersionCode();
         $category = $request->route()->defaults['category'] ?? 'items';
 
+        $withRelations = ['item', 'gameVersion', 'manufacturer', 'descriptionData'];
+
+        if (str_contains((string) $request->input('include', ''), 'related_items')) {
+            $withRelations[] = 'variants';
+            $withRelations[] = 'baseVariant';
+        }
+
         return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
@@ -92,7 +99,7 @@ class ItemController extends Controller
             ))
             ->defaultSort('name')
             ->allowedIncludes($this->allowedIncludes())
-            ->with(['item', 'gameVersion']);
+            ->with($withRelations);
     }
 
     /**
@@ -121,19 +128,22 @@ class ItemController extends Controller
      */
     private function allowedFilters(): array
     {
+        $manufacturerFilter = static function (Builder $query, mixed $value): void {
+            $values = is_array($value) ? $value : [$value];
+
+            $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
+                $manufacturerQuery
+                    ->whereIn('name', $values)
+                    ->orWhereIn('code', $values);
+            });
+        };
+
         return [
             AllowedFilter::scope('category'),
             AllowedFilter::exact('type'),
             AllowedFilter::exact('sub_type'),
-            AllowedFilter::callback('manufacturer', static function ($query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-
-                $query->whereHas('manufacturer', static function ($manufacturerQuery) use ($values): void {
-                    $manufacturerQuery
-                        ->whereIn('name', $values)
-                        ->orWhereIn('code', $values);
-                });
-            }),
+            AllowedFilter::callback('manufacturer', $manufacturerFilter),
+            AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
             AllowedFilter::partial('class_name'),
             AllowedFilter::partial('name'),
             AllowedFilter::partial('classification'),
@@ -267,7 +277,7 @@ class ItemController extends Controller
                         ->orWhere('class_name', 'LIKE', "%_{$underscored}");
                 })
                 ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
-                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant'])
+                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData'])
                 ->first();
 
             if ($itemData === null) {
