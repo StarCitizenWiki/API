@@ -46,13 +46,7 @@ class GalactapediaController extends Controller
                 'related_articles_count',
             ])
             ->defaultSort('-id')
-            ->with(['categories', 'tags', 'templates'])
-            ->withCount([
-                'categories',
-                'tags',
-                'templates',
-                'related as related_articles_count',
-            ]);
+            ->with(['categories', 'tags', 'templates']);
     }
 
     #[OA\Get(

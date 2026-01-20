@@ -25,8 +25,11 @@ it('returns galactapedia filter values with counts', function (): void {
 
     $article = Article::factory()->create();
     $article->categories()->attach($category);
+    $article->update(['categories_count' => 1]);
     $article->tags()->attach($tag);
+    $article->update(['tags_count' => 1]);
     $article->templates()->attach($template);
+    $article->update(['templates_count' => 1]);
 
     Article::factory()->create();
 

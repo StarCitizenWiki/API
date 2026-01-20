@@ -110,6 +110,8 @@ QUERY,
         $changes['categories'] = $this->syncCategories($data['categories'] ?? []);
         $changes['tags'] = $this->syncTags($data['tags'] ?? []);
         $changes['related_articles'] = $this->syncRelatedArticles($data['relatedArticles'] ?? []);
+
+        $this->updateCounts();
     }
 
     /**
@@ -228,9 +230,18 @@ QUERY,
         return $this->article->related()->sync($ids);
     }
 
+    private function updateCounts(): void
+    {
+        $this->article->categories_count = $this->article->categories()->count();
+        $this->article->tags_count = $this->article->tags()->count();
+        $this->article->templates_count = $this->article->templates()->count();
+        $this->article->related_articles_count = $this->article->related()->count();
+        $this->article->save();
+    }
+
     /**
      * Checks if an article with a given title exists under multiple ids
-     * if so, the older article will be disabled
+     * if so, older article will be disabled
      */
     private function disableDuplicates(array $data): void
     {

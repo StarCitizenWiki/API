@@ -29,11 +29,19 @@ class Article extends Model
         'disabled',
         'thumbnail',
         'translation',
+        'categories_count',
+        'tags_count',
+        'templates_count',
+        'related_articles_count',
     ];
 
     protected $casts = [
         'in_wiki' => 'boolean',
         'disabled' => 'boolean',
+        'categories_count' => 'int',
+        'tags_count' => 'int',
+        'templates_count' => 'int',
+        'related_articles_count' => 'int',
     ];
 
     private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’', '’', 'ˈ', '`', '´'];
