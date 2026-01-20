@@ -15,7 +15,8 @@ it('dispatches all item import jobs in a single batch', function () {
     Bus::fake();
     Storage::fake('scunpacked');
 
-    $fileCount = 2500; // More than old BATCH_SIZE of 1000
+    $fileCount = 2500;
+    $expectedLoaderCount = (int) ceil($fileCount / 1000);
 
     for ($index = 0; $index < $fileCount; $index++) {
         Storage::disk('scunpacked')->put("items/{$index}.json", '{}');
@@ -29,8 +30,9 @@ it('dispatches all item import jobs in a single batch', function () {
     $method->invoke($command, $gameVersion, true);
 
     Bus::assertBatchCount(1);
-    Bus::assertBatched(function (PendingBatch $batch) use ($fileCount): bool {
-        return $batch->jobs->count() === $fileCount;
+    Bus::assertBatched(function (PendingBatch $batch) use ($expectedLoaderCount): bool {
+        return $batch->jobs->every(fn ($job) => $job instanceof \App\Jobs\Game\AddBatchJobs)
+            && $batch->jobs->count() === $expectedLoaderCount;
     });
 });
 
@@ -38,7 +40,10 @@ it('dispatches compute base ids after all imports', function () {
     Bus::fake();
     Storage::fake('scunpacked');
 
-    for ($index = 0; $index < 100; $index++) {
+    $fileCount = 100;
+    $expectedLoaderCount = (int) ceil($fileCount / 1000);
+
+    for ($index = 0; $index < $fileCount; $index++) {
         Storage::disk('scunpacked')->put("items/{$index}.json", '{}');
     }
 
@@ -47,11 +52,13 @@ it('dispatches compute base ids after all imports', function () {
     $command = new SyncGameData;
     $method = (new ReflectionClass($command))->getMethod('dispatchItemImports');
     $method->setAccessible(true);
-    $method->invoke($command, $gameVersion, false); // Don't skip compute
+    $method->invoke($command, $gameVersion, false);
 
-    Bus::assertBatched(function (PendingBatch $batch): bool {
+    Bus::assertBatched(function (PendingBatch $batch) use ($expectedLoaderCount): bool {
         $callbacks = $batch->thenCallbacks();
 
-        return count($callbacks) === 1 && $batch->jobs->count() === 100;
+        return count($callbacks) === 1
+            && $batch->jobs->count() === $expectedLoaderCount
+            && $batch->jobs->every(fn ($job) => $job instanceof \App\Jobs\Game\AddBatchJobs);
     });
 });

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Jobs\Game\ImportItemData;
-use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -35,10 +33,10 @@ it('runs the full sync flow and dispatches item and vehicle batches', function (
     Artisan::call('game:sync-data', ['--game-version' => '3.23.0']);
 
     Bus::assertBatched(function ($batch): bool {
-        return $batch->jobs->every(fn ($job) => $job instanceof ImportItemData);
+        return $batch->jobs->every(fn ($job) => $job instanceof \App\Jobs\Game\AddBatchJobs);
     });
 
     Bus::assertBatched(function ($batch): bool {
-        return $batch->jobs->every(fn ($job) => $job instanceof ImportVehicleData);
+        return $batch->jobs->every(fn ($job) => $job instanceof \App\Jobs\Game\AddBatchJobs);
     });
 });

@@ -60,3 +60,5 @@ Route::post('/game-version', GameVersionSelectionController::class)
 Route::redirect('/starcitizen/vehicles/ships', '/ship-matrix/vehicles', 301);
 Route::redirect('/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles', 301);
 Route::redirect('/dashboard', '/', 301);
+Route::redirect('/rsi/comm-links/{id}', '/comm-links/{id}', 301);
+Route::redirect('/rsi/comm-links/images/{image}', '/comm-links/images/{image}', 301);

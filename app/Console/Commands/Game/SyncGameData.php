@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Game;
 
+use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportVehicleData;
@@ -38,6 +39,10 @@ class SyncGameData extends Command
      * @var array<int, string>
      */
     protected $aliases = ['game:sync'];
+
+    private const BATCH_SIZE = 1000;
+
+    private const LOADER_BATCH_SIZE = 100;
 
     /**
      * The console command description.
@@ -173,12 +178,31 @@ class SyncGameData extends Command
             return;
         }
 
-        $pendingBatch = Bus::batch($jobs->values());
+        $jobChunks = $jobs->chunk(self::BATCH_SIZE)->values();
+        $loaderJobs = $jobChunks->map(static fn (Collection $chunk): AddBatchJobs => new AddBatchJobs($chunk));
+        $loaderJobChunks = $loaderJobs->chunk(self::LOADER_BATCH_SIZE)->values();
+        $firstLoaderChunk = $loaderJobChunks->shift();
 
-        if ($then !== null) {
-            $pendingBatch->then($then);
+        if ($firstLoaderChunk === null) {
+            return;
         }
 
-        $pendingBatch->dispatch();
+        $pendingBatch = Bus::batch($firstLoaderChunk->values());
+
+        if ($then !== null) {
+            $lastLoaderJob = $loaderJobChunks->isEmpty()
+                ? $firstLoaderChunk->last()
+                : $loaderJobChunks->last()->last();
+
+            if ($lastLoaderJob !== null) {
+                $pendingBatch->then($then);
+            }
+        }
+
+        $batch = $pendingBatch->dispatch();
+
+        $loaderJobChunks->each(static function (Collection $chunk) use ($batch): void {
+            $batch->add($chunk->values());
+        });
     }
 }
