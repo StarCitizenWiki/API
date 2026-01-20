@@ -31,6 +31,8 @@
                 ['title' => 'Name', 'field' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
                 ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
                 ['title' => 'Manufacturer', 'field' => 'manufacturer.name', 'sortField' => 'manufacturer.name', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 180],
+                ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 ['title' => 'Size', 'field' => 'size_class', 'sorter' => 'number', 'sortField' => 'Size', 'headerSort' => true, 'headerFilter' => 'list', 'hozAlign' => 'right', 'width' => 120],
                 [
                     'title' => 'Dimensions',
@@ -93,8 +95,61 @@
                     ],
                 ],
 
-                ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
-                ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
+                [
+                    'title' => 'Cooling',
+                    'columns' => [
+                        [
+                            'title' => 'Segments',
+                            'field' => 'cooling.generation_segments',
+                            'sortField' => 'Cooling.GenerationSegments',
+                        ],
+                        [
+                            'title' => 'Usage (Shields %)',
+                            'field' => 'cooling.usage_shields_pct',
+                            'sortField' => 'Cooling.UsageShieldsPct',
+                            'formatter' => 'progress',
+                            'formatterParams' => [
+                                'min' => 0,
+                                'max' => 1,
+                                'legend' => true,
+                            ],
+                        ],
+                        [
+                            'title' => 'Usage (Quantum %)',
+                            'field' => 'cooling.usage_quantum_pct',
+                            'sortField' => 'Cooling.UsageQuantumPct',
+                            'formatter' => 'progress',
+                            'formatterParams' => [
+                                'min' => 0,
+                                'max' => 1,
+                                'legend' => true,
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'title' => 'Power',
+                    'columns' => [
+                        [
+                            'title' => 'Segments',
+                            'field' => 'power.generation_segments',
+                            'sortField' => 'Power.GenerationSegments',
+                        ],
+                        [
+                            'title' => 'Usage (Shields)',
+                            'field' => 'power.used_segments_shields',
+                            'sortField' => 'Power.UsedSegmentsShields',
+                        ],
+                        [
+                            'title' => 'Usage (Quantum)',
+                            'field' => 'power.used_segments_quantum',
+                            'sortField' => 'Power.UsedSegmentsQuantum',
+                        ],
+                    ],
+                ],
+
+
                 [
                     'title' => 'MSRP', 'field' => 'msrp', 'sortField' => 'msrp', 'headerSort' => true,
                     'formatter' => 'money',

@@ -17,6 +17,8 @@ class VehicleController extends Controller
 
     public function index(Request $request): View
     {
+        $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
+
         $initialTableData = $this->apiJsonRequest->request(route('vehicles.index', [], false), $request);
         $filterPayload = $this->apiJsonRequest->request(route('vehicles.filters', [], false), $request);
 
@@ -25,6 +27,7 @@ class VehicleController extends Controller
         return view('vehicles.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $allowedFilterValues,
+            'initialFilters' => $this->buildInitialFilters($endpointFilters),
         ]);
     }
 
@@ -48,5 +51,70 @@ class VehicleController extends Controller
             'vehicleMeta' => Arr::get($payload, 'meta', []),
             'pageTitle' => Arr::get($vehicleData, 'name', 'Vehicle'),
         ]);
+    }
+
+    private function buildInitialFilters(array $filters): array
+    {
+        if ($filters === []) {
+            return [];
+        }
+
+        $initialFilters = [];
+
+        foreach ($filters as $field => $value) {
+            $initialFilters[] = [
+                'field' => $field,
+                'value' => $value,
+            ];
+        }
+
+        return $initialFilters;
+    }
+
+    private function normalizeFilterParams(mixed $filters): array
+    {
+        if (! is_array($filters) || $filters === []) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($filters as $field => $value) {
+            if (! is_string($field) || $field === '') {
+                continue;
+            }
+
+            $normalizedValue = $this->normalizeFilterValue($value);
+
+            if ($normalizedValue === null) {
+                continue;
+            }
+
+            $normalized[$field] = $normalizedValue;
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeFilterValue(mixed $value): ?string
+    {
+        if (is_array($value)) {
+            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
+            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
+
+            if ($values === []) {
+                return null;
+            }
+
+            return implode(',', $values);
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+
+        return $normalized === '' ? null : $normalized;
     }
 }

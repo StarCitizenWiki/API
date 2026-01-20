@@ -1,13 +1,35 @@
+@php use Illuminate\Support\Str; @endphp
 @extends('layouts.app')
 
 @php
-    $pageTitleDecoded = html_entity_decode(html_entity_decode($pageTitle));
+    $pageTitleDecoded = html_entity_decode($pageTitle);
+
+    $vehicleName = data_get($vehicle, 'name', 'Vehicle');
+    $manufacturerName = data_get($vehicle, 'manufacturer.name');
+    $sizeClass = data_get($vehicle, 'size_class');
+    $career = data_get($vehicle, 'career');
+    $role = data_get($vehicle, 'role');
+    $className = data_get($vehicle, 'class_name');
+    $shipMatrixDescription = data_get($vehicle, 'description.en_EN');
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!} - Star Citizen Vehicle
+    {!! $pageTitleDecoded !!} - {{ $manufacturerName }} - Star Citizen Vehicle
 @endsection
-@section('meta_description', "{$pageTitle} vehicle details.")
+@section('meta_description')
+    {!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}
+@endsection
+
+@section('meta')
+    <meta name="keywords" content="{{ $vehicleName }},{{ $manufacturerName ?? '' }},{{ $sizeClass ? "Size {$sizeClass}" : '' }},{{ $career ?? '' }},{{ $role ?? '' }},Star Citizen,SC">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $vehicleName }} - {{ $manufacturerName ?? '' }} {{ $className ?? '' }}">
+    <meta property="og:description" content="{!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ $vehicleName }} - {{ $manufacturerName ?? '' }}">
+    <meta name="twitter:description" content="{!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}">
+@endsection
+
 
 @section('content')
     @php
@@ -94,7 +116,7 @@
         $components = data_get($vehicle, 'components', []);
 
         $shipMatrixName = data_get($vehicle, 'shipmatrix_name');
-        $shipMatrixDescription = data_get($vehicle, 'description');
+
         $shipMatrixType = data_get($vehicle, 'type');
         $shipMatrixSize = data_get($vehicle, 'size');
         $shipMatrixProductionStatus = data_get($vehicle, 'production_status');
@@ -131,6 +153,9 @@
             <div class="breadcrumbs text-sm text-base-content/70">
                 <ul>
                     <li><a href="{{ route('web.vehicles.index') }}">All Vehicles</a></li>
+                    <li>
+                        <a href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]) }}">{{ $manufacturerName }}</a>
+                    </li>
                     <li>{{ $vehicleName }}</li>
                 </ul>
             </div>
@@ -142,6 +167,13 @@
             </h1>
         </div>
 
+        <x-resource-search
+            title="Search vehicles"
+            description="Find vehicles by name across the universe database."
+            :route="route('web.vehicles.index')"
+            placeholder="Search vehicle names"
+        />
+
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
@@ -152,15 +184,19 @@
                             <dd class="text-sm font-medium">{{ $vehicleName }}</dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Game Name</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Game Name
+                            </dt>
                             <dd class="text-sm font-medium">{{ $gameName ?? '-' }}</dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class Name</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class Name
+                            </dt>
                             <dd class="text-sm font-medium">{{ $className ?? '-' }}</dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Manufacturer</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                Manufacturer
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if ($manufacturerName)
                                     {{ $manufacturerName }}
@@ -173,24 +209,30 @@
                             </dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size Class</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
                             <dd class="text-sm font-medium">{{ $sizeClass ?? '-' }}</dd>
                         </div>
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Career</dt>
                             <dd class="text-sm font-medium">{{ $career ?? '-' }}</dd>
                         </div>
-                        <div class="space-y-1 sm:col-span-2">
+                        <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Role</dt>
                             <dd class="text-sm font-medium">{{ $role ?? '-' }}</dd>
                         </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Flags</dt>
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
                             <dd class="text-sm font-medium">
                                 <div class="flex flex-wrap gap-2">
-                                    <span class="badge badge-outline">Vehicle: {{ $isVehicle ? 'Yes' : 'No' }}</span>
-                                    <span class="badge badge-outline">Gravlev: {{ $isGravlev ? 'Yes' : 'No' }}</span>
-                                    <span class="badge badge-outline">Spaceship: {{ $isSpaceship ? 'Yes' : 'No' }}</span>
+                                    @if($isGravlev)
+                                        Gravlev
+                                    @endif
+                                    @if($isSpaceship)
+                                        Spaceship
+                                    @endif
+                                    @if($isVehicle)
+                                        Ground Vehicle
+                                    @endif
                                 </div>
                             </dd>
                         </div>
@@ -200,10 +242,26 @@
 
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
+                    <h2 class="card-title text-base">Description</h2>
+                    @if ($shipMatrixDescription)
+                        <div class="text-sm text-base-content/80">
+                            {!! nl2br(e($shipMatrixDescription)) !!}
+                        </div>
+                    @else
+                        <div class="text-sm text-base-content/70">No description available.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="card border border-base-200 bg-base-100 shadow-sm">
+                <div class="card-body gap-4">
                     <h2 class="card-title text-base">Dimensions & Mass</h2>
                     <dl class="grid gap-4 sm:grid-cols-2">
                         <div class="space-y-1 sm:col-span-2">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Dimensions</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Dimensions
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if ($length || $width || $height)
                                     {{ $length ?? '-' }} x {{ $width ?? '-' }} x {{ $height ?? '-' }} m
@@ -213,17 +271,22 @@
                             </dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross Section</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross
+                                Section
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if (data_get($crossSection, 'length') || data_get($crossSection, 'width') || data_get($crossSection, 'height'))
-                                    {{ data_get($crossSection, 'length', '-') }} x {{ data_get($crossSection, 'width', '-') }} x {{ data_get($crossSection, 'height', '-') }}
+                                    {{ data_get($crossSection, 'length', '-') }}
+                                    x {{ data_get($crossSection, 'width', '-') }}
+                                    x {{ data_get($crossSection, 'height', '-') }}
                                 @else
                                     -
                                 @endif
                             </dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Total</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Total
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if ($massTotal !== null)
                                     {{ $massTotal }} kg
@@ -233,7 +296,8 @@
                             </dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Hull</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Hull
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if ($massHull !== null)
                                     {{ $massHull }} kg
@@ -243,7 +307,9 @@
                             </dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Loadout</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass
+                                Loadout
+                            </dt>
                             <dd class="text-sm font-medium">
                                 @if ($massLoadout !== null)
                                     {{ $massLoadout }} kg
@@ -255,103 +321,40 @@
                     </dl>
                 </div>
             </div>
-        </div>
-
-        <div class="grid gap-6 lg:grid-cols-2">
-            <div class="card border border-base-200 bg-base-100 shadow-sm">
-                <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Cargo & Crew</h2>
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cargo Capacity</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($cargoCapacity !== null)
-                                    {{ $cargoCapacity }} SCU
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Vehicle Inventory</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($vehicleInventory !== null)
-                                    {{ $vehicleInventory }} SCU
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Crew (Min)</dt>
-                            <dd class="text-sm font-medium">{{ data_get($crew, 'min', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Crew (Max)</dt>
-                            <dd class="text-sm font-medium">{{ data_get($crew, 'max', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Weapon Crew</dt>
-                            <dd class="text-sm font-medium">{{ data_get($crew, 'weapon', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Operation Crew</dt>
-                            <dd class="text-sm font-medium">{{ data_get($crew, 'operation', '-') }}</dd>
-                        </div>
-
-                        <div class="space-y-1 sm:col-span-2">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Inventory Containers</dt>
-                            <dd class="text-sm font-medium">
-                                @if (is_array($inventoryContainers) && $inventoryContainers !== [])
-                                    <pre class="text-xs whitespace-pre-wrap">{{ json_encode($inventoryContainers, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
 
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Defense</h2>
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Health</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($health !== null)
-                                    {{ $health }} HP
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Shield HP</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($shield, 'hp') !== null)
-                                    {{ data_get($shield, 'hp') }} HP
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Shield Face Type</dt>
-                            <dd class="text-sm font-medium">{{ data_get($shield, 'face_type', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Armor Health</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($armor, 'health') !== null)
-                                    {{ data_get($armor, 'health') }} HP
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                    </dl>
+                    <h2 class="card-title text-base">Insurance</h2>
+                    @if ($insurance !== [])
+                        <dl class="grid gap-4 sm:grid-cols-2">
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Claim
+                                    Time
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($insurance, 'claim_time'), 0, '.', ',') }}
+                                    min
+                                </dd>
+                            </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Expedite
+                                    Time
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($insurance, 'expedite_time'), 0, '.', ',') }}
+                                    min
+                                </dd>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Expedite
+                                    Cost
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($insurance, 'expedite_cost'), 0, '.', ',') }}
+                                    aUEC
+                                </dd>
+                            </div>
+                        </dl>
+                    @else
+                        <div class="text-sm text-base-content/70">No insurance data available.</div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -359,68 +362,286 @@
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Flight</h2>
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SCM Speed</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($speed, 'scm') !== null)
-                                    {{ data_get($speed, 'scm') }} m/s
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($speed, 'max') !== null)
-                                    {{ data_get($speed, 'max') }} m/s
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch / Yaw / Roll</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($agility, 'pitch') || data_get($agility, 'yaw') || data_get($agility, 'roll'))
-                                    {{ data_get($agility, 'pitch', '-') }} / {{ data_get($agility, 'yaw', '-') }} / {{ data_get($agility, 'roll', '-') }}
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Acceleration (Main / Retro)</dt>
-                            <dd class="text-sm font-medium">
-                                @if (data_get($agility, 'acceleration.main') !== null || data_get($agility, 'acceleration.retro') !== null)
-                                    {{ data_get($agility, 'acceleration.main', '-') }} / {{ data_get($agility, 'acceleration.retro', '-') }}
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Afterburner Capacitor</dt>
-                            <dd class="text-sm font-medium">{{ data_get($afterburner, 'capacitor', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Capacity</dt>
-                            <dd class="text-sm font-medium">{{ data_get($fuel, 'capacity', '-') }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Quantum Speed</dt>
-                            <dd class="text-sm font-medium">{{ data_get($quantum, 'quantum_speed', data_get($quantum, 'speed', '-')) }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Quantum Range</dt>
-                            <dd class="text-sm font-medium">{{ data_get($quantum, 'quantum_range', data_get($quantum, 'range', '-')) }}</dd>
-                        </div>
-                    </dl>
+                    <h2 class="card-title text-base">Signature</h2>
+                    <p class="grow-0">Signature calculations assume full power usage of all components, even if they exceed the
+                        available power segments.</p>
+                    @if ($signature !== [])
+                        <dl class="grid gap-4 sm:grid-cols-2">
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">IR
+                                    Quantum
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($signature, 'ir_quantum'), 0, '.', ',') }}</dd>
+                            </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">IR
+                                    Shields
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($signature, 'ir_shields'), 0, '.', ',') }}</dd>
+                            </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM
+                                    Quantum
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($signature, 'em_quantum'), 0, '.', ',') }}</dd>
+                            </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM
+                                    Shields
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($signature, 'em_shields'), 0, '.', ',') }}</dd>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Per
+                                    Segment
+                                </dt>
+                                <dd class="text-sm font-medium">{{ number_format(data_get($signature, 'em_per_segment'), 0, '.', ',') }}</dd>
+                            </div>
+                            @if (! empty(data_get($signature, 'em_groups_quantum')))
+                                <div class="space-y-1 sm:col-span-2">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM
+                                        Groups Quantum
+                                    </dt>
+                                    <dd class="text-sm">
+                                        <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                            <input type="checkbox"/>
+                                            <div class="collapse-title text-xs font-medium">View Groups</div>
+                                            <div class="collapse-content p-0">
+                                                <table class="table table-auto w-full">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>System</th>
+                                                        <th>Signature</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (data_get($signature, 'em_groups_quantum') as $system => $group)
+                                                        <tr>
+                                                            <td>{{Str::headline($system)}}</td>
+                                                            <td>{{ number_format($group, 0, '.', ',') }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </div>
+                            @endif
+                            @if (! empty(data_get($signature, 'em_groups_shields')))
+                                <div class="space-y-1 sm:col-span-2">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM
+                                        Groups Shields
+                                    </dt>
+                                    <dd class="text-sm">
+                                        <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                            <input type="checkbox"/>
+                                            <div class="collapse-title text-xs font-medium">View Groups</div>
+                                            <div class="collapse-content p-0">
+                                                <table class="table table-auto w-full">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>System</th>
+                                                        <th>Signature</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (data_get($signature, 'em_groups_shields') as $system => $group)
+                                                        <tr>
+                                                            <td>{{Str::headline($system)}}</td>
+                                                            <td>{{ number_format($group, 0, '.', ',') }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </div>
+                            @endif
+                        </dl>
+                    @else
+                        <div class="text-sm text-base-content/70">No signature data available.</div>
+                    @endif
                 </div>
             </div>
 
+            <div class="card border border-base-200 bg-base-100 shadow-sm">
+                <div class="card-body gap-4">
+                    <h2 class="card-title text-base">Cooling & Power</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="mb-3 text-sm font-semibold">Cooling</h3>
+                            @if ($cooling !== [])
+                                <dl class="grid gap-4 sm:grid-cols-2">
+                                    <div class="space-y-1 col-span-2">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Generation Segments
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($cooling, 'generation_segments'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Usage (Shields)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($cooling, 'usage_shields_pct') * 100, 1, '.', ',') }}
+                                            %
+                                        </dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Usage (Quantum)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($cooling, 'usage_quantum_pct') * 100, 1, '.', ',') }}
+                                            %
+                                        </dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Used Segments (Shields)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($cooling, 'used_segments_shields'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Used Segments (Quantum)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($cooling, 'used_segments_quantum'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    @if (! empty(data_get($cooling, 'used_segments_shields_grouped')))
+                                        <div class="space-y-1 sm:col-span-2">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                Used Segments Shields
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                                    <input type="checkbox"/>
+                                                    <div class="collapse-title text-xs font-medium">View Groups</div>
+                                                    <div class="collapse-content p-0">
+                                                        <table class="table table-auto w-full">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>System</th>
+                                                                <th>Used Segments</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (data_get($cooling, 'used_segments_shields_grouped') as $system => $group)
+                                                                <tr>
+                                                                    <td>{{Str::headline($system)}}</td>
+                                                                    <td>{{ number_format($group, 0, '.', ',') }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+                                    @endif
+                                    @if (! empty(data_get($cooling, 'used_segments_quantum_grouped')))
+                                        <div class="space-y-1 sm:col-span-2">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                Used Segments Quantum
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                                    <input type="checkbox"/>
+                                                    <div class="collapse-title text-xs font-medium">View Groups</div>
+                                                    <div class="collapse-content p-0">
+                                                        <table class="table table-auto w-full">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>System</th>
+                                                                <th>Used Segments</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (data_get($cooling, 'used_segments_quantum_grouped') as $system => $group)
+                                                                <tr>
+                                                                    <td>{{Str::headline($system)}}</td>
+                                                                    <td>{{ number_format($group, 0, '.', ',') }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+                                    @endif
+                                </dl>
+                            @else
+                                <div class="text-sm text-base-content/70">No cooling data available.</div>
+                            @endif
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div>
+                            <h3 class="mb-3 text-sm font-semibold">Power</h3>
+                            @if ($power !== [])
+                                <dl class="grid gap-4 sm:grid-cols-2">
+                                    <div class="space-y-1 col-span-2">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Generation Segments
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($power, 'generation_segments'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Used Segments (Shields)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($power, 'used_segments_shields'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                            Used Segments (Quantum)
+                                        </dt>
+                                        <dd class="text-sm font-medium">{{ number_format(data_get($power, 'used_segments_quantum'), 0, '.', ',') }}</dd>
+                                    </div>
+                                    @if (! empty(data_get($power, 'used_segments_grouped')))
+                                        <div class="space-y-1 sm:col-span-2">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                Used Segments
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                                    <input type="checkbox"/>
+                                                    <div class="collapse-title text-xs font-medium">View Groups</div>
+                                                    <div class="collapse-content p-0">
+                                                        <table class="table table-auto w-full">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>System</th>
+                                                                <th>Used Segments</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (data_get($power, 'used_segments_grouped') as $system => $group)
+                                                                <tr>
+                                                                    <td>{{$system}}</td>
+                                                                    <td>{{ number_format($group, 0, '.', ',') }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+                                    @endif
+                                </dl>
+                            @else
+                                <div class="text-sm text-base-content/70">No power data available.</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">Systems</h2>
@@ -436,7 +657,7 @@
                         <div class="grid gap-3 md:grid-cols-2">
                             @foreach ($systemEntries as $label => $payload)
                                 <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                                    <input type="checkbox" />
+                                    <input type="checkbox"/>
                                     <div class="collapse-title text-sm font-semibold">{{ $label }}</div>
                                     <div class="collapse-content">
                                         <pre class="text-xs whitespace-pre-wrap">{{ $payload }}</pre>
@@ -449,9 +670,7 @@
                     @endif
                 </div>
             </div>
-        </div>
 
-        <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">Ports & Hardpoints</h2>
@@ -462,45 +681,58 @@
                         <div class="space-y-3">
                             @foreach ($portEntries as $port)
                                 <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                                    <input type="checkbox" />
+                                    <input type="checkbox"/>
                                     <div class="collapse-title text-sm font-semibold">
                                         {{ $port['name'] ?? 'Port' }}
                                         @if (! empty($port['position']))
-                                            <span class="ml-2 text-xs font-normal text-base-content/60">{{ $port['position'] }}</span>
+                                            <span
+                                                class="ml-2 text-xs font-normal text-base-content/60">{{ $port['position'] }}</span>
                                         @endif
                                     </div>
                                     <div class="collapse-content">
                                         <dl class="grid gap-3 sm:grid-cols-2">
                                             <div class="space-y-1">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Type
+                                                </dt>
                                                 <dd class="text-sm">{{ $port['type'] ?? '-' }}</dd>
                                             </div>
                                             <div class="space-y-1">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Subtype</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Subtype
+                                                </dt>
                                                 <dd class="text-sm">{{ $port['subtype'] ?? '-' }}</dd>
                                             </div>
                                             <div class="space-y-1">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Size
+                                                </dt>
                                                 <dd class="text-sm">
                                                     @if (! empty($port['sizes']))
-                                                        {{ $port['sizes']['min'] ?? '-' }} - {{ $port['sizes']['max'] ?? '-' }}
+                                                        {{ $port['sizes']['min'] ?? '-' }}
+                                                        - {{ $port['sizes']['max'] ?? '-' }}
                                                     @else
                                                         -
                                                     @endif
                                                 </dd>
                                             </div>
                                             <div class="space-y-1">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Health</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Health
+                                                </dt>
                                                 <dd class="text-sm">{{ $port['health'] ?? '-' }}</dd>
                                             </div>
                                             <div class="space-y-1 sm:col-span-2">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Equipped Item</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Equipped Item
+                                                </dt>
                                                 <dd class="text-sm">
                                                     @if (! empty($port['equipped_item']))
                                                         <div class="flex items-center gap-2">
                                                             <span>{{ $port['equipped_item']['name'] ?? '-' }}</span>
                                                             @if (! empty($port['equipped_item']['uuid']))
-                                                                <a href="{{ route('web.items.show', $port['equipped_item']['uuid']) }}" class="link link-primary">View</a>
+                                                                <a href="{{ route('web.items.show', $port['equipped_item']['uuid']) }}"
+                                                                   class="link link-primary">View</a>
                                                             @endif
                                                         </div>
                                                     @else
@@ -509,7 +741,9 @@
                                                 </dd>
                                             </div>
                                             <div class="space-y-1 sm:col-span-2">
-                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Child Ports</dt>
+                                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                    Child Ports
+                                                </dt>
                                                 <dd class="text-sm">
                                                     @if (! empty($port['ports']))
                                                         {{ count($port['ports']) }}
@@ -528,7 +762,9 @@
                     @endif
                 </div>
             </div>
+        </div>
 
+        <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">Cargo Grids</h2>
@@ -541,8 +777,6 @@
                                     <th>SCU</th>
                                     <th>Capacity</th>
                                     <th>Flags</th>
-                                    <th>Min Size</th>
-                                    <th>Max Size</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -559,29 +793,18 @@
                                         <td>
                                             <div class="flex flex-wrap gap-1">
                                                 @if (array_key_exists('is_open', $grid))
-                                                    <span class="badge badge-outline text-sm text-nowrap">Open: {{ $grid['is_open'] ? 'Yes' : 'No' }}</span>
+                                                    <span
+                                                        class="badge badge-outline text-sm text-nowrap">Open: {{ $grid['is_open'] ? 'Yes' : 'No' }}</span>
                                                 @endif
                                                 @if (array_key_exists('is_external', $grid))
-                                                    <span class="badge badge-outline text-sm text-nowrap">External: {{ $grid['is_external'] ? 'Yes' : 'No' }}</span>
+                                                    <span
+                                                        class="badge badge-outline text-sm text-nowrap">External: {{ $grid['is_external'] ? 'Yes' : 'No' }}</span>
                                                 @endif
                                                 @if (array_key_exists('is_closed', $grid))
-                                                    <span class="badge badge-outline text-sm text-nowrap">Closed: {{ $grid['is_closed'] ? 'Yes' : 'No' }}</span>
+                                                    <span
+                                                        class="badge badge-outline text-sm text-nowrap">Closed: {{ $grid['is_closed'] ? 'Yes' : 'No' }}</span>
                                                 @endif
                                             </div>
-                                        </td>
-                                        <td>
-                                            @if (! empty($grid['min_size']))
-                                                {{ $grid['min_size']['x'] ?? '-' }} x {{ $grid['min_size']['y'] ?? '-' }} x {{ $grid['min_size']['z'] ?? '-' }}
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (! empty($grid['max_size']))
-                                                {{ $grid['max_size']['x'] ?? '-' }} x {{ $grid['max_size']['y'] ?? '-' }} x {{ $grid['max_size']['z'] ?? '-' }}
-                                            @else
-                                                -
-                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -593,9 +816,7 @@
                     @endif
                 </div>
             </div>
-        </div>
 
-        <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">Parts</h2>
@@ -633,7 +854,10 @@
                     @endif
                 </div>
             </div>
+        </div>
 
+
+        <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">Turrets</h2>
@@ -695,73 +919,76 @@
                     </div>
                 </div>
             </div>
+
+            @if ($shipMatrixName || $shipMatrixDescription || $shipMatrixType || $shipMatrixSize || $shipMatrixProductionStatus)
+                <div class="card border border-base-200 bg-base-100 shadow-sm">
+                    <div class="card-body gap-4">
+                        <h2 class="card-title text-base">Ship Matrix</h2>
+                        <dl class="grid gap-4 sm:grid-cols-2">
+
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">MSRP</dt>
+                                <dd class="text-sm font-medium">{{ $shipMatrixMsrp ?? '-' }}$</dd>
+                            </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pledge URL
+                                </dt>
+                                <dd class="text-sm font-medium">
+                                    @if ($shipMatrixPledgeUrl)
+                                        <a href="{{ $shipMatrixPledgeUrl }}" class="link link-primary">View</a>
+                                    @else
+                                        -
+                                    @endif
+                                </dd>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Loaner</dt>
+                                <dd class="text-sm font-medium">
+                                    @if (is_array($shipMatrixLoaner) && $shipMatrixLoaner !== [])
+                                        <div class="flex flex-wrap gap-2">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>View</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach ($shipMatrixLoaner as $loaner)
+                                                    <tr>
+                                                        <td class="whitespace-nowrap">{{ $loaner['name'] ?? '-' }}</td>
+
+
+                                                        <td><a href="{{ $loaner['link'] }}"
+                                                               class="link link-primary">View</a></td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        -
+                                    @endif
+                                </dd>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SKUs</dt>
+                                <dd class="text-sm font-medium">
+                                    @if (is_array($shipMatrixSkus) && $shipMatrixSkus !== [])
+                                        <pre
+                                            class="text-xs whitespace-pre-wrap">{{ json_encode($shipMatrixSkus, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                                    @else
+                                        -
+                                    @endif
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            @endif
         </div>
 
 
-
-        @if ($shipMatrixName || $shipMatrixDescription || $shipMatrixType || $shipMatrixSize || $shipMatrixProductionStatus)
-            <div class="card border border-base-200 bg-base-100 shadow-sm">
-                <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Ship Matrix</h2>
-                    <dl class="grid gap-4 sm:grid-cols-2">
-
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">MSRP</dt>
-                            <dd class="text-sm font-medium">{{ $shipMatrixMsrp ?? '-' }}$</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pledge URL</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($shipMatrixPledgeUrl)
-                                    <a href="{{ $shipMatrixPledgeUrl }}" class="link link-primary">View</a>
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Loaner</dt>
-                            <dd class="text-sm font-medium">
-                                @if (is_array($shipMatrixLoaner) && $shipMatrixLoaner !== [])
-                                    <div class="flex flex-wrap gap-2">
-                                        <table class="table table-sm">
-                                            <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>View</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach ($shipMatrixLoaner as $loaner)
-                                                <tr>
-                                                    <td class="whitespace-nowrap">{{ $loaner['name'] ?? '-' }}</td>
-
-
-                                                    <td><a href="{{ $loaner['link'] }}" class="link link-primary">View</a></td>
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SKUs</dt>
-                            <dd class="text-sm font-medium">
-                                @if (is_array($shipMatrixSkus) && $shipMatrixSkus !== [])
-                                    <pre class="text-xs whitespace-pre-wrap">{{ json_encode($shipMatrixSkus, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
-        @endif
 
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">
@@ -773,7 +1000,9 @@
                             <dd class="text-sm font-medium">{{ $uuid ?? '-' }}</dd>
                         </div>
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version Code</dt>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version
+                                Code
+                            </dt>
                             <dd class="text-sm font-medium">{{ $version ?? '-' }}</dd>
                         </div>
                         <div class="space-y-1 sm:col-span-2">
@@ -804,7 +1033,7 @@
                 <div class="card-body gap-4">
                     <h2 class="card-title text-base">All Data</h2>
                     <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                        <input type="checkbox" />
+                        <input type="checkbox"/>
                         <div class="collapse-title text-sm font-semibold">Raw Vehicle Payload</div>
                         <div class="collapse-content">
                             <pre class="text-xs whitespace-pre-wrap">{{ $rawVehicleJson }}</pre>

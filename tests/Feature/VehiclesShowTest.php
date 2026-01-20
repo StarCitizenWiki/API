@@ -107,5 +107,10 @@ it('renders the vehicle show view with api data', function (): void {
         ->assertSee('Overview')
         ->assertSee('Ports & Hardpoints', false)
         ->assertSee('Nose cap')
-        ->assertSee('All Data');
+        ->assertSee('All Data')
+        ->assertSee('<meta name="keywords" content="Test Vehicle,Aegis Dynamics,Size 3,Exploration,Scout,Star Citizen,SC">', false)
+        ->assertSee('<meta property="og:type" content="website">', false)
+        ->assertSee('<meta property="og:title" content="Test Vehicle - Aegis Dynamics TEST_VEHICLE">', false)
+        ->assertSee('<meta name="twitter:card" content="summary">', false)
+        ->assertSee('<meta name="twitter:title" content="Test Vehicle - Aegis Dynamics">', false);
 });

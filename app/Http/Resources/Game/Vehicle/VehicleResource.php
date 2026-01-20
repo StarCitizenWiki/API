@@ -25,11 +25,11 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'uuid', type: 'string', example: 'b5892cde-e805-4626-94a2-89fdf6eedc1c'),
         new OA\Property(property: 'name', type: 'string', example: 'Avenger Titan'),
-        new OA\Property(property: 'display_name', type: 'string', example: 'Avenger Titan', nullable: true),
+        new OA\Property(property: 'game_name', type: 'string', example: 'AEGS_Avenger_Titan', nullable: true),
         new OA\Property(property: 'slug', type: 'string', example: 'avenger-titan'),
         new OA\Property(property: 'class_name', type: 'string', example: 'AEGS_Avenger_Titan'),
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
-        new OA\Property(property: 'size', type: 'integer', example: 2, nullable: true),
+        new OA\Property(property: 'size_class', type: 'integer', example: 2, nullable: true),
         new OA\Property(
             property: 'dimension',
             properties: [
@@ -44,28 +44,72 @@ use OpenApi\Attributes as OA;
             description: 'Deprecated, use dimension instead.',
             properties: [
                 new OA\Property(property: 'length', type: 'number', example: 18.0),
-                new OA\Property(property: 'width', type: 'number', example: 16.0),
+                new OA\Property(property: 'beam', type: 'number', example: 16.0),
                 new OA\Property(property: 'height', type: 'number', example: 5.0),
             ],
             type: 'object',
             deprecated: true
         ),
-        new OA\Property(property: 'mass', type: 'number', example: 53531.0, nullable: true),
-        new OA\Property(property: 'cargo_capacity', type: 'number', example: 8, nullable: true, deprecated: true),
-        new OA\Property(property: 'cargo_scu', type: 'number', example: 8, nullable: true),
+        new OA\Property(property: 'emission', description: 'Deprecated, use signature instead. Emission.ir currently maps to IR with shields active. Emission.em_max maps to EM Signature with quantum drive active. Emission.em_idle maps to EM Signature with shields active.', properties: [
+            new OA\Property(property: 'ir', type: 'number', example: 4412, nullable: true),
+            new OA\Property(property: 'em_idle', type: 'number', example: 14320, nullable: true),
+            new OA\Property(property: 'em_max', type: 'number', example: 30458, nullable: true),
+        ], type: 'object', nullable: true, deprecated: true),
+        new OA\Property(property: 'mass', type: 'number', example: 53531.0, nullable: true, description: 'Deprecated, use mass_total instead. Mass is equal to mass_hull.'),
+        new OA\Property(property: 'mass_hull', type: 'number', example: 53531.0, nullable: true),
+        new OA\Property(property: 'mass_loadout', type: 'number', example: 0, nullable: true),
+        new OA\Property(property: 'mass_total', type: 'number', example: 53531.0, nullable: true),
+        new OA\Property(property: 'cargo_capacity', type: 'number', example: 8, nullable: true),
         new OA\Property(
             property: 'cargo_grids',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_cargo_grid'),
             nullable: true
         ),
-        new OA\Property(property: 'crew', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'cargo_limits', description: 'Calculated cargo size limits based on grid dimensions.', properties: [
+            new OA\Property(property: 'min', properties: [
+                new OA\Property(property: 'x', type: 'number', example: 1.25, nullable: true),
+                new OA\Property(property: 'y', type: 'number', example: 1.25, nullable: true),
+                new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
+            ], type: 'object', nullable: true),
+            new OA\Property(property: 'max', properties: [
+                new OA\Property(property: 'x', type: 'number', example: 2.5, nullable: true),
+                new OA\Property(property: 'y', type: 'number', example: 2.5, nullable: true),
+                new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
+            ], type: 'object', nullable: true),
+        ], type: 'object', nullable: true),
+        new OA\Property(property: 'vehicle_inventory', type: 'number', example: 0, nullable: true),
+        new OA\Property(property: 'inventory_containers', type: 'object', example: ['Container' => []], nullable: true),
+        new OA\Property(
+            property: 'crew',
+            properties: [
+                new OA\Property(property: 'min', type: 'integer', example: 1, nullable: true),
+                new OA\Property(property: 'max', type: 'integer', example: 1, nullable: true),
+                new OA\Property(property: 'weapon', type: 'integer', example: 1, nullable: true),
+                new OA\Property(property: 'operation', type: 'integer', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
         new OA\Property(property: 'is_vehicle', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'health', type: 'number', example: 2500, nullable: true),
-        new OA\Property(property: 'shield_hp', type: 'number', example: 12000, nullable: true),
-        new OA\Property(property: 'shield_face_type', type: 'string', example: 'FourFaces', nullable: true),
+        new OA\Property(property: 'shield_hp', type: 'number', example: 12000, nullable: true, deprecated: true, description: 'Use shield.hp property instead.'),
+        new OA\Property(property: 'shield_face_type', type: 'string', example: 'FourFaces', nullable: true, deprecated: true, description: 'Use shield.face_type property instead.'),
+        new OA\Property(
+            property: 'shield',
+            properties: [
+                new OA\Property(property: 'hp', type: 'number', example: 12000, nullable: true),
+                new OA\Property(property: 'regeneration', type: 'number', example: 50, nullable: true),
+                new OA\Property(property: 'face_type', type: 'string', example: 'FourFaces', nullable: true),
+                new OA\Property(property: 'max_reallocation', type: 'number', example: 0.5, nullable: true),
+                new OA\Property(property: 'reconfiguration_cooldown', type: 'number', example: 2.0, nullable: true),
+                new OA\Property(property: 'max_electrical_charge_damage_rate', type: 'number', example: 100, nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
         new OA\Property(
             property: 'speed',
             properties: [
@@ -87,6 +131,9 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'pitch', type: 'number', example: 52.5, nullable: true),
                 new OA\Property(property: 'yaw', type: 'number', example: 48.5, nullable: true),
                 new OA\Property(property: 'roll', type: 'number', example: 180, nullable: true),
+                new OA\Property(property: 'pitch_boosted', type: 'number', example: 63, nullable: true),
+                new OA\Property(property: 'yaw_boosted', type: 'number', example: 58.2, nullable: true),
+                new OA\Property(property: 'roll_boosted', type: 'number', example: 216, nullable: true),
                 new OA\Property(property: 'acceleration', properties: [
                     new OA\Property(property: 'main', type: 'number', example: 127.339, nullable: true),
                     new OA\Property(property: 'retro', type: 'number', example: 0.041, nullable: true),
@@ -103,13 +150,16 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'afterburner',
-            description: 'Afterburner capacitor and timing straight from FlightCharacteristics.Afterburner.',
+            description: 'Afterburner properties from FlightCharacteristics.Afterburner.',
             properties: [
+                new OA\Property(property: 'pitch_boost_multiplier', type: 'number', example: 1.2, nullable: true),
+                new OA\Property(property: 'roll_boost_multiplier', type: 'number', example: 1.2, nullable: true),
+                new OA\Property(property: 'yaw_boost_multiplier', type: 'number', example: 1.2, nullable: true),
                 new OA\Property(property: 'capacitor', type: 'number', example: 20, nullable: true),
                 new OA\Property(property: 'idle_cost', type: 'number', example: 1, nullable: true),
                 new OA\Property(property: 'linear_cost', type: 'number', example: 0, nullable: true),
                 new OA\Property(property: 'angular_cost', type: 'number', example: 0, nullable: true),
-                new OA\Property(property: 'regen_per_sec', type: 'number', example: 0.75, nullable: true),
+                new OA\Property(property: 'regen_per_second', type: 'number', example: 0.75, nullable: true),
                 new OA\Property(property: 'regen_delay_after_use', type: 'number', example: 0.2, nullable: true),
                 new OA\Property(property: 'pre_delay_time', type: 'number', example: 0, nullable: true),
                 new OA\Property(property: 'ramp_up_time', type: 'number', example: 0.4, nullable: true),
@@ -141,10 +191,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'quantum',
             properties: [
-                new OA\Property(property: 'speed', type: 'number', example: 165000000),
-                new OA\Property(property: 'spool_time', type: 'number', example: 4),
-                new OA\Property(property: 'fuel_capacity', type: 'number', example: 1.1, nullable: true),
-                new OA\Property(property: 'range', type: 'number', example: 112244897.9592, nullable: true),
+                new OA\Property(property: 'quantum_speed', type: 'number', example: 165000000, nullable: true),
+                new OA\Property(property: 'quantum_spool_time', type: 'number', example: 4, nullable: true),
+                new OA\Property(property: 'quantum_fuel_capacity', type: 'number', example: 1.1, nullable: true),
+                new OA\Property(property: 'quantum_range', type: 'number', example: 112244897.9592, nullable: true),
                 new OA\Property(property: 'port_olisar_to_arccorp_time', type: 'number', example: 254.105158, nullable: true),
                 new OA\Property(property: 'port_olisar_to_arccorp_fuel', type: 'number', example: 410.888040486, nullable: true),
             ],
@@ -152,35 +202,40 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
-            property: 'inventory',
-            properties: [
-                new OA\Property(property: 'personal', type: 'number', example: 0.25, nullable: true),
-                new OA\Property(property: 'vehicle', type: 'number', example: 1, nullable: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'em_signature',
-            properties: [
-                new OA\Property(property: 'infrared', type: 'number', example: 4412),
-                new OA\Property(property: 'em_quantum', description: 'EM Signature with quantum drive active', type: 'number', example: 30458),
-                new OA\Property(property: 'em_shields', description: 'EM Signature with shields active', type: 'number', example: 14320),
-                new OA\Property(property: 'electromagnetic', description: 'Deprecated, use armor.signal.electromagnetic instead.', type: 'number', example: 1, deprecated: true),
-                new OA\Property(property: 'cross_section', description: 'Deprecated, use armor.signal.cross_section instead.', type: 'number', example: 1, deprecated: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
             property: 'armor',
             properties: [
-                new OA\Property(property: 'physical', type: 'number', example: 0.62, nullable: true),
-                new OA\Property(property: 'energy', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'distortion', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'thermal', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'biochemical', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'stun', type: 'number', example: 0, nullable: true),
+                new OA\Property(property: 'uuid', type: 'string', example: 'armor-uuid', nullable: true),
+                new OA\Property(property: 'health', type: 'number', example: 1000, nullable: true),
+                new OA\Property(property: 'signal_infrared', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'signal_electromagnetic', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'signal_cross_section', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'damage_physical', type: 'number', example: 0.62, nullable: true),
+                new OA\Property(property: 'damage_energy', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'damage_distortion', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'damage_thermal', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'damage_biochemical', type: 'number', example: 1, nullable: true),
+                new OA\Property(property: 'damage_stun', type: 'number', example: 0, nullable: true),
+                new OA\Property(property: 'signal_multipliers', properties: [
+                    new OA\Property(property: 'cross_section', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'infrared', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'electromagnetic', type: 'number', example: 1, nullable: true),
+                ], type: 'object', nullable: true),
+                new OA\Property(property: 'damage_multipliers', properties: [
+                    new OA\Property(property: 'physical', type: 'number', example: 0.62, nullable: true),
+                    new OA\Property(property: 'energy', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'distortion', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'thermal', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'biochemical', type: 'number', example: 1, nullable: true),
+                    new OA\Property(property: 'stun', type: 'number', example: 0, nullable: true),
+                ], type: 'object', nullable: true),
+                new OA\Property(property: 'resistance_multipliers', properties: [
+                    new OA\Property(property: 'physical', type: 'number', example: 0.001, nullable: true),
+                    new OA\Property(property: 'energy', type: 'number', example: 0.001, nullable: true),
+                    new OA\Property(property: 'distortion', type: 'number', example: 0.001, nullable: true),
+                    new OA\Property(property: 'thermal', type: 'number', example: 0.001, nullable: true),
+                    new OA\Property(property: 'biochemical', type: 'number', example: 0.001, nullable: true),
+                    new OA\Property(property: 'stun', type: 'number', example: 0.001, nullable: true),
+                ], type: 'object', nullable: true),
                 new OA\Property(property: 'penetration_resistance', properties: [
                     new OA\Property(property: 'base', type: 'number', example: 0.001, nullable: true),
                     new OA\Property(property: 'physical', type: 'number', example: 0.001, nullable: true),
@@ -189,12 +244,7 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'thermal', type: 'number', example: 0.001, nullable: true),
                     new OA\Property(property: 'biochemical', type: 'number', example: 0.001, nullable: true),
                     new OA\Property(property: 'stun', type: 'number', example: 0.001, nullable: true),
-                ]),
-                new OA\Property(property: 'signal', properties: [
-                    new OA\Property(property: 'infrared', type: 'number', example: 1),
-                    new OA\Property(property: 'electromagnetic', type: 'number', example: 1),
-                    new OA\Property(property: 'cross_section', type: 'number', example: 1),
-                ]),
+                ], type: 'object', nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -202,9 +252,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'insurance',
             properties: [
-                new OA\Property(property: 'standard_claim_time', type: 'number', example: 4.05, nullable: true),
-                new OA\Property(property: 'expedited_claim_time', type: 'number', example: 1.35, nullable: true),
-                new OA\Property(property: 'expedited_cost', type: 'number', example: 2343, nullable: true),
+                new OA\Property(property: 'claim_time', type: 'number', example: 4.05, nullable: true),
+                new OA\Property(property: 'expedite_time', type: 'number', example: 1.35, nullable: true),
+                new OA\Property(property: 'expedite_cost', type: 'number', example: 2343, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -252,21 +302,77 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
-            property: 'item_description_data',
-            description: 'Description data from the vehicle\'s ItemData. Returns null when no matching ItemData exists.',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/item_description_data'),
+            property: 'cross_section',
+            description: 'Vehicle cross-section dimensions',
+            properties: [
+                new OA\Property(property: 'length', type: 'number', example: 18.0, nullable: true),
+                new OA\Property(property: 'width', type: 'number', example: 16.0, nullable: true),
+                new OA\Property(property: 'height', type: 'number', example: 5.0, nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(property: 'is_vehicle', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
+        new OA\Property(
+            property: 'signature',
+            description: 'EM and IR signature data',
+            properties: [
+                new OA\Property(property: 'ir_quantum', type: 'number', example: 4412, nullable: true),
+                new OA\Property(property: 'ir_shields', type: 'number', example: 14320, nullable: true),
+                new OA\Property(property: 'em_quantum', type: 'number', example: 30458, nullable: true),
+                new OA\Property(property: 'em_shields', type: 'number', example: 14320, nullable: true),
+                new OA\Property(property: 'em_groups_quantum', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+                new OA\Property(property: 'em_groups_shields', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+                new OA\Property(property: 'em_segment_groups_quantum', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+                new OA\Property(property: 'em_segment_groups_shields', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+                new OA\Property(property: 'em_per_segment', type: 'number', nullable: true),
+            ],
+            type: 'object',
             nullable: true
         ),
         new OA\Property(
-            property: 'description_data',
-            description: 'Key/value pairs parsed from the description block in the game files.',
+            property: 'cooling',
+            description: 'Cooling system data',
+            properties: [
+                new OA\Property(property: 'generation_segments', type: 'number', nullable: true),
+                new OA\Property(property: 'usage_shields_pct', type: 'number', nullable: true),
+                new OA\Property(property: 'usage_quantum_pct', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_shields', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_quantum', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_shields_grouped', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+                new OA\Property(property: 'used_segments_quantum_grouped', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+            ],
             type: 'object',
-            example: ['Manufacturer' => 'Aegis Dynamics', 'Focus' => 'Light Freight'],
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'power',
+            description: 'Power system data',
+            properties: [
+                new OA\Property(property: 'generation_segments', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_shields', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_quantum', type: 'number', nullable: true),
+                new OA\Property(property: 'used_segments_grouped', type: 'array', items: new OA\Items(type: 'number'), nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'penetration_multiplier',
+            description: 'Penetration multiplier data',
+            properties: [
+                new OA\Property(property: 'fuse', type: 'number', nullable: true),
+                new OA\Property(property: 'components', type: 'number', nullable: true),
+            ],
+            type: 'object',
             nullable: true
         ),
         new OA\Property(property: 'career', type: 'string', example: 'Light Freight', nullable: true),
         new OA\Property(property: 'role', type: 'string', example: 'Combat', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', example: 'https://example.com/vehicles/uuid', nullable: true),
+        new OA\Property(property: 'link', type: 'string', example: 'https://api.example.com/vehicles/uuid'),
         new OA\Property(property: 'description', type: 'string', nullable: true),
         new OA\Property(
             property: 'id',
@@ -315,12 +421,6 @@ use OpenApi\Attributes as OA;
             property: 'shipmatrix_description',
             ref: '#/components/schemas/translation',
             description: 'Ship-Matrix vehicle description',
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'size_name',
-            ref: '#/components/schemas/translation',
-            description: 'Ship-Matrix size name (Small, Medium, Large, etc.)',
             nullable: true
         ),
         new OA\Property(
@@ -435,9 +535,9 @@ class VehicleResource extends AbstractBaseResource
 
             'mass' => $vehicleData->mass ?? Arr::get($payload, 'Mass'),
 
-            'mass_hull' => $this->roundNullable($vehicleData->mass_vehicle ?? Arr::get($payload, 'Mass')),
-            'mass_loadout' => $this->roundNullable($vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout')),
-            'mass_total' => $this->roundNullable($vehicleData->mass_total ?? Arr::get($payload, 'MassTotal')),
+            'mass_hull' => $vehicleData->mass_vehicle ?? Arr::get($payload, 'Mass'),
+            'mass_loadout' => $vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout'),
+            'mass_total' => $vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'),
 
             'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
             'cargo_grids' => $cargoGrids,
@@ -445,7 +545,7 @@ class VehicleResource extends AbstractBaseResource
                 ! empty($cargoLimits),
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
-            'vehicle_inventory' => round(Arr::get($payload, 'Stowage', 0), 2),
+            'vehicle_inventory' => Arr::get($payload, 'Stowage', 0),
             'inventory_containers' => Arr::get($payload, 'InventoryContainers'),
 
             'crew' => [
@@ -455,14 +555,14 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => null, // TODO
             ],
 
-            'health' => round(Arr::get($payload, 'Health', 0)),
+            'health' => Arr::get($payload, 'Health', 0),
 
             'shield_hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
             'shield_face_type' => Arr::get($payload, 'ShieldController.FaceType'),
 
             'shield' => [
-                'hp' => round(Arr::get($payload, 'ShieldsTotal.Hp', 0)),
-                'regeneration' => $this->roundNullable(Arr::get($payload, 'ShieldsTotal.Regen')),
+                'hp' => Arr::get($payload, 'ShieldsTotal.Hp', 0),
+                'regeneration' => Arr::get($payload, 'ShieldsTotal.Regen'),
                 'face_type' => Arr::get($payload, 'ShieldController.FaceType'),
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
@@ -571,18 +671,21 @@ class VehicleResource extends AbstractBaseResource
 
             'cooling' => [
                 'generation_segments' => Arr::get($payload, 'Cooling.GenerationSegments'),
-                'usage_shields_pct' => Arr::get($payload, 'Cooling.UsageShieldsPct'),
-                'usage_quantum_pct' => Arr::get($payload, 'Cooling.UsageQuantumPct'),
+                'usage_shields_pct' => Arr::get($payload, 'Cooling.UsedSegmentsShieldsPct'),
+                'usage_quantum_pct' => Arr::get($payload, 'Cooling.UsedSegmentsQuantumPct'),
 
                 'used_segments_shields' => Arr::get($payload, 'Cooling.UsedSegmentsShields'),
                 'used_segments_quantum' => Arr::get($payload, 'Cooling.UsedSegmentsQuantum'),
+
+                'used_segments_shields_grouped' => Arr::get($payload, 'Cooling.UsedSegmentsShieldsGrouped'),
+                'used_segments_quantum_grouped' => Arr::get($payload, 'Cooling.UsedSegmentsQuantumGrouped'),
             ],
 
             'power' => [
+                'generation_segments' => Arr::get($payload, 'Power.GenerationSegments'),
                 'used_segments_shields' => Arr::get($payload, 'Power.UsedSegmentsShields'),
                 'used_segments_quantum' => Arr::get($payload, 'Power.UsedSegmentsQuantum'),
-                'generation_segments' => Arr::get($payload, 'Power.GenerationSegments'),
-                'usage' => Arr::get($payload, 'Power.Usage'),
+                'used_segments_grouped' => Arr::get($payload, 'Power.UsedSegmentsGrouped'),
             ],
 
             'penetration_multiplier' => [
@@ -638,10 +741,10 @@ class VehicleResource extends AbstractBaseResource
             'max' => Arr::get($flight, 'Speeds.Max'),
             'boost_forward' => Arr::get($flight, 'Speeds.BoostForward'),
             'boost_backward' => Arr::get($flight, 'Speeds.BoostBackward'),
-            'zero_to_scm' => $this->roundNullable(Arr::get($flight, 'Timing.ZeroToScm')),
-            'zero_to_max' => $this->roundNullable(Arr::get($flight, 'Timing.ZeroToMax')),
-            'scm_to_zero' => $this->roundNullable(Arr::get($flight, 'Timing.ScmToZero')),
-            'max_to_zero' => $this->roundNullable(Arr::get($flight, 'Timing.MaxToZero')),
+            'zero_to_scm' => Arr::get($flight, 'Timing.ZeroToScm'),
+            'zero_to_max' => Arr::get($flight, 'Timing.ZeroToMax'),
+            'scm_to_zero' => Arr::get($flight, 'Timing.ScmToZero'),
+            'max_to_zero' => Arr::get($flight, 'Timing.MaxToZero'),
         ];
     }
 
@@ -651,20 +754,20 @@ class VehicleResource extends AbstractBaseResource
             'pitch' => Arr::get($flight, 'AngularRates.Pitch'),
             'yaw' => Arr::get($flight, 'AngularRates.Yaw'),
             'roll' => Arr::get($flight, 'AngularRates.Roll'),
-            'pitch_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Pitch')),
-            'yaw_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Yaw')),
-            'roll_boosted' => $this->roundNullable(Arr::get($flight, 'AngularRatesBoosted.Roll')),
+            'pitch_boosted' => Arr::get($flight, 'AngularRatesBoosted.Pitch'),
+            'yaw_boosted' => Arr::get($flight, 'AngularRatesBoosted.Yaw'),
+            'roll_boosted' => Arr::get($flight, 'AngularRatesBoosted.Roll'),
 
             'acceleration' => array_filter([
-                'main' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Forward')),
-                'retro' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Backward')),
-                'vtol' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Vtol')),
-                'maneuvering' => $this->roundNullable(Arr::get($flight, 'Acceleration.Raw.Maneuvering')),
+                'main' => Arr::get($flight, 'Acceleration.Raw.Forward'),
+                'retro' => Arr::get($flight, 'Acceleration.Raw.Backward'),
+                'vtol' => Arr::get($flight, 'Acceleration.Raw.Vtol'),
+                'maneuvering' => Arr::get($flight, 'Acceleration.Raw.Maneuvering'),
 
-                'main_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Forward')),
-                'retro_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Backward')),
-                'vtol_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Vtol')),
-                'maneuvering_g' => $this->roundNullable(Arr::get($flight, 'Acceleration.RawG.Maneuvering')),
+                'main_g' => Arr::get($flight, 'Acceleration.RawG.Forward'),
+                'retro_g' => Arr::get($flight, 'Acceleration.RawG.Backward'),
+                'vtol_g' => Arr::get($flight, 'Acceleration.RawG.Vtol'),
+                'maneuvering_g' => Arr::get($flight, 'Acceleration.RawG.Maneuvering'),
             ], static fn ($value) => $value !== null),
         ];
     }
@@ -675,10 +778,10 @@ class VehicleResource extends AbstractBaseResource
             'capacity' => Arr::get($payload, 'Propulsion.FuelCapacity') / 1000,
             'intake_rate' => Arr::get($payload, 'Propulsion.FuelIntakeRate'),
             'usage' => [
-                'main' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Main')),
-                'retro' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Retro')),
-                'vtol' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Vtol')),
-                'maneuvering' => $this->roundNullable(Arr::get($payload, 'Propulsion.FuelUsage.Maneuvering')),
+                'main' => Arr::get($payload, 'Propulsion.FuelUsage.Main'),
+                'retro' => Arr::get($payload, 'Propulsion.FuelUsage.Retro'),
+                'vtol' => Arr::get($payload, 'Propulsion.FuelUsage.Vtol'),
+                'maneuvering' => Arr::get($payload, 'Propulsion.FuelUsage.Maneuvering'),
             ],
         ];
     }
@@ -689,9 +792,9 @@ class VehicleResource extends AbstractBaseResource
             'quantum_speed' => Arr::get($payload, 'QuantumTravel.Speed'),
             'quantum_spool_time' => Arr::get($payload, 'QuantumTravel.SpoolTime'),
             'quantum_fuel_capacity' => Arr::get($payload, 'QuantumTravel.FuelCapacity') / 1000,
-            'quantum_range' => Arr::get($payload, 'QuantumTravel.Range') ? round(Arr::get($payload, 'QuantumTravel.Range')) : null,
-            'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime') ? round(Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime')) : null,
-            'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel') ? round(Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel')) : null,
+            'quantum_range' => Arr::get($payload, 'QuantumTravel.Range'),
+            'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime'),
+            'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel'),
         ];
     }
 
@@ -774,14 +877,5 @@ class VehicleResource extends AbstractBaseResource
     private function getApiVersion(Request $request): ?string
     {
         return $request->route('api_version');
-    }
-
-    private function roundNullable(mixed $value, int $precision = 2): ?float
-    {
-        if ($value === null || ! is_numeric($value)) {
-            return null;
-        }
-
-        return round((float) $value, $precision);
     }
 }

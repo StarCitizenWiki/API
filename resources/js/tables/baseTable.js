@@ -92,11 +92,15 @@ function mapFilterFieldToApiField(field) {
     return field === "created_at_human" ? "created_at" : field;
 }
 
-function mapApiFilterFieldToColumnField(apiField, columnFieldsSet) {
+function mapApiFilterFieldToColumnField(apiField, columnFieldsSet, apiToColumnFilterFieldMap) {
     if (!apiField) return apiField;
 
     if (apiField === "created_at" && columnFieldsSet?.has?.("created_at_human")) {
         return "created_at_human";
+    }
+
+    if (apiToColumnFilterFieldMap?.[apiField]) {
+        return apiToColumnFilterFieldMap[apiField];
     }
 
     return apiField;
@@ -149,7 +153,7 @@ function parsePositiveInt(value) {
     return i > 0 ? i : null;
 }
 
-function parseJsonApiStateFromLocation({ columnFields, apiToColumnSortFieldMap }) {
+function parseJsonApiStateFromLocation({ columnFields, apiToColumnSortFieldMap, apiToColumnFilterFieldMap }) {
     const pageUrl = new URL(window.location.href);
 
     // sort=a,-b
@@ -180,7 +184,7 @@ function parseJsonApiStateFromLocation({ columnFields, apiToColumnSortFieldMap }
         const apiField = match[1];
         if (value == null || String(value).length === 0) continue;
 
-        const columnField = mapApiFilterFieldToColumnField(apiField, columnFields);
+        const columnField = mapApiFilterFieldToColumnField(apiField, columnFields, apiToColumnFilterFieldMap);
         if (!columnFields.has(columnField)) continue;
 
         initialHeaderFilter.push({ field: columnField, value: String(value) });
@@ -530,6 +534,14 @@ export function initTabulatorTables() {
         const historySyncScope = config.historySyncScope ?? "all";
         const sortFieldMap = buildSortFieldMap(config.columns ?? []);
         const apiToColumnSortFieldMap = buildInverseSortFieldMap(sortFieldMap);
+        const apiToColumnFilterFieldMap = headerFilterOptionsMap
+            ? Object.entries(headerFilterOptionsMap).reduce((acc, [columnField, apiField]) => {
+                if (apiField) {
+                    acc[apiField] = columnField;
+                }
+                return acc;
+            }, {})
+            : null;
 
         const columns = headerFilterOptionsSeed && headerFilterOptionsMap
             ? applyHeaderFilterOptionsToColumns(config.columns ?? [], headerFilterOptionsMap, {
@@ -547,6 +559,7 @@ export function initTabulatorTables() {
         const urlState = parseJsonApiStateFromLocation({
             columnFields,
             apiToColumnSortFieldMap,
+            apiToColumnFilterFieldMap,
         });
 
         const effectiveInitialHeaderFilter = urlState.initialHeaderFilter ?? configInitialHeaderFilter;

@@ -23,7 +23,12 @@
             </div>
         </div>
 
-        <x-item-search />
+        <x-resource-search
+            title="Search items"
+            description="Find items by name across the universe database."
+            :route="route('web.items.index')"
+            placeholder="Search item names"
+        />
 
         <div class="flex flex-col gap-4">
             <div>

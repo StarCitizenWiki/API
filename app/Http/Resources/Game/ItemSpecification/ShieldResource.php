@@ -181,7 +181,7 @@ class ShieldResource extends AbstractItemSpecificationResource
         return [
             'max_health' => $maxShieldHealth,
             'regen_rate' => $maxShieldRegen,
-            'regen_time' => round(Arr::get($shield, 'RegenerationTime', 0), 2),
+            'regen_time' => Arr::get($shield, 'RegenerationTime', 0),
             'decay_ratio' => $decayRatio,
             'reserve_pool' => $reservePool,
             'regen_delay' => [

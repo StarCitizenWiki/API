@@ -1,13 +1,34 @@
 @extends('layouts.app')
 
 @php
-    $pageTitleDecoded = html_entity_decode(html_entity_decode($pageTitle));
+    $pageTitleDecoded = html_entity_decode($pageTitle);
+
+    $itemName = data_get($item, 'name', 'Item');
+    $type = data_get($item, 'type');
+    $manufacturerName = data_get($item, 'manufacturer.name');
+    $classification = data_get($item, 'classification');
+    $translations = data_get($item, 'description');
 @endphp
 
 @section('title')
     {!! $pageTitleDecoded !!} - Star Citizen Item
 @endsection
-@section('meta_description', "{$pageTitle} item details.")
+
+@section('meta_description')
+    {!! \Illuminate\Support\Str::limit(data_get($translations, 'en_EN') ?? $itemName . ' ' . ($type ?? ''), 160) !!}
+@endsection
+
+@section('meta')
+    <meta name="keywords" content="{{ $itemName }},{{ $type ?? '' }},{{ $manufacturerName ?? '' }},{{ $classification ?? '' }},Star Citizen,SC">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $itemName }} - {{ $type ?? '' }} {{ $manufacturerName ?? '' }}">
+    <meta property="og:description" content="{!! \Illuminate\Support\Str::limit(data_get($translations, 'en_EN') ?? $itemName . ' ' . ($type ?? ''), 160) !!}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ $itemName }} - {{ $type ?? '' }}">
+    <meta name="twitter:description" content="{!! \Illuminate\Support\Str::limit(data_get($translations, 'en_EN') ?? $itemName . ' ' . ($type ?? ''), 160) !!}">
+@endsection
+
+
 
 @section('content')
     @php
@@ -127,7 +148,12 @@
             <h1 class="text-2xl font-semibold tracking-tight">{{ $itemName }} <span class="text-secondary">({{ $type }})</span> </h1>
         </div>
 
-        <x-item-search />
+        <x-resource-search
+            title="Search items"
+            description="Find items by name across the universe database."
+            :route="route('web.items.index')"
+            placeholder="Search item names"
+        />
 
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="card border border-base-200 bg-base-100 shadow-sm">

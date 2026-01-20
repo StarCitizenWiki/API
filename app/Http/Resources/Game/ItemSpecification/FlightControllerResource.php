@@ -207,9 +207,9 @@ class FlightControllerResource extends AbstractItemSpecificationResource
             'yaw' => Arr::get($ifcs, 'Yaw'),
             'roll' => Arr::get($ifcs, 'Roll'),
 
-            'pitch_boosted' => round(Arr::get($ifcs, 'Pitch') * Arr::get($afterburner, 'AngularMultiplier.Pitch', 1)),
-            'yaw_boosted' => round(Arr::get($ifcs, 'Yaw') * Arr::get($afterburner, 'AngularMultiplier.Yaw', 1)),
-            'roll_boosted' => round(Arr::get($ifcs, 'Roll') * Arr::get($afterburner, 'AngularMultiplier.Roll', 1)),
+            'pitch_boosted' => Arr::get($ifcs, 'PitchBoosted'),
+            'yaw_boosted' => Arr::get($ifcs, 'YawBoosted'),
+            'roll_boosted' => Arr::get($ifcs, 'RollBoosted'),
 
             'boost_capacitor' => [
                 'capacity' => Arr::get($afterburner, 'CapacitorMax'),

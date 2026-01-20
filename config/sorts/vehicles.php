@@ -52,4 +52,11 @@ return [
     'signature.ir_shields' => ['path' => 'Emission.IrShields', 'cast' => 'numeric'],
     'signature.em_quantum' => ['path' => 'Emission.EmQuantum', 'cast' => 'numeric'],
     'signature.em_shields' => ['path' => 'Emission.EmShields', 'cast' => 'numeric'],
+
+    'Cooling.GenerationSegments' => ['path' => 'Cooling.GenerationSegments', 'cast' => 'numeric'],
+    'Cooling.UsageShieldsPct' => ['path' => 'Cooling.UsageShieldsPct', 'cast' => 'numeric'],
+    'Cooling.UsageQuantumPct' => ['path' => 'Cooling.UsageQuantumPct', 'cast' => 'numeric'],
+    'Power.GenerationSegments' => ['path' => 'Power.GenerationSegments', 'cast' => 'numeric'],
+    'Power.UsedSegmentsShields' => ['path' => 'Power.UsedSegmentsShields', 'cast' => 'numeric'],
+    'Power.UsedSegmentsQuantum' => ['path' => 'Power.UsedSegmentsQuantum', 'cast' => 'numeric'],
 ];

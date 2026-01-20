@@ -110,5 +110,10 @@ it('renders the item show view with api data', function (): void {
         ->assertSee('Base Item')
         ->assertSee('Explosive')
         ->assertSee('Specifications')
-        ->assertSee('All Data');
+        ->assertSee('All Data')
+        ->assertSee('<meta name="keywords" content="Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC">', false)
+        ->assertSee('<meta property="og:type" content="website">', false)
+        ->assertSee('<meta property="og:title" content="Test Module - PowerPlant Acme Works">', false)
+        ->assertSee('<meta name="twitter:card" content="summary">', false)
+        ->assertSee('<meta name="twitter:title" content="Test Module - PowerPlant">', false);
 });
