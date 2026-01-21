@@ -258,6 +258,25 @@ return [
                 'unitField' => 'inventory.unit',
             ],
         ],
+        'vehicle_item' => [
+            'title' => 'Performance',
+            'columns' => [
+                [
+                    'title' => 'Grade',
+                    'field' => 'grade',
+                    'headerSort' => true,
+                    'headerFilter' => 'list',
+                    'minWidth' => 120,
+                ],
+                [
+                    'title' => 'Class',
+                    'field' => 'class',
+                    'headerSort' => true,
+                    'headerFilter' => 'list',
+                    'minWidth' => 140,
+                ],
+            ],
+        ],
     ],
 
     'title' => [
@@ -330,20 +349,7 @@ return [
                 'headerFilter' => 'list',
                 'minWidth' => 220,
             ],
-            [
-                'title' => 'Grade',
-                'field' => 'grade',
-                'headerSort' => true,
-                'headerFilter' => 'list',
-                'minWidth' => 120,
-            ],
-            [
-                'title' => 'Class',
-                'field' => 'class',
-                'headerSort' => true,
-                'headerFilter' => 'list',
-                'minWidth' => 140,
-            ],
+
             [
                 'title' => 'API Url',
                 'field' => 'uuid',
@@ -395,7 +401,7 @@ return [
     'type_overrides' => [
         'Armor' => [
             'title' => 'Vehicle Armor',
-            'remove_fields' => ['classification', 'grade', 'class'],
+            'remove_fields' => ['classification'],
             'shared' => ['durability', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -495,7 +501,7 @@ return [
         ],
         'Bomb' => [
             'title' => 'Bombs',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['durability', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -607,7 +613,7 @@ return [
         ],
         'EMP' => [
             'title' => 'EMP',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -657,7 +663,7 @@ return [
         ],
         'FlightController' => [
             'title' => 'Flight Blades',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'resourceNetwork.repair'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
@@ -946,7 +952,7 @@ return [
         ],
         'JumpDrive' => [
             'title' => 'Jump Drives',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -976,7 +982,7 @@ return [
         ],
         'Missile' => [
             'title' => 'Missiles & Torpedoes',
-            'remove_fields' => ['classification', 'grade', 'class'],
+            'remove_fields' => ['classification'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
 
@@ -1176,7 +1182,7 @@ return [
         ],
         'MissileLauncher' => [
             'title' => 'Missile Racks',
-            'remove_fields' => ['classification', 'grade', 'class'],
+            'remove_fields' => ['classification'],
             'shared' => ['resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -1194,7 +1200,7 @@ return [
         ],
         'Paints' => [
             'title' => 'Vehicle Paints',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
@@ -1209,7 +1215,7 @@ return [
         'PowerPlant' => [
             'title' => 'Power Plants',
             'remove_fields' => ['sub_type', 'classification'],
-            'shared' => ['resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared' => ['vehicle_item', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
             'add_columns' => [
@@ -1254,7 +1260,7 @@ return [
         'QuantumDrive' => [
             'title' => 'Quantum Drives',
             'remove_fields' => ['sub_type', 'classification'],
-            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared' => ['vehicle_item', 'resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
             'add_columns' => [
@@ -1329,7 +1335,7 @@ return [
         ],
         'QuantumInterdictionGenerator' => [
             'title' => 'Quantum Interdiction Generators',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage'],
             'shared_insert_at' => 2,
 
@@ -1386,7 +1392,7 @@ return [
         'Radar' => [
             'title' => 'Radar',
             'remove_fields' => ['classification'],
-            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared' => ['vehicle_item', 'resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
             'add_columns' => [
@@ -1474,7 +1480,7 @@ return [
         ],
         'SalvageModifier' => [
             'title' => 'Salvage Modules',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
@@ -1495,7 +1501,7 @@ return [
         ],
         'SelfDestruct' => [
             'title' => 'Self Destructs',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
@@ -1528,7 +1534,7 @@ return [
         'Shield' => [
             'title' => 'Shields',
             'remove_fields' => ['sub_type', 'classification'],
-            'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
+            'shared' => ['vehicle_item', 'resourceNetwork.emission', 'resourceNetwork.power_usage', 'resourceNetwork.cooling_usage', 'durability', 'temperature', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
             'add_columns' => [
@@ -1783,7 +1789,7 @@ return [
         ],
         'ShieldController' => [
             'title' => 'Shield Controllers',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'add_columns_insert_at' => 1,
             'add_columns' => [
                 [
@@ -1807,7 +1813,7 @@ return [
         ],
         'TractorBeam,TowingBeam' => [
             'title' => 'Tractor & Towing Beams',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
@@ -1891,7 +1897,7 @@ return [
         ],
         'Turret' => [
             'title' => 'Turrets & Gimbals',
-            'remove_fields' => ['classification', 'grade', 'class'],
+            'remove_fields' => ['classification'],
             'shared' => ['durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -1969,7 +1975,7 @@ return [
         // ],
         'WeaponDefensive' => [
             'title' => 'Countermeasures',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
 
@@ -2028,7 +2034,7 @@ return [
         ],
         'WeaponGun' => [
             'title' => 'Hardpoint Weapons',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -2253,7 +2259,7 @@ return [
         ],
         'WeaponMining' => [
             'title' => 'Mining Lasers',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['resourceNetwork.emission', 'resourceNetwork.power_usage', 'durability', 'resourceNetwork.repair', 'occupancy'],
             'shared_insert_at' => 2,
 
@@ -2339,7 +2345,7 @@ return [
 
         'WeaponPersonal' => [
             'title' => 'Personal Weapons',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['occupancy'],
             'shared_insert_at' => 2,
 
@@ -2595,7 +2601,7 @@ return [
 
         'clothes' => [
             'title' => 'Clothing',
-            'remove_fields' => ['sub_type', 'grade', 'class'],
+            'remove_fields' => ['sub_type'],
             'shared' => ['inventory', 'occupancy'],
             'shared_insert_at' => 2,
             'add_columns_insert_at' => 1,
@@ -3018,7 +3024,7 @@ return [
         ],
         'mining-modifiers' => [
             'title' => 'Mining Modules & Gadgets',
-            'remove_fields' => ['sub_type', 'classification', 'grade', 'class'],
+            'remove_fields' => ['sub_type', 'classification'],
             'shared' => ['durability', 'occupancy'],
             'shared_insert_at' => 2,
 

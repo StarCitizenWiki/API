@@ -45,7 +45,7 @@
                                     <h2 class="menu-title">Vehicles</h2>
                                     <ul>
                                         <li><a href="{{ route('web.vehicles.index') }}">Ships & Vehicles</a></li>
-                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-items']]) }}">Components</a></li>
+                                        <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-components']]) }}">Components</a></li>
                                     </ul>
                                 </li>
                                 <li>

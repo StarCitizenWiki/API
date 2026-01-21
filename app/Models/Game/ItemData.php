@@ -132,9 +132,11 @@ class ItemData extends Model
             'mining-modifiers' => $query->miningModifiers(),
             'clothes' => $query->clothes(),
             'fps-armor' => $query->armor(),
+            'fps-items' => $query->fpsItems(),
             'vehicle-weapons' => $query->vehicleWeapons(),
             'vehicle-items' => $query->vehicleItems(),
             'vehicle-flair-items' => $query->vehicleFlairItems(),
+            'vehicle-components' => $query->vehicleComponents(),
             default => $query,
         };
     }
@@ -185,6 +187,13 @@ class ItemData extends Model
     {
         return $query
             ->where('classification', 'LIKE', 'FPS.Clothing.%')
+            ->excludePlaceholderNames();
+    }
+
+    public function scopeFpsItems(Builder $query): Builder
+    {
+        return $query
+            ->where('classification', 'LIKE', 'FPS.%')
             ->excludePlaceholderNames();
     }
 
@@ -266,6 +275,17 @@ class ItemData extends Model
                 'Flair_Wall',
                 'Flair_Floor',
                 'Flair_Surface',
+            ]);
+    }
+
+    public function scopeVehicleComponents(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('type', [
+                'Cooler',
+                'Shield',
+                'PowerPlant',
+                'QuantumDrive',
             ]);
     }
 
