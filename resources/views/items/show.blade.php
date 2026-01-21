@@ -85,23 +85,6 @@
         $version = data_get($item, 'version');
         $rawItemJson = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $filter = ['type' => $type];
-        $filterKey = $type;
-
-        if (str_starts_with($classification, 'FPS.Clothing')) {
-            $filter = ['category' => 'clothes'];
-            $filterKey = 'Clothes';
-        } elseif (str_starts_with($classification, 'FPS.Armor')) {
-            $filter = ['category' => 'armor'];
-            $filterKey = 'Armor';
-        } elseif (str_starts_with($classification, 'FPS.WeaponAttachment')) {
-            $filter = ['category' => 'weapon-attachments'];
-            $filterKey = 'Weapon Attachments (Category)';
-        } elseif (in_array($type, ['Food', 'Bottle', 'Drink'], true)) {
-            $filter = ['category' => 'food'];
-            $filterKey = 'Food (Category)';
-        }
-
         $specKeys = [
             'ammunition' => 'Ammunition',
             'armor' => 'Armor',
@@ -149,16 +132,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-3">
-            <div class="breadcrumbs text-sm text-base-content/70">
-                <ul>
-                    <li><a href="{{ route('web.items.index') }}">All Items</a></li>
-                    <li><a href="{{ route('web.items.index', ['filter' => $filter]) }}">{{ $filterKey }}</a></li>
-                    @if (isset($filter['category']))
-                        <li><a href="{{ route('web.items.index', ['filter' => ['type' => $type]]) }}">{{ \Illuminate\Support\Str::headline($type) }}</a></li>
-                    @endif
-                    <li>{{ $itemName }}</li>
-                </ul>
-            </div>
+            <x-items.item-breadcrumbs :item="$item" />
             <div class="flex flex-col gap-1">
                 <h1 class="text-2xl font-semibold tracking-tight">{{ $itemName }} <span class="text-secondary">({{ $type }})</span></h1>
                 @if ($gradeLetter || $class || $size !== null)

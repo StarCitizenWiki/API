@@ -63,75 +63,12 @@
         $subTypeFilter = $firstFilterValue(Arr::get($filterQuery, 'sub_type'));
         $manufacturerFilter = $firstFilterValue(Arr::get($filterQuery, 'manufacturer.name'));
 
-        $breadcrumbs = [
-            [
-                'label' => 'All Items',
-                'url' => route('web.items.index', $versionParams),
-            ],
-        ];
-
-        $filterStack = [];
-
-        $isArmor = in_array($typeFilter, [
-                'Char_Armor_Undersuit',
-                'Char_Armor_Arms',
-                'Char_Armor_Helmet',
-                'Char_Armor_Torso',
-                'Char_Armor_Legs',
-            ]);
-
-        if (!empty($filterQuery['category']) || $isArmor) {
-            if ($isArmor) {
-                $breadcrumbs[] = [
-                    'label' => Str::headline('FPS Armor'),
-                    'url' => route('web.items.index', array_merge($versionParams, ['filter' => ['category' => 'fps-armor']])),
-                ];
-            } else {
-                $breadcrumbs[] = [
-                    'label' => Str::headline($typeFilter),
-                    'url' => route('web.items.index', array_merge($versionParams, ['filter' => ['category' => $filterQuery['category']]])),
-                ];
-            }
-        }
-
-        if ($typeFilter !== null) {
-            $filterStack['type'] = $typeFilter;
-            $breadcrumbs[] = [
-                'label' => Str::headline($typeFilter),
-                'url' => route('web.items.index', array_merge($versionParams, ['filter' => $filterStack])),
-            ];
-        }
-
-        if ($subTypeFilter !== null) {
-            $filterStack['sub_type'] = $subTypeFilter;
-            $breadcrumbs[] = [
-                'label' => Str::headline($subTypeFilter),
-                'url' => route('web.items.index', array_merge($versionParams, ['filter' => $filterStack])),
-            ];
-        }
-
-        if ($manufacturerFilter !== null) {
-            $filterStack['manufacturer.name'] = $manufacturerFilter;
-            $breadcrumbs[] = [
-                'label' => Str::headline($manufacturerFilter),
-                'url' => route('web.items.index', array_merge($versionParams, ['filter' => $filterStack])),
-            ];
-        }
-
     @endphp
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
             <h1 class="text-2xl font-semibold tracking-tight">{{ $pageTitle }}</h1>
-            <div class="breadcrumbs text-sm text-base-content/70">
-                <ul>
-                    @foreach ($breadcrumbs as $breadcrumb)
-                        <li>
-                            <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['label'] }}</a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+            <x-items.item-breadcrumbs :filterQuery="$filterQuery" :typeFilter="$typeFilter" :versionParams="$versionParams" />
         </div>
 
         <x-tabulator-table
