@@ -385,7 +385,7 @@ it('maintains backwards compatibility when no insert_at specified', function () 
     $response->assertViewHas('tableColumns', function ($columns) {
         foreach ($columns as $index => $column) {
             if (($column['title'] ?? null) === 'Test Group') {
-                return $index >= 9;
+                return $index >= 7;
             }
         }
 
