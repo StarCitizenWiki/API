@@ -29,12 +29,12 @@ return [
     |
     | 'enabled' determines whether Plausible analytics tracking is enabled.
     | 'domain' is the main domain to track (e.g., 'api.star-citizen.wiki').
-    | 'tracking_domain' is the custom Plausible instance domain if self-hosted.
+    | 'tracking_script' is the full path to the Plausible tracking script (e.g., 'https://example.com/js/plausible.js')
     |
     */
     'plausible' => [
         'enabled' => env('PLAUSIBLE_ENABLED', false),
         'domain' => env('PLAUSIBLE_DOMAIN'),
-        'tracking_domain' => env('PLAUSIBLE_TRACKING_DOMAIN'),
+        'tracking_script' => env('PLAUSIBLE_TRACKING_SCRIPT'),
     ],
 ];
