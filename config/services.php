@@ -19,4 +19,22 @@ return [
     'deepl' => [
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plausible Analytics
+    |--------------------------------------------------------------------------
+    |
+    | Plausible Analytics configuration for tracking website analytics.
+    |
+    | 'enabled' determines whether Plausible analytics tracking is enabled.
+    | 'domain' is the main domain to track (e.g., 'api.star-citizen.wiki').
+    | 'tracking_domain' is the custom Plausible instance domain if self-hosted.
+    |
+    */
+    'plausible' => [
+        'enabled' => env('PLAUSIBLE_ENABLED', false),
+        'domain' => env('PLAUSIBLE_DOMAIN'),
+        'tracking_domain' => env('PLAUSIBLE_TRACKING_DOMAIN'),
+    ],
 ];
