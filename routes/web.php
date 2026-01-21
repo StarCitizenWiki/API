@@ -25,6 +25,9 @@ Route::post('/comm-links/images/reverse-search', [CommLinkController::class, 're
     ->middleware('throttle:reverse-image-search')
     ->name('web.comm-links.images.reverse-search');
 Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])->name('web.comm-links.images.show');
+Route::get('/comm-links/images/{image}/similar', [CommLinkController::class, 'similarImages'])
+    ->middleware(['auth', 'throttle:similar-image-search'])
+    ->name('web.comm-links.images.similar');
 Route::get('/comm-links/{id}', [CommLinkController::class, 'show'])->name('web.comm-links.show');
 
 Route::get('/stats', [StatController::class, 'index'])->name('web.stats.index');
@@ -62,3 +65,4 @@ Route::redirect('/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles'
 Route::redirect('/dashboard', '/', 301);
 Route::redirect('/rsi/comm-links/{id}', '/comm-links/{id}', 301);
 Route::redirect('/rsi/comm-links/images/{image}', '/comm-links/images/{image}', 301);
+Route::redirect('/rsi/comm-links/images/{image}/similar', '/comm-links/images/{image}/similar', 301);

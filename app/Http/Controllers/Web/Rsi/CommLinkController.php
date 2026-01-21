@@ -185,6 +185,31 @@ class CommLinkController extends Controller
         return view('comm-links.images.show', [
             'image' => $imageData,
             'pageTitle' => sprintf('Comm-Link Image %s', Arr::get($imageData, 'id', '')),
+            'similarUrl' => route('web.comm-links.images.similar', $image),
+        ]);
+    }
+
+    public function similarImages(Request $request, int $image): View
+    {
+        $validated = $request->validate([
+            'similarity' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        /** @var Image $imageModel */
+        $imageModel = Image::query()->findOrFail($image);
+
+        $similarity = (int) ($validated['similarity'] ?? 50);
+        $similarImages = $imageModel->similarImages($similarity, 50);
+
+        $images = ImageHashResource::collection($similarImages)->resolve();
+
+        return view('comm-links.images.index', [
+            'images' => $images,
+            'pagination' => $this->paginationSummary(count($images)),
+            'paginationLinks' => [],
+            'pageTitle' => 'Comm-Link Images',
+            'searchType' => 'similar-images',
+            'searchQuery' => sprintf('Similar to image ID %s', $image),
         ]);
     }
 

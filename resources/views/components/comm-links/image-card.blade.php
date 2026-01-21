@@ -133,8 +133,8 @@
                 <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
             @endif
             @auth
-                @if ($isImage && $similarUrl)
-                    <a class="btn btn-outline btn-xs" href="{{ $similarUrl }}" target="_blank" rel="noreferrer">Find Similar</a>
+                @if ($isImage)
+                    <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.similar', $imageId) }}" target="_blank">Find Similar</a>
                 @endif
             @endauth
         </div>

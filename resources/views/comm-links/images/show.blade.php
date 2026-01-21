@@ -23,7 +23,6 @@
         $commLinks = data_get($image, 'comm_links', []);
         $duplicates = data_get($image, 'duplicates', []);
         $baseImage = data_get($image, 'base_image');
-        $similarUrl = data_get($image, 'similar_url');
 
         $commLinks = is_array($commLinks) ? $commLinks : [];
         $tags = is_array($tags) ? $tags : [];
@@ -69,11 +68,11 @@
                                     <a class="btn btn-outline btn-sm" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">Source</a>
                                 @endif
                                 @if ($apiUrl)
-                                    <a class="btn btn-outline btn-sm" href="{{ $apiUrl }}" target="_blank" rel="noreferrer">API</a>
+                                    <a class="btn btn-outline btn-sm" href="{{ $apiUrl }}" target="_blank">API</a>
                                 @endif
                                 @auth
-                                    @if ($isImage && $similarUrl)
-                                        <a class="btn btn-outline btn-sm" href="{{ $similarUrl }}" target="_blank" rel="noreferrer">Similar</a>
+                                    @if ($isImage)
+                                        <a class="btn btn-outline btn-sm" href="{{ route('web.comm-links.images.similar', $imageId) }}" target="_blank">Similar</a>
                                     @endif
                                 @endauth
                             </div>
