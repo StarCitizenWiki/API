@@ -256,6 +256,14 @@ class CommLinkSearchController extends Controller
                 description: 'Comm-Link image not found.',
             ),
         ],
+        security: [
+            new OA\SecurityScheme(
+                securityScheme: 'sanctum',
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            ),
+        ],
     )]
     public function similarSearch(SimilarSearchRequest $request): AnonymousResourceCollection
     {

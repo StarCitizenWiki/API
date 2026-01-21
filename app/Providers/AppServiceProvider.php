@@ -45,6 +45,14 @@ class AppServiceProvider extends ServiceProvider
                     return response('Too many reverse image searches. Please try again later.', 429, $headers);
                 });
         });
+
+        RateLimiter::for('similar-image-search', static function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function (Request $request, array $headers) {
+                    return response('Too many similar image searches. Please try again later.', 429, $headers);
+                });
+        });
     }
 
     /**
