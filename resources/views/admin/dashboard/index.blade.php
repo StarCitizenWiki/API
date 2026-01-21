@@ -4,40 +4,36 @@
     <div class="flex flex-col gap-4">
         <h1 class="text-2xl font-bold">Admin Dashboard</h1>
 
-        <div class="grid gap-4 md:grid-cols-3">
-            {{-- Total Users --}}
-            <a href="{{ route('admin.users.index') }}" class="card border border-base-200 bg-base-100 shadow-sm hover:shadow-md">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Total Users</h2>
-                    <p class="text-3xl font-bold">{{ number_format($stats['totalUsers']) }}</p>
-                    <div class="card-actions justify-end">
-                        <span class="text-sm text-base-content/60">Manage Users →</span>
-                    </div>
-                </div>
-            </a>
+         <div class="stats stats-vertical lg:stats-horizontal shadow">
+              {{-- Total Users --}}
+              <div class="stat">
+                  <div class="stat-title">Total Users</div>
+                  <div class="stat-value">{{ number_format($stats['totalUsers']) }}</div>
+                  <div class="stat-actions">
+                      <a href="{{ route('admin.users.index') }}" class="btn btn-sm">Manage Users →</a>
+                  </div>
+              </div>
 
-            {{-- Total Jobs --}}
-            <div class="card border border-base-200 bg-base-100 shadow-sm">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Total Jobs</h2>
-                    <p class="text-3xl font-bold">{{ number_format($stats['totalJobs']) }}</p>
-                    <div class="card-actions justify-end">
-                        <span class="text-sm text-base-content/60">In Queue</span>
-                    </div>
-                </div>
-            </div>
+              {{-- Total Queued Jobs --}}
+              <div class="stat">
+                 <div class="stat-title">Total Queued Jobs</div>
+                 <div class="stat-value text-info">{{ number_format($stats['totalJobs']) }}</div>
+                 <div class="stat-desc">
+                     @foreach ($stats['queuedBreakdown'] as $queue => $count)
+                         <div>{{ $queue }}: {{ $count }}</div>
+                     @endforeach
+                 </div>
+             </div>
 
-            {{-- Failed Jobs --}}
-            <a href="{{ route('admin.jobs.index') }}" class="card border border-base-200 bg-base-100 shadow-sm hover:shadow-md">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Failed Jobs</h2>
-                    <p class="text-3xl font-bold">{{ number_format($stats['failedJobs']) }}</p>
-                    <div class="card-actions justify-end">
-                        <span class="text-sm text-base-content/60">View Details →</span>
-                    </div>
-                </div>
-            </a>
-        </div>
+              {{-- Total Failed Jobs --}}
+              <div class="stat">
+                  <div class="stat-title">Total Failed Jobs</div>
+                  <div class="stat-value text-error">{{ number_format($stats['failedJobs']) }}</div>
+                  <div class="stat-actions">
+                      <a href="{{ route('admin.jobs.index') }}" class="btn btn-sm">View Details →</a>
+                  </div>
+              </div>
+         </div>
 
         <div class="divider"></div>
 
