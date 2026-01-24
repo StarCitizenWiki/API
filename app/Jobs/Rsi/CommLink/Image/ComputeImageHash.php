@@ -28,7 +28,7 @@ class ComputeImageHash implements ShouldQueue
     public function __construct(public readonly int $imageId)
     {
         $this->onConnection('database');
-        $this->onQueue('comm-link-hashes');
+        $this->onQueue('expensive');
     }
 
     /**
