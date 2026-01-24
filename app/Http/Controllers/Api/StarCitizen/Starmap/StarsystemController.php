@@ -147,16 +147,9 @@ class StarsystemController extends Controller
 
         $code = mb_strtoupper(urldecode($code));
 
-        $query = QueryBuilder::for(Starsystem::class, $request)
+        $starsystem = QueryBuilder::for(Starsystem::class, $request)
             ->where('code', $code)
-            ->orWhere('name', 'LIKE', "%$code%");
-
-        if (is_numeric($code)) {
-            $query->orWhere('cig_id', (int) $code);
-        }
-
-        /** @var Starsystem $starsystem */
-        $starsystem = $query
+            ->orWhere('name', 'LIKE', "%$code%")
             ->allowedIncludes(StarsystemResource::validIncludes())
             ->firstOrFail();
 

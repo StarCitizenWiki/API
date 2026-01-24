@@ -26,7 +26,7 @@ class CelestialObjectController extends Controller
     /**
      * Build base query with filters and sorts for celestial objects.
      */
-    private function buildBaseQuery(Request $request): QueryBuilder
+    private function buildBaseQuery(Request $request, ?string $code = null): QueryBuilder
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
             ->allowedIncludes(CelestialObjectResource::validIncludes())
@@ -59,6 +59,10 @@ class CelestialObjectController extends Controller
 
         if (str_contains($includes, 'jumppoints')) {
             $query->with(['jumppointEntry', 'jumppointExit']);
+        }
+
+        if ($code !== null) {
+            $query->where('code', $code);
         }
 
         return $query;
@@ -109,7 +113,7 @@ class CelestialObjectController extends Controller
 
     #[OA\Get(
         path: '/api/celestial-objects/{code}',
-        description: 'Retrieve a celestial object by code or identifier, optionally including relations.',
+        description: 'Retrieve a celestial object by code, optionally including relations.',
         summary: 'Celestial Object Detail',
         tags: ['Starmap', 'RSI-Website'],
         parameters: [
@@ -118,7 +122,7 @@ class CelestialObjectController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Celestial Object code or identifier',
+                    description: 'Celestial Object code (e.g., NYX.JUMPPOINTS.BREMEN)',
                     type: 'string',
                 ),
             ),
@@ -139,7 +143,7 @@ class CelestialObjectController extends Controller
             ),
             new OA\Response(
                 response: 404,
-                description: 'No Celestial Object with specified code or name found.'
+                description: 'No Celestial Object with specified code found.'
             ),
         ]
     )]
@@ -157,31 +161,13 @@ class CelestialObjectController extends Controller
         $code = mb_strtoupper(urldecode($code));
 
         try {
-            $query = QueryBuilder::for(CelestialObject::class, $request)
-                ->allowedIncludes(CelestialObjectResource::validIncludes());
-
-            $includes = $request->get('include', '');
-
-            if (str_contains($includes, 'starsystem')) {
-                $query->with(['starsystem']);
-            }
-
-            if (str_contains($includes, 'jumppoints')) {
-                $query->with(['jumppointEntry', 'jumppointExit']);
-            }
-
-            $starsystem = $query->where('code', $code)
-                ->orWhere('cig_id', $code)
-                ->when(
-                    strlen($code) > 3,
-                    fn ($q) => $q->orWhere('name', 'LIKE', "{$code}%")
-                )
+            $celestialObject = $this->buildBaseQuery($request, $code)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            throw new NotFoundHttpException('No Celestial Object with specified Code or Name found.');
+            throw new NotFoundHttpException('No Celestial Object with specified code found.');
         }
 
-        return new CelestialObjectResource($starsystem);
+        return new CelestialObjectResource($celestialObject);
     }
 
     #[OA\Post(

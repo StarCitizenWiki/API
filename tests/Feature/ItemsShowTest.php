@@ -375,7 +375,7 @@ it('renders item with long description in collapsible details', function (): voi
     $item = Item::factory()->create([
         'translation' => [
             'en' => 'The Exploration Scanner is an advanced detection system designed for deep space reconnaissance. Featuring multiple frequency modes, it can identify everything from mineral deposits to hostile entities. Its ergonomic design allows for prolonged use during extended missions. The unit interfaces seamlessly with standard ship systems.',
-            'de' => 'Erster Absatz. '
+            'de' => 'Erster Absatz. ',
         ],
     ]);
 
