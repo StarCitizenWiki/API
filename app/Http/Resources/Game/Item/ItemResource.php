@@ -9,7 +9,6 @@ use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
-use App\Http\Resources\Game\ItemSpecification\CargoGridResource;
 use App\Http\Resources\Game\ItemSpecification\ClothingResource;
 use App\Http\Resources\Game\ItemSpecification\CoolerResource;
 use App\Http\Resources\Game\ItemSpecification\CounterMeasureResource;
@@ -230,7 +229,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'thruster', ref: '#/components/schemas/thruster', nullable: true),
         new OA\Property(property: 'power_plant', ref: '#/components/schemas/power_plant', nullable: true),
         new OA\Property(property: 'radar', ref: '#/components/schemas/radar', nullable: true),
-        new OA\Property(property: 'cargo_grid', ref: '#/components/schemas/cargo_grid', nullable: true),
+        new OA\Property(property: 'cargo_grid', ref: '#/components/schemas/item_inventory', nullable: true),
 
         // Item Specifications
         new OA\Property(
@@ -788,7 +787,7 @@ class ItemResource extends AbstractBaseResource
         // Cargo Grid
         if ($itemData->type === 'CargoGrid' || str_contains($itemData->classification ?? '', 'CargoGrid')) {
             $hasMatch = true;
-            $specifications['cargo_grid'] = static fn () => new CargoGridResource($itemData);
+            $specifications['cargo_grid'] = static fn () => new ItemInventoryResource($itemData);
         }
 
         // Vehicle Weapon

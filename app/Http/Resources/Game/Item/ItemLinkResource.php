@@ -27,6 +27,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'is_base_variant', type: 'boolean'),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'link', type: 'string'),
+                new OA\Property(property: 'size', type: 'integer', nullable: true),
                 new OA\Property(property: 'base_variant', description: 'Link to base variant item', type: 'string', nullable: true),
                 new OA\Property(
                     property: 'variants',
@@ -60,6 +61,7 @@ class ItemLinkResource extends AbstractBaseResource
                 ? new ManufacturerLinkResource($itemData->manufacturer)
                 : null,
             'link' => route('items.show', ['identifier' => $item->uuid]),
+            'size' => $itemData->size,
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
                 'base_variant' => route('items.show', [
                     'identifier' => $itemData->baseVariant?->item?->uuid ?? '',

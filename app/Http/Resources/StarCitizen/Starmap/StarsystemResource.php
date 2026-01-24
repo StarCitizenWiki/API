@@ -112,7 +112,7 @@ class StarsystemResource extends AbstractBaseResource
             'name' => $this->name,
             'status' => $this->status,
             'type' => $this->type,
-            'web_url' => route('web.starmap.systems.show', ['id' => $this->cig_id]),
+            'web_url' => route('web.starmap.systems.show', ['code' => $this->code]),
 
             'position' => [
                 'x' => $this->position_x,

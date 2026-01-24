@@ -67,6 +67,7 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(property: 'equipped_item', ref: '#/components/schemas/item_link', nullable: true),
+        new OA\Property(property: 'equipped_port_item', ref: '#/components/schemas/game_port_item', nullable: true),
     ],
     type: 'object'
 )]
@@ -102,6 +103,9 @@ class ItemPortResource extends AbstractBaseResource
             $this->mergeWhen($itemData !== null, [
                 'equipped_item' => new ItemLinkResource($itemData),
             ]),
+            // $this->mergeWhen($itemData !== null, fn () => [
+            //     'equipped_port_item' => new PortItemResource($itemData->item),
+            // ]),
         ];
     }
 }

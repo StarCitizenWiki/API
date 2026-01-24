@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\ItemSpecification;
 
-use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -48,18 +47,19 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object',
 )]
-class SeatResource extends AbstractBaseResource
+class SeatResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $ejection = Arr::get($this, 'Ejection');
+        $seat = $this->extractFromStdItem($this->resource, 'Seat');
+        $ejection = Arr::get($seat, 'Ejection');
 
         return [
-            'seat_type' => Arr::get($this, 'SeatType'),
-            'yaw' => $this->axisLimits(Arr::get($this, 'Yaw')),
-            'pitch' => $this->axisLimits(Arr::get($this, 'Pitch')),
-            'set_yaw_pitch_limits' => Arr::get($this, 'SetYawPitchLimits'),
-            'has_ejection' => Arr::get($this, 'HasEjection'),
+            'seat_type' => Arr::get($seat, 'SeatType'),
+            'yaw' => $this->axisLimits(Arr::get($seat, 'Yaw')),
+            'pitch' => $this->axisLimits(Arr::get($seat, 'Pitch')),
+            'set_yaw_pitch_limits' => Arr::get($seat, 'SetYawPitchLimits'),
+            'has_ejection' => $this->hasEjection($ejection),
             'ejection' => $this->ejectionData($ejection),
         ];
     }

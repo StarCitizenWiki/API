@@ -71,6 +71,11 @@ class CelestialObject extends Model
         'time_modified' => 'datetime',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
+
     /**
      * Celestial object subtype
      *

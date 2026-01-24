@@ -1,6 +1,6 @@
 @props([
     'vehicleWeapon',
-])
+ ])
 
 @php
     $class = data_get($vehicleWeapon, 'class');
@@ -18,8 +18,8 @@
     $dps = data_get($damage, 'dps', []);
     $alpha = data_get($damage, 'alpha', []);
 
-    $nonZeroDps = array_filter($dps, static fn($v) => $v !== null && $v > 0);
-    $nonZeroAlpha = array_filter($alpha, static fn($v) => $v !== null && $v > 0);
+    $nonZeroDps = collect($dps)->filter(static fn($v) => $v !== null && $v > 0);
+    $nonZeroAlpha = collect($alpha)->filter(static fn($v) => $v !== null && $v > 0);
 
     $hasDamage = is_array($damage) && $damage !== [];
 
@@ -62,14 +62,14 @@
     $hasChargeModifier = is_array($chargeModifier) && $chargeModifier !== [];
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="crosshair" class="size-4 text-primary" />
-            <span>Vehicle Weapon Specifications</span>
+            <x-icon name="sword" class="size-4 text-primary" />
+            <span>Vehicle Weapon</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class</dt>
                 <dd class="text-sm font-medium">{{ $class ?? '-' }} {{ $type ?? '-' }}</dd>
@@ -77,368 +77,362 @@
             @if ($capacity !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</dt>
-                    <dd class="text-sm font-medium">{{ (int)$capacity }} rounds</dd>
+                    <dd class="text-sm font-medium">{{ $capacity === 0 ? 'Infinite' : fmt_value_with_unit($capacity, 'rounds', 0) }}</dd>
                 </div>
             @endif
             @if ($range !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
-                    <dd class="text-sm font-medium">{{ (int)$range }} meters</dd>
+                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
                 </div>
             @endif
             @if ($rpm !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">RPM</dt>
-                    <dd class="text-sm font-medium">{{ (int)$rpm }} RPM</dd>
+                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpm, 'RPM', 0) }}</dd>
                 </div>
             @endif
         </dl>
 
         @if ($hasDamage)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Damage Stats</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($sustained60s !== null)
+            <details id="damage-stats" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="damage-stats-content">
+                    Damage Stats
+                </summary>
+                <div id="damage-stats-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+{{--                        @if ($sustained60s !== null)--}}
+{{--                            <div class="space-y-1">--}}
+{{--                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Sustained 60s</dt>--}}
+{{--                                <dd class="text-sm font-medium">{{ fmt_compact($sustained60s, 2) }}</dd>--}}
+{{--                            </div>--}}
+{{--                        @endif--}}
+                        @if ($alphaTotal !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Sustained 60s</dt>
-                                <dd class="text-sm font-medium">{{ (int)$sustained60s }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Alpha</dt>
+                                <dd class="text-sm font-medium text-info">{{ fmt_compact($alphaTotal, 0) }}</dd>
                             </div>
                         @endif
                         @if ($burst !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Burst</dt>
-                                <dd class="text-sm font-medium">{{ (int)$burst }}</dd>
-                            </div>
-                        @endif
-                        @if ($alphaTotal !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Alpha Total</dt>
-                                <dd class="text-sm font-medium">{{ (int)$alphaTotal }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_compact($burst, 2) }}</dd>
                             </div>
                         @endif
                         @if ($maximum !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Maximum</dt>
-                                <dd class="text-sm font-medium">{{ (int)$maximum }}</dd>
+                                <dd class="text-sm font-medium" title="{{ $maximum }}">{{ $maximum === 'Infinite' ? $maximum : fmt_compact($maximum) }}</dd>
                             </div>
                         @endif
                     </dl>
 
                     @if ($nonZeroDps !== [])
-                        <div class="collapse collapse-arrow border border-base-200 bg-base-100 mt-3">
-                            <input type="checkbox"/>
-                            <div class="collapse-title text-xs font-semibold">DPS Breakdown</div>
-                            <div class="collapse-content">
-                                <dl class="grid gap-3 sm:grid-cols-2">
-                                    @if (data_get($nonZeroDps, 'physical'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'physical') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroDps, 'energy'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'energy') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroDps, 'distortion'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'distortion') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroDps, 'thermal'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'thermal') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroDps, 'biochemical'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'biochemical') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroDps, 'stun'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroDps, 'stun') }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
-                        </div>
+                        <div class="divider"></div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">DPS Breakdown</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            @if (data_get($nonZeroDps, 'physical'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'physical'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroDps, 'energy'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'energy'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroDps, 'distortion'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'distortion'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroDps, 'thermal'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'thermal'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroDps, 'biochemical'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'biochemical'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroDps, 'stun'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'stun'), 0) }}</dd>
+                                </div>
+                            @endif
+                        </dl>
                     @endif
 
-                    @if ($nonZeroAlpha !== [])
-                        <div class="collapse collapse-arrow border border-base-200 bg-base-100 mt-3">
-                            <input type="checkbox"/>
-                            <div class="collapse-title text-xs font-semibold">Alpha Breakdown</div>
-                            <div class="collapse-content">
-                                <dl class="grid gap-3 sm:grid-cols-2">
-                                    @if (data_get($nonZeroAlpha, 'physical'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'physical') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroAlpha, 'energy'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'energy') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroAlpha, 'distortion'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'distortion') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroAlpha, 'thermal'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'thermal') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroAlpha, 'biochemical'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'biochemical') }}</dd>
-                                        </div>
-                                    @endif
-                                    @if (data_get($nonZeroAlpha, 'stun'))
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                            <dd class="text-sm font-medium">{{ (int)data_get($nonZeroAlpha, 'stun') }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
-                        </div>
+                    @if (!empty($nonZeroAlpha))
+                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2 mt-4">Alpha Breakdown</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            @if (data_get($nonZeroAlpha, 'physical'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'physical'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroAlpha, 'energy'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'energy'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroAlpha, 'distortion'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'distortion'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroAlpha, 'thermal'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'thermal'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroAlpha, 'biochemical'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'biochemical'), 0) }}</dd>
+                                </div>
+                            @endif
+                            @if (data_get($nonZeroAlpha, 'stun'))
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'stun'), 0) }}</dd>
+                                </div>
+                            @endif
+                        </dl>
                     @endif
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasSpread)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Spread</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="spread" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="spread-content">
+                    Spread
+                </summary>
+                <div id="spread-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($spread, 'minimum'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum</dt>
-                                <dd class="text-sm font-medium">{{ (int)data_get($spread, 'minimum') }}</dd>
-                            </div>
-                        @endif
-                        @if (data_get($spread, 'maximum'))
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Maximum</dt>
-                                <dd class="text-sm font-medium">{{ (int)data_get($spread, 'maximum') }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min/Max</dt>
+                                <dd class="text-sm font-medium">{{ fmt_range(data_get($spread, 'minimum'), data_get($spread, 'maximum'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'first_attack'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">First Attack</dt>
-                                <dd class="text-sm font-medium">{{ (int)data_get($spread, 'first_attack') }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'first_attack'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'per_attack'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Per Attack</dt>
-                                <dd class="text-sm font-medium">{{ (int)data_get($spread, 'per_attack') }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'per_attack'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'decay'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Decay</dt>
-                                <dd class="text-sm font-medium">{{ (int)data_get($spread, 'decay') }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'decay'), 'deg/s', 0) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasBarrelSpin)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Barrel Spin Time</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="barrel-spin-time" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="barrel-spin-time-content">
+                    Barrel Spin Time
+                </summary>
+                <div id="barrel-spin-time-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($barrelUp !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Up</dt>
-                                <dd class="text-sm font-medium">{{ (int)$barrelUp }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($barrelUp, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($barrelDown !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Down</dt>
-                                <dd class="text-sm font-medium">{{ (int)$barrelDown }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($barrelDown, 's', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasHeat)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Heat</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($heatPerShot !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Per Shot</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatPerShot }}</dd>
-                            </div>
-                        @endif
-                        @if ($heatCoolingDelay !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Delay</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatCoolingDelay }}s</dd>
-                            </div>
-                        @endif
-                        @if ($heatCoolingPerSecond !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Per Second</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatCoolingPerSecond }}</dd>
-                            </div>
-                        @endif
+            <details id="heat" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="heat-content">
+                    Heat
+                </summary>
+                <div id="heat-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($heatOverheatMaxShots !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Max Shots</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatOverheatMaxShots }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatOverheatMaxShots, 0) }}</dd>
                             </div>
                         @endif
                         @if ($heatOverheatMaxTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Max Time</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatOverheatMaxTime }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatOverheatMaxTime, 's', 2) }}</dd>
                             </div>
                         @endif
+                        @if ($heatPerShot !== null)
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Per Shot</dt>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatPerShot, 0) }}</dd>
+                            </div>
+                        @endif
+                        @if ($heatCoolingDelay !== null)
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Delay</dt>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatCoolingDelay, 's', 2) }}</dd>
+                            </div>
+                        @endif
+                        @if ($heatCoolingPerSecond !== null)
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Per Second</dt>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatCoolingPerSecond, 0) }}</dd>
+                            </div>
+                        @endif
+
                         @if ($heatOverheatCooldown !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Cooldown</dt>
-                                <dd class="text-sm font-medium">{{ (int)$heatOverheatCooldown }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatOverheatCooldown, 's', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasCapacitor)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Capacitor</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="capacitor" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="capacitor-content">
+                    Capacitor
+                </summary>
+                <div id="capacitor-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($capMaxAmmoLoad !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Ammo Load</dt>
-                                <dd class="text-sm font-medium">{{ (int)$capMaxAmmoLoad }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($capMaxAmmoLoad, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capRegenPerSecond !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Per Second</dt>
-                                <dd class="text-sm font-medium">{{ (int)$capRegenPerSecond }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($capRegenPerSecond, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capCooldown !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown</dt>
-                                <dd class="text-sm font-medium">{{ (int)$capCooldown }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($capCooldown, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($capRequestedAmmoLoad !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Requested Ammo Load</dt>
-                                <dd class="text-sm font-medium">{{ (int)$capRequestedAmmoLoad }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($capRequestedAmmoLoad, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capCostsPerShot !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Costs Per Shot</dt>
-                                <dd class="text-sm font-medium">{{ (int)$capCostsPerShot }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($capCostsPerShot, 0) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasCharge || $hasChargeModifier)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Charge</div>
-                <div class="collapse-content space-y-4">
-                    @if ($hasCharge)
-                        <div>
-                            <h3 class="mb-3 text-sm font-semibold">Charge Timings</h3>
-                            <dl class="grid gap-3 sm:grid-cols-2">
-                                @if ($chargeTime !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeTime }}s</dd>
-                                    </div>
-                                @endif
-                                @if ($chargeOverchargeTime !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharge Time</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeOverchargeTime }}s</dd>
-                                    </div>
-                                @endif
-                                @if ($chargeOverchargedTime !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharged Time</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeOverchargedTime }}s</dd>
-                                    </div>
-                                @endif
-                                @if ($chargeCooldownTime !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Time</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeCooldownTime }}s</dd>
-                                    </div>
-                                @endif
-                            </dl>
-                        </div>
-                    @endif
+            <details id="charge" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="charge-content">
+                    Charge
+                </summary>
+                <div id="charge-content" class="collapse-content">
+                    <div class="space-y-4">
+                        @if ($hasCharge)
+                            <div>
+                                <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Timings</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                    @if ($chargeTime !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeTime, 's', 2) }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($chargeOverchargeTime !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharge Time</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeOverchargeTime, 's', 2) }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($chargeOverchargedTime !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharged Time</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeOverchargedTime, 's', 2) }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($chargeCooldownTime !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Time</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeCooldownTime, 's', 2) }}</dd>
+                                        </div>
+                                    @endif
+                                </dl>
+                            </div>
+                        @endif
 
-                    @if ($hasChargeModifier)
-                        <div>
-                            <h3 class="mb-3 text-sm font-semibold">Charge Modifiers</h3>
-                            <dl class="grid gap-3 sm:grid-cols-2">
-                                @if ($chargeModDamage !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeModDamage }}</dd>
-                                    </div>
-                                @endif
-                                @if ($chargeModFireRate !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fire Rate</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeModFireRate }}</dd>
-                                    </div>
-                                @endif
-                                @if ($chargeModAmmoSpeed !== null)
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ammo Speed</dt>
-                                        <dd class="text-sm font-medium">{{ (int)$chargeModAmmoSpeed }}</dd>
-                                    </div>
-                                @endif
-                            </dl>
-                        </div>
-                    @endif
+                        @if ($hasChargeModifier)
+                            <div>
+                                <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Modifiers</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                    @if ($chargeModDamage !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModDamage, 0) }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($chargeModFireRate !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fire Rate</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModFireRate, 0) }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($chargeModAmmoSpeed !== null)
+                                        <div class="space-y-1">
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ammo Speed</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModAmmoSpeed, 0) }}</dd>
+                                        </div>
+                                    @endif
+                                </dl>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

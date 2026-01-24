@@ -1,6 +1,6 @@
 @props([
     'turret',
-])
+ ])
 
 @php
     $rotationStyle = data_get($turret, 'rotation_style');
@@ -24,18 +24,22 @@
     $pitchAngleMin = data_get($pitchAxis, 'angle_limit_min');
     $pitchAngleMax = data_get($pitchAxis, 'angle_limit_max');
 
-    $hasYawAxis = collect($yawAxis)->filter()->isNotEmpty();
-    $hasPitchAxis = collect($pitchAxis)->filter()->isNotEmpty();
+    // Determine if sections have data to render
+    $hasSecondaryData = $yawSpeed !== null || $yawTimeToFullSpeed !== null || $pitchSpeed !== null || $pitchTimeToFullSpeed !== null;
+
+    $hasTertiaryData = $yawSlavedOnly !== null || $yawAccelDecay !== null || $yawAngleMin !== null || $yawAngleMax !== null
+        || $pitchSlavedOnly !== null || $pitchAccelDecay !== null || $pitchAngleMin !== null || $pitchAngleMax !== null;
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="circle-plus" class="size-4 text-primary" />
-            <span>Turret Specifications</span>
+            <x-icon name="crosshair" class="size-4 text-primary" />
+            <span>Turret</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
+        {{-- Primary Data: Always Visible --}}
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($rotationStyle !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Rotation Style</dt>
@@ -45,115 +49,105 @@
             @if ($mounts !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mounts</dt>
-                    <dd class="text-sm font-medium">{{ (int)$mounts }}</dd>
+                    <dd class="text-sm font-medium">{{ fmt_or_dash($mounts) }}</dd>
                 </div>
             @endif
             @if ($minSize !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Size</dt>
-                    <dd class="text-sm font-medium">{{ (int)$minSize }}</dd>
-                </div>
-            @endif
-            @if ($maxSize !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Size</dt>
-                    <dd class="text-sm font-medium">{{ (int)$maxSize }}</dd>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Equippable Size</dt>
+                    <dd class="text-sm font-medium">{{ fmt_range($minSize, $maxSize, '') }}</dd>
                 </div>
             @endif
         </dl>
 
-        @if ($hasYawAxis)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Yaw Axis</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($yawSlavedOnly !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Slaved Only</dt>
-                                <dd class="text-sm font-medium">{{ $yawSlavedOnly ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($yawSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$yawSpeed, 2) }} deg/s</dd>
-                            </div>
-                        @endif
-                        @if ($yawTimeToFullSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time to Full Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$yawTimeToFullSpeed, 2) }}s</dd>
-                            </div>
-                        @endif
-                        @if ($yawAccelDecay !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Acceleration Decay</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$yawAccelDecay, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($yawAngleMin !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angle Limit Min</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$yawAngleMin, 2) }} degrees</dd>
-                            </div>
-                        @endif
-                        @if ($yawAngleMax !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angle Limit Max</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$yawAngleMax, 2) }} degrees</dd>
-                            </div>
-                        @endif
-                    </dl>
+        {{-- Secondary Data: Collapsible, Expanded by Default --}}
+        @if ($hasSecondaryData)
+            <details id="performance" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="performance-content">
+                    Performance
+                </summary>
+                <div id="performance-content" class="collapse-content">
+                    @if ($yawSpeed !== null || $yawTimeToFullSpeed !== null || $pitchSpeed !== null || $pitchTimeToFullSpeed !== null)
+                        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                            @if ($yawSpeed !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Speed</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($yawSpeed, 'deg/s', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($yawTimeToFullSpeed !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Time to Full Speed</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($yawTimeToFullSpeed, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($pitchSpeed !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Speed</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($pitchSpeed, 'deg/s', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($pitchTimeToFullSpeed !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Time to Full Speed</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($pitchTimeToFullSpeed, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                        </dl>
+                    @endif
                 </div>
-            </div>
+            </details>
         @endif
 
-        @if ($hasPitchAxis)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Pitch Axis</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($pitchSlavedOnly !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Slaved Only</dt>
-                                <dd class="text-sm font-medium">{{ $pitchSlavedOnly ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($pitchSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pitchSpeed, 2) }} deg/s</dd>
-                            </div>
-                        @endif
-                        @if ($pitchTimeToFullSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time to Full Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pitchTimeToFullSpeed, 2) }}s</dd>
-                            </div>
-                        @endif
-                        @if ($pitchAccelDecay !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Acceleration Decay</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pitchAccelDecay, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($pitchAngleMin !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angle Limit Min</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pitchAngleMin, 2) }} degrees</dd>
-                            </div>
-                        @endif
-                        @if ($pitchAngleMax !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angle Limit Max</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pitchAngleMax, 2) }} degrees</dd>
-                            </div>
-                        @endif
-                    </dl>
+        {{-- Tertiary Data: Collapsible, Collapsed by Default --}}
+        @if ($hasTertiaryData)
+            <details id="advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="advanced-content">
+                    Advanced
+                </summary>
+                <div id="advanced-content" class="collapse-content">
+                    @if ($hasTertiaryData)
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            @if ($yawSlavedOnly !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Slaved Only</dt>
+                                    <dd class="text-sm font-medium">{{ $yawSlavedOnly ? 'Yes' : 'No' }}</dd>
+                                </div>
+                            @endif
+                            @if ($yawAccelDecay !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Acceleration Decay</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash($yawAccelDecay, 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($yawAngleMin !== null || $yawAngleMax !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Angle Limit</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_range($yawAngleMin, $yawAngleMax, 'deg', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($pitchSlavedOnly !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Slaved Only</dt>
+                                    <dd class="text-sm font-medium">{{ $pitchSlavedOnly ? 'Yes' : 'No' }}</dd>
+                                </div>
+                            @endif
+                            @if ($pitchAccelDecay !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Acceleration Decay</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash($pitchAccelDecay, 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($pitchAngleMin !== null || $pitchAngleMax !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Angle Limit</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_range($pitchAngleMin, $pitchAngleMax, 'deg', 2) }}</dd>
+                                </div>
+                            @endif
+                        </dl>
+                    @endif
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

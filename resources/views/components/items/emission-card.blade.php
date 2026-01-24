@@ -8,44 +8,33 @@
     $emMax = data_get($emission, 'em_max');
     $emDecay = data_get($emission, 'em_decay');
     $emPerSegment = data_get($emission, 'em_per_segment');
-
-    $hasIr = $ir !== null;
-    $hasEmRange = $emMin !== null || $emMax !== null;
-    $hasEmDecay = $emDecay !== null;
-    $hasEmPerSegment = $emPerSegment !== null;
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
-        <h2 class="card-title text-base flex items-center gap-2">
+        <h4 class="card-title text-sm flex items-center gap-2">
             <x-icon name="activity" class="size-4 text-primary" />
-            <span>Emission Specifications</span>
-        </h2>
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($hasIr)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">IR Emission</dt>
-                    <dd class="text-sm font-medium">{{ (int)$ir }}</dd>
-                </div>
-            @endif
-            @if ($hasEmRange)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Range</dt>
-                    <dd class="text-sm font-medium">{{ $emMin ?? '-' }} - {{ $emMax ?? '-' }}</dd>
-                </div>
-            @endif
-            @if ($hasEmDecay)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Decay</dt>
-                    <dd class="text-sm font-medium">{{ (int)$emDecay }}</dd>
-                </div>
-            @endif
-            @if ($hasEmPerSegment)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Per Segment</dt>
-                    <dd class="text-sm font-medium">{{ (int)$emPerSegment }}</dd>
-                </div>
-            @endif
+            <span>Emission</span>
+        </h4>
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">IR Emission</dt>
+                <dd class="text-sm font-medium">{{ fmt_or_dash($ir, 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Range</dt>
+                <dd class="text-sm font-medium">{{ fmt_range($emMin, $emMax, '', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Decay</dt>
+                <dd class="text-sm font-medium">{{ fmt_or_dash($emDecay, 0) }}</dd>
+            </div>
+            @if($emPerSegment)
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Per Segment</dt>
+                <dd class="text-sm font-medium">{{ fmt_or_dash($emPerSegment, 0) }}</dd>
+            </div>
+           @endif
         </dl>
     </div>
 </div>

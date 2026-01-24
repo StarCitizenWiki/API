@@ -5,9 +5,6 @@ declare(strict_types=1);
 use App\Services\RsiDownloadClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
-
-uses(TestCase::class);
 
 test('it builds an client with base url and token header', function () {
     config()->set('services.rsi_url', 'https://api.example.test');

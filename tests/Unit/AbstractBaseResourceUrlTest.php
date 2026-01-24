@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use App\Http\Resources\AbstractBaseResource;
 
-uses(Tests\TestCase::class);
-
 it('generates api urls from named routes', function (string $routeName, array $parameters): void {
     $resource = new class(null) extends AbstractBaseResource
     {

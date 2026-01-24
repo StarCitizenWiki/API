@@ -6,12 +6,14 @@ namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Http\Resources\Game\Item\ItemInventoryResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Models\Game\VehicleData;
 use App\Traits\CalculatesCargoGridSizeLimits;
+use App\Traits\ComputesWeaponSnapshot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -55,7 +57,7 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'em_idle', type: 'number', example: 14320, nullable: true),
             new OA\Property(property: 'em_max', type: 'number', example: 30458, nullable: true),
         ], type: 'object', nullable: true, deprecated: true),
-        new OA\Property(property: 'mass', type: 'number', example: 53531.0, nullable: true, description: 'Deprecated, use mass_total instead. Mass is equal to mass_hull.'),
+        new OA\Property(property: 'mass', description: 'Deprecated, use mass_total instead. Mass is equal to mass_hull.', type: 'number', example: 53531.0, nullable: true),
         new OA\Property(property: 'mass_hull', type: 'number', example: 53531.0, nullable: true),
         new OA\Property(property: 'mass_loadout', type: 'number', example: 0, nullable: true),
         new OA\Property(property: 'mass_total', type: 'number', example: 53531.0, nullable: true),
@@ -78,7 +80,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
             ], type: 'object', nullable: true),
         ], type: 'object', nullable: true),
-        new OA\Property(property: 'vehicle_inventory', type: 'number', example: 0, nullable: true),
+        new OA\Property(property: 'vehicle_inventory', description: 'Vehicle stowage in micro SCU', type: 'number', example: 0, nullable: true),
         new OA\Property(property: 'inventory_containers', type: 'object', example: ['Container' => []], nullable: true),
         new OA\Property(
             property: 'crew',
@@ -95,8 +97,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'health', type: 'number', example: 2500, nullable: true),
-        new OA\Property(property: 'shield_hp', type: 'number', example: 12000, nullable: true, deprecated: true, description: 'Use shield.hp property instead.'),
-        new OA\Property(property: 'shield_face_type', type: 'string', example: 'FourFaces', nullable: true, deprecated: true, description: 'Use shield.face_type property instead.'),
+        new OA\Property(property: 'shield_hp', description: 'Use shield.hp property instead.', type: 'number', example: 12000, nullable: true, deprecated: true),
+        new OA\Property(property: 'shield_face_type', description: 'Use shield.face_type property instead.', type: 'string', example: 'FourFaces', nullable: true, deprecated: true),
         new OA\Property(
             property: 'shield',
             properties: [
@@ -106,6 +108,21 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'max_reallocation', type: 'number', example: 0.5, nullable: true),
                 new OA\Property(property: 'reconfiguration_cooldown', type: 'number', example: 2.0, nullable: true),
                 new OA\Property(property: 'max_electrical_charge_damage_rate', type: 'number', example: 100, nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'weapon_snapshot',
+            description: 'Computed weapon statistics from vehicle loadout',
+            properties: [
+                new OA\Property(property: 'pilot_guns_count', type: 'integer', example: 3),
+                new OA\Property(property: 'turrets_manned_count', type: 'integer', example: 0),
+                new OA\Property(property: 'turrets_remote_count', type: 'integer', example: 0),
+                new OA\Property(property: 'turret_weapon_guns_count', type: 'integer', example: 0),
+                new OA\Property(property: 'missile_rack_count', type: 'integer', example: 2),
+                new OA\Property(property: 'missile_count', type: 'integer', example: 2),
+                new OA\Property(property: 'countermeasures_count', type: 'integer', example: 2),
             ],
             type: 'object',
             nullable: true
@@ -313,9 +330,7 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
-        new OA\Property(property: 'is_vehicle', type: 'boolean', example: false, nullable: true),
-        new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
-        new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'cross_section_max', description: 'Derived: maximum cross-section dimension (max of x, y, z)', type: 'number', example: 18.0, nullable: true),
         new OA\Property(
             property: 'signature',
             description: 'EM and IR signature data',
@@ -465,6 +480,7 @@ use OpenApi\Attributes as OA;
 class VehicleResource extends AbstractBaseResource
 {
     use CalculatesCargoGridSizeLimits;
+    use ComputesWeaponSnapshot;
     use ExtractsJsonData;
 
     public static function validIncludes(): array
@@ -496,8 +512,9 @@ class VehicleResource extends AbstractBaseResource
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
         $cargoGridPayload = Arr::get($payload, 'CargoGrids', []);
-        $cargoGrids = CargoGridResource::collection($cargoGridPayload);
         $cargoLimits = self::calculateCargoGridSizeLimits($cargoGridPayload);
+
+        $weaponSnapshot = self::computeWeaponSnapshot(Arr::get($payload, 'Loadout', []));
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -541,13 +558,13 @@ class VehicleResource extends AbstractBaseResource
             'mass_total' => $vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'),
 
             'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
-            'cargo_grids' => $cargoGrids,
+            'cargo_grids' => ItemInventoryResource::collection(Arr::get($payload, 'CargoGrids', [])),
             $this->mergeWhen(
                 ! empty($cargoLimits),
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
-            'vehicle_inventory' => Arr::get($payload, 'Stowage', 0),
-            'inventory_containers' => Arr::get($payload, 'InventoryContainers'),
+            'vehicle_inventory' => Arr::get($payload, 'Stowage', 0) * (10 ** 6),
+            'inventory_containers' => ItemInventoryResource::collection(Arr::get($payload, 'InventoryContainers', [])),
 
             'crew' => [
                 'min' => Arr::get($payload, 'Crew'),
@@ -570,6 +587,11 @@ class VehicleResource extends AbstractBaseResource
                 'max_electrical_charge_damage_rate' => Arr::get($payload, 'ShieldController.MaxElectricalChargeDamageRate'),
             ],
 
+            $this->mergeWhen(
+                $weaponSnapshot !== null && $this->isVehicleShowRoute($request),
+                fn () => ['weapon_snapshot' => $weaponSnapshot]
+            ),
+
             'speed' => $this->buildSpeed($flight),
 
             'afterburner' => [
@@ -586,6 +608,8 @@ class VehicleResource extends AbstractBaseResource
                 'pre_delay_time' => Arr::get($flight, 'Afterburner.AfterburnerPreDelayTime'),
                 'ramp_up_time' => Arr::get($flight, 'Afterburner.AfterburnerRampUpTime'),
                 'ramp_down_time' => Arr::get($flight, 'Afterburner.AfterburnerRampDownTime'),
+                'regen_time' => Arr::get($flight, 'Afterburner.RegenTime'),
+                'regen_delay' => Arr::get($flight, 'Afterburner.CapacitorRegenDelayAfterUse'),
             ],
 
             'fuel' => $this->buildFuel($payload),
@@ -649,6 +673,11 @@ class VehicleResource extends AbstractBaseResource
                 'width' => Arr::get($payload, 'CrossSection.Y'),
                 'height' => Arr::get($payload, 'CrossSection.Z'),
             ],
+            'cross_section_max' => max(
+                Arr::get($payload, 'CrossSection.X', 0),
+                Arr::get($payload, 'CrossSection.Y', 0),
+                Arr::get($payload, 'CrossSection.Z', 0),
+            ) ?: null,
 
             'is_vehicle' => Arr::get($payload, 'IsVehicle'),
             'is_gravlev' => Arr::get($payload, 'IsGravlev'),

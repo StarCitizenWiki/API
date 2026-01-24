@@ -11,11 +11,9 @@
     $thrustCapacityNew = data_get($performance, 'thrust_capacity_new');
     $maxAtmosphericEfficiency = data_get($performance, 'max_supported_atmospheric_efficiency');
     $minHealthThrustMultiplier = data_get($performance, 'min_health_thrust_multiplier');
-    $hasPerformance = is_array($performance) && array_filter($performance, fn($v) => $v !== null);
 
     $fuel = data_get($thruster, 'fuel', []);
     $burnRatePer10kNewton = data_get($fuel, 'burn_rate_per_10k_newton');
-    $hasFuel = is_array($fuel) && array_filter($fuel, fn($v) => $v !== null);
 
     $backwash = data_get($thruster, 'backwash', []);
     $backwashEnabled = data_get($backwash, 'enabled');
@@ -24,21 +22,19 @@
     $backwashMaxDensity = data_get($backwash, 'max_density');
     $backwashMaxResistance = data_get($backwash, 'max_resistance');
     $backwashAfterburnerMultiplier = data_get($backwash, 'afterburner_multiplier');
-    $hasBackwash = is_array($backwash) && array_filter($backwash, fn($v) => $v !== null);
 
     $handling = data_get($thruster, 'handling', []);
     $strengthSmoothing = data_get($handling, 'strength_smoothing');
-    $hasHandling = is_array($handling) && array_filter($handling, fn($v) => $v !== null);
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="arrow-up" class="size-4 text-primary" />
-            <span>Thruster Specifications</span>
+            <x-icon name="engine" class="size-4 text-primary" />
+            <span>Thruster</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($role !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Role</dt>
@@ -51,66 +47,49 @@
                     <dd class="text-sm font-medium">{{ $vtolOnly ? 'Yes' : 'No' }}</dd>
                 </div>
             @endif
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thrust Capacity</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($thrustCapacity, 'N', 0, true) }}</dd>
+            </div>
         </dl>
 
-        @if ($hasPerformance)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Performance</div>
+        @if ($maxAtmosphericEfficiency !== null || $minHealthThrustMultiplier !== null || $burnRatePer10kNewton !== null)
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+                    Performance
+                </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($thrustCapacity !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thrust Capacity</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$thrustCapacity, 2) }} N</dd>
-                            </div>
-                        @endif
-                        @if ($thrustCapacityNew !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thrust Capacity (New)</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$thrustCapacityNew, 2) }} N</dd>
-                            </div>
-                        @endif
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($maxAtmosphericEfficiency !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Atmospheric Efficiency</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$maxAtmosphericEfficiency, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($maxAtmosphericEfficiency, '', 2) }}</dd>
                             </div>
                         @endif
                         @if ($minHealthThrustMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Health Thrust Multiplier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$minHealthThrustMultiplier, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($minHealthThrustMultiplier, '', 2) }}</dd>
                             </div>
                         @endif
-                    </dl>
-                </div>
-            </div>
-        @endif
-
-        @if ($hasFuel)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Fuel</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
                         @if ($burnRatePer10kNewton !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Burn Rate per 10k Newton</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$burnRatePer10kNewton, 2) }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Burn Rate per 10k N</dt>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($burnRatePer10kNewton, '', 3) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
-        @if ($hasBackwash)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Backwash</div>
+        @if ($backwashEnabled !== null || $backwashAutomateSize !== null || $backwashMaxSpeed !== null || $backwashMaxDensity !== null || $backwashMaxResistance !== null || $backwashAfterburnerMultiplier !== null)
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+                    Backwash
+                </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($backwashEnabled !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Enabled</dt>
@@ -126,47 +105,48 @@
                         @if ($backwashMaxSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$backwashMaxSpeed, 2) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($backwashMaxSpeed, 'm/s', 2) }}</dd>
                             </div>
                         @endif
                         @if ($backwashMaxDensity !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Density</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$backwashMaxDensity, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($backwashMaxDensity, '', 2) }}</dd>
                             </div>
                         @endif
                         @if ($backwashMaxResistance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Resistance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$backwashMaxResistance, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($backwashMaxResistance, '', 2) }}</dd>
                             </div>
                         @endif
                         @if ($backwashAfterburnerMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Afterburner Multiplier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$backwashAfterburnerMultiplier, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($backwashAfterburnerMultiplier, '', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
-        @if ($hasHandling)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Handling</div>
+        @if ($strengthSmoothing !== null)
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+                    Handling
+                </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($strengthSmoothing !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Strength Smoothing</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$strengthSmoothing, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($strengthSmoothing, '', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

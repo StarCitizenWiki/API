@@ -1,6 +1,6 @@
 @props([
     'missile',
-])
+ ])
 
 @php
     $signalType = data_get($missile, 'signal_type');
@@ -19,7 +19,7 @@
     $flightBoostPhaseDuration = data_get($flight, 'boost_phase_duration');
     $flightTerminalPhaseEngagementTime = data_get($flight, 'terminal_phase_engagement_time');
     $flightTerminalPhaseEngagementAngle = data_get($flight, 'terminal_phase_engagement_angle');
-    $hasFlight = is_array($flight) && array_filter($flight, fn($v) => $v !== null);
+    $hasFlight = is_array($flight) && collect($flight)->filter(fn($v) => $v !== null)->isNotEmpty();
 
     $targetLock = data_get($missile, 'target_lock', []);
     $tlSignalResilienceMin = data_get($targetLock, 'signal_resilience_min');
@@ -30,7 +30,7 @@
     $tlSignalAmplifier = data_get($targetLock, 'signal_amplifier');
     $tlIncreaseRate = data_get($targetLock, 'increase_rate');
     $tlAllowDumbFiring = data_get($targetLock, 'allow_dumb_firing');
-    $hasTargetLock = is_array($targetLock) && array_filter($targetLock, fn($v) => $v !== null);
+    $hasTargetLock = is_array($targetLock) && collect($targetLock)->filter(fn($v) => $v !== null)->isNotEmpty();
 
     $explosion = data_get($missile, 'explosion', []);
     $expIsCluster = data_get($explosion, 'is_cluster');
@@ -41,303 +41,293 @@
     $expRadiusMax = data_get($explosion, 'radius_max');
     $expSafetyDistance = data_get($explosion, 'safety_distance');
     $expProximity = data_get($explosion, 'proximity');
-    $hasExplosion = is_array($explosion) && array_filter($explosion, fn($v) => $v !== null);
+    $hasExplosion = is_array($explosion) && collect($explosion)->filter(fn($v) => $v !== null)->isNotEmpty();
 
     $delays = data_get($missile, 'delays', []);
     $delArmTime = data_get($delays, 'arm_time');
     $delIgniteTime = data_get($delays, 'ignite_time');
     $delCollisionDelayTime = data_get($delays, 'collision_delay_time');
     $delLockTime = data_get($delays, 'lock_time');
-    $hasDelays = is_array($delays) && array_filter($delays, fn($v) => $v !== null);
+    $hasDelays = is_array($delays) && collect($delays)->filter(fn($v) => $v !== null)->isNotEmpty();
 
     $damageTotal = data_get($missile, 'damage_total');
     $damageMap = data_get($missile, 'damage_map', []);
     $hasDamageMap = is_array($damageMap) && $damageMap !== [];
+    $hasDamage = $damageTotal !== null || $hasDamageMap;
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
-        <h2 class="card-title text-base flex items-center gap-2">
+        <h2 class="card-title flex items-center gap-2">
             <x-icon name="rocket" class="size-4 text-primary" />
-            <span>Missile Specifications</span>
+            <span>Missile</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($signalType !== null)
+        {{-- Primary Data (Always Visible) --}}
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 ">
+        @if ($signalType !== null)
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Type</dt>
+                <dd class="text-sm font-medium">{{ $signalType }}</dd>
+            </div>
+        @endif
+            @if ($damageTotal !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Type</dt>
-                    <dd class="text-sm font-medium">{{ $signalType }}</dd>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage Total</dt>
+                    <dd class="text-sm font-medium text-info">{{ fmt_or_dash($damageTotal) }}</dd>
                 </div>
             @endif
-            @if ($trackingSignalMin !== null)
+            @if ($flightRange !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Tracking Signal Min</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$trackingSignalMin, 2) }}</dd>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
+                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightRange, 'm', 0) }}</dd>
+                </div>
+            @endif
+            @if ($tlRangeMin !== null)
+                <div class="space-y-1">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Range</dt>
+                    <dd class="text-sm font-medium">{{ fmt_range($tlRangeMin, $tlRangeMax, 'm') }}</dd>
+                </div>
+            @endif
+            @if ($delArmTime !== null)
+                <div class="space-y-1">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Arm Time</dt>
+                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($delArmTime, 's', 1) }}</dd>
                 </div>
             @endif
             @if ($clusterSize !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cluster Size</dt>
-                    <dd class="text-sm font-medium">{{ (int)$clusterSize }}</dd>
+                    <dd class="text-sm font-medium">{{ fmt_or_dash($clusterSize, 0) }}</dd>
                 </div>
             @endif
         </dl>
 
-        @if ($hasFlight)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Flight Performance</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($flightEnableLifetime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Enable Lifetime</dt>
-                                <dd class="text-sm font-medium">{{ $flightEnableLifetime ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($flightMaxLifetime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Lifetime</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightMaxLifetime, 2) }} s</dd>
-                            </div>
-                        @endif
-                        @if ($flightRange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightRange, 2) }} m</dd>
-                            </div>
-                        @endif
+
+    {{-- Secondary Data: Target Lock (Collapsible, expanded by default) --}}
+    @if ($hasTargetLock)
+        <details id="target-lock" class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="target-lock-content">
+                Target Lock
+            </summary>
+            <div id="target-lock-content" class="collapse-content">
+                <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
+                    @if ($tlAngle !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Angle</dt>
+                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($tlAngle, 'deg', 1) }}</dd>
+                        </div>
+                    @endif
+                    @if ($trackingSignalMin !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Tracking Signal Min</dt>
+                            <dd class="text-sm font-medium">{{ fmt_or_dash($trackingSignalMin, 2) }}</dd>
+                        </div>
+                    @endif
+                    @if ($tlSignalResilienceMin !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Resilience Min</dt>
+                            <dd class="text-sm font-medium">{{ fmt_or_dash($tlSignalResilienceMin, 2) }}</dd>
+                        </div>
+                    @endif
+                    @if ($tlSignalResilienceMax !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Resilience Max</dt>
+                            <dd class="text-sm font-medium">{{ fmt_or_dash($tlSignalResilienceMax, 2) }}</dd>
+                        </div>
+                    @endif
+                    @if ($tlSignalAmplifier !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Amplifier</dt>
+                            <dd class="text-sm font-medium">{{ fmt_or_dash($tlSignalAmplifier, 2) }}</dd>
+                        </div>
+                    @endif
+                    @if ($tlIncreaseRate !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Increase Rate</dt>
+                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($tlIncreaseRate, '/s', 2) }}</dd>
+                        </div>
+                    @endif
+                    @if ($tlAllowDumbFiring !== null)
+                        <div class="space-y-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Allow Dumb Firing</dt>
+                            <dd class="text-sm font-medium">{{ $tlAllowDumbFiring ? 'Yes' : 'No' }}</dd>
+                        </div>
+                    @endif
+                </dl>
+            </div>
+        </details>
+    @endif
+
+
+    @if ($hasFlight)
+            <details id="flight-performance" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="flight-performance-content">
+                    Flight Performance
+                </summary>
+                <div id="flight-performance-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($flightSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightSpeed, 2) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightSpeed, 'm', 2) }}/s</dd>
                             </div>
                         @endif
+                            @if ($flightMaxLifetime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Lifetime</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightMaxLifetime, 's', 2) }}</dd>
+                                </div>
+                            @endif
                         @if ($flightBoostSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightBoostSpeed, 2) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightBoostSpeed, 'm', 2) }}/s</dd>
                             </div>
                         @endif
                         @if ($flightInterceptSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Intercept Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightInterceptSpeed, 2) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightInterceptSpeed, 'm', 2) }}/s</dd>
                             </div>
                         @endif
                         @if ($flightTerminalSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Terminal Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightTerminalSpeed, 2) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightTerminalSpeed, 'm', 2) }}/s</dd>
                             </div>
                         @endif
                         @if ($flightFuelTankSize !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Tank Size</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightFuelTankSize, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($flightFuelTankSize) }}</dd>
                             </div>
                         @endif
                         @if ($flightBoostPhaseDuration !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Phase Duration</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightBoostPhaseDuration, 2) }} s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightBoostPhaseDuration, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($flightTerminalPhaseEngagementTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Terminal Phase Engagement Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightTerminalPhaseEngagementTime, 2) }} s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightTerminalPhaseEngagementTime, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($flightTerminalPhaseEngagementAngle !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Terminal Phase Engagement Angle</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$flightTerminalPhaseEngagementAngle, 2) }} deg</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($flightTerminalPhaseEngagementAngle, 'deg', 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
-        @if ($hasTargetLock)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Target Lock</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($tlRangeMin !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range Min</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlRangeMin, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($tlRangeMax !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range Max</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlRangeMax, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($tlAngle !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Angle</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlAngle, 2) }} deg</dd>
-                            </div>
-                        @endif
-                        @if ($tlSignalResilienceMin !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Resilience Min</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlSignalResilienceMin, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($tlSignalResilienceMax !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Resilience Max</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlSignalResilienceMax, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($tlSignalAmplifier !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Amplifier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlSignalAmplifier, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($tlIncreaseRate !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Increase Rate</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tlIncreaseRate, 2) }} /s</dd>
-                            </div>
-                        @endif
-                        @if ($tlAllowDumbFiring !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Allow Dumb Firing</dt>
-                                <dd class="text-sm font-medium">{{ $tlAllowDumbFiring ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
-        @endif
+        {{-- Tertiary Data (Collapsed by default) --}}
+        @if ($hasExplosion || $hasDelays || $hasDamage)
+            <details id="arming-explosion" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3" aria-expanded="false" aria-controls="arming-explosion-content">
+                    <h3 class="text-sm font-semibold">Arming & Explosion</h3>
+                </summary>
+                <div id="arming-explosion-content" class="collapse-content">
+                    {{-- Damage --}}
+                    @if ($hasDamage)
+                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Damage</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 mb-4">
 
-        @if ($hasExplosion)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Explosion</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($expIsCluster !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Is Cluster</dt>
-                                <dd class="text-sm font-medium">{{ $expIsCluster ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($expClusterSize !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cluster Size</dt>
-                                <dd class="text-sm font-medium">{{ (int)$expClusterSize }}</dd>
-                            </div>
-                        @endif
-                        @if ($expRequiresLauncher !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Requires Launcher</dt>
-                                <dd class="text-sm font-medium">{{ $expRequiresLauncher ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($expAllowDumbFiring !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Allow Dumb Firing</dt>
-                                <dd class="text-sm font-medium">{{ $expAllowDumbFiring ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($expRadiusMin !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Radius Min</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$expRadiusMin, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($expRadiusMax !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Radius Max</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$expRadiusMax, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($expSafetyDistance !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Safety Distance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$expSafetyDistance, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($expProximity !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Proximity</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$expProximity, 2) }} m</dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
-        @endif
-
-        @if ($hasDelays)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Delays</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($delArmTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Arm Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$delArmTime, 2) }} s</dd>
-                            </div>
-                        @endif
-                        @if ($delIgniteTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ignite Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$delIgniteTime, 2) }} s</dd>
-                            </div>
-                        @endif
-                        @if ($delCollisionDelayTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Delay Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$delCollisionDelayTime, 2) }} s</dd>
-                            </div>
-                        @endif
-                        @if ($delLockTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$delLockTime, 2) }} s</dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
-        @endif
-
-        @if ($damageTotal !== null || $hasDamageMap)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Damage</div>
-                <div class="collapse-content">
-                    @if ($damageTotal !== null)
-                        <dl class="grid gap-4 sm:grid-cols-2 mb-4">
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage Total</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageTotal, 2) }}</dd>
-                            </div>
+                            @if ($hasDamageMap)
+                                @foreach ($damageMap as $type => $value)
+                                    <div class="space-y-1">
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($type) }}</dt>
+                                        <dd class="text-sm font-medium">{{ fmt_or_dash($value, 2) }}</dd>
+                                    </div>
+                                @endforeach
+                            @endif
                         </dl>
                     @endif
-                    @if ($hasDamageMap)
-                        <dl class="grid gap-4 sm:grid-cols-2">
-                            @foreach ($damageMap as $type => $value)
+
+                    {{-- Explosion --}}
+                    @if ($hasExplosion)
+                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Explosion</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 mb-4">
+                            @if ($expIsCluster !== null)
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($type) }}</dt>
-                                    <dd class="text-sm font-medium">{{ number_format((float)$value, 2) }}</dd>
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Is Cluster</dt>
+                                    <dd class="text-sm font-medium">{{ $expIsCluster ? 'Yes' : 'No' }}</dd>
                                 </div>
-                            @endforeach
+                            @endif
+                            @if ($expClusterSize !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cluster Size</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_or_dash($expClusterSize, 0) }}</dd>
+                                </div>
+                            @endif
+                            @if ($expRequiresLauncher !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Requires Launcher</dt>
+                                    <dd class="text-sm font-medium">{{ $expRequiresLauncher ? 'Yes' : 'No' }}</dd>
+                                </div>
+                            @endif
+
+                            @if ($expRadiusMin !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Radius</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_range($expRadiusMin, $expRadiusMax, 'm', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($expSafetyDistance !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Safety Distance</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($expSafetyDistance, 'm', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($expProximity !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Proximity</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($expProximity, 'm', 2) }}</dd>
+                                </div>
+                            @endif
                         </dl>
                     @endif
+
+                    {{-- Delays --}}
+                    @if ($hasDelays)
+                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Delays</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+
+                            @if ($delArmTime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Arm Time</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($delArmTime, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($delIgniteTime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ignite Time</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($delIgniteTime, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($delCollisionDelayTime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Delay Time</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($delCollisionDelayTime, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                            @if ($delLockTime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lock Time</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($delLockTime, 's', 2) }}</dd>
+                                </div>
+                            @endif
+                        </dl>
+                    @endif
+
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

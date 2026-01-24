@@ -222,6 +222,7 @@ class ItemData extends Model
             // ->where('class_name', 'NOT LIKE', 'mrck_s05_behr_quad_s03_a')
             ->whereIn('type', [
                 'Arm',
+                'Armor',
                 'Battery',
                 'BombLauncher',
                 'Bomb',

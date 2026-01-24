@@ -96,248 +96,198 @@
     $hasGravlev = collect($gravlev)->filter()->isNotEmpty();
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="drone" class="size-4 text-primary" />
-            <span>Flight Controller Specifications</span>
+            <x-icon name="joystick" class="size-4 text-primary" />
+            <span>Flight Controller</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($scmSpeed !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SCM Speed</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$scmSpeed, 0) }} m/s</dd>
-                </div>
-            @endif
-            @if ($boostSpeedForward !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Speed Forward</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$boostSpeedForward, 0) }} m/s</dd>
-                </div>
-            @endif
-            @if ($boostSpeedBackward !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Speed Backward</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$boostSpeedBackward, 0) }} m/s</dd>
-                </div>
-            @endif
-            @if ($maxSpeed !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$maxSpeed, 0) }} m/s</dd>
-                </div>
-            @endif
-            @if ($pitch !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$pitch, 0) }} deg/s</dd>
-                </div>
-            @endif
-            @if ($yaw !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$yaw, 0) }} deg/s</dd>
-                </div>
-            @endif
-            @if ($roll !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$roll, 0) }} deg/s</dd>
-                </div>
-            @endif
-            @if ($pitchBoosted !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Boosted</dt>
-                    <dd class="text-sm font-medium">{{ (int)$pitchBoosted }} deg/s</dd>
-                </div>
-            @endif
-            @if ($yawBoosted !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Boosted</dt>
-                    <dd class="text-sm font-medium">{{ (int)$yawBoosted }} deg/s</dd>
-                </div>
-            @endif
-            @if ($rollBoosted !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll Boosted</dt>
-                    <dd class="text-sm font-medium">{{ (int)$rollBoosted }} deg/s</dd>
-                </div>
-            @endif
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 ">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SCM Speed</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($scmSpeed, 'm/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed (Nav)</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($maxSpeed, 'm/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Forward</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($boostSpeedForward, 'm/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost Backward</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($boostSpeedBackward, 'm/s', 0) }}</dd>
+            </div>
         </dl>
 
+        <dl class="mt-2 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pitch, 'deg/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($yaw, 'deg/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($roll, 'deg/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Boosted</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pitchBoosted, 'deg/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Boosted</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($yawBoosted, 'deg/s', 0) }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll Boosted</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rollBoosted, 'deg/s', 0) }}</dd>
+            </div>
+        </dl>
+
+        {{-- Secondary Data (Collapsible, Default Open) --}}
         @if ($hasBoostCapacitor)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Boost Capacitor</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Capacitor</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($bcCapacity !== null)
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        @if ($bcRegenTime !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcCapacity, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bcThresholdRatio !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Threshold Ratio</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcThresholdRatio, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bcIdleCost !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Idle Cost</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcIdleCost, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bcLinearCost !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Linear Cost</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcLinearCost, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bcAngularCost !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angular Cost</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcAngularCost, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bcRegenPerSec !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Per Sec</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcRegenPerSec, 2) }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Time</dt>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($bcRegenTime, 's', 1) }}</dd>
                             </div>
                         @endif
                         @if ($bcRegenDelay !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Delay</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcRegenDelay, 2) }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($bcRegenDelay, 's', 1) }}</dd>
                             </div>
                         @endif
-                        @if ($bcRegenTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bcRegenTime, 2) }}s</dd>
-                            </div>
-                        @endif
+                            @if ($baRampUpTime !== null)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ramp Up Time</dt>
+                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($baRampUpTime, 's', 1) }}</dd>
+                                </div>
+                            @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasBoostActivation)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Boost Activation</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Activation</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($baPreDelayTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pre Delay Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$baPreDelayTime, 2) }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($baPreDelayTime, 's', 1) }}</dd>
                             </div>
                         @endif
                         @if ($baRampUpTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ramp Up Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$baRampUpTime, 2) }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($baRampUpTime, 's', 1) }}</dd>
                             </div>
                         @endif
                         @if ($baRampDownTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ramp Down Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$baRampDownTime, 2) }}s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($baRampDownTime, 's', 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasThrusterDecay)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Thruster Decay</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Thruster Decay</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($tdLinearAccel !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Linear Accel</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tdLinearAccel, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($tdLinearAccel, 1) }}</dd>
                             </div>
                         @endif
                         @if ($tdAngularAccel !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Angular Accel</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$tdAngularAccel, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($tdAngularAccel, 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasMultiplier)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Multipliers</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Multipliers</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($mTorqueImbalance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Torque Imbalance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$mTorqueImbalance, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($mTorqueImbalance, 1) }}</dd>
                             </div>
                         @endif
                         @if ($mLift !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lift</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$mLift, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($mLift, 1) }}</dd>
                             </div>
                         @endif
                         @if ($mDrag !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Drag</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$mDrag, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($mDrag, 1) }}</dd>
                             </div>
                         @endif
                         @if ($mScmMaxDrag !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SCM Max Drag</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$mScmMaxDrag, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($mScmMaxDrag, 1) }}</dd>
                             </div>
                         @endif
                         @if ($mPrecisionLanding !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Precision Landing</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$mPrecisionLanding, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($mPrecisionLanding, 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
+        {{-- Tertiary Data (Collapsible, Default Closed) --}}
         @if ($hasBoostMultiplier)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Boost Multipliers</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Multipliers</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($bmAccelXPos !== null || $bmAccelXNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
-                                <h3 class="mb-3 text-sm font-semibold">Accel X</h3>
-                                <dl class="grid gap-4 sm:grid-cols-2">
+                                <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel X</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                                     @if ($bmAccelXPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelXPos, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelXPos, 1) }}</dd>
                                         </div>
                                     @endif
                                     @if ($bmAccelXNeg !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Negative</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelXNeg, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelXNeg, 1) }}</dd>
                                         </div>
                                     @endif
                                 </dl>
@@ -345,18 +295,18 @@
                         @endif
                         @if ($bmAccelYPos !== null || $bmAccelYNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
-                                <h3 class="mb-3 text-sm font-semibold">Accel Y</h3>
-                                <dl class="grid gap-4 sm:grid-cols-2">
+                                <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel Y</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                                     @if ($bmAccelYPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelYPos, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelYPos, 1) }}</dd>
                                         </div>
                                     @endif
                                     @if ($bmAccelYNeg !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Negative</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelYNeg, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelYNeg, 1) }}</dd>
                                         </div>
                                     @endif
                                 </dl>
@@ -364,214 +314,212 @@
                         @endif
                         @if ($bmAccelZPos !== null || $bmAccelZNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
-                                <h3 class="mb-3 text-sm font-semibold">Accel Z</h3>
-                                <dl class="grid gap-4 sm:grid-cols-2">
+                                <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel Z</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                                     @if ($bmAccelZPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelZPos, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelZPos, 1) }}</dd>
                                         </div>
                                     @endif
                                     @if ($bmAccelZNeg !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Negative</dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)$bmAccelZNeg, 2) }}</dd>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash($bmAccelZNeg, 1) }}</dd>
                                         </div>
                                     @endif
                                 </dl>
                             </div>
                         @endif
+                    </dl>
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3 mt-4">
                         @if ($bmPitch !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmPitch, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmPitch, 1) }}</dd>
                             </div>
                         @endif
                         @if ($bmYaw !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmYaw, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmYaw, 1) }}</dd>
                             </div>
                         @endif
                         @if ($bmRoll !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmRoll, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmRoll, 1) }}</dd>
                             </div>
                         @endif
                         @if ($bmPitchAccel !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Acceleration</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmPitchAccel, 2) }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch Accel</dt>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmPitchAccel, 1) }}</dd>
                             </div>
                         @endif
                         @if ($bmYawAccel !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Acceleration</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmYawAccel, 2) }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Accel</dt>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmYawAccel, 1) }}</dd>
                             </div>
                         @endif
                         @if ($bmRollAccel !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll Acceleration</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$bmRollAccel, 2) }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Roll Accel</dt>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($bmRollAccel, 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasPrecisionMode)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Precision Mode</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Precision Mode</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         @if ($pmMaxSpeedFullProximityAssist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed Full Proximity Assist</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pmMaxSpeedFullProximityAssist, 0) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pmMaxSpeedFullProximityAssist, 'm/s', 0) }}</dd>
                             </div>
                         @endif
                         @if ($pmMaxSpeedZeroProximityAssist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed Zero Proximity Assist</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pmMaxSpeedZeroProximityAssist, 0) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pmMaxSpeedZeroProximityAssist, 'm/s', 0) }}</dd>
                             </div>
                         @endif
                         @if ($pmMinDistance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Distance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pmMinDistance, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pmMinDistance, 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if ($pmMaxDistance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Distance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$pmMaxDistance, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($pmMaxDistance, 'm', 0) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasRecallParams)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Recall Params</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Recall Params</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($rpHoverHeight !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Hover Height at Destination</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpHoverHeight, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpHoverHeight, 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if ($rpForwardOffset !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Forward Offset</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpForwardOffset, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpForwardOffset, 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if ($rpObstructionDetection !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Obstruction Detection Range</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpObstructionDetection, 2) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpObstructionDetection, 'm', 1) }}</dd>
                             </div>
                         @endif
                         @if ($rpDefaultPlatformDetection !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Default Platform Detection Range</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpDefaultPlatformDetection, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpDefaultPlatformDetection, 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if ($rpMinRecallDistance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum Recall Distance</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpMinRecallDistance, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpMinRecallDistance, 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if ($rpBrakingDistanceOffset !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Braking Distance Offset</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$rpBrakingDistanceOffset, 0) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpBrakingDistanceOffset, 'm', 0) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasCollisionDetection)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Collision Detection</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Collision Detection</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($cdWarnSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Warn Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$cdWarnSpeed, 0) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($cdWarnSpeed, 'm/s', 0) }}</dd>
                             </div>
                         @endif
                         @if ($cdWarnTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Warn Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$cdWarnTime, 0) }} s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($cdWarnTime, 's', 0) }}</dd>
                             </div>
                         @endif
                         @if ($cdDangerCloseWarnTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Danger Close Warn Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$cdDangerCloseWarnTime, 0) }} s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($cdDangerCloseWarnTime, 's', 0) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasGravlev)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Gravlev</div>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Gravlev</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($gMaxSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$gMaxSpeed, 0) }} m/s</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($gMaxSpeed, 'm/s', 0) }}</dd>
                             </div>
                         @endif
                         @if ($gTurnFriction !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Turn Friction</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$gTurnFriction, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($gTurnFriction, 1) }}</dd>
                             </div>
                         @endif
                         @if ($gAirControllerMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Air Controller Multiplier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$gAirControllerMultiplier, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($gAirControllerMultiplier, 1) }}</dd>
                             </div>
                         @endif
                         @if ($gAntiFallMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Anti Fall Multiplier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$gAntiFallMultiplier, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($gAntiFallMultiplier, 1) }}</dd>
                             </div>
                         @endif
                         @if ($gLateralStrafeMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Lateral Strafe Multiplier</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$gLateralStrafeMultiplier, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($gLateralStrafeMultiplier, 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

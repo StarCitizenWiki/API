@@ -1129,6 +1129,12 @@ paths:
                   $ref: '#/components/schemas/comm_link_link'
         '404':
           description: 'Comm-Link image not found.'
+      security:
+        -
+          securityScheme: sanctum
+          type: http
+          bearerFormat: JWT
+          scheme: bearer
   /api/comm-link-images:
     get:
       tags:
@@ -2178,19 +2184,24 @@ components:
           format: double
           nullable: true
         scu:
-          description: 'Amount of SCU this container can hold.'
+          description: 'Amount of SCU this container can hold. This is the raw value as set in the game data.'
           type: number
           format: double
           example: 0.002
           nullable: true
         scu_converted:
-          description: 'SCU converted to referenced unit, e.g. 2000 (µSCU)'
+          description: 'Raw SCU value (for example µSCU) converted to SCU'
           type: number
           format: double
           nullable: true
         unit:
           description: 'Unit as shown in the UI for example µSCU'
           type: string
+          nullable: true
+        micro_scu:
+          description: 'µSCU version of SCU. Only calculated when unit is 0.'
+          type: number
+          format: double
           nullable: true
         open:
           description: IsOpenContainer
@@ -2308,6 +2319,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/item_link'
+          nullable: true
+        equipped_port_item:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_port_item'
           nullable: true
       type: object
     item_port_type:
@@ -2680,7 +2696,7 @@ components:
         cargo_grid:
           oneOf:
             -
-              $ref: '#/components/schemas/cargo_grid'
+              $ref: '#/components/schemas/item_inventory'
           nullable: true
         clothing:
           description: 'Note: FPS armor currently also populates this key due to resource logic. Prefer returning suit_armor instead.'
@@ -2927,6 +2943,72 @@ components:
           format: double
           nullable: true
       type: object
+    game_port_item:
+      title: 'Equipped Port Item'
+      description: 'Item equipped in a port, with basic item data, optional manufacturer, and conditional resource network and emission details.'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/item_related_items'
+        -
+          properties:
+            uuid:
+              type: string
+            name:
+              type: string
+            class_name:
+              type: string
+            type:
+              description: 'AttachDef@Type (NOITEM_ prefix removed)'
+              type: string
+              nullable: true
+            sub_type:
+              description: AttachDef@SubType
+              type: string
+              nullable: true
+            link:
+              description: 'API URL for item detail endpoint'
+              type: string
+            size:
+              description: AttachDef@Size
+              type: integer
+              nullable: true
+            mass:
+              description: 'Generated from SEntityRigidPhysicsControllerParams'
+              type: number
+              format: double
+              nullable: true
+            grade:
+              description: 'Derived formatting for ship grades (A, B, C, D) or extracted from DescriptionData.Grade'
+              type: string
+              nullable: true
+            class:
+              description: 'From DescriptionData.Class if not set directly'
+              type: string
+              nullable: true
+            manufacturer:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/manufacturer_link'
+              nullable: true
+              description: 'Present when manufacturer is set'
+            resource_network:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/resource_network'
+              nullable: true
+              description: 'Present when stdItem.ResourceNetwork exists'
+            emission:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/item_emission'
+              nullable: true
+              description: 'Present when stdItem.ResourceNetwork exists; calculated emission values'
+            version:
+              description: 'Game version code'
+              type: string
+              example: 4.4.0-LIVE.12340123
+          type: object
     resource_container:
       title: 'Resource Container'
       description: 'Container data for items that can hold resources (e.g. cargo or consumables).'
@@ -4078,7 +4160,7 @@ components:
       type: object
     cooler:
       title: Cooler
-      description: 'Use Resource Network data for actual cooling segment generation. Ship cooler characteristics describing heat dissipation capacity and signature suppression factors.'
+      description: 'Ship cooler specifications including heat dissipation capacity, signature suppression factors, and coolant segment generation.'
       properties:
         cooling_rate:
           description: 'Maximum heat removal capacity (heat units per second). Higher numbers indicate stronger cooling performance. Size 1 military coolers like the Aegis Glacier are around 290,000 while heavy industrial units reach into the tens of millions.'
@@ -4097,6 +4179,12 @@ components:
           type: number
           format: double
           example: 0.1
+          nullable: true
+        coolant_segment_generation:
+          description: 'Coolant segment generation rate from resource network. Use this for actual cooling segment generation.'
+          type: number
+          format: double
+          example: 22
           nullable: true
       type: object
     counter_measure:
@@ -5960,11 +6048,17 @@ components:
       type: object
     power_plant:
       title: 'Power Plant'
-      description: 'Use Resource Network data for actual power segment generation. Power plant output values derived from power connection data.'
+      description: 'Power plant specifications including power output and segment generation from resource network.'
       properties:
         power_output:
           type: number
           format: double
+          nullable: true
+        power_segment_generation:
+          description: 'Power segment generation rate from resource network. Use this for actual power segment generation.'
+          type: number
+          format: double
+          example: 1000
           nullable: true
       type: object
     quantum_drive_jump_profile:
@@ -6996,12 +7090,6 @@ components:
           type: number
           format: double
           example: 1431557
-          nullable: true
-        thrust_capacity_new:
-          description: 'Newton output using the newer balance pass values when present (null for most items).'
-          type: number
-          format: double
-          example: 9023031
           nullable: true
         max_supported_atmospheric_efficiency:
           description: 'Cap for atmospheric efficiency scaling. Currently 2 across available thrusters.'
@@ -8569,12 +8657,6 @@ components:
             $ref: '#/components/schemas/game_vehicle_part'
           nullable: true
       type: object
-    game_vehicle_port_item:
-      title: 'Equipped Port Item'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/item_related_items'
     game_vehicle_port:
       title: 'Vehicle Port / Hardpoint'
       description: 'Ports (hardpoints) as defined in scunpacked ship files. Nested ports are supported.'
@@ -8623,6 +8705,11 @@ components:
           type: string
           example: UNDEFINED
           nullable: true
+        category_label:
+          description: 'Human-readable category label. Only on parent ports.'
+          type: string
+          example: Weapons
+          nullable: true
         compatible_types:
           description: 'Port compatibility straight from the ship data.'
           type: array
@@ -8641,7 +8728,7 @@ components:
         equipped_item:
           oneOf:
             -
-              $ref: '#/components/schemas/game_vehicle_port_item'
+              $ref: '#/components/schemas/game_port_item'
           nullable: true
         ports:
           type: array
@@ -8710,9 +8797,9 @@ components:
         name:
           type: string
           example: 'Avenger Titan'
-        display_name:
+        game_name:
           type: string
-          example: 'Avenger Titan'
+          example: AEGS_Avenger_Titan
           nullable: true
         slug:
           type: string
@@ -8722,7 +8809,7 @@ components:
           example: AEGS_Avenger_Titan
         manufacturer:
           $ref: '#/components/schemas/manufacturer_link'
-        size:
+        size_class:
           type: integer
           example: 2
           nullable: true
@@ -8744,7 +8831,7 @@ components:
             length:
               type: number
               example: 18
-            width:
+            beam:
               type: number
               example: 16
             height:
@@ -8752,16 +8839,42 @@ components:
               example: 5
           type: object
           deprecated: true
+        emission:
+          description: 'Deprecated, use signature instead. Emission.ir currently maps to IR with shields active. Emission.em_max maps to EM Signature with quantum drive active. Emission.em_idle maps to EM Signature with shields active.'
+          properties:
+            ir:
+              type: number
+              example: 4412
+              nullable: true
+            em_idle:
+              type: number
+              example: 14320
+              nullable: true
+            em_max:
+              type: number
+              example: 30458
+              nullable: true
+          type: object
+          nullable: true
+          deprecated: true
         mass:
+          description: 'Deprecated, use mass_total instead. Mass is equal to mass_hull.'
+          type: number
+          example: 53531
+          nullable: true
+        mass_hull:
+          type: number
+          example: 53531
+          nullable: true
+        mass_loadout:
+          type: number
+          example: 0
+          nullable: true
+        mass_total:
           type: number
           example: 53531
           nullable: true
         cargo_capacity:
-          type: number
-          example: 8
-          nullable: true
-          deprecated: true
-        cargo_scu:
           type: number
           example: 8
           nullable: true
@@ -8770,9 +8883,71 @@ components:
           items:
             $ref: '#/components/schemas/game_vehicle_cargo_grid'
           nullable: true
+        cargo_limits:
+          description: 'Calculated cargo size limits based on grid dimensions.'
+          properties:
+            min:
+              properties:
+                x:
+                  type: number
+                  example: 1.25
+                  nullable: true
+                'y':
+                  type: number
+                  example: 1.25
+                  nullable: true
+                z:
+                  type: number
+                  example: 1.25
+                  nullable: true
+              type: object
+              nullable: true
+            max:
+              properties:
+                x:
+                  type: number
+                  example: 2.5
+                  nullable: true
+                'y':
+                  type: number
+                  example: 2.5
+                  nullable: true
+                z:
+                  type: number
+                  example: 1.25
+                  nullable: true
+              type: object
+              nullable: true
+          type: object
+          nullable: true
+        vehicle_inventory:
+          description: 'Vehicle stowage in micro SCU'
+          type: number
+          example: 0
+          nullable: true
+        inventory_containers:
+          type: object
+          example:
+            Container: []
+          nullable: true
         crew:
-          type: integer
-          example: 1
+          properties:
+            min:
+              type: integer
+              example: 1
+              nullable: true
+            max:
+              type: integer
+              example: 1
+              nullable: true
+            weapon:
+              type: integer
+              example: 1
+              nullable: true
+            operation:
+              type: integer
+              nullable: true
+          type: object
           nullable: true
         is_vehicle:
           type: boolean
@@ -8791,12 +8966,70 @@ components:
           example: 2500
           nullable: true
         shield_hp:
+          description: 'Use shield.hp property instead.'
           type: number
           example: 12000
           nullable: true
+          deprecated: true
         shield_face_type:
+          description: 'Use shield.face_type property instead.'
           type: string
           example: FourFaces
+          nullable: true
+          deprecated: true
+        shield:
+          properties:
+            hp:
+              type: number
+              example: 12000
+              nullable: true
+            regeneration:
+              type: number
+              example: 50
+              nullable: true
+            face_type:
+              type: string
+              example: FourFaces
+              nullable: true
+            max_reallocation:
+              type: number
+              example: 0.5
+              nullable: true
+            reconfiguration_cooldown:
+              type: number
+              example: 2
+              nullable: true
+            max_electrical_charge_damage_rate:
+              type: number
+              example: 100
+              nullable: true
+          type: object
+          nullable: true
+        weapon_snapshot:
+          description: 'Computed weapon statistics from vehicle loadout'
+          properties:
+            pilot_guns_count:
+              type: integer
+              example: 3
+            turrets_manned_count:
+              type: integer
+              example: 0
+            turrets_remote_count:
+              type: integer
+              example: 0
+            turret_weapon_guns_count:
+              type: integer
+              example: 0
+            missile_rack_count:
+              type: integer
+              example: 2
+            missile_count:
+              type: integer
+              example: 2
+            countermeasures_count:
+              type: integer
+              example: 2
+          type: object
           nullable: true
         speed:
           properties:
@@ -8846,6 +9079,18 @@ components:
               type: number
               example: 180
               nullable: true
+            pitch_boosted:
+              type: number
+              example: 63
+              nullable: true
+            yaw_boosted:
+              type: number
+              example: 58.2
+              nullable: true
+            roll_boosted:
+              type: number
+              example: 216
+              nullable: true
             acceleration:
               properties:
                 main:
@@ -8884,8 +9129,20 @@ components:
           type: object
           nullable: true
         afterburner:
-          description: 'Afterburner capacitor and timing straight from FlightCharacteristics.Afterburner.'
+          description: 'Afterburner properties from FlightCharacteristics.Afterburner.'
           properties:
+            pitch_boost_multiplier:
+              type: number
+              example: 1.2
+              nullable: true
+            roll_boost_multiplier:
+              type: number
+              example: 1.2
+              nullable: true
+            yaw_boost_multiplier:
+              type: number
+              example: 1.2
+              nullable: true
             capacitor:
               type: number
               example: 20
@@ -8902,7 +9159,7 @@ components:
               type: number
               example: 0
               nullable: true
-            regen_per_sec:
+            regen_per_second:
               type: number
               example: 0.75
               nullable: true
@@ -8957,17 +9214,19 @@ components:
           nullable: true
         quantum:
           properties:
-            speed:
+            quantum_speed:
               type: number
               example: 165000000
-            spool_time:
+              nullable: true
+            quantum_spool_time:
               type: number
               example: 4
-            fuel_capacity:
+              nullable: true
+            quantum_fuel_capacity:
               type: number
               example: 1.1
               nullable: true
-            range:
+            quantum_range:
               type: number
               example: 112244897.9592
               nullable: true
@@ -8981,68 +9240,123 @@ components:
               nullable: true
           type: object
           nullable: true
-        inventory:
-          properties:
-            personal:
-              type: number
-              example: 0.25
-              nullable: true
-            vehicle:
-              type: number
-              example: 1
-              nullable: true
-          type: object
-          nullable: true
-        em_signature:
-          properties:
-            infrared:
-              type: number
-              example: 4412
-            em_quantum:
-              description: 'EM Signature with quantum drive active'
-              type: number
-              example: 30458
-            em_shields:
-              description: 'EM Signature with shields active'
-              type: number
-              example: 14320
-            electromagnetic:
-              description: 'Deprecated, use armor.signal.electromagnetic instead.'
-              type: number
-              example: 1
-              deprecated: true
-            cross_section:
-              description: 'Deprecated, use armor.signal.cross_section instead.'
-              type: number
-              example: 1
-              deprecated: true
-          type: object
-          nullable: true
         armor:
           properties:
-            physical:
+            uuid:
+              type: string
+              example: armor-uuid
+              nullable: true
+            health:
+              type: number
+              example: 1000
+              nullable: true
+            signal_infrared:
+              type: number
+              example: 1
+              nullable: true
+            signal_electromagnetic:
+              type: number
+              example: 1
+              nullable: true
+            signal_cross_section:
+              type: number
+              example: 1
+              nullable: true
+            damage_physical:
               type: number
               example: 0.62
               nullable: true
-            energy:
+            damage_energy:
               type: number
               example: 1
               nullable: true
-            distortion:
+            damage_distortion:
               type: number
               example: 1
               nullable: true
-            thermal:
+            damage_thermal:
               type: number
               example: 1
               nullable: true
-            biochemical:
+            damage_biochemical:
               type: number
               example: 1
               nullable: true
-            stun:
+            damage_stun:
               type: number
               example: 0
+              nullable: true
+            signal_multipliers:
+              properties:
+                cross_section:
+                  type: number
+                  example: 1
+                  nullable: true
+                infrared:
+                  type: number
+                  example: 1
+                  nullable: true
+                electromagnetic:
+                  type: number
+                  example: 1
+                  nullable: true
+              type: object
+              nullable: true
+            damage_multipliers:
+              properties:
+                physical:
+                  type: number
+                  example: 0.62
+                  nullable: true
+                energy:
+                  type: number
+                  example: 1
+                  nullable: true
+                distortion:
+                  type: number
+                  example: 1
+                  nullable: true
+                thermal:
+                  type: number
+                  example: 1
+                  nullable: true
+                biochemical:
+                  type: number
+                  example: 1
+                  nullable: true
+                stun:
+                  type: number
+                  example: 0
+                  nullable: true
+              type: object
+              nullable: true
+            resistance_multipliers:
+              properties:
+                physical:
+                  type: number
+                  example: 0.001
+                  nullable: true
+                energy:
+                  type: number
+                  example: 0.001
+                  nullable: true
+                distortion:
+                  type: number
+                  example: 0.001
+                  nullable: true
+                thermal:
+                  type: number
+                  example: 0.001
+                  nullable: true
+                biochemical:
+                  type: number
+                  example: 0.001
+                  nullable: true
+                stun:
+                  type: number
+                  example: 0.001
+                  nullable: true
+              type: object
               nullable: true
             penetration_resistance:
               properties:
@@ -9075,31 +9389,20 @@ components:
                   example: 0.001
                   nullable: true
               type: object
-            signal:
-              properties:
-                infrared:
-                  type: number
-                  example: 1
-                electromagnetic:
-                  type: number
-                  example: 1
-                cross_section:
-                  type: number
-                  example: 1
-              type: object
+              nullable: true
           type: object
           nullable: true
         insurance:
           properties:
-            standard_claim_time:
+            claim_time:
               type: number
               example: 4.05
               nullable: true
-            expedited_claim_time:
+            expedite_time:
               type: number
               example: 1.35
               nullable: true
-            expedited_cost:
+            expedite_cost:
               type: number
               example: 2343
               nullable: true
@@ -9124,6 +9427,7 @@ components:
           type: object
           nullable: true
         ports:
+          description: 'Only included on show route, excluded from index route.'
           type: array
           items:
             $ref: '#/components/schemas/game_vehicle_port'
@@ -9147,18 +9451,131 @@ components:
               nullable: true
           type: object
           nullable: true
-        item_description_data:
-          description: "Description data from the vehicle's ItemData. Returns null when no matching ItemData exists."
-          type: array
-          items:
-            $ref: '#/components/schemas/item_description_data'
-          nullable: true
-        description_data:
-          description: 'Key/value pairs parsed from the description block in the game files.'
+        cross_section:
+          description: 'Vehicle cross-section dimensions'
+          properties:
+            length:
+              type: number
+              example: 18
+              nullable: true
+            width:
+              type: number
+              example: 16
+              nullable: true
+            height:
+              type: number
+              example: 5
+              nullable: true
           type: object
-          example:
-            Manufacturer: 'Aegis Dynamics'
-            Focus: 'Light Freight'
+          nullable: true
+        cross_section_max:
+          description: 'Derived: maximum cross-section dimension (max of x, y, z)'
+          type: number
+          example: 18
+          nullable: true
+        signature:
+          description: 'EM and IR signature data'
+          properties:
+            ir_quantum:
+              type: number
+              example: 4412
+              nullable: true
+            ir_shields:
+              type: number
+              example: 14320
+              nullable: true
+            em_quantum:
+              type: number
+              example: 30458
+              nullable: true
+            em_shields:
+              type: number
+              example: 14320
+              nullable: true
+            em_groups_quantum:
+              type: array
+              items:
+                type: number
+              nullable: true
+            em_groups_shields:
+              type: array
+              items:
+                type: number
+              nullable: true
+            em_segment_groups_quantum:
+              type: array
+              items:
+                type: number
+              nullable: true
+            em_segment_groups_shields:
+              type: array
+              items:
+                type: number
+              nullable: true
+            em_per_segment:
+              type: number
+              nullable: true
+          type: object
+          nullable: true
+        cooling:
+          description: 'Cooling system data'
+          properties:
+            generation_segments:
+              type: number
+              nullable: true
+            usage_shields_pct:
+              type: number
+              nullable: true
+            usage_quantum_pct:
+              type: number
+              nullable: true
+            used_segments_shields:
+              type: number
+              nullable: true
+            used_segments_quantum:
+              type: number
+              nullable: true
+            used_segments_shields_grouped:
+              type: array
+              items:
+                type: number
+              nullable: true
+            used_segments_quantum_grouped:
+              type: array
+              items:
+                type: number
+              nullable: true
+          type: object
+          nullable: true
+        power:
+          description: 'Power system data'
+          properties:
+            generation_segments:
+              type: number
+              nullable: true
+            used_segments_shields:
+              type: number
+              nullable: true
+            used_segments_quantum:
+              type: number
+              nullable: true
+            used_segments_grouped:
+              type: array
+              items:
+                type: number
+              nullable: true
+          type: object
+          nullable: true
+        penetration_multiplier:
+          description: 'Penetration multiplier data'
+          properties:
+            fuse:
+              type: number
+              nullable: true
+            components:
+              type: number
+              nullable: true
+          type: object
           nullable: true
         career:
           type: string
@@ -9168,6 +9585,13 @@ components:
           type: string
           example: Combat
           nullable: true
+        web_url:
+          type: string
+          example: 'https://example.com/vehicles/uuid'
+          nullable: true
+        link:
+          type: string
+          example: 'https://api.example.com/vehicles/uuid'
         description:
           type: string
           nullable: true
@@ -9213,12 +9637,6 @@ components:
               $ref: '#/components/schemas/translation'
           nullable: true
           description: 'Ship-Matrix vehicle description'
-        size_name:
-          oneOf:
-            -
-              $ref: '#/components/schemas/translation'
-          nullable: true
-          description: 'Ship-Matrix size name (Small, Medium, Large, etc.)'
         msrp:
           description: 'Ship-Matrix MSRP in USD'
           type: number

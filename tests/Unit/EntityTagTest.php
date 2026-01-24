@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-uses(Tests\TestCase::class);
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

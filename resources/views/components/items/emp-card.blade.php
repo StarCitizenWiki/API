@@ -9,52 +9,42 @@
     $chargeDuration = data_get($emp, 'charge_duration');
     $unleashDuration = data_get($emp, 'unleash_duration');
     $cooldownDuration = data_get($emp, 'cooldown_duration');
+
+    $distortionDamageFormatted = fmt_value_with_unit($distortionDamage, 'N', 2);
+    $empRadiusFormatted = fmt_range($minEmpRadius, $empRadius, 'm', 2);
+    $chargeDurationFormatted = fmt_value_with_unit($chargeDuration, 's', 2);
+    $unleashDurationFormatted = fmt_value_with_unit($unleashDuration, 's', 2);
+    $cooldownDurationFormatted = fmt_value_with_unit($cooldownDuration, 's', 2);
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
-        <h2 class="card-title text-base flex items-center gap-2">
+        <h2 class="card-title flex items-center gap-2">
             <x-icon name="zap" class="size-4 text-primary" />
-            <span>EMP Generator Specifications</span>
+            <span>EMP Generator</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($distortionDamage !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion Damage</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$distortionDamage, 2) }}</dd>
-                </div>
-            @endif
-            @if ($empRadius !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EMP Radius</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$empRadius, 2) }} m</dd>
-                </div>
-            @endif
-            @if ($minEmpRadius !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum EMP Radius</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$minEmpRadius, 2) }} m</dd>
-                </div>
-            @endif
-            @if ($chargeDuration !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Charge Duration</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$chargeDuration, 2) }} s</dd>
-                </div>
-            @endif
-            @if ($unleashDuration !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Unleash Duration</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$unleashDuration, 2) }} s</dd>
-                </div>
-            @endif
-            @if ($cooldownDuration !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Duration</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$cooldownDuration, 2) }} s</dd>
-                </div>
-            @endif
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EMP Radius</dt>
+                <dd class="text-sm font-medium">{{ $empRadiusFormatted }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Charge Duration</dt>
+                <dd class="text-sm font-medium">{{ $chargeDurationFormatted }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Unleash Duration</dt>
+                <dd class="text-sm font-medium">{{ $unleashDurationFormatted }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Duration</dt>
+                <dd class="text-sm font-medium">{{ $cooldownDurationFormatted }}</dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion Damage</dt>
+                <dd class="text-sm font-medium">{{ $distortionDamageFormatted }}</dd>
+            </div>
         </dl>
     </div>
 </div>

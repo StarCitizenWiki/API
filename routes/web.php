@@ -48,11 +48,11 @@ Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 
 
 Route::get('/starmap/systems', [StarsystemController::class, 'index'])
     ->name('web.starmap.systems.index');
-Route::get('/starmap/systems/{id}', [StarsystemController::class, 'show'])
+Route::get('/starmap/systems/{code}', [StarsystemController::class, 'show'])
     ->name('web.starmap.systems.show');
 Route::get('/starmap/celestial-objects', [CelestialObjectController::class, 'index'])
     ->name('web.starmap.celestial-objects.index');
-Route::get('/starmap/celestial-objects/{id}', [CelestialObjectController::class, 'show'])
+Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::class, 'show'])
     ->name('web.starmap.celestial-objects.show');
 
 Route::post('/game-version', GameVersionSelectionController::class)

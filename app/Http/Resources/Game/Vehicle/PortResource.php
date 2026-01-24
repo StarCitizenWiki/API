@@ -7,9 +7,11 @@ namespace App\Http\Resources\Game\Vehicle;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
+use App\Http\Resources\Game\Item\PortItemResource;
 use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -30,6 +32,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', type: 'string', nullable: true),
         new OA\Property(property: 'type', type: 'string', example: 'LifeSupportGenerator', nullable: true),
         new OA\Property(property: 'subtype', type: 'string', example: 'UNDEFINED', nullable: true),
+        new OA\Property(property: 'category_label', description: 'Human-readable category label. Only on parent ports.', type: 'string', example: 'Weapons', nullable: true),
         new OA\Property(
             property: 'compatible_types',
             description: 'Port compatibility straight from the ship data.',
@@ -40,7 +43,7 @@ use OpenApi\Attributes as OA;
             ], type: 'object'),
             nullable: true
         ),
-        new OA\Property(property: 'equipped_item', ref: '#/components/schemas/game_vehicle_port_item', nullable: true),
+        new OA\Property(property: 'equipped_item', ref: '#/components/schemas/game_port_item', nullable: true),
         new OA\Property(
             property: 'ports',
             type: 'array',
@@ -110,7 +113,12 @@ class PortResource extends AbstractBaseResource
         }
 
         if ($this->shouldIncludeChildren()) {
-            $data['ports'] = self::collection($this->getChildrenArray());
+            $data['ports'] = ChildPortResource::collection($this->getChildrenArray());
+        }
+
+        if (! ($this instanceof ChildPortResource)) {
+            $category = $this->categorize();
+            $data['category_label'] = $category;
         }
 
         return array_filter(
@@ -118,5 +126,47 @@ class PortResource extends AbstractBaseResource
             static fn ($value) => $value !== null && $value !== [],
             ARRAY_FILTER_USE_BOTH
         );
+    }
+
+    private function categorize(): string
+    {
+        [$type, $subtype] = $this->extractTypeAndSubtype();
+
+        $category = match ($type) {
+            'CargoGrid' => 'Cargo Grids',
+            'Cooler' => 'Coolers',
+            'EMP' => 'EMP',
+            'FlightController' => 'Flight Controller',
+            'FuelTank', 'QuantumFuelTank', 'FuelIntake' => 'Fuel',
+            'LifeSupportGenerator' => 'Life Support',
+            'MainThruster', 'ManneuverThruster' => 'Thrusters', // TODO
+            'MissileLauncher', 'BombRack' => 'Missile & Bomb Racks',
+            'Paint' => 'Paints',
+            'PowerPlant' => 'Power Plants',
+            'QuantumDrive' => 'Quantum Drives',
+            'QuantumInterdictionGenerator' => 'QED',
+            'Radar' => 'Radars',
+            'Shield' => 'Shields',
+            'Turret', 'TurretBase' => 'Turrets',
+            'WeaponDefensive' => 'Counter Measures',
+            'WeaponGun' => 'Weapons',
+            default => 'Other',
+        };
+
+        if ($category === 'Turrets') {
+            if (Str::contains(Arr::get($this, 'ClassName'), 'Remote')) {
+                $category = 'Remote Turrets';
+            } elseif ($subtype === 'MannedTurret') {
+                $category = 'Manned Turrets';
+            } elseif ($subtype === 'PDCTurret') {
+                $category = 'PDC Turrets';
+            }
+        }
+
+        if ($category === 'Other' && str_starts_with($type, 'Flair')) {
+            $category = 'Customization';
+        }
+
+        return $category;
     }
 }

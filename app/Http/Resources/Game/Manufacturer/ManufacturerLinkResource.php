@@ -27,7 +27,7 @@ class ManufacturerLinkResource extends AbstractBaseResource
             'name' => $this->name,
             'code' => $this->code,
             'uuid' => $this->uuid,
-            'link' => route('manufacturers.show', ['manufacturer' => $this->name]),
+            'link' => route('manufacturers.show', ['manufacturer' => empty($this->code) ? 'UNKN' : $this->code]),
         ];
     }
 }

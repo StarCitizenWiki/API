@@ -79,7 +79,7 @@ class CelestialObjectResource extends AbstractBaseResource
                 'celestial-objects.show',
                 ['code' => $this->code]
             ),
-            'web_url' => route('web.starmap.celestial-objects.show', ['id' => $this->cig_id]),
+            'web_url' => route('web.starmap.celestial-objects.show', ['code' => $this->code]),
             'name' => $this->name,
             'type' => $this->type,
 

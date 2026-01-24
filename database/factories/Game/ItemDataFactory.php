@@ -172,4 +172,37 @@ JSON, true, 512, JSON_THROW_ON_ERROR
             ],
         ]);
     }
+
+    public function seat(): self|Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'Seat',
+            'sub_type' => 'UNDEFINED',
+            'classification' => 'Ship.Seat',
+            'data' => [
+                'stdItem' => [
+                    'Seat' => [
+                        'SeatType' => fake()->randomElement(['HOTAS_C_L', 'HOTAS_C_R', 'Pilot', 'Copilot']),
+                        'Yaw' => [
+                            'Minimum' => fake()->numberBetween(-180, 0),
+                            'Maximum' => fake()->numberBetween(0, 180),
+                        ],
+                        'Pitch' => [
+                            'Minimum' => fake()->numberBetween(-90, 0),
+                            'Maximum' => fake()->numberBetween(0, 90),
+                        ],
+                        'SetYawPitchLimits' => fake()->boolean(),
+                        'HasEjection' => fake()->boolean(),
+                        'Ejection' => [
+                            'MaxLinearVelocity' => fake()->numberBetween(1000, 5000),
+                            'MaxLinearAcceleration' => fake()->numberBetween(50, 500),
+                            'MaxAngularVelocity' => fake()->numberBetween(1000, 5000),
+                            'MaxAngularAcceleration' => fake()->numberBetween(50, 500),
+                            'EjectionLoopTime' => fake()->randomFloat(1, 0.5, 2),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
 }

@@ -8,23 +8,22 @@
     $suppressionHeatFactor = data_get($cooler, 'suppression_heat_factor');
     $coolantSegmentGeneration = data_get($cooler, 'coolant_segment_generation');
 
-    $hasCoolerData = is_array($cooler) && array_filter($cooler, fn($v) => $v !== null);
+    $hasCoolerData = is_array($cooler) && collect($cooler)->filter(fn($v) => $v !== null)->isNotEmpty();
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="fan" class="size-4 text-primary" />
-            <span>Cooler Specifications</span>
+            <span>Cooler</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($coolantSegmentGeneration !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Coolant Segment Generation</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$coolantSegmentGeneration, 2) }}</dd>
-                </div>
-            @endif
+        <dl class="grid gap-4 grid-cols-1">
+
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Coolant Generation</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($coolantSegmentGeneration, 'Segments', 0) }}</dd>
+            </div>
         </dl>
     </div>
 </div>

@@ -1,6 +1,6 @@
 @props([
     'weaponAttachment',
-])
+ ])
 
 @php
     $ironSight = data_get($weaponAttachment, 'iron_sight', []);
@@ -11,13 +11,13 @@
     $ironZoomScale = data_get($ironSight, 'zoom_scale');
     $ironZoomTimeScale = data_get($ironSight, 'zoom_time_scale');
     $ironZoomTimeChange = data_get($ironSight, 'zoom_time_change');
-    $hasIronSight = is_array($ironSight) && array_filter($ironSight, static fn($v) => $v !== null);
+    $hasIronSight = is_array($ironSight) && collect($ironSight)->filter(static fn($v) => $v !== null)->isNotEmpty();
 
     $laserPointer = data_get($weaponAttachment, 'laser_pointer', []);
     $laserRange = data_get($laserPointer, 'range');
     $laserColor = data_get($laserPointer, 'color');
     $laserColorCss = data_get($laserPointer, 'color_css');
-    $hasLaserPointer = is_array($laserPointer) && array_filter($laserPointer, static fn($v) => $v !== null);
+    $hasLaserPointer = is_array($laserPointer) && collect($laserPointer)->filter(static fn($v) => $v !== null)->isNotEmpty();
 
     $flashlight = data_get($weaponAttachment, 'flashlight', []);
     $hasFlashlight = is_array($flashlight) && $flashlight !== [];
@@ -26,194 +26,238 @@
     $magInitialAmmoCount = data_get($magazine, 'initial_ammo_count');
     $magMaxAmmoCount = data_get($magazine, 'max_ammo_count');
     $magMaxRestockCount = data_get($magazine, 'max_restock_count');
-    $hasMagazine = is_array($magazine) && array_filter($magazine, static fn($v) => $v !== null);
+    $hasMagazine = is_array($magazine) && collect($magazine)->filter(static fn($v) => $v !== null)->isNotEmpty();
 
     $compensator = data_get($weaponAttachment, 'compensator', data_get($weaponAttachment, 'stabilizer', []));
     $compAttachmentPoint = data_get($compensator, 'attachment_point');
     $compType = data_get($compensator, 'type');
-    $hasCompensator = is_array($compensator) && array_filter($compensator, static fn($v) => $v !== null);
+    $hasCompensator = is_array($compensator) && collect($compensator)->filter(static fn($v) => $v !== null)->isNotEmpty();
 
     $flashHider = data_get($weaponAttachment, 'flash_hider', []);
     $flashHiderAttachmentPoint = data_get($flashHider, 'attachment_point');
     $flashHiderType = data_get($flashHider, 'type');
-    $hasFlashHider = is_array($flashHider) && array_filter($flashHider, static fn($v) => $v !== null);
+    $hasFlashHider = is_array($flashHider) && collect($flashHider)->filter(static fn($v) => $v !== null)->isNotEmpty();
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="puzzle" class="size-4 text-primary" />
-            <span>Weapon Attachment Specifications</span>
+        <h2 class="card-title flex items-center gap-2">
+            <x-icon name="attachment" class="size-4 text-primary" />
+            <span>Weapon Attachment</span>
         </h2>
 
+        {{-- PRIMARY DATA: Always Visible --}}
         @if ($hasIronSight)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Iron Sight</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($ironDefaultRange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Default Range</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironDefaultRange, 2) }} m</dd>
+            <h3 class="text-sm font-semibold">Iron Sight</h3>
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @if ($ironDefaultRange !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Default Range</dt>
+                        <dd class="text-sm font-medium">{{ fmt_value_with_unit($ironDefaultRange, 'm', 2) }}</dd>
+                    </div>
+                @endif
+                @if ($ironMaxRange !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Range</dt>
+                        <dd class="text-sm font-medium">{{ fmt_value_with_unit($ironMaxRange, 'm', 2) }}</dd>
+                    </div>
+                @endif
+                @if ($ironZoomScale !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Zoom Scale</dt>
+                        <dd class="text-sm font-medium">{{ fmt_or_dash($ironZoomScale, 2) }}</dd>
+                    </div>
+                @endif
+            </dl>
+        @endif
+
+        @if ($hasLaserPointer)
+            <h3 class="text-sm font-semibold">Laser Pointer</h3>
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @if ($laserRange !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
+                        <dd class="text-sm font-medium">{{ fmt_value_with_unit($laserRange, 'm', 2) }}</dd>
+                    </div>
+                @endif
+                @if ($laserColorCss !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Color</dt>
+                        <dd class="text-sm font-medium">
+                            @if ($laserColorCss)
+                                <div class="flex items-center gap-2">
+                                    <div class="size-8 rounded border border-base-300" style="background-color: {{ $laserColorCss }};"></div>
+                                    <span>{{ $laserColorCss }}</span>
+                                </div>
+                            @endif
+                            <div class="grid grid-cols-3 gap-2 text-xs mt-1">
+                                <div>R: {{ fmt_or_dash(data_get($laserColor, 'r'), 2) }}</div>
+                                <div>G: {{ fmt_or_dash(data_get($laserColor, 'g'), 2) }}</div>
+                                <div>B: {{ fmt_or_dash(data_get($laserColor, 'b'), 2) }}</div>
                             </div>
-                        @endif
-                        @if ($ironMaxRange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Range</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironMaxRange, 2) }} m</dd>
-                            </div>
-                        @endif
+                        </dd>
+                    </div>
+                @endif
+            </dl>
+        @endif
+
+        @if ($hasMagazine)
+            <h3 class="text-sm font-semibold">Magazine</h3>
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @if ($magInitialAmmoCount !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Initial Ammo Count</dt>
+                        <dd class="text-sm font-medium">{{ fmt_or_dash($magInitialAmmoCount, 0) }}</dd>
+                    </div>
+                @endif
+                @if ($magMaxAmmoCount !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Ammo Count</dt>
+                        <dd class="text-sm font-medium">{{ fmt_or_dash($magMaxAmmoCount, 0) }}</dd>
+                    </div>
+                @endif
+                @if ($magMaxRestockCount !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Restock Count</dt>
+                        <dd class="text-sm font-medium">{{ fmt_or_dash($magMaxRestockCount, 0) }}</dd>
+                    </div>
+                @endif
+            </dl>
+        @endif
+
+        @if ($hasCompensator)
+            <h3 class="text-sm font-semibold">Compensator</h3>
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @if ($compAttachmentPoint !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Attachment Point</dt>
+                        <dd class="text-sm font-medium">{{ $compAttachmentPoint }}</dd>
+                    </div>
+                @endif
+                @if ($compType !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
+                        <dd class="text-sm font-medium">{{ $compType }}</dd>
+                    </div>
+                @endif
+            </dl>
+        @endif
+
+        @if ($hasFlashHider)
+            <h3 class="text-sm font-semibold">Flash Hider</h3>
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @if ($flashHiderAttachmentPoint !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Attachment Point</dt>
+                        <dd class="text-sm font-medium">{{ $flashHiderAttachmentPoint }}</dd>
+                    </div>
+                @endif
+                @if ($flashHiderType !== null)
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
+                        <dd class="text-sm font-medium">{{ $flashHiderType }}</dd>
+                    </div>
+                @endif
+            </dl>
+        @endif
+
+        {{-- SECONDARY DATA: Collapsible, default open --}}
+        @if ($hasIronSight && ($ironRangeIncrement !== null || $ironAutoZeroingTime !== null || $ironZoomTimeScale !== null || $ironZoomTimeChange !== null))
+            <details id="iron-sight-details" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="iron-sight-details-content">
+                    Iron Sight Details
+                </summary>
+                <div id="iron-sight-details-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($ironRangeIncrement !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range Increment</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironRangeIncrement, 2) }} m</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($ironRangeIncrement, 'm', 2) }}</dd>
                             </div>
                         @endif
                         @if ($ironAutoZeroingTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Auto Zeroing Time</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironAutoZeroingTime, 2) }} s</dd>
-                            </div>
-                        @endif
-                        @if ($ironZoomScale !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Zoom Scale</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironZoomScale, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($ironAutoZeroingTime, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($ironZoomTimeScale !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Zoom Time Scale</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironZoomTimeScale, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($ironZoomTimeScale, 2) }}</dd>
                             </div>
                         @endif
                         @if ($ironZoomTimeChange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Zoom Time Change</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$ironZoomTimeChange, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($ironZoomTimeChange, 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
-        @endif
-
-        @if ($hasLaserPointer)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Laser Pointer</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($laserRange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range
-                                </dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$laserRange, 2) }} m</dd>
-                            </div>
-                        @endif
-                        @if ($laserColorCss !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Color
-                                </dt>
-                                <dd class="text-sm font-medium">
-                                    @if ($laserColorCss)
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 rounded border border-base-300"
-                                                 style="background-color: {{ $laserColorCss }};"></div>
-                                            <span>{{ $laserColorCss }}</span>
-                                        </div>
-                                    @endif
-                                    <div class="grid grid-cols-3 gap-2 text-xs mt-1">
-                                        <div>R: {{ number_format((float)data_get($laserColor, 'r'), 2) }}</div>
-                                        <div>G: {{ number_format((float)data_get($laserColor, 'g'), 2) }}</div>
-                                        <div>B: {{ number_format((float)data_get($laserColor, 'b'), 2) }}</div>
-                                    </div>
-                                </dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasFlashlight)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Flashlight</div>
-                <div class="collapse-content">
+            <details id="flashlight-profiles" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="flashlight-profiles-content">
+                    Flashlight Profiles
+                </summary>
+                <div id="flashlight-profiles-content" class="collapse-content">
                     @foreach ($flashlight as $profileType => $profile)
                         @php
-                            $hasProfileData = is_array($profile) && array_filter($profile, static fn($v) => $v !== null);
+                            $hasProfileData = is_array($profile) && collect($profile)->filter(static fn($v) => $v !== null)->isNotEmpty();
                         @endphp
                         @if ($hasProfileData)
-                            <div class="mb-6 last:mb-0">
-                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">
+                            <div class="mb-4 last:mb-0">
+                                <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">
                                     {{ \Illuminate\Support\Str::headline($profileType) }}
-                                </div>
-                                <dl class="grid gap-4 sm:grid-cols-2">
+                                </h4>
+                                <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                     @if (data_get($profile, 'port_name'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Port Name
-                                            </dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Port Name</dt>
                                             <dd class="text-sm font-medium">{{ data_get($profile, 'port_name') }}</dd>
                                         </div>
                                     @endif
                                     @if (data_get($profile, 'name'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Name
-                                            </dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Name</dt>
                                             <dd class="text-sm font-medium">{{ data_get($profile, 'name') }}</dd>
                                         </div>
                                     @endif
                                     @if (data_get($profile, 'light_type'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Light Type
-                                            </dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Light Type</dt>
                                             <dd class="text-sm font-medium">{{ data_get($profile, 'light_type') }}</dd>
                                         </div>
                                     @endif
                                     @if (data_get($profile, 'light_radius'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Light Radius
-                                            </dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)data_get($profile, 'light_radius'), 2) }}
-                                                m
-                                            </dd>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Light Radius</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($profile, 'light_radius'), 'm', 2) }}</dd>
                                         </div>
                                     @endif
                                     @if (data_get($profile, 'intensity'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Intensity
-                                            </dt>
-                                            <dd class="text-sm font-medium">{{ number_format((float)data_get($profile, 'intensity'), 2) }}</dd>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Intensity</dt>
+                                            <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($profile, 'intensity'), 2) }}</dd>
                                         </div>
                                     @endif
                                     @if (data_get($profile, 'color_css'))
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                                Color
-                                            </dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Color</dt>
                                             <dd class="text-sm font-medium">
                                                 @if (data_get($profile, 'color_css'))
                                                     <div class="flex items-center gap-2">
-                                                        <div class="w-8 h-8 rounded border border-base-300"
-                                                             style="background-color: {{ data_get($profile, 'color_css') }};"></div>
+                                                        <div class="size-8 rounded border border-base-300" style="background-color: {{ data_get($profile, 'color_css') }};"></div>
                                                         <span>{{ data_get($profile, 'color_css') }}</span>
                                                     </div>
                                                 @endif
                                                 <div class="grid grid-cols-3 gap-2 text-xs mt-1">
-                                                    <div>
-                                                        R: {{ number_format((float)data_get($profile, 'color.r',0), 2) }}</div>
-                                                    <div>
-                                                        G: {{ number_format((float)data_get($profile, 'color.g',0), 2) }}</div>
-                                                    <div>
-                                                        B: {{ number_format((float)data_get($profile, 'color.b',0), 2) }}</div>
+                                                    <div>R: {{ fmt_or_dash(data_get($profile, 'color.r', 0), 2) }}</div>
+                                                    <div>G: {{ fmt_or_dash(data_get($profile, 'color.g', 0), 2) }}</div>
+                                                    <div>B: {{ fmt_or_dash(data_get($profile, 'color.b', 0), 2) }}</div>
                                                 </div>
                                             </dd>
                                         </div>
@@ -223,136 +267,58 @@
                         @endif
                     @endforeach
                 </div>
-            </div>
+            </details>
         @endif
 
-        @if ($hasMagazine)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Magazine</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($magInitialAmmoCount !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Initial
-                                    Ammo Count
-                                </dt>
-                                <dd class="text-sm font-medium">{{ (int)$magInitialAmmoCount }}</dd>
-                            </div>
-                        @endif
-                        @if ($magMaxAmmoCount !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Ammo
-                                    Count
-                                </dt>
-                                <dd class="text-sm font-medium">{{ (int)$magMaxAmmoCount }}</dd>
-                            </div>
-                        @endif
-                        @if ($magMaxRestockCount !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max
-                                    Restock Count
-                                </dt>
-                                <dd class="text-sm font-medium">{{ (int)$magMaxRestockCount }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
-        @endif
-
+        {{-- TERTIARY DATA: Collapsible, default closed --}}
         @if ($hasCompensator)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Compensator</div>
-                <div class="collapse-content">
-                    @php
-                        $knownFields = ['attachment_point', 'type'];
-                        $additionalFields = array_diff_key($compensator, array_flip($knownFields));
-                        $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
-                    @endphp
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($compAttachmentPoint !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                    Attachment Point
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $compAttachmentPoint }}</dd>
-                            </div>
-                        @endif
-                        @if ($compType !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
-                                <dd class="text-sm font-medium">{{ $compType }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-
-                    @if ($hasAdditionalFields)
-                        <div class="collapse collapse-arrow border border-base-200 bg-base-100 mt-4">
-                            <input type="checkbox"/>
-                            <div class="collapse-title text-sm font-semibold">Additional Fields</div>
-                            <div class="collapse-content">
-                                <dl class="grid gap-3 sm:grid-cols-2">
-                                    @foreach ($additionalFields as $key => $value)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>
-                                            <dd class="text-sm">{{ is_numeric($value) ? number_format((float)$value, 2) : $value }}</dd>
-                                        </div>
-                                    @endforeach
-                                </dl>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            @php
+                $knownFields = ['attachment_point', 'type'];
+                $additionalFields = array_diff_key($compensator, array_flip($knownFields));
+                $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
+            @endphp
+            @if ($hasAdditionalFields && count($additionalFields) >= 2)
+                <details id="compensator-advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="compensator-advanced-content">
+                        Compensator Advanced
+                    </summary>
+                    <div id="compensator-advanced-content" class="collapse-content">
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            @foreach ($additionalFields as $key => $value)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>
+                                    <dd class="text-sm">{{ is_numeric($value) ? fmt_or_dash($value, 2) : $value }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    </div>
+                </details>
+            @endif
         @endif
 
         @if ($hasFlashHider)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox"/>
-                <div class="collapse-title text-sm font-semibold">Flash Hider</div>
-                <div class="collapse-content">
-                    @php
-                        $knownFields = ['attachment_point', 'type'];
-                        $additionalFields = array_diff_key($flashHider, array_flip($knownFields));
-                        $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
-                    @endphp
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($flashHiderAttachmentPoint !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                                    Attachment Point
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $flashHiderAttachmentPoint }}</dd>
-                            </div>
-                        @endif
-                        @if ($flashHiderType !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
-                                <dd class="text-sm font-medium">{{ $flashHiderType }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-
-                    @if ($hasAdditionalFields)
-                        <div class="collapse collapse-arrow border border-base-200 bg-base-100 mt-4">
-                            <input type="checkbox"/>
-                            <div class="collapse-title text-sm font-semibold">Additional Fields</div>
-                            <div class="collapse-content">
-                                <dl class="grid gap-3 sm:grid-cols-2">
-                                    @foreach ($additionalFields as $key => $value)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>
-                                            <dd class="text-sm">{{ is_numeric($value) ? number_format((float)$value, 2) : $value }}</dd>
-                                        </div>
-                                    @endforeach
-                                </dl>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            @php
+                $knownFields = ['attachment_point', 'type'];
+                $additionalFields = array_diff_key($flashHider, array_flip($knownFields));
+                $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
+            @endphp
+            @if ($hasAdditionalFields && count($additionalFields) >= 2)
+                <details id="flash-hider-advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="flash-hider-advanced-content">
+                        Flash Hider Advanced
+                    </summary>
+                    <div id="flash-hider-advanced-content" class="collapse-content">
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            @foreach ($additionalFields as $key => $value)
+                                <div class="space-y-1">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>
+                                    <dd class="text-sm">{{ is_numeric($value) ? fmt_or_dash($value, 2) : $value }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    </div>
+                </details>
+            @endif
         @endif
     </div>
 </div>

@@ -7,26 +7,26 @@
     $maximum = data_get($temperatureResistance, 'maximum');
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="thermometer" class="size-4 text-primary" />
-            <span>Temperature Resistance Specifications</span>
+            <span>Temperature Resistance</span>
         </h2>
 
-        <dl class="grid gap-4 sm:grid-cols-2">
-            @if ($minimum !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum Temperature</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$minimum, 1) }}°C</dd>
-                </div>
-            @endif
-            @if ($maximum !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Maximum Temperature</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$maximum, 1) }}°C</dd>
-                </div>
-            @endif
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min</dt>
+                <dd class="text-sm font-medium">
+                    {{ fmt_value_with_unit($minimum, '°C', 1) }}
+                </dd>
+            </div>
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max</dt>
+                <dd class="text-sm font-medium">
+                    {{ fmt_value_with_unit($maximum, '°C', 1) }}
+                </dd>
+            </div>
         </dl>
     </div>
 </div>

@@ -20,13 +20,6 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(
-            property: 'thrust_capacity_new',
-            description: 'Newton output using the newer balance pass values when present (null for most items).',
-            type: 'double',
-            example: 9023031,
-            nullable: true,
-        ),
-        new OA\Property(
             property: 'max_supported_atmospheric_efficiency',
             description: 'Cap for atmospheric efficiency scaling. Currently 2 across available thrusters.',
             type: 'double',
@@ -121,7 +114,6 @@ class ThrusterResource extends AbstractItemSpecificationResource
 
         $performance = [
             'thrust_capacity' => Arr::get($thruster, 'ThrustCapacity'),
-            'thrust_capacity_new' => Arr::get($thruster, 'ThrustCapacityNew'),
             'max_supported_atmospheric_efficiency' => Arr::get($thruster, 'MaxSupportedAtmosphericEfficiency'),
             'min_health_thrust_multiplier' => Arr::get($thruster, 'MinHealthThrustMultiplier'),
         ];

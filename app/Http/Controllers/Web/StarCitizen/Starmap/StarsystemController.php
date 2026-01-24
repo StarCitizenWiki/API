@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
+use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Services\ApiJsonRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -28,8 +30,15 @@ class StarsystemController extends Controller
         ]);
     }
 
-    public function show(string $id): Response
+    public function show(string $code): Response
     {
         return response('', Response::HTTP_NO_CONTENT);
+    }
+
+    public function legacyRedirect(string $id): RedirectResponse
+    {
+        $system = Starsystem::where('cig_id', $id)->firstOrFail();
+
+        return redirect(route('web.starmap.systems.show', ['code' => $system->code]), 301);
     }
 }

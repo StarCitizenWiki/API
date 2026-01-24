@@ -1,6 +1,6 @@
 @props([
     'armor',
-])
+ ])
 
 @php
     $health = data_get($armor, 'health');
@@ -44,278 +44,203 @@
     $penetrationBio = data_get($penetrationResist, 'biochemical');
     $penetrationStun = data_get($penetrationResist, 'stun');
 
-    if (!function_exists('getChangeColorClass')) {
-        function getChangeColorClass($change) {
-            if ($change < 0) {
-                return 'text-success';
-            }
-            if ($change > 0) {
-                return 'text-warning';
-            }
-            return '';
-        }
-    }
-
-    if (!function_exists('formatPercentChange')) {
-        function formatPercentChange($value) {
-            if ($value === null) {
-                return '-';
-            }
-            $sign = $value > 0 ? '+' : '';
-            return $sign . round($value * 100) . '%';
-        }
-    }
-
     $hasSignalMultipliers = $signalCs !== null || $signalIr !== null || $signalEm !== null;
     $hasDamageMultipliers = collect([$damagePhys, $damageEnergy, $damageDist, $damageTherm, $damageBio, $damageStun])->filter()->isNotEmpty();
     $hasResistanceMultipliers = collect([$resPhys, $resEnergy, $resDist, $resTherm, $resBio, $resStun])->filter()->isNotEmpty();
     $hasPenetrationResistance = $penetrationBase !== null || collect([$penetrationPhys, $penetrationEnergy, $penetrationDist, $penetrationTherm, $penetrationBio, $penetrationStun])->filter()->isNotEmpty();
 @endphp
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="brick-wall-shield" class="size-4 text-primary" />
-            <span>Armor Specifications</span>
+            <x-icon name="shield-check" class="size-4 text-primary" />
+            <span>Armor</span>
         </h2>
 
-        @if ($health !== null)
-            <dl class="grid gap-4 sm:grid-cols-2">
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Health</dt>
-                    <dd class="text-sm font-medium">{{ number_format((float)$health, 0) }}</dd>
-                </div>
-            </dl>
-        @endif
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Health</dt>
+                <dd class="text-sm font-medium">{{ fmt_value_with_unit($health, 'HP', 0) }}</dd>
+            </div>
+        </dl>
 
         @if ($hasSignalMultipliers)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Signal Multipliers</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        @if ($signalCs !== null)
+            <details id="signal-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="signal-multipliers-content">
+                    Detection Signal Change
+                </summary>
+                <div id="signal-multipliers-content" class="collapse-content">
+                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        @if ($signalCsChange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross Section</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$signalCs, 2) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($signalCsChange) }}">
+                                    {{ fmt_value_with_unit($signalCsChange * 100, '%', 1, sign: true) }}
+                                </dd>
                             </div>
                         @endif
-                        @if ($signalCs !== null && $signalCsChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross Section Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($signalCsChange) }}">{{ formatPercentChange($signalCsChange) }}</dd>
-                            </div>
-                        @endif
-                        @if ($signalIr !== null)
+
+                        @if ($signalIrChange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Infrared</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$signalIr, 2) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($signalIrChange) }}">
+                                    {{ fmt_value_with_unit($signalIrChange * 100, '%', 1, sign: true) }}
+                                </dd>
                             </div>
                         @endif
-                        @if ($signalIr !== null && $signalIrChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Infrared Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($signalIrChange) }}">{{ formatPercentChange($signalIrChange) }}</dd>
-                            </div>
-                        @endif
-                        @if ($signalEm !== null)
+
+                        @if ($signalEmChange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Electromagnetic</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$signalEm, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($signalEm !== null && $signalEmChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Electromagnetic Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($signalEmChange) }}">{{ formatPercentChange($signalEmChange) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($signalEmChange) }}">
+                                    {{ fmt_value_with_unit($signalEmChange * 100, '%', 1, sign: true) }}
+                                </dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasDamageMultipliers)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Damage Multipliers</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="damage-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="damage-multipliers-content">
+                    Damage
+                </summary>
+                <div id="damage-multipliers-content" class="collapse-content">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
                         @if ($damagePhys !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damagePhys, 2) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($damagePhysChange) }}">
+                                    {{ fmt_value_with_unit($damagePhysChange * 100, '%', 1) }}
+                                </dd>
                             </div>
                         @endif
-                        @if ($damagePhys !== null && $damagePhysChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damagePhysChange) }}">{{ formatPercentChange($damagePhysChange) }}</dd>
-                            </div>
-                        @endif
+
                         @if ($damageEnergy !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageEnergy, 2) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($damageEnergyChange) }}">
+                                    {{ fmt_value_with_unit($damageEnergyChange * 100, '%', 1) }}
+
+                                </dd>
                             </div>
                         @endif
-                        @if ($damageEnergy !== null && $damageEnergyChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damageEnergyChange) }}">{{ formatPercentChange($damageEnergyChange) }}</dd>
-                            </div>
-                        @endif
+
                         @if ($damageDist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageDist, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageDist !== null && $damageDistChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damageDistChange) }}">{{ formatPercentChange($damageDistChange) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageTherm !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageTherm, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageTherm !== null && $damageThermChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damageThermChange) }}">{{ formatPercentChange($damageThermChange) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageBio !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageBio, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageBio !== null && $damageBioChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damageBioChange) }}">{{ formatPercentChange($damageBioChange) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageStun !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$damageStun, 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($damageStun !== null && $damageStunChange !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun Change</dt>
-                                <dd class="text-sm font-medium {{ getChangeColorClass($damageStunChange) }}">{{ formatPercentChange($damageStunChange) }}</dd>
+                                <dd class="text-sm font-medium {{ color_class($damageDistChange) }}">
+                                    {{ fmt_value_with_unit($damageDistChange * 100, '%', 1) }}
+                                </dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasResistanceMultipliers)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Resistance Multipliers</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="resistance-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="resistance-multipliers-content">
+                    Resistance Multipliers
+                </summary>
+                <div id="resistance-multipliers-content" class="collapse-content">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($resPhys !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resPhys, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resPhys * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resEnergy !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resEnergy, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resEnergy * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resDist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resDist, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resDist * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resTherm !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resTherm, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resTherm * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resBio !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resBio, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resBio * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resStun !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$resStun, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resStun * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
 
         @if ($hasPenetrationResistance)
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                <input type="checkbox" />
-                <div class="collapse-title text-sm font-semibold">Penetration Resistance</div>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 sm:grid-cols-2">
+            <details id="penetration-resistance" class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="penetration-resistance-content">
+                    Penetration Resistance
+                </summary>
+                <div id="penetration-resistance-content" class="collapse-content">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($penetrationBase !== null)
-                            <div class="space-y-1">
+                            <div class="space-y-1 col-span-2">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Base</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationBase, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationBase, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationPhys !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationPhys, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationPhys, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationEnergy !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationEnergy, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationEnergy, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationDist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationDist, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationDist, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationTherm !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationTherm, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationTherm, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationBio !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationBio, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationBio, 2) }}</dd>
                             </div>
                         @endif
                         @if ($penetrationStun !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                <dd class="text-sm font-medium">{{ number_format((float)$penetrationStun, 2) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_or_dash($penetrationStun, 2) }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
-            </div>
+            </details>
         @endif
     </div>
 </div>

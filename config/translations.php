@@ -20,8 +20,8 @@ return [
     ],
 
     'sources_git' => [
-        'de_DE' => 'https://github.com/rjcncpt/StarCitizen-Deutsch-INI',
-        'zh_CN' => 'https://github.com/StarCitizenToolBox/LocalizationData',
+        'de' => 'https://github.com/rjcncpt/StarCitizen-Deutsch-INI',
+        'zh' => 'https://github.com/StarCitizenToolBox/LocalizationData',
     ],
 
     /*
