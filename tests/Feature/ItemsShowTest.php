@@ -371,8 +371,12 @@ it('renders item with long description in collapsible details', function (): voi
         'code' => 'MISC',
     ]);
 
+    /** @var Item $item */
     $item = Item::factory()->create([
-        'translation' => ['en' => 'First paragraph. ', 'de' => 'Erster Absatz. '],
+        'translation' => [
+            'en' => 'The Exploration Scanner is an advanced detection system designed for deep space reconnaissance. Featuring multiple frequency modes, it can identify everything from mineral deposits to hostile entities. Its ergonomic design allows for prolonged use during extended missions. The unit interfaces seamlessly with standard ship systems.',
+            'de' => 'Erster Absatz. '
+        ],
     ]);
 
     ItemData::factory()
@@ -397,12 +401,6 @@ it('renders item with long description in collapsible details', function (): voi
                 ],
             ],
         ]);
-
-    // Create multi-paragraph descriptions in multiple languages
-    ItemDescriptionData::factory()->for($item)->create([
-        'name' => 'Description',
-        'value' => 'The Exploration Scanner is an advanced detection system designed for deep space reconnaissance. Featuring multiple frequency modes, it can identify everything from mineral deposits to hostile entities. Its ergonomic design allows for prolonged use during extended missions. The unit interfaces seamlessly with standard ship systems.',
-    ]);
 
     ItemDescriptionData::factory()->for($item)->create([
         'name' => 'Technical Specifications',

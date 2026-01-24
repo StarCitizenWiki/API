@@ -278,13 +278,7 @@ class ImportItemData implements ShouldQueue
             Arr::get($localization, 'Description'),
         ];
 
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
-            }
-        }
-
-        return null;
+        return array_find($candidates, fn($candidate) => is_string($candidate) && trim($candidate) !== '');
     }
 
     private function getLabels(): Labels
