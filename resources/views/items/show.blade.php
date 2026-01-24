@@ -136,7 +136,8 @@
             $type === 'WeaponAttachment' ||
             data_get($item, 'weapon_modifier') ||
             data_get($item, 'temperature_resistance') ||
-            data_get($item, 'radiation_resistance')
+            data_get($item, 'radiation_resistance') ||
+            (data_get($item, 'inventory') && data_get($item, 'inventory.unit') === 'µSCU')
         ) && !str_starts_with($classification, 'Ship.');
 
         $vehicleSpecsAvailable = (
@@ -319,7 +320,7 @@
         </section>
 
         @if ($relatedItemsCount > 0)
-            <details id="related-items-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" open>
+            <details id="related-items-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" @if($relatedItemsCount < 5) open @endif>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="related-items-details-content">
                     <span class="flex items-center gap-2">
                         <span>Related Items</span>
@@ -559,6 +560,11 @@
 
                         @if (data_get($item, 'weapon_modifier'))
                             <x-items.weapon-modifier-card :weapon-modifier="data_get($item, 'weapon_modifier')" />
+                        @endif
+
+                        {{-- TODO: Hacky --}}
+                        @if (data_get($item, 'inventory') && data_get($item, 'inventory.unit') === 'µSCU' )
+                            <x-items.inventory-card :inventory="data_get($item, 'inventory')" />
                         @endif
                     </div>
                 </div>
