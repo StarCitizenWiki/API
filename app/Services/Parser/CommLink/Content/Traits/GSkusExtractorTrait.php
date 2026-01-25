@@ -4,25 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait GSkusExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getSkusContent(Crawler $page): string
     {
         $content = '';
 
         $page->filterXPath('//g-skus')->each(function (Crawler $crawler) use (&$content): void {
-            $textContent = $crawler->attr(':properties');
+            $textContent = $this->decodeJsonAttribute($crawler, ':properties');
 
             if ($textContent === null) {
-                return;
-            }
-
-            try {
-                $textContent = json_decode($textContent, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
                 return;
             }
 

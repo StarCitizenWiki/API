@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait GIntroductionExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getIntroduction(Crawler $page): string
     {
         $content = '';
 
         $page->filterXPath('//g-introduction')->each(function (Crawler $crawler) use (&$content): void {
-            $info = $crawler->attr(':info');
+            $info = $this->decodeJsonAttribute($crawler, ':info');
             if ($info === null) {
-                return;
-            }
-
-            try {
-                $info = json_decode($info, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
                 return;
             }
 

@@ -11,12 +11,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
 {
     use GIntroductionExtractorTrait;
 
-    private Crawler $page;
-
-    public function __construct(Crawler $page)
-    {
-        $this->page = $page;
-    }
+    public function __construct(public Crawler $page) {}
 
     public function getContent(bool $withIntroduction = true): string
     {

@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait GExploreExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getExplore(Crawler $page): string
     {
         $content = '';
 
         $page->filterXPath('//g-explore')->each(function (Crawler $crawler) use (&$content): void {
-            $explore = $crawler->attr(':decks');
+            $explore = $this->decodeJsonAttribute($crawler, ':decks');
             if ($explore === null) {
-                return;
-            }
-
-            try {
-                $explore = json_decode($explore, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
                 return;
             }
 

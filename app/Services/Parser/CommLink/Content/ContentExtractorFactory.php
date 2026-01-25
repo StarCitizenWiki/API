@@ -10,13 +10,7 @@ class ContentExtractorFactory
 {
     public static function getParserFromCrawler(Crawler $crawler): ?ContentExtractorInterface
     {
-        return collect([
-            DefaultExtractor::class,
-            LayoutSystemExtractor::class,
-            VueArticleExtractor::class,
-            GFeatureExtractor::class,
-            AlexandriaExtractor::class,
-        ])
+        return collect(ExtractorClassRegistry::getExtractors())
             ->map(function (string $parser) use ($crawler): array {
                 return array_merge(call_user_func([$parser, 'canParse'], $crawler), [$parser]);
             })

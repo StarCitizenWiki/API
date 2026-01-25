@@ -4,25 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait GBannerAdvancedExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getBannerAdvancedContent(Crawler $page): string
     {
         $content = '';
 
         $page->filterXPath('//g-banner-advanced')->each(function (Crawler $crawler) use (&$content): void {
-            $textContent = $crawler->attr(':content');
+            $textContent = $this->decodeJsonAttribute($crawler, ':content');
 
             if ($textContent === null) {
-                return;
-            }
-
-            try {
-                $textContent = json_decode($textContent, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
                 return;
             }
 

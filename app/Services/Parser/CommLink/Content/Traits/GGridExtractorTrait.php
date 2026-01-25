@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait GGridExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getGrid(Crawler $page): string
     {
         $content = '';
 
         $page->filterXPath('//g-grid')->each(function (Crawler $crawler) use (&$content): void {
-            $cards = $crawler->attr(':cards');
+            $cards = $this->decodeJsonAttribute($crawler, ':cards');
             if ($cards === null) {
-                return;
-            }
-
-            try {
-                $cards = json_decode($cards, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
                 return;
             }
 

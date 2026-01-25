@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content\Traits;
 
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
-trait GTumbrilFeaturesExtractorrait
+trait GTumbrilFeaturesExtractorTrait
 {
+    use JsonDecoderTrait;
+
     public function getTumbrilFeatures(Crawler $page): string
     {
         $content = '';
@@ -21,10 +22,9 @@ trait GTumbrilFeaturesExtractorrait
             }
 
             $features = preg_replace('/([a-z0-9]+):\s/', '"$1": ', $features) ?? $features;
+            $features = $this->decodeJsonString(str_replace("'", '"', $features));
 
-            try {
-                $features = json_decode(str_replace("'", '"', $features), true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
+            if ($features === null) {
                 return;
             }
 

@@ -2,25 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Parser\CommLink\Content;
+namespace App\Services\Parser\CommLink\Content\Traits;
 
-use App\Services\Parser\CommLink\Content\Traits\GIntroductionExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
-final class GFeatureExtractor implements ContentExtractorInterface
+trait GFeatureExtractorTrait
 {
-    use GIntroductionExtractorTrait;
-
-    private Crawler $page;
-
-    public function __construct(Crawler $page)
+    /**
+     * Extracts content from g-feature elements.
+     */
+    public function getGFeatureContent(Crawler $page): string
     {
-        $this->page = $page;
-    }
-
-    public function getContent(): string
-    {
-        $content = $this->getIntroduction($this->page);
+        $content = '';
 
         $extract = function (Crawler $crawler) use (&$content): void {
             $this->getGFeaturesIntro($crawler, $content);
@@ -46,26 +39,14 @@ final class GFeatureExtractor implements ContentExtractorInterface
             });
         };
 
-        $this->page->filterXPath('//g-feature')->each($extract);
+        $page->filterXPath('//g-feature')->each($extract);
 
         return $content;
     }
 
-    public static function getFilter(): string
-    {
-        return '//g-feature';
-    }
-
-    public static function canParse(Crawler $page): array
-    {
-        $count = $page->filterXPath(self::getFilter())->count();
-
-        return [
-            $count > 0,
-            $count,
-        ];
-    }
-
+    /**
+     * Extracts the introduction from a g-feature element if it is declared as a header.
+     */
     private function getGFeaturesIntro(Crawler $crawler, string &$content): void
     {
         if ($crawler->attr(':is-header-declared') === 'true') {
