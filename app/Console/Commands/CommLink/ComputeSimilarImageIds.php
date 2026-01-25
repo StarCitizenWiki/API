@@ -60,7 +60,7 @@ class ComputeSimilarImageIds extends Command
             }
         });
 
-        $this->info(sprintf('Dispatched %d similarity computation jobs to queue "comm-link-images".', $dispatched));
+        $this->info(sprintf('Dispatched %d similarity computation jobs to queue "%s".', $dispatched, $queue));
 
         return self::SUCCESS;
     }
