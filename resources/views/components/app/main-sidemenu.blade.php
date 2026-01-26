@@ -6,6 +6,12 @@
         Home
     </x-app.sidemenu-item>
     @auth
+        <x-app.sidemenu-item :route="'profile'" :with-version="false">
+            <x-slot:icon>
+                <x-icon name="user" class="size-4" />
+            </x-slot:icon>
+            Profile
+        </x-app.sidemenu-item>
         @can('access-admin')
             <x-app.sidemenu-item route="admin.dashboard" :with-version="false">
                 <x-slot:icon>

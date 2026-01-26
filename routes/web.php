@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\GameVersionSelectionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\ItemController;
 use App\Http\Controllers\Web\Game\VehicleController;
 use App\Http\Controllers\Web\Rsi\CommLinkController;
@@ -57,6 +58,13 @@ Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::clas
 
 Route::post('/game-version', GameVersionSelectionController::class)
     ->name('game-version.select');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile/token', [ProfileController::class, 'createToken'])->name('profile.token.create');
+    Route::delete('/profile/token/{id}', [ProfileController::class, 'deleteToken'])->name('profile.token.delete');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
 // Backwards compatibility
 

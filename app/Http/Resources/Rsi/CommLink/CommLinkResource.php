@@ -80,6 +80,10 @@ class CommLinkResource extends AbstractBaseResource
      */
     private function getCommLinkUrl(): string
     {
+        if (str_contains($this->url, 'robertsspaceindustries.com')) {
+            return $this->url;
+        }
+
         return sprintf('%s%s', config('services.rsi_url'), ($this->url ?? "/comm-link/SCW/{$this->cig_id}-API"));
     }
 }

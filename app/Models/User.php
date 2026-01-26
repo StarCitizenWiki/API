@@ -23,7 +23,18 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'language_id',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            $user->tokens()->delete();
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.
