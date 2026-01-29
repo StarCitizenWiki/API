@@ -6,6 +6,7 @@ namespace App\Jobs\StarCitizen\Starmap\Sync;
 
 use App\Jobs\StarCitizen\Starmap\Download\DownloadStarsystem;
 use App\Jobs\StarCitizen\Starmap\Import\ImportJumppoint;
+use App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem;
 use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -203,7 +204,7 @@ class SyncStarmap implements ShouldQueue
                 $data = $this->loadStarsystemDataFromDisk($systemCode);
 
                 if ($data !== null) {
-                    $importJobs[] = $data;
+                    $importJobs[] = new ImportStarsystem($data);
                 }
             } else {
                 $downloadJobs[] = new DownloadStarsystem($systemCode, $this->timestamp, new Collection($system));

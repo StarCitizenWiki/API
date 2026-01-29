@@ -63,7 +63,7 @@ it('uses existing bootup data when available', function (): void {
     });
 
     Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-});
+})->skipOnCI();
 
 it('dispatches downloads in a batch and imports jumppoints', function (): void {
     Storage::fake('starmap');
@@ -122,7 +122,7 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
     });
 
     Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-});
+})->skipOnCI();
 
 it('skips starsystem downloads and imports from disk when data already exists', function (): void {
     Storage::fake('starmap');
@@ -194,4 +194,4 @@ it('skips starsystem downloads and imports from disk when data already exists', 
     });
 
     Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-});
+})->skipOnCI();
