@@ -751,7 +751,7 @@ class VehicleResource extends AbstractBaseResource
             ),
 
             'web_url' => $this->buildWebUrl($request),
-            'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $vehicleData->name]),
+            'link' => $this->buildApiUrl($request),
 
             'loaner' => $this->getLoaner($vehicleData),
             'skus' => $this->getSkus($vehicleData),
@@ -840,6 +840,20 @@ class VehicleResource extends AbstractBaseResource
     private function buildWebUrl(Request $request): string
     {
         $url = route('web.vehicles.show', ['vehicle' => $this->uuid]);
+        $version = $request->query('version');
+
+        if ($version === null || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
+    }
+
+    private function buildApiUrl(Request $request): string
+    {
+        $vehicleData = $this->data->first();
+        $identifier = $this->uuid ?? $vehicleData?->name;
+        $url = route('vehicles.show', ['vehicle' => $identifier]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {

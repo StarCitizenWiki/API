@@ -240,3 +240,35 @@ it('returns nested ports in v3 format', function (): void {
     expect($port['ports'])->toHaveCount(1);
     expect($port['ports'][0])->toHaveKey('name', 'child_port');
 });
+
+it('includes version in api link when version is requested in vehicle show', function (): void {
+    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}?version=4.4.0-TEST");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.link'))->toContain('version=4.4.0-TEST');
+});
+
+it('includes version in web url when version is requested in vehicle show', function (): void {
+    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}?version=4.4.0-TEST");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.web_url'))->toContain('version=4.4.0-TEST');
+});
+
+it('does not include version in api link when version is not requested in vehicle show', function (): void {
+    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.link'))->not->toContain('version=');
+});
+
+it('does not include version in web url when version is not requested in vehicle show', function (): void {
+    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.web_url'))->not->toContain('version=');
+});

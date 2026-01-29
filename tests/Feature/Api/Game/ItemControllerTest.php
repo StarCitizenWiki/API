@@ -315,3 +315,47 @@ it('includes web urls with version in item index', function (): void {
     expect($response->json('data.0.web_url'))->toContain('version=4.0.0-LIVE');
     expect($response->json('data.0.type_web_url'))->toContain('version=4.0.0-LIVE');
 });
+
+it('includes version in api link when version is requested in item show', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'Widget',
+            'class_name' => 'test_item',
+            'classification' => 'Test',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?version=4.0.0-LIVE");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.link'))->toContain('version=4.0.0-LIVE');
+});
+
+it('does not include version in api link when version is not requested in item show', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'Widget',
+            'class_name' => 'test_item',
+            'classification' => 'Test',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful();
+
+    expect($response->json('data.link'))->not->toContain('version=');
+});

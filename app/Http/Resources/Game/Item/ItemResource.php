@@ -491,12 +491,24 @@ class ItemResource extends AbstractBaseResource
                 ]
             ),
             'web_url' => $this->buildWebUrl($request),
-            'link' => route('items.show', ['identifier' => $this->uuid]),
+            'link' => $this->buildApiUrl($request),
             'updated_at' => $this->updated_at,
             'version' => $itemData->relationLoaded('gameVersion')
                 ? $itemData->gameVersion->code
                 : null,
         ];
+    }
+
+    private function buildApiUrl(Request $request): string
+    {
+        $url = route('items.show', ['identifier' => $this->uuid]);
+        $version = $request->query('version');
+
+        if ($version === null || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
     }
 
     protected function addSpecification(Item $item, ItemData $itemData): array
