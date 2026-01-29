@@ -63,7 +63,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="sword" class="size-4 text-primary" />
             <span>Vehicle Weapon</span>
@@ -95,11 +95,11 @@
         </dl>
 
         @if ($hasDamage)
-            <details id="damage-stats" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="damage-stats-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Damage Stats
                 </summary>
-                <div id="damage-stats-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 {{--                        @if ($sustained60s !== null)--}}
 {{--                            <div class="space-y-1">--}}
@@ -216,11 +216,11 @@
         @endif
 
         @if ($hasSpread)
-            <details id="spread" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="spread-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Spread
                 </summary>
-                <div id="spread-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($spread, 'minimum'))
                             <div class="space-y-1">
@@ -252,11 +252,11 @@
         @endif
 
         @if ($hasBarrelSpin)
-            <details id="barrel-spin-time" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="barrel-spin-time-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Barrel Spin Time
                 </summary>
-                <div id="barrel-spin-time-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($barrelUp !== null)
                             <div class="space-y-1">
@@ -276,11 +276,11 @@
         @endif
 
         @if ($hasHeat)
-            <details id="heat" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="heat-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Heat
                 </summary>
-                <div id="heat-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($heatOverheatMaxShots !== null)
                             <div class="space-y-1">
@@ -325,11 +325,11 @@
         @endif
 
         @if ($hasCapacitor)
-            <details id="capacitor" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="capacitor-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Capacitor
                 </summary>
-                <div id="capacitor-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($capMaxAmmoLoad !== null)
                             <div class="space-y-1">
@@ -367,11 +367,11 @@
         @endif
 
         @if ($hasCharge || $hasChargeModifier)
-            <details id="charge" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="charge-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Charge
                 </summary>
-                <div id="charge-content" class="collapse-content">
+                <div class="collapse-content">
                     <div class="space-y-4">
                         @if ($hasCharge)
                             <div>

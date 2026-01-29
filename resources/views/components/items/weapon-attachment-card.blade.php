@@ -40,7 +40,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title flex items-center gap-2">
             <x-icon name="attachment" class="size-4 text-primary" />
             <span>Weapon Attachment</span>
@@ -163,11 +163,11 @@
 
         {{-- SECONDARY DATA: Collapsible, default open --}}
         @if ($hasIronSight && ($ironRangeIncrement !== null || $ironAutoZeroingTime !== null || $ironZoomTimeScale !== null || $ironZoomTimeChange !== null))
-            <details id="iron-sight-details" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="iron-sight-details-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Iron Sight Details
                 </summary>
-                <div id="iron-sight-details-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($ironRangeIncrement !== null)
                             <div class="space-y-1">
@@ -199,11 +199,11 @@
         @endif
 
         @if ($hasFlashlight)
-            <details id="flashlight-profiles" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="flashlight-profiles-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Flashlight Profiles
                 </summary>
-                <div id="flashlight-profiles-content" class="collapse-content">
+                <div class="collapse-content">
                     @foreach ($flashlight as $profileType => $profile)
                         @php
                             $hasProfileData = is_array($profile) && collect($profile)->filter(static fn($v) => $v !== null)->isNotEmpty();
@@ -278,11 +278,11 @@
                 $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
             @endphp
             @if ($hasAdditionalFields && count($additionalFields) >= 2)
-                <details id="compensator-advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="compensator-advanced-content">
+                <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                         Compensator Advanced
                     </summary>
-                    <div id="compensator-advanced-content" class="collapse-content">
+                    <div class="collapse-content">
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                             @foreach ($additionalFields as $key => $value)
                                 <div class="space-y-1">
@@ -303,11 +303,11 @@
                 $hasAdditionalFields = is_array($additionalFields) && $additionalFields !== [];
             @endphp
             @if ($hasAdditionalFields && count($additionalFields) >= 2)
-                <details id="flash-hider-advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="flash-hider-advanced-content">
+                <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                         Flash Hider Advanced
                     </summary>
-                    <div id="flash-hider-advanced-content" class="collapse-content">
+                    <div class="collapse-content">
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                             @foreach ($additionalFields as $key => $value)
                                 <div class="space-y-1">

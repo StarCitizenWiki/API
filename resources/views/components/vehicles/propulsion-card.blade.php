@@ -12,7 +12,7 @@
     <div class="collapse-content">
         <div>
             <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel</h3>
-            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 @if (data_get($fuel, 'capacity'))
                     <div class="space-y-1">
                         <dt class="text-xs text-base-content/60">Capacity</dt>
@@ -26,7 +26,7 @@
         @if (data_get($quantum, 'quantum_speed') || data_get($quantum, 'quantum_spool_time') || data_get($quantum, 'quantum_fuel_capacity'))
             <div class="mt-4">
                 <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Quantum</h3>
-                <dl class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     @if (data_get($quantum, 'quantum_speed'))
                         <div class="space-y-1">
                             <dt class="text-xs text-base-content/60">Speed</dt>

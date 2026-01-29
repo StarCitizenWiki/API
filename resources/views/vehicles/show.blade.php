@@ -67,11 +67,11 @@
             placeholder="Search Vehicles"
         />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             <x-vehicles.quick-summary-card :vehicle="$vehicle" />
-            <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
+            <x-vehicles.flight-characteristics-card :vehicle="$vehicle" class="xl:col-span-2" />
             <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
-            <x-vehicles.systems-signatures-card :vehicle="$vehicle" class="col-span-2" />
+            <x-vehicles.systems-signatures-card :vehicle="$vehicle" class="col-span-full" />
 
             <x-vehicles.parts-turrets-card :vehicle="$vehicle" />
 
@@ -81,11 +81,11 @@
             <x-vehicles.insurance-logistics-card :vehicle="$vehicle" />
 
             @if($hasPurchaseData)
-                <x-vehicles.purchase-variants-card :vehicle="$vehicle" />
+                <x-vehicles.purchase-variants-card :vehicle="$vehicle" class="md:col-span-2 xl:col-span-1" />
             @endif
 
             @if ($shipMatrixDescription)
-                <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
+                <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-full">
                     <summary class="collapse-title min-h-11 py-3 font-semibold">Description</summary>
                     <div class="collapse-content">
                         <div class="text-sm text-base-content/80 leading-relaxed">

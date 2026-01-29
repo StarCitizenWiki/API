@@ -75,7 +75,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="wrench" class="size-4 text-primary" />
             <span>Weapon Modifier</span>
@@ -97,11 +97,11 @@
         </dl>
 
         @if ($hasBase)
-            <details id="base" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="base-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Base
                 </summary>
-                <div id="base-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($baseMuzzleFlashMultiplier !== null)
                             <div class="space-y-1">
@@ -205,11 +205,11 @@
         @endif
 
         @if ($hasRecoil)
-            <details id="recoil" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="recoil-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Recoil
                 </summary>
-                <div id="recoil-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($recoilDecayMultiplier !== null)
                             <div class="space-y-1">
@@ -241,11 +241,11 @@
         @endif
 
         @if ($hasSpread)
-            <details id="spread" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="spread-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Spread
                 </summary>
-                <div id="spread-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($spreadMinMultiplier !== null)
                             <div class="space-y-1">
@@ -313,11 +313,11 @@
         @endif
 
         @if ($hasAim)
-            <details id="aim" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="aim-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Aim
                 </summary>
-                <div id="aim-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($aimZoomScale !== null)
                             <div class="space-y-1">
@@ -361,11 +361,11 @@
         @endif
 
         @if ($hasRegen)
-            <details id="regen" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="regen-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Regen
                 </summary>
-                <div id="regen-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($regenPowerRatioMultiplier !== null)
                             <div class="space-y-1">
@@ -391,11 +391,11 @@
         @endif
 
         @if ($hasSalvage)
-            <details id="salvage" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="salvage-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Salvage
                 </summary>
-                <div id="salvage-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($salvageSpeedMultiplier !== null)
                             <div class="space-y-1">
@@ -421,11 +421,11 @@
         @endif
 
         @if ($hasZeroing)
-            <details id="zeroing" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="zeroing-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Zeroing
                 </summary>
-                <div id="zeroing-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($zeroingDefaultRange !== null)
                             <div class="space-y-1">

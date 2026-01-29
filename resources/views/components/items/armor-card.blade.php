@@ -51,7 +51,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="shield-check" class="size-4 text-primary" />
             <span>Armor</span>
@@ -65,11 +65,11 @@
         </dl>
 
         @if ($hasSignalMultipliers)
-            <details id="signal-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="signal-multipliers-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Detection Signal Change
                 </summary>
-                <div id="signal-multipliers-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($signalCsChange !== null)
                             <div class="space-y-1">
@@ -103,11 +103,11 @@
         @endif
 
         @if ($hasDamageMultipliers)
-            <details id="damage-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="damage-multipliers-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Damage
                 </summary>
-                <div id="damage-multipliers-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
                         @if ($damagePhys !== null)
                             <div class="space-y-1">
@@ -142,11 +142,11 @@
         @endif
 
         @if ($hasResistanceMultipliers)
-            <details id="resistance-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="resistance-multipliers-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Resistance Multipliers
                 </summary>
-                <div id="resistance-multipliers-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($resPhys !== null)
                             <div class="space-y-1">
@@ -190,11 +190,11 @@
         @endif
 
         @if ($hasPenetrationResistance)
-            <details id="penetration-resistance" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="penetration-resistance-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Penetration Resistance
                 </summary>
-                <div id="penetration-resistance-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if ($penetrationBase !== null)
                             <div class="space-y-1 col-span-2">

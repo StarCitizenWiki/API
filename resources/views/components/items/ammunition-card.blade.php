@@ -36,13 +36,13 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="cylinder" class="size-4 text-primary" />
             <span>Ammunition</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @if ($size !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
@@ -84,11 +84,11 @@
         </dl>
 
         @if ($hasPenetration)
-            <details id="penetration" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="penetration-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Penetration
                 </summary>
-                <div id="penetration-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($penetration, 'base_distance'))
                             <div class="space-y-1">
@@ -120,11 +120,11 @@
         @endif
 
         @if ($hasImpactDamage)
-            <details id="impact-damage" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="impact-damage-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Impact Damage
                 </summary>
-                <div id="impact-damage-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($nonZeroImpact, 'physical'))
                             <div class="space-y-1">
@@ -168,11 +168,11 @@
         @endif
 
         @if ($hasDetonationDamage)
-            <details id="detonation-damage" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="detonation-damage-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Detonation Damage
                 </summary>
-                <div id="detonation-damage-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($nonZeroDetonation, 'physical'))
                             <div class="space-y-1">
@@ -216,11 +216,11 @@
         @endif
 
         @if ($hasExplosionRadius)
-            <details id="explosion-radius" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="explosion-radius-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Explosion Radius
                 </summary>
-                <div id="explosion-radius-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($explosionRadius, 'min') || data_get($explosionRadius, 'max'))
                             <div class="space-y-1">
@@ -234,11 +234,11 @@
         @endif
 
         @if ($hasDamageDrop)
-            <details id="damage-drop" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="damage-drop-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Damage Drop
                 </summary>
-                <div id="damage-drop-content" class="collapse-content space-y-6">
+                <div class="collapse-content space-y-6">
                     @if (is_array($damageDropMinDistance) && $damageDropMinDistance !== [])
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-3">Min Distance</h4>
@@ -393,11 +393,11 @@
         @endif
 
         @if ($hasBulletImpulseFalloff)
-            <details id="bullet-impulse-falloff" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="bullet-impulse-falloff-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Bullet Impulse Falloff
                 </summary>
-                <div id="bullet-impulse-falloff-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         @if (data_get($bulletImpulseFalloff, 'min_distance'))
                             <div class="space-y-1">
@@ -423,11 +423,11 @@
         @endif
 
         @if ($hasBulletElectron)
-            <details id="bullet-electron" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="bullet-electron-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Bullet Electron
                 </summary>
-                <div id="bullet-electron-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         @if (data_get($bulletElectron, 'jump_range'))
                             <div class="space-y-1">

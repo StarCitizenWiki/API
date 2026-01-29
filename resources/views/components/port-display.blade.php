@@ -6,13 +6,26 @@
 ])
 
 @php
-    $indentClass = $depth > 0 ? 'mt-3 pl-2 border-l-8 border-base-300' : '';
+    $indentClass = $depth > 0 ? 'mt-2 pl-2 sm:pl-3 border-l-2 sm:border-l-4 border-base-300/70' : '';
     $portId = $depth . '-' . ($loop->index ?? 0);
     $portIdentifier = 'port-'.$portId;
+    $portName = data_get($port, 'name');
+    $portLabel = Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline();
+    $portPosition = data_get($port, 'position');
+    $sizeRange = fmt_range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '');
+    $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
+    $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
+    $isLocked = data_get($port, 'editable') === false || ! $editable;
+    $equippedCardClasses = 'card-compact';
 
     // Extract equipped item stats for summary display
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
     $showQuickStats = !empty($equippedItem);
+    $equippedItemName = data_get($equippedItem, 'name');
+    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== 'Placeholder';
+    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
+    $displayPortName = $portName ?? $equippedItemName ?? '-';
+    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
 
     if ($showQuickStats) {
         // Universal stats
@@ -50,260 +63,305 @@
 <div class="port-entry {{ $indentClass }}">
     <details
         id="{{ $portIdentifier }}"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 shadow"
+        class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-sm"
     >
         <summary
-            class="collapse-title min-h-11 py-3 text-sm font-semibold flex items-center justsify-between gap-2 flex-wrap"
+            class="collapse-title min-h-10 py-2 text-sm font-semibold flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
             aria-expanded="false"
             aria-controls="{{ $portIdentifier }}-content"
         >
-            <span class="flex items-center gap-2">
+            <span class="flex flex-wrap items-center gap-2">
                 @if ($depth > 0)
-                    <span class="text-base-content/50 mr-2">↳</span>
+                    <span class="text-base-content/50">↳</span>
                 @endif
-                @if(data_get($port, 'editable') === false || !$editable)
+                @if($isLocked)
                     <x-icon name="lock" class="size-3"/>
                 @endif
-                {{ Str::of(data_get($port, 'name'))->lower()->replace('hardpoint_', '')->headline() ?? 'Port' }}
-                @if (! empty(data_get($port, 'position')))
-                    <span class="ml-2 text-xs font-normal text-base-content/60">{{ data_get($port, 'position') }}</span>
+                <span>{{ $displayPortLabel }}</span>
+                @if (! empty($portPosition))
+                    <span class="text-xs font-normal text-base-content/60">{{ $portPosition }}</span>
+                @endif
+                @if ($sizeRangeLabel !== '-')
+                    <span class="badge badge-ghost badge-sm">{{ $sizeRangeLabel }}</span>
+                @endif
+                @if ($portTypeLabel !== '')
+                    <span class="badge badge-ghost badge-sm max-w-[12rem] truncate" title="{{ $portTypeLabel }}">
+                        {{ $portTypeLabel }}
+                    </span>
                 @endif
             </span>
 
             @if ($showQuickStats)
-                <span class="flex items-center gap-2 text-xs font-normal flex-wrap">
+                <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
+                    @if (! empty($equippedItemName))
+                        <span class="max-w-[14rem] truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                            {{ $equippedDisplayName }}
+                        </span>
+                    @endif
                     @if ($itemSize !== null)
                         <span class="badge badge-sm badge-soft" title="Item Size">S{{ $itemSize }}</span>
                     @endif
                     @if ($powerSegmentUsage !== null)
                         <span class="badge badge-sm badge-soft" title="Power Segment Usage">
                             <x-icon name="zap" class="size-3"/>
-                            {{ fmt_compact($powerSegmentUsage, 1) }}
-                            Power Usage
+                            <span class="font-medium">{{ fmt_compact($powerSegmentUsage, 1) }}</span>
+                            <span class="hidden sm:inline">Power Usage</span>
+                            <span class="sm:hidden">Pwr</span>
                         </span>
                     @endif
                     @if ($coolantSegmentUsage !== null)
                         <span class="badge badge-sm badge-soft" title="Coolant Segment Usage">
                             <x-icon name="fan" class="size-3"/>
-                            {{ fmt_compact($coolantSegmentUsage, 1) }}
-                            Coolant Usage
+                            <span class="font-medium">{{ fmt_compact($coolantSegmentUsage, 1) }}</span>
+                            <span class="hidden sm:inline">Coolant Usage</span>
+                            <span class="sm:hidden">Cool</span>
                         </span>
                     @endif
                     @if ($typeSpecificStat !== null)
                         <span class="badge badge-sm badge-primary" title="{{ $typeSpecificLabel }}">
-                            @if(@$typeSpecificIcon)
+                            @if ($typeSpecificIcon)
                                 <x-icon name="{{ $typeSpecificIcon }}" class="size-3"/>
                             @endif
-                            {{ fmt_compact($typeSpecificStat, 0) }} {{ $typeSpecificLabel }}
+                            <span class="font-medium">{{ fmt_compact($typeSpecificStat, 0) }}</span>
+                            <span class="hidden sm:inline">{{ $typeSpecificLabel }}</span>
                         </span>
                     @endif
                 </span>
             @endif
         </summary>
         <div id="{{ $portIdentifier }}-content" class="collapse-content">
-            <dl class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                        Port Name
-                    </dt>
-                    <dd class="text-sm">{{ data_get($port, 'name') ?? '-' }}</dd>
-                </div>
+            <div class="grid gap-4">
+                <dl class="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 tabular-nums">
+                    <div class="flex flex-col gap-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            Port Name
+                        </dt>
+                        <dd class="text-sm font-medium">{{ $displayPortName }}</dd>
+                    </div>
 
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                        Equippable Item Size
-                    </dt>
-                    <dd class="text-sm">
-                        S{{ fmt_range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '') }}
-                    </dd>
-                </div>
+                    <div class="flex flex-col gap-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            Equippable Item Size
+                        </dt>
+                        <dd class="text-sm font-medium">{{ $sizeRangeLabel }}</dd>
+                    </div>
 
-                <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-                        Equippable Type + Sub Type
-                    </dt>
-                    <dd class="text-sm">{{ data_get($port, 'type') ?? '-' }}
-                        / {{ data_get($port, 'subtype') ?? '-' }}</dd>
-                </div>
+                    <div class="flex flex-col gap-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            Equippable Type + Sub Type
+                        </dt>
+                        <dd class="text-sm font-medium">{{ $portTypeLabel !== '' ? $portTypeLabel : '-' }}</dd>
+                    </div>
 
-                @unless(empty(data_get($port, 'equipped_item')))
-                <div class="space-y-1 col-span-full">
-                    <dt class="font-semibold text-sm uppercase tracking-wide">
-                        Equipped Item
-                    </dt>
-                    <dd class="text-sm">
-                        <div class="flex items-center gap-2">
-                            <span>{{ data_get($port, 'equipped_item.name') ?? '-' }}</span>
-                            @if (! empty(data_get($port, 'equipped_item.uuid')))
-                                <a href="{{ route('web.items.show', data_get($port, 'equipped_item.uuid')) }}"
-                                   class="link link-primary">View</a>
+                    @if (! empty($portPosition))
+                        <div class="flex flex-col gap-1">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                Position
+                            </dt>
+                            <dd class="text-sm font-medium">{{ $portPosition }}</dd>
+                        </div>
+                    @endif
+                </dl>
+
+                @unless(empty($equippedItem))
+                    <div class="grid gap-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                Equipped Item
+                            </span>
+                            <span class="text-sm font-medium">{{ $equippedItemName }}</span>
+                            @if (! empty(data_get($equippedItem, 'uuid')))
+                                <a href="{{ route('web.items.show', data_get($equippedItem, 'uuid')) }}"
+                                   class="link link-primary text-sm">View</a>
                             @endif
                         </div>
-                        <div class="mt-4 space-y-4">
+                        <div class="grid gap-3 lg:grid-cols-2">
                             @php
-                                $equippedType = data_get(data_get($port, 'equipped_item'), 'type');
+                                $equippedType = data_get($equippedItem, 'type');
                             @endphp
                             @if ($equippedType === 'WeaponPersonal')
                                 <x-items.personal-weapon-card
-                                    :personal-weapon="data_get($port['equipped_item'], 'personal_weapon')"/>
+                                    :personal-weapon="data_get($equippedItem, 'personal_weapon')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'Armor')
-                                <x-items.armor-card :armor="data_get($port['equipped_item'], 'armor')"/>
+                                <x-items.armor-card :armor="data_get($equippedItem, 'armor')" :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'WeaponGun')
                                 <x-items.vehicle-weapon-card
-                                    :vehicle-weapon="data_get($port['equipped_item'], 'vehicle_weapon')"/>
+                                    :vehicle-weapon="data_get($equippedItem, 'vehicle_weapon')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'WeaponAttachment')
-                                <x-items.weapon-attachment-card :weapon-attachment="$port['equipped_item']"/>
+                                <x-items.weapon-attachment-card :weapon-attachment="$equippedItem" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'shield'))
-                                <x-items.shield-card :shield="data_get($port['equipped_item'], 'shield')"/>
+                            @if (data_get($equippedItem, 'shield'))
+                                <x-items.shield-card :shield="data_get($equippedItem, 'shield')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'quantum_drive'))
+                            @if (data_get($equippedItem, 'quantum_drive'))
                                 <x-items.quantum-drive-card
-                                    :quantum-drive="data_get($port['equipped_item'], 'quantum_drive')"/>
+                                    :quantum-drive="data_get($equippedItem, 'quantum_drive')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'jump_drive'))
+                            @if (data_get($equippedItem, 'jump_drive'))
                                 <x-items.jump-drive-card
-                                    :jump-drive="data_get($port['equipped_item'], 'jump_drive')"/>
+                                    :jump-drive="data_get($equippedItem, 'jump_drive')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'power_plant'))
+                            @if (data_get($equippedItem, 'power_plant'))
                                 <x-items.power-plant-card
-                                    :power-plant="data_get($port['equipped_item'], 'power_plant')"/>
+                                    :power-plant="data_get($equippedItem, 'power_plant')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'cooler'))
-                                <x-items.cooler-card :cooler="data_get($port['equipped_item'], 'cooler')"/>
+                            @if (data_get($equippedItem, 'cooler'))
+                                <x-items.cooler-card :cooler="data_get($equippedItem, 'cooler')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'counter_measure'))
+                            @if (data_get($equippedItem, 'counter_measure'))
                                 <x-items.counter-measure-card
-                                    :counter-measure="data_get($port['equipped_item'], 'counter_measure')"/>
+                                    :counter-measure="data_get($equippedItem, 'counter_measure')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'bomb'))
-                                <x-items.bomb-card :bomb="data_get($port['equipped_item'], 'bomb')"/>
+                            @if (data_get($equippedItem, 'bomb'))
+                                <x-items.bomb-card :bomb="data_get($equippedItem, 'bomb')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'seat'))
-                                <x-items.seat-card :seat="data_get($port['equipped_item'], 'seat')"/>
+                            @if (data_get($equippedItem, 'seat'))
+                                <x-items.seat-card :seat="data_get($equippedItem, 'seat')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'thruster'))
-                                <x-items.thruster-card :thruster="data_get($port['equipped_item'], 'thruster')"/>
+                            @if (data_get($equippedItem, 'thruster'))
+                                <x-items.thruster-card :thruster="data_get($equippedItem, 'thruster')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'fuel_tank'))
-                                <x-items.fuel-tank-card :fuel-tank="data_get($port['equipped_item'], 'fuel_tank')"/>
+                            @if (data_get($equippedItem, 'fuel_tank'))
+                                <x-items.fuel-tank-card :fuel-tank="data_get($equippedItem, 'fuel_tank')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'fuel_intake'))
+                            @if (data_get($equippedItem, 'fuel_intake'))
                                 <x-items.fuel-intake-card
-                                    :fuel-intake="data_get($port['equipped_item'], 'fuel_intake')"/>
+                                    :fuel-intake="data_get($equippedItem, 'fuel_intake')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'emp'))
-                                <x-items.emp-card :emp="data_get($port['equipped_item'], 'emp')"/>
+                            @if (data_get($equippedItem, 'emp'))
+                                <x-items.emp-card :emp="data_get($equippedItem, 'emp')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'quantum_interdiction_generator'))
+                            @if (data_get($equippedItem, 'quantum_interdiction_generator'))
                                 <x-items.quantum-interdiction-generator-card
-                                    :quantum-interdiction-generator="data_get($port['equipped_item'], 'quantum_interdiction_generator')"/>
+                                    :quantum-interdiction-generator="data_get($equippedItem, 'quantum_interdiction_generator')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'mining_modifier'))
+                            @if (data_get($equippedItem, 'mining_modifier'))
                                 <x-items.mining-modifier-card
-                                    :mining-modifier="data_get($port['equipped_item'], 'mining_modifier')"/>
+                                    :mining-modifier="data_get($equippedItem, 'mining_modifier')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'emission'))
-                                <x-items.emission-card :emission="data_get($port['equipped_item'], 'emission')"/>
+                            @if (data_get($equippedItem, 'emission'))
+                                <x-items.emission-card :emission="data_get($equippedItem, 'emission')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'mining_laser'))
+                            @if (data_get($equippedItem, 'mining_laser'))
                                 <x-items.mining-laser-card
-                                    :mining-laser="data_get($port['equipped_item'], 'mining_laser')"/>
+                                    :mining-laser="data_get($equippedItem, 'mining_laser')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'self_destruct'))
+                            @if (data_get($equippedItem, 'self_destruct'))
                                 <x-items.self-destruct-card
-                                    :self-destruct="data_get($port['equipped_item'], 'self_destruct')"/>
+                                    :self-destruct="data_get($equippedItem, 'self_destruct')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'missile_rack'))
+                            @if (data_get($equippedItem, 'missile_rack'))
                                 <x-items.missile-rack-card
-                                    :missile-rack="data_get($port['equipped_item'], 'missile_rack')"/>
+                                    :missile-rack="data_get($equippedItem, 'missile_rack')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'tractor_beam'))
+                            @if (data_get($equippedItem, 'tractor_beam'))
                                 <x-items.tractor-beam-card
-                                    :tractor-beam="data_get($port['equipped_item'], 'tractor_beam')"/>
+                                    :tractor-beam="data_get($equippedItem, 'tractor_beam')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'FlightController')
                                 <x-items.flight-controller-card
-                                    :flight-controller="data_get($port['equipped_item'], 'flight_controller')"/>
+                                    :flight-controller="data_get($equippedItem, 'flight_controller')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'ShieldController')
                                 <x-items.shield-controller-card
-                                    :shield-controller="data_get($port['equipped_item'], 'shield_controller')"/>
+                                    :shield-controller="data_get($equippedItem, 'shield_controller')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'Radar')
-                                <x-items.radar-card :radar="data_get($port['equipped_item'], 'radar')"/>
+                                <x-items.radar-card :radar="data_get($equippedItem, 'radar')" :class="$equippedCardClasses"/>
                             @endif
 
                             @if ($equippedType === 'Turret')
-                                <x-items.turret-card :turret="data_get($port['equipped_item'], 'turret')" class="pr-0" />
+                                <x-items.turret-card
+                                    :turret="data_get($equippedItem, 'turret')"
+                                    :class="$equippedCardClasses.' pr-0'"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'inventory'))
+                            @if (data_get($equippedItem, 'inventory'))
                                 <x-items.cargo-grid-card
-                                    :cargo-grid="data_get($port['equipped_item'], 'inventory')"/>
+                                    :cargo-grid="data_get($equippedItem, 'inventory')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'missile'))
-                                <x-items.missile-card :missile="data_get($port['equipped_item'], 'missile')"/>
+                            @if (data_get($equippedItem, 'missile'))
+                                <x-items.missile-card :missile="data_get($equippedItem, 'missile')" :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'suit_armor'))
+                            @if (data_get($equippedItem, 'suit_armor'))
                                 <x-items.suit-armor-card
-                                    :suit-armor="data_get($port['equipped_item'], 'suit_armor')"/>
+                                    :suit-armor="data_get($equippedItem, 'suit_armor')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'temperature_resistance'))
+                            @if (data_get($equippedItem, 'temperature_resistance'))
                                 <x-items.temperature-resistance-card
-                                    :temperature-resistance="data_get($port['equipped_item'], 'temperature_resistance')"/>
+                                    :temperature-resistance="data_get($equippedItem, 'temperature_resistance')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'radiation_resistance'))
+                            @if (data_get($equippedItem, 'radiation_resistance'))
                                 <x-items.radiation-resistance-card
-                                    :radiation-resistance="data_get($port['equipped_item'], 'radiation_resistance')"/>
+                                    :radiation-resistance="data_get($equippedItem, 'radiation_resistance')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'ammunition'))
+                            @if (data_get($equippedItem, 'ammunition'))
                                 <x-items.ammunition-card
-                                    :ammunition="data_get($port['equipped_item'], 'ammunition')"/>
+                                    :ammunition="data_get($equippedItem, 'ammunition')"
+                                    :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($port['equipped_item'], 'weapon_modifier'))
+                            @if (data_get($equippedItem, 'weapon_modifier'))
                                 <x-items.weapon-modifier-card
-                                    :weapon-modifier="data_get($port['equipped_item'], 'weapon_modifier')"/>
+                                    :weapon-modifier="data_get($equippedItem, 'weapon_modifier')"
+                                    :class="$equippedCardClasses"/>
                             @endif
                         </div>
-                    </dd>
-                </div>
+                    </div>
                 @endunless
-            </dl>
+            </div>
 
             @if (! empty(data_get($port, 'ports')))
                 @foreach (data_get($port, 'ports') as $childPort)

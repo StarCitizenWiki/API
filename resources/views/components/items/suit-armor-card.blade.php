@@ -46,7 +46,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="user-shield" class="size-4 text-primary" />
             <span>Suit Armor</span>
@@ -59,11 +59,11 @@
             </div>
         @endif
 
-        <details id="damage-multipliers" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="damage-multipliers-content">
+        <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                 Damage
             </summary>
-            <div id="damage-multipliers-content" class="collapse-content">
+            <div class="collapse-content">
                 <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
                     @if ($drPhysicalChange !== null)
                         <div class="space-y-1">

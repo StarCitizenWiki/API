@@ -18,7 +18,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title flex items-center gap-2">
             <x-icon name="zap" class="size-4 text-primary" />
             <span>EMP Generator</span>

@@ -77,7 +77,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Price</th>
-                                    <th>Imported At</th>
+                                    <th class="hidden sm:table-cell">Imported At</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -87,7 +87,7 @@
                                         <td>
                                             {{ fmt_value_with_unit(data_get($sku, 'price'), '$', 0) }}
                                         </td>
-                                        <td>
+                                        <td class="hidden sm:table-cell">
                                             {{ \Illuminate\Support\Carbon::createFromTimeString(data_get($sku, 'imported_at'))->diffForHumans() }}
                                         </td>
                                     </tr>

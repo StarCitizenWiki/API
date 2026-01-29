@@ -82,35 +82,37 @@
                 <details id="signature-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="signature-details-content">
                     <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">EM Groups</summary>
                     <div id="signature-details-content" class="collapse-content">
-                        <table class="table table-compact table-zebra table-xs w-full overflow-x-auto">
-                            <thead>
-                            <tr>
-                                <th>System (Shields active)</th>
-                                <th>EM Emission</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (data_get($signature, 'em_groups_shields') ?? [] as $system => $group)
+                        <div class="overflow-x-auto">
+                            <table class="table table-compact table-zebra table-xs w-full">
+                                <thead>
                                 <tr>
-                                    <td>{{ Str::headline($system) }}</td>
-                                    <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
+                                    <th>System (Shields active)</th>
+                                    <th>EM Emission</th>
                                 </tr>
-                            @endforeach
-                            <thead>
-                            <tr>
-                                <th>System (QD active)</th>
-                                <th>EM Emission</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (data_get($signature, 'em_groups_quantum') ?? [] as $system => $group)
+                                </thead>
+                                <tbody>
+                                @foreach (data_get($signature, 'em_groups_shields') ?? [] as $system => $group)
+                                    <tr>
+                                        <td>{{ Str::headline($system) }}</td>
+                                        <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
+                                    </tr>
+                                @endforeach
+                                <thead>
                                 <tr>
-                                    <td>{{ Str::headline($system) }}</td>
-                                    <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
+                                    <th>System (QD active)</th>
+                                    <th>EM Emission</th>
                                 </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                @foreach (data_get($signature, 'em_groups_quantum') ?? [] as $system => $group)
+                                    <tr>
+                                        <td>{{ Str::headline($system) }}</td>
+                                        <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </details>
 
@@ -122,37 +124,39 @@
                     <details id="cooling-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="cooling-details-content">
                         <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">Cooling usage Groups</summary>
                         <div id="cooling-details-content" class="collapse-content">
-                            <table class="table table-compact table-xs table-zebra w-full overflow-x-auto mb-4">
-                                <thead>
-                                <tr>
-                                    <th>System (Shields active)</th>
-                                    <th>Segments</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (data_get($cooling, 'used_segments_shields_grouped') ?? [] as $system => $group)
+                            <div class="overflow-x-auto">
+                                <table class="table table-compact table-xs table-zebra w-full mb-4">
+                                    <thead>
                                     <tr>
-                                        <td>{{ Str::headline($system) }}</td>
-                                        <td>{{ fmt_or_dash($group) }}</td>
+                                        <th>System (Shields active)</th>
+                                        <th>Segments</th>
                                     </tr>
-                                @endforeach
-                                </tbody>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (data_get($cooling, 'used_segments_shields_grouped') ?? [] as $system => $group)
+                                        <tr>
+                                            <td>{{ Str::headline($system) }}</td>
+                                            <td>{{ fmt_or_dash($group) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
 
-                                <thead>
-                                <tr>
-                                    <th>System (QD active)</th>
-                                    <th>Segments</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (data_get($cooling, 'used_segments_quantum_grouped') ?? [] as $system => $group)
+                                    <thead>
                                     <tr>
-                                        <td>{{ Str::headline($system) }}</td>
-                                        <td>{{ fmt_or_dash($group) }}</td>
+                                        <th>System (QD active)</th>
+                                        <th>Segments</th>
                                     </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (data_get($cooling, 'used_segments_quantum_grouped') ?? [] as $system => $group)
+                                        <tr>
+                                            <td>{{ Str::headline($system) }}</td>
+                                            <td>{{ fmt_or_dash($group) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </details>
                 @endif
@@ -163,22 +167,24 @@
                     <details id="power-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="power-details-content">
                         <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">Power usage Groups</summary>
                         <div id="power-details-content" class="collapse-content">
-                            <table class="table table-compact table-xs table-zebra w-full overflow-x-auto">
-                                <thead>
-                                <tr>
-                                    <th>System</th>
-                                    <th>Segments</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (data_get($power, 'used_segments_grouped') ?? [] as $system => $group)
+                            <div class="overflow-x-auto">
+                                <table class="table table-compact table-xs table-zebra w-full">
+                                    <thead>
                                     <tr>
-                                        <td>{{ Str::headline($system) ?? $system }}</td>
-                                        <td>{{ fmt_or_dash($group) }}</td>
+                                        <th>System</th>
+                                        <th>Segments</th>
                                     </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (data_get($power, 'used_segments_grouped') ?? [] as $system => $group)
+                                        <tr>
+                                            <td>{{ Str::headline($system) ?? $system }}</td>
+                                            <td>{{ fmt_or_dash($group) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </details>
                 @endif

@@ -43,7 +43,7 @@
             {{ data_get($vehicle, 'name') }} - S{{ $sizeClass }}
             <span class="badge badge-soft badge-sm">{{ data_get($vehicle, 'manufacturer.name') }}</span>
         </h2>
-        <dl class="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+        <dl class="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
             <div class="space-y-1">
                 <dt class="text-xs text-base-content/60">Career</dt>

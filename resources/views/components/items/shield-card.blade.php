@@ -1,7 +1,7 @@
 @props(['shield' => null])
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="shield" class="size-4 text-primary" />
             <span>Shield</span>
@@ -32,11 +32,11 @@
         @endphp
 
         @if ($hasReservePool)
-            <details id="reserve-pool" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="reserve-pool-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Reserve Pool
                 </summary>
-                <div id="reserve-pool-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($reservePool, 'regen_rate'))
                             <div class="space-y-1">
@@ -91,11 +91,11 @@
         @endphp
 
         @if ($hasRegenDelay)
-            <details id="regen-delay" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="regen-delay-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Regen Delay
                 </summary>
-                <div id="regen-delay-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         @if (data_get($regenDelay, 'downed'))
                             <div class="space-y-1">
@@ -122,11 +122,11 @@
         @endphp
 
         @if ($hasAbsorption)
-            <details id="absorption" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="absorption-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Absorption
                 </summary>
-                <div id="absorption-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     @foreach ($absorption as $type => $values)
                         @php
@@ -154,11 +154,11 @@
         @endphp
 
         @if ($hasResistance)
-            <details id="resistance" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="resistance-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Resistance
                 </summary>
-                <div id="resistance-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     @foreach ($resistance as $type => $values)
                         @php

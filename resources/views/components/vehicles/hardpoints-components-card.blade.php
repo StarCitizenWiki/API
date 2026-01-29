@@ -34,7 +34,7 @@
     ];
 @endphp
 
-<details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-2">
+<details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-full">
     <summary class="collapse-title min-h-11 py-3 font-semibold">
         <span class="flex items-center gap-2">
             <span>Hardpoints</span>
@@ -64,4 +64,3 @@
         @endif
     </div>
 </details>
-

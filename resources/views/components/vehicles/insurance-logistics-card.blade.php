@@ -10,7 +10,7 @@
     </summary>
     <div class="collapse-content">
     @if ($insurance !== [])
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             @if (data_get($insurance, 'claim_time'))
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Claim Time</dt>

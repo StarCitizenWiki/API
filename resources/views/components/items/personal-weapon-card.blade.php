@@ -36,7 +36,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="pistol" class="size-4 text-primary" />
             <span>Personal Weapon</span>
@@ -62,11 +62,11 @@
         </dl>
 
         @if ($hasDamage)
-            <details id="damage-stats" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="damage-stats-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Damage Stats
                 </summary>
-                <div id="damage-stats-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($dpsTotal !== null)
                             <div class="space-y-1">
@@ -194,11 +194,11 @@
         @endif
 
         @if ($hasSpreadSection)
-            <details id="spread" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="spread-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Spread
                 </summary>
-                <div id="spread-content" class="collapse-content">
+                <div class="collapse-content">
                     @if (is_array($spread) && $spread !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Hip-fire Spread</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
@@ -275,11 +275,11 @@
         @endif
 
         @if ($hasChargeSection)
-            <details id="charge" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="charge-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Charge
                 </summary>
-                <div id="charge-content" class="collapse-content">
+                <div class="collapse-content">
                     @if (is_array($charge) && $charge !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Timings</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">

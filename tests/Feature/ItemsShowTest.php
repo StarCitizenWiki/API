@@ -104,6 +104,7 @@ it('renders the item show view with api data', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
+        ->assertSee('Overview')
         ->assertSee('Test Module')
         ->assertSee('Main Port')
         ->assertSee('Test Module Variant')

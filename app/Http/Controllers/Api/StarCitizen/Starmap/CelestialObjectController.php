@@ -62,7 +62,7 @@ class CelestialObjectController extends Controller
         }
 
         if ($code !== null) {
-            $query->where('code', $code);
+            $query->whereRaw('upper(code) = ?', [$code]);
         }
 
         return $query;

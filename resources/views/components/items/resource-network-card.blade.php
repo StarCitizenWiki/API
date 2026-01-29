@@ -17,7 +17,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h4 class="card-title text-sm flex items-center gap-2">
             <x-icon name="network" class="size-4 text-primary" />
             <span>Resource Network</span>
@@ -38,11 +38,11 @@
         </dl>
 
         @if (data_get($resourceNetwork, 'repair'))
-            <details id="self-repair" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="self-repair-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Self-Repair
                 </summary>
-                <div id="self-repair-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Repair Count</dt>
@@ -68,11 +68,11 @@
         @endif
 
         @unless(empty($states))
-            <details id="network-states" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="network-states-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Network States
                 </summary>
-                <div id="network-states-content" class="collapse-content">
+                <div class="collapse-content">
                     @foreach($states as $state)
                         @php
                             $stateDeltas = data_get($state, 'deltas', []);
@@ -83,14 +83,14 @@
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-3">{{ $state['name'] }}</h4>
 
                         @if($hasDeltas)
-                            <details id="deltas-{{ $loop->index }}" class="collapse collapse-arrow border border-base-300 bg-base-100 mb-3" open>
-                                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="deltas-content-{{ $loop->index }}">
+                            <details class="collapse collapse-arrow border border-base-300 bg-base-100 mb-3" open>
+                                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                                     Resource Deltas
                                 </summary>
-                                <div id="deltas-content-{{ $loop->index }}" class="collapse-content">
+                                <div class="collapse-content">
                                     @foreach($stateDeltas as $delta)
                                         <div class="mb-4 pb-4 border-b border-base-200 last:border-0 last:mb-0 last:pb-0">
-                                            <div class="space-y-1 col-span-3 mb-3">
+                                            <dl class="space-y-1 mb-3">
                                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $delta['type'] }}</dt>
                                                 <dd class="text-sm font-medium">
                                                     @if(data_get($delta, 'resource'))
@@ -101,7 +101,7 @@
                                                         @endif
                                                     @endif
                                                 </dd>
-                                            </div>
+                                            </dl>
 
                                             <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                                 {{-- Rate --}}
@@ -144,6 +144,7 @@
                                                         </dd>
                                                     </div>
                                                 @endif
+                                            </dl>
                                         </div>
                                     @endforeach
                                 </div>
@@ -151,11 +152,11 @@
                         @endif
 
                         @if($hasPowerRanges)
-                            <details id="power-ranges-{{ $loop->index }}" class="collapse collapse-arrow border border-base-300 bg-base-100 mb-3">
-                                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="power-ranges-content-{{ $loop->index }}">
+                            <details class="collapse collapse-arrow border border-base-300 bg-base-100 mb-3">
+                                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                                     Power Ranges
                                 </summary>
-                                <div id="power-ranges-content-{{ $loop->index }}" class="collapse-content">
+                                <div class="collapse-content">
                                     @foreach($statePowerRanges as $i => $range)
                                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3 mb-3">
                                             <div class="space-y-1">

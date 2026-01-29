@@ -33,6 +33,7 @@ it('renders insurance-logistics-card', function () {
     $output = Blade::render('<x-vehicles.insurance-logistics-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Insurance');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2');
 });
 
 it('renders defense-systems-card', function () {
@@ -44,6 +45,7 @@ it('renders defense-systems-card', function () {
     $output = Blade::render('<x-vehicles.defense-systems-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Defense Systems');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2');
 });
 
 it('renders propulsion-card', function () {
@@ -58,6 +60,7 @@ it('renders propulsion-card', function () {
     $output = Blade::render('<x-vehicles.propulsion-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Fuel & Quantum');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
 });
 
 it('renders flight-characteristics-card', function () {
@@ -70,6 +73,8 @@ it('renders flight-characteristics-card', function () {
     $output = Blade::render('<x-vehicles.flight-characteristics-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Flight Characteristics');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3');
+    expect($output)->toContain('xl:grid-cols-6');
 });
 
 it('renders cargo-inventory-card', function () {
@@ -116,6 +121,7 @@ it('renders quick-summary-card', function () {
     $output = Blade::render('<x-vehicles.quick-summary-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Career');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 lg:grid-cols-3');
 });
 
 it('renders dimensions-mass-card', function () {
@@ -128,6 +134,7 @@ it('renders dimensions-mass-card', function () {
     $output = Blade::render('<x-vehicles.dimensions-mass-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Dimensions & Mass');
+    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
 });
 
 it('renders core-specs-card', function () {
@@ -181,6 +188,7 @@ it('renders parts-turrets-card', function () {
     $output = Blade::render('<x-vehicles.parts-turrets-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Parts')->toContain('Turrets');
+    expect($output)->toContain('hidden sm:table-cell');
 });
 
 it('renders systems-signatures-card', function () {
@@ -193,6 +201,7 @@ it('renders systems-signatures-card', function () {
     $output = Blade::render('<x-vehicles.systems-signatures-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Emission & Resource Network');
+    expect($output)->toContain('overflow-x-auto');
 });
 
 it('renders port-display subcomponent', function () {
@@ -205,6 +214,7 @@ it('renders port-display subcomponent', function () {
     $output = Blade::render('<x-port-display :port="$port" />', ['port' => $port]);
 
     expect($output)->toContain('Test Port');
+    expect($output)->toContain('sm:justify-between');
 });
 
 it('renders metadata-footer-card', function () {
@@ -236,4 +246,5 @@ it('renders purchase-variants-card', function () {
     $output = Blade::render('<x-vehicles.purchase-variants-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Loaner & SKUs');
+    expect($output)->toContain('hidden sm:table-cell');
 });

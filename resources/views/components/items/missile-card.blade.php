@@ -57,7 +57,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title flex items-center gap-2">
             <x-icon name="rocket" class="size-4 text-primary" />
             <span>Missile</span>
@@ -106,11 +106,11 @@
 
     {{-- Secondary Data: Target Lock (Collapsible, expanded by default) --}}
     @if ($hasTargetLock)
-        <details id="target-lock" class="collapse collapse-arrow border border-base-300 bg-base-100">
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="target-lock-content">
+        <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                 Target Lock
             </summary>
-            <div id="target-lock-content" class="collapse-content">
+            <div class="collapse-content">
                 <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
                     @if ($tlAngle !== null)
@@ -162,11 +162,11 @@
 
 
     @if ($hasFlight)
-            <details id="flight-performance" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="flight-performance-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Flight Performance
                 </summary>
-                <div id="flight-performance-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($flightSpeed !== null)
                             <div class="space-y-1">
@@ -229,11 +229,11 @@
 
         {{-- Tertiary Data (Collapsed by default) --}}
         @if ($hasExplosion || $hasDelays || $hasDamage)
-            <details id="arming-explosion" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3" aria-expanded="false" aria-controls="arming-explosion-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3">
                     <h3 class="text-sm font-semibold">Arming & Explosion</h3>
                 </summary>
-                <div id="arming-explosion-content" class="collapse-content">
+                <div class="collapse-content">
                     {{-- Damage --}}
                     @if ($hasDamage)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Damage</h4>

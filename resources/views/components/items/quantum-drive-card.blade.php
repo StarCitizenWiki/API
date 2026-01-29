@@ -43,7 +43,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="atom" class="size-4 text-primary" />
             <span>Quantum Drive</span>
@@ -73,11 +73,11 @@
         </dl>
 
         @if ($hasSecondaryData)
-            <details id="performance-details" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="performance-details-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Performance Details
                 </summary>
-                <div id="performance-details-content" class="collapse-content">
+                <div class="collapse-content">
                     <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($travelTimeSeconds !== null)
                             <div class="space-y-1">
@@ -103,11 +103,11 @@
         @endif
 
         @if ($hasTertiaryData)
-            <details id="jump-profiles" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="jump-profiles-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Jump Profiles
                 </summary>
-                <div id="jump-profiles-content" class="collapse-content">
+                <div class="collapse-content">
                     @if ($modes !== [])
                         @foreach ($modes as $mode)
                             @php

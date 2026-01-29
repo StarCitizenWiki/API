@@ -32,7 +32,7 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
+    <div class="card-body gap-3">
         <h2 class="card-title text-base flex items-center gap-2">
             <x-icon name="crosshair" class="size-4 text-primary" />
             <span>Turret</span>
@@ -62,11 +62,11 @@
 
         {{-- Secondary Data: Collapsible, Expanded by Default --}}
         @if ($hasSecondaryData)
-            <details id="performance" class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="performance-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Performance
                 </summary>
-                <div id="performance-content" class="collapse-content">
+                <div class="collapse-content">
                     @if ($yawSpeed !== null || $yawTimeToFullSpeed !== null || $pitchSpeed !== null || $pitchTimeToFullSpeed !== null)
                         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                             @if ($yawSpeed !== null)
@@ -101,11 +101,11 @@
 
         {{-- Tertiary Data: Collapsible, Collapsed by Default --}}
         @if ($hasTertiaryData)
-            <details id="advanced" class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="advanced-content">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Advanced
                 </summary>
-                <div id="advanced-content" class="collapse-content">
+                <div class="collapse-content">
                     @if ($hasTertiaryData)
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                             @if ($yawSlavedOnly !== null)

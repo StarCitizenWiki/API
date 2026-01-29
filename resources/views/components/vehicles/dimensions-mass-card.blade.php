@@ -18,7 +18,7 @@
         Dimensions & Mass
     </summary>
     <div class="collapse-content">
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Length</dt>
                 <dd class="text-sm font-medium">{{ $length ? number_format($length, 1) . ' m' : '-' }}</dd>

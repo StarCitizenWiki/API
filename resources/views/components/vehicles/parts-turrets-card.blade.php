@@ -80,7 +80,7 @@
                                 <tr>
                                     <th>Size</th>
                                     <th>Fixed</th>
-                                    <th>Weapon Sizes</th>
+                                    <th class="hidden sm:table-cell">Weapon Sizes</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -88,7 +88,7 @@
                                     <tr>
                                         <td>{{ $turret['size'] ?? '-' }}</td>
                                         <td>{{ array_key_exists('fixed', $turret) ? ($turret['fixed'] ? 'Yes' : 'No') : '-' }}</td>
-                                        <td>{{ ! empty($turret['weapon_sizes']) ? implode(', ', $turret['weapon_sizes']) : '-' }}</td>
+                                        <td class="hidden sm:table-cell">{{ ! empty($turret['weapon_sizes']) ? implode(', ', $turret['weapon_sizes']) : '-' }}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -107,7 +107,7 @@
                                 <tr>
                                     <th>Size</th>
                                     <th>Fixed</th>
-                                    <th>Weapon Sizes</th>
+                                    <th class="hidden sm:table-cell">Weapon Sizes</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -115,7 +115,7 @@
                                     <tr>
                                         <td>{{ $turret['size'] ?? '-' }}</td>
                                         <td>{{ array_key_exists('fixed', $turret) ? ($turret['fixed'] ? 'Yes' : 'No') : '-' }}</td>
-                                        <td>{{ ! empty($turret['weapon_sizes']) ? implode(', ', $turret['weapon_sizes']) : '-' }}</td>
+                                        <td class="hidden sm:table-cell">{{ ! empty($turret['weapon_sizes']) ? implode(', ', $turret['weapon_sizes']) : '-' }}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

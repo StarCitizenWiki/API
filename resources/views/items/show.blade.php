@@ -222,8 +222,8 @@
         ])->filter()->count();
     @endphp
 
-    <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-4 lg:gap-6">
+        <div class="flex flex-col gap-2 sm:gap-3">
             <x-items.item-breadcrumbs :item="$item" />
             <div class="flex flex-col gap-1">
                 <h1 class="text-2xl font-semibold tracking-tight">{{ $itemName }} <span class="text-secondary">({{ $type }})</span></h1>
@@ -250,78 +250,70 @@
             placeholder="Search item names"
         />
 
-        <section class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-            <div class="card border border-base-300 bg-base-100 shadow">
-                <div class="card-body gap-4">
-                    <h2 class="card-title text-base">Item</h2>
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Name</dt>
-                            <dd class="text-sm font-medium">{{ $itemName }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Manufacturer</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($manufacturerName)
-                                    {{ $manufacturerName }}
-                                    @if ($manufacturerCode)
-                                        <span class="badge badge-outline ml-2">{{ $manufacturerCode }}</span>
-                                    @endif
-                                @else
-                                    -
+        <section class="card border border-base-300 bg-base-100 shadow">
+            <div class="card-body gap-3">
+                <h2 class="card-title text-base">Overview</h2>
+                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 tabular-nums">
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Manufacturer</dt>
+                        <dd class="text-sm font-medium">
+                            @if ($manufacturerName)
+                                {{ $manufacturerName }}
+                                @if ($manufacturerCode)
+                                    <span class="badge badge-outline badge-sm ml-2">{{ $manufacturerCode }}</span>
                                 @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type + SubType</dt>
-                            <dd class="text-sm font-medium">
-                                {{ $type ?? '-' }}@if ($subType) / {{ $subType }}@endif
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
-
-            <div class="card border border-base-300 bg-base-100 shadow">
-                <div class="card-body gap-4">
-                    <h2 class="card-title text-base">General</h2>
-                    <dl class="grid gap-4 grid-cols-1 md:grid-cols-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
-                            <dd class="text-sm font-medium">{{ $size ?? '-' }}</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass</dt>
-                            <dd class="text-sm font-medium">{{ $mass ?? '-' }}kg</dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Dimensions</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($length || $width || $height)
-                                    {{ $length ?? '-' }} x {{ $width ?? '-' }} x {{ $height ?? '-' }} m
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Volume</dt>
-                            <dd class="text-sm font-medium">
-                                @if ($volume !== null)
-                                    {{ $volume }}@if ($volumeUnit) {{ $volumeUnit }}@endif
-                                @else
-                                    -
-                                @endif
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
+                            @else
+                                -
+                            @endif
+                        </dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type / Subtype</dt>
+                        <dd class="text-sm font-medium">
+                            {{ $type ?? '-' }}@if ($subType) / {{ $subType }}@endif
+                        </dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
+                        <dd class="text-sm font-medium">{{ $size ?? '-' }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass</dt>
+                        <dd class="text-sm font-medium">
+                            @if ($mass !== null)
+                                {{ $mass }}kg
+                            @else
+                                -
+                            @endif
+                        </dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Dimensions</dt>
+                        <dd class="text-sm font-medium">
+                            @if ($length || $width || $height)
+                                {{ $length ?? '-' }} x {{ $width ?? '-' }} x {{ $height ?? '-' }} m
+                            @else
+                                -
+                            @endif
+                        </dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Volume</dt>
+                        <dd class="text-sm font-medium">
+                            @if ($volume !== null)
+                                {{ $volume }}@if ($volumeUnit) {{ $volumeUnit }}@endif
+                            @else
+                                -
+                            @endif
+                        </dd>
+                    </div>
+                </dl>
             </div>
         </section>
 
         @if ($relatedItemsCount > 0)
             <details id="related-items-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" @if($relatedItemsCount < 5) open @endif>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="true" aria-controls="related-items-details-content">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="related-items-details-content">
                     <span class="flex items-center gap-2">
                         <span>Related Items</span>
                         @if ($relatedItemsCount > 0)
@@ -334,7 +326,26 @@
                         @if (is_array($setItems) && $setItems !== [])
                             <div class="space-y-2">
                                 <h3 class="text-sm font-semibold">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
-                                <div class="overflow-x-auto">
+                                <div class="grid gap-2 sm:hidden">
+                                    @foreach ($setItems as $setItem)
+                                        <div class="card border border-base-300 bg-base-100 shadow-sm">
+                                            <div class="card-body gap-2 p-3">
+                                                <div class="text-sm font-semibold">{{ $setItem['name'] ?? '-' }}</div>
+                                                <div class="text-xs text-base-content/70">
+                                                    Slot: {{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}
+                                                </div>
+                                                <div class="text-xs">
+                                                    @if (! empty($setItem['uuid']))
+                                                        <a href="{{ route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="overflow-x-auto hidden sm:block">
                                     <table class="table table-sm">
                                         <caption class="sr-only">Set items linked to this item</caption>
                                         <thead>
@@ -369,7 +380,41 @@
                         @if (is_array($variants) && $variants !== [])
                             <div class="space-y-2">
                                 <h3 class="text-sm font-semibold">Variants</h3>
-                                <div class="overflow-x-auto">
+                                <div class="grid gap-2 sm:hidden">
+                                    @if (! empty($baseVariant))
+                                        <div class="card border border-base-300 bg-base-100 shadow-sm">
+                                            <div class="card-body gap-2 p-3">
+                                                <div class="text-sm font-semibold">{{ $baseVariant['name'] ?? '-' }}</div>
+                                                <div class="text-xs text-base-content/70">Base Item</div>
+                                                <div class="text-xs">
+                                                    @if (! empty($baseVariant['uuid']))
+                                                        <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @foreach ($variants as $variant)
+                                        <div class="card border border-base-300 bg-base-100 shadow-sm">
+                                            <div class="card-body gap-2 p-3">
+                                                <div class="text-sm font-semibold">{{ $variant['name'] ?? '-' }}</div>
+                                                <div class="text-xs text-base-content/70">
+                                                    {{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}
+                                                </div>
+                                                <div class="text-xs">
+                                                    @if (! empty($variant['uuid']))
+                                                        <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="overflow-x-auto hidden sm:block">
                                     <table class="table table-sm">
                                         <caption class="sr-only">Variant items for this base item</caption>
                                         <thead>
@@ -419,31 +464,33 @@
         @endif
 
         <details id="description-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="description-details-content">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="description-details-content">
                 Description
             </summary>
             <div id="description-details-content" class="collapse-content">
                 <div class="space-y-6">
                     <section class="text-sm text-base-content/80">
                         @if (! empty($translations))
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-1 gap-3 sm:gap-4">
                                 @foreach ($translations as $locale => $translation)
                                     @php
-                                        $label = is_string($locale) ? \App\Models\System\Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
+                                        $label = is_string($locale)
+                                            ? (\App\Models\System\Language::LABEL_MAP[$locale] ?? 'Translation '.$loop->iteration)
+                                            : 'Translation '.$loop->iteration;
                                         $translationText = is_string($translation)
                                             ? $translation
                                             : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
                                     @endphp
-                                    <div class="card border border-base-300 bg-base-100 shadow p-4">
+                                    <div class="card border border-base-300 bg-base-100 shadow p-3 sm:p-4">
                                         <div class="space-y-3">
                                             <span class="badge badge-outline text-xs">{{ $label }}</span>
                                             @if ($translationText)
-                                                <div class="text-sm leading-relaxed text-base-content/80">
+                                                <div class="text-sm leading-relaxed text-base-content/80 max-h-40 overflow-y-auto break-words sm:max-h-none sm:overflow-visible">
                                                     {!! nl2br(e($translationText)) !!}
                                                 </div>
-                                                @if (in_array(\App\Models\System\Language::LABEL_MAP[$locale], ['German', 'Chinese'], true))
+                                                @if (in_array($label, ['German', 'Chinese'], true))
                                                     <div class="text-xs text-base-content/70 mt-4">
-                                                        {{ \App\Models\System\Language::LABEL_MAP[$locale] ?? $locale }} translation from
+                                                        {{ $label ?? $locale }} translation from
                                                         <a class="link"
                                                             href="{{ config("translations.sources_git.$locale") }}"
                                                             target="_blank"
@@ -466,7 +513,21 @@
                     <section class="text-sm text-base-content/80">
                         <h3 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Description Data</h3>
                         @if (is_array($descriptionData) && $descriptionData !== [])
-                            <div class="overflow-x-auto">
+                            <div class="grid gap-2 sm:hidden">
+                                @foreach ($descriptionData as $datum)
+                                    <div class="card border border-base-300 bg-base-100 shadow-sm">
+                                        <div class="card-body gap-2 p-3">
+                                            <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                                {{ $datum['name'] ?? '-' }}
+                                            </div>
+                                            <div class="text-sm font-medium break-words">
+                                                {{ $datum['value'] ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="overflow-x-auto hidden sm:block">
                                 <table class="table table-sm">
                                     <caption class="sr-only">Structured description data</caption>
                                     <thead>
@@ -495,7 +556,7 @@
 
         @if ($portsCount > 0)
         <details id="ports-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="ports-details-content">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="ports-details-content">
                 <span class="flex items-center gap-2">
                     <span>Ports</span>
                     @if ($portsCount > 0)
@@ -505,7 +566,7 @@
             </summary>
             <div id="ports-details-content" class="collapse-content">
                 @if (is_array($ports) && $ports !== [])
-                    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+                    <div class="grid gap-3 sm:gap-4 grid-cols-1 lg:grid-cols-2">
                         @foreach ($ports as $port)
                             <x-item-port-display :port="$port" :depth="0"/>
                         @endforeach
@@ -519,7 +580,7 @@
 
         @if ($fpsSpecsAvailable)
             <details id="fps-specs-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="fps-specs-details-content">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="fps-specs-details-content">
                     <span class="flex items-center gap-2">
                         <x-icon name="contact-round" class="size-5 text-primary" />
                         <span>FPS Data</span>
@@ -529,7 +590,7 @@
                     </span>
                 </summary>
                 <div id="fps-specs-details-content" class="collapse-content">
-                    <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div class="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
                         @if ($type === 'WeaponPersonal')
                             <x-items.personal-weapon-card :personal-weapon="data_get($item, 'personal_weapon')" />
                         @endif
@@ -573,7 +634,7 @@
 
         @if ($vehicleSpecsAvailable)
             <details id="vehicle-specs-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="vehicle-specs-details-content">
+                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="vehicle-specs-details-content">
                     <span class="flex items-center gap-2">
                         <x-icon name="cpu" class="size-5 text-primary" />
                         <span>Vehicle Component Data</span>
@@ -583,7 +644,7 @@
                     </span>
                 </summary>
                 <div id="vehicle-specs-details-content" class="collapse-content">
-                    <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div class="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
                         @if ($type === 'WeaponGun')
                             <x-items.vehicle-weapon-card :vehicle-weapon="data_get($item, 'vehicle_weapon')" />
                         @endif
@@ -692,8 +753,8 @@
                             <x-items.missile-rack-card :missile-rack="data_get($item, 'missile_rack')" />
                         @endif
 
-                        @if (data_get($item, 'inventory'))
-                            <x-items.cargo-grid-card :cargo-grid="data_get($item, 'inventory')" />
+                        @if (data_get($item, 'cargo_grid'))
+                            <x-items.cargo-grid-card :cargo-grid="data_get($item, 'cargo_grid')" />
                         @endif
 
                         @if (data_get($item, 'weapon_modifier'))
@@ -709,11 +770,11 @@
         @endif
 
         <details id="technical-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="technical-details-content">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="technical-details-content">
                 Technical
             </summary>
             <div id="technical-details-content" class="collapse-content">
-                <dl class="grid gap-4 grid-cols-1 md:grid-cols-2">
+                <dl class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 tabular-nums">
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">UUID</dt>
                         <dd class="text-sm font-medium">{{ $uuid ?? '-' }}</dd>
@@ -732,7 +793,7 @@
                     </div>
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">API Link</dt>
-                        <dd class="text-sm font-medium">
+                        <dd class="text-sm font-medium break-all">
                             @if ($apiLink)
                                 <a href="{{ $apiLink }}" class="link link-primary">{{ $apiLink }}</a>
                             @else
@@ -761,11 +822,11 @@
         </details>
 
         <details id="raw-payload-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="raw-payload-details-content">
+            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="raw-payload-details-content">
                 Raw Item Payload
             </summary>
             <div id="raw-payload-details-content" class="collapse-content">
-                <pre class="text-xs whitespace-pre-wrap">{{ $rawItemJson }}</pre>
+                <pre class="text-xs whitespace-pre-wrap max-h-72 overflow-y-auto sm:max-h-96">{{ $rawItemJson }}</pre>
             </div>
         </details>
     </div>
