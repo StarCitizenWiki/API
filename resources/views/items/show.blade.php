@@ -494,10 +494,10 @@
                                                     <div class="text-xs text-base-content/70 mt-4">
                                                         {{ $label ?? $locale }} translation from
                                                         <a class="link"
-                                                            href="{{ config("translations.sources_git.$locale") }}"
+                                                            href="{{ config("translations.sources_git.".substr($locale, 2)) }}"
                                                             target="_blank"
                                                             rel="noopener noreferrer nofollow"
-                                                            referrerpolicy="no-referrer">{{ config("translations.sources_git.$locale") }}</a>
+                                                            referrerpolicy="no-referrer">{{ config("translations.sources_git.".substr($locale, 0, 2)) }}</a>
                                                     </div>
                                                 @endif
                                             @else
