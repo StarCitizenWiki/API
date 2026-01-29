@@ -258,7 +258,9 @@
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Manufacturer</dt>
                         <dd class="text-sm font-medium">
                             @if ($manufacturerName)
-                                {{ $manufacturerName }}
+                                <a href="{{ route('web.items.index', ['filter' => ['manufacturer' => $manufacturerName]]) }}" class="link link-primary">
+                                    {{ $manufacturerName }}
+                                </a>
                                 @if ($manufacturerCode)
                                     <span class="badge badge-outline badge-sm ml-2">{{ $manufacturerCode }}</span>
                                 @endif

@@ -41,7 +41,7 @@
     <div class="card-body gap-2">
         <h2 class="card-title">
             {{ data_get($vehicle, 'name') }} - S{{ $sizeClass }}
-            <span class="badge badge-soft badge-sm">{{ data_get($vehicle, 'manufacturer.name') }}</span>
+            <a href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => data_get($vehicle, 'manufacturer.name')]]) }}" class="badge badge-soft badge-sm link">{{ data_get($vehicle, 'manufacturer.name') }}</a>
         </h2>
         <dl class="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
