@@ -15,7 +15,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use JsonException;
 
 class SyncStarmap implements ShouldQueue
@@ -53,7 +52,7 @@ class SyncStarmap implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Execute job.
      */
     public function handle(RsiDownloadClient $client): void
     {
@@ -80,7 +79,7 @@ class SyncStarmap implements ShouldQueue
     }
 
     /**
-     * Download the bootup data.
+     * Download bootup data.
      */
     private function downloadBootup(RsiDownloadClient $client): void
     {
@@ -194,25 +193,71 @@ class SyncStarmap implements ShouldQueue
      */
     private function dispatchStarsystemJobs(): void
     {
-        $jobs = $this->systems
-            ->reject(fn (array $system): bool => $this->hasStarsystemData($system['code']))
-            ->map(
-                function (array $system): DownloadStarsystem {
-                    return new DownloadStarsystem($system['code'], $this->timestamp, new Collection($system));
-                }
-            );
+        $importJobs = [];
+        $downloadJobs = [];
 
-        if ($jobs->isEmpty()) {
-            return;
+        foreach ($this->systems as $system) {
+            $systemCode = $system['code'];
+
+            if ($this->hasStarsystemData($systemCode)) {
+                $data = $this->loadStarsystemDataFromDisk($systemCode);
+
+                if ($data !== null) {
+                    $importJobs[] = $data;
+                }
+            } else {
+                $downloadJobs[] = new DownloadStarsystem($systemCode, $this->timestamp, new Collection($system));
+            }
         }
 
-        Bus::batch($jobs)->dispatch();
+        if (count($importJobs) > 0) {
+            try {
+                Bus::batch($importJobs)->dispatch();
+            } catch (\Throwable $e) {
+            }
+        }
+
+        if (count($downloadJobs) > 0) {
+            try {
+                Bus::batch($downloadJobs)->dispatch();
+            } catch (\Throwable $e) {
+            }
+        }
     }
 
     private function hasStarsystemData(string $systemCode): bool
     {
-        $path = sprintf('%s/%s_system.json', $this->timestamp, Str::slug($systemCode));
+        $path = sprintf('%s/%s_system.json', $this->timestamp, strtolower($systemCode));
 
         return Storage::disk(self::STARSYSTEM_DISK)->exists($path);
+    }
+
+    private function loadStarsystemDataFromDisk(string $systemCode): ?array
+    {
+        $path = sprintf('%s/%s_system.json', $this->timestamp, strtolower($systemCode));
+
+        if (! Storage::disk(self::STARSYSTEM_DISK)->exists($path)) {
+            return null;
+        }
+
+        $content = Storage::disk(self::STARSYSTEM_DISK)->get($path);
+
+        if (empty($content)) {
+            return null;
+        }
+
+        try {
+            $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            Log::error('Failed to decode starsystem JSON from disk', [
+                'system_code' => $systemCode,
+                'path' => $path,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+
+        return $data;
     }
 }

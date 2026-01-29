@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Jobs\StarCitizen\Starmap\Download\DownloadStarsystem;
 use App\Jobs\StarCitizen\Starmap\Import\ImportJumppoint;
+use App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem;
 use App\Jobs\StarCitizen\Starmap\Sync\SyncStarmap;
 use App\Services\RsiDownloadClient;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 it('uses existing bootup data when available', function (): void {
@@ -50,8 +50,6 @@ it('uses existing bootup data when available', function (): void {
         json_encode($bootupPayload, JSON_THROW_ON_ERROR)
     );
 
-    Http::fake();
-
     $job = new SyncStarmap;
     $job->handle(new RsiDownloadClient);
 
@@ -63,6 +61,8 @@ it('uses existing bootup data when available', function (): void {
         return $batch->jobs->count() === 1
             && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
     });
+
+    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
 });
 
 it('dispatches downloads in a batch and imports jumppoints', function (): void {
@@ -112,6 +112,8 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
     $job = new SyncStarmap;
     $job->handle(new RsiDownloadClient);
 
+    Http::assertNothingSent();
+
     Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
 
     Bus::assertBatched(function (PendingBatch $batch): bool {
@@ -119,10 +121,10 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
             && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
     });
 
-    Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
+    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
 });
 
-it('skips starsystem downloads when data already exists', function (): void {
+it('skips starsystem downloads and imports from disk when data already exists', function (): void {
     Storage::fake('starmap');
     Bus::fake();
 
@@ -166,21 +168,30 @@ it('skips starsystem downloads when data already exists', function (): void {
         now()->format('Y-m-d').'/bootup.json',
         json_encode($bootupPayload, JSON_THROW_ON_ERROR)
     );
-
     Storage::disk('starmap')->put(
         now()->format('Y-m-d').'/sol_system.json',
         json_encode(['name' => 'Sol'], JSON_THROW_ON_ERROR)
     );
+    Storage::disk('starmap')->put(
+        now()->format('Y-m-d').'/pyro_system.json',
+        json_encode(['name' => 'Pyro'], JSON_THROW_ON_ERROR)
+    );
 
-    Http::fake();
+    Http::fake([
+        '*' => Http::response($bootupPayload, 200),
+    ]);
 
     $job = new SyncStarmap;
     $job->handle(new RsiDownloadClient);
 
     Http::assertNothingSent();
 
+    Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
+
     Bus::assertBatched(function (PendingBatch $batch): bool {
-        return $batch->jobs->count() === 1
-            && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
+        return $batch->jobs->count() === 2
+            && $batch->jobs->every(fn ($job) => $job instanceof ImportStarsystem);
     });
+
+    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
 });
