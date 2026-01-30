@@ -376,6 +376,26 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'power_pools',
+            description: 'Power pool allocation limits by component type. Size of -1 indicates unlimited pool.',
+            type: 'object',
+            example: [
+                'WeaponGun' => ['type' => 'FixedPowerPool', 'item_type' => 'WeaponGun', 'size' => 4],
+                'Shield' => ['type' => 'DynamicPowerPool', 'item_type' => 'Shield', 'size' => 2],
+                'FlightController' => ['type' => 'DynamicPowerPool', 'item_type' => 'FlightController', 'size' => -1],
+            ],
+            nullable: true,
+            additionalProperties: new OA\AdditionalProperties(
+                properties: [
+                    new OA\Property(property: 'type', type: 'string', example: 'FixedPowerPool'),
+                    new OA\Property(property: 'item_type', type: 'string', example: 'WeaponGun'),
+                    new OA\Property(property: 'size', description: 'Power pool size. -1 indicates unlimited.', type: 'integer', example: 4),
+                ],
+                type: 'object',
+                nullable: true
+            )
+        ),
+        new OA\Property(
             property: 'penetration_multiplier',
             description: 'Penetration multiplier data',
             properties: [
@@ -718,6 +738,11 @@ class VehicleResource extends AbstractBaseResource
                 'used_segments_grouped' => Arr::get($payload, 'Power.UsedSegmentsGrouped'),
             ],
 
+            $this->mergeWhen(
+                ! empty(Arr::get($payload, 'PowerPools')),
+                fn () => ['power_pools' => $this->buildPowerPools($payload)]
+            ),
+
             'penetration_multiplier' => [
                 'fuse' => Arr::get($payload, 'PenetrationMultiplier.Fuse'),
                 'components' => Arr::get($payload, 'PenetrationMultiplier.Components'),
@@ -835,6 +860,17 @@ class VehicleResource extends AbstractBaseResource
             'port_olisar_to_arccorp_time' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpTime'),
             'port_olisar_to_arccorp_fuel' => Arr::get($payload, 'QuantumTravel.PortOlisarToArcCorpFuel'),
         ];
+    }
+
+    private function buildPowerPools(Collection $payload): array
+    {
+        $powerPools = Arr::get($payload, 'PowerPools', []);
+
+        return array_map(static fn ($poolData) => [
+            'type' => Arr::get($poolData, 'Type'),
+            'item_type' => Arr::get($poolData, 'ItemType'),
+            'size' => Arr::get($poolData, 'Size'),
+        ], $powerPools);
     }
 
     private function buildWebUrl(Request $request): string
