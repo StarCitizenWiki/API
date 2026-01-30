@@ -22,7 +22,7 @@
             <x-icon name="network" class="size-4 text-primary" />
             <span>Resource Network</span>
         </h4>
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             @if($itemType !== 'PowerPlant')
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Power Usage</dt>
@@ -43,7 +43,7 @@
                     Self-Repair
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-3">
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Repair Count</dt>
                             <dd class="text-sm font-medium">
@@ -103,7 +103,7 @@
                                                 </dd>
                                             </dl>
 
-                                            <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                                            <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                                                 {{-- Rate --}}
                                                 @if(data_get($delta, 'rate') !== null)
                                                     <div class="space-y-1">
@@ -158,7 +158,7 @@
                                 </summary>
                                 <div class="collapse-content">
                                     @foreach($statePowerRanges as $i => $range)
-                                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3 mb-3">
+                                        <dl class="grid gap-3 grid-cols-3 sm:grid-cols-3 mb-3">
                                             <div class="space-y-1">
                                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">State</dt>
                                                 <dd class="text-sm font-medium">

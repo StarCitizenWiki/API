@@ -7,7 +7,7 @@
             <span>Mining Modifier</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
                 <dd class="text-sm font-medium">{{ data_get($miningModifier, 'item_type') }} ({{ data_get($miningModifier, 'type') }})</dd>
@@ -50,7 +50,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Modifiers</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach ($modifierMap as $key => $value)
                             @php
                                 $displayKey = \Illuminate\Support\Str::headline($key);

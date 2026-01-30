@@ -17,7 +17,7 @@
             <x-icon name="octagon-alert" class="size-4 text-primary" />
             <span>Self Destruct</span>
         </h2>
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($damage, '', 0) }}</dd>

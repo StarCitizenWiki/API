@@ -35,7 +35,7 @@
             <span>Bomb</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage Total</dt>
                 <dd class="text-sm font-medium text-info">{{ fmt_or_dash($damageTotal, 0) }}</dd>
@@ -51,7 +51,7 @@
                     <!-- Timing Parameters -->
                     @if ($hasTimingData)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Timing</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 mb-4">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 mb-4">
                             @if ($armTime !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Arm Time</dt>
@@ -82,7 +82,7 @@
                     <!-- Explosion Parameters -->
                     @if ($hasExplosionData)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Explosion</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                             @if ($expRequiresLauncher !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Requires Launcher</dt>
@@ -119,7 +119,7 @@
                     Damage Breakdown
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @foreach ($damageMap as $type => $value)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($type) }}</dt>

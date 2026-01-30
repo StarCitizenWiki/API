@@ -80,7 +80,7 @@
         </h2>
 
         <!-- Primary Data (Always Visible) -->
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Force</dt>
                 <dd class="text-sm font-medium">{{ fmt_range($forceMin, $forceMax, 'N', 0) }}</dd>
@@ -104,7 +104,7 @@
                     Towing
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2">
                         @if ($towingForce !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Force</dt>
@@ -141,7 +141,7 @@
                     Additional Specifications
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($forceVolumeCoeff !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Volume Force Coefficient</dt>
@@ -197,7 +197,7 @@
                 </summary>
                 <div class="collapse-content">
                     @if ($hasCargo)
-                        <dl class="mb-4 grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="mb-4 grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if ($cargoMinForce !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Force</dt>

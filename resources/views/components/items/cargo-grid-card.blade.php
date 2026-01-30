@@ -22,7 +22,7 @@
         </h2>
 
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @if ($scuConverted !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</dt>

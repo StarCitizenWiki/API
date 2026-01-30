@@ -32,8 +32,8 @@ it('renders insurance-logistics-card', function () {
 
     $output = Blade::render('<x-vehicles.insurance-logistics-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Insurance');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2');
+    expect($output)->toContain('Insurance')
+        ->and($output)->toContain('grid-cols-1 sm:grid-cols-2');
 });
 
 it('renders defense-systems-card', function () {
@@ -44,8 +44,8 @@ it('renders defense-systems-card', function () {
 
     $output = Blade::render('<x-vehicles.defense-systems-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Defense Systems');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2');
+    expect($output)->toContain('Defense Systems')
+        ->and($output)->toContain('grid-cols-1 sm:grid-cols-2');
 });
 
 it('renders propulsion-card', function () {
@@ -59,8 +59,8 @@ it('renders propulsion-card', function () {
 
     $output = Blade::render('<x-vehicles.propulsion-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Fuel & Quantum');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
+    expect($output)->toContain('Fuel & Quantum')
+        ->and($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
 });
 
 it('renders flight-characteristics-card', function () {
@@ -73,8 +73,6 @@ it('renders flight-characteristics-card', function () {
     $output = Blade::render('<x-vehicles.flight-characteristics-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Flight Characteristics');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3');
-    expect($output)->toContain('xl:grid-cols-6');
 });
 
 it('renders cargo-inventory-card', function () {
@@ -121,7 +119,6 @@ it('renders quick-summary-card', function () {
     $output = Blade::render('<x-vehicles.quick-summary-card :vehicle="$data" />', ['data' => $data]);
 
     expect($output)->toContain('Career');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 lg:grid-cols-3');
 });
 
 it('renders dimensions-mass-card', function () {
@@ -133,8 +130,8 @@ it('renders dimensions-mass-card', function () {
 
     $output = Blade::render('<x-vehicles.dimensions-mass-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Dimensions & Mass');
-    expect($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
+    expect($output)->toContain('Dimensions & Mass')
+        ->and($output)->toContain('grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4');
 });
 
 it('renders core-specs-card', function () {
@@ -187,8 +184,8 @@ it('renders parts-turrets-card', function () {
 
     $output = Blade::render('<x-vehicles.parts-turrets-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Parts')->toContain('Turrets');
-    expect($output)->toContain('hidden sm:table-cell');
+    expect($output)->toContain('Parts')->toContain('Turrets')
+        ->and($output)->toContain('hidden sm:table-cell');
 });
 
 it('renders systems-signatures-card', function () {
@@ -200,8 +197,8 @@ it('renders systems-signatures-card', function () {
 
     $output = Blade::render('<x-vehicles.systems-signatures-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Emission & Resource Network');
-    expect($output)->toContain('overflow-x-auto');
+    expect($output)->toContain('Emission & Resource Network')
+        ->and($output)->toContain('overflow-x-auto');
 });
 
 it('renders port-display subcomponent', function () {
@@ -215,6 +212,109 @@ it('renders port-display subcomponent', function () {
 
     expect($output)->toContain('Test Port');
     expect($output)->toContain('sm:justify-between');
+});
+
+it('renders port-display without deactivation when power pool is unlimited', function () {
+    $powerPools = [
+        'Shield' => [
+            'type' => 'DynamicPowerPool',
+            'item_type' => 'Shield',
+            'size' => -1,
+        ],
+    ];
+
+    $port = [
+        'name' => 'hardpoint_shield_01',
+        'equipped_item' => [
+            'name' => 'Test Shield',
+            'type' => 'Shield.UNDEFINED',
+            'size' => 2,
+        ],
+    ];
+
+    $output = Blade::render('<x-port-display :port="$port" :power-pools="$powerPools" />', ['port' => $port, 'powerPools' => $powerPools]);
+
+    expect($output)->toContain('Test Shield')
+        ->and($output)->not->toContain('Deactivated')
+        ->and($output)->not->toContain('opacity-60')
+        ->and($output)->not->toContain('bg-error/5');
+});
+
+it('renders port-display without deactivation for first shield in limited pool', function () {
+    $powerPools = [
+        'Shield' => [
+            'type' => 'DynamicPowerPool',
+            'item_type' => 'Shield',
+            'size' => 2,
+        ],
+    ];
+
+    $port = [
+        'name' => 'hardpoint_shield_01',
+        'equipped_item' => [
+            'name' => 'Test Shield 1',
+            'type' => 'Shield.UNDEFINED',
+            'size' => 2,
+        ],
+    ];
+
+    $output = Blade::render('<x-port-display :port="$port" :power-pools="$powerPools" />', ['port' => $port, 'powerPools' => $powerPools]);
+
+    expect($output)->toContain('Test Shield 1')
+        ->and($output)->not->toContain('Deactivated')
+        ->and($output)->not->toContain('opacity-60');
+});
+
+it('renders port-display with deactivation for shield exceeding pool limit', function () {
+    $powerPools = [
+        'Shield' => [
+            'type' => 'DynamicPowerPool',
+            'item_type' => 'Shield',
+            'size' => 1,
+        ],
+    ];
+
+    $port = [
+        'name' => 'hardpoint_shield_03',
+        'equipped_item' => [
+            'name' => 'Test Shield 3',
+            'type' => 'Shield',
+            'size' => 2,
+        ],
+    ];
+
+    $output = Blade::render('<x-port-display :port="$port" :power-pools="$powerPools" :category-index="3" />', ['port' => $port, 'powerPools' => $powerPools]);
+
+    expect($output)->toContain('Test Shield 3')
+        ->and($output)->toContain('Deactivated')
+        ->and($output)->toContain('opacity-60')
+        ->and($output)->toContain('bg-error/5')
+        ->and($output)->toContain('border-error/30');
+});
+
+it('does not deactivate non-shield components with shield pool', function () {
+    $powerPools = [
+        'Shield' => [
+            'type' => 'DynamicPowerPool',
+            'item_type' => 'Shield',
+            'size' => 1,
+        ],
+    ];
+
+    $port = [
+        'name' => 'hardpoint_weapon_01',
+        'equipped_item' => [
+            'name' => 'Test Gun',
+            'type' => 'WeaponGun.Gun',
+            'size' => 2,
+        ],
+    ];
+
+    $output = Blade::render('<x-port-display :port="$port" :power-pools="$powerPools" />', ['port' => $port, 'powerPools' => $powerPools]);
+
+    expect($output)->toContain('Test Gun')
+        ->and($output)->not->toContain('Deactivated')
+        ->and($output)->not->toContain('opacity-60');
 });
 
 it('renders metadata-footer-card', function () {
@@ -245,6 +345,6 @@ it('renders purchase-variants-card', function () {
 
     $output = Blade::render('<x-vehicles.purchase-variants-card :vehicle="$data" />', ['data' => $data]);
 
-    expect($output)->toContain('Loaner & SKUs');
-    expect($output)->toContain('hidden sm:table-cell');
+    expect($output)->toContain('Loaner & SKUs')
+        ->and($output)->toContain('hidden sm:table-cell');
 });

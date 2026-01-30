@@ -28,9 +28,9 @@
     $hasImpactDamage = $nonZeroImpact !== [];
     $hasDetonationDamage = $nonZeroDetonation !== [];
     $hasExplosionRadius = is_array($explosionRadius) && $explosionRadius !== [];
-    $hasDamageDrop = (is_array($damageDropMinDistance) && $damageDropMinDistance !== []) ||
-                    (is_array($damageDropPerMeter) && $damageDropPerMeter !== []) ||
-                    (is_array($damageDropMinDamage) && $damageDropMinDamage !== []);
+    $hasDamageDrop = (is_array($damageDropMinDistance) &&  collect($damageDropMinDistance)->every(fn ($key) => !empty($key))) ||
+                    (is_array($damageDropPerMeter) &&  collect($damageDropPerMeter)->every(fn ($key) => !empty($key))) ||
+                    (is_array($damageDropMinDamage) &&  collect($damageDropMinDamage)->every(fn ($key) => !empty($key)));
     $hasBulletImpulseFalloff = is_array($bulletImpulseFalloff) && collect($bulletImpulseFalloff)->filter()->isNotEmpty();
     $hasBulletElectron = is_array($bulletElectron) && $bulletElectron !== [];
 @endphp
@@ -42,7 +42,7 @@
             <span>Ammunition</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @if ($size !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
@@ -89,7 +89,7 @@
                     Penetration
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($penetration, 'base_distance'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Base Distance</dt>
@@ -125,7 +125,7 @@
                     Impact Damage
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($nonZeroImpact, 'physical'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -173,7 +173,7 @@
                     Detonation Damage
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($nonZeroDetonation, 'physical'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -221,7 +221,7 @@
                     Explosion Radius
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($explosionRadius, 'min') || data_get($explosionRadius, 'max'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Radius</dt>
@@ -242,7 +242,7 @@
                     @if (is_array($damageDropMinDistance) && $damageDropMinDistance !== [])
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-3">Min Distance</h4>
-                            <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                 @if (data_get($damageDropMinDistance, 'physical'))
                                     <div class="space-y-1">
                                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -292,7 +292,7 @@
                     @if (is_array($damageDropPerMeter) && $damageDropPerMeter !== [])
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-3">Per Meter</h4>
-                            <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                 @if (data_get($damageDropPerMeter, 'physical'))
                                     <div class="space-y-1">
                                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -342,7 +342,7 @@
                     @if (is_array($damageDropMinDamage) && $damageDropMinDamage !== [])
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-3">Min Damage</h4>
-                            <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                 @if (data_get($damageDropMinDamage, 'physical'))
                                     <div class="space-y-1">
                                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -398,7 +398,7 @@
                     Bullet Impulse Falloff
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
                         @if (data_get($bulletImpulseFalloff, 'min_distance'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Distance</dt>
@@ -428,7 +428,7 @@
                     Bullet Electron
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
                         @if (data_get($bulletElectron, 'jump_range'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Jump Range</dt>

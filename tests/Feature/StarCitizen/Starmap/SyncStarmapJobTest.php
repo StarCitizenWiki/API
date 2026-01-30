@@ -62,8 +62,8 @@ it('uses existing bootup data when available', function (): void {
             && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
     });
 
-    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-})->skipOnCI();
+    Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
+});
 
 it('dispatches downloads in a batch and imports jumppoints', function (): void {
     Storage::fake('starmap');
@@ -112,7 +112,10 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
     $job = new SyncStarmap;
     $job->handle(new RsiDownloadClient);
 
-    Http::assertNothingSent();
+    Http::assertSent(function ($request) {
+        return $request->url() === config('services.rsi_url').'/api/starmap/bootup'
+            && $request->method() === 'POST';
+    });
 
     Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
 
@@ -121,8 +124,8 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
             && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
     });
 
-    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-})->skipOnCI();
+    Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
+});
 
 it('skips starsystem downloads and imports from disk when data already exists', function (): void {
     Storage::fake('starmap');
@@ -193,5 +196,5 @@ it('skips starsystem downloads and imports from disk when data already exists', 
             && $batch->jobs->every(fn ($job) => $job instanceof ImportStarsystem);
     });
 
-    Storage::assertExists(now()->format('Y-m-d').'/bootup.json');
-})->skipOnCI();
+    Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
+});

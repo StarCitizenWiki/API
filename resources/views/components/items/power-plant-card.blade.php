@@ -14,7 +14,7 @@
             <span>Power Plant</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1">
+        <dl class="grid gap-4 grid-cols-2">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Power Segment Generation</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($powerSegmentGeneration, 'Segments', 0) }}</dd>

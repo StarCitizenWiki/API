@@ -48,7 +48,7 @@
         </h2>
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Seat Type</dt>
                 <dd class="text-sm font-medium">{{ $seatType }}</dd>
@@ -72,7 +72,7 @@
                     Axis Limits
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Set Yaw/Pitch Limits</dt>
                             <dd class="text-sm font-medium">{{ $setYawPitchLimits ? 'Yes' : 'No' }}</dd>
@@ -101,7 +101,7 @@
                     Ejection
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if (data_get($ejection, 'max_linear_velocity') !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Linear Velocity</dt>

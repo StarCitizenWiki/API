@@ -43,7 +43,7 @@
             {{ data_get($vehicle, 'name') }} - S{{ $sizeClass }}
             <a href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => data_get($vehicle, 'manufacturer.name')]]) }}" class="badge badge-soft badge-sm link">{{ data_get($vehicle, 'manufacturer.name') }}</a>
         </h2>
-        <dl class="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <dl class="grid gap-2 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
 
             <div class="space-y-1">
                 <dt class="text-xs text-base-content/60">Career</dt>

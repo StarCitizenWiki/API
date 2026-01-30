@@ -39,7 +39,7 @@
             <span>Jump Drive</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
             @if ($fuelUsageEfficiencyMultiplier !== null)
                 <div class="space-y-1 col-span-2">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Usage Efficiency</dt>
@@ -79,7 +79,7 @@
                     Jump Mechanics
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($hasTravelTime)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Travel Time (10GM)</dt>

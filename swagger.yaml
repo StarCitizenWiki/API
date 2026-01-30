@@ -1440,7 +1440,7 @@ paths:
         - Starmap
         - RSI-Website
       summary: 'Celestial Object Detail'
-      description: 'Retrieve a celestial object by code or identifier, optionally including relations.'
+      description: 'Retrieve a celestial object by code, optionally including relations.'
       operationId: a56221ed3240e9c31bd996fb9cf85248
       parameters:
         -
@@ -1448,7 +1448,7 @@ paths:
           in: path
           required: true
           schema:
-            description: 'Celestial Object code or identifier'
+            description: 'Celestial Object code (e.g., NYX.JUMPPOINTS.BREMEN)'
             type: string
         -
           name: include
@@ -1466,7 +1466,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/celestial_object'
         '404':
-          description: 'No Celestial Object with specified code or name found.'
+          description: 'No Celestial Object with specified code found.'
   /api/celestial-objects/search:
     post:
       tags:
@@ -2245,6 +2245,9 @@ components:
               $ref: '#/components/schemas/manufacturer_link'
             link:
               type: string
+            size:
+              type: integer
+              nullable: true
             base_variant:
               description: 'Link to base variant item'
               type: string
@@ -9566,6 +9569,37 @@ components:
               nullable: true
           type: object
           nullable: true
+        power_pools:
+          description: 'Power pool allocation limits by component type. Size of -1 indicates unlimited pool.'
+          type: object
+          example:
+            WeaponGun:
+              type: FixedPowerPool
+              item_type: WeaponGun
+              size: 4
+            Shield:
+              type: DynamicPowerPool
+              item_type: Shield
+              size: 2
+            FlightController:
+              type: DynamicPowerPool
+              item_type: FlightController
+              size: -1
+          nullable: true
+          additionalProperties:
+            properties:
+              type:
+                type: string
+                example: FixedPowerPool
+              item_type:
+                type: string
+                example: WeaponGun
+              size:
+                description: 'Power pool size. -1 indicates unlimited.'
+                type: integer
+                example: 4
+            type: object
+            nullable: true
         penetration_multiplier:
           description: 'Penetration multiplier data'
           properties:

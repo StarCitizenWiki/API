@@ -8,7 +8,7 @@
         </h2>
 
         <!-- Primary Section: Always Visible -->
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Health</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($shield, 'max_health'), 'HP', 0) }}</dd>
@@ -37,7 +37,7 @@
                     Reserve Pool
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($reservePool, 'regen_rate'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Rate</dt>
@@ -96,7 +96,7 @@
                     Regen Delay
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if (data_get($regenDelay, 'downed'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Downed</dt>
@@ -127,19 +127,18 @@
                     Absorption
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-3">
                     @foreach ($absorption as $type => $values)
                         @php
                             $hasValues = is_array($values) && collect($values)->filter(fn($v) => $v !== null)->isNotEmpty();
                         @endphp
                         @if ($hasValues)
-
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60"> {{ \Illuminate\Support\Str::headline($type) }}</dt>
-                                        <dd class="text-sm font-medium">
-                                            {{ fmt(data_get($values, 'max'), 2) }}
-                                        </dd>
-                                    </div>
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60"> {{ \Illuminate\Support\Str::headline($type) }}</dt>
+                                <dd class="text-sm font-medium">
+                                    {{ fmt(data_get($values, 'max'), 2) }}
+                                </dd>
+                            </div>
                         @endif
                     @endforeach
                     </dl>
@@ -159,24 +158,21 @@
                     Resistance
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                     @foreach ($resistance as $type => $values)
                         @php
                             $hasValues = is_array($values) && collect($values)->filter(fn($v) => $v !== null)->isNotEmpty();
                         @endphp
                         @if ($hasValues)
-
-
-                                    <div class="space-y-1">
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($type) }}</dt>
-                                        <dd class="text-sm font-medium">
-                                            {{ fmt_range(data_get($values, 'min'), data_get($values, 'max'), '') }}
-                                        </dd>
-                                    </div>
-
+                            <div class="space-y-1">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($type) }}</dt>
+                                <dd class="text-sm font-medium">
+                                    {{ fmt_range(data_get($values, 'min'), data_get($values, 'max'), '', 2) }}
+                                </dd>
+                            </div>
                         @endif
                     @endforeach
-                        </dl>
+                    </dl>
                 </div>
             </details>
         @endif

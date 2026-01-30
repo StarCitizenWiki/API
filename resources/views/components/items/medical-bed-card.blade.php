@@ -64,7 +64,7 @@
         </h2>
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @if ($inventoryCapacity !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Inventory Capacity</dt>
@@ -86,7 +86,7 @@
                     <h3 class="text-sm font-semibold">Storage</h3>
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($resourceCapacitySCU !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Resource Capacity</dt>
@@ -111,7 +111,7 @@
                     <h3 class="text-sm font-semibold">Advanced</h3>
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($isImmutable !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Immutable</dt>

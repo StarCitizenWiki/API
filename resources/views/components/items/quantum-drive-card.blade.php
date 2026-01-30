@@ -49,7 +49,7 @@
             <span>Quantum Drive</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
 {{--            <div class="space-y-1">--}}
 {{--                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Jump Range</dt>--}}
 {{--                <dd class="text-sm font-medium">{{ fmt_value_with_unit($jumpRange, 'm', 0, compact: true) }}</dd>--}}
@@ -78,7 +78,7 @@
                     Performance Details
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($travelTimeSeconds !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Travel Time (10GM)</dt>

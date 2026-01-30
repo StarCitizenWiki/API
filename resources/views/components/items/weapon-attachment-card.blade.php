@@ -49,7 +49,7 @@
         {{-- PRIMARY DATA: Always Visible --}}
         @if ($hasIronSight)
             <h3 class="text-sm font-semibold">Iron Sight</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @if ($ironDefaultRange !== null)
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Default Range</dt>
@@ -73,7 +73,7 @@
 
         @if ($hasLaserPointer)
             <h3 class="text-sm font-semibold">Laser Pointer</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @if ($laserRange !== null)
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
@@ -103,7 +103,7 @@
 
         @if ($hasMagazine)
             <h3 class="text-sm font-semibold">Magazine</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @if ($magInitialAmmoCount !== null)
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Initial Ammo Count</dt>
@@ -127,7 +127,7 @@
 
         @if ($hasCompensator)
             <h3 class="text-sm font-semibold">Compensator</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @if ($compAttachmentPoint !== null)
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Attachment Point</dt>
@@ -145,7 +145,7 @@
 
         @if ($hasFlashHider)
             <h3 class="text-sm font-semibold">Flash Hider</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @if ($flashHiderAttachmentPoint !== null)
                     <div class="space-y-1">
                         <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Attachment Point</dt>
@@ -168,7 +168,7 @@
                     Iron Sight Details
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($ironRangeIncrement !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range Increment</dt>
@@ -213,7 +213,7 @@
                                 <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">
                                     {{ \Illuminate\Support\Str::headline($profileType) }}
                                 </h4>
-                                <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                                <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                                     @if (data_get($profile, 'port_name'))
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Port Name</dt>
@@ -283,7 +283,7 @@
                         Compensator Advanced
                     </summary>
                     <div class="collapse-content">
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @foreach ($additionalFields as $key => $value)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>
@@ -308,7 +308,7 @@
                         Flash Hider Advanced
                     </summary>
                     <div class="collapse-content">
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @foreach ($additionalFields as $key => $value)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ \Illuminate\Support\Str::headline($key) }}</dt>

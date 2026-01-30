@@ -16,18 +16,18 @@
             <x-icon name="activity" class="size-4 text-primary" />
             <span>Emission</span>
         </h4>
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">IR Emission</dt>
-                <dd class="text-sm font-medium">{{ fmt_or_dash($ir, 0) }}</dd>
+                <dd class="text-sm font-medium">{{ fmt_or_dash($ir, 1) }}</dd>
             </div>
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Range</dt>
-                <dd class="text-sm font-medium">{{ fmt_range($emMin, $emMax, '', 0) }}</dd>
+                <dd class="text-sm font-medium">{{ fmt_range($emMin, $emMax, '', 1) }}</dd>
             </div>
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EM Decay</dt>
-                <dd class="text-sm font-medium">{{ fmt_or_dash($emDecay, 0) }}</dd>
+                <dd class="text-sm font-medium">{{ fmt_or_dash($emDecay, 2) }}</dd>
             </div>
             @if($emPerSegment)
             <div class="space-y-1">

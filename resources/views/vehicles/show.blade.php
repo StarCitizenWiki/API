@@ -68,8 +68,8 @@
         />
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <x-vehicles.quick-summary-card :vehicle="$vehicle" />
-            <x-vehicles.flight-characteristics-card :vehicle="$vehicle" class="xl:col-span-2" />
+            <x-vehicles.quick-summary-card :vehicle="$vehicle" class="col-span-1 xl:col-span-2" />
+            <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
             <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
             <x-vehicles.systems-signatures-card :vehicle="$vehicle" class="col-span-full" />
 

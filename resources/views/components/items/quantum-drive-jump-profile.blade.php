@@ -1,6 +1,6 @@
 @props(['profile' => []])
 
-<dl class="grid gap-4 sm:grid-cols-2">
+<dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
     @if (data_get($profile, 'drive_speed'))
         <div class="space-y-1">
             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Drive Speed</dt>

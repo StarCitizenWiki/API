@@ -42,7 +42,7 @@
             <span>Personal Weapon</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class</dt>
                 <dd class="text-sm font-medium">{{ $class ?? '—' }} {{ $type ?? '—' }}</dd>
@@ -67,7 +67,7 @@
                     Damage Stats
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($dpsTotal !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">DPS Total</dt>
@@ -90,7 +90,7 @@
 
                     @if ($hasFireRate)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-4 mb-2">Fire Rate</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if ($rpm !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">RPM</dt>
@@ -108,7 +108,7 @@
 
                     @if ($nonZeroDps !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-4 mb-2">DPS Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                             @if (data_get($nonZeroDps, 'physical'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -150,7 +150,7 @@
 
                     @if ($nonZeroAlpha !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-4 mb-2">Alpha Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                             @if (data_get($nonZeroAlpha, 'physical'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -201,7 +201,7 @@
                 <div class="collapse-content">
                     @if (is_array($spread) && $spread !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Hip-fire Spread</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($spread, 'minimum'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum</dt>
@@ -237,7 +237,7 @@
 
                     @if (is_array($adsSpread) && $adsSpread !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-4 mb-2">ADS Spread</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($adsSpread, 'minimum'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Minimum</dt>
@@ -282,7 +282,7 @@
                 <div class="collapse-content">
                     @if (is_array($charge) && $charge !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Timings</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($charge, 'time'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time</dt>
@@ -312,7 +312,7 @@
 
                     @if (is_array($chargeModifier) && $chargeModifier !== [])
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-4 mb-2">Charge Modifiers</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($chargeModifier, 'damage'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>

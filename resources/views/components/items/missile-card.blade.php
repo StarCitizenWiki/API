@@ -64,7 +64,7 @@
         </h2>
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 ">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 ">
         @if ($signalType !== null)
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Signal Type</dt>
@@ -111,7 +111,7 @@
                 Target Lock
             </summary>
             <div class="collapse-content">
-                <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
 
                     @if ($tlAngle !== null)
                         <div class="space-y-1">
@@ -167,7 +167,7 @@
                     Flight Performance
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($flightSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Speed</dt>
@@ -237,7 +237,7 @@
                     {{-- Damage --}}
                     @if ($hasDamage)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Damage</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 mb-4">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 mb-4">
 
                             @if ($hasDamageMap)
                                 @foreach ($damageMap as $type => $value)
@@ -253,7 +253,7 @@
                     {{-- Explosion --}}
                     @if ($hasExplosion)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Explosion</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 mb-4">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2 mb-4">
                             @if ($expIsCluster !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Is Cluster</dt>
@@ -297,7 +297,7 @@
                     {{-- Delays --}}
                     @if ($hasDelays)
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Delays</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
 
                             @if ($delArmTime !== null)
                                 <div class="space-y-1">

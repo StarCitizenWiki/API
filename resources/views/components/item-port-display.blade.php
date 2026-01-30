@@ -14,6 +14,12 @@
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
     $showQuickStats = !empty($equippedItem);
 
+    $equippedItemName = data_get($equippedItem, 'name');
+    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== 'Placeholder';
+    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
+    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
+
+
     if ($showQuickStats) {
         $itemSize = data_get($equippedItem, 'size');
     }
@@ -29,34 +35,28 @@
 
 <div class="port-entry">
     <details
-        id="{{ $portId }}"
+        id="{{ $portIdentifier }}"
         class="collapse collapse-arrow border border-base-300 bg-base-100 shadow"
     >
         <summary
             class="collapse-title min-h-11 py-3 text-sm font-semibold flex items-center justify-between gap-2 flex-wrap"
-            aria-controls="{{ $portId }}-content"
+            aria-controls="{{ $portIdentifier }}-content"
         >
             <span class="flex items-center gap-2">
                 @if(data_get($port, 'uneditable'))
                     <x-icon name="lock" class="size-3"/>
                 @endif
-                {{ $portLabel ?? 'Port' }}
+                {{ $displayPortLabel ?? 'Port' }}
             </span>
 
-            <span class="flex items-center gap-2 text-xs font-normal flex-wrap">
-                @if ($sizeRange !== '-')
-                    <span class="badge badge-ghost badge-sm">S{{ $sizeRange }}</span>
-                @endif
-                @if ($portTypeCount > 0)
-                    <span class="badge badge-ghost badge-sm">{{ $portTypeCount }} types</span>
-                @endif
-                @if ($showQuickStats && data_get($equippedItem, 'name'))
-                    <span class="max-w-[12rem] truncate text-xs text-base-content/70">
-                        Equipped: {{ data_get($equippedItem, 'name') }}
+            <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
+                @if (! empty($equippedItemName))
+                    <span class="max-w-[14rem] truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                        {{ $equippedDisplayName }}
                     </span>
                 @endif
-                @if ($showQuickStats && $itemSize !== null)
-                    <span class="badge badge-sm badge-soft" title="Item Size">S{{ $itemSize }}</span>
+                @if ($sizeRange !== '-')
+                    <span class="badge badge-soft badge-sm">S{{ $sizeRange }}</span>
                 @endif
             </span>
         </summary>

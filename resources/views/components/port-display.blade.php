@@ -2,7 +2,9 @@
 @props([
     'port',
     'depth' => 0,
-    'editable' => false,
+    'editable' => null,
+    'powerPools' => [],
+    'categoryIndex' => 0,
 ])
 
 @php
@@ -15,17 +17,51 @@
     $sizeRange = fmt_range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '');
     $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
     $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
-    $isLocked = data_get($port, 'editable') === false || ! $editable;
+    $isLocked = is_bool($editable) ? !$editable : (data_get($port, 'editable') === true ? false : true);
     $equippedCardClasses = 'card-compact';
 
     // Extract equipped item stats for summary display
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
     $showQuickStats = !empty($equippedItem);
     $equippedItemName = data_get($equippedItem, 'name');
-    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== 'Placeholder';
+    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== '<= PLACEHOLDER =>';
     $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
-    $displayPortName = $portName ?? $equippedItemName ?? '-';
+    $displayPortName = $portName ?? '-';
     $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
+
+    // Power pool deactivation logic
+    $isDeactivated = false;
+    $deactivationReason = null;
+
+    if ($showQuickStats && !empty($powerPools)) {
+        $itemType = data_get($equippedItem, 'type');
+
+        // Normalize item type for power pool matching
+        $poolItemType = match (true) {
+            $itemType === 'Shield' => 'Shield',
+            $itemType === 'WeaponGun' => 'WeaponGun',
+            $itemType === 'FlightController' => 'FlightController',
+            $itemType === 'TractorBeam' => 'TractorBeam',
+            $itemType === 'TowingBeam' => 'TowingBeam',
+            $itemType === 'WeaponMining' => 'WeaponMining',
+            $itemType === 'SalvageHead' => 'SalvageHead',
+            default => $itemType,
+        };
+
+        $pool = data_get($powerPools, $poolItemType);
+        $poolSize = data_get($pool, 'size');
+
+        // Only apply for Shield pool for now
+        if ($poolItemType === 'Shield' && $poolSize !== null && $poolSize >= 0) {
+            $shieldIndex = $categoryIndex;
+
+            if ($categoryIndex >= $poolSize) {
+                $isDeactivated = true;
+                $idx = $shieldIndex+1;
+                $deactivationReason = "Pool Limit ({$idx} of {$poolSize} active)";
+            }
+        }
+    }
 
     if ($showQuickStats) {
         // Universal stats
@@ -60,7 +96,7 @@
     }
 @endphp
 
-<div class="port-entry {{ $indentClass }}">
+<div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}">
     <details
         id="{{ $portIdentifier }}"
         class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-sm"
@@ -71,6 +107,12 @@
             aria-controls="{{ $portIdentifier }}-content"
         >
             <span class="flex flex-wrap items-center gap-2">
+                @if ($isDeactivated)
+                    <span class="badge badge-soft badge-sm" title="{{ $deactivationReason }}">
+                        <x-icon name="power-off" class="size-3"/>
+                        <span>Deactivated</span>
+                    </span>
+                @endif
                 @if ($depth > 0)
                     <span class="text-base-content/50">↳</span>
                 @endif
@@ -93,7 +135,7 @@
 
             @if ($showQuickStats)
                 <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
-                    @if (! empty($equippedItemName))
+                    @if ($hasNamedEquippedItem)
                         <span class="max-w-[14rem] truncate text-base-content/70" title="{{ $equippedDisplayName }}">
                             {{ $equippedDisplayName }}
                         </span>
@@ -101,7 +143,7 @@
                     @if ($itemSize !== null)
                         <span class="badge badge-sm badge-soft" title="Item Size">S{{ $itemSize }}</span>
                     @endif
-                    @if ($powerSegmentUsage !== null)
+                    @if ($powerSegmentUsage > 0)
                         <span class="badge badge-sm badge-soft" title="Power Segment Usage">
                             <x-icon name="zap" class="size-3"/>
                             <span class="font-medium">{{ fmt_compact($powerSegmentUsage, 1) }}</span>
@@ -109,7 +151,7 @@
                             <span class="sm:hidden">Pwr</span>
                         </span>
                     @endif
-                    @if ($coolantSegmentUsage !== null)
+                    @if ($coolantSegmentUsage > 0)
                         <span class="badge badge-sm badge-soft" title="Coolant Segment Usage">
                             <x-icon name="fan" class="size-3"/>
                             <span class="font-medium">{{ fmt_compact($coolantSegmentUsage, 1) }}</span>
@@ -269,7 +311,7 @@
                                     :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($equippedItem, 'emission'))
+                            @if (data_get($equippedItem, 'emission') && data_get($equippedItem, 'emission.em_max', 0) >0)
                                 <x-items.emission-card :emission="data_get($equippedItem, 'emission')" :class="$equippedCardClasses"/>
                             @endif
 
@@ -365,7 +407,7 @@
 
             @if (! empty(data_get($port, 'ports')))
                 @foreach (data_get($port, 'ports') as $childPort)
-                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($port, 'editable_children')"/>
+                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)"/>
                 @endforeach
             @endif
         </div>

@@ -18,7 +18,7 @@
         @endphp
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Jamming Range</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($jamming, 'range'), 'm', 0) }}</dd>
@@ -52,7 +52,7 @@
                     Power / Disperse Data
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($hasPowerFractions)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Base Power Fraction</dt>
@@ -140,7 +140,7 @@
                         Advanced Power & Range Details
                     </summary>
                     <div class="collapse-content">
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($pulse, 'stop_charging_power_fraction') !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stop Charging Power Fraction</dt>

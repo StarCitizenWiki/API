@@ -3,6 +3,7 @@
 @php
     $ports = data_get($vehicle, 'ports', []);
     $hardpoints = data_get($vehicle, 'hardpoints', []);
+    $powerPools = data_get($vehicle, 'power_pools', []);
 
     $portEntries = is_array($ports) && $ports !== [] ? $ports : (is_array($hardpoints) ? $hardpoints : []);
     $portsCount = count($portEntries);
@@ -55,8 +56,10 @@
                     @endif
                     <div class="space-y-2">
                         <h4>{{$categoryLabel}}</h4>
+                        @php $categoryIndex = 0; @endphp
                         @foreach ($portEntries[$categoryLabel] ?? [] as $port)
-                            <x-port-display :port="$port"/>
+                            <x-port-display :port="$port" :editable="data_get($port, 'editable', false)" :power-pools="$powerPools" :category-index="$categoryIndex"/>
+                            @php $categoryIndex++; @endphp
                         @endforeach
                     </div>
                 @endforeach

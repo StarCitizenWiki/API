@@ -81,7 +81,7 @@
             <span>Weapon Modifier</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
             @if ($activateOnAttach !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Activate On Attach</dt>
@@ -102,7 +102,7 @@
                     Base
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($baseMuzzleFlashMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Muzzle Flash Multiplier</dt>
@@ -210,7 +210,7 @@
                     Recoil
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($recoilDecayMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Decay Multiplier</dt>
@@ -246,7 +246,7 @@
                     Spread
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($spreadMinMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min Multiplier</dt>
@@ -318,7 +318,7 @@
                     Aim
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($aimZoomScale !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Zoom Scale</dt>
@@ -366,7 +366,7 @@
                     Regen
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($regenPowerRatioMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Power Ratio Multiplier</dt>
@@ -396,7 +396,7 @@
                     Salvage
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($salvageSpeedMultiplier !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Salvage Speed Multiplier</dt>
@@ -426,7 +426,7 @@
                     Zeroing
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($zeroingDefaultRange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Default Range</dt>

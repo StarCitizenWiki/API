@@ -69,7 +69,7 @@
             <span>Vehicle Weapon</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class</dt>
                 <dd class="text-sm font-medium">{{ $class ?? '-' }} {{ $type ?? '-' }}</dd>
@@ -100,7 +100,7 @@
                     Damage Stats
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
 {{--                        @if ($sustained60s !== null)--}}
 {{--                            <div class="space-y-1">--}}
 {{--                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Sustained 60s</dt>--}}
@@ -130,7 +130,7 @@
                     @if ($nonZeroDps !== [])
                         <div class="divider"></div>
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">DPS Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($nonZeroDps, 'physical'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -172,7 +172,7 @@
 
                     @if (!empty($nonZeroAlpha))
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2 mt-4">Alpha Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if (data_get($nonZeroAlpha, 'physical'))
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -221,7 +221,7 @@
                     Spread
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if (data_get($spread, 'minimum'))
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min/Max</dt>
@@ -257,7 +257,7 @@
                     Barrel Spin Time
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($barrelUp !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Up</dt>
@@ -281,7 +281,7 @@
                     Heat
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($heatOverheatMaxShots !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Max Shots</dt>
@@ -330,7 +330,7 @@
                     Capacitor
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($capMaxAmmoLoad !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Ammo Load</dt>
@@ -376,7 +376,7 @@
                         @if ($hasCharge)
                             <div>
                                 <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Timings</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                     @if ($chargeTime !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time</dt>
@@ -408,7 +408,7 @@
                         @if ($hasChargeModifier)
                             <div>
                                 <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Modifiers</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                     @if ($chargeModDamage !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>

@@ -39,7 +39,7 @@
         </h2>
 
         {{-- Primary Data: Always Visible --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             @if ($rotationStyle !== null)
                 <div class="space-y-1">
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Rotation Style</dt>
@@ -68,7 +68,7 @@
                 </summary>
                 <div class="collapse-content">
                     @if ($yawSpeed !== null || $yawTimeToFullSpeed !== null || $pitchSpeed !== null || $pitchTimeToFullSpeed !== null)
-                        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
                             @if ($yawSpeed !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Speed</dt>
@@ -107,7 +107,7 @@
                 </summary>
                 <div class="collapse-content">
                     @if ($hasTertiaryData)
-                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                             @if ($yawSlavedOnly !== null)
                                 <div class="space-y-1">
                                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Yaw Slaved Only</dt>

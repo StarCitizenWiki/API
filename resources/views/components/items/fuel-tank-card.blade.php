@@ -16,7 +16,7 @@
             <span>Fuel Tank</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fill Rate</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($fillRate, '/s', 2) }}</dd>

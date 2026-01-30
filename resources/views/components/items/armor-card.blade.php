@@ -57,7 +57,7 @@
             <span>Armor</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Health</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($health, 'HP', 0) }}</dd>
@@ -70,7 +70,7 @@
                     Detection Signal Change
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($signalCsChange !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross Section</dt>
@@ -108,7 +108,7 @@
                     Damage
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-3">
                         @if ($damagePhys !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -147,41 +147,41 @@
                     Resistance Multipliers
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($resPhys !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resPhys * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resPhys - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resEnergy !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resEnergy * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resEnergy - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resDist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resDist * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resDist - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resTherm !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resTherm * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resTherm - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resBio !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resBio * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resBio - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                         @if ($resStun !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($resStun * 100, '%', 1) }}</dd>
+                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(($resStun - 1) * 100, '%', 1) }}</dd>
                             </div>
                         @endif
                     </dl>
@@ -195,7 +195,7 @@
                     Penetration Resistance
                 </summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($penetrationBase !== null)
                             <div class="space-y-1 col-span-2">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Base</dt>

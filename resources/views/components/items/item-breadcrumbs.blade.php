@@ -204,7 +204,7 @@
     }
 @endphp
 <div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto">
-    <ul class="whitespace-nowrap">
+    <ul class="w">
         @foreach ($breadcrumbs as $breadcrumb)
             <li>
                 @if ($breadcrumb['url'] !== null)

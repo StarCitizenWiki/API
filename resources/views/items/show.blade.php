@@ -382,41 +382,7 @@
                         @if (is_array($variants) && $variants !== [])
                             <div class="space-y-2">
                                 <h3 class="text-sm font-semibold">Variants</h3>
-                                <div class="grid gap-2 sm:hidden">
-                                    @if (! empty($baseVariant))
-                                        <div class="card border border-base-300 bg-base-100 shadow-sm">
-                                            <div class="card-body gap-2 p-3">
-                                                <div class="text-sm font-semibold">{{ $baseVariant['name'] ?? '-' }}</div>
-                                                <div class="text-xs text-base-content/70">Base Item</div>
-                                                <div class="text-xs">
-                                                    @if (! empty($baseVariant['uuid']))
-                                                        <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    @foreach ($variants as $variant)
-                                        <div class="card border border-base-300 bg-base-100 shadow-sm">
-                                            <div class="card-body gap-2 p-3">
-                                                <div class="text-sm font-semibold">{{ $variant['name'] ?? '-' }}</div>
-                                                <div class="text-xs text-base-content/70">
-                                                    {{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}
-                                                </div>
-                                                <div class="text-xs">
-                                                    @if (! empty($variant['uuid']))
-                                                        <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <div class="overflow-x-auto hidden sm:block">
+                                <div class="overflow-x-auto">
                                     <table class="table table-sm">
                                         <caption class="sr-only">Variant items for this base item</caption>
                                         <thead>

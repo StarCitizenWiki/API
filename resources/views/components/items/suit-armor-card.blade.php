@@ -64,7 +64,7 @@
                 Damage
             </summary>
             <div class="collapse-content">
-                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3">
+                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-3">
                     @if ($drPhysicalChange !== null)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
@@ -127,7 +127,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Signature</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach ($signature as $key => $value)
                             @if ($value !== null)
                                 <div class="space-y-1">

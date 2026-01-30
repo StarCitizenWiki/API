@@ -16,7 +16,7 @@
 
         <div>
             <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Speed</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 <div class="space-y-1">
                     <dt class="text-xs text-base-content/60">SCM</dt>
                     <dd class="text-sm">{{ fmt_value_with_unit(data_get($speed, 'scm'), 'm/s', 0) }}</dd>
@@ -51,7 +51,7 @@
         @if (data_get($agility, 'pitch') || data_get($agility, 'yaw') || data_get($agility, 'roll'))
         <div class="mt-4">
             <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Agility</h3>
-            <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3">
                 @if (data_get($agility, 'pitch'))
                     <div class="space-y-1">
                         <dt class="text-xs text-base-content/60">Pitch</dt>

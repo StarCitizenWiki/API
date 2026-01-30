@@ -103,7 +103,7 @@
             <span>Flight Controller</span>
         </h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 ">
+        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 ">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SCM Speed</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($scmSpeed, 'm/s', 0) }}</dd>
@@ -122,7 +122,7 @@
             </div>
         </dl>
 
-        <dl class="mt-2 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <dl class="mt-2 grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch</dt>
                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($pitch, 'deg/s', 0) }}</dd>
@@ -154,7 +154,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Capacitor</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($bcRegenTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Time</dt>
@@ -182,7 +182,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Activation</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($baPreDelayTime !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pre Delay Time</dt>
@@ -210,7 +210,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Thruster Decay</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($tdLinearAccel !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Linear Accel</dt>
@@ -232,7 +232,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Multipliers</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
                         @if ($mTorqueImbalance !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Torque Imbalance</dt>
@@ -273,11 +273,11 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Boost Multipliers</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($bmAccelXPos !== null || $bmAccelXNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
                                 <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel X</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                     @if ($bmAccelXPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
@@ -296,7 +296,7 @@
                         @if ($bmAccelYPos !== null || $bmAccelYNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
                                 <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel Y</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                     @if ($bmAccelYPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
@@ -315,7 +315,7 @@
                         @if ($bmAccelZPos !== null || $bmAccelZNeg !== null)
                             <div class="space-y-1 sm:col-span-2">
                                 <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Accel Z</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                                     @if ($bmAccelZPos !== null)
                                         <div class="space-y-1">
                                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Positive</dt>
@@ -332,7 +332,7 @@
                             </div>
                         @endif
                     </dl>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-3 mt-4">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-3 mt-4">
                         @if ($bmPitch !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pitch</dt>
@@ -378,7 +378,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Precision Mode</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
                         @if ($pmMaxSpeedFullProximityAssist !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed Full Proximity Assist</dt>
@@ -412,7 +412,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Recall Params</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($rpHoverHeight !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Hover Height at Destination</dt>
@@ -458,7 +458,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Collision Detection</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($cdWarnSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Collision Warn Speed</dt>
@@ -486,7 +486,7 @@
             <details class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Gravlev</summary>
                 <div class="collapse-content">
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
                         @if ($gMaxSpeed !== null)
                             <div class="space-y-1">
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Speed</dt>
