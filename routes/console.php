@@ -25,6 +25,10 @@ Schedule::command('vehicles:import-msrp')
 Schedule::command('vehicles:import-loaner')
     ->daily();
 
+// Item Prices
+Schedule::command('game:import-item-prices')
+    ->daily();
+
 // Starmap
 Schedule::command('starmap:sync')
     ->monthly();

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Game;
 
-use App\Jobs\Game\ImportItemPrices;
+use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Models\Game\GameVersion;
 use Illuminate\Console\Command;
 
-class ImportItemPricesCommand extends Command
+class ImportItemPrices extends Command
 {
     protected $signature = 'game:import-item-prices';
 
@@ -28,7 +28,7 @@ class ImportItemPricesCommand extends Command
 
         $this->info("Dispatching item price import for version {$gameVersion->code}...");
 
-        ImportItemPrices::dispatch($gameVersion->id);
+        ImportItemPricesJob::dispatch($gameVersion->id);
 
         $this->info('Job dispatched successfully.');
 
