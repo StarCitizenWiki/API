@@ -298,6 +298,23 @@ use OpenApi\Attributes as OA;
             deprecated: true
         ),
 
+        new OA\Property(
+            property: 'uex_prices',
+            description: 'Item prices from UEX Corp API.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'terminal_id', type: 'integer'),
+                    new OA\Property(property: 'terminal_name', type: 'string'),
+                    new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
+                    new OA\Property(property: 'price_sell', type: 'number', format: 'double'),
+                    new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
+
         new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string'),
         new OA\Property(property: 'link', description: 'API URL for item detail endpoint', type: 'string'),
 
@@ -475,6 +492,7 @@ class ItemResource extends AbstractBaseResource
             ]),
 
             'shops' => [],
+            'uex_prices' => (array) $itemData->uex_prices,
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
                 'base_variant' => new ItemLinkResource($itemData->baseVariant),
             ]),

@@ -34,12 +34,14 @@ class ItemData extends Model
         'manufacturer_id',
         'base_id',
         'data',
+        'uex_prices',
     ];
 
     protected $casts = [
         'size' => 'integer',
         'grade' => 'integer',
         'data' => AsCollection::class,
+        'uex_prices' => 'array',
     ];
 
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
@@ -305,5 +307,10 @@ class ItemData extends Model
         return $query->whereHas('descriptionData', function (Builder $builder) use ($name, $value) {
             $builder->where('name', $name)->where('value', $value);
         });
+    }
+
+    public function scopeWithUexPrices(Builder $query): Builder
+    {
+        return $query->whereNotNull('uex_prices');
     }
 }

@@ -2849,6 +2849,26 @@ components:
             type: object
           nullable: true
           deprecated: true
+        uex_prices:
+          description: 'Item prices from UEX Corp API.'
+          type: array
+          items:
+            properties:
+              terminal_id:
+                type: integer
+              terminal_name:
+                type: string
+              price_buy:
+                type: number
+                format: double
+              price_sell:
+                type: number
+                format: double
+              date_updated:
+                type: string
+                format: date-time
+            type: object
+          nullable: true
         web_url:
           description: 'Web URL for item detail page'
           type: string
