@@ -128,6 +128,9 @@
         $relatedItemsCount = $setItemCount + $variantCount;
         $portsCount = is_array($ports) ? count($ports) : 0;
 
+        $uexPrices = data_get($item, 'uex_prices', []);
+        $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
+
         $fpsSpecsAvailable = (
             $type === 'WeaponPersonal' ||
             str_starts_with($classification, 'FPS.Armor') ||
@@ -430,7 +433,9 @@
                 </div>
             </details>
         @endif
-
+        @if ($uexPricesCount > 0)
+            <x-items.uex-prices-card :prices="$uexPrices" />
+        @endif
         <details id="description-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
             <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-controls="description-details-content">
                 Description
