@@ -87,7 +87,7 @@
    ----------------------------- */
 .tabulator.tabulator .tabulator-header,
 .tabulator.tabulator .tabulator-header-contents {
-    background-color: var(--tb-bg-alt);
+    background-color: var(--tb-bg);
     color: var(--tb-text);
     border-bottom: var(--tb-border-w) solid var(--color-base-300);
 }
@@ -171,9 +171,10 @@
 .tabulator.tabulator .tabulator-header-filter select,
 .tabulator.tabulator .tabulator-header-filter textarea {
     width: 100%;
-    background-color: color-mix(in oklab, var(--tb-bg-alt) 85%, var(--tb-bg));
+    background-color: color-mix(in oklab, var(--tb-bg) 85%, var(--tb-bg));
     color: var(--tb-text);
-    border: var(--tb-border-w) solid color-mix(in oklab, var(--tb-border) 85%, var(--tb-text) 10%);
+
+    border: var(--tb-border-w) solid color-mix(in oklab, var(--color-base-content) 20%, #0000);
     border-radius: var(--tb-radius-field);
     padding: 0.45rem 0.65rem;
 }
@@ -196,7 +197,7 @@
 /* Moving columns indicator */
 .tabulator.tabulator .tabulator-col.tabulator-moving,
 .tabulator.tabulator .tabulator-col.tabulator-moving .tabulator-col-content {
-    background-color: color-mix(in oklab, var(--tb-bg-strong) 70%, var(--tb-bg-alt));
+    background-color: color-mix(in oklab, var(--tb-bg-strong) 70%, var(--tb-bg));
     box-shadow: var(--tb-shadow-sm);
 }
 
@@ -246,7 +247,7 @@
 
 /* Row header column (rowHeader option) */
 .tabulator.tabulator .tabulator-row-header {
-    background-color: color-mix(in oklab, var(--tb-bg-alt) 70%, var(--tb-bg));
+    background-color: color-mix(in oklab, var(--tb-bg) 70%, var(--tb-bg));
     color: var(--tb-text);
     border-right: var(--tb-border-w) solid var(--tb-border);
 }
@@ -360,7 +361,7 @@
    6) Grouping & calcs rows
    ----------------------------- */
 .tabulator.tabulator .tabulator-group {
-    background-color: color-mix(in oklab, var(--tb-bg-strong) 60%, var(--tb-bg-alt));
+    background-color: color-mix(in oklab, var(--tb-bg-strong) 60%, var(--tb-bg));
     color: var(--tb-text);
     border-bottom: var(--tb-border-w) solid var(--tb-border);
     padding: 0.5rem 0.75rem;
@@ -369,7 +370,7 @@
     margin-right: 0.5rem;
 }
 .tabulator.tabulator .tabulator-group.tabulator-group-visible {
-    background-color: color-mix(in oklab, var(--tb-bg-strong) 70%, var(--tb-bg-alt));
+    background-color: color-mix(in oklab, var(--tb-bg-strong) 70%, var(--tb-bg));
 }
 .tabulator.tabulator .tabulator-group-level-1,
 .tabulator.tabulator .tabulator-group-level-2,
@@ -802,7 +803,7 @@
 
 /* Ensure frozen header cells are opaque and above scrolling header cells */
 .tabulator.tabulator .tabulator-header .tabulator-col.tabulator-frozen {
-    background-color: var(--tb-bg-alt);
+    background-color: var(--tb-bg);
     z-index: 20;
     background-clip: padding-box;
 }
@@ -882,7 +883,7 @@
 
 /* 2) Frozen header/cell separators and backgrounds, using tokens (no #ddd) */
 .tabulator.tabulator .tabulator-header .tabulator-col.tabulator-frozen {
-    background-color: var(--tb-bg-alt);
+    background-color: var(--tb-bg);
     z-index: 20;
     background-clip: padding-box;
 }

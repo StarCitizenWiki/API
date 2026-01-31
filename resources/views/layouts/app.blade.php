@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Route; @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
     <head>
@@ -34,12 +35,12 @@
 
         @stack('styles')
     </head>
-    <body class="min-h-screen bg-base-100 text-base-content">
+    <body class="min-h-screen bg-base-200 text-base-content">
         <div class="drawer ">
             <input id="app-drawer" type="checkbox" class="drawer-toggle" />
 
             <div class="drawer-content flex min-h-screen flex-col">
-                <div class="navbar sticky top-0 z-30 border-b border-base-200 bg-base-100/90 backdrop-blur">
+                <div class="navbar sticky top-0 z-30 border-b border-base-300 bg-base-100 backdrop-blur">
                     <div class="flex-none ">
                         <label for="app-drawer" class="btn btn-square btn-ghost" aria-label="Open menu">
                             <x-icon name="menu" class="size-5" />
@@ -106,7 +107,7 @@
                             <button tabindex="0" role="button" class="btn btn-ghost btn-square" aria-label="Open menu">
                                 <x-icon name="more-vertical" class="size-5" />
                             </button>
-                            <ul tabindex="0" class="menu dropdown-content z-[1] mt-2 w-64 rounded-box border border-base-200 bg-base-100 p-2 shadow">
+                            <ul tabindex="0" class="menu dropdown-content z-1 mt-2 w-64 rounded-box border border-base-200 bg-base-100 p-2 shadow">
                                 @if ($gameVersions->isNotEmpty())
                                     <li>
                                         <form method="POST" action="{{ route('game-version.select') }}" class="flex flex-col gap-2">
@@ -159,7 +160,7 @@
 
             <div class="drawer-side">
                 <label for="app-drawer" class="drawer-overlay"></label>
-                <aside class="min-h-full w-72 bg-base-200 px-3 py-5 pt-20">
+                <aside class="min-h-full w-72 bg-base-100 px-3 py-5 pt-20">
                     <x-app.sidemenu>
                         <x-app.main-sidemenu />
                         @hasSection('sidemenu')

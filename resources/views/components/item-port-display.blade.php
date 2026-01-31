@@ -36,7 +36,7 @@
 <div class="port-entry">
     <details
         id="{{ $portIdentifier }}"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 shadow"
+        class="collapse collapse-arrow border border-base-300 bg-base-100"
     >
         <summary
             class="collapse-title min-h-11 py-3 text-sm font-semibold flex items-center justify-between gap-2 flex-wrap"
@@ -51,7 +51,7 @@
 
             <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
                 @if (! empty($equippedItemName))
-                    <span class="max-w-[14rem] truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                    <span class="max-w-56 truncate text-base-content/70" title="{{ $equippedDisplayName }}">
                         {{ $equippedDisplayName }}
                     </span>
                 @endif

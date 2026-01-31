@@ -12,7 +12,7 @@
 @endphp
 
 @if ($showApiUrl && $apiUrlTargetId)
-    <div class="card card-border border-base-300 bg-base-200">
+    <div class="card card-border border-base-300 bg-base-100 shadow">
         <div class="card-body gap-3 p-4">
             <label class="label p-0" for="{{ $apiUrlTargetId }}">
                 <span class="label-text text-xs font-semibold uppercase tracking-wide text-base-content/60">
@@ -45,7 +45,7 @@
     id="{{ $id }}"
     data-tabulator
     data-tabulator-id="{{ $id }}"
-    class="w-full"
+    class="w-full shadow"
 ></div>
 
 <script type="application/json" id="{{ $id }}-config">@json($config)</script>

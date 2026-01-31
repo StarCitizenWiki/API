@@ -7,16 +7,16 @@
     $pricesCount = count($pricesList);
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="credit-card" class="size-4 text-primary" />
+<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
+    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+        <span class="flex items-center gap-2">
             <span>UEX Prices</span>
             @if ($pricesCount > 0)
                 <span class="badge badge-ghost text-xs">{{ $pricesCount }}</span>
             @endif
-        </h2>
-
+        </span>
+    </summary>
+    <div class="collapse-content">
         @if ($pricesList === [])
             <div class="text-sm text-base-content/70">No prices available.</div>
         @else
@@ -59,4 +59,4 @@
             </div>
         @endif
     </div>
-</div>
+</details>
