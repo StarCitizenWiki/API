@@ -3,12 +3,17 @@
     'setName',
     'variants',
     'baseVariant',
+    'currentItemUuid',
 ])
 
 @php
     $setItemCount = is_array($setItems) ? count($setItems) : 0;
     $variantCount = is_array($variants) ? count($variants) : 0;
-    $baseVariantCount = !empty($baseVariant) ? 1 : 0;
+    $baseVariantUuid = data_get($baseVariant, 'uuid');
+    $isSelfReferential = $currentItemUuid !== null && $baseVariantUuid === $currentItemUuid;
+
+    $showBaseVariant = !empty($baseVariant) && (!$isSelfReferential || $variantCount > 0);
+    $baseVariantCount = $showBaseVariant ? 1 : 0;
     $totalItemsCount = $setItemCount + $variantCount + $baseVariantCount;
 @endphp
 
@@ -91,7 +96,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (! empty($baseVariant))
+                                @if ($showBaseVariant)
                                     <tr>
                                         <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
                                         <td>Base Item</td>

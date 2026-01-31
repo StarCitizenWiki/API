@@ -112,7 +112,9 @@
 
         $setItemCount = is_array($setItems) ? count($setItems) : 0;
         $variantCount = is_array($variants) ? count($variants) : 0;
-        $baseVariantCount = !empty($baseVariant) ? 1 : 0;
+        $baseVariantUuid = data_get($baseVariant, 'uuid');
+        $isSelfReferential = $baseVariantUuid === $uuid;
+        $baseVariantCount = (!empty($baseVariant) && (!$isSelfReferential || $variantCount > 0)) ? 1 : 0;
         $relatedItemsCount = $setItemCount + $variantCount + $baseVariantCount;
         $portsCount = is_array($ports) ? count($ports) : 0;
         $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
@@ -155,6 +157,7 @@
                     :set-name="$setName"
                     :variants="$variants"
                     :base-variant="$baseVariant"
+                    :current-item-uuid="$uuid"
                 />
             @endif
 
