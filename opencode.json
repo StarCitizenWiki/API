@@ -10,5 +10,18 @@
                 "boost:mcp"
             ]
         }
+    },
+    "agent": {
+        "gsd-planner": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-plan-checker": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-phase-researcher": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-roadmapper": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-project-researcher": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-research-synthesizer": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-codebase-mapper": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-executor": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-debugger": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-verifier": { "model": "zai-coding-plan/glm-4.7" },
+        "gsd-integration-checker": { "model": "zai-coding-plan/glm-4.7" }
     }
 }
