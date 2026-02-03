@@ -24,15 +24,23 @@ class VehicleMergeService
     }
 
     /**
-     * Query shipmatrix vehicles with eager loading.
+     * Query shipmatrix vehicles with eager loading and deduplication.
      *
-     * Note: Phase 2 will add whereDoesntHave('sc') for deduplication.
+     * Deduplication strategy: Excludes ShipMatrixVehicle records where a VehicleData
+     * record exists with matching shipmatrix_id (via the 'sc' relationship).
+     * This ensures ingame vehicle data is prioritized when the same vehicle
+     * exists in both sources.
+     *
+     * The sc() relationship is a HasOne from ShipMatrixVehicle to VehicleData via
+     * the shipmatrix_id field. Using whereDoesntHave('sc') filters at the query
+     * level for efficient exclusion of duplicates.
      *
      * @return Collection<int, ShipMatrixVehicle>
      */
     public function getShipMatrixVehicles(): Collection
     {
         return ShipMatrixVehicle::query()
+            ->whereDoesntHave('sc')
             ->with(['foci', 'manufacturer', 'productionStatus', 'type', 'size'])
             ->get();
     }
