@@ -12,7 +12,9 @@ Users can quickly scan an item on mobile to understand its role, key performance
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Item detail page renders core metadata (name, type, manufacturer, grade/class/size).
+- ✓ Item detail page shows related items/variants and UEX prices when available.
+- ✓ Item detail page includes description, ports, FPS/vehicle data, technical details, and raw payload.
 
 ### Active
 
