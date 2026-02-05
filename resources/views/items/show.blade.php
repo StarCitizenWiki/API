@@ -120,25 +120,23 @@
         $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
     @endphp
 
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-2 sm:gap-3">
             <x-items.item-breadcrumbs :item="$item" />
-            <h1 class="text-2xl font-semibold tracking-tight">
-                {{ $itemName }} <span class="text-secondary">({{ $type }})</span>
-                @if ($gradeLetter || $class || $size !== null)
-                    <span class="flex items-center gap-2 text-sm text-base-content/70 ml-2">
-                        @if ($gradeLetter)
-                            <span class="badge badge-ghost">Grade {{ $gradeLetter }}</span>
-                        @endif
-                        @if ($class)
-                            <span class="badge badge-ghost">{{ $class }}</span>
-                        @endif
-                        @if ($size !== null)
-                            <span class="badge badge-ghost">Size {{ $size }}</span>
-                        @endif
-                    </span>
-                @endif
-            </h1>
+            <x-items.summary-card
+                :item="$item"
+                :item-name="$itemName"
+                :item-type="$type"
+                :item-classification="$classification"
+                :manufacturer-name="$manufacturerName"
+                :grade-letter="$gradeLetter"
+                :item-class="$class"
+                :item-size="$size"
+                :ports-count="$portsCount"
+                :related-items-count="$relatedItemsCount"
+                :uex-prices-count="$uexPricesCount"
+                :version="$version"
+            />
         </div>
 
         <x-resource-search
@@ -148,7 +146,7 @@
             placeholder="Search item names"
         />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-3">
             <x-items.overview-card :item="$item" class="col-span-full" />
 
             @if($relatedItemsCount > 0)
@@ -165,34 +163,35 @@
                 <x-items.uex-prices-card :prices="$uexPrices" />
             @endif
 
-        <x-items.description-card
-            :translations="$translations"
-            :description-data="$descriptionData"
-            class="col-span-full"
-        />
+            <x-items.description-card
+                :translations="$translations"
+                :description-data="$descriptionData"
+                class="col-span-full"
+            />
 
-        @if($portsCount > 0)
-            <x-items.ports-card :ports="$ports" class="col-span-full" />
-        @endif
+            @if($portsCount > 0)
+                <x-items.ports-card :ports="$ports" class="col-span-full" />
+            @endif
 
-        @if($fpsSpecsAvailable)
-            <x-items.fps-data-card :item="$item" :type="$type" class="col-span-full" />
-        @endif
+            @if($fpsSpecsAvailable)
+                <x-items.fps-data-card :item="$item" :type="$type" class="col-span-full" />
+            @endif
 
-        @if($vehicleSpecsAvailable)
-            <x-items.vehicle-data-card :item="$item" :type="$type" class="col-span-full" />
-        @endif
+            @if($vehicleSpecsAvailable)
+                <x-items.vehicle-data-card :item="$item" :type="$type" class="col-span-full" />
+            @endif
 
-        <x-items.technical-card
-            :uuid="$uuid"
-            :classification="$classification"
-            :class-name="$className"
-            :version="$version"
-            :api-link="$apiLink"
-            :entity-tag-map="$entityTagMap"
-            class="md:col-span-2"
-        />
+            <x-items.technical-card
+                :uuid="$uuid"
+                :classification="$classification"
+                :class-name="$className"
+                :version="$version"
+                :api-link="$apiLink"
+                :entity-tag-map="$entityTagMap"
+                class="md:col-span-2"
+            />
 
-        <x-items.raw-payload-card :raw-data="$rawItemJson" class="col-span-full" />
+            <x-items.raw-payload-card :raw-data="$rawItemJson" class="col-span-full" />
+        </div>
     </div>
 @endsection
