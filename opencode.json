@@ -1,27 +1,16 @@
 {
-    "$schema": "https://opencode.ai/config.json",
-    "mcp": {
-        "laravel-boost": {
-            "type": "local",
-            "enabled": true,
-            "command": [
-                "php",
-                "artisan",
-                "boost:mcp"
-            ]
-        }
-    },
-    "agent": {
-        "gsd-planner": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-plan-checker": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-phase-researcher": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-roadmapper": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-project-researcher": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-research-synthesizer": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-codebase-mapper": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-executor": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-debugger": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-verifier": { "model": "zai-coding-plan/glm-4.7" },
-        "gsd-integration-checker": { "model": "zai-coding-plan/glm-4.7" }
-    }
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "gsd-planner": { "model": "opencode/glm-4.7-free" },
+    "gsd-plan-checker": { "model": "opencode/glm-4.7-free" },
+    "gsd-phase-researcher": { "model": "opencode/glm-4.7-free" },
+    "gsd-roadmapper": { "model": "opencode/glm-4.7-free" },
+    "gsd-project-researcher": { "model": "opencode/glm-4.7-free" },
+    "gsd-research-synthesizer": { "model": "opencode/glm-4.7-free" },
+    "gsd-codebase-mapper": { "model": "opencode/glm-4.7-free" },
+    "gsd-executor": { "model": "opencode/minimax-m2.1-free" },
+    "gsd-debugger": { "model": "opencode/minimax-m2.1-free" },
+    "gsd-verifier": { "model": "opencode/glm-4.7-free" },
+    "gsd-integration-checker": { "model": "opencode/glm-4.7-free" }
+  }
 }
