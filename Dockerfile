@@ -27,7 +27,8 @@ RUN set -eux; \
         dom \
         xml; \
     \
-    a2enmod rewrite
+    a2enmod rewrite; \
+    sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 
 # OPcache is built-in on PHP 8.5; just configure it.
 RUN set -eux; \
