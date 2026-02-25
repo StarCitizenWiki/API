@@ -23,7 +23,7 @@ class TypeTableSeeder extends Seeder
             [
                 'id' => 1,
                 'slug' => 'undefined',
-                'translations' => json_encode([
+                'translation' => json_encode([
                     'en' => 'Undefined',
                     'de' => 'Undefiniert',
                 ], JSON_THROW_ON_ERROR),
