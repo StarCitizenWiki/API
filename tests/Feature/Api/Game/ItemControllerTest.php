@@ -206,7 +206,7 @@ it('redirects to vehicle endpoint for vehicle items', function (): void {
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertRedirect("/api/vehicles/{$item->uuid}");
-})->markTestSkipped('Currently disabled');
+})->markTestSkipped('Temporarily quarantined while vehicle redirect assertions are stabilized.');
 
 it('includes related items when requested', function (): void {
     $baseItem = Item::factory()->create();

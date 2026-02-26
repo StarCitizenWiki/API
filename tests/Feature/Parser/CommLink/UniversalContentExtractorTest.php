@@ -81,7 +81,7 @@ it('getContent extracts content from real HTML sample', function () {
     $htmlPath = storage_path('app/comm_links/20913/2026-01-19_100707.html');
 
     if (! file_exists($htmlPath)) {
-        $this->markTestSkipped('Real HTML sample not found at '.$htmlPath);
+        $this->markTestSkipped('Required comm-link HTML fixture is missing for extraction coverage.');
     }
 
     $html = file_get_contents($htmlPath);

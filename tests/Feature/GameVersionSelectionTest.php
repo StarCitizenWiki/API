@@ -6,8 +6,11 @@ use App\Models\Game\GameVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class)
-    ->beforeEach(function () {
-        //
+    ->beforeEach(function (): void {
+        $csrfToken = 'game-version-selection-csrf-token';
+
+        $this->withSession(['_token' => $csrfToken])
+            ->withHeader('X-CSRF-TOKEN', $csrfToken);
     });
 
 it('stores selected version in session and redirects with query string', function () {
@@ -16,22 +19,20 @@ it('stores selected version in session and redirects with query string', functio
         'is_default' => true,
     ]);
 
-    $response = $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-        ->post(route('game-version.select'), [
-            'version' => $version->code,
-            'redirect' => '/?foo=bar',
-        ]);
+    $response = $this->post(route('game-version.select'), [
+        'version' => $version->code,
+        'redirect' => '/?foo=bar',
+    ]);
 
     $response->assertRedirect(url()->query('/?foo=bar', ['version' => $version->code]));
     $this->assertSame($version->code, session('game_version_code'));
 });
 
 it('rejects unknown game versions', function () {
-    $response = $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-        ->post(route('game-version.select'), [
-            'version' => '9.99.9',
-            'redirect' => '/',
-        ]);
+    $response = $this->post(route('game-version.select'), [
+        'version' => '9.99.9',
+        'redirect' => '/',
+    ]);
 
     $response->assertSessionHasErrors('version');
 });
@@ -41,11 +42,10 @@ it('prevents external redirects', function () {
         'code' => '3.24.2',
     ]);
 
-    $response = $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-        ->post(route('game-version.select'), [
-            'version' => $version->code,
-            'redirect' => 'https://example.com/phish',
-        ]);
+    $response = $this->post(route('game-version.select'), [
+        'version' => $version->code,
+        'redirect' => 'https://example.com/phish',
+    ]);
 
     $response->assertRedirect(url()->query(url('/'), ['version' => $version->code]));
 });

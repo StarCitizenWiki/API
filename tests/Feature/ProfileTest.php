@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    $csrfToken = 'profile-feature-csrf-token';
+
+    $this->withSession(['_token' => $csrfToken])
+        ->withHeader('X-CSRF-TOKEN', $csrfToken);
+});
+
 it('profile controller exists and has required methods', function (): void {
     $controller = new ProfileController;
 

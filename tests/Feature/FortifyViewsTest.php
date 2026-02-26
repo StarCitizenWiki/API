@@ -9,6 +9,13 @@ use Laravel\Fortify\Features;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    $csrfToken = 'fortify-views-csrf-token';
+
+    $this->withSession(['_token' => $csrfToken])
+        ->withHeader('X-CSRF-TOKEN', $csrfToken);
+});
+
 it('renders fortify guest views', function () {
     $this->get(route('login'))->assertSuccessful();
     expect(Route::has('register'))

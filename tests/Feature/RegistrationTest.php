@@ -21,6 +21,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    $csrfToken = 'registration-feature-csrf-token';
+
+    $this->withSession(['_token' => $csrfToken])
+        ->withHeader('X-CSRF-TOKEN', $csrfToken);
+});
+
 /**
  * @runInSeparateProcess
  *

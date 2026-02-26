@@ -10,6 +10,13 @@ use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    $csrfToken = 'comm-link-reverse-search-csrf-token';
+
+    $this->withSession(['_token' => $csrfToken])
+        ->withHeader('X-CSRF-TOKEN', $csrfToken);
+});
+
 it('shows reverse image search results', function (): void {
     $image = Image::factory()->create([
         'src' => '/i/alpha/alpha.webp',
