@@ -12,6 +12,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 it('can create an entity tag', function (): void {
     $uuid = fake()->uuid();
@@ -39,10 +40,12 @@ it('enforces unique uuid constraint', function (): void {
     ]);
 
     expect(function () use ($uuid): void {
-        EntityTag::query()->create([
-            'uuid' => $uuid,
-            'name' => 'Second Tag',
-        ]);
+        DB::transaction(function () use ($uuid): void {
+            EntityTag::query()->create([
+                'uuid' => $uuid,
+                'name' => 'Second Tag',
+            ]);
+        });
     })->toThrow(QueryException::class);
 
     expect(EntityTag::query()->where('uuid', $uuid)->count())->toBe(1);
