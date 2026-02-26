@@ -43,28 +43,55 @@ it('profile controller has auth middleware', function (): void {
     $response->assertRedirect('/login');
 });
 
-it('show method returns view', function (): void {
+it('authenticated GET /profile returns profile view with tokens', function (): void {
     $user = User::factory()->create();
+    $userToken = $user->createToken('Phase 1 Token', ['*'])->accessToken;
+
+    $otherUser = User::factory()->create();
+    $otherUser->createToken('Other User Token', ['*']);
 
     $response = $this->actingAs($user)->get('/profile');
 
-    // This will fail until routes are defined in API-j9x.4
-    // For now, we just verify the controller can be called
-    expect(true)->toBeTrue();
+    $response->assertOk()
+        ->assertViewIs('profile')
+        ->assertViewHas('tokens', function ($tokens) use ($userToken): bool {
+            return $tokens->pluck('id')->all() === [$userToken->id];
+        });
 });
 
-it('createToken method redirects back', function (): void {
+it('POST /profile/token creates token and flashes status + token_name', function (): void {
     $user = User::factory()->create();
 
-    // This will be properly tested when routes are defined
-    expect(true)->toBeTrue();
+    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
+        'name' => 'Phase 1 Token',
+    ]);
+
+    $response->assertRedirect('/profile')
+        ->assertSessionHas('status', 'Your API token is ready')
+        ->assertSessionHas('token_name', 'Phase 1 Token');
+
+    $this->assertDatabaseHas('personal_access_tokens', [
+        'tokenable_id' => $user->id,
+        'tokenable_type' => get_class($user),
+        'name' => 'Phase 1 Token',
+    ]);
 });
 
-it('destroy method redirects back', function (): void {
+it('DELETE /profile with confirmation=DELETE_ACCOUNT deletes user, logs out, redirects \'/\'', function (): void {
     $user = User::factory()->create();
+    $userId = $user->id;
 
-    // This will be properly tested when routes are defined
-    expect(true)->toBeTrue();
+    $response = $this->actingAs($user)->from('/profile')->delete('/profile', [
+        'confirmation' => 'DELETE_ACCOUNT',
+    ]);
+
+    $response->assertRedirect('/')
+        ->assertSessionHas('status', 'account-deleted');
+
+    $this->assertDatabaseMissing('users', [
+        'id' => $userId,
+    ]);
+    $this->assertGuest();
 });
 
 it('profile page access: authenticated user can access /profile', function (): void {

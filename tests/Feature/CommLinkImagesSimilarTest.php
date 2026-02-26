@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -16,20 +17,51 @@ it('returns redirect when not authenticated', function (): void {
     $response->assertRedirect(route('login'));
 });
 
-it('returns 200 when authenticated', function (): void {
-    $user = \App\Models\User::factory()->create();
+it('renders similar search view contract when authenticated', function (): void {
+    $user = User::factory()->create();
+    $sharedHash = str_repeat('10', 128);
 
-    $image = Image::factory()->create();
+    $queryImage = Image::factory()->create([
+        'alt' => 'Query Image',
+    ]);
+    $queryImage->hash()->create([
+        'pdq_hash' => $sharedHash,
+        'pdq_quality' => 100,
+    ]);
+
+    $similarImage = Image::factory()->create([
+        'alt' => 'Similar Image',
+    ]);
+    $similarImage->hash()->create([
+        'pdq_hash' => $sharedHash,
+        'pdq_quality' => 100,
+    ]);
+
+    $commLink = CommLink::factory()->create([
+        'cig_id' => 14001,
+        'title' => 'Inside Star Citizen',
+    ]);
+    $commLink->images()->attach($similarImage->id);
 
     $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', $image->id));
+        ->get(route('web.comm-links.images.similar', ['image' => $queryImage->id, 'similarity' => 95]));
 
-    $response->assertOk();
+    $response->assertOk()
+        ->assertViewIs('comm-links.images.index')
+        ->assertViewHas('pageTitle', 'Comm-Link Images')
+        ->assertViewHas('searchType', 'similar-images')
+        ->assertViewHas('searchQuery', sprintf('Similar to image ID %s', $queryImage->id))
+        ->assertViewHas('images', function (array $images) use ($similarImage, $commLink): bool {
+            return count($images) === 1
+                && data_get($images, '0.id') === $similarImage->id
+                && data_get($images, '0.rsi_url') === $similarImage->url
+                && data_get($images, '0.comm_links.0.id') === $commLink->cig_id
+                && data_get($images, '0.comm_links.0.title') === $commLink->title;
+        });
 });
 
 it('rate limits requests to 10 per minute', function (): void {
-    $user = \App\Models\User::factory()->create();
-
+    $user = User::factory()->create();
     $image = Image::factory()->create();
 
     for ($attempt = 0; $attempt < 10; $attempt++) {
@@ -40,21 +72,51 @@ it('rate limits requests to 10 per minute', function (): void {
 
     $this->actingAs($user)
         ->get(route('web.comm-links.images.similar', $image->id))
-        ->assertStatus(429);
-})->skip('Test requires rate limit reset which is time-sensitive');
+        ->assertTooManyRequests()
+        ->assertSeeText('Too many similar image searches');
+});
 
-it('validates similarity parameter (must be integer between 1 and 100)', function ($similarity, bool $shouldSucceed) {
-    $user = \App\Models\User::factory()->create();
+it('rate limit resets after minute expires', function (): void {
+    $user = User::factory()->create();
+    $image = Image::factory()->create();
+
+    try {
+        for ($attempt = 0; $attempt < 10; $attempt++) {
+            $this->actingAs($user)
+                ->get(route('web.comm-links.images.similar', $image->id))
+                ->assertOk();
+        }
+
+        $this->actingAs($user)
+            ->get(route('web.comm-links.images.similar', $image->id))
+            ->assertTooManyRequests();
+
+        $this->travel(61)->seconds();
+
+        $this->actingAs($user)
+            ->get(route('web.comm-links.images.similar', $image->id))
+            ->assertOk()
+            ->assertViewIs('comm-links.images.index');
+    } finally {
+        $this->travelBack();
+    }
+});
+
+it('validates similarity parameter', function (mixed $similarity, bool $shouldSucceed): void {
+    $user = User::factory()->create();
     $image = Image::factory()->create();
 
     $response = $this->actingAs($user)
         ->get(route('web.comm-links.images.similar', ['image' => $image->id, 'similarity' => $similarity]));
 
     if ($shouldSucceed) {
-        $response->assertOk();
-    } else {
-        $response->assertSessionHasErrors(['similarity']);
+        $response->assertOk()
+            ->assertViewIs('comm-links.images.index');
+
+        return;
     }
+
+    $response->assertSessionHasErrors(['similarity']);
 })->with([
     [0, false],
     [1, true],
@@ -66,28 +128,8 @@ it('validates similarity parameter (must be integer between 1 and 100)', functio
     [75.5, false],
 ]);
 
-it('validates similarity parameter must be integer', function (): void {
-    $user = \App\Models\User::factory()->create();
-    $image = Image::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', ['image' => $image->id, 'similarity' => 'abc']));
-
-    $response->assertSessionHasErrors(['similarity']);
-});
-
-it('uses default similarity of 50 when not provided', function (): void {
-    $user = \App\Models\User::factory()->create();
-    $image = Image::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', $image->id));
-
-    $response->assertOk();
-});
-
 it('returns 404 when image ID does not exist', function (): void {
-    $user = \App\Models\User::factory()->create();
+    $user = User::factory()->create();
 
     $response = $this->actingAs($user)
         ->get(route('web.comm-links.images.similar', 999999));
@@ -95,62 +137,16 @@ it('returns 404 when image ID does not exist', function (): void {
     $response->assertNotFound();
 });
 
-it('renders index view with images grid', function (): void {
-    $user = \App\Models\User::factory()->create();
-
-    $commLink = CommLink::factory()->create([
-        'cig_id' => 14001,
-        'title' => 'Inside Star Citizen',
-    ]);
-
-    $image = Image::factory()->create([
-        'alt' => 'Test Image',
-    ]);
-
-    $commLink->images()->attach($image->id);
+it('handles images without hash gracefully', function (): void {
+    $user = User::factory()->create();
+    $image = Image::factory()->create();
 
     $response = $this->actingAs($user)
         ->get(route('web.comm-links.images.similar', $image->id));
 
     $response->assertOk()
         ->assertViewIs('comm-links.images.index')
-        ->assertSee('Comm-Link Images');
-});
-
-it('renders view with search context for similar images', function (): void {
-    $user = \App\Models\User::factory()->create();
-
-    $image = Image::factory()->create([
-        'alt' => 'Query Image',
-    ]);
-
-    $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', $image->id));
-
-    $response->assertOk()
-        ->assertViewHas('pageTitle')
-        ->assertViewHas('images');
-});
-
-it('passes similarity parameter to view context', function (): void {
-    $user = \App\Models\User::factory()->create();
-
-    $image = Image::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', ['image' => $image->id, 'similarity' => 75]));
-
-    $response->assertOk();
-});
-
-it('handles images without hash gracefully', function (): void {
-    $user = \App\Models\User::factory()->create();
-
-    $image = Image::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->get(route('web.comm-links.images.similar', $image->id));
-
-    $response->assertOk()
-        ->assertViewIs('comm-links.images.index');
+        ->assertViewHas('images', fn (array $images): bool => $images === [])
+        ->assertViewHas('searchType', 'similar-images')
+        ->assertViewHas('searchQuery', sprintf('Similar to image ID %s', $image->id));
 });

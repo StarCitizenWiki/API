@@ -4,277 +4,309 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\Game\ItemData;
+use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    $this->defaultVersion = GameVersion::factory()->create(['is_default' => true]);
-    $this->isPostgreSQL = DB::connection()->getDriverName() === 'pgsql';
+beforeEach(function (): void {
+    $this->defaultVersion = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+    ]);
+
+    $this->manufacturer = Manufacturer::factory()->create([
+        'name' => 'Sorting Labs',
+        'code' => 'SORT',
+    ]);
 });
 
-it('sorts items by name ascending', function () {
-    ItemData::factory()->count(5)->create([
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => fake()->unique()->word(),
-    ]);
+it('sorts items by name ascending', function (): void {
+    foreach ([
+        ['name' => 'Gamma Core', 'class_name' => 'gamma_core'],
+        ['name' => 'Alpha Core', 'class_name' => 'alpha_core'],
+        ['name' => 'Delta Core', 'class_name' => 'delta_core'],
+        ['name' => 'Beta Core', 'class_name' => 'beta_core'],
+    ] as $item) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$item,
+                'type' => 'Widget',
+                'classification' => 'Test.Widget',
+                'data' => ['stdItem' => []],
+            ]);
+    }
 
     $response = $this->getJson('/api/items?sort=name');
 
     $response->assertSuccessful();
-    $names = collect($response->json('data'))->pluck('name')->toArray();
-    expect($names)->toBe(collect($names)->sort()->values()->toArray());
+
+    expect(collect($response->json('data'))->pluck('name')->toArray())
+        ->toBe(['Alpha Core', 'Beta Core', 'Delta Core', 'Gamma Core']);
 });
 
-it('sorts items by grade descending', function () {
-    ItemData::factory()->count(5)->create([
-        'game_version_id' => $this->defaultVersion->id,
-        'grade' => fake()->numberBetween(1, 7),
-    ]);
+it('sorts items by grade descending', function (): void {
+    foreach ([
+        ['name' => 'Grade One', 'class_name' => 'grade_one', 'grade' => 1],
+        ['name' => 'Grade Four', 'class_name' => 'grade_four', 'grade' => 4],
+        ['name' => 'Grade Two', 'class_name' => 'grade_two', 'grade' => 2],
+        ['name' => 'Grade Three', 'class_name' => 'grade_three', 'grade' => 3],
+    ] as $item) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$item,
+                'type' => 'Widget',
+                'classification' => 'Test.Widget',
+                'data' => ['stdItem' => []],
+            ]);
+    }
 
     $response = $this->getJson('/api/items?sort=-grade');
 
     $response->assertSuccessful();
-    $grades = collect($response->json('data'))->pluck('grade')->toArray();
-    expect($grades)->toBe(collect($grades)->sortDesc()->values()->toArray());
+
+    expect(collect($response->json('data'))->pluck('name')->toArray())
+        ->toBe(['Grade Four', 'Grade Three', 'Grade Two', 'Grade One']);
 });
 
-it('sorts items by JSON numeric field weapon damage alpha total', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
-    }
-
-    $this->markTestSkipped('Vehicle weapon specification not building correctly for all items');
-
-    $damages = [500, 1000, 250, 750, 100];
-
-    foreach ($damages as $damage) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'WeaponGun',
-            'data' => [
-                'stdItem' => [
-                    'Weapon' => ['Damage' => ['AlphaTotal' => $damage]],
+it('sorts items by JSON numeric field Weapon.Damage.AlphaTotal descending', function (): void {
+    foreach ([
+        ['name' => 'Gun 400', 'class_name' => 'gun_400', 'alpha_total' => 400],
+        ['name' => 'Gun 1200', 'class_name' => 'gun_1200', 'alpha_total' => 1200],
+        ['name' => 'Gun 800', 'class_name' => 'gun_800', 'alpha_total' => 800],
+        ['name' => 'Gun 50', 'class_name' => 'gun_50', 'alpha_total' => 50],
+    ] as $weapon) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $weapon['name'],
+                'class_name' => $weapon['class_name'],
+                'type' => 'WeaponGun',
+                'classification' => 'Ship.Weapon.Gun',
+                'data' => [
+                    'stdItem' => [
+                        'Weapon' => [
+                            'Damage' => [
+                                'AlphaTotal' => $weapon['alpha_total'],
+                            ],
+                        ],
+                    ],
                 ],
-            ],
-        ]);
+            ]);
     }
 
     $response = $this->getJson('/api/items?filter[type]=WeaponGun&sort=-Weapon.Damage.AlphaTotal');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('vehicle_weapon.damage.alpha_total')->toArray();
-    expect($returned)->toBe([1000, 750, 500, 250, 100]);
+
+    expect(collect($response->json('data'))->pluck('vehicle_weapon.damage.alpha_total')->toArray())
+        ->toBe([1200, 800, 400, 50]);
 });
 
-it('sorts items by text JSON field shield controller face type', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
-    }
-
-    $faceTypes = ['Quad', 'Single', 'Dual'];
-
-    foreach ($faceTypes as $faceType) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'ShieldController',
-            'data' => [
-                'stdItem' => [
-                    'ShieldController' => ['FaceType' => $faceType],
+it('sorts items by ShieldController.FaceType text field ascending', function (): void {
+    foreach ([
+        ['name' => 'Shield Quad', 'class_name' => 'shield_quad', 'face_type' => 'Quad'],
+        ['name' => 'Shield Single', 'class_name' => 'shield_single', 'face_type' => 'Single'],
+        ['name' => 'Shield Dual', 'class_name' => 'shield_dual', 'face_type' => 'Dual'],
+        ['name' => 'Shield AllAround', 'class_name' => 'shield_allaround', 'face_type' => 'AllAround'],
+    ] as $shieldController) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $shieldController['name'],
+                'class_name' => $shieldController['class_name'],
+                'type' => 'ShieldController',
+                'classification' => 'Ship.ShieldController',
+                'data' => [
+                    'stdItem' => [
+                        'ShieldController' => [
+                            'FaceType' => $shieldController['face_type'],
+                        ],
+                    ],
                 ],
-            ],
-        ]);
+            ]);
     }
 
     $response = $this->getJson('/api/items?filter[type]=ShieldController&sort=ShieldController.FaceType');
 
     $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('shield_controller.face_type')->toArray();
-    expect($returned)->toBe(['Dual', 'Quad', 'Single']); // Alphabetical
+
+    expect(collect($response->json('data'))->pluck('shield_controller.face_type')->toArray())
+        ->toBe(['AllAround', 'Dual', 'Quad', 'Single']);
 });
 
-it('places null values last when sorting ascending', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
+it('supports exact multi-field sorting semantics for grade,-name', function (): void {
+    foreach ([
+        ['name' => 'Zulu', 'class_name' => 'grade_1_zulu', 'grade' => 1],
+        ['name' => 'Alpha', 'class_name' => 'grade_1_alpha', 'grade' => 1],
+        ['name' => 'Charlie', 'class_name' => 'grade_2_charlie', 'grade' => 2],
+        ['name' => 'Bravo', 'class_name' => 'grade_2_bravo', 'grade' => 2],
+        ['name' => 'Echo', 'class_name' => 'grade_3_echo', 'grade' => 3],
+    ] as $item) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$item,
+                'type' => 'Widget',
+                'classification' => 'Test.Widget',
+                'data' => ['stdItem' => []],
+            ]);
     }
 
-    $this->markTestSkipped('Vehicle weapon specification not building correctly for items without values');
+    $response = $this->getJson('/api/items?sort=grade,-name');
 
-    foreach (range(1, 3) as $i) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'WeaponGun',
-            'data' => [
-                'stdItem' => [
-                    'Weapon' => ['Damage' => ['AlphaTotal' => random_int(100, 1000)]],
+    $response->assertSuccessful();
+
+    expect(collect($response->json('data'))->pluck('name')->toArray())
+        ->toBe(['Zulu', 'Alpha', 'Charlie', 'Bravo', 'Echo']);
+});
+
+it('places null JSON values last when sorting ascending', function (): void {
+    foreach ([
+        ['name' => 'Weapon 300', 'class_name' => 'weapon_300', 'alpha_total' => 300],
+        ['name' => 'Weapon 100', 'class_name' => 'weapon_100', 'alpha_total' => 100],
+        ['name' => 'Weapon 200', 'class_name' => 'weapon_200', 'alpha_total' => 200],
+    ] as $weapon) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $weapon['name'],
+                'class_name' => $weapon['class_name'],
+                'type' => 'WeaponGun',
+                'classification' => 'Ship.Weapon.Gun',
+                'data' => [
+                    'stdItem' => [
+                        'Weapon' => [
+                            'Damage' => [
+                                'AlphaTotal' => $weapon['alpha_total'],
+                            ],
+                        ],
+                    ],
                 ],
-            ],
-        ]);
+            ]);
     }
 
-    ItemData::factory()->count(2)->create([
-        'game_version_id' => $this->defaultVersion->id,
-        'type' => 'WeaponGun',
-        'data' => [],  // No weapon damage data
-    ]);
+    foreach ([
+        ['name' => 'Weapon Null A', 'class_name' => 'weapon_null_a'],
+        ['name' => 'Weapon Null B', 'class_name' => 'weapon_null_b'],
+    ] as $weaponWithoutValue) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$weaponWithoutValue,
+                'type' => 'WeaponGun',
+                'classification' => 'Ship.Weapon.Gun',
+                'data' => ['stdItem' => []],
+            ]);
+    }
 
     $response = $this->getJson('/api/items?filter[type]=WeaponGun&sort=Weapon.Damage.AlphaTotal');
 
     $response->assertSuccessful();
     $data = collect($response->json('data'));
 
-    // First 3 should have values, last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['vehicle_weapon']['damage']['alpha_total'])))->toBeTrue()
-        ->and($data->slice(3)->every(fn ($item) => ! isset($item['vehicle_weapon'])))->toBeTrue();
+    expect($data->take(3)->pluck('name')->toArray())->toBe(['Weapon 100', 'Weapon 200', 'Weapon 300'])
+        ->and($data->take(3)->pluck('vehicle_weapon.damage.alpha_total')->toArray())->toBe([100, 200, 300])
+        ->and($data->slice(3)->every(
+            fn (array $item): bool => data_get($item, 'vehicle_weapon.damage.alpha_total') === null
+        ))->toBeTrue()
+        ->and($data->slice(3)->pluck('name')->sort()->values()->toArray())->toBe(['Weapon Null A', 'Weapon Null B']);
 });
 
-it('places null values last when sorting descending', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
-    }
-
-    $this->markTestSkipped('Shield specification not building correctly for all items');
-
-    foreach (range(1, 3) as $i) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'Shield',
-            'data' => [
-                'stdItem' => [
-                    'Shield' => ['MaxShieldHealth' => random_int(5000, 20000)],
+it('places null JSON values last when sorting descending', function (): void {
+    foreach ([
+        ['name' => 'Shield 5000', 'class_name' => 'shield_5000', 'max_health' => 5000],
+        ['name' => 'Shield 7000', 'class_name' => 'shield_7000', 'max_health' => 7000],
+        ['name' => 'Shield 6000', 'class_name' => 'shield_6000', 'max_health' => 6000],
+    ] as $shield) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $shield['name'],
+                'class_name' => $shield['class_name'],
+                'type' => 'Shield',
+                'classification' => 'Ship.Shield',
+                'data' => [
+                    'stdItem' => [
+                        'Shield' => [
+                            'MaxShieldHealth' => $shield['max_health'],
+                        ],
+                    ],
                 ],
-            ],
-        ]);
+            ]);
     }
 
-    ItemData::factory()->count(2)->create([
-        'game_version_id' => $this->defaultVersion->id,
-        'type' => 'Shield',
-        'data' => [],
-    ]);
+    foreach ([
+        ['name' => 'Shield Null A', 'class_name' => 'shield_null_a'],
+        ['name' => 'Shield Null B', 'class_name' => 'shield_null_b'],
+    ] as $shieldWithoutValue) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$shieldWithoutValue,
+                'type' => 'Shield',
+                'classification' => 'Ship.Shield',
+                'data' => ['stdItem' => []],
+            ]);
+    }
 
     $response = $this->getJson('/api/items?filter[type]=Shield&sort=-Shield.MaxShieldHealth');
 
     $response->assertSuccessful();
     $data = collect($response->json('data'));
 
-    // First 3 should have values (descending), last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['shield']['max_health'])))->toBeTrue()
-        ->and($data->slice(3)->every(fn ($item) => ! isset($item['shield'])))->toBeTrue();
+    expect($data->take(3)->pluck('name')->toArray())->toBe(['Shield 7000', 'Shield 6000', 'Shield 5000'])
+        ->and($data->take(3)->pluck('shield.max_health')->toArray())->toBe([7000, 6000, 5000])
+        ->and($data->slice(3)->every(
+            fn (array $item): bool => data_get($item, 'shield.max_health') === null
+        ))->toBeTrue()
+        ->and($data->slice(3)->pluck('name')->sort()->values()->toArray())->toBe(['Shield Null A', 'Shield Null B']);
 });
 
-it('supports multiple field sorting', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
+it('returns pagination metadata and a correctly sorted subset for -grade', function (): void {
+    foreach ([
+        ['name' => 'Grade Three', 'class_name' => 'grade_3', 'grade' => 3],
+        ['name' => 'Grade Seven', 'class_name' => 'grade_7', 'grade' => 7],
+        ['name' => 'Grade One', 'class_name' => 'grade_1', 'grade' => 1],
+        ['name' => 'Grade Six', 'class_name' => 'grade_6', 'grade' => 6],
+        ['name' => 'Grade Two', 'class_name' => 'grade_2', 'grade' => 2],
+        ['name' => 'Grade Five', 'class_name' => 'grade_5', 'grade' => 5],
+        ['name' => 'Grade Four', 'class_name' => 'grade_4', 'grade' => 4],
+    ] as $item) {
+        ItemData::factory()
+            ->for($this->defaultVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                ...$item,
+                'type' => 'Widget',
+                'classification' => 'Test.Widget',
+                'data' => ['stdItem' => []],
+            ]);
     }
 
-    ItemData::factory()->create(['game_version_id' => $this->defaultVersion->id, 'grade' => 1, 'name' => 'Zulu']);
-    ItemData::factory()->create(['game_version_id' => $this->defaultVersion->id, 'grade' => 1, 'name' => 'Alpha']);
-    ItemData::factory()->create(['game_version_id' => $this->defaultVersion->id, 'grade' => 2, 'name' => 'Charlie']);
-    ItemData::factory()->create(['game_version_id' => $this->defaultVersion->id, 'grade' => 2, 'name' => 'Bravo']);
-
-    $response = $this->getJson('/api/items?sort=grade,-name');
+    $response = $this->getJson('/api/items?sort=-grade&page[size]=3&page[number]=2');
 
     $response->assertSuccessful();
-    $items = collect($response->json('data'));
 
-    // Should be: grade 1 (Zulu, Alpha desc), grade 2 (Charlie, Bravo desc)
-    expect($items->pluck('name')->toArray())->toBe(['Zulu', 'Alpha', 'Charlie', 'Bravo']);
-});
-
-it('combines JSON sorting with filtering', function () {
-    foreach (range(1, 3) as $i) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'WeaponGun',
-            'data' => [
-                'stdItem' => ['Weapon' => ['RateOfFire' => random_int(100, 500)]],
-            ],
+    expect($response->json('meta.per_page'))->toBe(3)
+        ->and($response->json('meta.current_page'))->toBe(2)
+        ->and($response->json('meta.total'))->toBe(7)
+        ->and($response->json('meta.last_page'))->toBe(3)
+        ->and(collect($response->json('data'))->pluck('name')->toArray())->toBe([
+            'Grade Four',
+            'Grade Three',
+            'Grade Two',
         ]);
-    }
-
-    foreach (range(1, 2) as $i) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'Shield',
-            'data' => ['stdItem' => ['Shield' => ['MaxShieldHealth' => random_int(5000, 10000)]]],
-        ]);
-    }
-
-    $response = $this->getJson('/api/items?filter[type]=WeaponGun&sort=-Weapon.RateOfFire');
-
-    $response->assertSuccessful();
-    expect($response->json('meta.total'))->toBe(3);
-
-    $rateOfFires = collect($response->json('data'))->pluck('vehicle_weapon.rpm')->toArray();
-    expect($rateOfFires)->toBe(collect($rateOfFires)->sortDesc()->values()->toArray());
-});
-
-it('works with pagination', function () {
-    ItemData::factory()->count(15)->create([
-        'game_version_id' => $this->defaultVersion->id,
-        'grade' => fn () => random_int(1, 7),
-    ]);
-
-    $response = $this->getJson('/api/items?sort=-grade&page[size]=5&page[number]=1');
-
-    $response->assertSuccessful();
-    expect($response->json('meta.per_page'))->toBe(5)
-        ->and($response->json('meta.current_page'))->toBe(1);
-
-    $grades = collect($response->json('data'))->pluck('grade')->toArray();
-    expect($grades)->toBe(collect($grades)->sortDesc()->values()->toArray());
-});
-
-it('sorts by mining laser power transfer', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
-    }
-
-    $powers = [100, 500, 300, 200];
-
-    foreach ($powers as $power) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'WeaponMining',
-            'data' => [
-                'stdItem' => [
-                    'MiningLaser' => ['PowerTransfer' => $power],
-                ],
-            ],
-        ]);
-    }
-
-    $response = $this->getJson('/api/items?filter[type]=WeaponMining&sort=-MiningLaser.PowerTransfer');
-
-    $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('mining_laser.laser_power.maximum')->toArray();
-    expect($returned)->toBe([500, 300, 200, 100]);
-});
-
-it('sorts by missile damage total', function () {
-    if (! $this->isPostgreSQL) {
-        $this->markTestSkipped('JSON sorting requires PostgreSQL');
-    }
-
-    $damages = [1000, 500, 750];
-
-    foreach ($damages as $damage) {
-        ItemData::factory()->create([
-            'game_version_id' => $this->defaultVersion->id,
-            'type' => 'Missile',
-            'data' => [
-                'stdItem' => [
-                    'Missile' => ['DamageTotal' => $damage],
-                ],
-            ],
-        ]);
-    }
-
-    $response = $this->getJson('/api/items?filter[type]=Missile&sort=Missile.DamageTotal');
-
-    $response->assertSuccessful();
-    $returned = collect($response->json('data'))->pluck('missile.damage_total')->toArray();
-    expect($returned)->toBe([500, 750, 1000]);
 });

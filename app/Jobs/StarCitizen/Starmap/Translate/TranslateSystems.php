@@ -42,56 +42,56 @@ class TranslateSystems implements ShouldQueue
             ->chunk(
                 25,
                 function (Collection $systems) use ($translator, $targetLocale) {
-                    $systems->each(
-                        function (Starsystem $starsystem) use ($translator, $targetLocale) {
-                            $english = $starsystem->getTranslation('translation', Language::ENGLISH, false);
-                            $german = $starsystem->getTranslation('translation', Language::GERMAN, false);
+                    foreach ($systems as $starsystem) {
+                        $english = $starsystem->getTranslation('translation', Language::ENGLISH, false);
+                        $german = $starsystem->getTranslation('translation', Language::GERMAN, false);
 
-                            if ($english === null || $english === '') {
-                                return;
-                            }
-
-                            if ($german !== null && $german !== '') {
-                                return;
-                            }
-
-                            try {
-                                app('Log')::info(sprintf('Translating system %s', $starsystem->name));
-                                $translation = $translator->translate(
-                                    $english,
-                                    $targetLocale
-                                );
-                            } catch (QuotaExceededException $e) {
-                                app('Log')::warning('DeepL quota exceeded');
-
-                                $this->fail($e);
-
-                                return;
-                            } catch (RateLimitException $e) {
-                                app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
-
-                                $this->release(60);
-
-                                return;
-                            } catch (AuthenticationException $e) {
-                                app('Log')::error('DeepL authentication failed', ['error' => $e->getMessage()]);
-
-                                $this->fail($e);
-
-                                return;
-                            } catch (TranslationException $e) {
-                                app('Log')::warning('Translation failed', [
-                                    'system' => $starsystem->name,
-                                    'error' => $e->getMessage(),
-                                ]);
-
-                                return;
-                            }
-
-                            $starsystem->setTranslation('translation', Language::GERMAN, $translation);
-                            $starsystem->save();
+                        if ($english === null || $english === '') {
+                            continue;
                         }
-                    );
+
+                        if ($german !== null && $german !== '') {
+                            continue;
+                        }
+
+                        try {
+                            app('Log')::info(sprintf('Translating system %s', $starsystem->name));
+                            $translation = $translator->translate(
+                                $english,
+                                $targetLocale
+                            );
+                        } catch (QuotaExceededException $e) {
+                            app('Log')::warning('DeepL quota exceeded');
+
+                            $this->fail($e);
+
+                            return false;
+                        } catch (RateLimitException $e) {
+                            app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+
+                            $this->release(60);
+
+                            return false;
+                        } catch (AuthenticationException $e) {
+                            app('Log')::error('DeepL authentication failed', ['error' => $e->getMessage()]);
+
+                            $this->fail($e);
+
+                            return false;
+                        } catch (TranslationException $e) {
+                            app('Log')::warning('Translation failed', [
+                                'system' => $starsystem->name,
+                                'error' => $e->getMessage(),
+                            ]);
+
+                            continue;
+                        }
+
+                        $starsystem->setTranslation('translation', Language::GERMAN, $translation);
+                        $starsystem->save();
+                    }
+
+                    return true;
                 }
             );
     }

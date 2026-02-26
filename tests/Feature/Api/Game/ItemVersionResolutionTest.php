@@ -10,10 +10,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('resolves default game version when no version parameter provided', function (): void {
-    $this->markTestSkipped('TODO: Investigate why version is null');
+it('resolves default game version when no version parameter is provided', function (): void {
+    $olderVersion = GameVersion::factory()->create([
+        'code' => '3.20.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->subDay(),
+    ]);
 
-    // Create a default game version
     $defaultVersion = GameVersion::factory()->create([
         'code' => '3.21.0-LIVE',
         'channel' => 'live',
@@ -21,36 +25,46 @@ it('resolves default game version when no version parameter provided', function 
         'released_at' => now(),
     ]);
 
-    // Create a manufacturer
     $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Test Manufacturer',
-        'code' => 'TEST',
+        'name' => 'Version Labs',
+        'code' => 'VER',
     ]);
 
-    // Create an item with data for the default version
     $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($olderVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Old Payload',
+            'class_name' => 'old_payload',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
     ItemData::factory()
         ->for($item)
         ->for($defaultVersion, 'gameVersion')
         ->for($manufacturer)
         ->create([
-            'name' => 'Default Version Item',
-            'class_name' => 'TestItem',
-            'classification' => 'TestClass',
-            'data' => [],
+            'name' => 'Default Payload',
+            'class_name' => 'default_payload',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
         ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
-    $this->assertEquals('3.21.0-LIVE', $response->json('data.version'));
-
     $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'Default Version Item');
+        ->assertJsonPath('data.version', '3.21.0-LIVE')
+        ->assertJsonPath('data.name', 'Default Payload')
+        ->assertJsonPath('data.class_name', 'default_payload');
 });
 
-it('resolves specific game version from version parameter', function (): void {
-    $this->markTestSkipped('TODO: Investigate why version is null');
-    // Create multiple versions
+it('resolves specific game versions from the version query parameter', function (): void {
     $oldVersion = GameVersion::factory()->create([
         'code' => '3.20.0-LIVE',
         'channel' => 'live',
@@ -58,20 +72,25 @@ it('resolves specific game version from version parameter', function (): void {
         'released_at' => now()->subDays(7),
     ]);
 
-    $newVersion = GameVersion::factory()->create([
+    $defaultVersion = GameVersion::factory()->create([
         'code' => '3.21.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
+        'released_at' => now()->subDay(),
+    ]);
+
+    $ptuVersion = GameVersion::factory()->create([
+        'code' => '3.21.0-PTU',
+        'channel' => 'ptu',
+        'is_default' => false,
         'released_at' => now(),
     ]);
 
-    // Create a manufacturer
     $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Test Manufacturer',
-        'code' => 'TEST',
+        'name' => 'Version Labs',
+        'code' => 'VER',
     ]);
 
-    // Create an item with data for both versions
     $item = Item::factory()->create();
 
     ItemData::factory()
@@ -79,71 +98,90 @@ it('resolves specific game version from version parameter', function (): void {
         ->for($oldVersion, 'gameVersion')
         ->for($manufacturer)
         ->create([
-            'name' => 'Old Version Item',
-            'class_name' => 'TestItem',
-            'classification' => 'TestClass',
-            'data' => [],
+            'name' => 'Legacy Variant',
+            'class_name' => 'legacy_variant',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
         ]);
 
     ItemData::factory()
         ->for($item)
-        ->for($newVersion, 'gameVersion')
+        ->for($defaultVersion, 'gameVersion')
         ->for($manufacturer)
         ->create([
-            'name' => 'New Version Item',
-            'class_name' => 'TestItem',
-            'classification' => 'TestClass',
-            'data' => [],
+            'name' => 'Live Variant',
+            'class_name' => 'live_variant',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
         ]);
 
-    // Request the old version specifically
-    $response = $this->getJson("/api/items/{$item->uuid}?version=3.20.0-LIVE");
+    ItemData::factory()
+        ->for($item)
+        ->for($ptuVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'PTU Variant',
+            'class_name' => 'ptu_variant',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
 
-    $this->assertEquals('3.20.0-LIVE', $response->json('data.version'));
+    $oldVersionResponse = $this->getJson("/api/items/{$item->uuid}?version=3.20.0-LIVE");
 
-    $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'Old Version Item');
+    $oldVersionResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.20.0-LIVE')
+        ->assertJsonPath('data.name', 'Legacy Variant')
+        ->assertJsonPath('data.class_name', 'legacy_variant');
 
-    // Request the new version specifically
-    $response = $this->getJson("/api/items/{$item->uuid}?version=3.21.0-LIVE");
+    $ptuVersionResponse = $this->getJson("/api/items/{$item->uuid}?version=3.21.0-PTU");
 
-    $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'New Version Item');
+    $ptuVersionResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-PTU')
+        ->assertJsonPath('data.name', 'PTU Variant')
+        ->assertJsonPath('data.class_name', 'ptu_variant');
 });
 
-it('loads equipped items with correct game version', function (): void {
-    $this->markTestSkipped('TODO: Investigate why version is null');
-
-    $version = GameVersion::factory()->create([
+it('resolves equipped items using the requested game version', function (): void {
+    $liveVersion = GameVersion::factory()->create([
         'code' => '3.21.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
+        'released_at' => now()->subDay(),
+    ]);
+
+    $ptuVersion = GameVersion::factory()->create([
+        'code' => '3.21.0-PTU',
+        'channel' => 'ptu',
+        'is_default' => false,
         'released_at' => now(),
     ]);
 
-    // Create a manufacturer
     $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Test Manufacturer',
-        'code' => 'TEST',
+        'name' => 'Version Labs',
+        'code' => 'VER',
     ]);
 
-    $weaponUuid = fake()->uuid();
+    $weaponUuid = '00000000-0000-4000-8000-000000000001';
 
-    // Create main item with port data
     $mainItem = Item::factory()->create();
+
     ItemData::factory()
         ->for($mainItem)
-        ->for($version, 'gameVersion')
+        ->for($liveVersion, 'gameVersion')
         ->for($manufacturer)
         ->create([
-            'name' => 'Main Item',
-            'class_name' => 'MainItem',
-            'classification' => 'Ship',
+            'name' => 'Main Frame Live',
+            'class_name' => 'main_frame_live',
+            'type' => 'WeaponMount',
+            'classification' => 'Ship.WeaponMount',
             'data' => [
                 'stdItem' => [
                     'Ports' => [
                         [
-                            'PortName' => 'WeaponMount',
+                            'PortName' => 'PrimaryWeapon',
                             'EquippedItem' => $weaponUuid,
                         ],
                     ],
@@ -151,25 +189,84 @@ it('loads equipped items with correct game version', function (): void {
             ],
         ]);
 
-    // Create equipped weapon
+    ItemData::factory()
+        ->for($mainItem)
+        ->for($ptuVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Main Frame PTU',
+            'class_name' => 'main_frame_ptu',
+            'type' => 'WeaponMount',
+            'classification' => 'Ship.WeaponMount',
+            'data' => [
+                'stdItem' => [
+                    'Ports' => [
+                        [
+                            'PortName' => 'PrimaryWeapon',
+                            'EquippedItem' => $weaponUuid,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
     $weapon = Item::factory()->create([
         'uuid' => $weaponUuid,
     ]);
+
     ItemData::factory()
         ->for($weapon)
-        ->for($version, 'gameVersion')
+        ->for($liveVersion, 'gameVersion')
         ->for($manufacturer)
         ->create([
-            'name' => 'Version-Specific Weapon',
-            'class_name' => 'Weapon',
-            'classification' => 'WeaponGun',
-            'data' => [],
+            'name' => 'Laser Cannon Mk I',
+            'class_name' => 'laser_cannon_mk_1',
+            'type' => 'WeaponGun',
+            'classification' => 'Ship.Weapon.Gun',
+            'data' => [
+                'stdItem' => [
+                    'Weapon' => [
+                        'Damage' => [
+                            'AlphaTotal' => 100,
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
-    $response = $this->getJson("/api/items/{$mainItem->uuid}?version=3.21.0-LIVE");
+    ItemData::factory()
+        ->for($weapon)
+        ->for($ptuVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Laser Cannon Mk II',
+            'class_name' => 'laser_cannon_mk_2',
+            'type' => 'WeaponGun',
+            'classification' => 'Ship.Weapon.Gun',
+            'data' => [
+                'stdItem' => [
+                    'Weapon' => [
+                        'Damage' => [
+                            'AlphaTotal' => 200,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
 
-    $response->assertSuccessful()
-        // ->assertJsonPath('data.ports.0.equipped_item.name', 'Version-Specific Weapon')
+    $liveResponse = $this->getJson("/api/items/{$mainItem->uuid}?version=3.21.0-LIVE");
+
+    $liveResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-LIVE')
         ->assertJsonPath('data.ports.0.equipped_item.uuid', $weaponUuid)
+        ->assertJsonPath('data.ports.0.equipped_item.name', 'Laser Cannon Mk I')
         ->assertJsonPath('data.ports.0.equipped_item.version', '3.21.0-LIVE');
+
+    $ptuResponse = $this->getJson("/api/items/{$mainItem->uuid}?version=3.21.0-PTU");
+
+    $ptuResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-PTU')
+        ->assertJsonPath('data.ports.0.equipped_item.uuid', $weaponUuid)
+        ->assertJsonPath('data.ports.0.equipped_item.name', 'Laser Cannon Mk II')
+        ->assertJsonPath('data.ports.0.equipped_item.version', '3.21.0-PTU');
 });

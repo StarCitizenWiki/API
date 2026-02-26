@@ -149,64 +149,81 @@ it('uses less formality for other categories', function () {
 
 it('stops processing when quota is exceeded', function () {
     $category = Category::factory()->create(['name' => 'General']);
-    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $firstCommLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $secondCommLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
-    $commLink->save();
+    $firstCommLink->setTranslation('translation', Language::ENGLISH, 'First');
+    $firstCommLink->save();
+
+    $secondCommLink->setTranslation('translation', Language::ENGLISH, 'Second');
+    $secondCommLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
             ->once()
+            ->with('First', 'de', 'en', 'less')
             ->andThrow(new QuotaExceededException('Quota exceeded'));
     });
 
-    try {
-        (new TranslateCommLinks)->handle(app(TranslationService::class));
-    } catch (QuotaExceededException $e) {
-        // Exception is expected
-    }
+    $job = (new TranslateCommLinks)->withFakeQueueInteractions();
+    $job->handle(app(TranslationService::class));
+    $job->assertFailedWith(QuotaExceededException::class);
 
-    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+    expect($firstCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
+        ->and($secondCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('stops processing when rate limit is hit', function () {
     $category = Category::factory()->create(['name' => 'General']);
-    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $firstCommLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $secondCommLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
-    $commLink->save();
+    $firstCommLink->setTranslation('translation', Language::ENGLISH, 'First');
+    $firstCommLink->save();
+
+    $secondCommLink->setTranslation('translation', Language::ENGLISH, 'Second');
+    $secondCommLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
             ->once()
+            ->with('First', 'de', 'en', 'less')
             ->andThrow(new RateLimitException('Rate limit exceeded'));
     });
 
-    (new TranslateCommLinks)->handle(app(TranslationService::class));
+    $job = (new TranslateCommLinks)->withFakeQueueInteractions();
+    $job->handle(app(TranslationService::class));
+    $job->assertReleased(60);
+    $job->assertNotFailed();
 
-    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+    expect($firstCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
+        ->and($secondCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('stops processing when authentication fails', function () {
     $category = Category::factory()->create(['name' => 'General']);
-    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $firstCommLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $secondCommLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->setTranslation('translation', Language::ENGLISH, 'Test');
-    $commLink->save();
+    $firstCommLink->setTranslation('translation', Language::ENGLISH, 'First');
+    $firstCommLink->save();
+
+    $secondCommLink->setTranslation('translation', Language::ENGLISH, 'Second');
+    $secondCommLink->save();
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldReceive('translate')
             ->once()
+            ->with('First', 'de', 'en', 'less')
             ->andThrow(new AuthenticationException('Authentication failed'));
     });
 
-    try {
-        (new TranslateCommLinks)->handle(app(TranslationService::class));
-    } catch (AuthenticationException $e) {
-        // Exception is expected
-    }
+    $job = (new TranslateCommLinks)->withFakeQueueInteractions();
+    $job->handle(app(TranslationService::class));
+    $job->assertFailedWith(AuthenticationException::class);
 
-    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+    expect($firstCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
+        ->and($secondCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('continues to next comm-link when translation fails', function () {
@@ -232,7 +249,9 @@ it('continues to next comm-link when translation fails', function () {
             });
     });
 
-    (new TranslateCommLinks)->handle(app(TranslationService::class));
+    $job = (new TranslateCommLinks)->withFakeQueueInteractions();
+    $job->handle(app(TranslationService::class));
+    $job->assertNotFailed();
 
     expect($commLink1->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
         ->and($commLink2->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Zweite');
