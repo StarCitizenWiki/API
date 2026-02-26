@@ -68,7 +68,7 @@ jobs:
         env:
           DB_CONNECTION: "sqlite"
           DB_DATABASE: "db.sqlite"
-        run: vendor/bin/pest --compact --exclude-group=db-pgsql
+        run: vendor/bin/pest --compact tests/Unit tests/Feature --exclude-group=db-pgsql
 
   laravel-test-pgsql:
     runs-on: ubuntu-latest
@@ -152,7 +152,80 @@ jobs:
           DB_PORT: 5432
           DB_USERNAME: "scw__api"
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: vendor/bin/pest --compact
+        run: vendor/bin/pest --compact tests/Unit tests/Feature
+
+  laravel-test-browser:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+          fetch-depth: 1
+          clean: true
+
+      - name: Installing PHP
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: "8.5.1"
+          extensions: gd
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}"
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Cache PHP dependencies
+        uses: actions/cache@v5
+        id: vendor-cache
+        with:
+          path: vendor
+          key: "${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}"
+          restore-keys: |
+            ${{ runner.os }}-vendor-
+
+      - name: Setup env file
+        run: cp .env.ci .env
+
+      - name: Composer install
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
+
+      - name: Setup keys
+        run: php artisan key:generate
+
+      - name: Fix perms for dirs
+        run: chmod -R 777 storage bootstrap/cache
+
+      - name: Migrate database
+        env:
+          DB_CONNECTION: "sqlite"
+          DB_DATABASE: "db.sqlite"
+        run: touch database/db.sqlite; php artisan migrate
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Execute browser tests via Pest
+        env:
+          DB_CONNECTION: "sqlite"
+          DB_DATABASE: "db.sqlite"
+        run: vendor/bin/pest --compact tests/Browser --browser chrome
 
   docker-build:
     runs-on: ubuntu-latest

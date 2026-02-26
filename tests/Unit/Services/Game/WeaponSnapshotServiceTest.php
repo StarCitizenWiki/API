@@ -93,12 +93,16 @@ test('it counts turret guns with remote turret', function (): void {
     ]));
 });
 
-test('it excludes gimbal mounts from turret counts by hardpoint name', function (): void {
+test('it excludes gimbal mounts from turret counts', function (
+    string $type,
+    string $hardpointName,
+    string $className
+): void {
     $loadout = [
         [
-            'Type' => 'Turret.GimbalMount',
-            'HardpointName' => 'hardpoint_gimbal_mount',
-            'ClassName' => 'VHCL_GimbalMount_S3',
+            'Type' => $type,
+            'HardpointName' => $hardpointName,
+            'ClassName' => $className,
             'Loadout' => [
                 [
                     'Type' => 'WeaponGun.Gun',
@@ -114,53 +118,11 @@ test('it excludes gimbal mounts from turret counts by hardpoint name', function 
     expect($result)->toBe(weaponSnapshot([
         'pilot_guns_count' => 1,
     ]));
-});
-
-test('it excludes gimbal mounts from turret counts by class name', function (): void {
-    $loadout = [
-        [
-            'Type' => 'Turret.Mount',
-            'HardpointName' => 'hardpoint_mount',
-            'ClassName' => 'VHCL_Mount_Gimbal_S3',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'pilot_guns_count' => 1,
-    ]));
-});
-
-test('it excludes gimbal mounts from turret counts by subtype', function (): void {
-    $loadout = [
-        [
-            'Type' => 'Turret.Gimbal',
-            'HardpointName' => 'hardpoint_mount',
-            'ClassName' => 'VHCL_Mount_S3',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'pilot_guns_count' => 1,
-    ]));
-});
+})->with([
+    'gimbal identified by hardpoint name' => ['Turret.GimbalMount', 'hardpoint_gimbal_mount', 'VHCL_GimbalMount_S3'],
+    'gimbal identified by class name' => ['Turret.Mount', 'hardpoint_mount', 'VHCL_Mount_Gimbal_S3'],
+    'gimbal identified by subtype' => ['Turret.Gimbal', 'hardpoint_mount', 'VHCL_Mount_S3'],
+]);
 
 test('it counts mixed pilot and turret guns', function (): void {
     $loadout = [
@@ -339,12 +301,17 @@ test('it handles malformed Type field without dot separator', function (): void 
     ]));
 });
 
-test('it classifies UtilityTurret as manned when appropriate', function (): void {
+test('it classifies turret variants as manned or remote', function (
+    string $type,
+    string $hardpointName,
+    string $className,
+    array $expectedSnapshot
+): void {
     $loadout = [
         [
-            'Type' => 'UtilityTurret.Manned',
-            'HardpointName' => 'hardpoint_utility_turret',
-            'ClassName' => 'CRUS_UtilityTurret_Manned',
+            'Type' => $type,
+            'HardpointName' => $hardpointName,
+            'ClassName' => $className,
             'Loadout' => [
                 [
                     'Type' => 'WeaponGun.Gun',
@@ -357,107 +324,14 @@ test('it classifies UtilityTurret as manned when appropriate', function (): void
 
     $result = $this->service->compute($loadout);
 
-    expect($result)->toBe(weaponSnapshot([
-        'turrets_manned_count' => 1,
-        'turret_weapon_guns_count' => 1,
-    ]));
-});
-
-test('it classifies UtilityTurret as remote when appropriate', function (): void {
-    $loadout = [
-        [
-            'Type' => 'UtilityTurret.Remote',
-            'HardpointName' => 'hardpoint_utility_turret',
-            'ClassName' => 'CRUS_UtilityTurret_Remote',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'turrets_remote_count' => 1,
-        'turret_weapon_guns_count' => 1,
-    ]));
-});
-
-test('it classifies TurretBase as manned when appropriate', function (): void {
-    $loadout = [
-        [
-            'Type' => 'TurretBase.Manned',
-            'HardpointName' => 'hardpoint_turret_base',
-            'ClassName' => 'AEGS_TurretBase_Manned',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'turrets_manned_count' => 1,
-        'turret_weapon_guns_count' => 1,
-    ]));
-});
-
-test('it classifies TurretBase as remote when appropriate', function (): void {
-    $loadout = [
-        [
-            'Type' => 'TurretBase.Remote',
-            'HardpointName' => 'hardpoint_turret_base',
-            'ClassName' => 'AEGS_TurretBase_Remote',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'turrets_remote_count' => 1,
-        'turret_weapon_guns_count' => 1,
-    ]));
-});
-
-test('it classifies turret without manned or remote indicators as remote', function (): void {
-    $loadout = [
-        [
-            'Type' => 'Turret.Unknown',
-            'HardpointName' => 'hardpoint_turret',
-            'ClassName' => 'MISC_Turret',
-            'Loadout' => [
-                [
-                    'Type' => 'WeaponGun.Gun',
-                    'HardpointName' => 'hardpoint_gun',
-                    'ClassName' => 'BEHR_LaserCannon_S2',
-                ],
-            ],
-        ],
-    ];
-
-    $result = $this->service->compute($loadout);
-
-    expect($result)->toBe(weaponSnapshot([
-        'turrets_remote_count' => 1,
-        'turret_weapon_guns_count' => 1,
-    ]));
-});
+    expect($result)->toBe(weaponSnapshot($expectedSnapshot));
+})->with([
+    'utility turret manned' => ['UtilityTurret.Manned', 'hardpoint_utility_turret', 'CRUS_UtilityTurret_Manned', ['turrets_manned_count' => 1, 'turret_weapon_guns_count' => 1]],
+    'utility turret remote' => ['UtilityTurret.Remote', 'hardpoint_utility_turret', 'CRUS_UtilityTurret_Remote', ['turrets_remote_count' => 1, 'turret_weapon_guns_count' => 1]],
+    'turret base manned' => ['TurretBase.Manned', 'hardpoint_turret_base', 'AEGS_TurretBase_Manned', ['turrets_manned_count' => 1, 'turret_weapon_guns_count' => 1]],
+    'turret base remote' => ['TurretBase.Remote', 'hardpoint_turret_base', 'AEGS_TurretBase_Remote', ['turrets_remote_count' => 1, 'turret_weapon_guns_count' => 1]],
+    'turret without indicator defaults remote' => ['Turret.Unknown', 'hardpoint_turret', 'MISC_Turret', ['turrets_remote_count' => 1, 'turret_weapon_guns_count' => 1]],
+]);
 
 test('it ignores malformed child loadouts while still counting parent ports', function (): void {
     $loadout = [

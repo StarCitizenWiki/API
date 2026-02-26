@@ -5,115 +5,54 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts Text component from HTML', function () {
+it('extracts single component permutations from HTML: :dataset', function (string $properties, array $expectedContent): void {
     $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"Test Title","text":"Test Text"}}'>
+        <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
         HTML;
+    $html = str_replace('__PROPERTIES__', $properties, $html);
 
     $crawler = new Crawler($html);
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<h2>Test Title</h2>')
-        ->toContain('<p>Test Text</p>');
-});
-
-it('extracts Image component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Image","componentProps":{"altText":"Test Alt","caption":"Test Caption"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<figure>')
-        ->toContain('<img alt="Test Alt" />')
-        ->toContain('<figcaption>Test Caption</figcaption>');
-});
-
-it('extracts Video component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Video","componentProps":{"title":"Video Title","description":"Video Description"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<h2>Video Title</h2>')
-        ->toContain('<p>Video Description</p>');
-});
-
-it('extracts Quote component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Quote","componentProps":{"text":"Quote Text","author":"Author Name","source":"Source Name"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<blockquote>')
-        ->toContain('<p>Quote Text</p>')
-        ->toContain('<cite>Author Name, Source Name</cite>');
-});
-
-it('extracts Gallery component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Gallery","componentProps":{"title":"Gallery Title","items":["Item 1","Item 2","Item 3"]}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<h2>Gallery Title</h2>')
-        ->toContain('<ul>')
-        ->toContain('<li>Item 1</li>')
-        ->toContain('<li>Item 2</li>')
-        ->toContain('<li>Item 3</li>');
-});
-
-it('extracts Button component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Button","componentProps":{"label":"Click Me"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<button>Click Me</button>');
-});
-
-it('extracts CallToAction component from HTML', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"CallToAction","componentProps":{"title":"CTA Title","description":"CTA Description","buttonLabel":"Action"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<h2>CTA Title</h2>')
-        ->toContain('<p>CTA Description</p>')
-        ->toContain('<button>Action</button>');
-});
+    foreach ($expectedContent as $expectedLine) {
+        expect($content)->toContain($expectedLine);
+    }
+})->with([
+    'Text component' => [
+        '{"componentId":"Text","componentProps":{"title":"Test Title","text":"Test Text"}}',
+        ['<h2>Test Title</h2>', '<p>Test Text</p>'],
+    ],
+    'Image component' => [
+        '{"componentId":"Image","componentProps":{"altText":"Test Alt","caption":"Test Caption"}}',
+        ['<figure>', '<img alt="Test Alt" />', '<figcaption>Test Caption</figcaption>'],
+    ],
+    'Video component' => [
+        '{"componentId":"Video","componentProps":{"title":"Video Title","description":"Video Description"}}',
+        ['<h2>Video Title</h2>', '<p>Video Description</p>'],
+    ],
+    'Quote component' => [
+        '{"componentId":"Quote","componentProps":{"text":"Quote Text","author":"Author Name","source":"Source Name"}}',
+        ['<blockquote>', '<p>Quote Text</p>', '<cite>Author Name, Source Name</cite>'],
+    ],
+    'Gallery component' => [
+        '{"componentId":"Gallery","componentProps":{"title":"Gallery Title","items":["Item 1","Item 2","Item 3"]}}',
+        ['<h2>Gallery Title</h2>', '<ul>', '<li>Item 1</li>', '<li>Item 2</li>', '<li>Item 3</li>'],
+    ],
+    'Button component' => [
+        '{"componentId":"Button","componentProps":{"label":"Click Me"}}',
+        ['<button>Click Me</button>'],
+    ],
+    'CallToAction component' => [
+        '{"componentId":"CallToAction","componentProps":{"title":"CTA Title","description":"CTA Description","buttonLabel":"Action"}}',
+        ['<h2>CTA Title</h2>', '<p>CTA Description</p>', '<button>Action</button>'],
+    ],
+    'Text backward compatibility' => [
+        '{"componentId":"Text","componentProps":{"title":"Text Title","text":"Text Content","description":"Text Description"}}',
+        ['<h2>Text Title</h2>', '<p>Text Content</p>', '<p>Text Description</p>'],
+    ],
+]);
 
 it('extracts multiple component types from same HTML', function () {
     $html = <<<'HTML'
@@ -135,22 +74,6 @@ it('extracts multiple component types from same HTML', function () {
         ->toContain('<ul>')
         ->toContain('<li>Item 1</li>')
         ->toContain('<li>Item 2</li>');
-});
-
-it('maintains backward compatibility with Text component behavior', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"Text Title","text":"Text Content","description":"Text Description"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)
-        ->toContain('<h2>Text Title</h2>')
-        ->toContain('<p>Text Content</p>')
-        ->toContain('<p>Text Description</p>');
 });
 
 it('returns empty string for unknown component types', function () {

@@ -118,70 +118,25 @@ it('skips invalid MiniGrid elements and extracts valid ones', function () {
         ->not->toContain('Should be skipped');
 });
 
-it('extracts Separator component as empty string', function () {
+it('extracts Separator component permutations as empty string: :dataset', function (string $properties) {
     $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Separator","componentProps":{"any":"data"}}'>
+        <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
         HTML;
+    $html = str_replace('__PROPERTIES__', $properties, $html);
 
     $crawler = new Crawler($html);
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
     expect($content)->toBe('');
-});
-
-it('extracts Separator component with empty props', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Separator","componentProps":{}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
-
-it('extracts Separator component with no props', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Separator"}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
-
-it('extracts Separator component with complex data', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Separator","componentProps":{"height":"10px","color":"#000","style":"dashed"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
-
-it('extracts Separator component with nested arrays', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Separator","componentProps":{"nested":{"deeply":{"data":"value"}}}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
+})->with([
+    'with props' => ['{"componentId":"Separator","componentProps":{"any":"data"}}'],
+    'with empty props' => ['{"componentId":"Separator","componentProps":{}}'],
+    'with no props' => ['{"componentId":"Separator"}'],
+    'with complex props' => ['{"componentId":"Separator","componentProps":{"height":"10px","color":"#000","style":"dashed"}}'],
+    'with nested arrays' => ['{"componentId":"Separator","componentProps":{"nested":{"deeply":{"data":"value"}}}}'],
+]);
 
 it('extracts multiple Separator components', function () {
     $html = <<<'HTML'
@@ -199,44 +154,32 @@ it('extracts multiple Separator components', function () {
         ->not->toContain('Separator');
 });
 
-it('extracts Background component with selector only', function () {
+it('extracts Background component with simple prop permutations: :dataset', function (string $properties, string $expected) {
     $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":".main-section"}}'>
+        <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
         HTML;
+    $html = str_replace('__PROPERTIES__', $properties, $html);
 
     $crawler = new Crawler($html);
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)->toBe('<!-- Background: selector=.main-section color= -->');
-});
-
-it('extracts Background component with color only', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"backgroundColor":"#ffffff"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('<!-- Background: selector= color=#ffffff -->');
-});
-
-it('extracts Background component with both selector and color', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":".hero","backgroundColor":"#000000"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('<!-- Background: selector=.hero color=#000000 -->');
-});
+    expect($content)->toBe($expected);
+})->with([
+    'selector only' => [
+        '{"componentId":"Background","componentProps":{"selector":".main-section"}}',
+        '<!-- Background: selector=.main-section color= -->',
+    ],
+    'color only' => [
+        '{"componentId":"Background","componentProps":{"backgroundColor":"#ffffff"}}',
+        '<!-- Background: selector= color=#ffffff -->',
+    ],
+    'selector and color' => [
+        '{"componentId":"Background","componentProps":{"selector":".hero","backgroundColor":"#000000"}}',
+        '<!-- Background: selector=.hero color=#000000 -->',
+    ],
+]);
 
 it('extracts Background component with empty data', function () {
     $html = <<<'HTML'
@@ -344,44 +287,23 @@ it('extracts OrionCardsList component with description only', function () {
         ->not->toContain('<h3>');
 });
 
-it('returns empty string for OrionCardsList with empty cards array', function () {
+it('returns empty string for OrionCardsList invalid card payload permutations: :dataset', function (string $properties) {
     $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[]}}'>
+        <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
         HTML;
+    $html = str_replace('__PROPERTIES__', $properties, $html);
 
     $crawler = new Crawler($html);
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
     expect($content)->toBe('');
-});
-
-it('returns empty string for OrionCardsList with missing cards', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
-
-it('returns empty string for OrionCardsList with invalid cards type', function () {
-    $html = <<<'HTML'
-        <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":"not an array"}}'>
-        </g-platform-client-component>
-        HTML;
-
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
-    $content = $extractor->getContent(false);
-
-    expect($content)->toBe('');
-});
+})->with([
+    'empty cards array' => ['{"componentId":"OrionCardsList","componentProps":{"cards":[]}}'],
+    'missing cards' => ['{"componentId":"OrionCardsList","componentProps":{}}'],
+    'invalid cards type' => ['{"componentId":"OrionCardsList","componentProps":{"cards":"not an array"}}'],
+]);
 
 it('skips invalid OrionCardsList cards and extracts valid ones', function () {
     $html = <<<'HTML'

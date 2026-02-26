@@ -23,30 +23,13 @@ function assertLegacyAnyRedirect(TestCase $testCase, string $legacyPath, string 
         ->assertLocation($targetUrl);
 }
 
-it('redirects /dashboard to / for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect($this, '/dashboard', '/');
-});
-
-it('redirects /rsi/comm-links/images/{image} to /comm-links/images/{image} for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect($this, '/rsi/comm-links/images/cover-art', '/comm-links/images/cover-art');
-});
-
-it('redirects /rsi/comm-links/images/{image}/similar to /comm-links/images/{image}/similar for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect(
-        $this,
-        '/rsi/comm-links/images/cover-art/similar',
-        '/comm-links/images/cover-art/similar',
-    );
-});
-
-it('redirects /rsi/comm-links/{id} to /comm-links/{id} for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect($this, '/rsi/comm-links/98765', '/comm-links/98765');
-});
-
-it('redirects /starcitizen/vehicles/ground-vehicles to /ship-matrix/vehicles for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect($this, '/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles');
-});
-
-it('redirects /starcitizen/vehicles/ships to /ship-matrix/vehicles for GET and POST while preserving query parameters', function (): void {
-    assertLegacyAnyRedirect($this, '/starcitizen/vehicles/ships', '/ship-matrix/vehicles');
-});
+it('redirects legacy routes for GET and POST while preserving query parameters', function (string $legacyPath, string $targetPath): void {
+    assertLegacyAnyRedirect($this, $legacyPath, $targetPath);
+})->with([
+    'dashboard to root' => ['/dashboard', '/'],
+    'comm link image route' => ['/rsi/comm-links/images/cover-art', '/comm-links/images/cover-art'],
+    'comm link similar image route' => ['/rsi/comm-links/images/cover-art/similar', '/comm-links/images/cover-art/similar'],
+    'comm link id route' => ['/rsi/comm-links/98765', '/comm-links/98765'],
+    'ground vehicles to matrix' => ['/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles'],
+    'ships to matrix' => ['/starcitizen/vehicles/ships', '/ship-matrix/vehicles'],
+]);

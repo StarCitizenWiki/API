@@ -81,18 +81,23 @@ it('skips comm-links with empty english translation', function () {
     (new TranslateCommLinks)->handle(app(TranslationService::class));
 });
 
-it('uses more formality for lore category', function () {
-    $category = Category::factory()->create(['name' => 'Lore']);
+it('uses category-based formality rules', function (
+    string $categoryName,
+    string $englishTranslation,
+    string $expectedFormality,
+    string $expectedGermanTranslation
+) {
+    $category = Category::factory()->create(['name' => $categoryName]);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
-    $commLink->setTranslation('translation', Language::ENGLISH, 'A formal story');
+    $commLink->setTranslation('translation', Language::ENGLISH, $englishTranslation);
     $commLink->save();
 
-    $this->mock(TranslationService::class, function ($mock) {
+    $this->mock(TranslationService::class, function ($mock) use ($englishTranslation, $expectedFormality, $expectedGermanTranslation) {
         $mock->shouldReceive('translate')
             ->once()
-            ->with('A formal story', 'de', 'en', 'more')
-            ->andReturn('Eine formelle Geschichte');
+            ->with($englishTranslation, 'de', 'en', $expectedFormality)
+            ->andReturn($expectedGermanTranslation);
     });
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
@@ -100,52 +105,12 @@ it('uses more formality for lore category', function () {
     $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
 
     expect($german)->not->toBeNull()
-        ->and($german)->toBe('Eine formelle Geschichte');
-});
-
-it('uses more formality for short stories category', function () {
-    $category = Category::factory()->create(['name' => 'Short Stories']);
-    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
-
-    $commLink->setTranslation('translation', Language::ENGLISH, 'A short story');
-    $commLink->save();
-
-    $this->mock(TranslationService::class, function ($mock) {
-        $mock->shouldReceive('translate')
-            ->once()
-            ->with('A short story', 'de', 'en', 'more')
-            ->andReturn('Eine Kurzgeschichte');
-    });
-
-    (new TranslateCommLinks)->handle(app(TranslationService::class));
-
-    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
-
-    expect($german)->not->toBeNull()
-        ->and($german)->toBe('Eine Kurzgeschichte');
-});
-
-it('uses less formality for other categories', function () {
-    $category = Category::factory()->create(['name' => 'Development']);
-    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
-
-    $commLink->setTranslation('translation', Language::ENGLISH, 'Development update');
-    $commLink->save();
-
-    $this->mock(TranslationService::class, function ($mock) {
-        $mock->shouldReceive('translate')
-            ->once()
-            ->with('Development update', 'de', 'en', 'less')
-            ->andReturn('Entwicklungsupdate');
-    });
-
-    (new TranslateCommLinks)->handle(app(TranslationService::class));
-
-    $german = $commLink->fresh()->getTranslation('translation', Language::GERMAN, false);
-
-    expect($german)->not->toBeNull()
-        ->and($german)->toBe('Entwicklungsupdate');
-});
+        ->and($german)->toBe($expectedGermanTranslation);
+})->with([
+    'lore uses more formality' => ['Lore', 'A formal story', 'more', 'Eine formelle Geschichte'],
+    'short stories uses more formality' => ['Short Stories', 'A short story', 'more', 'Eine Kurzgeschichte'],
+    'other categories use less formality' => ['Development', 'Development update', 'less', 'Entwicklungsupdate'],
+]);
 
 it('stops processing when quota is exceeded', function () {
     $category = Category::factory()->create(['name' => 'General']);

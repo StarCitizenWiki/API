@@ -47,7 +47,7 @@ it('shows an item by UUID', function (): void {
         ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
 });
 
-it('shows an item by exact name', function (): void {
+it('shows an item by name permutations', function (string $requestPath, string $itemClassName): void {
     $item = Item::factory()->create();
 
     ItemData::factory()
@@ -57,41 +57,23 @@ it('shows an item by exact name', function (): void {
         ->create([
             'name' => 'Faction Jacket Green',
             'type' => 'Clothing',
-            'class_name' => 'cds_armor_heavy_arms_01_02_01',
+            'class_name' => $itemClassName,
             'classification' => 'FPS.Clothing.Torso',
             'data' => ['stdItem' => []],
         ]);
 
-    $response = $this->getJson('/api/items/Faction Jacket Green');
+    $response = $this->getJson($requestPath);
 
     $response->assertSuccessful()
         ->assertJsonPath('data.uuid', $item->uuid)
         ->assertJsonPath('data.name', 'Faction Jacket Green');
-});
+})->with([
+    'exact name' => ['/api/items/Faction Jacket Green', 'cds_armor_heavy_arms_01_02_01'],
+    'case-insensitive name' => ['/api/items/faction jacket green', 'cds_armor_heavy_arms_01_02_01'],
+    'name with underscores converted from spaces' => ['/api/items/Faction_Jacket_Green', 'faction_jacket_green'],
+]);
 
-it('shows an item by case-insensitive name', function (): void {
-    $item = Item::factory()->create();
-
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Faction Jacket Green',
-            'type' => 'Clothing',
-            'class_name' => 'cds_armor_heavy_arms_01_02_01',
-            'classification' => 'FPS.Clothing.Torso',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->getJson('/api/items/faction jacket green');
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.uuid', $item->uuid)
-        ->assertJsonPath('data.name', 'Faction Jacket Green');
-});
-
-it('shows an item by exact class_name', function (): void {
+it('shows an item by class_name permutations', function (string $requestPath): void {
     $item = Item::factory()->create();
 
     ItemData::factory()
@@ -106,81 +88,17 @@ it('shows an item by exact class_name', function (): void {
             'data' => ['stdItem' => []],
         ]);
 
-    $response = $this->getJson('/api/items/cds_armor_heavy_arms_01_02_01');
+    $response = $this->getJson($requestPath);
 
     $response->assertSuccessful()
         ->assertJsonPath('data.uuid', $item->uuid)
         ->assertJsonPath('data.name', 'Heavy Armor Arms')
         ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
-});
-
-it('shows an item by case-insensitive class_name', function (): void {
-    $item = Item::factory()->create();
-
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Heavy Armor Arms',
-            'type' => 'Armor',
-            'class_name' => 'cds_armor_heavy_arms_01_02_01',
-            'classification' => 'FPS.Armor.Arms',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->getJson('/api/items/CDS_ARMOR_HEAVY_ARMS_01_02_01');
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.uuid', $item->uuid)
-        ->assertJsonPath('data.name', 'Heavy Armor Arms')
-        ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
-});
-
-it('shows an item by class_name with spaces converted to underscores', function (): void {
-    $item = Item::factory()->create();
-
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Heavy Armor Arms',
-            'type' => 'Armor',
-            'class_name' => 'cds_armor_heavy_arms_01_02_01',
-            'classification' => 'FPS.Armor.Arms',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->getJson('/api/items/cds armor heavy arms 01 02 01');
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.uuid', $item->uuid)
-        ->assertJsonPath('data.name', 'Heavy Armor Arms')
-        ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
-});
-
-it('shows an item by name with underscores converted from spaces', function (): void {
-    $item = Item::factory()->create();
-
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Faction Jacket Green',
-            'type' => 'Clothing',
-            'class_name' => 'faction_jacket_green',
-            'classification' => 'FPS.Clothing.Torso',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->getJson('/api/items/Faction_Jacket_Green');
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.uuid', $item->uuid)
-        ->assertJsonPath('data.name', 'Faction Jacket Green');
-});
+})->with([
+    'exact class_name' => ['/api/items/cds_armor_heavy_arms_01_02_01'],
+    'case-insensitive class_name' => ['/api/items/CDS_ARMOR_HEAVY_ARMS_01_02_01'],
+    'class_name with spaces converted to underscores' => ['/api/items/cds armor heavy arms 01 02 01'],
+]);
 
 it('returns not found for non-existent item', function () {
     $response = $this->getJson('/api/items/non-existent-item');

@@ -194,15 +194,16 @@ HTML;
     expect($result)->toContain('<button>Go</button>');
 });
 
-it('returns empty string for unknown component type', function (): void {
+it('returns empty string for invalid component payload permutations: :dataset', function (string $componentMarkup): void {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
 <body>
-<g-platform-client-component :properties='{"componentId":"Unknown","componentProps":{}}'></g-platform-client-component>
+__COMPONENT_MARKUP__
 </body>
 </html>
 HTML;
+    $html = str_replace('__COMPONENT_MARKUP__', $componentMarkup, $html);
 
     $crawler = new Crawler($html);
 
@@ -214,48 +215,8 @@ HTML;
     $result = $extractor->getAlexandriaComponents($crawler);
 
     expect($result)->toBe('');
-});
-
-it('returns empty string for invalid json', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='invalid json'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toBe('');
-});
-
-it('returns empty string when :properties attribute is missing', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toBe('');
-});
+})->with([
+    'unknown component type' => ['<g-platform-client-component :properties=\'{"componentId":"Unknown","componentProps":{}}\'></g-platform-client-component>'],
+    'invalid json' => ['<g-platform-client-component :properties=\'invalid json\'></g-platform-client-component>'],
+    'missing :properties attribute' => ['<g-platform-client-component></g-platform-client-component>'],
+]);

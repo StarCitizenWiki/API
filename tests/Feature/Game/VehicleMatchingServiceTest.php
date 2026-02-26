@@ -45,22 +45,28 @@ beforeEach(function (): void {
     $this->service = app(VehicleMatchingService::class);
 });
 
-it('finds exact match by name', function (): void {
+it('finds matches for default manufacturer name permutations', function (
+    int $cigId,
+    int $chassisId,
+    string $vehicleName,
+    string $vehicleSlug,
+    string $payloadName
+): void {
     $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 1,
-        'name' => 'Hornet F7C',
-        'slug' => 'hornet-f7c',
+        'cig_id' => $cigId,
+        'name' => $vehicleName,
+        'slug' => $vehicleSlug,
         'manufacturer_id' => $this->manufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
         'type_id' => $this->type->id,
-        'chassis_id' => 1,
+        'chassis_id' => $chassisId,
     ]);
 
     $payload = [
         'UUID' => 'test-uuid',
-        'Name' => 'Hornet F7C',
+        'Name' => $payloadName,
         'ClassName' => 'TEST_CLASS',
         'Manufacturer' => [
             'Name' => 'Anvil Aerospace',
@@ -71,35 +77,14 @@ it('finds exact match by name', function (): void {
     $result = $this->service->findMatch($payload);
 
     expect($result)->toBe($vehicle->id);
-});
-
-it('finds match with manufacturer prefix stripped', function (): void {
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 2,
-        'name' => 'F7C Hornet',
-        'slug' => 'f7c-hornet',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 2,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Anvil F7C Hornet',
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
+})->with([
+    'exact name' => [1, 1, 'Hornet F7C', 'hornet-f7c', 'Hornet F7C'],
+    'manufacturer prefix stripped' => [2, 2, 'F7C Hornet', 'f7c-hornet', 'Anvil F7C Hornet'],
+    'fuzzy matching within levenshtein threshold' => [4, 4, 'Gladius', 'gladius', 'Gladios'],
+    'slug matching when name uses underscores' => [7, 7, 'Cutlass Black', 'cutlass-black', 'Cutlass_Black'],
+    'wikelo suffix stripping' => [8, 8, 'Sabre Firebird', 'sabre-firebird', 'Anvil Sabre Firebird Wikelo War Special'],
+    'pyam exec suffix stripping' => [9, 9, 'F8C Lightning', 'f8c-lightning', 'F8C Lightning PYAM Exec'],
+]);
 
 it('uses config overrides for matching', function (): void {
     config(['game.vehicle_name_overrides' => [
@@ -121,34 +106,6 @@ it('uses config overrides for matching', function (): void {
     $payload = [
         'UUID' => 'test-uuid',
         'Name' => 'Difficult Name',
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('performs fuzzy matching within Levenshtein threshold', function (): void {
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 4,
-        'name' => 'Gladius',
-        'slug' => 'gladius',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 4,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Gladios', // Off by 2 characters (Levenshtein distance = 2)
         'ClassName' => 'TEST_CLASS',
         'Manufacturer' => [
             'Name' => 'Anvil Aerospace',
@@ -213,194 +170,55 @@ it('matches without manufacturer constraint as fallback', function (): void {
     expect($result)->toBe($vehicle->id);
 });
 
-it('handles special manufacturer abbreviations', function (): void {
-    $rsi = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 3,
-        'name' => 'Roberts Space Industries',
-        'name_short' => 'RSI',
-        'slug' => 'roberts-space-industries',
+it('matches manufacturer-specific name permutations', function (
+    int $manufacturerCigId,
+    string $manufacturerName,
+    string $manufacturerCode,
+    string $manufacturerSlug,
+    int $vehicleCigId,
+    int $chassisId,
+    string $vehicleName,
+    string $vehicleSlug,
+    string $payloadName
+): void {
+    $manufacturer = ShipMatrixManufacturer::query()->create([
+        'cig_id' => $manufacturerCigId,
+        'name' => $manufacturerName,
+        'name_short' => $manufacturerCode,
+        'slug' => $manufacturerSlug,
     ]);
 
     $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 6,
-        'name' => 'Aurora',
-        'slug' => 'aurora',
-        'manufacturer_id' => $rsi->id,
+        'cig_id' => $vehicleCigId,
+        'name' => $vehicleName,
+        'slug' => $vehicleSlug,
+        'manufacturer_id' => $manufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
         'type_id' => $this->type->id,
-        'chassis_id' => 6,
+        'chassis_id' => $chassisId,
     ]);
 
     $payload = [
         'UUID' => 'test-uuid',
-        'Name' => 'RSI Aurora',
+        'Name' => $payloadName,
         'ClassName' => 'TEST_CLASS',
         'Manufacturer' => [
-            'Name' => 'Roberts Space Industries',
-            'Code' => 'RSI',
+            'Name' => $manufacturerName,
+            'Code' => $manufacturerCode,
         ],
     ];
 
     $result = $this->service->findMatch($payload);
 
     expect($result)->toBe($vehicle->id);
-});
-
-it('matches by slug when name differs', function (): void {
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 7,
-        'name' => 'Cutlass Black',
-        'slug' => 'cutlass-black',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 7,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Cutlass_Black', // Underscore instead of space
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('strips Wikelo variant suffixes and matches base model', function (): void {
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 8,
-        'name' => 'Sabre Firebird',
-        'slug' => 'sabre-firebird',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 8,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Anvil Sabre Firebird Wikelo War Special', // Has Wikelo War Special suffix
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('strips PYAM Exec suffix and matches base model', function (): void {
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 9,
-        'name' => 'F8C Lightning',
-        'slug' => 'f8c-lightning',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 9,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'F8C Lightning PYAM Exec', // Has PYAM Exec suffix
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('reorders Best In Show edition names to match', function (): void {
-    $aegis = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 4,
-        'name' => 'Aegis Dynamics',
-        'name_short' => 'AEGS',
-        'slug' => 'aegis-dynamics',
-    ]);
-
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 10,
-        'name' => 'Hammerhead Best In Show Edition 2949',
-        'slug' => 'hammerhead-best-in-show-edition-2949',
-        'manufacturer_id' => $aegis->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 10,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Aegis Hammerhead 2949 Best In Show Edition', // Year before edition text
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Aegis Dynamics',
-            'Code' => 'AEGS',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('strips color variant suffixes and matches base model', function (): void {
-    $argo = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 5,
-        'name' => 'Argo Astronautics',
-        'name_short' => 'ARGO',
-        'slug' => 'argo-astronautics',
-    ]);
-
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 11,
-        'name' => 'ATLS GEO',
-        'slug' => 'atls-geo',
-        'manufacturer_id' => $argo->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 11,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'ATLS Snowland Color', // Has color variant suffix
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Argo Astronautics',
-            'Code' => 'ARGO',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
+})->with([
+    'special abbreviation rsi' => [3, 'Roberts Space Industries', 'RSI', 'roberts-space-industries', 6, 6, 'Aurora', 'aurora', 'RSI Aurora'],
+    'best in show year reordering' => [4, 'Aegis Dynamics', 'AEGS', 'aegis-dynamics', 10, 10, 'Hammerhead Best In Show Edition 2949', 'hammerhead-best-in-show-edition-2949', 'Aegis Hammerhead 2949 Best In Show Edition'],
+    'color variant suffix stripping' => [5, 'Argo Astronautics', 'ARGO', 'argo-astronautics', 11, 11, 'ATLS GEO', 'atls-geo', 'ATLS Snowland Color'],
+    'teach special suffix stripping' => [6, 'Drake Interplanetary', 'DRAK', 'drake-interplanetary', 13, 13, 'Vulture', 'vulture', "Drake Vulture Teach's Special"],
+]);
 
 it('uses config override for Hornet Heartseeker variant', function (): void {
     config(['game.vehicle_name_overrides' => [
@@ -426,41 +244,6 @@ it('uses config override for Hornet Heartseeker variant', function (): void {
         'Manufacturer' => [
             'Name' => 'Anvil Aerospace',
             'Code' => 'ANV',
-        ],
-    ];
-
-    $result = $this->service->findMatch($payload);
-
-    expect($result)->toBe($vehicle->id);
-});
-
-it('strips Teach\'s Special suffix and matches base model', function (): void {
-    $drake = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 6,
-        'name' => 'Drake Interplanetary',
-        'name_short' => 'DRAK',
-        'slug' => 'drake-interplanetary',
-    ]);
-
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 13,
-        'name' => 'Vulture',
-        'slug' => 'vulture',
-        'manufacturer_id' => $drake->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 13,
-    ]);
-
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Drake Vulture Teach\'s Special', // Has Teach's Special suffix
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Drake Interplanetary',
-            'Code' => 'DRAK',
         ],
     ];
 

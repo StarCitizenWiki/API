@@ -84,3 +84,11 @@ it('redirects to profile after successful login', function (): void {
     // Verify user is authenticated
     $this->assertAuthenticatedAs($user);
 });
+
+it('redirects authenticated users away from login to profile', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('login'))
+        ->assertRedirect('/profile');
+});

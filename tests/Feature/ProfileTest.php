@@ -256,74 +256,46 @@ it('password change: successfully changes password with correct current password
         ->and(Hash::check('OldPassword123!', $user->password))->toBeFalse();
 });
 
-it('password change: fails with incorrect current password', function (): void {
+it('password change: rejects invalid payload permutations: :dataset', function (
+    array $payload,
+    string|array $expectedErrors,
+    bool $assertNewPasswordWasNotSet
+): void {
     $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
 
-    $response = $this->actingAs($user)->from('/profile')->put('/user/password', [
+    $response = $this->actingAs($user)->from('/profile')->put('/user/password', $payload);
+
+    $response->assertRedirect('/profile')
+        ->assertSessionHasErrorsIn('updatePassword', $expectedErrors);
+
+    $user->refresh();
+    expect(Hash::check('OldPassword123!', $user->password))->toBeTrue();
+
+    if ($assertNewPasswordWasNotSet) {
+        expect(Hash::check('NewPassword456!', $user->password))->toBeFalse();
+    }
+})->with([
+    'incorrect current password' => [[
         'current_password' => 'WrongPassword123!',
         'password' => 'NewPassword456!',
         'password_confirmation' => 'NewPassword456!',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrorsIn('updatePassword', 'current_password');
-
-    // Verify password was NOT changed
-    $user->refresh();
-    expect(Hash::check('OldPassword123!', $user->password))->toBeTrue()
-        ->and(Hash::check('NewPassword456!', $user->password))->toBeFalse();
-});
-
-it('password change: validates password length must be at least 8 characters', function (): void {
-    $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
-
-    $response = $this->actingAs($user)->from('/profile')->put('/user/password', [
+    ], 'current_password', true],
+    'password too short' => [[
         'current_password' => 'OldPassword123!',
         'password' => 'short',
         'password_confirmation' => 'short',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrorsIn('updatePassword', ['password']);
-
-    // Verify password was NOT changed
-    $user->refresh();
-    expect(Hash::check('OldPassword123!', $user->password))->toBeTrue();
-});
-
-it('password change: validates password confirmation', function (): void {
-    $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
-
-    $response = $this->actingAs($user)->from('/profile')->put('/user/password', [
+    ], ['password'], false],
+    'password confirmation mismatch' => [[
         'current_password' => 'OldPassword123!',
         'password' => 'NewPassword456!',
         'password_confirmation' => 'DifferentPassword789!',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrorsIn('updatePassword', ['password']);
-
-    // Verify password was NOT changed
-    $user->refresh();
-    expect(Hash::check('OldPassword123!', $user->password))->toBeTrue();
-});
-
-it('password change: validates required fields', function (): void {
-    $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
-
-    $response = $this->actingAs($user)->from('/profile')->put('/user/password', [
+    ], ['password'], false],
+    'required fields missing' => [[
         'current_password' => '',
         'password' => '',
         'password_confirmation' => '',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrorsIn('updatePassword', ['current_password', 'password']);
-
-    // Verify password was NOT changed
-    $user->refresh();
-    expect(Hash::check('OldPassword123!', $user->password))->toBeTrue();
-});
+    ], ['current_password', 'password'], false],
+]);
 
 it('password change: new password works for login', function (): void {
     $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
@@ -690,57 +662,33 @@ it('token deletion: unauthenticated user cannot delete token', function (): void
     $response->assertRedirect('/login');
 });
 
-it('multi-token creation: validates token name is required', function (): void {
+it('multi-token creation: validates token name length permutations: :dataset', function (
+    string $tokenName,
+    bool $expectsValidationError
+): void {
     $user = User::factory()->create();
 
-    // Try to create token without name
     $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => '',
+        'name' => $tokenName,
     ]);
 
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrors('name');
+    $response->assertRedirect('/profile');
 
-    // Verify no token was created
-    $this->assertDatabaseMissing('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-    ]);
-});
+    if ($expectsValidationError) {
+        $response->assertSessionHasErrors('name');
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+        ]);
 
-it('multi-token creation: validates token name max 255 characters', function (): void {
-    $user = User::factory()->create();
+        return;
+    }
 
-    // Try to create token with name exceeding 255 characters
-    $longName = str_repeat('a', 256);
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => $longName,
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrors('name');
-
-    // Verify no token was created
-    $this->assertDatabaseMissing('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-    ]);
-});
-
-it('multi-token creation: accepts token name exactly 255 characters', function (): void {
-    $user = User::factory()->create();
-
-    // Create token with name exactly 255 characters
-    $validName = str_repeat('a', 255);
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => $validName,
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHas('status', 'Your API token is ready');
-
-    // Verify token was created
+    $response->assertSessionHas('status', 'Your API token is ready');
     $this->assertDatabaseHas('personal_access_tokens', [
         'tokenable_id' => $user->id,
     ]);
-});
+})->with([
+    'name required' => ['', true],
+    'name exceeds 255 chars' => [str_repeat('a', 256), true],
+    'name at 255 chars' => [str_repeat('a', 255), false],
+]);

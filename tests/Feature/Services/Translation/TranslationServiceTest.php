@@ -10,22 +10,63 @@ use DeepL\DeepLException;
 use DeepL\TextResult;
 use DeepL\Translator;
 
-it('translates simple text successfully', function () {
-    $mockTranslator = $this->mock(Translator::class);
-    $mockResult = new TextResult('Hallo Welt', 'de', 11);
+it(
+    'translates text for locale permutations',
+    function (
+        string $text,
+        string $targetLocale,
+        string $expectedSourceLocale,
+        ?string $sourceLocaleArgument,
+        string $translatedText,
+        string $detectedSourceLocale,
+        int $billedCharacters,
+    ): void {
+        $mockTranslator = $this->mock(Translator::class);
+        $mockResult = new TextResult($translatedText, $detectedSourceLocale, $billedCharacters);
 
-    $mockTranslator->shouldReceive('translateText')
-        ->once()
-        ->with('Hello World', 'en', 'de', [])
-        ->andReturn($mockResult);
+        $mockTranslator->shouldReceive('translateText')
+            ->once()
+            ->with($text, $expectedSourceLocale, $targetLocale, [])
+            ->andReturn($mockResult);
 
-    $service = new TranslationService($mockTranslator);
-    $result = $service->translate('Hello World', 'de');
+        $service = new TranslationService($mockTranslator);
+        $result = $sourceLocaleArgument === null
+            ? $service->translate($text, $targetLocale)
+            : $service->translate($text, $targetLocale, $sourceLocaleArgument);
 
-    expect($result)->toBe('Hallo Welt');
-});
+        expect($result)->toBe($translatedText);
+    }
+)->with([
+    'simple text uses default source locale' => [
+        'Hello World',
+        'de',
+        'en',
+        null,
+        'Hallo Welt',
+        'de',
+        11,
+    ],
+    'custom target locale keeps default source locale' => [
+        'Hello world',
+        'fr',
+        'en',
+        null,
+        'Bonjour le monde',
+        'fr',
+        17,
+    ],
+    'custom source locale is forwarded' => [
+        'Hallo Welt',
+        'en',
+        'de',
+        'de',
+        'Hello world',
+        'en',
+        11,
+    ],
+]);
 
-it('applies German text replacements', function () {
+it('applies German text replacements', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Die Geschenke der Sternenbürger sind toll.', 'de', 45);
 
@@ -40,37 +81,7 @@ it('applies German text replacements', function () {
     expect($result)->not->toContain('Sternenbürger');
 });
 
-it('translates to custom target locale', function () {
-    $mockTranslator = $this->mock(Translator::class);
-    $mockResult = new TextResult('Bonjour le monde', 'fr', 17);
-
-    $mockTranslator->shouldReceive('translateText')
-        ->once()
-        ->with('Hello world', 'en', 'fr', [])
-        ->andReturn($mockResult);
-
-    $service = new TranslationService($mockTranslator);
-    $result = $service->translate('Hello world', 'fr');
-
-    expect($result)->toBe('Bonjour le monde');
-});
-
-it('uses custom source locale when provided', function () {
-    $mockTranslator = $this->mock(Translator::class);
-    $mockResult = new TextResult('Hello world', 'en', 11);
-
-    $mockTranslator->shouldReceive('translateText')
-        ->once()
-        ->with('Hallo Welt', 'de', 'en', [])
-        ->andReturn($mockResult);
-
-    $service = new TranslationService($mockTranslator);
-    $result = $service->translate('Hallo Welt', 'en', 'de');
-
-    expect($result)->toBe('Hello world');
-});
-
-it('chunks long text automatically', function () {
+it('chunks long text automatically', function (): void {
     // Create a text longer than 45,000 bytes
     $longText = str_repeat('This is a test sentence. ', 2000); // ~50,000 bytes
 
@@ -89,46 +100,24 @@ it('chunks long text automatically', function () {
     expect($result)->toContain('Dies ist ein Testsatz');
 });
 
-it('maps rate limit exception', function () {
+it('maps DeepL exceptions', function (string $message, string $expectedException): void {
     $mockTranslator = $this->mock(Translator::class);
 
     $mockTranslator->shouldReceive('translateText')
         ->once()
-        ->andThrow(new DeepLException('Rate limit exceeded'));
+        ->andThrow(new DeepLException($message));
 
     $service = new TranslationService($mockTranslator);
 
     expect(fn () => $service->translate('Test', 'de'))
-        ->toThrow(RateLimitException::class);
-});
+        ->toThrow($expectedException);
+})->with([
+    'rate limit exception' => ['Rate limit exceeded', RateLimitException::class],
+    'quota exceeded exception' => ['Quota exceeded for this billing period', QuotaExceededException::class],
+    'generic exception' => ['Some unknown error', TranslationException::class],
+]);
 
-it('maps quota exceeded exception', function () {
-    $mockTranslator = $this->mock(Translator::class);
-
-    $mockTranslator->shouldReceive('translateText')
-        ->once()
-        ->andThrow(new DeepLException('Quota exceeded for this billing period'));
-
-    $service = new TranslationService($mockTranslator);
-
-    expect(fn () => $service->translate('Test', 'de'))
-        ->toThrow(QuotaExceededException::class);
-});
-
-it('maps generic DeepL exception to TranslationException', function () {
-    $mockTranslator = $this->mock(Translator::class);
-
-    $mockTranslator->shouldReceive('translateText')
-        ->once()
-        ->andThrow(new DeepLException('Some unknown error'));
-
-    $service = new TranslationService($mockTranslator);
-
-    expect(fn () => $service->translate('Test', 'de'))
-        ->toThrow(TranslationException::class);
-});
-
-it('replaces Squadron 42 correctly', function () {
+it('replaces Squadron 42 correctly', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Staffel 42 ist ein Spiel.', 'de', 26);
 
@@ -142,7 +131,7 @@ it('replaces Squadron 42 correctly', function () {
     expect($result)->toBe('Squadron 42 ist ein Spiel.');
 });
 
-it('does not apply German replacements for other locales', function () {
+it('does not apply German replacements for other locales', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Some French text with Sternenbürger', 'fr', 36);
 

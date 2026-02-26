@@ -4,376 +4,275 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders ammunition-card', function () {
-    $data = [
-        'speed' => 1000,
-        'lifetime' => 5,
-    ];
+it('renders item component cards', function (string $template, array $data, string $expectedLabel): void {
+    $output = Blade::render($template, ['data' => $data]);
 
-    $output = Blade::render('<x-items.ammunition-card :ammunition="$data" />', ['data' => $data]);
+    expect($output)->toContain($expectedLabel);
+})->with([
+    'ammunition-card' => [
+        '<x-items.ammunition-card :ammunition="$data" />',
+        [
+            'speed' => 1000,
+            'lifetime' => 5,
+        ],
+        'Ammunition',
+    ],
+    'armor-card' => [
+        '<x-items.armor-card :armor="$data" />',
+        [
+            'health' => 1000,
+        ],
+        'Armor',
+    ],
+    'bomb-card' => [
+        '<x-items.bomb-card :bomb="$data" />',
+        [
+            'damage_total' => 1000,
+        ],
+        'Bomb',
+    ],
+    'cargo-grid-card' => [
+        '<x-items.cargo-grid-card :cargoGrid="$data" />',
+        [
+            'capacity' => 1000,
+        ],
+        'Cargo Grid',
+    ],
+    'cooler-card' => [
+        '<x-items.cooler-card :cooler="$data" />',
+        [
+            'coolant_segment_generation' => 5,
+        ],
+        'Cooler',
+    ],
+    'counter-measure-card' => [
+        '<x-items.counter-measure-card :counterMeasure="$data" />',
+        [
+            'ammo_count' => 10,
+        ],
+        'Counter Measure',
+    ],
+    'emission-card' => [
+        '<x-items.emission-card :emission="$data" />',
+        [
+            'noise' => 50,
+        ],
+        'Emission',
+    ],
+    'emp-card' => [
+        '<x-items.emp-card :emp="$data" />',
+        [
+            'duration' => 10,
+        ],
+        'EMP',
+    ],
+    'flight-controller-card' => [
+        '<x-items.flight-controller-card :flightController="$data" />',
+        [
+            'max_speed' => 200,
+        ],
+        'Flight Controller',
+    ],
+    'fuel-intake-card' => [
+        '<x-items.fuel-intake-card :fuelIntake="$data" />',
+        [
+            'max_flow_rate' => 100,
+        ],
+        'Fuel Intake',
+    ],
+    'fuel-tank-card' => [
+        '<x-items.fuel-tank-card :fuelTank="$data" />',
+        [
+            'capacity' => 5000,
+        ],
+        'Fuel Tank',
+    ],
+    'jump-drive-card' => [
+        '<x-items.jump-drive-card :jumpDrive="$data" />',
+        [
+            'range' => 10000,
+        ],
+        'Jump Drive',
+    ],
+    'medical-bed-card' => [
+        '<x-items.medical-bed-card :medicalBed="$data" />',
+        [
+            'capacity' => 1,
+        ],
+        'Medical Bed',
+    ],
+    'mining-laser-card' => [
+        '<x-items.mining-laser-card :miningLaser="$data" />',
+        [
+            'mining_yield' => 100,
+        ],
+        'Mining Laser',
+    ],
+    'mining-modifier-card' => [
+        '<x-items.mining-modifier-card :miningModifier="$data" />',
+        [
+            'modifier' => 1.5,
+        ],
+        'Mining Modifier',
+    ],
+    'missile-card' => [
+        '<x-items.missile-card :missile="$data" />',
+        [
+            'damage' => 1000,
+        ],
+        'Missile',
+    ],
+    'missile-rack-card' => [
+        '<x-items.missile-rack-card :missileRack="$data" />',
+        [
+            'capacity' => 5,
+        ],
+        'Missile Rack',
+    ],
+    'personal-weapon-card' => [
+        '<x-items.personal-weapon-card :personalWeapon="$data" />',
+        [
+            'damage' => 50,
+        ],
+        'Personal Weapon',
+    ],
+    'power-plant-card' => [
+        '<x-items.power-plant-card :powerPlant="$data" />',
+        [
+            'power_segment_generation' => 10,
+        ],
+        'Power Plant',
+    ],
+    'quantum-drive-card' => [
+        '<x-items.quantum-drive-card :quantumDrive="$data" />',
+        [
+            'drive_speed' => 5000,
+        ],
+        'Quantum Drive',
+    ],
+    'quantum-interdiction-generator-card' => [
+        '<x-items.quantum-interdiction-generator-card :quantumInterdictionGenerator="$data" />',
+        [
+            'interdiction_range' => 5000,
+        ],
+        'Quantum Interdiction Generator',
+    ],
+    'radar-card' => [
+        '<x-items.radar-card :radar="$data" />',
+        [
+            'range' => 10000,
+        ],
+        'Radar',
+    ],
+    'radiation-resistance-card' => [
+        '<x-items.radiation-resistance-card :radiationResistance="$data" />',
+        [
+            'resistance' => 50,
+        ],
+        'Radiation Resistance',
+    ],
+    'resource-network-card' => [
+        '<x-items.resource-network-card :resourceNetwork="$data" :itemType="\'Cooler\'" />',
+        [
+            'usage' => [
+                'power' => [
+                    'minimum' => 10,
+                    'maximum' => 20,
+                ],
+            ],
+        ],
+        'Resource Network',
+    ],
+    'seat-card' => [
+        '<x-items.seat-card :seat="$data" />',
+        [
+            'capacity' => 1,
+        ],
+        'Seat',
+    ],
+    'self-destruct-card' => [
+        '<x-items.self-destruct-card :selfDestruct="$data" />',
+        [
+            'damage' => 100000,
+        ],
+        'Self Destruct',
+    ],
+    'shield-card' => [
+        '<x-items.shield-card :shield="$data" />',
+        [
+            'max_health' => 1000,
+        ],
+        'Shield',
+    ],
+    'shield-controller-card' => [
+        '<x-items.shield-controller-card :shieldController="$data" />',
+        [
+            'shield_count' => 2,
+        ],
+        'Shield Controller',
+    ],
+    'suit-armor-card' => [
+        '<x-items.suit-armor-card :suitArmor="$data" />',
+        [
+            'health' => 500,
+        ],
+        'Suit Armor',
+    ],
+    'temperature-resistance-card' => [
+        '<x-items.temperature-resistance-card :temperatureResistance="$data" />',
+        [
+            'resistance' => 100,
+        ],
+        'Temperature Resistance',
+    ],
+    'thruster-card' => [
+        '<x-items.thruster-card :thruster="$data" />',
+        [
+            'max_thrust' => 1000,
+        ],
+        'Thruster',
+    ],
+    'tractor-beam-card' => [
+        '<x-items.tractor-beam-card :tractorBeam="$data" />',
+        [
+            'range' => 100,
+        ],
+        'Tractor Beam',
+    ],
+    'turret-card' => [
+        '<x-items.turret-card :turret="$data" />',
+        [
+            'capacity' => 1,
+        ],
+        'Turret',
+    ],
+    'vehicle-weapon-card' => [
+        '<x-items.vehicle-weapon-card :vehicleWeapon="$data" />',
+        [
+            'damage' => 500,
+        ],
+        'Vehicle Weapon',
+    ],
+    'weapon-attachment-card' => [
+        '<x-items.weapon-attachment-card :weaponAttachment="$data" />',
+        [
+            'iron_sight' => [
+                'default_range' => 100,
+            ],
+        ],
+        'Weapon Attachment',
+    ],
+    'weapon-modifier-card' => [
+        '<x-items.weapon-modifier-card :weaponModifier="$data" />',
+        [
+            'modifier' => 1.5,
+        ],
+        'Weapon Modifier',
+    ],
+]);
 
-    expect($output)->toContain('Ammunition');
-});
-
-it('renders armor-card', function () {
-    $data = [
-        'health' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.armor-card :armor="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Armor');
-});
-
-it('renders bomb-card', function () {
-    $data = [
-        'damage_total' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.bomb-card :bomb="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Bomb');
-});
-
-it('renders cargo-grid-card', function () {
-    $data = [
-        'capacity' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.cargo-grid-card :cargoGrid="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Cargo Grid');
-});
-
-it('renders cooler-card', function () {
-    $data = [
-        'coolant_segment_generation' => 5,
-    ];
-
-    $output = Blade::render('<x-items.cooler-card :cooler="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Cooler');
-});
-
-it('renders counter-measure-card', function () {
-    $data = [
-        'ammo_count' => 10,
-    ];
-
-    $output = Blade::render('<x-items.counter-measure-card :counterMeasure="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Counter Measure');
-});
-
-it('renders emission-card', function () {
-    $data = [
-        'noise' => 50,
-    ];
-
-    $output = Blade::render('<x-items.emission-card :emission="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Emission');
-});
-
-it('renders emp-card', function () {
-    $data = [
-        'duration' => 10,
-    ];
-
-    $output = Blade::render('<x-items.emp-card :emp="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('EMP');
-});
-
-it('renders flight-controller-card', function () {
-    $data = [
-        'max_speed' => 200,
-    ];
-
-    $output = Blade::render('<x-items.flight-controller-card :flightController="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Flight Controller');
-});
-
-it('renders fuel-intake-card', function () {
-    $data = [
-        'max_flow_rate' => 100,
-    ];
-
-    $output = Blade::render('<x-items.fuel-intake-card :fuelIntake="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Fuel Intake');
-});
-
-it('renders fuel-tank-card', function () {
-    $data = [
-        'capacity' => 5000,
-    ];
-
-    $output = Blade::render('<x-items.fuel-tank-card :fuelTank="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Fuel Tank');
-});
-
-it('renders item-breadcrumbs', function () {
+it('renders item-breadcrumbs', function (): void {
     $output = Blade::render('<x-items.item-breadcrumbs />');
 
     expect($output)->toContain('All Items');
-});
-
-it('renders jump-drive-card', function () {
-    $data = [
-        'range' => 10000,
-    ];
-
-    $output = Blade::render('<x-items.jump-drive-card :jumpDrive="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Jump Drive');
-});
-
-it('renders medical-bed-card', function () {
-    $data = [
-        'capacity' => 1,
-    ];
-
-    $output = Blade::render('<x-items.medical-bed-card :medicalBed="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Medical Bed');
-});
-
-it('renders mining-laser-card', function () {
-    $data = [
-        'mining_yield' => 100,
-    ];
-
-    $output = Blade::render('<x-items.mining-laser-card :miningLaser="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Mining Laser');
-});
-
-it('renders mining-modifier-card', function () {
-    $data = [
-        'modifier' => 1.5,
-    ];
-
-    $output = Blade::render('<x-items.mining-modifier-card :miningModifier="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Mining Modifier');
-});
-
-it('renders missile-card', function () {
-    $data = [
-        'damage' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.missile-card :missile="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Missile');
-});
-
-it('renders missile-rack-card', function () {
-    $data = [
-        'capacity' => 5,
-    ];
-
-    $output = Blade::render('<x-items.missile-rack-card :missileRack="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Missile Rack');
-});
-
-it('renders personal-weapon-card', function () {
-    $data = [
-        'damage' => 50,
-    ];
-
-    $output = Blade::render('<x-items.personal-weapon-card :personalWeapon="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Personal Weapon');
-});
-
-it('renders power-plant-card', function () {
-    $data = [
-        'power_segment_generation' => 10,
-    ];
-
-    $output = Blade::render('<x-items.power-plant-card :powerPlant="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Power Plant');
-});
-
-it('renders quantum-drive-card', function () {
-    $data = [
-        'drive_speed' => 5000,
-    ];
-
-    $output = Blade::render('<x-items.quantum-drive-card :quantumDrive="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Quantum Drive');
-});
-
-it('renders quantum-interdiction-generator-card', function () {
-    $data = [
-        'interdiction_range' => 5000,
-    ];
-
-    $output = Blade::render('<x-items.quantum-interdiction-generator-card :quantumInterdictionGenerator="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Quantum Interdiction Generator');
-});
-
-it('renders radar-card', function () {
-    $data = [
-        'range' => 10000,
-    ];
-
-    $output = Blade::render('<x-items.radar-card :radar="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Radar');
-});
-
-it('renders radiation-resistance-card', function () {
-    $data = [
-        'resistance' => 50,
-    ];
-
-    $output = Blade::render('<x-items.radiation-resistance-card :radiationResistance="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Radiation Resistance');
-});
-
-it('renders resource-network-card', function () {
-    $data = [
-        'usage' => [
-            'power' => [
-                'minimum' => 10,
-                'maximum' => 20,
-            ],
-        ],
-    ];
-
-    $output = Blade::render('<x-items.resource-network-card :resourceNetwork="$data" :itemType="\'Cooler\'" />', ['data' => $data]);
-
-    expect($output)->toContain('Resource Network');
-});
-
-it('renders seat-card', function () {
-    $data = [
-        'capacity' => 1,
-    ];
-
-    $output = Blade::render('<x-items.seat-card :seat="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Seat');
-});
-
-it('renders self-destruct-card', function () {
-    $data = [
-        'damage' => 100000,
-    ];
-
-    $output = Blade::render('<x-items.self-destruct-card :selfDestruct="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Self Destruct');
-});
-
-it('renders shield-card', function () {
-    $data = [
-        'max_health' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.shield-card :shield="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Shield');
-});
-
-it('renders shield-controller-card', function () {
-    $data = [
-        'shield_count' => 2,
-    ];
-
-    $output = Blade::render('<x-items.shield-controller-card :shieldController="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Shield Controller');
-});
-
-it('renders suit-armor-card', function () {
-    $data = [
-        'health' => 500,
-    ];
-
-    $output = Blade::render('<x-items.suit-armor-card :suitArmor="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Suit Armor');
-});
-
-it('renders temperature-resistance-card', function () {
-    $data = [
-        'resistance' => 100,
-    ];
-
-    $output = Blade::render('<x-items.temperature-resistance-card :temperatureResistance="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Temperature Resistance');
-});
-
-it('renders thruster-card', function () {
-    $data = [
-        'max_thrust' => 1000,
-    ];
-
-    $output = Blade::render('<x-items.thruster-card :thruster="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Thruster');
-});
-
-it('renders tractor-beam-card', function () {
-    $data = [
-        'range' => 100,
-    ];
-
-    $output = Blade::render('<x-items.tractor-beam-card :tractorBeam="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Tractor Beam');
-});
-
-it('renders turret-card', function () {
-    $data = [
-        'capacity' => 1,
-    ];
-
-    $output = Blade::render('<x-items.turret-card :turret="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Turret');
-});
-
-it('renders vehicle-weapon-card', function () {
-    $data = [
-        'damage' => 500,
-    ];
-
-    $output = Blade::render('<x-items.vehicle-weapon-card :vehicleWeapon="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Vehicle Weapon');
-});
-
-it('renders weapon-attachment-card', function () {
-    $data = [
-        'iron_sight' => [
-            'default_range' => 100,
-        ],
-    ];
-
-    $output = Blade::render('<x-items.weapon-attachment-card :weaponAttachment="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Weapon Attachment');
-});
-
-it('renders weapon-modifier-card', function () {
-    $data = [
-        'modifier' => 1.5,
-    ];
-
-    $output = Blade::render('<x-items.weapon-modifier-card :weaponModifier="$data" />', ['data' => $data]);
-
-    expect($output)->toContain('Weapon Modifier');
 });

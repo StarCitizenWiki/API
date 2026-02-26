@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(static function (): void {
+beforeEach(function (): void {
     GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
