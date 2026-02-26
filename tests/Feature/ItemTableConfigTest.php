@@ -21,15 +21,15 @@ it('adds sortField to columns from sorts config', function () {
         ->flatMap(fn ($col) => $col['columns'] ?? [$col])
         ->first(fn ($col) => ($col['field'] ?? null) === 'mass');
 
-    expect($massColumn)->toHaveKey('sortField');
-    expect($massColumn['sortField'])->toBe('Mass');
+    expect($massColumn)->toHaveKey('sortField')
+        ->and($massColumn['sortField'])->toBe('Mass')
+        ->and($massColumn)->toHaveKey('sort')
+        ->and($massColumn['sort'])->toEqual([
+            'path' => 'Mass',
+            'cast' => 'numeric',
+        ]);
 
     // Should also have sort metadata
-    expect($massColumn)->toHaveKey('sort');
-    expect($massColumn['sort'])->toEqual([
-        'path' => 'Mass',
-        'cast' => 'numeric',
-    ]);
 
     config()->set('items.table.columns', $originalColumns);
     config()->set('sorts.items', $originalSorts);
@@ -56,10 +56,10 @@ it('adds sortField to nested columns in column groups', function () {
         ->flatMap(fn ($col) => $col['columns'] ?? [$col])
         ->first(fn ($col) => ($col['field'] ?? null) === 'durability.health');
 
-    expect($healthColumn)->toHaveKey('sortField');
-    expect($healthColumn['sortField'])->toBe('Durability.Health');
-    expect($healthColumn['sort']['path'])->toBe('Durability.Health');
-    expect($healthColumn['sort']['cast'])->toBe('numeric');
+    expect($healthColumn)->toHaveKey('sortField')
+        ->and($healthColumn['sortField'])->toBe('Durability.Health')
+        ->and($healthColumn['sort']['path'])->toBe('Durability.Health')
+        ->and($healthColumn['sort']['cast'])->toBe('numeric');
 
     config()->set('items.table.columns', $originalColumns);
     config()->set('sorts.items', $originalSorts);
@@ -81,8 +81,8 @@ it('does not modify columns without matching sort config', function () {
         });
 
     if ($nonSortableColumn !== null) {
-        expect($nonSortableColumn)->not->toHaveKey('sortField');
-        expect($nonSortableColumn)->not->toHaveKey('sort');
+        expect($nonSortableColumn)->not->toHaveKey('sortField')
+            ->and($nonSortableColumn)->not->toHaveKey('sort');
     }
 });
 
@@ -118,50 +118,56 @@ it('resolves type overrides by matches aliases', function () {
     config()->set('sorts.items', $originalSorts);
 });
 
-it('validates all sort config keys match actual column fields', function () {
+it('validates sortable item columns map to complete sort metadata', function () {
     $itemsConfig = config('items.table.columns', []);
     $sortsConfig = config('sorts.items', []);
 
-    // Collect all field names from columns
     $allFields = [];
-    $collectFields = function (array $column) use (&$allFields, &$collectFields) {
+    $collectFields = function (array $column) use (&$allFields, &$collectFields): void {
         if (isset($column['columns']) && is_array($column['columns'])) {
-            foreach ($column['columns'] as $nested) {
-                $collectFields($nested);
+            foreach ($column['columns'] as $nestedColumn) {
+                if (is_array($nestedColumn)) {
+                    $collectFields($nestedColumn);
+                }
             }
         }
 
-        if (isset($column['field']) && is_string($column['field'])) {
-            $allFields[] = $column['field'];
+        $field = $column['field'] ?? null;
+        if (is_string($field) && $field !== '') {
+            $allFields[] = $field;
         }
     };
 
     foreach ($itemsConfig as $column) {
-        $collectFields($column);
+        if (is_array($column)) {
+            $collectFields($column);
+        }
     }
 
     foreach (config('items.shared_groups', []) as $group) {
-        if (isset($group['columns'])) {
-            foreach ($group['columns'] as $column) {
+        if (! is_array($group) || ! isset($group['columns']) || ! is_array($group['columns'])) {
+            continue;
+        }
+
+        foreach ($group['columns'] as $column) {
+            if (is_array($column)) {
                 $collectFields($column);
             }
         }
     }
 
-    // Find sort configs that don't match any column field
-    $unusedSorts = [];
-    foreach (array_keys($sortsConfig) as $sortKey) {
-        if (! in_array($sortKey, $allFields, true)) {
-            $unusedSorts[] = $sortKey;
-        }
-    }
+    $sortableFields = array_values(array_filter(
+        array_unique($allFields),
+        static fn (string $field): bool => isset($sortsConfig[$field])
+    ));
 
-    // This is informational - some sorts might be for API-only fields
-    // But it's good to know which ones don't match UI columns
-    if (! empty($unusedSorts)) {
-        // Log for information, don't fail
-        echo "\nInfo: ".count($unusedSorts).' sort configs don\'t match UI column fields\n';
-    }
+    expect($sortableFields)->not->toBeEmpty();
 
-    expect(true)->toBeTrue(); // Always pass, this is informational only
+    foreach ($sortableFields as $field) {
+        $sortConfig = $sortsConfig[$field];
+
+        expect($sortConfig)->toHaveKeys(['path', 'cast'])
+            ->and($sortConfig['path'])->toBeString()->not->toBe('')
+            ->and($sortConfig['cast'])->toBeString()->not->toBe('');
+    }
 });

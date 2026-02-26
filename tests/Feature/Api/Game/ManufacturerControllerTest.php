@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function (): void {
+beforeEach(static function (): void {
     GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -30,7 +30,7 @@ it('lists manufacturers', function (): void {
         ->assertJsonPath('data.0.name', $manufacturer->name)
         ->assertJsonPath('data.0.code', $manufacturer->code);
 })->skip(
-    fn (): bool => config('database.default') !== 'pgsql',
+    (string) ($_ENV['DB_CONNECTION'] ?? getenv('DB_CONNECTION') ?: '') !== 'pgsql',
     'PostgreSQL only test'
 )->group('db-pgsql');
 

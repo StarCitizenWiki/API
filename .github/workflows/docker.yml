@@ -7,10 +7,6 @@ on:
       - develop
       - "feature/**"
   pull_request:
-    branches:
-      - main
-      - develop
-      - "feature/**"
 
 jobs:
   laravel-test-sqlite:
