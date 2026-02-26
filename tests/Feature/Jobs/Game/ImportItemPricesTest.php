@@ -119,7 +119,7 @@ it('updates only the specified game version', function () {
         ->and($otherItemData->uex_prices)->toBeNull();
 });
 
-it('handles API failures gracefully', function () {
+it('handles api failures gracefully', function () {
     Http::fake([
         'api.uexcorp.uk/*' => Http::response(status: 500),
     ]);
@@ -131,7 +131,7 @@ it('handles API failures gracefully', function () {
     expect(fn () => $job->handle())->not->toThrow(Exception::class);
 });
 
-it('handles items without ItemData for the version', function () {
+it('handles items without itemdata for the version', function () {
     $version = GameVersion::factory()->create(['is_default' => true]);
     $otherVersion = GameVersion::factory()->create(['is_default' => false]);
 

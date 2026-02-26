@@ -71,14 +71,6 @@ describe('RelatedItemsBuilder Caching', function () {
 
         $queryCount = count(DB::getQueryLog());
 
-        echo sprintf(
-            "\n  📊 Related Items Builder (Cold Cache):\n".
-            "     Queries: %d\n".
-            "     Variants found: %d\n",
-            $queryCount,
-            count($result['variant_items'])
-        );
-
         expect($result)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items'])
             ->and(count($result['variant_items']))->toBe(5)
             ->and($queryCount)->toBeLessThanOrEqual(14);
@@ -128,17 +120,6 @@ describe('RelatedItemsBuilder Caching', function () {
         $result2 = $builder->build($baseItem);
         $queryCount2 = count(DB::getQueryLog());
 
-        echo sprintf(
-            "\n  📊 Related Items Builder (Cache Hit):\n".
-            "     First request (cold cache): %d queries\n".
-            "     Second request (warm cache): %d queries\n".
-            "     Query reduction: %d (%.1f%%)\n",
-            $queryCount1,
-            $queryCount2,
-            $queryCount1 - $queryCount2,
-            (($queryCount1 - $queryCount2) / $queryCount1) * 100
-        );
-
         expect($queryCount2)->toBeLessThan($queryCount1)
             ->and($result1)->toBe($result2);
     });
@@ -187,14 +168,6 @@ describe('RelatedItemsBuilder Caching', function () {
 
         $queryCount = count(DB::getQueryLog());
 
-        echo sprintf(
-            "\n  📊 Set Items (Cold Cache):\n".
-            "     Queries: %d\n".
-            "     Set items found: %d\n",
-            $queryCount,
-            count($result['set_items'])
-        );
-
         expect($result['set_items'])->toHaveCount(3)
             ->and($queryCount)->toBeLessThanOrEqual(18);
     });
@@ -228,15 +201,6 @@ describe('RelatedItemsBuilder Caching', function () {
 
         $result2 = $builder->build($baseItem);
         $queryCount2 = count(DB::getQueryLog());
-
-        echo sprintf(
-            "\n  📊 Cache Flush Test:\n".
-            "     Before flush: %d queries\n".
-            "     After flush: %d queries\n".
-            "     Note: Flush removes cache, queries similar to cold cache\n",
-            $queryCount2,
-            $queryCount2
-        );
 
         expect($queryCount2)->toBeGreaterThan(0)
             ->and($result1)->toBe($result2);
@@ -286,14 +250,6 @@ describe('RelatedItemsBuilder Caching', function () {
             return str_contains($query['query'], 'game_versions') &&
                    str_contains($query['query'], 'where');
         });
-
-        echo sprintf(
-            "\n  📊 Eager Loading Verification:\n".
-            "     Total queries: %d\n".
-            "     GameVersion queries (should be 1 or less): %d\n",
-            $queryCount,
-            count($gameVersionQueries)
-        );
 
         expect(count($gameVersionQueries))->toBeLessThanOrEqual(4)
             ->and($result['variant_items'])->toHaveCount(3);
@@ -345,13 +301,6 @@ describe('RelatedItemsBuilder Caching', function () {
         DB::enableQueryLog();
         $result2 = $builder2->build($item);
         $queryCount2 = count(DB::getQueryLog());
-
-        echo sprintf(
-            "\n  📊 Version-Aware Cache Keys:\n".
-            "     Version 1 (cached): 1 query (should be 1 due to cache miss for version 2)\n".
-            "     Version 2 (uncached): %d queries\n",
-            $queryCount2
-        );
 
         expect($queryCount2)->toBeGreaterThan(1)
             ->and($result1)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items']);

@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('port display renders collapsible details elements', function () {
+it('port display renders collapsible details elements', function () {
     $version = GameVersion::factory()->create([
         'code' => '4.2.0-LIVE',
         'channel' => 'live',
@@ -82,7 +82,7 @@ test('port display renders collapsible details elements', function () {
     expect($content)->toContain('summary');
 });
 
-test('port display has unique IDs for details elements', function () {
+it('port display has unique ids for details elements', function () {
     $version = GameVersion::factory()->create([
         'code' => '4.2.0-LIVE',
         'channel' => 'live',

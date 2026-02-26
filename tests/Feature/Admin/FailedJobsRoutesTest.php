@@ -49,13 +49,13 @@ $insertFailedJob = static function (array $overrides = []): int {
     return (int) DB::table('failed_jobs')->insertGetId($attributes);
 };
 
-it('R-ADMIN-004 redirects guests to login for failed jobs index', function (): void {
+it('redirects guests to login for failed jobs index', function (): void {
     $response = $this->get(route('admin.jobs.index'));
 
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-004 forbids non-admin users from failed jobs index', function (): void {
+it('forbids non-admin users from failed jobs index', function (): void {
     $user = User::factory()->create(['is_admin' => false]);
 
     $response = $this->actingAs($user)->get(route('admin.jobs.index'));
@@ -63,7 +63,7 @@ it('R-ADMIN-004 forbids non-admin users from failed jobs index', function (): vo
     $response->assertForbidden();
 });
 
-it('R-ADMIN-004 allows admin users to view failed jobs index with paginated jobs data', function () use ($insertFailedJob): void {
+it('allows admin users to view failed jobs index with paginated jobs data', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $olderJobId = $insertFailedJob([
@@ -102,7 +102,7 @@ it('R-ADMIN-004 allows admin users to view failed jobs index with paginated jobs
     $response->assertSeeText('critical');
 });
 
-it('R-ADMIN-005 redirects guests to login for deleting a failed job', function () use ($insertFailedJob): void {
+it('redirects guests to login for deleting a failed job', function () use ($insertFailedJob): void {
     $failedJobId = $insertFailedJob();
 
     $response = $this->delete(route('admin.jobs.destroy', ['id' => $failedJobId]));
@@ -110,7 +110,7 @@ it('R-ADMIN-005 redirects guests to login for deleting a failed job', function (
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-005 forbids non-admin users from deleting a failed job', function () use ($insertFailedJob): void {
+it('forbids non-admin users from deleting a failed job', function () use ($insertFailedJob): void {
     $user = User::factory()->create(['is_admin' => false]);
     $failedJobId = $insertFailedJob();
 
@@ -121,7 +121,7 @@ it('R-ADMIN-005 forbids non-admin users from deleting a failed job', function ()
     $this->assertDatabaseHas('failed_jobs', ['id' => $failedJobId]);
 });
 
-it('R-ADMIN-005 allows admin users to delete a failed job and redirects with success flash', function () use ($insertFailedJob): void {
+it('allows admin users to delete a failed job and redirects with success flash', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $targetFailedJobId = $insertFailedJob(['queue' => 'critical']);
     $keptFailedJobId = $insertFailedJob(['queue' => 'default']);
@@ -135,13 +135,13 @@ it('R-ADMIN-005 allows admin users to delete a failed job and redirects with suc
     $this->assertDatabaseHas('failed_jobs', ['id' => $keptFailedJobId]);
 });
 
-it('R-ADMIN-003 redirects guests to login for truncating failed jobs', function (): void {
+it('redirects guests to login for truncating failed jobs', function (): void {
     $response = $this->delete(route('admin.jobs.truncate'));
 
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-003 forbids non-admin users from truncating failed jobs', function () use ($insertFailedJob): void {
+it('forbids non-admin users from truncating failed jobs', function () use ($insertFailedJob): void {
     $user = User::factory()->create(['is_admin' => false]);
     $insertFailedJob();
 
@@ -152,7 +152,7 @@ it('R-ADMIN-003 forbids non-admin users from truncating failed jobs', function (
     $this->assertDatabaseCount('failed_jobs', 1);
 });
 
-it('R-ADMIN-003 allows admin users to truncate failed jobs and redirects with success flash', function () use ($insertFailedJob): void {
+it('allows admin users to truncate failed jobs and redirects with success flash', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $insertFailedJob(['queue' => 'critical']);
     $insertFailedJob(['queue' => 'emails']);

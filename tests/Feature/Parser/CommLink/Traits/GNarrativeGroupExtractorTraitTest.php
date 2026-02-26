@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\DomCrawler\Crawler;
 
-test('extracts g-article headline', function () {
+it('extracts g-article headline', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -30,7 +30,7 @@ HTML;
     expect($result)->toContain('<h1>Main Headline</h1>');
 });
 
-test('extracts g-article with headline, byline, and body', function () {
+it('extracts g-article with headline, byline, and body', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -58,7 +58,7 @@ HTML;
     expect($result)->toContain('<p>Body content</p>');
 });
 
-test('extracts g-illustration sign-intro and sign-name', function () {
+it('extracts g-illustration sign-intro and sign-name', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -83,7 +83,7 @@ HTML;
     expect($result)->toContain('Artist Name');
 });
 
-test('extracts g-illustration with link', function () {
+it('extracts g-illustration with link', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -112,7 +112,7 @@ HTML;
     expect($result)->toContain('<a href="https://example.com/link">Artist</a>');
 });
 
-test('extracts multiple g-article and g-illustration elements', function () {
+it('extracts multiple g-article and g-illustration elements', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -150,7 +150,7 @@ HTML;
     expect($result)->toContain('<a href="https://link.com">Illustrator 2</a>');
 });
 
-test('ignores :background-options attribute', function () {
+it('ignores :background-options attribute', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -176,7 +176,7 @@ HTML;
     expect($result)->not->toContain('desktop');
 });
 
-test('ignores :simple-image on g-illustration', function () {
+it('ignores :simple-image on g-illustration', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -202,7 +202,7 @@ HTML;
     expect($result)->not->toContain('mobile');
 });
 
-test('handles missing g-narrative-group element', function () {
+it('handles missing g-narrative-group element', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -224,7 +224,7 @@ HTML;
     expect($result)->toBe('');
 });
 
-test('handles g-article without headline gracefully', function () {
+it('handles g-article without headline gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -250,7 +250,7 @@ HTML;
     expect($result)->toContain('<p>Body</p>');
 });
 
-test('handles g-illustration without sign-name gracefully', function () {
+it('handles g-illustration without sign-name gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -274,7 +274,7 @@ HTML;
     expect($result)->toContain('<p class="illustration-credit">By </p>');
 });
 
-test('adds newlines between elements', function () {
+it('adds newlines between elements', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>

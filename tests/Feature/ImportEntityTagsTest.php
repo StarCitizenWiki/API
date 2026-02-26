@@ -17,7 +17,7 @@ it('fails when tags.json is missing', function (): void {
         ->expectsOutput('tags.json not found in scunpacked storage.');
 });
 
-it('fails when tags.json contains invalid JSON', function (): void {
+it('fails when tags.json contains invalid json', function (): void {
     Storage::fake('scunpacked');
 
     Storage::disk('scunpacked')->put('tags.json', 'invalid json {');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\DomCrawler\Crawler;
 
-test('extracts author information from g-author element', function () {
+it('extracts author information from g-author element', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -33,7 +33,7 @@ HTML;
     expect($result)->toContain('<a href="https://x.com/FreyjaV_">Source</a>');
 });
 
-test('extracts author without link', function () {
+it('extracts author without link', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -61,7 +61,7 @@ HTML;
     expect($result)->not->toContain('<a href=');
 });
 
-test('handles missing author-name gracefully', function () {
+it('handles missing author-name gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -86,7 +86,7 @@ HTML;
     expect($result)->toBe('');
 });
 
-test('handles missing author-desc gracefully', function () {
+it('handles missing author-desc gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -112,7 +112,7 @@ HTML;
     expect($result)->not->toContain('<p>');
 });
 
-test('handles missing all attributes gracefully', function () {
+it('handles missing all attributes gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -134,7 +134,7 @@ HTML;
     expect($result)->toBe('');
 });
 
-test('handles missing g-author element', function () {
+it('handles missing g-author element', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -156,7 +156,7 @@ HTML;
     expect($result)->toBe('');
 });
 
-test('ignores :simple-image attribute', function () {
+it('ignores :simple-image attribute', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -186,7 +186,7 @@ HTML;
     expect($result)->not->toContain('placeholder');
 });
 
-test('handles invalid :simple-image JSON gracefully', function () {
+it('handles invalid :simple-image json gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>

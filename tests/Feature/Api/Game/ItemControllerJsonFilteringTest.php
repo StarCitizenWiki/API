@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('ItemController implements FiltersJsonColumns trait', function () {
+it('item controller implements filters json columns trait', function () {
     $controller = new ItemController;
 
     expect(method_exists($controller, 'getJsonTableName'))->toBeTrue()
@@ -18,7 +18,7 @@ test('ItemController implements FiltersJsonColumns trait', function () {
         ->and(method_exists($controller, 'jsonExpression'))->toBeTrue();
 });
 
-test('getJsonTableName returns correct table name', function () {
+it('get json table name returns correct table name', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'getJsonTableName');
     $reflection->setAccessible(true);
@@ -28,7 +28,7 @@ test('getJsonTableName returns correct table name', function () {
     expect($tableName)->toBe('game_item_data');
 });
 
-test('getJsonColumnName returns correct column name', function () {
+it('get json column name returns correct column name', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'getJsonColumnName');
     $reflection->setAccessible(true);
@@ -38,7 +38,7 @@ test('getJsonColumnName returns correct column name', function () {
     expect($columnName)->toBe('data');
 });
 
-test('jsonExpression builds correct expression', function () {
+it('json expression builds correct expression', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'jsonExpression');
     $reflection->setAccessible(true);
@@ -53,7 +53,7 @@ test('jsonExpression builds correct expression', function () {
     }
 });
 
-test('jsonExpression builds correct expression with cast', function () {
+it('json expression builds correct expression with cast', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'jsonExpression');
     $reflection->setAccessible(true);
@@ -68,7 +68,7 @@ test('jsonExpression builds correct expression with cast', function () {
     }
 });
 
-test('laravelJsonColumn builds correct Laravel JSON path', function () {
+it('laravel json column builds correct laravel json path', function () {
     $controller = new ItemController;
     $reflection = new ReflectionMethod($controller, 'laravelJsonColumn');
     $reflection->setAccessible(true);
@@ -78,7 +78,7 @@ test('laravelJsonColumn builds correct Laravel JSON path', function () {
     expect($jsonColumn)->toBe('game_item_data.data->stdItem->PowerConnection->PowerDraw');
 });
 
-test('applyJsonFilter filters items by JSON path with numeric cast', function () {
+it('apply json filter filters items by json path with numeric cast', function () {
     // Create test items with different mass values
     ItemData::factory()->create([
         'name' => 'Light Item',
@@ -104,7 +104,7 @@ test('applyJsonFilter filters items by JSON path with numeric cast', function ()
         ->and($results->first()->name)->toBe('Light Item');
 })->group('db-pgsql');
 
-test('applyJsonFilter handles multiple filter values', function () {
+it('apply json filter handles multiple filter values', function () {
     // Create test items
     ItemData::factory()->create([
         'name' => 'Item A',
@@ -135,7 +135,7 @@ test('applyJsonFilter handles multiple filter values', function () {
         ->and($results->pluck('name')->toArray())->toContain('Item A', 'Item B');
 })->group('db-pgsql');
 
-test('applyJsonFilter ignores null and empty values', function () {
+it('apply json filter ignores null and empty values', function () {
     ItemData::factory()->create([
         'name' => 'Test Item',
         'data' => ['stdItem' => ['Mass' => 50.0]],
@@ -155,7 +155,7 @@ test('applyJsonFilter ignores null and empty values', function () {
         ->and($results->first()->name)->toBe('Test Item');
 })->group('db-pgsql');
 
-test('applyColumnFilter filters regular columns', function () {
+it('apply column filter filters regular columns', function () {
     ItemData::factory()->create(['type' => 'Weapon']);
     ItemData::factory()->create(['type' => 'Shield']);
     ItemData::factory()->create(['type' => 'Weapon']);

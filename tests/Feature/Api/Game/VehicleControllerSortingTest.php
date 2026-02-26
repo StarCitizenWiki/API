@@ -72,7 +72,7 @@ it('sorts vehicles by cargo capacity descending', function () {
     expect($returned)->toBe([1000, 500, 250, 100]);
 });
 
-it('sorts vehicles by SCM speed ascending', function () {
+it('sorts vehicles by scm speed ascending', function () {
     $speeds = [150, 220, 180];
 
     foreach ($speeds as $speed) {
@@ -235,7 +235,7 @@ it('supports multiple field sorting', function () {
     expect($items->pluck('name')->toArray())->toBe(['Zulu', 'Alpha', 'Charlie', 'Bravo']);
 });
 
-it('combines JSON sorting with filtering', function () {
+it('combines json sorting with filtering', function () {
     foreach ([100, 200, 150] as $cargo) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([

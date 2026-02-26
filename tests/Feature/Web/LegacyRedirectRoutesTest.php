@@ -23,7 +23,7 @@ function assertLegacyAnyRedirect(TestCase $testCase, string $legacyPath, string 
         ->assertLocation($targetUrl);
 }
 
-it('redirects legacy routes for GET and POST while preserving query parameters', function (string $legacyPath, string $targetPath): void {
+it('redirects legacy routes for get and post while preserving query parameters', function (string $legacyPath, string $targetPath): void {
     assertLegacyAnyRedirect($this, $legacyPath, $targetPath);
 })->with([
     'dashboard to root' => ['/dashboard', '/'],

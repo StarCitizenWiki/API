@@ -11,7 +11,7 @@ use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
 
-test('reverse image search finds a matching comm-link image', function () {
+it('reverse image search finds a matching comm-link image', function () {
     if (! extension_loaded('gd')) {
         $this->markTestSkipped('GD extension is required for PDQ hashing.');
     }
@@ -38,13 +38,13 @@ test('reverse image search finds a matching comm-link image', function () {
         ->assertJsonPath('data.0.rsi_url', $image->url);
 });
 
-test('reverse image search defaults similarity to 75', function () {
+it('reverse image search defaults similarity to 75', function () {
     $request = ReverseImageSearchRequest::create('/api/comm-links/reverse-image-search', 'POST');
 
     expect($request->similarity())->toBe(75);
 });
 
-test('reverse image search rejects non-image uploads', function () {
+it('reverse image search rejects non-image uploads', function () {
     $uploadedFile = UploadedFile::fake()->create('not-an-image.txt', 10, 'text/plain');
 
     $response = $this->postJson('/api/comm-links/reverse-image-search', [

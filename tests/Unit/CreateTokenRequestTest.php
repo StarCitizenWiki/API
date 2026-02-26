@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Requests\CreateTokenRequest;
 
-test('name is required', function (): void {
+it('name is required', function (): void {
     $request = new CreateTokenRequest;
 
     $validator = validator([], $request->rules(), $request->messages());
@@ -14,7 +14,7 @@ test('name is required', function (): void {
         ->and($validator->errors()->first('name'))->toBe('A token name is required.');
 });
 
-test('name must be a string', function (): void {
+it('name must be a string', function (): void {
     $request = new CreateTokenRequest;
 
     $validator = validator(['name' => 123], $request->rules(), $request->messages());
@@ -24,7 +24,7 @@ test('name must be a string', function (): void {
         ->and($validator->errors()->first('name'))->toBe('The token name must be a string.');
 });
 
-test('name must not exceed 255 characters', function (): void {
+it('name must not exceed 255 characters', function (): void {
     $request = new CreateTokenRequest;
 
     $validator = validator(['name' => str_repeat('a', 256)], $request->rules(), $request->messages());
@@ -34,7 +34,7 @@ test('name must not exceed 255 characters', function (): void {
         ->and($validator->errors()->first('name'))->toBe('The token name must not exceed 255 characters.');
 });
 
-test('valid name passes validation', function (): void {
+it('valid name passes validation', function (): void {
     $request = new CreateTokenRequest;
 
     $validator = validator(['name' => 'My Token'], $request->rules(), $request->messages());
@@ -43,7 +43,7 @@ test('valid name passes validation', function (): void {
         ->and($validator->errors()->isEmpty())->toBeTrue();
 });
 
-test('custom error messages are returned', function (): void {
+it('custom error messages are returned', function (): void {
     $request = new CreateTokenRequest;
 
     expect($request->messages())->toBe([

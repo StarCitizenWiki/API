@@ -15,13 +15,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 uses(RefreshDatabase::class);
 
-it('R-ADMIN-006 redirects guests to login on translations index', function (): void {
+it('redirects guests to login on translations index', function (): void {
     $response = $this->get(route('admin.translations.index'));
 
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-006 forbids non-admin users on translations index', function (): void {
+it('forbids non-admin users on translations index', function (): void {
     $nonAdmin = User::factory()->create(['is_admin' => false]);
 
     $response = $this->actingAs($nonAdmin)
@@ -30,7 +30,7 @@ it('R-ADMIN-006 forbids non-admin users on translations index', function (): voi
     $response->assertForbidden();
 });
 
-it('R-ADMIN-006 allows admins to view translations index with expected view data', function (): void {
+it('allows admins to view translations index with expected view data', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $commLink = CommLink::factory()->create([
@@ -71,7 +71,7 @@ it('R-ADMIN-006 allows admins to view translations index with expected view data
     });
 });
 
-it('R-ADMIN-008 redirects guests to login on translations edit', function (): void {
+it('redirects guests to login on translations edit', function (): void {
     $commLink = CommLink::factory()->create();
 
     $response = $this->get(route('admin.translations.edit', [
@@ -82,7 +82,7 @@ it('R-ADMIN-008 redirects guests to login on translations edit', function (): vo
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-008 forbids non-admin users on translations edit', function (): void {
+it('forbids non-admin users on translations edit', function (): void {
     $nonAdmin = User::factory()->create(['is_admin' => false]);
     $commLink = CommLink::factory()->create();
 
@@ -95,7 +95,7 @@ it('R-ADMIN-008 forbids non-admin users on translations edit', function (): void
     $response->assertForbidden();
 });
 
-it('R-ADMIN-008 allows admins to view edit page with type and existing translations', function (): void {
+it('allows admins to view edit page with type and existing translations', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $expectedTranslations = [
         Language::ENGLISH => 'Existing English translation',
@@ -124,7 +124,7 @@ it('R-ADMIN-008 allows admins to view edit page with type and existing translati
     });
 });
 
-it('R-ADMIN-007 redirects guests to login on translations update', function (): void {
+it('redirects guests to login on translations update', function (): void {
     $commLink = CommLink::factory()->create([
         'translation' => [Language::ENGLISH => 'Initial English translation'],
     ]);
@@ -148,7 +148,7 @@ it('R-ADMIN-007 redirects guests to login on translations update', function (): 
     ]);
 });
 
-it('R-ADMIN-007 forbids non-admin users on translations update', function (): void {
+it('forbids non-admin users on translations update', function (): void {
     $nonAdmin = User::factory()->create(['is_admin' => false]);
     $commLink = CommLink::factory()->create([
         'translation' => [Language::ENGLISH => 'Initial English translation'],
@@ -174,7 +174,7 @@ it('R-ADMIN-007 forbids non-admin users on translations update', function (): vo
     ]);
 });
 
-it('R-ADMIN-007 updates translations and redirects admins to index with success flash', function (): void {
+it('updates translations and redirects admins to index with success flash', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $commLink = CommLink::factory()->create([
         'translation' => [

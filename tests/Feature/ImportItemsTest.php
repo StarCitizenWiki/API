@@ -160,7 +160,7 @@ it('imports item data, description data, and translations and upserts on re-run'
     expect($item->getTranslation('translation', Language::ENGLISH, false))->toBe('Updated English');
 });
 
-it('skips chinese translation when the key is missing and uses stdItem manufacturer fallback', function (): void {
+it('skips chinese translation when the key is missing and uses stditem manufacturer fallback', function (): void {
     Storage::fake('scunpacked');
 
     // Test with no labels in database to test missing key lookup

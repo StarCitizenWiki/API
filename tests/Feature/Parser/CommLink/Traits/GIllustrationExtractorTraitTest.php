@@ -110,7 +110,7 @@ it('handles only sign-name attribute without link', function (): void {
         ->not->toContain('<p class="illustration-credit">');
 });
 
-it('gracefully ignores :simple-image JSON attribute', function (): void {
+it('gracefully ignores :simple-image json attribute', function (): void {
     $html = '<g-illustration
         sign-name="Artist"
         sign-intro="By "

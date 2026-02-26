@@ -8,13 +8,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('R-ADMIN-001 redirects guests for GET admin/game-versions to login', function (): void {
+it('redirects guests for get admin/game-versions to login', function (): void {
     $response = $this->get(route('admin.game-versions.index'));
 
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-001 forbids authenticated non-admin users for GET admin/game-versions', function (): void {
+it('forbids authenticated non-admin users for get admin/game-versions', function (): void {
     $user = User::factory()->create(['is_admin' => false]);
 
     $response = $this->actingAs($user)
@@ -23,7 +23,7 @@ it('R-ADMIN-001 forbids authenticated non-admin users for GET admin/game-version
     $response->assertForbidden();
 });
 
-it('R-ADMIN-001 allows authenticated admins and returns game versions in the index view', function (): void {
+it('allows authenticated admins and returns game versions in the index view', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $latestVersion = GameVersion::factory()->create([
@@ -52,7 +52,7 @@ it('R-ADMIN-001 allows authenticated admins and returns game versions in the ind
     ]);
 });
 
-it('R-ADMIN-002 redirects guests for POST admin/game-versions/{gameVersion}/set-default to login', function (): void {
+it('redirects guests for post admin/game-versions/{gameversion}/set-default to login', function (): void {
     $gameVersion = GameVersion::factory()->create();
 
     $response = $this->post(route('admin.game-versions.set-default', $gameVersion));
@@ -60,7 +60,7 @@ it('R-ADMIN-002 redirects guests for POST admin/game-versions/{gameVersion}/set-
     $response->assertRedirect(route('login'));
 });
 
-it('R-ADMIN-002 forbids authenticated non-admin users for POST admin/game-versions/{gameVersion}/set-default', function (): void {
+it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/set-default', function (): void {
     $user = User::factory()->create(['is_admin' => false]);
     $gameVersion = GameVersion::factory()->create();
 
@@ -70,7 +70,7 @@ it('R-ADMIN-002 forbids authenticated non-admin users for POST admin/game-versio
     $response->assertForbidden();
 });
 
-it('R-ADMIN-002 allows authenticated admins to set exactly one selected version as default', function (): void {
+it('allows authenticated admins to set exactly one selected version as default', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $currentDefaultVersion = GameVersion::factory()->create([

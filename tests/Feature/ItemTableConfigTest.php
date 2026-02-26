@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Support\Items\ItemTableConfig;
 
-it('adds sortField to columns from sorts config', function () {
+it('adds sortfield to columns from sorts config', function () {
     $originalColumns = config('items.table.columns');
     $originalSorts = config('sorts.items');
 
@@ -35,7 +35,7 @@ it('adds sortField to columns from sorts config', function () {
     config()->set('sorts.items', $originalSorts);
 });
 
-it('adds sortField to nested columns in column groups', function () {
+it('adds sortfield to nested columns in column groups', function () {
     $originalColumns = config('items.table.columns');
     $originalSorts = config('sorts.items');
 

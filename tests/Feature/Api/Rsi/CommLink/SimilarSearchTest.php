@@ -10,7 +10,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 
 uses(RefreshDatabase::class);
 
-test('returns 401 when not authenticated', function (): void {
+it('returns 401 when not authenticated', function (): void {
     $image = Image::factory()->create();
 
     $response = $this->getJson("/api/comm-link-images/{$image->id}/similar");
@@ -18,7 +18,7 @@ test('returns 401 when not authenticated', function (): void {
     $response->assertUnauthorized();
 });
 
-test('returns 401 when invalid token provided', function (): void {
+it('returns 401 when invalid token provided', function (): void {
     $image = Image::factory()->create();
 
     $response = $this->withToken('invalid-token')
@@ -27,7 +27,7 @@ test('returns 401 when invalid token provided', function (): void {
     $response->assertUnauthorized();
 });
 
-test('returns matching similar image contract when authenticated', function (): void {
+it('returns matching similar image contract when authenticated', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 
@@ -68,7 +68,7 @@ test('returns matching similar image contract when authenticated', function (): 
         );
 });
 
-test('rate limits requests to 10 per minute', function (): void {
+it('rate limits requests to 10 per minute', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 
@@ -87,7 +87,7 @@ test('rate limits requests to 10 per minute', function (): void {
         ->assertSeeText('Too many similar image searches');
 });
 
-test('rate limit resets after minute expires', function (): void {
+it('rate limit resets after minute expires', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 
@@ -115,7 +115,7 @@ test('rate limit resets after minute expires', function (): void {
     }
 });
 
-test('validates similarity parameter', function (mixed $similarity, bool $shouldSucceed): void {
+it('validates similarity parameter', function (mixed $similarity, bool $shouldSucceed): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 
@@ -142,7 +142,7 @@ test('validates similarity parameter', function (mixed $similarity, bool $should
     ['invalid', false],
 ]);
 
-test('returns validation error when image ID does not exist', function (): void {
+it('returns validation error when image id does not exist', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 
@@ -152,7 +152,7 @@ test('returns validation error when image ID does not exist', function (): void 
     $response->assertInvalid(['image']);
 });
 
-test('returns empty collection when image has no hash', function (): void {
+it('returns empty collection when image has no hash', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
 

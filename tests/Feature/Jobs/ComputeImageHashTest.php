@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
-test('it downloads and stores a pdq hash for a comm-link image', function () {
+it('downloads and stores a pdq hash for a comm-link image', function () {
     if (! extension_loaded('gd')) {
         $this->markTestSkipped('GD extension is required for PDQ hashing.');
     }

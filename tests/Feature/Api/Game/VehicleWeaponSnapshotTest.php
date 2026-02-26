@@ -232,7 +232,7 @@ it('computes correct weapon snapshot for 300i-like vehicle', function (): void {
         ->assertJsonPath('data.weapon_snapshot.countermeasures_count', 2);
 });
 
-it('computes correct weapon snapshot for Ballista-like vehicle', function (): void {
+it('computes correct weapon snapshot for ballista-like vehicle', function (): void {
     $vehicle = Vehicle::factory()->create();
 
     VehicleData::factory()
@@ -362,7 +362,7 @@ it('computes correct weapon snapshot for Ballista-like vehicle', function (): vo
         ->assertJsonPath('data.weapon_snapshot.countermeasures_count', 0);
 });
 
-it('computes correct weapon snapshot for HoverQuad-like vehicle', function (): void {
+it('computes correct weapon snapshot for hoverquad-like vehicle', function (): void {
     $vehicle = Vehicle::factory()->create();
 
     VehicleData::factory()

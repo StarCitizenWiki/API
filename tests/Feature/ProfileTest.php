@@ -43,7 +43,7 @@ it('profile controller has auth middleware', function (): void {
     $response->assertRedirect('/login');
 });
 
-it('authenticated GET /profile returns profile view with tokens', function (): void {
+it('authenticated get /profile returns profile view with tokens', function (): void {
     $user = User::factory()->create();
     $userToken = $user->createToken('Phase 1 Token', ['*'])->accessToken;
 
@@ -59,7 +59,7 @@ it('authenticated GET /profile returns profile view with tokens', function (): v
         });
 });
 
-it('POST /profile/token creates token and flashes status + token_name', function (): void {
+it('post /profile/token creates token and flashes status + token_name', function (): void {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
@@ -77,7 +77,7 @@ it('POST /profile/token creates token and flashes status + token_name', function
     ]);
 });
 
-it('DELETE /profile with confirmation=DELETE_ACCOUNT deletes user, logs out, redirects \'/\'', function (): void {
+it('delete /profile with confirmation=delete_account deletes user, logs out, redirects \'/\'', function (): void {
     $user = User::factory()->create();
     $userId = $user->id;
 
@@ -206,7 +206,7 @@ it('token table: last_used_at is displayed in human-readable format', function (
         ->assertSee('2 hours ago');
 });
 
-it('token table: displays "Never" when token has never been used', function (): void {
+it('token table: displays "never" when token has never been used', function (): void {
     $user = User::factory()->create();
 
     // Create a token for the user
@@ -437,7 +437,7 @@ it('token creation: copy button is present in token display', function (): void 
         ->assertSee('copyToken');
 });
 
-it('account deletion: successfully deletes account with DELETE_ACCOUNT confirmation', function (): void {
+it('account deletion: successfully deletes account with delete_account confirmation', function (): void {
     $user = User::factory()->create();
     $userId = $user->id;
 

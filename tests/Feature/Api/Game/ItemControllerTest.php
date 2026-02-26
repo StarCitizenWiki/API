@@ -24,7 +24,7 @@ beforeEach(function () {
     ]);
 });
 
-it('shows an item by UUID', function (): void {
+it('shows an item by uuid', function (): void {
     $item = Item::factory()->create();
 
     ItemData::factory()

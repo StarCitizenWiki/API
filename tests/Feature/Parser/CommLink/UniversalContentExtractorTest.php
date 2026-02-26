@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\UniversalContentExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('getFilter returns asterisk for universal matching', function () {
+it('getfilter returns asterisk for universal matching', function () {
     expect(UniversalContentExtractor::getFilter())->toBe('*');
 });
 
-it('canParse returns true and PHP_INT_MAX for HTML with g- elements', function () {
+it('canparse returns true and php_int_max for html with g- elements', function () {
     $html = '<div><g-introduction :info="Hello">Test</g-introduction></div>';
     $crawler = new Crawler($html);
 
@@ -19,7 +19,7 @@ it('canParse returns true and PHP_INT_MAX for HTML with g- elements', function (
     expect($priority)->toBe(PHP_INT_MAX);
 });
 
-it('canParse returns false and 0 for HTML without g- elements', function () {
+it('canparse returns false and 0 for html without g- elements', function () {
     $html = '<div><p>Regular HTML content</p></div>';
     $crawler = new Crawler($html);
 
@@ -29,7 +29,7 @@ it('canParse returns false and 0 for HTML without g- elements', function () {
     expect($priority)->toBe(0);
 });
 
-it('getContent extracts content from known g- elements', function () {
+it('getcontent extracts content from known g- elements', function () {
     $html = <<<'HTML'
         <div>
             <g-introduction :info="{&quot;title&quot;:&quot;Test Title&quot;,&quot;subtitle&quot;:&quot;Test Subtitle&quot;,&quot;contents&quot;:[&quot;Content line 1&quot;,&quot;Content line 2&quot;]}"></g-introduction>
@@ -48,7 +48,7 @@ it('getContent extracts content from known g- elements', function () {
     expect($content)->toContain('Banner paragraph');
 });
 
-it('getContent extracts multiple elements from same page', function () {
+it('getcontent extracts multiple elements from same page', function () {
     $html = <<<'HTML'
         <div>
             <g-introduction :info="{&quot;title&quot;:&quot;First&quot;,&quot;contents&quot;:[&quot;Content 1&quot;]}"></g-introduction>
@@ -67,7 +67,7 @@ it('getContent extracts multiple elements from same page', function () {
     expect($content)->toContain('Banner paragraph');
 });
 
-it('getContent returns text content for unknown g- elements', function () {
+it('getcontent returns text content for unknown g- elements', function () {
     $html = '<div><g-unknown-element>Unknown text content</g-unknown-element></div>';
     $crawler = new Crawler($html);
     $extractor = new UniversalContentExtractor($crawler);
@@ -77,7 +77,7 @@ it('getContent returns text content for unknown g- elements', function () {
     expect($content)->toContain('Unknown text content');
 });
 
-it('getContent extracts content from real HTML sample', function () {
+it('getcontent extracts content from real html sample', function () {
     $htmlPath = storage_path('app/comm_links/20913/2026-01-19_100707.html');
 
     if (! file_exists($htmlPath)) {

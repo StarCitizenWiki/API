@@ -6,7 +6,7 @@ use App\Services\RsiDownloadClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
-test('it builds a client with base url and token header', function (): void {
+it('builds a client with base url and token header', function (): void {
     config()->set('services.rsi_url', 'https://api.example.test');
 
     Http::fake();
@@ -24,7 +24,7 @@ test('it builds a client with base url and token header', function (): void {
     });
 });
 
-test('it builds a base client that preserves full urls', function (): void {
+it('builds a base client that preserves full urls', function (): void {
     Http::fake();
 
     $client = app(RsiDownloadClient::class);
@@ -38,13 +38,13 @@ test('it builds a base client that preserves full urls', function (): void {
     });
 });
 
-test('it configures the default timeout on base requests', function (): void {
+it('configures the default timeout on base requests', function (): void {
     $client = app(RsiDownloadClient::class);
 
     expect($client->base()->getOptions()['timeout'] ?? null)->toBe(60);
 });
 
-test('it preserves full urls when rsi base url is missing', function (?string $rsiUrl): void {
+it('preserves full urls when rsi base url is missing', function (?string $rsiUrl): void {
     config()->set('services.rsi_url', $rsiUrl);
 
     Http::fake();

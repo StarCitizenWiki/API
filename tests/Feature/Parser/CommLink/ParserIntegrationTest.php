@@ -27,7 +27,7 @@ it('selects the correct extractor based on content', function (string $html, str
     'AlexandriaExtractor (via Universal)' => ['<g-platform-client-component></g-platform-client-component>', UniversalContentExtractor::class],
 ]);
 
-it('extracts content using UniversalContentExtractor for supported g-* elements', function (string $element, string $html, string $expectedContent) {
+it('extracts content using universalcontentextractor for supported g-* elements', function (string $element, string $html, string $expectedContent) {
     $crawler = new Crawler($html);
     $extractor = new UniversalContentExtractor($crawler);
 
@@ -47,7 +47,7 @@ it('extracts content using UniversalContentExtractor for supported g-* elements'
     'g-platform-client-component' => ['g-platform-client-component', '<g-platform-client-component :properties=\'{"componentId": "Text", "componentProps": {"title": "Alexandria Title"}}\'></g-platform-client-component>', 'Alexandria Title'],
 ]);
 
-it('extracts g-feature using AlexandriaExtractor', function () {
+it('extracts g-feature using alexandriaextractor', function () {
     $html = '<g-feature><template slot="title">Feature Title</template></g-feature>';
     $crawler = new Crawler($html);
     $extractor = new AlexandriaExtractor($crawler);
@@ -55,7 +55,7 @@ it('extracts g-feature using AlexandriaExtractor', function () {
     expect($extractor->getContent())->toContain('Feature Title');
 });
 
-it('extracts g-article using VueArticleExtractor', function () {
+it('extracts g-article using vuearticleextractor', function () {
     $html = '<g-article headline="Article Headline"></g-article>';
     $crawler = new Crawler($html);
     $extractor = new VueArticleExtractor($crawler);
@@ -63,7 +63,7 @@ it('extracts g-article using VueArticleExtractor', function () {
     expect($extractor->getContent())->toContain('Article Headline');
 });
 
-it('handles edge cases in UniversalContentExtractor', function () {
+it('handles edge cases in universalcontentextractor', function () {
     // Empty content
     $crawler = new Crawler('');
     $extractor = new UniversalContentExtractor($crawler);
@@ -81,7 +81,7 @@ it('handles edge cases in UniversalContentExtractor', function () {
     expect($extractor->getContent())->toBe('Unknown Content');
 });
 
-it('extracts content using DefaultExtractor', function () {
+it('extracts content using defaultextractor', function () {
     $html = '<div class="segment">Segment 1</div><div class="segment">Segment 2</div>';
     $crawler = new Crawler($html);
     $extractor = new DefaultExtractor($crawler);
@@ -89,7 +89,7 @@ it('extracts content using DefaultExtractor', function () {
     expect($extractor->getContent())->toContain('Segment 1')->toContain('Segment 2');
 });
 
-it('extracts content using LayoutSystemExtractor', function () {
+it('extracts content using layoutsystemextractor', function () {
     $html = '<div id="layout-system"><g-introduction :info=\'{"title": "Intro"}\'></g-introduction><div class="content">Layout Content</div></div>';
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);

@@ -194,7 +194,7 @@ it('detects variant items for correct game version', function () {
         ->and($result['variant_items'][0]['name'])->toBe('Weapon Red');
 });
 
-it('falls back to stdItem tags for variant grouping', function () {
+it('falls back to stditem tags for variant grouping', function () {
     $firstUuid = fake()->uuid();
     $firstItem = Item::create(['uuid' => $firstUuid]);
     ItemData::create([

@@ -74,7 +74,7 @@ it('sorts items by grade descending', function (): void {
         ->toBe(['Grade Four', 'Grade Three', 'Grade Two', 'Grade One']);
 });
 
-it('sorts items by JSON numeric field Weapon.Damage.AlphaTotal descending', function (): void {
+it('sorts items by json numeric field weapon.damage.alphatotal descending', function (): void {
     foreach ([
         ['name' => 'Gun 400', 'class_name' => 'gun_400', 'alpha_total' => 400],
         ['name' => 'Gun 1200', 'class_name' => 'gun_1200', 'alpha_total' => 1200],
@@ -109,7 +109,7 @@ it('sorts items by JSON numeric field Weapon.Damage.AlphaTotal descending', func
         ->toBe([1200, 800, 400, 50]);
 });
 
-it('sorts items by ShieldController.FaceType text field ascending', function (): void {
+it('sorts items by shieldcontroller.facetype text field ascending', function (): void {
     foreach ([
         ['name' => 'Shield Quad', 'class_name' => 'shield_quad', 'face_type' => 'Quad'],
         ['name' => 'Shield Single', 'class_name' => 'shield_single', 'face_type' => 'Single'],
@@ -169,7 +169,7 @@ it('supports exact multi-field sorting semantics for grade,-name', function (): 
         ->toBe(['Zulu', 'Alpha', 'Charlie', 'Bravo', 'Echo']);
 });
 
-it('places null JSON values last when sorting ascending', function (): void {
+it('places null json values last when sorting ascending', function (): void {
     foreach ([
         ['name' => 'Weapon 300', 'class_name' => 'weapon_300', 'alpha_total' => 300],
         ['name' => 'Weapon 100', 'class_name' => 'weapon_100', 'alpha_total' => 100],
@@ -223,7 +223,7 @@ it('places null JSON values last when sorting ascending', function (): void {
         ->and($data->slice(3)->pluck('name')->sort()->values()->toArray())->toBe(['Weapon Null A', 'Weapon Null B']);
 });
 
-it('places null JSON values last when sorting descending', function (): void {
+it('places null json values last when sorting descending', function (): void {
     foreach ([
         ['name' => 'Shield 5000', 'class_name' => 'shield_5000', 'max_health' => 5000],
         ['name' => 'Shield 7000', 'class_name' => 'shield_7000', 'max_health' => 7000],

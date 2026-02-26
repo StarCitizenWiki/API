@@ -128,7 +128,7 @@ it('validates similarity parameter', function (mixed $similarity, bool $shouldSu
     [75.5, false],
 ]);
 
-it('returns 404 when image ID does not exist', function (): void {
+it('returns 404 when image id does not exist', function (): void {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)

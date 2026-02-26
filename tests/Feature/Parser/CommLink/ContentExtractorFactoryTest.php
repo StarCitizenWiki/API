@@ -10,7 +10,7 @@ use App\Services\Parser\CommLink\Content\UniversalContentExtractor;
 use App\Services\Parser\CommLink\Content\VueArticleExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('selects UniversalContentExtractor for HTML with g- elements', function () {
+it('selects universalcontentextractor for html with g- elements', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -30,7 +30,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
 });
 
-it('selects LayoutSystemExtractor for HTML with layout-system', function () {
+it('selects layoutsystemextractor for html with layout-system', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -48,7 +48,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(LayoutSystemExtractor::class);
 });
 
-it('selects UniversalContentExtractor for HTML with alexandria g-platform-client-component', function () {
+it('selects universalcontentextractor for html with alexandria g-platform-client-component', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -66,7 +66,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
 });
 
-it('selects UniversalContentExtractor for HTML with g-article', function () {
+it('selects universalcontentextractor for html with g-article', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -83,7 +83,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
 });
 
-it('selects DefaultExtractor for HTML with .segment', function () {
+it('selects defaultextractor for html with .segment', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -99,7 +99,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(DefaultExtractor::class);
 });
 
-it('selects UniversalContentExtractor for HTML with g-feature', function () {
+it('selects universalcontentextractor for html with g-feature', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -117,7 +117,7 @@ HTML;
     expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
 });
 
-it('UniversalContentExtractor has highest priority over layout-system', function () {
+it('universal content extractor has highest priority over layout-system', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -146,7 +146,7 @@ it('returns null for empty crawler', function () {
     expect($extractor)->toBeNull();
 });
 
-it('UniversalContentExtractor canParse returns true for g- elements', function () {
+it('universal content extractor can parse returns true for g- elements', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -164,7 +164,7 @@ HTML;
     expect($canParse[1])->toBe(PHP_INT_MAX);
 });
 
-it('LayoutSystemExtractor canParse returns correct priority', function () {
+it('layout system extractor can parse returns correct priority', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -183,7 +183,7 @@ HTML;
     expect($canParse[1])->toBe(11);
 });
 
-it('AlexandriaExtractor canParse returns correct priority', function () {
+it('alexandria extractor can parse returns correct priority', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -202,7 +202,7 @@ HTML;
     expect($canParse[1])->toBe(1);
 });
 
-it('VueArticleExtractor canParse returns correct priority', function () {
+it('vue article extractor can parse returns correct priority', function () {
     $html = <<<'HTML'
 <html>
 <body>
@@ -219,7 +219,7 @@ HTML;
     expect($canParse[1])->toBe(0);
 });
 
-it('DefaultExtractor canParse returns correct priority', function () {
+it('default extractor can parse returns correct priority', function () {
     $html = <<<'HTML'
 <html>
 <body>

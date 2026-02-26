@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\DomCrawler\Crawler;
 
-test('extracts title and content from g-header element', function () {
+it('extracts title and content from g-header element', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -32,7 +32,7 @@ HTML;
     expect($result)->toContain('<p>The \'verse is full of dangerous outlaws and questionable characters.</p>');
 });
 
-test('preserves html in content slot', function () {
+it('preserves html in content slot', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -63,7 +63,7 @@ HTML;
     expect($result)->toContain('<ul><li>Item 1</li><li>Item 2</li></ul>');
 });
 
-test('handles missing title slot gracefully', function () {
+it('handles missing title slot gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -90,7 +90,7 @@ HTML;
     expect($result)->toContain('<p>Content without title</p>');
 });
 
-test('handles missing content slot gracefully', function () {
+it('handles missing content slot gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -115,7 +115,7 @@ HTML;
     expect($result)->not->toContain('<p>');
 });
 
-test('handles missing both slots gracefully', function () {
+it('handles missing both slots gracefully', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>
@@ -138,7 +138,7 @@ HTML;
     expect($result)->toBe('');
 });
 
-test('handles missing g-header element', function () {
+it('handles missing g-header element', function () {
     $html = <<<'HTML'
 <!DOCTYPE html>
 <html>

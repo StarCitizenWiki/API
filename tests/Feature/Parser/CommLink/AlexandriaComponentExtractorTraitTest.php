@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts MiniGrid component with mg.text element', function () {
+it('extracts minigrid component with mg.text element', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"Grid text content"}}]}}}}'>
         </g-platform-client-component>
@@ -19,7 +19,7 @@ it('extracts MiniGrid component with mg.text element', function () {
         ->toContain('Grid text content');
 });
 
-it('extracts MiniGrid component with mg.media image element', function () {
+it('extracts minigrid component with mg.media image element', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.media","data":{"image":{"heapImage":{"source":"https://example.com/image.jpg","imageConfiguration":{"imageDescription":{"cropperInformations":{"altText":"Alt Text"}}}}}}}]}}}}'>
         </g-platform-client-component>
@@ -33,7 +33,7 @@ it('extracts MiniGrid component with mg.media image element', function () {
         ->toContain('<img src="https://example.com/image.jpg" alt="Alt Text" />');
 });
 
-it('extracts MiniGrid component with mg.media video element', function () {
+it('extracts minigrid component with mg.media video element', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.media","data":{"video":{"heapVideo":{"source":"https://example.com/video.mp4"}}}}]}}}}'>
         </g-platform-client-component>
@@ -47,7 +47,7 @@ it('extracts MiniGrid component with mg.media video element', function () {
         ->toContain('<video src="https://example.com/video.mp4"></video>');
 });
 
-it('extracts MiniGrid component with multiple elements', function () {
+it('extracts minigrid component with multiple elements', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"Grid Title"}},{"key":"mg.media","data":{"image":{"heapImage":{"source":"https://example.com/image.jpg"}}}}]}}}}'>
         </g-platform-client-component>
@@ -62,7 +62,7 @@ it('extracts MiniGrid component with multiple elements', function () {
         ->toContain('<img src="https://example.com/image.jpg" alt="" />');
 });
 
-it('extracts MiniGrid component with HTML-formatted text', function () {
+it('extracts minigrid component with html-formatted text', function () {
     // Test with HTML content in mg.text that should be preserved
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"Header content"}}]}}}}'>
@@ -77,7 +77,7 @@ it('extracts MiniGrid component with HTML-formatted text', function () {
         ->toContain('Header content');
 });
 
-it('returns empty string for MiniGrid with missing elements', function () {
+it('returns empty string for minigrid with missing elements', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{}}}}'>
         </g-platform-client-component>
@@ -90,7 +90,7 @@ it('returns empty string for MiniGrid with missing elements', function () {
     expect($content)->toBe('');
 });
 
-it('returns empty string for MiniGrid with invalid elements array', function () {
+it('returns empty string for minigrid with invalid elements array', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":"not an array"}}}}'>
         </g-platform-client-component>
@@ -103,7 +103,7 @@ it('returns empty string for MiniGrid with invalid elements array', function () 
     expect($content)->toBe('');
 });
 
-it('skips invalid MiniGrid elements and extracts valid ones', function () {
+it('skips invalid minigrid elements and extracts valid ones', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"Valid text"}},{"key":"invalid","data":{"text":"Should be skipped"}},{"not an array":true}]}}}}'>
         </g-platform-client-component>
@@ -118,7 +118,7 @@ it('skips invalid MiniGrid elements and extracts valid ones', function () {
         ->not->toContain('Should be skipped');
 });
 
-it('extracts Separator component permutations as empty string: :dataset', function (string $properties) {
+it('extracts separator component permutations as empty string: :dataset', function (string $properties) {
     $html = <<<'HTML'
         <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
@@ -138,7 +138,7 @@ it('extracts Separator component permutations as empty string: :dataset', functi
     'with nested arrays' => ['{"componentId":"Separator","componentProps":{"nested":{"deeply":{"data":"value"}}}}'],
 ]);
 
-it('extracts multiple Separator components', function () {
+it('extracts multiple separator components', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Separator"}'></g-platform-client-component>
         <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"Text"}}'></g-platform-client-component>
@@ -154,7 +154,7 @@ it('extracts multiple Separator components', function () {
         ->not->toContain('Separator');
 });
 
-it('extracts Background component with simple prop permutations: :dataset', function (string $properties, string $expected) {
+it('extracts background component with simple prop permutations: :dataset', function (string $properties, string $expected) {
     $html = <<<'HTML'
         <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
@@ -181,7 +181,7 @@ it('extracts Background component with simple prop permutations: :dataset', func
     ],
 ]);
 
-it('extracts Background component with empty data', function () {
+it('extracts background component with empty data', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Background","componentProps":{}}'>
         </g-platform-client-component>
@@ -194,7 +194,7 @@ it('extracts Background component with empty data', function () {
     expect($content)->toBe('');
 });
 
-it('extracts Background component with empty string values', function () {
+it('extracts background component with empty string values', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":"","backgroundColor":""}}}'>
         </g-platform-client-component>
@@ -207,7 +207,7 @@ it('extracts Background component with empty string values', function () {
     expect($content)->toBe('');
 });
 
-it('extracts Background component with complex color values', function () {
+it('extracts background component with complex color values', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":".gradient","backgroundColor":"linear-gradient(to right, #ff0000, #0000ff)"}}'>
         </g-platform-client-component>
@@ -221,7 +221,7 @@ it('extracts Background component with complex color values', function () {
         ->toContain('linear-gradient(to right, #ff0000, #0000ff)');
 });
 
-it('extracts multiple Background components', function () {
+it('extracts multiple background components', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":".header","backgroundColor":"#333"}}'></g-platform-client-component>
         <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"Content"}}'></g-platform-client-component>
@@ -240,7 +240,7 @@ it('extracts multiple Background components', function () {
         ->toContain('color=#111');
 });
 
-it('extracts OrionCardsList component with valid cards', function () {
+it('extracts orioncardslist component with valid cards', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"title":"Card 1","description":"Description 1"},{"title":"Card 2","description":"Description 2"}]}}'>
         </g-platform-client-component>
@@ -257,7 +257,7 @@ it('extracts OrionCardsList component with valid cards', function () {
         ->toContain('<p>Description 2</p>');
 });
 
-it('extracts OrionCardsList component with title only', function () {
+it('extracts orioncardslist component with title only', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"title":"Title Only"}]}}'>
         </g-platform-client-component>
@@ -272,7 +272,7 @@ it('extracts OrionCardsList component with title only', function () {
         ->not->toContain('<p>');
 });
 
-it('extracts OrionCardsList component with description only', function () {
+it('extracts orioncardslist component with description only', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"description":"Description Only"}]}}'>
         </g-platform-client-component>
@@ -287,7 +287,7 @@ it('extracts OrionCardsList component with description only', function () {
         ->not->toContain('<h3>');
 });
 
-it('returns empty string for OrionCardsList invalid card payload permutations: :dataset', function (string $properties) {
+it('returns empty string for orioncardslist invalid card payload permutations: :dataset', function (string $properties) {
     $html = <<<'HTML'
         <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
@@ -305,7 +305,7 @@ it('returns empty string for OrionCardsList invalid card payload permutations: :
     'invalid cards type' => ['{"componentId":"OrionCardsList","componentProps":{"cards":"not an array"}}'],
 ]);
 
-it('skips invalid OrionCardsList cards and extracts valid ones', function () {
+it('skips invalid orioncardslist cards and extracts valid ones', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"title":"Valid Card"},{"not a card":true},{"title":"Another Valid","description":"With description"}]}}'>
         </g-platform-client-component>
@@ -322,7 +322,7 @@ it('skips invalid OrionCardsList cards and extracts valid ones', function () {
         ->not->toContain('not a card');
 });
 
-it('extracts OrionCardsList with multiple cards properly formatted', function () {
+it('extracts orioncardslist with multiple cards properly formatted', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"title":"First","description":"First desc"},{"title":"Second","description":"Second desc"},{"title":"Third","description":"Third desc"}]}}'>
         </g-platform-client-component>

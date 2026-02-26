@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts single component permutations from HTML: :dataset', function (string $properties, array $expectedContent): void {
+it('extracts single component permutations from html: :dataset', function (string $properties, array $expectedContent): void {
     $html = <<<'HTML'
         <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
@@ -54,7 +54,7 @@ it('extracts single component permutations from HTML: :dataset', function (strin
     ],
 ]);
 
-it('extracts multiple component types from same HTML', function () {
+it('extracts multiple component types from same html', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"First Title","text":"First Text"}}'></g-platform-client-component>
         <g-platform-client-component :properties='{"componentId":"Image","componentProps":{"altText":"Image Alt"}}'></g-platform-client-component>

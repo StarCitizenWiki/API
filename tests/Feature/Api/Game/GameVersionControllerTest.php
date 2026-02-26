@@ -217,7 +217,7 @@ it('paginates game versions with custom page size', function (): void {
         ->assertJsonPath('meta.current_page', 1);
 });
 
-it('includes all required fields in JSON response', function (): void {
+it('includes all required fields in json response', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '3.24.1-LIVE',
         'channel' => 'live',

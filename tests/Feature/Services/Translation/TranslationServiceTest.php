@@ -66,7 +66,7 @@ it(
     ],
 ]);
 
-it('applies German text replacements', function (): void {
+it('applies german text replacements', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Die Geschenke der Sternenbürger sind toll.', 'de', 45);
 
@@ -100,7 +100,7 @@ it('chunks long text automatically', function (): void {
     expect($result)->toContain('Dies ist ein Testsatz');
 });
 
-it('maps DeepL exceptions', function (string $message, string $expectedException): void {
+it('maps deepl exceptions', function (string $message, string $expectedException): void {
     $mockTranslator = $this->mock(Translator::class);
 
     $mockTranslator->shouldReceive('translateText')
@@ -117,7 +117,7 @@ it('maps DeepL exceptions', function (string $message, string $expectedException
     'generic exception' => ['Some unknown error', TranslationException::class],
 ]);
 
-it('replaces Squadron 42 correctly', function (): void {
+it('replaces squadron 42 correctly', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Staffel 42 ist ein Spiel.', 'de', 26);
 
@@ -131,7 +131,7 @@ it('replaces Squadron 42 correctly', function (): void {
     expect($result)->toBe('Squadron 42 ist ein Spiel.');
 });
 
-it('does not apply German replacements for other locales', function (): void {
+it('does not apply german replacements for other locales', function (): void {
     $mockTranslator = $this->mock(Translator::class);
     $mockResult = new TextResult('Some French text with Sternenbürger', 'fr', 36);
 

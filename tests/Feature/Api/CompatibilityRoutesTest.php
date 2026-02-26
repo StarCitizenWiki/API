@@ -10,7 +10,7 @@ use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
-it('serves the OpenAPI YAML on GET /api/openapi', function (): void {
+it('serves the openapi yaml on get /api/openapi', function (): void {
     $response = $this->get('/api/openapi');
 
     $response->assertSuccessful()
@@ -19,14 +19,14 @@ it('serves the OpenAPI YAML on GET /api/openapi', function (): void {
     expect($response->getContent())->toContain('openapi:');
 });
 
-it('serves the OpenAPI YAML headers on HEAD /api/openapi', function (): void {
+it('serves the openapi yaml headers on head /api/openapi', function (): void {
     $response = $this->head('/api/openapi');
 
     $response->assertSuccessful()
         ->assertHeader('Content-Type', 'application/yaml');
 });
 
-it('serves the OpenAPI YAML on GET /api/v2/openapi', function (): void {
+it('serves the openapi yaml on get /api/v2/openapi', function (): void {
     $response = $this->get('/api/v2/openapi');
 
     $response->assertSuccessful()
@@ -35,20 +35,20 @@ it('serves the OpenAPI YAML on GET /api/v2/openapi', function (): void {
     expect($response->getContent())->toContain('openapi:');
 });
 
-it('serves the OpenAPI YAML headers on HEAD /api/v2/openapi', function (): void {
+it('serves the openapi yaml headers on head /api/v2/openapi', function (): void {
     $response = $this->head('/api/v2/openapi');
 
     $response->assertSuccessful()
         ->assertHeader('Content-Type', 'application/yaml');
 });
 
-it('returns unauthorized for guests on GET /api/user', function (): void {
+it('returns unauthorized for guests on get /api/user', function (): void {
     $response = $this->getJson('/api/user');
 
     $response->assertUnauthorized();
 });
 
-it('returns the authenticated user contract on GET /api/user', function (): void {
+it('returns the authenticated user contract on get /api/user', function (): void {
     $language = Language::factory()->create([
         'code' => Language::ENGLISH,
     ]);
@@ -76,7 +76,7 @@ it('returns the authenticated user contract on GET /api/user', function (): void
         ->assertJsonMissingPath('remember_token');
 });
 
-it('redirects GET /api/v2/{any?} to /api with 308 and preserves query string', function (): void {
+it('redirects get /api/v2/{any?} to /api with 308 and preserves query string', function (): void {
     GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -90,7 +90,7 @@ it('redirects GET /api/v2/{any?} to /api with 308 and preserves query string', f
         ->assertLocation(url('/api/legacy/endpoint').'?baz=qux&foo=bar');
 });
 
-it('redirects POST /api/v2/{any?} to /api with 308 and preserves query string', function (): void {
+it('redirects post /api/v2/{any?} to /api with 308 and preserves query string', function (): void {
     GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',

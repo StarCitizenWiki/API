@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\ImageHash\PdqHasher;
 use Illuminate\Http\UploadedFile;
 
-test('it hashes image contents into a 256-bit PDQ hash', function () {
+it('hashes image contents into a 256-bit pdq hash', function () {
     if (! extension_loaded('gd')) {
         $this->markTestSkipped('GD extension is required for PDQ hashing.');
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\LayoutSystemExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts narrative-group content from HTML', function () {
+it('extracts narrative-group content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-narrative-group :background-options="{&quot;isTransparent&quot;:false}">
@@ -23,7 +23,7 @@ it('extracts narrative-group content from HTML', function () {
         ->toContain('<p>Test Byline<br /></p>');
 });
 
-it('extracts illustration content from HTML', function () {
+it('extracts illustration content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-illustration sign-intro="By " sign-name="TestArtist" />
@@ -39,7 +39,7 @@ it('extracts illustration content from HTML', function () {
         ->toContain('TestArtist');
 });
 
-it('extracts author content from HTML', function () {
+it('extracts author content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-author author-name="John Doe" author-desc="Writer" />
@@ -55,7 +55,7 @@ it('extracts author content from HTML', function () {
         ->toContain('<p>Writer</p>');
 });
 
-it('extracts FAQ content from HTML', function () {
+it('extracts faq content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-faq :question-list="[{&quot;title&quot;:&quot;Question 1&quot;,&quot;content&quot;:&quot;Answer 1&quot;}]" />
@@ -71,7 +71,7 @@ it('extracts FAQ content from HTML', function () {
         ->toContain('Answer 1');
 });
 
-it('extracts header content from HTML', function () {
+it('extracts header content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-header :background-options="{&quot;isTransparent&quot;:false}">
@@ -90,7 +90,7 @@ it('extracts header content from HTML', function () {
         ->toContain('<p>Test Content</p>');
 });
 
-it('extracts all 5 new traits from complex HTML', function () {
+it('extracts all 5 new traits from complex html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
             <g-header :background-options="{&quot;isTransparent&quot;:false}">

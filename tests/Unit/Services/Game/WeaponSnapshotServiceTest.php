@@ -8,13 +8,13 @@ beforeEach(function (): void {
     $this->service = app(WeaponSnapshotService::class);
 });
 
-test('it returns all zeros for empty loadout', function (): void {
+it('returns all zeros for empty loadout', function (): void {
     $result = $this->service->compute([]);
 
     expect($result)->toBe(weaponSnapshot());
 });
 
-test('it counts pilot guns without turrets', function (): void {
+it('counts pilot guns without turrets', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGun.Gun',
@@ -40,7 +40,7 @@ test('it counts pilot guns without turrets', function (): void {
     ]));
 });
 
-test('it counts turret guns with manned turret', function (): void {
+it('counts turret guns with manned turret', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.MannedTurret',
@@ -69,7 +69,7 @@ test('it counts turret guns with manned turret', function (): void {
     ]));
 });
 
-test('it counts turret guns with remote turret', function (): void {
+it('counts turret guns with remote turret', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.RemoteTurret',
@@ -93,7 +93,7 @@ test('it counts turret guns with remote turret', function (): void {
     ]));
 });
 
-test('it excludes gimbal mounts from turret counts', function (
+it('excludes gimbal mounts from turret counts', function (
     string $type,
     string $hardpointName,
     string $className
@@ -124,7 +124,7 @@ test('it excludes gimbal mounts from turret counts', function (
     'gimbal identified by subtype' => ['Turret.Gimbal', 'hardpoint_mount', 'VHCL_Mount_S3'],
 ]);
 
-test('it counts mixed pilot and turret guns', function (): void {
+it('counts mixed pilot and turret guns', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGun.Gun',
@@ -159,7 +159,7 @@ test('it counts mixed pilot and turret guns', function (): void {
     ]));
 });
 
-test('it counts missile racks', function (): void {
+it('counts missile racks', function (): void {
     $loadout = [
         [
             'Type' => 'MissileLauncher.MissileRack',
@@ -195,7 +195,7 @@ test('it counts missile racks', function (): void {
     ]));
 });
 
-test('it counts countermeasure launchers', function (): void {
+it('counts countermeasure launchers', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponDefensive.CountermeasureLauncher',
@@ -216,7 +216,7 @@ test('it counts countermeasure launchers', function (): void {
     ]));
 });
 
-test('it handles deeply nested structures', function (): void {
+it('handles deeply nested structures', function (): void {
     $loadout = [
         [
             'Type' => 'Container.Level1',
@@ -260,7 +260,7 @@ test('it handles deeply nested structures', function (): void {
     ]));
 });
 
-test('it handles missing Type field gracefully', function (): void {
+it('handles missing type field gracefully', function (): void {
     $loadout = [
         [
             'HardpointName' => 'hardpoint_unknown',
@@ -280,7 +280,7 @@ test('it handles missing Type field gracefully', function (): void {
     ]));
 });
 
-test('it handles malformed Type field without dot separator', function (): void {
+it('handles malformed type field without dot separator', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGunNoDot',
@@ -301,7 +301,7 @@ test('it handles malformed Type field without dot separator', function (): void 
     ]));
 });
 
-test('it classifies turret variants as manned or remote', function (
+it('classifies turret variants as manned or remote', function (
     string $type,
     string $hardpointName,
     string $className,
@@ -333,7 +333,7 @@ test('it classifies turret variants as manned or remote', function (
     'turret without indicator defaults remote' => ['Turret.Unknown', 'hardpoint_turret', 'MISC_Turret', ['turrets_remote_count' => 1, 'turret_weapon_guns_count' => 1]],
 ]);
 
-test('it ignores malformed child loadouts while still counting parent ports', function (): void {
+it('ignores malformed child loadouts while still counting parent ports', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.RemoteTurret',

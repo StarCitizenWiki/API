@@ -86,7 +86,7 @@ it('computes base ids from class name patterns', function (): void {
         ->and($baseData->fresh()->base_id)->toBeNull();
 });
 
-it('computes base ids from stdItem tags when class names do not match', function (): void {
+it('computes base ids from stditem tags when class names do not match', function (): void {
     $version = GameVersion::query()->create([
         'code' => '3.24.2-LIVE',
         'channel' => 'live',

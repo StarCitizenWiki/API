@@ -220,7 +220,7 @@ it('matches manufacturer-specific name permutations', function (
     'teach special suffix stripping' => [6, 'Drake Interplanetary', 'DRAK', 'drake-interplanetary', 13, 13, 'Vulture', 'vulture', "Drake Vulture Teach's Special"],
 ]);
 
-it('uses config override for Hornet Heartseeker variant', function (): void {
+it('uses config override for hornet heartseeker variant', function (): void {
     config(['game.vehicle_name_overrides' => [
         'Anvil F7C-M Hornet Heartseeker Mk I' => 'F7C-M Super Hornet Heartseeker Mk I',
     ]]);
