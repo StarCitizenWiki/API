@@ -3,12 +3,19 @@
 declare(strict_types=1);
 
 it('defines weight column as a single volume field with unit formatter', function (): void {
-    $columns = config('items.shared_groups.occupancy.columns', []);
-    $weightColumn = collect($columns)->firstWhere('title', 'Weight');
+    $columns = collect(config('items.shared_groups.occupancy.columns', []));
+    $weightColumns = $columns
+        ->where('title', 'Weight')
+        ->values();
+    $weightColumn = $weightColumns->first();
 
-    expect($weightColumn)->not->toBeNull()
-        ->and($weightColumn['field'] ?? null)->toBe('dimension.volume_converted')
-        ->and($weightColumn['formatter'] ?? null)->toBe('volumeWithUnit')
-        ->and(data_get($weightColumn, 'formatterParams.unitField'))->toBe('dimension.volume_converted_unit')
-        ->and($weightColumn)->not->toHaveKey('columns');
+    expect($weightColumns)->toHaveCount(1)
+        ->and($weightColumn)->toBe([
+            'title' => 'Weight',
+            'field' => 'dimension.volume_converted',
+            'formatter' => 'volumeWithUnit',
+            'formatterParams' => [
+                'unitField' => 'dimension.volume_converted_unit',
+            ],
+        ]);
 });

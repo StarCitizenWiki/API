@@ -2,6 +2,3 @@
 command = "php"
 args = ["artisan", "boost:mcp"]
 
-[mcp_servers.php]
-command = "artisan"
-args = ["boost:mcp"]

@@ -32,10 +32,14 @@ class MigrateLimitParameter
 
             if (isset($pageParams['number']) && is_numeric($pageParams['number'])) {
                 $pageParams['number'] = max(1, (int) $pageParams['number']);
+            } elseif (isset($pageParams['number'])) {
+                unset($pageParams['number']);
             }
 
             if (isset($pageParams['size']) && is_numeric($pageParams['size'])) {
                 $pageParams['size'] = max(1, (int) $pageParams['size']);
+            } elseif (isset($pageParams['size'])) {
+                unset($pageParams['size']);
             }
         }
 
@@ -47,7 +51,12 @@ class MigrateLimitParameter
 
             $pageNumber = $this->queryValue($queryString, 'page[number]');
             if ($pageNumber !== null && is_numeric($pageNumber)) {
-                $pageParams['number'] ??= max(1, (int) $pageNumber);
+                $pageParams['number'] = max(1, (int) $pageNumber);
+            }
+
+            $legacyPageNumber = $this->queryValue($queryString, 'page');
+            if ($legacyPageNumber !== null && is_numeric($legacyPageNumber)) {
+                $pageParams['number'] ??= max(1, (int) $legacyPageNumber);
             }
         }
 
@@ -57,7 +66,9 @@ class MigrateLimitParameter
             if (is_numeric($limit)) {
                 $limitInt = max(1, (int) $limit);
 
-                $pageParams['size'] ??= $limitInt;
+                if (! isset($pageParams['size']) || ! is_numeric($pageParams['size'])) {
+                    $pageParams['size'] = $limitInt;
+                }
             }
 
             $query->remove('limit');

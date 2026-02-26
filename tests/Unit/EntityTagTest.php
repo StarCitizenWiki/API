@@ -11,6 +11,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use Illuminate\Database\QueryException;
 
 it('can create an entity tag', function (): void {
     $uuid = fake()->uuid();
@@ -19,8 +20,15 @@ it('can create an entity tag', function (): void {
         'name' => 'TestTag',
     ]);
 
-    expect($tag->uuid)->toBe($uuid);
-    expect($tag->name)->toBe('TestTag');
+    expect($tag->exists)->toBeTrue()
+        ->and($tag->uuid)->toBe($uuid)
+        ->and($tag->name)->toBe('TestTag');
+
+    $this->assertDatabaseHas('game_entity_tags', [
+        'id' => $tag->id,
+        'uuid' => $uuid,
+        'name' => 'TestTag',
+    ]);
 });
 
 it('enforces unique uuid constraint', function (): void {
@@ -30,12 +38,14 @@ it('enforces unique uuid constraint', function (): void {
         'name' => 'First Tag',
     ]);
 
-    expect(function () use ($uuid) {
+    expect(function () use ($uuid): void {
         EntityTag::query()->create([
             'uuid' => $uuid,
             'name' => 'Second Tag',
         ]);
-    })->toThrow(Exception::class);
+    })->toThrow(QueryException::class);
+
+    expect(EntityTag::query()->where('uuid', $uuid)->count())->toBe(1);
 });
 
 it('has many-to-many relationship with item data', function (): void {
@@ -78,7 +88,10 @@ it('has many-to-many relationship with item data', function (): void {
 
     $itemData->entityTags()->attach([$tag1->id, $tag2->id]);
 
-    expect($itemData->entityTags)->toHaveCount(2);
-    expect($tag1->itemData)->toHaveCount(1);
-    expect($tag1->itemData->first()->id)->toBe($itemData->id);
+    expect($itemData->entityTags)->toHaveCount(2)
+        ->and($itemData->entityTags->pluck('id')->all())->toEqualCanonicalizing([$tag1->id, $tag2->id])
+        ->and($tag1->itemData)->toHaveCount(1)
+        ->and($tag1->itemData->pluck('id')->all())->toBe([$itemData->id])
+        ->and($tag2->itemData)->toHaveCount(1)
+        ->and($tag2->itemData->pluck('id')->all())->toBe([$itemData->id]);
 });

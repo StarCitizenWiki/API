@@ -4,25 +4,17 @@ declare(strict_types=1);
 
 use App\Services\Game\WeaponSnapshotService;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->service = app(WeaponSnapshotService::class);
 });
 
-test('it returns all zeros for empty loadout', function () {
+test('it returns all zeros for empty loadout', function (): void {
     $result = $this->service->compute([]);
 
-    expect($result)->toBe([
-        'pilot_guns_count' => 0,
-        'turrets_manned_count' => 0,
-        'turrets_remote_count' => 0,
-        'turret_weapon_guns_count' => 0,
-        'missile_rack_count' => 0,
-        'missile_count' => 0,
-        'countermeasures_count' => 0,
-    ]);
+    expect($result)->toBe(weaponSnapshot());
 });
 
-test('it counts pilot guns without turrets', function () {
+test('it counts pilot guns without turrets', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGun.Gun',
@@ -43,13 +35,12 @@ test('it counts pilot guns without turrets', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(3)
-        ->and($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(0)
-        ->and($result['turret_weapon_guns_count'])->toBe(0);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 3,
+    ]));
 });
 
-test('it counts turret guns with manned turret', function () {
+test('it counts turret guns with manned turret', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.MannedTurret',
@@ -72,13 +63,13 @@ test('it counts turret guns with manned turret', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(0)
-        ->and($result['turrets_manned_count'])->toBe(1)
-        ->and($result['turrets_remote_count'])->toBe(0)
-        ->and($result['turret_weapon_guns_count'])->toBe(2);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_manned_count' => 1,
+        'turret_weapon_guns_count' => 2,
+    ]));
 });
 
-test('it counts turret guns with remote turret', function () {
+test('it counts turret guns with remote turret', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.RemoteTurret',
@@ -96,13 +87,13 @@ test('it counts turret guns with remote turret', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(0)
-        ->and($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_remote_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
 
-test('it excludes gimbal mounts from turret counts by hardpoint name', function () {
+test('it excludes gimbal mounts from turret counts by hardpoint name', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.GimbalMount',
@@ -120,13 +111,12 @@ test('it excludes gimbal mounts from turret counts by hardpoint name', function 
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1)
-        ->and($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(0)
-        ->and($result['turret_weapon_guns_count'])->toBe(0);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it excludes gimbal mounts from turret counts by class name', function () {
+test('it excludes gimbal mounts from turret counts by class name', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.Mount',
@@ -144,13 +134,12 @@ test('it excludes gimbal mounts from turret counts by class name', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1)
-        ->and($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(0)
-        ->and($result['turret_weapon_guns_count'])->toBe(0);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it excludes gimbal mounts from turret counts by subtype', function () {
+test('it excludes gimbal mounts from turret counts by subtype', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.Gimbal',
@@ -168,13 +157,12 @@ test('it excludes gimbal mounts from turret counts by subtype', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1)
-        ->and($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(0)
-        ->and($result['turret_weapon_guns_count'])->toBe(0);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it counts mixed pilot and turret guns', function () {
+test('it counts mixed pilot and turret guns', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGun.Gun',
@@ -202,12 +190,14 @@ test('it counts mixed pilot and turret guns', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1)
-        ->and($result['turrets_manned_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(2);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+        'turrets_manned_count' => 1,
+        'turret_weapon_guns_count' => 2,
+    ]));
 });
 
-test('it counts missile racks', function () {
+test('it counts missile racks', function (): void {
     $loadout = [
         [
             'Type' => 'MissileLauncher.MissileRack',
@@ -237,11 +227,13 @@ test('it counts missile racks', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['missile_rack_count'])->toBe(2)
-        ->and($result['missile_count'])->toBe(2);
+    expect($result)->toBe(weaponSnapshot([
+        'missile_rack_count' => 2,
+        'missile_count' => 2,
+    ]));
 });
 
-test('it counts countermeasure launchers', function () {
+test('it counts countermeasure launchers', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponDefensive.CountermeasureLauncher',
@@ -257,10 +249,12 @@ test('it counts countermeasure launchers', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['countermeasures_count'])->toBe(2);
+    expect($result)->toBe(weaponSnapshot([
+        'countermeasures_count' => 2,
+    ]));
 });
 
-test('it handles deeply nested structures', function () {
+test('it handles deeply nested structures', function (): void {
     $loadout = [
         [
             'Type' => 'Container.Level1',
@@ -299,10 +293,12 @@ test('it handles deeply nested structures', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it handles missing Type field gracefully', function () {
+test('it handles missing Type field gracefully', function (): void {
     $loadout = [
         [
             'HardpointName' => 'hardpoint_unknown',
@@ -317,10 +313,12 @@ test('it handles missing Type field gracefully', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it handles malformed Type field without dot separator', function () {
+test('it handles malformed Type field without dot separator', function (): void {
     $loadout = [
         [
             'Type' => 'WeaponGunNoDot',
@@ -336,10 +334,12 @@ test('it handles malformed Type field without dot separator', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['pilot_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'pilot_guns_count' => 1,
+    ]));
 });
 
-test('it classifies UtilityTurret as manned when appropriate', function () {
+test('it classifies UtilityTurret as manned when appropriate', function (): void {
     $loadout = [
         [
             'Type' => 'UtilityTurret.Manned',
@@ -357,11 +357,13 @@ test('it classifies UtilityTurret as manned when appropriate', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['turrets_manned_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_manned_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
 
-test('it classifies UtilityTurret as remote when appropriate', function () {
+test('it classifies UtilityTurret as remote when appropriate', function (): void {
     $loadout = [
         [
             'Type' => 'UtilityTurret.Remote',
@@ -379,11 +381,13 @@ test('it classifies UtilityTurret as remote when appropriate', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['turrets_remote_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_remote_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
 
-test('it classifies TurretBase as manned when appropriate', function () {
+test('it classifies TurretBase as manned when appropriate', function (): void {
     $loadout = [
         [
             'Type' => 'TurretBase.Manned',
@@ -401,11 +405,13 @@ test('it classifies TurretBase as manned when appropriate', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['turrets_manned_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_manned_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
 
-test('it classifies TurretBase as remote when appropriate', function () {
+test('it classifies TurretBase as remote when appropriate', function (): void {
     $loadout = [
         [
             'Type' => 'TurretBase.Remote',
@@ -423,11 +429,13 @@ test('it classifies TurretBase as remote when appropriate', function () {
 
     $result = $this->service->compute($loadout);
 
-    expect($result['turrets_remote_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_remote_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
 
-test('it classifies turret without manned or remote indicators as remote', function () {
+test('it classifies turret without manned or remote indicators as remote', function (): void {
     $loadout = [
         [
             'Type' => 'Turret.Unknown',
@@ -445,7 +453,42 @@ test('it classifies turret without manned or remote indicators as remote', funct
 
     $result = $this->service->compute($loadout);
 
-    expect($result['turrets_manned_count'])->toBe(0)
-        ->and($result['turrets_remote_count'])->toBe(1)
-        ->and($result['turret_weapon_guns_count'])->toBe(1);
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_remote_count' => 1,
+        'turret_weapon_guns_count' => 1,
+    ]));
 });
+
+test('it ignores malformed child loadouts while still counting parent ports', function (): void {
+    $loadout = [
+        [
+            'Type' => 'Turret.RemoteTurret',
+            'HardpointName' => 'hardpoint_turret_remote',
+            'ClassName' => 'AEGS_Hammerhead_Remote_Turret',
+            'Loadout' => 'invalid-loadout',
+        ],
+    ];
+
+    $result = $this->service->compute($loadout);
+
+    expect($result)->toBe(weaponSnapshot([
+        'turrets_remote_count' => 1,
+    ]));
+});
+
+/**
+ * @param  array<string, int>  $overrides
+ * @return array<string, int>
+ */
+function weaponSnapshot(array $overrides = []): array
+{
+    return array_replace([
+        'pilot_guns_count' => 0,
+        'turrets_manned_count' => 0,
+        'turrets_remote_count' => 0,
+        'turret_weapon_guns_count' => 0,
+        'missile_rack_count' => 0,
+        'missile_count' => 0,
+        'countermeasures_count' => 0,
+    ], $overrides);
+}
