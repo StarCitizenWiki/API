@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -19,10 +18,6 @@ beforeEach(function (): void {
 });
 
 it('lists manufacturers', function (): void {
-    if (DB::connection()->getDriverName() !== 'pgsql') {
-        $this->markTestSkipped('PostgreSQL only test');
-    }
-
     $manufacturer = Manufacturer::factory()->create([
         'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
@@ -34,7 +29,10 @@ it('lists manufacturers', function (): void {
     $response->assertSuccessful()
         ->assertJsonPath('data.0.name', $manufacturer->name)
         ->assertJsonPath('data.0.code', $manufacturer->code);
-});
+})->skip(
+    fn (): bool => config('database.default') !== 'pgsql',
+    'PostgreSQL only test'
+)->group('db-pgsql');
 
 it('shows a manufacturer by underscored name', function (): void {
     $manufacturer = Manufacturer::factory()->create([

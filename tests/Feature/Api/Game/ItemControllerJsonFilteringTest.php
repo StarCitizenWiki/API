@@ -79,11 +79,6 @@ test('laravelJsonColumn builds correct Laravel JSON path', function () {
 });
 
 test('applyJsonFilter filters items by JSON path with numeric cast', function () {
-    // Skip if not using PostgreSQL (SQLite doesn't support #>> operator)
-    if (config('database.default') !== 'pgsql') {
-        $this->markTestSkipped('This test requires PostgreSQL');
-    }
-
     // Create test items with different mass values
     ItemData::factory()->create([
         'name' => 'Light Item',
@@ -107,14 +102,9 @@ test('applyJsonFilter filters items by JSON path with numeric cast', function ()
 
     expect($results)->toHaveCount(1)
         ->and($results->first()->name)->toBe('Light Item');
-});
+})->group('db-pgsql');
 
 test('applyJsonFilter handles multiple filter values', function () {
-    // Skip if not using PostgreSQL (SQLite doesn't support #>> operator)
-    if (config('database.default') !== 'pgsql') {
-        $this->markTestSkipped('This test requires PostgreSQL');
-    }
-
     // Create test items
     ItemData::factory()->create([
         'name' => 'Item A',
@@ -143,14 +133,9 @@ test('applyJsonFilter handles multiple filter values', function () {
 
     expect($results)->toHaveCount(2)
         ->and($results->pluck('name')->toArray())->toContain('Item A', 'Item B');
-});
+})->group('db-pgsql');
 
 test('applyJsonFilter ignores null and empty values', function () {
-    // Skip if not using PostgreSQL (SQLite doesn't support #>> operator)
-    if (config('database.default') !== 'pgsql') {
-        $this->markTestSkipped('This test requires PostgreSQL');
-    }
-
     ItemData::factory()->create([
         'name' => 'Test Item',
         'data' => ['stdItem' => ['Mass' => 50.0]],
@@ -168,7 +153,7 @@ test('applyJsonFilter ignores null and empty values', function () {
 
     expect($results)->toHaveCount(1)
         ->and($results->first()->name)->toBe('Test Item');
-});
+})->group('db-pgsql');
 
 test('applyColumnFilter filters regular columns', function () {
     ItemData::factory()->create(['type' => 'Weapon']);

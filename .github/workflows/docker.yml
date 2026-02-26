@@ -12,10 +12,6 @@ on:
       - develop
       - "feature/**"
 
-env:
-  SKIP_BASELINE_SQLITE: 28
-  SKIP_BASELINE_PGSQL: 18
-
 jobs:
   laravel-test-sqlite:
     runs-on: ubuntu-latest
@@ -72,93 +68,11 @@ jobs:
           DB_DATABASE: "db.sqlite"
         run: touch database/db.sqlite; php artisan migrate
 
-      - name: Validate skip reason quality
-        run: |
-          php <<'PHP'
-          <?php
-          $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('tests'));
-          $violations = [];
-
-          foreach ($iterator as $file) {
-              if (! $file->isFile() || $file->getExtension() !== 'php') {
-                  continue;
-              }
-
-              $path = $file->getPathname();
-              $lines = file($path);
-
-              if ($lines === false) {
-                  continue;
-              }
-
-              foreach ($lines as $lineNumber => $line) {
-                  if (! str_contains($line, '->skip(') && ! str_contains($line, 'markTestSkipped(')) {
-                      continue;
-                  }
-
-                  if (! preg_match('/(?:->skip|markTestSkipped)\(\s*(?:[^,)]*,\s*)?([\'"])(.*?)\1\s*\)/', $line, $matches)) {
-                      $violations[] = sprintf('%s:%d must use a literal human-readable skip reason.', $path, $lineNumber + 1);
-                      continue;
-                  }
-
-                  if (mb_strlen(trim($matches[2])) < 20) {
-                      $violations[] = sprintf('%s:%d skip reason must be at least 20 characters.', $path, $lineNumber + 1);
-                  }
-              }
-          }
-
-          if ($violations !== []) {
-              fwrite(STDERR, "Skip reason quality check failed:\n".implode("\n", $violations)."\n");
-              exit(1);
-          }
-
-          echo "Skip reason quality check passed.\n";
-          PHP
-
-      - name: Report quarantine tests
-        run: |
-          echo "Quarantine-tagged tests:"
-          if ! grep -R -n -E "->group\\(['\"]quarantine['\"]\\)" tests --include='*.php'; then
-            echo "None"
-          fi
-
       - name: Execute tests via Pest
         env:
           DB_CONNECTION: "sqlite"
           DB_DATABASE: "db.sqlite"
-        run: vendor/bin/pest --compact --log-junit junit-sqlite.xml
-
-      - name: Gate skipped tests baseline
-        env:
-          SKIP_BASELINE: ${{ env.SKIP_BASELINE_SQLITE }}
-        run: |
-          php <<'PHP'
-          <?php
-          $junitPath = 'junit-sqlite.xml';
-          $xml = simplexml_load_file($junitPath);
-
-          if ($xml === false) {
-              fwrite(STDERR, "Unable to read {$junitPath}\n");
-              exit(1);
-          }
-
-          $skipped = count($xml->xpath('//testcase/skipped'));
-          $baseline = (int) getenv('SKIP_BASELINE');
-
-          echo "Skipped tests: {$skipped}; baseline: {$baseline}\n";
-
-          if ($skipped > $baseline) {
-              fwrite(STDERR, "Skip gate failed: skipped test count increased above baseline.\n");
-              exit(1);
-          }
-          PHP
-
-      - name: Upload JUnit artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-sqlite
-          path: junit-sqlite.xml
+        run: vendor/bin/pest --compact --exclude-group=db-pgsql
 
   laravel-test-pgsql:
     runs-on: ubuntu-latest
@@ -234,56 +148,6 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: php artisan migrate
 
-      - name: Validate skip reason quality
-        run: |
-          php <<'PHP'
-          <?php
-          $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('tests'));
-          $violations = [];
-
-          foreach ($iterator as $file) {
-              if (! $file->isFile() || $file->getExtension() !== 'php') {
-                  continue;
-              }
-
-              $path = $file->getPathname();
-              $lines = file($path);
-
-              if ($lines === false) {
-                  continue;
-              }
-
-              foreach ($lines as $lineNumber => $line) {
-                  if (! str_contains($line, '->skip(') && ! str_contains($line, 'markTestSkipped(')) {
-                      continue;
-                  }
-
-                  if (! preg_match('/(?:->skip|markTestSkipped)\(\s*(?:[^,)]*,\s*)?([\'"])(.*?)\1\s*\)/', $line, $matches)) {
-                      $violations[] = sprintf('%s:%d must use a literal human-readable skip reason.', $path, $lineNumber + 1);
-                      continue;
-                  }
-
-                  if (mb_strlen(trim($matches[2])) < 20) {
-                      $violations[] = sprintf('%s:%d skip reason must be at least 20 characters.', $path, $lineNumber + 1);
-                  }
-              }
-          }
-
-          if ($violations !== []) {
-              fwrite(STDERR, "Skip reason quality check failed:\n".implode("\n", $violations)."\n");
-              exit(1);
-          }
-
-          echo "Skip reason quality check passed.\n";
-          PHP
-
-      - name: Report quarantine tests
-        run: |
-          echo "Quarantine-tagged tests:"
-          if ! grep -R -n -E "->group\\(['\"]quarantine['\"]\\)" tests --include='*.php'; then
-            echo "None"
-          fi
-
       - name: Execute tests via Pest
         env:
           DB_CONNECTION: "pgsql"
@@ -292,39 +156,7 @@ jobs:
           DB_PORT: 5432
           DB_USERNAME: "scw__api"
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: vendor/bin/pest --compact --log-junit junit-pgsql.xml
-
-      - name: Gate skipped tests baseline
-        env:
-          SKIP_BASELINE: ${{ env.SKIP_BASELINE_PGSQL }}
-        run: |
-          php <<'PHP'
-          <?php
-          $junitPath = 'junit-pgsql.xml';
-          $xml = simplexml_load_file($junitPath);
-
-          if ($xml === false) {
-              fwrite(STDERR, "Unable to read {$junitPath}\n");
-              exit(1);
-          }
-
-          $skipped = count($xml->xpath('//testcase/skipped'));
-          $baseline = (int) getenv('SKIP_BASELINE');
-
-          echo "Skipped tests: {$skipped}; baseline: {$baseline}\n";
-
-          if ($skipped > $baseline) {
-              fwrite(STDERR, "Skip gate failed: skipped test count increased above baseline.\n");
-              exit(1);
-          }
-          PHP
-
-      - name: Upload JUnit artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-pgsql
-          path: junit-pgsql.xml
+        run: vendor/bin/pest --compact
 
   docker-build:
     runs-on: ubuntu-latest

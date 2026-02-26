@@ -10,10 +10,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('filters vehicles by json speed scm', function (): void {
-    if (config('database.default') === 'sqlite') {
-        $this->markTestSkipped('SQLite does not support JSON path operators used for vehicle filters.');
-    }
-
     $version = GameVersion::factory()->create([
         'code' => '3.25.0-LIVE',
         'channel' => 'live',
@@ -54,13 +50,9 @@ it('filters vehicles by json speed scm', function (): void {
     $response->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $matchingVehicle->uuid);
-});
+})->group('db-pgsql');
 
 it('sorts vehicles by json length', function (): void {
-    if (config('database.default') === 'sqlite') {
-        $this->markTestSkipped('SQLite does not support JSON path operators used for vehicle sorting.');
-    }
-
     $version = GameVersion::factory()->create([
         'code' => '3.25.0-LIVE',
         'channel' => 'live',
@@ -93,4 +85,4 @@ it('sorts vehicles by json length', function (): void {
     $response->assertSuccessful()
         ->assertJsonPath('data.0.uuid', $shortVehicle->uuid)
         ->assertJsonPath('data.1.uuid', $longVehicle->uuid);
-});
+})->group('db-pgsql');
