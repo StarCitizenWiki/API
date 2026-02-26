@@ -12,6 +12,8 @@ use App\Http\Controllers\Web\StarCitizen\ShipMatrixVehicleController;
 use App\Http\Controllers\Web\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Web\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Web\StarCitizen\StatController;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -68,9 +70,22 @@ Route::middleware(['auth'])->group(function () {
 
 // Backwards compatibility
 
-Route::redirect('/starcitizen/vehicles/ships', '/ship-matrix/vehicles', 301);
-Route::redirect('/starcitizen/vehicles/ground-vehicles', '/ship-matrix/vehicles', 301);
-Route::redirect('/dashboard', '/', 301);
-Route::redirect('/rsi/comm-links/{id}', '/comm-links/{id}', 301);
-Route::redirect('/rsi/comm-links/images/{image}', '/comm-links/images/{image}', 301);
-Route::redirect('/rsi/comm-links/images/{image}/similar', '/comm-links/images/{image}/similar', 301);
+/**
+ * Intentionally uses the framework-normalized query string so legacy redirects keep a canonical URL format.
+ */
+$legacyRedirect = static function (Request $request, string $target): RedirectResponse {
+    $queryString = $request->getQueryString();
+
+    if ($queryString !== null && $queryString !== '') {
+        $target .= '?'.$queryString;
+    }
+
+    return redirect($target, 301);
+};
+
+Route::any('/starcitizen/vehicles/ships', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));
+Route::any('/starcitizen/vehicles/ground-vehicles', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));
+Route::any('/dashboard', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/'));
+Route::any('/rsi/comm-links/{id}', static fn (Request $request, string $id): RedirectResponse => $legacyRedirect($request, '/comm-links/'.$id));
+Route::any('/rsi/comm-links/images/{image}', static fn (Request $request, string $image): RedirectResponse => $legacyRedirect($request, '/comm-links/images/'.$image));
+Route::any('/rsi/comm-links/images/{image}/similar', static fn (Request $request, string $image): RedirectResponse => $legacyRedirect($request, '/comm-links/images/'.$image.'/similar'));
