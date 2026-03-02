@@ -218,6 +218,9 @@ jobs:
       - name: npm ci
         run: npm ci
 
+      - name: Build frontend assets
+        run: npm run build
+
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
