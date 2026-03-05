@@ -16,6 +16,7 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
 use App\Services\ImageHash\PdqHasher;
 use App\Services\Parser\CommLink\Image as ImageParser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
@@ -60,11 +61,16 @@ class CommLinkSearchController extends Controller
     {
         $request->validate((new CommLinkSearchRequest)->rules());
 
-        $query = $request->get('keyword') ?? $request->get('query');
+        $query = (string) ($request->get('keyword') ?? $request->get('query'));
 
         $commLinks = QueryBuilder::for(CommLink::class)
-            ->where('title', 'ilike', "%{$query}%")
-            ->orWhere('cig_id', $query)
+            ->where(function (Builder $builder) use ($query) {
+                $builder->whereLike('title', "%{$query}%");
+
+                if (is_numeric($query)) {
+                    $builder->orWhere('cig_id', (int) $query);
+                }
+            })
             ->allowedIncludes(CommLinkResource::validIncludes())
             ->allowedFilters([
                 AllowedFilter::exact('category', 'category.name'),
