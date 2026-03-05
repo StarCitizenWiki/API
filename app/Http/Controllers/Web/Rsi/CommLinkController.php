@@ -50,6 +50,13 @@ class CommLinkController extends Controller
             ));
         }
 
+        if ($searchType === 'content' && $searchQuery !== '') {
+            $apiRequest->query->set('filter', array_merge(
+                (array) $apiRequest->query->get('filter', ''),
+                ['content' => $searchQuery]
+            ));
+        }
+
         if ($searchType === 'media-url' && $searchUrl !== '') {
             $searchCommLinks = $this->commLinksForMediaUrl($searchUrl);
         }

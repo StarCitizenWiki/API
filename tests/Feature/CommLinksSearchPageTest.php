@@ -13,6 +13,7 @@ it('renders the comm-link search page', function (): void {
         ->assertViewIs('comm-links.search')
         ->assertSee('Comm-Link Search')
         ->assertSee('Search title')
+        ->assertSee('Search content')
         ->assertSee('Search media URL')
         ->assertSee('Search by image');
 });

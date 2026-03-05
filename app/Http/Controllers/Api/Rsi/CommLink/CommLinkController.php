@@ -12,6 +12,7 @@ use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,6 +58,7 @@ class CommLinkController extends Controller
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
             new OA\Parameter(name: 'filter[id]', description: 'Filter by comm-link ID', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[title]', description: 'Filter by partial comm-link title', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[content]', description: 'Filter by full-text content within English comm-link translations', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[channel]', description: 'Filter by channel name', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[series]', description: 'Filter by series name', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[category]', description: 'Filter by category name', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -86,6 +88,31 @@ class CommLinkController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('id', 'cig_id'),
                 AllowedFilter::partial('title'),
+                AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
+                    if (! is_string($value)) {
+                        return;
+                    }
+
+                    $searchTerm = trim($value);
+
+                    if ($searchTerm === '') {
+                        return;
+                    }
+
+                    if (DB::connection()->getDriverName() === 'pgsql') {
+                        $query->whereFullText('translation->en', $searchTerm, [
+                            'language' => 'english',
+                            'mode' => 'websearch',
+                        ]);
+
+                        return;
+                    }
+
+                    $query->whereRaw(
+                        "LOWER(COALESCE(json_extract(comm_links.translation, '$.en'), '')) LIKE ?",
+                        ['%'.strtolower($searchTerm).'%']
+                    );
+                }),
                 AllowedFilter::exact('channel', 'channel.name'),
                 AllowedFilter::exact('category', 'category.name'),
                 AllowedFilter::exact('series', 'series.name'),

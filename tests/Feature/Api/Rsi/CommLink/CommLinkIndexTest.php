@@ -8,6 +8,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
+use App\Models\System\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -101,4 +102,44 @@ it('sorts by images and links count and filters by publication date', function (
     expect($dateIds)->toContain($commLink2024May->cig_id)
         ->not->toContain($commLink2024MayTwo->cig_id)
         ->not->toContain($commLink2024June->cig_id);
+});
+
+it('filters comm-links by article content', function (): void {
+    $category = Category::factory()->create();
+    $channel = Channel::factory()->create([
+        'name' => 'News',
+        'slug' => 'news',
+    ]);
+    $series = Series::factory()->create();
+
+    $attributes = [
+        'category_id' => $category->id,
+        'channel_id' => $channel->id,
+        'series_id' => $series->id,
+    ];
+
+    $matchingCommLink = CommLink::factory()->create($attributes + [
+        'title' => 'Quantum Systems Update',
+    ]);
+    $matchingCommLink->setTranslation('translation', Language::ENGLISH, 'The latest quantum jump drive calibration guide.');
+    $matchingCommLink->save();
+
+    $nonMatchingCommLink = CommLink::factory()->create($attributes + [
+        'title' => 'Cargo and Trade Update',
+    ]);
+    $nonMatchingCommLink->setTranslation('translation', Language::ENGLISH, 'Cargo manifests and trade lane updates.');
+    $nonMatchingCommLink->save();
+
+    $response = $this->getJson(route('comm-links.index', [
+        'filter' => [
+            'content' => 'quantum jump drive',
+        ],
+    ]));
+
+    $response->assertSuccessful();
+
+    $ids = collect($response->json('data'))->pluck('id');
+
+    expect($ids)->toContain($matchingCommLink->cig_id)
+        ->not->toContain($nonMatchingCommLink->cig_id);
 });
