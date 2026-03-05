@@ -262,23 +262,31 @@ class ItemController extends Controller
         $isUuid = Str::isUuid($identifier);
 
         try {
-            $itemData = QueryBuilder::for(ItemData::class, $request)
+            $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
-                ->where(function (Builder $q) use ($identifier, $isUuid, $original) {
-                    if ($isUuid) {
-                        $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier));
-                    }
-
-                    $underscored = str_replace(' ', '_', $identifier);
-                    $q->orWhere('name', $identifier)
-                        ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
-                        ->orWhere('class_name', $underscored)
-                        ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
-                        ->orWhere('class_name', 'LIKE', "%_{$underscored}");
-                })
                 ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
-                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData'])
-                ->first();
+                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData']);
+
+            $itemData = null;
+
+            if ($isUuid) {
+                $itemData = $baseQuery()
+                    ->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier))
+                    ->first();
+            }
+
+            if ($itemData === null) {
+                $itemData = $baseQuery()
+                    ->where(function (Builder $q) use ($identifier, $original) {
+                        $underscored = str_replace(' ', '_', $identifier);
+                        $q->where('name', $identifier)
+                            ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
+                            ->orWhere('class_name', $underscored)
+                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
+                            ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                    })
+                    ->first();
+            }
 
             if ($itemData === null) {
                 throw new ModelNotFoundException;

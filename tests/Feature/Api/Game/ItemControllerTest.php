@@ -7,6 +7,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -45,6 +46,54 @@ it('shows an item by uuid', function (): void {
         ->assertJsonPath('data.uuid', $item->uuid)
         ->assertJsonPath('data.name', 'Faction Jacket Green')
         ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
+});
+
+it('uses uuid-specific lookup before name or class_name fallbacks', function (): void {
+    $item = Item::factory()->create();
+    $decoyItem = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Primary Item',
+            'type' => 'Clothing',
+            'class_name' => 'primary_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    ItemData::factory()
+        ->for($decoyItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => $item->uuid,
+            'type' => 'Clothing',
+            'class_name' => 'uuid_named_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $item->uuid)
+        ->assertJsonPath('data.name', 'Primary Item');
+
+    $lookupQuery = collect(DB::getQueryLog())
+        ->pluck('query')
+        ->first(static fn (string $query) => str_contains($query, 'from "game_item_data"') && str_contains($query, 'limit 1'));
+
+    expect($lookupQuery)->not->toBeNull()
+        ->and(strtolower((string) $lookupQuery))->not->toContain('or "name" =')
+        ->and(strtolower((string) $lookupQuery))->not->toContain('upper(name)')
+        ->and(strtolower((string) $lookupQuery))->not->toContain('or "class_name" =')
+        ->and(strtolower((string) $lookupQuery))->toContain('from "game_items"');
 });
 
 it('shows an item by name permutations', function (string $requestPath, string $itemClassName): void {
