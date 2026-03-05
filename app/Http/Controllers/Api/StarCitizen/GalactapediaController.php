@@ -28,6 +28,20 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class GalactapediaController extends Controller
 {
     /**
+     * Relationships required by list resources to avoid per-row lazy loads.
+     *
+     * @return array<int, string>
+     */
+    private function listResourceRelations(): array
+    {
+        return [
+            'templates:id,template',
+            'categories:id,name',
+            'tags:id,name',
+        ];
+    }
+
+    /**
      * Build base query with filters, sorts, and counts for articles.
      */
     private function buildBaseQuery(Request $request): QueryBuilder
@@ -78,6 +92,7 @@ class GalactapediaController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = $this->buildBaseQuery($request)
+            ->with($this->listResourceRelations())
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -286,14 +301,18 @@ class GalactapediaController extends Controller
 
         $queryBuilder = QueryBuilder::for(Article::class, $request)
             ->where(function ($q) use ($query) {
-                $q->where('title', 'ilike', "%{$query}%")
-                    ->orWhere('slug', 'like', "%{$query}%")
-                    ->orWhere('cig_id', $query);
+                $q->whereLike('title', "%{$query}%")
+                    ->orWhere('slug', 'like', "%{$query}%");
+
+                if (is_numeric($query)) {
+                    $q->orWhere('cig_id', (int) $query);
+                }
             })
             ->when(Str::length($query) >= 3, function ($q) use ($query) {
                 return $q->orWhereHas('templates', fn (Builder $builder) => $builder->where('template', 'like', "%{$query}%")
                 );
             })
+            ->with($this->listResourceRelations())
             ->jsonPaginate()
             ->appends(request()->query());
 

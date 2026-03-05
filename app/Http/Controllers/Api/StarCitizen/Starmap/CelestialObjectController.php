@@ -214,12 +214,16 @@ class CelestialObjectController extends Controller
 
         $objects = $this->buildBaseQuery($request)
             ->where(function (Builder $builder) use ($query) {
-                $builder->where('code', $query)
-                    ->orWhere('cig_id', $query)
-                    ->when(
-                        strlen($query) > 3,
-                        fn ($q) => $q->orWhere('name', 'LIKE', "{$query}%")
-                    );
+                $builder->where('code', $query);
+
+                if (is_numeric($query)) {
+                    $builder->orWhere('cig_id', (int) $query);
+                }
+
+                $builder->when(
+                    strlen($query) > 3,
+                    fn ($q) => $q->orWhere('name', 'LIKE', "{$query}%")
+                );
             })
             ->jsonPaginate()
             ->appends(request()->query());
