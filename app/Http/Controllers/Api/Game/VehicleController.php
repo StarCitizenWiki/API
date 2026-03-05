@@ -12,6 +12,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
+use App\Models\Game\Item;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Support\Filters\FilterCache;
@@ -227,6 +228,8 @@ class VehicleController extends Controller
                         ->with('descriptionData');
                 }]);
             }]);
+
+            $this->eagerLoadPortItems($vehicleData, $vehicleData->game_version_id);
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
@@ -680,5 +683,55 @@ class VehicleController extends Controller
 
             return $vehicle;
         });
+    }
+
+    /**
+     * Eager load all port items from the vehicle's Loadout data.
+     *
+     * Extracts all item UUIDs from the nested Loadout structure and loads
+     * them with their relationships to prevent N+1 queries in PortResource.
+     */
+    private function eagerLoadPortItems(VehicleData $vehicleData, int $gameVersionId): void
+    {
+        $uuids = $this->extractPortUuids($vehicleData->data['Loadout'] ?? []);
+
+        if ($uuids === []) {
+            return;
+        }
+
+        $items = Item::query()
+            ->whereIn('uuid', $uuids)
+            ->with(['data' => function ($query) use ($gameVersionId) {
+                $query->where('game_version_id', $gameVersionId)
+                    ->with(['manufacturer', 'gameVersion', 'descriptionData']);
+            }])
+            ->get()
+            ->keyBy('uuid');
+
+        request()->attributes->set('eager_loaded_port_items', $items);
+    }
+
+    /**
+     * Recursively extract all item UUIDs from the Loadout structure.
+     *
+     * @return array<string>
+     */
+    private function extractPortUuids(array $loadout): array
+    {
+        $uuids = [];
+
+        foreach ($loadout as $port) {
+            $uuid = $port['UUID'] ?? null;
+
+            if (is_string($uuid) && $uuid !== '') {
+                $uuids[] = $uuid;
+            }
+
+            if (isset($port['Loadout']) && is_array($port['Loadout'])) {
+                $uuids = array_merge($uuids, $this->extractPortUuids($port['Loadout']));
+            }
+        }
+
+        return array_unique(array_filter($uuids));
     }
 }

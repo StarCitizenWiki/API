@@ -9,6 +9,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait ResolvesGameVersion
 {
@@ -60,6 +61,12 @@ trait ResolvesGameVersion
      */
     protected function loadItemForVersion(string $uuid): ?Item
     {
+        $eagerLoaded = request()->attributes->get('eager_loaded_port_items');
+
+        if ($eagerLoaded !== null && $eagerLoaded->has($uuid)) {
+            return $eagerLoaded->get($uuid);
+        }
+
         return Item::query()
             ->where('uuid', $uuid)
             ->withDataForVersion($this->gameVersionCode())
@@ -74,11 +81,37 @@ trait ResolvesGameVersion
      */
     protected function loadItemDataForVersion(string $uuid): ?ItemData
     {
+        $eagerLoaded = request()->attributes->get('eager_loaded_port_items');
+
+        if ($eagerLoaded !== null && $eagerLoaded->has($uuid)) {
+            return $eagerLoaded->get($uuid);
+        }
+
         return ItemData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->whereHas('item', fn (Builder $query) => $query->where('uuid', $uuid))
             ->with(['item', 'manufacturer', 'gameVersion'])
             ->first();
+    }
+
+    /**
+     * Eager load ItemData for multiple item UUIDs to prevent N+1 queries.
+     *
+     * @param  array<int, string>  $uuids  The item UUIDs to load
+     * @return Collection<string, ItemData> Collection keyed by item UUID
+     */
+    protected function eagerLoadPortItemData(array $uuids): Collection
+    {
+        if ($uuids === []) {
+            return collect();
+        }
+
+        return ItemData::query()
+            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->whereHas('item', fn (Builder $query) => $query->whereIn('uuid', $uuids))
+            ->with(['item', 'manufacturer', 'gameVersion'])
+            ->get()
+            ->keyBy(fn (ItemData $itemData) => $itemData->item->uuid);
     }
 
     /**

@@ -242,9 +242,10 @@ class CommLinkController extends Controller
             $commLink = QueryBuilder::for(CommLink::class)
                 ->where('cig_id', $commLink)
                 ->allowedIncludes(CommLinkResource::validIncludes())
+                ->with(['images.hash', 'images.metadata'])
                 ->withNavigation()
                 ->firstOrFail();
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Comm-Link with specified ID found.');
         }
 

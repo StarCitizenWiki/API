@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
 use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\ItemSpecification\BombResource;
@@ -385,6 +386,7 @@ use OpenApi\Attributes as OA;
 class ItemResource extends AbstractBaseResource
 {
     use ExtractsJsonData;
+    use ResolvesGameVersion;
 
     public static function validIncludes(): array
     {
@@ -416,6 +418,8 @@ class ItemResource extends AbstractBaseResource
         $includeRelated = in_array('related_items', $includeValues, true);
 
         $type = str_replace('NOITEM_', '', ($itemData->type ?? ''));
+
+        $this->eagerLoadPortEquippedItems($itemData, $request);
 
         return [
             'uuid' => $this->uuid,
@@ -527,6 +531,37 @@ class ItemResource extends AbstractBaseResource
         }
 
         return url()->query($url, ['version' => $version]);
+    }
+
+    /**
+     * Eager load ItemData for all equipped items in ports to prevent N+1 queries.
+     *
+     * Only runs on the items.show route where equipped items are displayed.
+     */
+    private function eagerLoadPortEquippedItems(ItemData $itemData, Request $request): void
+    {
+        if (! $request->routeIs('items.show')) {
+            return;
+        }
+
+        $ports = $this->extractPorts($itemData);
+        if ($ports === []) {
+            return;
+        }
+
+        $uuids = collect($ports)
+            ->filter(fn (array $port) => ! empty($port['EquippedItem']))
+            ->pluck('EquippedItem')
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($uuids === []) {
+            return;
+        }
+
+        $loaded = $this->eagerLoadPortItemData($uuids);
+        request()->attributes->set('eager_loaded_port_items', $loaded);
     }
 
     protected function addSpecification(Item $item, ItemData $itemData): array
