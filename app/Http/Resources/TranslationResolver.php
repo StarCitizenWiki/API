@@ -7,6 +7,7 @@ namespace App\Http\Resources;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
+use Illuminate\Support\Collection;
 use Spatie\Translatable\HasTranslations;
 
 final class TranslationResolver
@@ -30,7 +31,7 @@ final class TranslationResolver
             return self::getSingleLocaleTranslation($source, $translationKey, substr($locale, 0, 2));
         }
 
-        return self::getAllLocaleTranslations($source, $translationKey);
+        return self::getAllLocaleTranslations($source, $translationKey, $request);
     }
 
     private static function getSingleLocaleTranslation(
@@ -50,7 +51,7 @@ final class TranslationResolver
     /**
      * @param  HasTranslations  $source
      */
-    private static function getAllLocaleTranslations(mixed $source, string $field): ?array
+    private static function getAllLocaleTranslations(mixed $source, string $field, Request $request): ?array
     {
         $translations = $source->getTranslations($field);
 
@@ -59,7 +60,13 @@ final class TranslationResolver
         }
 
         $english = $translations[Language::ENGLISH] ?? null;
-        $locales = Language::query()->pluck('code');
+        $cacheKey = 'translation_locales';
+        $locales = $request->attributes->get($cacheKey);
+
+        if (! $locales instanceof Collection) {
+            $locales = Language::query()->pluck('code');
+            $request->attributes->set($cacheKey, $locales);
+        }
 
         if ($locales->isEmpty()) {
             return array_filter($translations, static fn ($v) => ! empty($v)) ?: null;
