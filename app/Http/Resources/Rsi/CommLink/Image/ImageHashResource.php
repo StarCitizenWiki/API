@@ -20,7 +20,10 @@ class ImageHashResource extends ImageResource
             $data['similarity'] = $this->similarity;
         }
 
-        $data['comm_links'] = CommLinkResource::collection($this->whenLoaded('commLinks'));
+        $data['comm_links'] = $this->whenLoaded(
+            'commLinks',
+            fn () => CommLinkResource::collection($this->commLinks)->resolve($request)
+        );
 
         return $data;
     }
