@@ -6,6 +6,7 @@ namespace App\Jobs\Rsi\CommLink\Import;
 
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
+use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -60,6 +61,13 @@ class ImportCommLinks implements ShouldQueue
 
                 CreateImageMetadata::dispatch($commLinkIds);
                 DispatchImageHashes::dispatch($commLinkIds);
+
+                if (
+                    (bool) config('services.comm_links.auto_translate_after_import', false)
+                    && filled(config('services.deepl.auth_key'))
+                ) {
+                    TranslateCommLinks::dispatch($commLinkIds);
+                }
             })
             ->dispatch();
     }

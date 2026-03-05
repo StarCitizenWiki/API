@@ -20,6 +20,10 @@ return [
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
 
+    'comm_links' => [
+        'auto_translate_after_import' => (bool) env('COMM_LINKS_AUTO_TRANSLATE_AFTER_IMPORT', false),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Plausible Analytics

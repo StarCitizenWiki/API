@@ -221,3 +221,27 @@ it('continues to next comm-link when translation fails', function () {
     expect($commLink1->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty()
         ->and($commLink2->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Zweite');
 });
+
+it('can limit translation to specific comm-link ids', function (): void {
+    $category = Category::factory()->create(['name' => 'General']);
+    $firstCommLink = CommLink::factory()->create(['category_id' => $category->id]);
+    $secondCommLink = CommLink::factory()->create(['category_id' => $category->id]);
+
+    $firstCommLink->setTranslation('translation', Language::ENGLISH, 'First');
+    $firstCommLink->save();
+
+    $secondCommLink->setTranslation('translation', Language::ENGLISH, 'Second');
+    $secondCommLink->save();
+
+    $this->mock(TranslationService::class, function ($mock) {
+        $mock->shouldReceive('translate')
+            ->once()
+            ->with('First', 'de', 'en', 'less')
+            ->andReturn('Erste');
+    });
+
+    (new TranslateCommLinks([$firstCommLink->cig_id]))->handle(app(TranslationService::class));
+
+    expect($firstCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Erste')
+        ->and($secondCommLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+});
