@@ -913,6 +913,12 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[content]'
+          in: query
+          description: 'Filter by full-text content within English comm-link translations'
+          schema:
+            type: string
+        -
           name: 'filter[channel]'
           in: query
           description: 'Filter by channel name'
