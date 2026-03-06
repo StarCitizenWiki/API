@@ -85,7 +85,17 @@ $legacyRedirect = static function (Request $request, string $target): RedirectRe
 
 Route::any('/starcitizen/vehicles/ships', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));
 Route::any('/starcitizen/vehicles/ground-vehicles', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));
+Route::any('/starcitizen/galactapedia', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/galactapedia'));
+Route::any('/starcitizen/galactapedia/{article}', static fn (Request $request, string $article): RedirectResponse => $legacyRedirect($request, '/galactapedia/'.$article));
+Route::any('/starcitizen/starmap/starsystems', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/starmap/systems'));
+Route::any('/starcitizen/starmap/starsystems/{id}', [StarsystemController::class, 'legacyRedirect']);
+Route::any('/starcitizen/starmap/celestial_objects', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/starmap/celestial-objects'));
+Route::any('/starcitizen/starmap/celestial_objects/{id}', [CelestialObjectController::class, 'legacyRedirect']);
 Route::any('/dashboard', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/'));
+Route::any('/rsi/comm-links', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/comm-links'));
+Route::any('/rsi/comm-links/search', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/comm-links/search'));
+Route::any('/rsi/comm-links/images', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/comm-links/images'));
+Route::any('/rsi/stats', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/stats'));
 Route::any('/rsi/comm-links/{id}', static fn (Request $request, string $id): RedirectResponse => $legacyRedirect($request, '/comm-links/'.$id));
 Route::any('/rsi/comm-links/images/{image}', static fn (Request $request, string $image): RedirectResponse => $legacyRedirect($request, '/comm-links/images/'.$image));
 Route::any('/rsi/comm-links/images/{image}/similar', static fn (Request $request, string $image): RedirectResponse => $legacyRedirect($request, '/comm-links/images/'.$image.'/similar'));

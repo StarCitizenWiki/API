@@ -35,10 +35,16 @@ class StarsystemController extends Controller
         return response('', Response::HTTP_NO_CONTENT);
     }
 
-    public function legacyRedirect(string $id): RedirectResponse
+    public function legacyRedirect(Request $request, string $id): RedirectResponse
     {
         $system = Starsystem::where('cig_id', $id)->firstOrFail();
+        $target = route('web.starmap.systems.show', ['code' => $system->code]);
+        $queryString = $request->getQueryString();
 
-        return redirect(route('web.starmap.systems.show', ['code' => $system->code]), 301);
+        if ($queryString !== null && $queryString !== '') {
+            $target .= '?'.$queryString;
+        }
+
+        return redirect($target, 301);
     }
 }
