@@ -70,6 +70,11 @@ class Starsystem extends Model
         'time_modified' => 'datetime',
     ];
 
+    public function getCodeAttribute($value): string
+    {
+        return trim((string) $value);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'code';

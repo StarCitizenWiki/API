@@ -28,7 +28,7 @@ it('starsystem resource generates correct web_url', function (): void {
 
     $webUrl = $response->json('data')['web_url'];
 
-    $this->assertNotEmpty($webUrl);
+    expect($webUrl)->toBe(url('/starmap/systems/TESTSYS'));
 });
 
 it('celestial object resource generates correct web_url', function (): void {

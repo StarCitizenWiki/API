@@ -49,7 +49,7 @@ it('redirects legacy routes for get and post while preserving query parameters',
 
 it('redirects legacy starsystem detail routes to the new code based route while preserving query parameters', function (): void {
     $starsystem = Starsystem::factory()->create([
-        'cig_id' => 'legacy-system-id',
+        'cig_id' => 123456,
         'code' => 'TESTSYS',
     ]);
 
@@ -70,7 +70,7 @@ it('redirects legacy starsystem detail routes to the new code based route while 
 
 it('redirects legacy celestial object detail routes to the new code based route while preserving query parameters', function (): void {
     $celestialObject = CelestialObject::factory()->create([
-        'cig_id' => 'legacy-object-id',
+        'cig_id' => 234567,
         'code' => 'TESTOBJ',
     ]);
 
