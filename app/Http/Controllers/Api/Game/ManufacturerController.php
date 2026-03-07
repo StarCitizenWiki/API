@@ -155,15 +155,20 @@ class ManufacturerController extends Controller
     public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
     {
         $query = $request->validated('query');
+        $isUuid = Str::isUuid($query);
+        $normalizedSearch = mb_strtolower($query);
 
         $manufacturers = QueryBuilder::for(Manufacturer::class)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
-            ->where(function (Builder $q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                    ->orWhere('uuid', $query)
-                    ->orWhere('code', 'LIKE', "%{$query}%");
+            ->where(function (Builder $q) use ($query, $isUuid, $normalizedSearch) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$normalizedSearch}%"])
+                    ->orWhereRaw('LOWER(code) LIKE ?', ["%{$normalizedSearch}%"]);
+
+                if ($isUuid) {
+                    $q->orWhere('uuid', $query);
+                }
             })
             ->groupBy('name')
             ->orderBy('name')

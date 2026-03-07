@@ -357,13 +357,18 @@ class ItemController extends Controller
     {
         $versionCode = $this->gameVersionCode();
         $toSearch = $request->validated('query');
+        $isUuid = Str::isUuid($toSearch);
+        $normalizedSearch = mb_strtolower($toSearch);
 
         $query = $this->buildBaseQuery($request)
-            ->where(function (Builder $query) use ($toSearch) {
-                $query->where('name', 'like', "%{$toSearch}%")
-                    ->orWhereHas('item', fn (Builder $q) => $q->where('uuid', $toSearch))
-                    ->orWhere('type', $toSearch)
-                    ->orWhere('sub_type', $toSearch);
+            ->where(function (Builder $query) use ($toSearch, $isUuid, $normalizedSearch) {
+                $query->whereRaw('LOWER(name) LIKE ?', ["%{$normalizedSearch}%"])
+                    ->orWhereRaw('LOWER(type) = ?', [$normalizedSearch])
+                    ->orWhereRaw('LOWER(sub_type) = ?', [$normalizedSearch]);
+
+                if ($isUuid) {
+                    $query->orWhereHas('item', fn (Builder $q) => $q->where('uuid', $toSearch));
+                }
             });
 
         $items = $query->jsonPaginate();

@@ -54,3 +54,23 @@ it('returns not found for missing manufacturers', function (): void {
 
     $response->assertNotFound();
 });
+
+it('searches manufacturers with plain text queries that are not uuids', function (): void {
+    $manufacturer = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Decari Polo Works',
+        'code' => 'DECARI',
+    ]);
+
+    $response = $this->postJson('/api/manufacturers/search', [
+        'query' => 'decari po',
+    ]);
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.name', $manufacturer->name)
+        ->assertJsonPath('data.0.code', $manufacturer->code)
+        ->assertJsonPath('data.0.uuid', $manufacturer->uuid);
+})->skip(
+    (string) ($_ENV['DB_CONNECTION'] ?? getenv('DB_CONNECTION') ?: '') !== 'pgsql',
+    'PostgreSQL only test'
+)->group('db-pgsql');

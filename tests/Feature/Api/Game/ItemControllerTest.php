@@ -305,6 +305,31 @@ it('includes version in api link when version is requested in item show', functi
     expect($response->json('data.link'))->toContain('version=4.0.0-LIVE');
 });
 
+it('searches items with plain text queries that are not uuids', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Decari Polo',
+            'type' => 'Clothing',
+            'sub_type' => 'Shirt',
+            'class_name' => 'decari_polo',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->postJson('/api/items/search', [
+        'query' => 'decari po',
+    ]);
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $item->uuid)
+        ->assertJsonPath('data.0.name', 'Decari Polo');
+});
+
 it('does not include version in api link when version is not requested in item show', function (): void {
     $item = Item::factory()->create();
 
