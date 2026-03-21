@@ -11,6 +11,7 @@ use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,7 @@ it('imports item data, description data, and translations and upserts on re-run'
     Storage::fake('scunpacked');
 
     GameLabel::factory()->asItemDescTest()->create();
-    $labels = new \App\Services\Parser\SC\Labels;
+    $labels = new Labels;
 
     $version = GameVersion::query()->create([
         'code' => '3.23.1',
@@ -164,7 +165,7 @@ it('skips chinese translation when the key is missing and uses stditem manufactu
     Storage::fake('scunpacked');
 
     // Test with no labels in database to test missing key lookup
-    $labels = new \App\Services\Parser\SC\Labels;
+    $labels = new Labels;
 
     $version = GameVersion::query()->create([
         'code' => '3.23.2',
@@ -241,7 +242,7 @@ it('imports and syncs entity tags and removes outdated tags on re-run', function
     Storage::fake('scunpacked');
 
     GameLabel::factory()->asItemDescTest()->create();
-    $labels = new \App\Services\Parser\SC\Labels;
+    $labels = new Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
@@ -335,7 +336,7 @@ it('handles items with no entity tags', function (): void {
     Storage::fake('scunpacked');
 
     GameLabel::factory()->asItemDescTest()->create();
-    $labels = new \App\Services\Parser\SC\Labels;
+    $labels = new Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([
@@ -389,7 +390,7 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
     Storage::fake('scunpacked');
 
     GameLabel::factory()->asItemDescTest()->create();
-    $labels = new \App\Services\Parser\SC\Labels;
+    $labels = new Labels;
 
     $manufacturerUuid = fake()->uuid();
     $manufacturer = Manufacturer::query()->create([

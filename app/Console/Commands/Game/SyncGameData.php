@@ -182,7 +182,7 @@ class SyncGameData extends Command
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, mixed>  $jobs
+     * @param  Collection<int, mixed>  $jobs
      */
     private function dispatchChunkedBatch(Collection $jobs, ?Closure $then): void
     {

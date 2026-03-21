@@ -8,7 +8,7 @@ use App\Models\Rsi\CommLink\Series;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rsi\CommLink\Series>
+ * @extends Factory<Series>
  */
 class SeriesFactory extends Factory
 {

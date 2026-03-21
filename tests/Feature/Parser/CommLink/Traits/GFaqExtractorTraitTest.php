@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Parser\CommLink\Traits;
 
+use App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts faq questions from g-faq element', function (): void {
@@ -13,7 +14,7 @@ it('extracts faq questions from g-faq element', function (): void {
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -36,7 +37,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -58,7 +59,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -80,7 +81,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -115,7 +116,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -134,7 +135,7 @@ it('preserves html in content', function (): void {
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);
@@ -149,7 +150,7 @@ it('handles multiple questions', function (): void {
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+        use GFaqExtractorTrait;
     };
 
     $result = $extractor->getFaq($crawler);

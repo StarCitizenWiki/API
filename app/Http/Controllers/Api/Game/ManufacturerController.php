@@ -11,6 +11,7 @@ use App\Http\Resources\Game\Manufacturer\ManufacturerResource;
 use App\Models\Game\Manufacturer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
@@ -152,7 +153,7 @@ class ManufacturerController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $query = $request->validated('query');
         $isUuid = Str::isUuid($query);

@@ -11,7 +11,7 @@ use App\Models\Game\VehicleData;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Game\VehicleData>
+ * @extends Factory<VehicleData>
  */
 class VehicleDataFactory extends Factory
 {

@@ -8,7 +8,7 @@ use App\Models\Game\Manufacturer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Game\Manufacturer>
+ * @extends Factory<Manufacturer>
  */
 class ManufacturerFactory extends Factory
 {

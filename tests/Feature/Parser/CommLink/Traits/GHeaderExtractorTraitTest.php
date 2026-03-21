@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts title and content from g-header element', function () {
@@ -23,7 +24,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);
@@ -53,7 +54,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);
@@ -81,7 +82,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);
@@ -106,7 +107,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);
@@ -130,7 +131,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);
@@ -152,7 +153,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
+        use GHeaderExtractorTrait;
     };
 
     $result = $extractor->getHeader($crawler);

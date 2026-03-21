@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -184,7 +185,7 @@ class ImportCommLink implements ShouldQueue
                 ['cig_id' => $this->commLinkId],
                 $data
             );
-        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException $e) {
             // Check if this is a primary key constraint violation
             if (str_contains($e->getMessage(), 'comm_links_pkey')) {
                 Log::error('CommLink import failed due to sequence out of sync', [

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\System\Language;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $language = \App\Models\System\Language::where('code', config('app.locale', 'en'))->first();
+        $language = Language::where('code', config('app.locale', 'en'))->first();
 
         return User::create([
             'name' => $input['name'],

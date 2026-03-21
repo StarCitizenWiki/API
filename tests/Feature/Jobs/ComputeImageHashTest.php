@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Jobs\Rsi\CommLink\Image\ComputeImageHash;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash;
+use App\Services\ImageHash\PdqHasher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -26,7 +27,7 @@ it('downloads and stores a pdq hash for a comm-link image', function () {
     ]);
 
     $job = new ComputeImageHash($image->id);
-    $job->handle(app(\App\Services\ImageHash\PdqHasher::class));
+    $job->handle(app(PdqHasher::class));
 
     $hash = ImageHash::query()->where('comm_link_image_id', $image->id)->first();
 

@@ -9,7 +9,7 @@ use App\Models\Game\ItemDescriptionData;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Game\ItemDescriptionData>
+ * @extends Factory<ItemDescriptionData>
  */
 class ItemDescriptionDataFactory extends Factory
 {

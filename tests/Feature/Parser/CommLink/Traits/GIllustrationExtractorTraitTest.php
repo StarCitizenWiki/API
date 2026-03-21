@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Parser\CommLink\Traits;
 
+use App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts illustration with all attributes', function (): void {
@@ -18,7 +19,7 @@ it('extracts illustration with all attributes', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -35,7 +36,7 @@ it('extracts illustration without link', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -53,7 +54,7 @@ it('returns empty string when no g-illustration found', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -68,7 +69,7 @@ it('returns empty string when attributes are missing', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -83,7 +84,7 @@ it('handles only sign-intro attribute', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -100,7 +101,7 @@ it('handles only sign-name attribute without link', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -121,7 +122,7 @@ it('gracefully ignores :simple-image json attribute', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);
@@ -144,7 +145,7 @@ it('gracefully ignores image-size attribute', function (): void {
 
     $trait = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
+        use GIllustrationExtractorTrait;
     };
 
     $result = $trait->getIllustration($crawler);

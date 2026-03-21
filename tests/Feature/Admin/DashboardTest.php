@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -49,7 +50,7 @@ it('displays total failed jobs count', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     DB::table('failed_jobs')->insert([
-        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+        'uuid' => (string) Str::uuid(),
         'connection' => 'database',
         'queue' => 'default',
         'payload' => json_encode(['displayName' => 'Test Job']),
@@ -116,7 +117,7 @@ it('displays failed jobs queue breakdown', function (): void {
 
     DB::table('failed_jobs')->insert([
         [
-            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'connection' => 'database',
             'queue' => 'default',
             'payload' => json_encode(['displayName' => 'Default Job']),
@@ -124,7 +125,7 @@ it('displays failed jobs queue breakdown', function (): void {
             'failed_at' => now(),
         ],
         [
-            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'connection' => 'database',
             'queue' => 'default',
             'payload' => json_encode(['displayName' => 'Default Job']),
@@ -132,7 +133,7 @@ it('displays failed jobs queue breakdown', function (): void {
             'failed_at' => now(),
         ],
         [
-            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'connection' => 'database',
             'queue' => 'expensive',
             'payload' => json_encode(['displayName' => 'Expensive Job']),

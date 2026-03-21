@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
  *     queue?: string,
  *     payload?: string,
  *     exception?: string,
- *     failed_at?: \DateTimeInterface|string
+ *     failed_at?: DateTimeInterface|string
  * }  $overrides
  */
 $insertFailedJob = static function (array $overrides = []): int {

@@ -8,7 +8,7 @@ use App\Models\Rsi\CommLink\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rsi\CommLink\Category>
+ * @extends Factory<Category>
  */
 class CategoryFactory extends Factory
 {

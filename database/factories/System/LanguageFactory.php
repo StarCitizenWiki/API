@@ -8,7 +8,7 @@ use App\Models\System\Language;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\System\Language>
+ * @extends Factory<Language>
  */
 class LanguageFactory extends Factory
 {

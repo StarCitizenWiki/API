@@ -249,7 +249,7 @@ class SyncStarmap implements ShouldQueue
 
         try {
             $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             Log::error('Failed to decode starsystem JSON from disk', [
                 'system_code' => $systemCode,
                 'path' => $path,

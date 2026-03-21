@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Cache;
 
 use Closure;
+use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Facades\Cache;
 
 final class RelatedItemsCache
@@ -57,7 +58,7 @@ final class RelatedItemsCache
 
         $store = Cache::getStore();
 
-        if ($store instanceof \Illuminate\Cache\RedisStore) {
+        if ($store instanceof RedisStore) {
             $redis = $store->connection();
             $keys = $redis->keys($pattern);
 

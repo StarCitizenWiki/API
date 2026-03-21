@@ -9,6 +9,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Support\Cache\RelatedItemsCache;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
 class RelatedItemsBuilder
@@ -500,7 +501,7 @@ class RelatedItemsBuilder
     /**
      * Get the ItemData for the current game version from an Item.
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     private function getItemDataForVersion(Item $item): ItemData
     {

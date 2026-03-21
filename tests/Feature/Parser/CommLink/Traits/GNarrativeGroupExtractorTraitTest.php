@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts g-article headline', function () {
@@ -22,7 +23,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -48,7 +49,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -74,7 +75,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -104,7 +105,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -133,7 +134,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -166,7 +167,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -192,7 +193,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -216,7 +217,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -240,7 +241,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -266,7 +267,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);
@@ -291,7 +292,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
+        use GNarrativeGroupExtractorTrait;
     };
 
     $result = $extractor->getNarrativeGroup($crawler);

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\Api\Game\ResolveGameVersion;
+use App\Http\Middleware\MigrateLimitParameter;
+use App\Http\Middleware\PersistSelectedGameVersion;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -31,12 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $middleware->web(append: [
-            \App\Http\Middleware\PersistSelectedGameVersion::class,
+            PersistSelectedGameVersion::class,
         ]);
 
         $middleware->alias([
-            'game.version' => \App\Http\Middleware\Api\Game\ResolveGameVersion::class,
-            'limit.parameter' => \App\Http\Middleware\MigrateLimitParameter::class,
+            'game.version' => ResolveGameVersion::class,
+            'limit.parameter' => MigrateLimitParameter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

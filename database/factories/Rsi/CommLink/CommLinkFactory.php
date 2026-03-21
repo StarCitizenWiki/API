@@ -11,7 +11,7 @@ use App\Models\Rsi\CommLink\Series;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rsi\CommLink\CommLink>
+ * @extends Factory<CommLink>
  */
 class CommLinkFactory extends Factory
 {

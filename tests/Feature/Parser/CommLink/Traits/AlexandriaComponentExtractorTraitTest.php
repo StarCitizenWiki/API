@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Parser\CommLink\Traits;
 
+use App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts text component with all props', function (): void {
@@ -20,7 +21,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -44,7 +45,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -66,7 +67,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -91,7 +92,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -114,7 +115,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -136,7 +137,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -162,7 +163,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -184,7 +185,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);
@@ -209,7 +210,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
+        use AlexandriaComponentExtractorTrait;
     };
 
     $result = $extractor->getAlexandriaComponents($crawler);

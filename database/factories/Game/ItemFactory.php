@@ -8,7 +8,7 @@ use App\Models\Game\Item;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Game\Item>
+ * @extends Factory<Item>
  */
 class ItemFactory extends Factory
 {

@@ -28,9 +28,9 @@ it('profile controller exists and has required methods', function (): void {
 it('profile controller methods have proper return types', function (): void {
     $controller = new ProfileController;
 
-    $showReflection = new \ReflectionMethod($controller, 'show');
-    $createTokenReflection = new \ReflectionMethod($controller, 'createToken');
-    $destroyReflection = new \ReflectionMethod($controller, 'destroy');
+    $showReflection = new ReflectionMethod($controller, 'show');
+    $createTokenReflection = new ReflectionMethod($controller, 'createToken');
+    $destroyReflection = new ReflectionMethod($controller, 'destroy');
 
     expect($showReflection->getReturnType()->getName())->toBe('Illuminate\View\View')
         ->and($createTokenReflection->getReturnType()->getName())->toBe('Illuminate\Http\RedirectResponse')

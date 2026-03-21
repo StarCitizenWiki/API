@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('extracts author information from g-author element', function () {
@@ -23,7 +24,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -51,7 +52,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -78,7 +79,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -103,7 +104,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -126,7 +127,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -148,7 +149,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -174,7 +175,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);
@@ -204,7 +205,7 @@ HTML;
 
     $extractor = new class
     {
-        use \App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
+        use GAuthorExtractorTrait;
     };
 
     $result = $extractor->getAuthor($crawler);

@@ -8,7 +8,7 @@ use App\Models\Game\GameVersion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Game\GameVersion>
+ * @extends Factory<GameVersion>
  */
 class GameVersionFactory extends Factory
 {
