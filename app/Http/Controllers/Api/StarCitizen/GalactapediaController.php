@@ -47,14 +47,14 @@ class GalactapediaController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Article::class, $request)
-            ->allowedFilters([
+            ->allowedFilters(...[
                 AllowedFilter::scope('category'),
                 AllowedFilter::scope('tag'),
                 AllowedFilter::scope('template'),
                 AllowedFilter::partial('title'),
                 AllowedFilter::custom('created_at', new DateFilter('created_at')),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 'title',
                 'categories_count',
                 'tags_count',
@@ -295,7 +295,7 @@ class GalactapediaController extends Controller
         ],
         deprecated: true,
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $query = $request->validated('query');
 

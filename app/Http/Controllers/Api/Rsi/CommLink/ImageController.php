@@ -125,7 +125,7 @@ class ImageController extends Controller
         $limit = $request->has('limit') ? min($request->get('limit'), 100) : 1;
 
         $query = QueryBuilder::for(Image::class, $request)
-            ->allowedFilters([
+            ->allowedFilters(...[
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
@@ -158,7 +158,7 @@ class ImageController extends Controller
     public function search(SearchRequest $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-            ->allowedFilters([
+            ->allowedFilters(...[
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereNull('base_image_id')

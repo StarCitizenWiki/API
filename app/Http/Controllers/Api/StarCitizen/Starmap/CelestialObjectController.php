@@ -12,6 +12,7 @@ use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -29,14 +30,14 @@ class CelestialObjectController extends Controller
     private function buildBaseQuery(Request $request, ?string $code = null): QueryBuilder
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
-            ->allowedIncludes(CelestialObjectResource::validIncludes())
-            ->allowedFilters([
+            ->allowedIncludes(...CelestialObjectResource::validIncludes())
+            ->allowedFilters(...[
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('designation'),
                 AllowedFilter::exact('type'),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 AllowedSort::field('id', 'cig_id'),
                 AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
                 'name',
@@ -208,7 +209,7 @@ class CelestialObjectController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $query = mb_strtoupper($request->validated('query'));
 

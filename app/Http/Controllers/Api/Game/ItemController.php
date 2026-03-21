@@ -81,8 +81,8 @@ class ItemController extends Controller
         return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
-            ->allowedFilters($this->allowedFilters())
-            ->allowedSorts(array_merge(
+            ->allowedFilters(...$this->allowedFilters())
+            ->allowedSorts(...array_merge(
                 [
                     'name',
                     'class_name',
@@ -98,7 +98,7 @@ class ItemController extends Controller
                 $this->allowedJsonSorts()
             ))
             ->defaultSort('name')
-            ->allowedIncludes($this->allowedIncludes())
+            ->allowedIncludes(...$this->allowedIncludes())
             ->with($withRelations);
     }
 
@@ -214,9 +214,15 @@ class ItemController extends Controller
     {
         $versionCode = $this->gameVersionCode();
 
-        $include = str_replace('related_items', '', $request->input('include', ''));
-        if (! empty($include)) {
-            $request->merge(['include' => $include]);
+        $include = collect(explode(',', (string) $request->input('include', '')))
+            ->map(fn (string $value): string => trim($value))
+            ->reject(fn (string $value): bool => $value === '' || $value === 'related_items')
+            ->implode(',');
+
+        if ($include === '') {
+            $request->query->remove('include');
+        } else {
+            $request->query->set('include', $include);
         }
 
         $query = $this->buildBaseQuery($request);
@@ -264,7 +270,7 @@ class ItemController extends Controller
         try {
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
-                ->allowedIncludes($this->allowedIncludes(includeRelatedItems: true))
+                ->allowedIncludes(...$this->allowedIncludes(includeRelatedItems: true))
                 ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData']);
 
             $itemData = null;
@@ -353,7 +359,7 @@ class ItemController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $versionCode = $this->gameVersionCode();
         $toSearch = $request->validated('query');
@@ -445,7 +451,7 @@ class ItemController extends Controller
                 $baseQuery = QueryBuilder::for(ItemData::class, $request)
                     ->forRequestedOrDefaultVersion($versionCode)
                     ->forCategory($category)
-                    ->allowedFilters($this->allowedFilters());
+                    ->allowedFilters(...$this->allowedFilters());
 
                 $facets = [
                     'type' => [

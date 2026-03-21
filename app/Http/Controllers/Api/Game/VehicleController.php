@@ -174,7 +174,7 @@ class VehicleController extends Controller
                         ->orWhere('class_name', strtoupper($underscored))
                         ->orWhere('class_name', 'LIKE', "%_{$underscored}");
                 })
-                ->allowedIncludes($allowedIncludes)
+                ->allowedIncludes(...$allowedIncludes)
                 ->with(['vehicle', 'gameVersion', 'manufacturer'])
                 ->first();
 
@@ -302,7 +302,7 @@ class VehicleController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
@@ -454,7 +454,13 @@ class VehicleController extends Controller
         }
 
         $allowedLookup = collect($allowedIncludes)
-            ->mapWithKeys(fn (string $include) => [strtolower($include) => $include])
+            ->mapWithKeys(function (AllowedInclude|string $include): array {
+                $includeName = $include instanceof AllowedInclude
+                    ? $include->getName()
+                    : $include;
+
+                return [strtolower($includeName) => $includeName];
+            })
             ->toArray();
 
         $aliases = [
@@ -514,10 +520,10 @@ class VehicleController extends Controller
         return QueryBuilder::for(VehicleData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
-            ->allowedFilters($this->allowedFilters())
-            ->allowedSorts($this->allowedSorts())
+            ->allowedFilters(...$this->allowedFilters())
+            ->allowedSorts(...$this->allowedSorts())
             ->defaultSort('name')
-            ->allowedIncludes($allowedIncludes)
+            ->allowedIncludes(...$allowedIncludes)
             ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner', 'shipMatrixVehicle.skus']);
     }
 

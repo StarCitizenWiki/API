@@ -28,8 +28,8 @@ class StarsystemController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Starsystem::class, $request)
-            ->allowedIncludes(StarsystemResource::validIncludes())
-            ->allowedFilters([
+            ->allowedIncludes(...StarsystemResource::validIncludes())
+            ->allowedFilters(...[
                 AllowedFilter::exact('affiliation', 'affiliation.name'),
                 AllowedFilter::exact('code'),
                 AllowedFilter::partial('name'),
@@ -37,7 +37,7 @@ class StarsystemController extends Controller
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('size', 'aggregated_size'),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 'name',
                 'code',
                 'status',
@@ -150,7 +150,7 @@ class StarsystemController extends Controller
         $starsystem = QueryBuilder::for(Starsystem::class, $request)
             ->where('code', $code)
             ->orWhere('name', 'LIKE', "%$code%")
-            ->allowedIncludes(StarsystemResource::validIncludes())
+            ->allowedIncludes(...StarsystemResource::validIncludes())
             ->firstOrFail();
 
         if ($starsystem->relationLoaded('jumppoints')) {
@@ -198,7 +198,7 @@ class StarsystemController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $query = mb_strtoupper($request->validated('query'));
 

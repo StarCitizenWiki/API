@@ -84,8 +84,8 @@ class CommLinkController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(CommLink::class)
-            ->allowedIncludes(CommLinkResource::validIncludes())
-            ->allowedFilters([
+            ->allowedIncludes(...CommLinkResource::validIncludes())
+            ->allowedFilters(...[
                 AllowedFilter::exact('id', 'cig_id'),
                 AllowedFilter::partial('title'),
                 AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
@@ -118,7 +118,7 @@ class CommLinkController extends Controller
                 AllowedFilter::exact('series', 'series.name'),
                 AllowedFilter::custom('created_at', new DateFilter('created_at')),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 AllowedSort::field('id', 'cig_id'),
                 'title',
                 'images_count',
@@ -268,7 +268,7 @@ class CommLinkController extends Controller
         try {
             $commLink = QueryBuilder::for(CommLink::class)
                 ->where('cig_id', $commLink)
-                ->allowedIncludes(CommLinkResource::validIncludes())
+                ->allowedIncludes(...CommLinkResource::validIncludes())
                 ->with(['images.hash', 'images.metadata'])
                 ->withNavigation()
                 ->firstOrFail();

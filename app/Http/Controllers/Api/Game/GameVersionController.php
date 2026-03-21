@@ -24,12 +24,12 @@ class GameVersionController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(GameVersion::class, $request)
-            ->allowedFilters([
+            ->allowedFilters(...[
                 AllowedFilter::exact('code'),
                 AllowedFilter::exact('channel'),
                 AllowedFilter::exact('is_default'),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 'code',
                 'channel',
                 'released_at',

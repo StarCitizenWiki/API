@@ -17,6 +17,7 @@ use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
 use App\Services\ImageHash\PdqHasher;
 use App\Services\Parser\CommLink\Image as ImageParser;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
@@ -57,7 +58,7 @@ class CommLinkSearchController extends Controller
         ],
         deprecated: true,
     )]
-    public function searchByTitle(Request $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function searchByTitle(Request $request): AnonymousResourceCollection|JsonResponse
     {
         $request->validate((new CommLinkSearchRequest)->rules());
 
@@ -71,8 +72,8 @@ class CommLinkSearchController extends Controller
                     $builder->orWhere('cig_id', (int) $query);
                 }
             })
-            ->allowedIncludes(CommLinkResource::validIncludes())
-            ->allowedFilters([
+            ->allowedIncludes(...CommLinkResource::validIncludes())
+            ->allowedFilters(...[
                 AllowedFilter::exact('category', 'category.name'),
                 AllowedFilter::exact('series', 'series.name'),
                 AllowedFilter::exact('channel', 'channel.name'),

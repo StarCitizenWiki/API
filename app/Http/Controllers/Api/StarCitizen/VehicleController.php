@@ -31,7 +31,7 @@ class VehicleController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Vehicle::class, $request)
-            ->allowedFilters([
+            ->allowedFilters(...[
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
                 AllowedFilter::exact('size', 'size.slug'),
                 AllowedFilter::scope('type'),
@@ -39,7 +39,7 @@ class VehicleController extends Controller
                 AllowedFilter::scope('production_status'),
                 AllowedFilter::partial('name'),
             ])
-            ->allowedSorts([
+            ->allowedSorts(...[
                 AllowedSort::field('id', 'cig_id'),
                 'chassis_id',
                 'name',
@@ -287,7 +287,7 @@ class VehicleController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
         $toSearch = urldecode($request->validated('query'));
 
