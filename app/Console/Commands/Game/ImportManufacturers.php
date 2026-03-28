@@ -63,7 +63,7 @@ class ImportManufacturers extends Command
                     return false;
                 }
 
-                $hasRequiredKeys = isset($manufacturer['reference'], $manufacturer['name'], $manufacturer['code']);
+                $hasRequiredKeys = isset($manufacturer['reference']);
 
                 if (! $hasRequiredKeys) {
                     $skipped++;
