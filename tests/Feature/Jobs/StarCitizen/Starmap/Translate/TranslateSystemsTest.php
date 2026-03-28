@@ -31,6 +31,27 @@ it('translates systems without german translation', function () {
     expect($starsystem->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Sonne');
 });
 
+it('stores system translations in the configured locale', function (): void {
+    config()->set('services.deepl.target_locale', 'zh_CN');
+    config()->set('services.deepl.translation_locale', Language::CHINESE);
+
+    $starsystem = Starsystem::factory()->create();
+    $starsystem->setTranslation('translation', Language::ENGLISH, 'Sol');
+    $starsystem->save();
+
+    $this->mock(TranslationService::class, function ($mock) {
+        $mock->shouldReceive('translate')
+            ->once()
+            ->with('Sol', 'zh_CN')
+            ->andReturn('Taiyang');
+    });
+
+    (new TranslateSystems)->handle(app(TranslationService::class));
+
+    expect($starsystem->fresh()->getTranslation('translation', Language::CHINESE, false))->toBe('Taiyang')
+        ->and($starsystem->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+});
+
 it('stops processing when quota is exceeded', function () {
     $firstSystem = Starsystem::factory()->create();
     $secondSystem = Starsystem::factory()->create();

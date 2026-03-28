@@ -35,22 +35,26 @@ class TranslateSystems implements ShouldQueue
     {
         app('Log')::info('Translating Systems');
 
-        $targetLocale = config('services.deepl.target_locale', 'de');
+        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
+        $configuredTranslationLocale = config('services.deepl.translation_locale');
+        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
+            ? $configuredTranslationLocale
+            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
 
         Starsystem::query()
             ->whereNotNull('translation')
             ->chunk(
                 25,
-                function (Collection $systems) use ($translator, $targetLocale) {
+                function (Collection $systems) use ($translator, $targetLocale, $translationLocale) {
                     foreach ($systems as $starsystem) {
                         $english = $starsystem->getTranslation('translation', Language::ENGLISH, false);
-                        $german = $starsystem->getTranslation('translation', Language::GERMAN, false);
+                        $existingTranslation = $starsystem->getTranslation('translation', $translationLocale, false);
 
                         if ($english === null || $english === '') {
                             continue;
                         }
 
-                        if ($german !== null && $german !== '') {
+                        if ($existingTranslation !== null && $existingTranslation !== '') {
                             continue;
                         }
 
@@ -87,7 +91,7 @@ class TranslateSystems implements ShouldQueue
                             continue;
                         }
 
-                        $starsystem->setTranslation('translation', Language::GERMAN, $translation);
+                        $starsystem->setTranslation('translation', $translationLocale, $translation);
                         $starsystem->save();
                     }
 

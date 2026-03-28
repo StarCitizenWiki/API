@@ -105,6 +105,8 @@ Configure your `.env` file with the following variables. Priority indicators hel
 | Variable | Priority | Default | Description |
 |----------|----------|---------|-------------|
 | `DEEPL_AUTH_KEY` | 🟡 | *(empty)* | DeepL API key for automated translations |
+| `DEEPL_TARGET_LOCALE` | ⚪ | `de` | Locale sent to DeepL for automated translations |
+| `DEEPL_TRANSLATION_LOCALE` | ⚪ | *(derived from `DEEPL_TARGET_LOCALE`)* | Translation key used when saving automated translations. Override this when the DeepL locale differs from the app locale key, for example `de_DE` -> `de` |
 
 ### Authentication
 

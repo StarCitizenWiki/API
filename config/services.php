@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -18,6 +20,11 @@ return [
 
     'deepl' => [
         'auth_key' => env('DEEPL_AUTH_KEY'),
+        'target_locale' => env('DEEPL_TARGET_LOCALE', 'de'),
+        'translation_locale' => env(
+            'DEEPL_TRANSLATION_LOCALE',
+            strtolower(substr((string) env('DEEPL_TARGET_LOCALE', 'de'), 0, 2)) ?: 'de',
+        ),
     ],
 
     'comm_links' => [

@@ -37,6 +37,29 @@ it('translates comm-links without german translation', function () {
         ->and($german)->toBe('Hallo Welt');
 });
 
+it('stores comm-link translations in the configured locale', function (): void {
+    config()->set('services.deepl.target_locale', 'zh_CN');
+    config()->set('services.deepl.translation_locale', Language::CHINESE);
+
+    $category = Category::factory()->create(['name' => 'General']);
+    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
+
+    $commLink->setTranslation('translation', Language::ENGLISH, 'Hello World');
+    $commLink->save();
+
+    $this->mock(TranslationService::class, function ($mock) {
+        $mock->shouldReceive('translate')
+            ->once()
+            ->with('Hello World', 'zh_CN', 'en', 'less')
+            ->andReturn('Ni Hao');
+    });
+
+    (new TranslateCommLinks)->handle(app(TranslationService::class));
+
+    expect($commLink->fresh()->getTranslation('translation', Language::CHINESE, false))->toBe('Ni Hao')
+        ->and($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+});
+
 it('skips comm-links with existing german translation', function () {
     $category = Category::factory()->create(['name' => 'General']);
     $commLink = CommLink::factory()->create(['category_id' => $category->id]);

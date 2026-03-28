@@ -19,7 +19,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
 /**
- * Translate all Comm-Links without German translation
+ * Translate all Comm-Links without a translation in the configured target locale.
  */
 class TranslateCommLinks implements ShouldQueue
 {
@@ -29,7 +29,7 @@ class TranslateCommLinks implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Categories that should be translated with more formal German
+     * Categories that should be translated with more formal language.
      */
     private array $formalCategories = ['Lore', 'Short Stories'];
 
@@ -45,7 +45,11 @@ class TranslateCommLinks implements ShouldQueue
     {
         app('Log')::info('Translating Comm-Links');
 
-        $targetLocale = config('services.deepl.target_locale', 'de');
+        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
+        $configuredTranslationLocale = config('services.deepl.translation_locale');
+        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
+            ? $configuredTranslationLocale
+            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
 
         $query = CommLink::query()
             ->with(['category'])
@@ -57,16 +61,16 @@ class TranslateCommLinks implements ShouldQueue
 
         $query->chunk(
             25,
-            function (Collection $commLinks) use ($translator, $targetLocale) {
+            function (Collection $commLinks) use ($translator, $targetLocale, $translationLocale) {
                 foreach ($commLinks as $commLink) {
                     $english = $commLink->getTranslation('translation', Language::ENGLISH, false);
-                    $german = $commLink->getTranslation('translation', Language::GERMAN, false);
+                    $existingTranslation = $commLink->getTranslation('translation', $translationLocale, false);
 
                     if ($english === null || $english === '') {
                         continue;
                     }
 
-                    if ($german !== null && $german !== '') {
+                    if ($existingTranslation !== null && $existingTranslation !== '') {
                         continue;
                     }
 
@@ -105,7 +109,7 @@ class TranslateCommLinks implements ShouldQueue
                         continue;
                     }
 
-                    $commLink->setTranslation('translation', Language::GERMAN, $translation);
+                    $commLink->setTranslation('translation', $translationLocale, $translation);
                     $commLink->save();
                 }
 

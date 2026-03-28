@@ -39,17 +39,21 @@ class TranslateArticle implements ShouldQueue
     public function handle(TranslationService $translator): void
     {
         app('Log')::info("Translating Galactapedia Article {$this->article->cig_id}");
-        $targetLocale = config('services.deepl.target_locale', 'de');
+        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
+        $configuredTranslationLocale = config('services.deepl.translation_locale');
+        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
+            ? $configuredTranslationLocale
+            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
 
         $english = $this->article->getTranslation('translation', Language::ENGLISH, false);
-        $german = $this->article->getTranslation('translation', Language::GERMAN, false);
+        $existingTranslation = $this->article->getTranslation('translation', $translationLocale, false);
 
         if ($english === null || $english === '') {
             return;
         }
 
-        // Delete job german and english translation length don't differ in length by <= 20%
-        if ($german !== null && ((strlen($german) / strlen($english)) > 0.80)) {
+        // Delete job if an existing translation is already close in length to the English text.
+        if ($existingTranslation !== null && ((strlen($existingTranslation) / strlen($english)) > 0.80)) {
             $this->delete();
 
             return;
@@ -71,7 +75,7 @@ class TranslateArticle implements ShouldQueue
             return;
         }
 
-        $this->article->setTranslation('translation', Language::GERMAN, $translation);
+        $this->article->setTranslation('translation', $translationLocale, $translation);
         $this->article->save();
     }
 }
