@@ -2307,6 +2307,18 @@ components:
               $ref: '#/components/schemas/blueprint_requirement_node'
           nullable: true
       type: object
+    blueprint_ingredient:
+      title: 'Blueprint Ingredient'
+      description: 'Condensed ingredient summary used by blueprint list and detail responses.'
+      properties:
+        name:
+          type: string
+          nullable: true
+        resource_type_uuid:
+          type: string
+          format: uuid
+          nullable: true
+      type: object
     blueprint:
       title: Blueprint
       properties:
@@ -2337,13 +2349,12 @@ components:
           nullable: true
         ingredient_count:
           type: integer
-        output:
-          $ref: '#/components/schemas/blueprint_output'
-        ingredient_resource_type_uuids:
+        ingredients:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/blueprint_ingredient'
+        output:
+          $ref: '#/components/schemas/blueprint_output'
         availability:
           $ref: '#/components/schemas/blueprint_availability'
         requirement_groups:
@@ -2925,6 +2936,14 @@ components:
           nullable: true
         is_base_variant:
           type: boolean
+        is_craftable:
+          type: boolean
+        blueprint:
+          description: 'Crafting blueprints that produce this item. Only returned when the item is craftable.'
+          type: array
+          items:
+            $ref: '#/components/schemas/item_blueprint_link'
+          nullable: true
         grade:
           description: 'Only returned for Ship.* items (derived formatting for ship grades).'
           type: string
@@ -3376,6 +3395,18 @@ components:
           description: 'Game version code'
           type: string
           example: 4.4.0-LIVE.12340123
+      type: object
+    item_blueprint_link:
+      title: 'Item Blueprint Link'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        link:
+          type: string
+          format: uri
       type: object
     item_related_link:
       title: 'Related Item Link'

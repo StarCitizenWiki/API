@@ -11,10 +11,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class ItemData extends Model
 {
     use HasFactory;
+
+    private ?Collection $resolvedCraftingBlueprints = null;
+
+    private bool $hasResolvedCraftingBlueprints = false;
 
     protected $table = 'game_item_data';
 
@@ -82,6 +87,23 @@ class ItemData extends Model
     public function getDescriptionManufacturerAttribute()
     {
         return $this->getDescriptionDatum('Manufacturer');
+    }
+
+    /**
+     * @return array<int, array{uuid: string, name: string}>
+     */
+    public function getBlueprintAttribute(): array
+    {
+        return $this->craftingBlueprints()
+            ->filter(fn (BlueprintData $blueprintData): bool => $blueprintData->blueprint !== null)
+            ->map(fn (BlueprintData $blueprintData): array => $this->craftingBlueprintSummary($blueprintData))
+            ->values()
+            ->all();
+    }
+
+    public function getIsCraftableAttribute(): bool
+    {
+        return $this->blueprint !== [];
     }
 
     public function item(): BelongsTo
@@ -312,5 +334,142 @@ class ItemData extends Model
     public function scopeWithUexPrices(Builder $query): Builder
     {
         return $query->whereNotNull('uex_prices');
+    }
+
+    /**
+     * @param  Collection<int, self>  $itemDataCollection
+     */
+    public static function hydrateCraftingBlueprints(Collection $itemDataCollection): void
+    {
+        $itemsWithUuid = $itemDataCollection
+            ->filter(
+                fn (self $itemData): bool => $itemData->relationLoaded('item')
+                    && $itemData->item !== null
+                    && is_string($itemData->item->uuid)
+                    && $itemData->item->uuid !== ''
+            );
+
+        if ($itemsWithUuid->isEmpty()) {
+            return;
+        }
+
+        $itemUuids = $itemsWithUuid
+            ->map(fn (self $itemData): string => $itemData->item->uuid)
+            ->unique()
+            ->values()
+            ->all();
+
+        $gameVersionIds = $itemsWithUuid
+            ->pluck('game_version_id')
+            ->filter(fn (mixed $gameVersionId): bool => $gameVersionId !== null)
+            ->unique()
+            ->values()
+            ->all();
+
+        $craftingBlueprints = BlueprintData::query()
+            ->select([
+                'id',
+                'blueprint_id',
+                'game_version_id',
+                'output_item_uuid',
+                'output_name',
+                'key',
+            ])
+            ->with('blueprint:id,uuid')
+            ->whereIn('output_item_uuid', $itemUuids)
+            ->whereIn('game_version_id', $gameVersionIds)
+            ->orderByDesc('is_available_by_default')
+            ->orderBy('output_name')
+            ->orderBy('key')
+            ->orderBy('blueprint_id')
+            ->get()
+            ->groupBy(
+                fn (BlueprintData $blueprintData): string => sprintf(
+                    '%s:%s',
+                    $blueprintData->game_version_id,
+                    $blueprintData->output_item_uuid
+                )
+            );
+
+        $itemsWithUuid->each(function (self $itemData) use ($craftingBlueprints): void {
+            $itemData->setRelation(
+                'craftingBlueprints',
+                $craftingBlueprints->get(
+                    sprintf('%s:%s', $itemData->game_version_id, $itemData->item->uuid),
+                    collect()
+                )
+            );
+        });
+    }
+
+    /**
+     * @return Collection<int, BlueprintData>
+     */
+    private function craftingBlueprints(): Collection
+    {
+        if ($this->relationLoaded('craftingBlueprints')) {
+            /** @var Collection<int, BlueprintData> $craftingBlueprints */
+            $craftingBlueprints = $this->getRelation('craftingBlueprints');
+
+            return $craftingBlueprints;
+        }
+
+        if ($this->hasResolvedCraftingBlueprints) {
+            return $this->resolvedCraftingBlueprints ?? collect();
+        }
+
+        $this->hasResolvedCraftingBlueprints = true;
+
+        $itemUuid = $this->relationLoaded('item')
+            ? $this->item?->uuid
+            : $this->item()->value('uuid');
+
+        if (! is_string($itemUuid) || $itemUuid === '') {
+            $this->resolvedCraftingBlueprints = collect();
+
+            return $this->resolvedCraftingBlueprints;
+        }
+
+        $this->resolvedCraftingBlueprints = BlueprintData::query()
+            ->select([
+                'id',
+                'blueprint_id',
+                'game_version_id',
+                'output_item_uuid',
+                'output_name',
+                'key',
+            ])
+            ->with('blueprint:id,uuid')
+            ->where('game_version_id', $this->game_version_id)
+            ->where('output_item_uuid', $itemUuid)
+            ->orderByDesc('is_available_by_default')
+            ->orderBy('output_name')
+            ->orderBy('key')
+            ->orderBy('blueprint_id')
+            ->get();
+
+        return $this->resolvedCraftingBlueprints;
+    }
+
+    /**
+     * @return array{uuid: string, name: string}
+     */
+    private function craftingBlueprintSummary(BlueprintData $blueprintData): array
+    {
+        return [
+            'uuid' => $blueprintData->blueprint->uuid,
+            'name' => $this->resolveCraftingBlueprintName($blueprintData),
+        ];
+    }
+
+    private function resolveCraftingBlueprintName(BlueprintData $blueprintData): string
+    {
+        foreach ([$blueprintData->output_name, $blueprintData->key, $blueprintData->blueprint->uuid] as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return trim($candidate);
+            }
+        }
+
+        return $blueprintData->blueprint->uuid;
     }
 }

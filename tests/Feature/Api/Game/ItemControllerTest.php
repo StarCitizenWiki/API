@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -45,7 +47,91 @@ it('shows an item by uuid', function (): void {
     $response->assertSuccessful()
         ->assertJsonPath('data.uuid', $item->uuid)
         ->assertJsonPath('data.name', 'Faction Jacket Green')
-        ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
+        ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01')
+        ->assertJsonPath('data.is_craftable', false)
+        ->assertJsonMissingPath('data.blueprint');
+});
+
+it('includes all crafting blueprints when an item is craftable', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Crafted Component',
+            'type' => 'Widget',
+            'class_name' => 'crafted_component',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $alphaBlueprint = Blueprint::factory()->create();
+    $betaBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($alphaBlueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_ALPHA_COMPONENT',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Alpha Component Blueprint',
+            'is_available_by_default' => false,
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Alpha Component Blueprint',
+                    'class' => 'bp_alpha_component',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($betaBlueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_BETA_COMPONENT',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Beta Component Blueprint',
+            'is_available_by_default' => false,
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Beta Component Blueprint',
+                    'class' => 'bp_beta_component',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonCount(2, 'data.blueprint')
+        ->assertJsonPath('data.blueprint.0.uuid', $alphaBlueprint->uuid)
+        ->assertJsonPath('data.blueprint.0.name', 'Alpha Component Blueprint')
+        ->assertJsonPath('data.blueprint.0.link', route('blueprints.show', ['blueprint' => $alphaBlueprint->uuid]))
+        ->assertJsonPath('data.blueprint.1.uuid', $betaBlueprint->uuid)
+        ->assertJsonPath('data.blueprint.1.name', 'Beta Component Blueprint')
+        ->assertJsonPath('data.blueprint.1.link', route('blueprints.show', ['blueprint' => $betaBlueprint->uuid]));
+
+    $craftingLookupQuery = collect(DB::getQueryLog())
+        ->pluck('query')
+        ->map(static fn (string $query): string => strtolower($query))
+        ->first(static fn (string $query): bool => str_contains($query, 'from "game_blueprint_data"'));
+
+    expect($craftingLookupQuery)->not->toBeNull()
+        ->and($craftingLookupQuery)->not->toContain('select * from "game_blueprint_data"')
+        ->and($craftingLookupQuery)->not->toContain('"game_blueprint_data"."data"')
+        ->and($craftingLookupQuery)->toContain('"blueprint_id"')
+        ->and($craftingLookupQuery)->toContain('"output_name"')
+        ->and($craftingLookupQuery)->toContain('"key"');
 });
 
 it('uses uuid-specific lookup before name or class_name fallbacks', function (): void {
@@ -281,6 +367,83 @@ it('includes web urls with version in item index', function (): void {
 
     expect($response->json('data.0.web_url'))->toContain('version=4.0.0-LIVE');
     expect($response->json('data.0.type_web_url'))->toContain('version=4.0.0-LIVE');
+});
+
+it('includes craftability in item index results', function (): void {
+    $craftableItem = Item::factory()->create();
+    $nonCraftableItem = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($craftableItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Alpha Crafted Item',
+            'type' => 'Widget',
+            'class_name' => 'alpha_crafted_item',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    ItemData::factory()
+        ->for($nonCraftableItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Beta Non Crafted Item',
+            'type' => 'Widget',
+            'class_name' => 'beta_non_crafted_item',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_ALPHA_CRAFTED_ITEM',
+            'output_item_uuid' => $craftableItem->uuid,
+            'output_name' => 'Alpha Crafted Item Blueprint',
+            'data' => [
+                'output' => [
+                    'uuid' => $craftableItem->uuid,
+                    'name' => 'Alpha Crafted Item Blueprint',
+                    'class' => 'bp_alpha_crafted_item',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $response = $this->getJson('/api/items');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.uuid', $craftableItem->uuid)
+        ->assertJsonPath('data.0.is_craftable', true)
+        ->assertJsonPath('data.0.blueprint.0.uuid', $blueprint->uuid)
+        ->assertJsonPath('data.1.uuid', $nonCraftableItem->uuid)
+        ->assertJsonPath('data.1.is_craftable', false)
+        ->assertJsonMissingPath('data.1.blueprint');
+
+    $craftingLookupQuery = collect(DB::getQueryLog())
+        ->pluck('query')
+        ->map(static fn (string $query): string => strtolower($query))
+        ->first(
+            static fn (string $query): bool => str_contains($query, 'from "game_blueprint_data"')
+                && str_contains($query, 'where "output_item_uuid" in')
+        );
+
+    expect($craftingLookupQuery)->not->toBeNull()
+        ->and($craftingLookupQuery)->not->toContain('select * from "game_blueprint_data"')
+        ->and($craftingLookupQuery)->not->toContain('"game_blueprint_data"."data"')
+        ->and($craftingLookupQuery)->toContain('"blueprint_id"')
+        ->and($craftingLookupQuery)->toContain('"output_name"')
+        ->and($craftingLookupQuery)->toContain('"key"');
 });
 
 it('includes version in api link when version is requested in item show', function (): void {

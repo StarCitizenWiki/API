@@ -298,6 +298,8 @@ class ItemController extends Controller
                 throw new ModelNotFoundException;
             }
 
+            ItemData::hydrateCraftingBlueprints(collect([$itemData]));
+
             $item = $itemData->item;
             $item->setRelation('data', collect([$itemData]));
         } catch (ModelNotFoundException) {
@@ -615,6 +617,8 @@ class ItemController extends Controller
     private function transformToItems($itemDataCollection, ?string $versionCode): mixed
     {
         if ($itemDataCollection instanceof LengthAwarePaginator) {
+            ItemData::hydrateCraftingBlueprints($itemDataCollection->getCollection());
+
             $items = $itemDataCollection->getCollection()->map(function (ItemData $itemData) {
                 $item = $itemData->item;
                 $item->setRelation('data', collect([$itemData]));
@@ -624,6 +628,8 @@ class ItemController extends Controller
 
             return $itemDataCollection->setCollection($items);
         }
+
+        ItemData::hydrateCraftingBlueprints($itemDataCollection);
 
         return $itemDataCollection->map(function (ItemData $itemData) {
             $item = $itemData->item;

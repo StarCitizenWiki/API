@@ -97,6 +97,14 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(property: 'is_base_variant', type: 'boolean'),
+        new OA\Property(property: 'is_craftable', type: 'boolean'),
+        new OA\Property(
+            property: 'blueprint',
+            description: 'Crafting blueprints that produce this item. Only returned when the item is craftable.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_blueprint_link'),
+            nullable: true
+        ),
 
         new OA\Property(
             property: 'grade',
@@ -335,6 +343,16 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'item_blueprint_link',
+    title: 'Item Blueprint Link',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'link', type: 'string', format: 'uri'),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'item_related_link',
     title: 'Related Item Link',
     description: 'Minimal link information for a related item',
@@ -430,6 +448,10 @@ class ItemResource extends AbstractBaseResource
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
+            'is_craftable' => $itemData->is_craftable,
+            $this->mergeWhen($itemData->is_craftable, [
+                'blueprint' => $this->buildBlueprintPayload($itemData, $request),
+            ]),
             $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
                 'grade' => $this->formatGrade($itemData),
                 'class' => $itemData->class,
@@ -531,6 +553,24 @@ class ItemResource extends AbstractBaseResource
         }
 
         return url()->query($url, ['version' => $version]);
+    }
+
+    /**
+     * @return array<int, array{uuid: string, name: string, link: string}>
+     */
+    private function buildBlueprintPayload(ItemData $itemData, Request $request): array
+    {
+        return collect($itemData->blueprint)
+            ->map(fn (array $blueprint): array => [
+                'uuid' => $blueprint['uuid'],
+                'name' => $blueprint['name'],
+                'link' => $this->urlWithVersion(
+                    route('blueprints.show', ['blueprint' => $blueprint['uuid']]),
+                    $request
+                ),
+            ])
+            ->values()
+            ->all();
     }
 
     /**
