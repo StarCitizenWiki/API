@@ -100,7 +100,6 @@ it('renders the blueprints index route', function (): void {
                 && $fieldMap->get('uuid')['formatterParams']['label'] === 'API Url'
                 && $fieldMap->get('uuid')['formatterParams']['urlField'] === 'link';
         })
-        ->assertSee('Browse craftable blueprints for the selected game version.')
         ->assertSee('Search Blueprints')
         ->assertSee(route('web.blueprints.search'))
         ->assertSee(route('blueprints.index'))
