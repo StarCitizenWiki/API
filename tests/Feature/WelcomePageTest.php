@@ -25,6 +25,7 @@ it('renders the welcome page categories for guests', function (): void {
             'Comm-Links',
             'Vehicles',
             'All Items',
+            'Blueprints',
             'Stats',
             'Systems',
             'Celestial Objects',
@@ -33,6 +34,7 @@ it('renders the welcome page categories for guests', function (): void {
         ]);
 
     $response->assertSee('name="filter[name]"', false);
+    $response->assertSee(route('web.blueprints.index'));
 
     $response->assertDontSee('Admin');
 });

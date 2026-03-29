@@ -52,6 +52,7 @@
                                     <h2 class="menu-title">Items</h2>
                                     <ul>
                                         <li><a href="{{ route('web.items.index') }}">All Items</a></li>
+                                        <li><a href="{{ route('web.blueprints.index') }}">Blueprints</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['type' => 'WeaponPersonal']]) }}">Personal Weapons</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'fps-armor']]) }}">Personal Armor</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'weapon-attachments']]) }}">Weapon Attachments</a></li>
