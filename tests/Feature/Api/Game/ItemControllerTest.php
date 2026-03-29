@@ -134,6 +134,71 @@ it('includes all crafting blueprints when an item is craftable', function (): vo
         ->and($craftingLookupQuery)->toContain('"key"');
 });
 
+it('uses recipe keys when multiple crafting blueprints share the same output name', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Karna Rifle',
+            'type' => 'Weapon',
+            'class_name' => 'karna_rifle',
+            'classification' => 'FPS.Weapon.Rifle',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $alphaBlueprint = Blueprint::factory()->create();
+    $betaBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($alphaBlueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_KARNA_RIFLE_DEFAULT',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Karna Rifle',
+            'is_available_by_default' => false,
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Karna Rifle',
+                    'class' => 'bp_karna_rifle_default',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($betaBlueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_KARNA_RIFLE_EVENT',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Karna Rifle',
+            'is_available_by_default' => false,
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Karna Rifle',
+                    'class' => 'bp_karna_rifle_event',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonCount(2, 'data.blueprint')
+        ->assertJsonPath('data.blueprint.0.uuid', $alphaBlueprint->uuid)
+        ->assertJsonPath('data.blueprint.0.name', 'BP_KARNA_RIFLE_DEFAULT')
+        ->assertJsonPath('data.blueprint.1.uuid', $betaBlueprint->uuid)
+        ->assertJsonPath('data.blueprint.1.name', 'BP_KARNA_RIFLE_EVENT');
+});
+
 it('uses uuid-specific lookup before name or class_name fallbacks', function (): void {
     $item = Item::factory()->create();
     $decoyItem = Item::factory()->create();

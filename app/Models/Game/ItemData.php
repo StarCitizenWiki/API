@@ -94,10 +94,28 @@ class ItemData extends Model
      */
     public function getBlueprintAttribute(): array
     {
-        return $this->craftingBlueprints()
+        $craftingBlueprints = $this->craftingBlueprints()
             ->filter(fn (BlueprintData $blueprintData): bool => $blueprintData->blueprint !== null)
-            ->map(fn (BlueprintData $blueprintData): array => $this->craftingBlueprintSummary($blueprintData))
-            ->values()
+            ->values();
+
+        /** @var array<string, bool> $ambiguousOutputNames */
+        $ambiguousOutputNames = array_fill_keys(
+            $craftingBlueprints
+                ->map(
+                    fn (BlueprintData $blueprintData): ?string => $this->normalizeCraftingBlueprintLabel($blueprintData->output_name)
+                )
+                ->filter(fn (?string $outputName): bool => $outputName !== null)
+                ->countBy()
+                ->filter(fn (int $count): bool => $count > 1)
+                ->keys()
+                ->all(),
+            true
+        );
+
+        return $craftingBlueprints
+            ->map(
+                fn (BlueprintData $blueprintData): array => $this->craftingBlueprintSummary($blueprintData, $ambiguousOutputNames)
+            )
             ->all();
     }
 
@@ -452,24 +470,47 @@ class ItemData extends Model
     }
 
     /**
+     * @param  array<string, bool>  $ambiguousOutputNames
      * @return array{uuid: string, name: string}
      */
-    private function craftingBlueprintSummary(BlueprintData $blueprintData): array
+    private function craftingBlueprintSummary(BlueprintData $blueprintData, array $ambiguousOutputNames): array
     {
         return [
             'uuid' => $blueprintData->blueprint->uuid,
-            'name' => $this->resolveCraftingBlueprintName($blueprintData),
+            'name' => $this->resolveCraftingBlueprintName($blueprintData, $ambiguousOutputNames),
         ];
     }
 
-    private function resolveCraftingBlueprintName(BlueprintData $blueprintData): string
+    /**
+     * @param  array<string, bool>  $ambiguousOutputNames
+     */
+    private function resolveCraftingBlueprintName(BlueprintData $blueprintData, array $ambiguousOutputNames): string
     {
-        foreach ([$blueprintData->output_name, $blueprintData->key, $blueprintData->blueprint->uuid] as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return trim($candidate);
+        $outputName = $this->normalizeCraftingBlueprintLabel($blueprintData->output_name);
+
+        if ($outputName !== null && ! isset($ambiguousOutputNames[$outputName])) {
+            return $outputName;
+        }
+
+        foreach ([$blueprintData->key, $blueprintData->blueprint->uuid, $outputName] as $candidate) {
+            $normalizedCandidate = $this->normalizeCraftingBlueprintLabel($candidate);
+
+            if ($normalizedCandidate !== null) {
+                return $normalizedCandidate;
             }
         }
 
         return $blueprintData->blueprint->uuid;
+    }
+
+    private function normalizeCraftingBlueprintLabel(mixed $candidate): ?string
+    {
+        if (! is_string($candidate)) {
+            return null;
+        }
+
+        $candidate = trim($candidate);
+
+        return $candidate !== '' ? $candidate : null;
     }
 }
