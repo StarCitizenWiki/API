@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Game\BlueprintController;
 use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
+use App\Http\Controllers\Api\Game\ResourceTypeController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkSearchController;
@@ -103,6 +105,12 @@ Route::group(
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
             Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
+
+            Route::get('resource-types', [ResourceTypeController::class, 'index'])->name('resource-types.index');
+            Route::get('resource-types/{resourceType}/blueprints', [ResourceTypeController::class, 'lookup'])
+                ->name('resource-types.blueprints.lookup');
+            Route::get('blueprints', [BlueprintController::class, 'index'])->name('blueprints.index');
+            Route::get('blueprints/{blueprint}', [BlueprintController::class, 'show'])->name('blueprints.show');
 
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
             Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');

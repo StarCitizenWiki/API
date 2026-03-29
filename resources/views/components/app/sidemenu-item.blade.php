@@ -13,6 +13,12 @@
 ])
 
 @php
+    $routeIsPatterns = match (true) {
+        is_array($routeIs) => $routeIs,
+        $routeIs === null => [],
+        default => [$routeIs],
+    };
+
     $resolvedVersionCode = $versionCode
         ?? ($selectedGameVersionCode ?? null)
         ?? session('game_version_code')
@@ -37,8 +43,8 @@
     $hasQueryFilters = $resolvedQueryFilters !== [];
     $hasCustomActive = $activeWhenFiltersEmpty || $activeFiltersAny !== [];
 
-    if ($routeIs) {
-        $isActive = request()->routeIs($routeIs);
+    if ($routeIsPatterns !== []) {
+        $isActive = request()->routeIs(...$routeIsPatterns);
     } elseif ($route) {
         $isActive = request()->routeIs($route);
 

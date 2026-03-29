@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class AbstractBaseResource extends JsonResource
@@ -43,5 +44,16 @@ abstract class AbstractBaseResource extends JsonResource
         }
 
         $this->additional['meta'][$key] = $value;
+    }
+
+    protected function urlWithVersion(string $url, Request $request): string
+    {
+        $version = $request->query('version');
+
+        if (! is_string($version) || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
     }
 }

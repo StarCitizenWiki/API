@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\Game\BlueprintController;
 use App\Http\Controllers\Web\Game\ItemController;
 use App\Http\Controllers\Web\Game\VehicleController;
 use App\Http\Controllers\Web\Rsi\CommLinkController;
@@ -40,6 +41,12 @@ Route::get('/galactapedia/{article}', [GalactapediaController::class, 'show'])->
 
 Route::get('/vehicles', [VehicleController::class, 'index'])->name('web.vehicles.index');
 Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('web.vehicles.show');
+
+Route::get('/blueprints', [BlueprintController::class, 'index'])->name('web.blueprints.index');
+Route::get('/blueprints/search', [BlueprintController::class, 'app'])->name('web.blueprints.search');
+Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
+    ->whereUuid('blueprint')
+    ->name('web.blueprints.show');
 
 Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
 Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.items.show');

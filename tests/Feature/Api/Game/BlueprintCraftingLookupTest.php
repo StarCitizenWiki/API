@@ -1,0 +1,1074 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
+use App\Models\Game\GameVersion;
+use App\Models\Game\ResourceType;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    $this->defaultVersion = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $this->requestedVersion = GameVersion::factory()->create([
+        'code' => '4.0.0-PTU',
+        'channel' => 'ptu',
+        'released_at' => now()->subDay(),
+        'is_default' => false,
+    ]);
+});
+
+it('lists resource types', function (): void {
+    $alpha = ResourceType::factory()->create([
+        'key' => 'AlphaResource',
+        'name' => 'Alpha Resource',
+    ]);
+
+    $beta = ResourceType::factory()->create([
+        'key' => 'BetaResource',
+        'name' => 'Beta Resource',
+    ]);
+
+    $response = $this->getJson('/api/resource-types');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.uuid', $alpha->uuid)
+        ->assertJsonPath('data.0.key', 'AlphaResource')
+        ->assertJsonPath('data.0.link', route('resource-types.blueprints.lookup', ['resourceType' => $alpha->uuid]))
+        ->assertJsonPath('data.1.uuid', $beta->uuid);
+});
+
+it('can filter resource types to only those used by blueprints for the resolved game version', function (): void {
+    $usedInDefault = ResourceType::factory()->create([
+        'key' => 'UsedDefault',
+        'name' => 'Used Default',
+    ]);
+
+    $usedInRequested = ResourceType::factory()->create([
+        'key' => 'UsedRequested',
+        'name' => 'Used Requested',
+    ]);
+
+    ResourceType::factory()->create([
+        'key' => 'UnusedResource',
+        'name' => 'Unused Resource',
+    ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'ingredient_resource_type_uuids' => [$usedInDefault->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->requestedVersion, 'gameVersion')
+        ->create([
+            'ingredient_resource_type_uuids' => [$usedInRequested->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $defaultResponse = $this->getJson('/api/resource-types?'.http_build_query([
+        'filter' => [
+            'used' => true,
+        ],
+    ]));
+
+    $requestedResponse = $this->getJson('/api/resource-types?'.http_build_query([
+        'version' => $this->requestedVersion->code,
+        'filter' => [
+            'used' => true,
+        ],
+    ]));
+
+    $defaultResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $usedInDefault->uuid);
+
+    $requestedResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $usedInRequested->uuid)
+        ->assertJsonPath(
+            'data.0.link',
+            route('resource-types.blueprints.lookup', [
+                'resourceType' => $usedInRequested->uuid,
+                'version' => $this->requestedVersion->code,
+            ]),
+        );
+});
+
+it('rejects invalid used filters', function (): void {
+    $response = $this->getJson('/api/resource-types?'.http_build_query([
+        'filter' => [
+            'used' => 'maybe',
+        ],
+    ]));
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['filter.used']);
+});
+
+it('returns blueprints that consume a resource type for the resolved game version', function (): void {
+    $resourceType = ResourceType::factory()->create();
+    $otherResourceType = ResourceType::factory()->create();
+
+    $matchingBlueprint = Blueprint::factory()->create();
+    BlueprintData::factory()
+        ->for($matchingBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_MATCHING',
+            'output_item_uuid' => fake()->uuid(),
+            'ingredient_resource_type_uuids' => [$resourceType->uuid, $otherResourceType->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $nonMatchingBlueprint = Blueprint::factory()->create();
+    BlueprintData::factory()
+        ->for($nonMatchingBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_NON_MATCHING',
+            'output_item_uuid' => fake()->uuid(),
+            'ingredient_resource_type_uuids' => [$otherResourceType->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($matchingBlueprint, 'blueprint')
+        ->for($this->requestedVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_MATCHING_PTU',
+            'output_item_uuid' => fake()->uuid(),
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson(route('resource-types.blueprints.lookup', ['resourceType' => $resourceType->uuid]));
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
+        ->assertJsonPath('data.0.key', 'BP_MATCHING')
+        ->assertJsonPath('data.0.game_version', $this->defaultVersion->code)
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $resourceType->uuid)
+        ->assertJsonMissingPath('data.0.tiers')
+        ->assertJsonMissingPath('data.0.ingredient_names')
+        ->assertJsonMissingPath('data.0.ingredient_resource_type_uuids')
+        ->assertJsonMissingPath('data.0.ingredient_overview');
+});
+
+it('lists blueprints for the resolved game version', function (): void {
+    $defaultBlueprint = Blueprint::factory()->create();
+    $requestedBlueprint = Blueprint::factory()->create();
+    $defaultResourceUuid = fake()->uuid();
+    $requestedResourceUuid = fake()->uuid();
+
+    BlueprintData::factory()
+        ->for($defaultBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_DEFAULT',
+            'output_name' => 'Default Output',
+            'output_class' => 'default_output',
+            'data' => [
+                'output' => [
+                    'name' => 'Default Output',
+                    'class' => 'default_output',
+                ],
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => $defaultResourceUuid,
+                                    'name' => 'Hephaestanite',
+                                    'quantity_scu' => 0.03,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($requestedBlueprint, 'blueprint')
+        ->for($this->requestedVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_REQUESTED',
+            'output_name' => 'Requested Output',
+            'output_class' => 'requested_output',
+            'data' => [
+                'output' => [
+                    'name' => 'Requested Output',
+                    'class' => 'requested_output',
+                ],
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => $requestedResourceUuid,
+                                    'name' => 'Iron',
+                                    'quantity_scu' => 0.03,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $defaultResponse = $this->getJson('/api/blueprints');
+    $requestedResponse = $this->getJson("/api/blueprints?version={$this->requestedVersion->code}");
+
+    $defaultResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $defaultBlueprint->uuid)
+        ->assertJsonPath('data.0.key', 'BP_DEFAULT')
+        ->assertJsonPath('data.0.output_name', 'Default Output')
+        ->assertJsonPath('data.0.output_class', 'default_output')
+        ->assertJsonPath('data.0.ingredients.0.name', 'Hephaestanite')
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $defaultResourceUuid)
+        ->assertJsonPath('data.0.link', route('blueprints.show', ['blueprint' => $defaultBlueprint->uuid]))
+        ->assertJsonMissingPath('data.0.tiers')
+        ->assertJsonMissingPath('data.0.ingredient_names')
+        ->assertJsonMissingPath('data.0.ingredient_resource_type_uuids')
+        ->assertJsonMissingPath('data.0.ingredient_overview');
+
+    $requestedResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $requestedBlueprint->uuid)
+        ->assertJsonPath('data.0.key', 'BP_REQUESTED')
+        ->assertJsonPath('data.0.output_name', 'Requested Output')
+        ->assertJsonPath('data.0.output_class', 'requested_output')
+        ->assertJsonPath('data.0.ingredients.0.name', 'Iron')
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $requestedResourceUuid)
+        ->assertJsonPath('data.0.game_version', $this->requestedVersion->code)
+        ->assertJsonPath(
+            'data.0.link',
+            route('blueprints.show', [
+                'blueprint' => $requestedBlueprint->uuid,
+                'version' => $this->requestedVersion->code,
+            ]),
+        )
+        ->assertJsonMissingPath('data.0.tiers')
+        ->assertJsonMissingPath('data.0.ingredient_names')
+        ->assertJsonMissingPath('data.0.ingredient_resource_type_uuids')
+        ->assertJsonMissingPath('data.0.ingredient_overview');
+});
+
+it('shows blueprint detail with output item uuid and raw tiers', function (): void {
+    $resourceType = ResourceType::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Lindinium',
+    ]);
+
+    $blueprint = Blueprint::factory()->create();
+    $outputItemUuid = fake()->uuid();
+    $requiredItemUuid = fake()->uuid();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_DETAIL',
+            'output_item_uuid' => $outputItemUuid,
+            'output_name' => 'Detailed Output',
+            'output_class' => 'detailed_output',
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'availability' => [
+                    'default' => false,
+                    'reward_pools' => [
+                        [
+                            'key' => 'BP_MISSIONREWARD_ALPHA',
+                            'uuid' => fake()->uuid(),
+                        ],
+                    ],
+                ],
+                'output' => [
+                    'uuid' => $outputItemUuid,
+                    'name' => 'Detailed Output',
+                    'class' => 'detailed_output',
+                    'type' => 'WeaponPersonal',
+                    'subtype' => 'Medium',
+                    'grade' => '1',
+                ],
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 240,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'FRAME',
+                                    'name' => 'Frame',
+                                    'required_count' => 1,
+                                    'modifiers' => [
+                                        [
+                                            'key' => 'efficiency',
+                                            'value' => 0.85,
+                                        ],
+                                    ],
+                                    'children' => [
+                                        [
+                                            'kind' => 'item',
+                                            'uuid' => $requiredItemUuid,
+                                            'name' => 'Reinforced Frame',
+                                            'quantity' => 4,
+                                        ],
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => $resourceType->uuid,
+                                            'name' => 'Lindinium',
+                                            'quantity_scu' => 0.06,
+                                            'min_quality' => 0,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $blueprint->uuid)
+        ->assertJsonPath('data.output_item_uuid', $outputItemUuid)
+        ->assertJsonPath('data.ingredient_count', 2)
+        ->assertJsonPath('data.output_name', 'Detailed Output')
+        ->assertJsonPath('data.output_class', 'detailed_output')
+        ->assertJsonPath('data.output.uuid', $outputItemUuid)
+        ->assertJsonPath('data.output.name', 'Detailed Output')
+        ->assertJsonPath('data.output.type', 'WeaponPersonal')
+        ->assertJsonPath('data.output.item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
+        ->assertJsonPath('data.web_url', url('/blueprints/'.$blueprint->uuid))
+        ->assertJsonPath('data.output_item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
+        ->assertJsonPath('data.availability.default', false)
+        ->assertJsonPath('data.availability.reward_pools.0.key', 'BP_MISSIONREWARD_ALPHA')
+        ->assertJsonPath('data.ingredients.0.name', 'Reinforced Frame')
+        ->assertJsonPath('data.ingredients.0.resource_type_uuid', null)
+        ->assertJsonPath('data.ingredients.1.name', 'Lindinium')
+        ->assertJsonPath('data.ingredients.1.resource_type_uuid', $resourceType->uuid)
+        ->assertJsonMissingPath('data.ingredient_names')
+        ->assertJsonMissingPath('data.ingredient_resource_type_uuids')
+        ->assertJsonMissingPath('data.ingredient_overview')
+        ->assertJsonCount(1, 'data.requirement_groups')
+        ->assertJsonPath('data.requirement_groups.0.key', 'FRAME')
+        ->assertJsonPath('data.requirement_groups.0.required_count', 1)
+        ->assertJsonPath('data.requirement_groups.0.modifiers.0.property_key', 'efficiency')
+        ->assertJsonPath('data.requirement_groups.0.children.1.uuid', $resourceType->uuid)
+        ->assertJsonPath('data.summary_properties.0.property_key', 'efficiency')
+        ->assertJsonPath('data.summary_properties.0.label', 'Efficiency')
+        ->assertJsonPath('data.tiers.0.tier_index', 0)
+        ->assertJsonPath('data.tiers.0.craft_time_seconds', 240)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.required_count', 1)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.modifiers.0.key', 'efficiency')
+        ->assertJsonPath('data.tiers.0.requirements.children.0.modifiers.0.value', 0.85)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.children.0.uuid', $requiredItemUuid)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.children.0.quantity', 4)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.children.1.uuid', $resourceType->uuid)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.children.1.quantity_scu', 0.06);
+});
+
+it('resolves requested or default game versions for blueprint detail', function (): void {
+    $resourceType = ResourceType::factory()->create();
+    $blueprint = Blueprint::factory()->create();
+    $defaultOutputItemUuid = fake()->uuid();
+    $requestedOutputItemUuid = fake()->uuid();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_VERSIONED',
+            'output_item_uuid' => $defaultOutputItemUuid,
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 10,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => $resourceType->uuid,
+                                    'name' => 'Default Resource',
+                                    'quantity_scu' => 1,
+                                    'min_quality' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->requestedVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_VERSIONED',
+            'output_item_uuid' => $requestedOutputItemUuid,
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 20,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => $resourceType->uuid,
+                                    'name' => 'Requested Resource',
+                                    'quantity_scu' => 2,
+                                    'min_quality' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $defaultDetail = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+    $requestedDetail = $this->getJson("/api/blueprints/{$blueprint->uuid}?version={$this->requestedVersion->code}");
+
+    $defaultDetail->assertSuccessful()
+        ->assertJsonPath('data.output_item_uuid', $defaultOutputItemUuid)
+        ->assertJsonPath('data.game_version', $this->defaultVersion->code)
+        ->assertJsonPath('data.ingredient_count', 1)
+        ->assertJsonMissingPath('data.ingredient_overview')
+        ->assertJsonCount(1, 'data.requirement_groups')
+        ->assertJsonPath('data.output.uuid', $defaultOutputItemUuid)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.quantity_scu', 1)
+        ->assertJsonPath('data.web_url', url('/blueprints/'.$blueprint->uuid))
+        ->assertJsonPath('data.output_item_web_url', route('web.items.show', ['item' => $defaultOutputItemUuid]))
+        ->assertJsonPath('data.link', route('blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    $requestedDetail->assertSuccessful()
+        ->assertJsonPath('data.output_item_uuid', $requestedOutputItemUuid)
+        ->assertJsonPath('data.game_version', $this->requestedVersion->code)
+        ->assertJsonPath('data.ingredient_count', 1)
+        ->assertJsonMissingPath('data.ingredient_overview')
+        ->assertJsonCount(1, 'data.requirement_groups')
+        ->assertJsonPath('data.output.uuid', $requestedOutputItemUuid)
+        ->assertJsonPath('data.tiers.0.requirements.children.0.quantity_scu', 2)
+        ->assertJsonPath(
+            'data.web_url',
+            url('/blueprints/'.$blueprint->uuid).'?version='.$this->requestedVersion->code,
+        )
+        ->assertJsonPath(
+            'data.output_item_web_url',
+            route('web.items.show', [
+                'item' => $requestedOutputItemUuid,
+                'version' => $this->requestedVersion->code,
+            ]),
+        )
+        ->assertJsonPath(
+            'data.link',
+            route('blueprints.show', [
+                'blueprint' => $blueprint->uuid,
+                'version' => $this->requestedVersion->code,
+            ]),
+        );
+});
+
+it('preserves grouped requirement alternatives in raw tiers', function (): void {
+    $resourceType = ResourceType::factory()->create([
+        'name' => 'Lindinium',
+    ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_GROUPED_REQUIREMENTS',
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 60,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'ASPECTS',
+                                    'name' => 'Aspects',
+                                    'required_count' => 2,
+                                    'children' => [
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => $resourceType->uuid,
+                                            'name' => 'Aspect A',
+                                            'quantity_scu' => 1,
+                                        ],
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Aspect B',
+                                            'quantity_scu' => 2,
+                                        ],
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Aspect C',
+                                            'quantity_scu' => 3,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonMissingPath('data.ingredient_overview')
+        ->assertJsonCount(1, 'data.requirement_groups')
+        ->assertJsonPath('data.tiers.0.requirements.children.0.key', 'ASPECTS')
+        ->assertJsonPath('data.tiers.0.requirements.children.0.required_count', 2)
+        ->assertJsonCount(3, 'data.tiers.0.requirements.children.0.children');
+});
+
+it('preserves nested requirement children in normalized detail fields', function (): void {
+    $resourceType = ResourceType::factory()->create([
+        'name' => 'Taranite',
+    ]);
+
+    $blueprint = Blueprint::factory()->create();
+    $segmentFastenerUuid = fake()->uuid();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_NESTED_REQUIREMENT_GROUPS',
+            'ingredient_resource_type_uuids' => [$resourceType->uuid],
+            'data' => [
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 120,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'HULL',
+                                    'name' => 'Hull',
+                                    'required_count' => 1,
+                                    'children' => [
+                                        [
+                                            'kind' => 'group',
+                                            'key' => 'SEGMENT_PANELING',
+                                            'name' => 'Segment Paneling',
+                                            'required_count' => 1,
+                                            'children' => [
+                                                [
+                                                    'kind' => 'resource',
+                                                    'uuid' => $resourceType->uuid,
+                                                    'name' => 'Taranite',
+                                                    'quantity_scu' => 0.5,
+                                                ],
+                                                [
+                                                    'kind' => 'item',
+                                                    'uuid' => $segmentFastenerUuid,
+                                                    'name' => 'Panel Fastener',
+                                                    'quantity' => 4,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.ingredient_count', 2)
+        ->assertJsonCount(1, 'data.requirement_groups')
+        ->assertJsonPath('data.requirement_groups.0.key', 'HULL')
+        ->assertJsonPath('data.requirement_groups.0.children.0.kind', 'group')
+        ->assertJsonPath('data.requirement_groups.0.children.0.key', 'SEGMENT_PANELING')
+        ->assertJsonPath('data.requirement_groups.0.children.0.required_count', 1)
+        ->assertJsonPath('data.requirement_groups.0.children.0.children.0.uuid', $resourceType->uuid)
+        ->assertJsonPath('data.requirement_groups.0.children.0.children.0.quantity_scu', 0.5)
+        ->assertJsonPath('data.requirement_groups.0.children.0.children.1.uuid', $segmentFastenerUuid)
+        ->assertJsonPath('data.requirement_groups.0.children.0.children.1.quantity', 4)
+        ->assertJsonMissingPath('data.ingredient_overview');
+});
+
+it('searches blueprints by output query and explicit output filters', function (): void {
+    $matchingBlueprint = Blueprint::factory()->create();
+    $matchingOutputUuid = fake()->uuid();
+
+    BlueprintData::factory()
+        ->for($matchingBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_OUTPUT_MATCH',
+            'output_item_uuid' => $matchingOutputUuid,
+            'output_name' => 'Forge Beam Mk I',
+            'output_class' => 'forge_beam_mk1',
+            'ingredient_resource_type_uuids' => [],
+            'data' => [
+                'output' => [
+                    'uuid' => $matchingOutputUuid,
+                    'name' => 'Forge Beam Mk I',
+                    'class' => 'forge_beam_mk1',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $otherBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($otherBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_OUTPUT_OTHER',
+            'output_name' => 'Shield Array',
+            'output_class' => 'shield_array',
+            'ingredient_resource_type_uuids' => [],
+            'data' => [
+                'output' => [
+                    'name' => 'Shield Array',
+                    'class' => 'shield_array',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $queryByNameResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'query' => 'Forge Beam',
+        ],
+    ]));
+
+    $queryByClassResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'query' => 'forge_beam_mk1',
+        ],
+    ]));
+
+    $queryByUuidResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'query' => $matchingOutputUuid,
+        ],
+    ]));
+
+    $explicitOutputFiltersResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'output.name' => 'Forge Beam',
+            'output.class' => 'forge_beam',
+            'output.uuid' => $matchingOutputUuid,
+        ],
+    ]));
+
+    $queryByNameResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
+        ->assertJsonPath('data.0.output_name', 'Forge Beam Mk I');
+
+    $queryByClassResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid);
+
+    $queryByUuidResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid);
+
+    $explicitOutputFiltersResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
+        ->assertJsonPath('data.0.output_class', 'forge_beam_mk1');
+});
+
+it('filters blueprints by ingredient name and uuid', function (): void {
+    $hephaestanite = ResourceType::factory()->create([
+        'uuid' => fake()->uuid(),
+        'key' => 'Hephaestanite',
+        'name' => 'Hephaestanite',
+    ]);
+
+    $quantanium = ResourceType::factory()->create([
+        'uuid' => fake()->uuid(),
+        'key' => 'Quantanium',
+        'name' => 'Quantanium',
+    ]);
+
+    $hephaestaniteBlueprint = Blueprint::factory()->create();
+    BlueprintData::factory()
+        ->for($hephaestaniteBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_HEPHAE',
+            'ingredient_resource_type_uuids' => [$hephaestanite->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $quantaniumBlueprint = Blueprint::factory()->create();
+    BlueprintData::factory()
+        ->for($quantaniumBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_QUANTA',
+            'ingredient_resource_type_uuids' => [$quantanium->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $ingredientByNameResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'ingredient' => 'Hephae',
+        ],
+    ]));
+
+    $ingredientByUuidResponse = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'ingredient.uuid' => $quantanium->uuid,
+        ],
+    ]));
+
+    $ingredientByNameResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $hephaestaniteBlueprint->uuid)
+        ->assertJsonPath('data.0.ingredients.0.name', null)
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $hephaestanite->uuid);
+
+    $ingredientByUuidResponse->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $quantaniumBlueprint->uuid)
+        ->assertJsonPath('data.0.ingredients.0.name', null)
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $quantanium->uuid);
+});
+
+it('filters blueprints by multiple ingredient uuids and requires every selected resource', function (): void {
+    $alpha = ResourceType::factory()->create([
+        'uuid' => fake()->uuid(),
+        'key' => 'AlphaResource',
+        'name' => 'Alpha Resource',
+    ]);
+
+    $beta = ResourceType::factory()->create([
+        'uuid' => fake()->uuid(),
+        'key' => 'BetaResource',
+        'name' => 'Beta Resource',
+    ]);
+
+    $matchingBlueprint = Blueprint::factory()->create();
+    BlueprintData::factory()
+        ->for($matchingBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_ALPHA_BETA',
+            'ingredient_resource_type_uuids' => [$alpha->uuid, $beta->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_ALPHA_ONLY',
+            'ingredient_resource_type_uuids' => [$alpha->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_BETA_ONLY',
+            'ingredient_resource_type_uuids' => [$beta->uuid],
+            'data' => [
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'ingredient.uuid' => [$alpha->uuid, $beta->uuid],
+        ],
+    ]));
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
+        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $alpha->uuid)
+        ->assertJsonPath('data.0.ingredients.1.resource_type_uuid', $beta->uuid);
+});
+
+it('includes ingredient names for grouped blueprint requirements in index responses', function (): void {
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_INPUT_NAMES',
+            'output_name' => 'FS-9 Magazine (75 cap)',
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'MAGAZINE',
+                                    'name' => 'Magazine',
+                                    'required_count' => 1,
+                                    'children' => [
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Hephaestanite',
+                                            'quantity_scu' => 0.03,
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'CORE',
+                                    'name' => 'Core',
+                                    'required_count' => 1,
+                                    'children' => [
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Iron',
+                                            'quantity_scu' => 0.03,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'output.name' => 'FS-9 Magazine',
+        ],
+    ]));
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.output_name', 'FS-9 Magazine (75 cap)')
+        ->assertJsonPath('data.0.ingredients.0.name', 'Hephaestanite')
+        ->assertJsonPath('data.0.ingredients.1.name', 'Iron');
+});
+
+it('filters blueprints by output type and default availability', function (): void {
+    $matchingBlueprint = Blueprint::factory()->create();
+    $otherBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($matchingBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_FILTER_MATCH',
+            'is_available_by_default' => true,
+            'data' => [
+                'output' => [
+                    'name' => 'FS-9 LMG',
+                    'class' => 'behr_lmg_ballistic_01',
+                    'type' => 'WeaponPersonal',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($otherBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_FILTER_OTHER',
+            'is_available_by_default' => false,
+            'data' => [
+                'output' => [
+                    'name' => 'Greycat Tool',
+                    'class' => 'greycat_tool',
+                    'type' => 'Utility',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/blueprints?'.http_build_query([
+        'filter' => [
+            'output.type' => 'WeaponPersonal',
+            'default' => 'true',
+        ],
+    ]));
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
+        ->assertJsonPath('data.0.output.type', 'WeaponPersonal')
+        ->assertJsonPath('data.0.is_available_by_default', true);
+});
+
+it('sorts blueprints by craft time and ingredient count', function (): void {
+    $fewIngredientsBlueprint = Blueprint::factory()->create();
+    $manyIngredientsBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($fewIngredientsBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_SORT_FAST',
+            'craft_time_seconds' => 60,
+            'ingredient_resource_type_uuids' => [fake()->uuid()],
+            'data' => [
+                'output' => [
+                    'name' => 'Fast Build',
+                    'class' => 'fast_build',
+                    'type' => 'WeaponPersonal',
+                ],
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 60,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => fake()->uuid(),
+                                    'name' => 'Iron',
+                                    'quantity_scu' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($manyIngredientsBlueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_SORT_SLOW',
+            'craft_time_seconds' => 240,
+            'ingredient_resource_type_uuids' => [fake()->uuid(), fake()->uuid()],
+            'data' => [
+                'output' => [
+                    'name' => 'Slow Build',
+                    'class' => 'slow_build',
+                    'type' => 'Utility',
+                ],
+                'tiers' => [
+                    [
+                        'tier_index' => 0,
+                        'craft_time_seconds' => 240,
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                [
+                                    'kind' => 'group',
+                                    'key' => 'FRAME',
+                                    'name' => 'Frame',
+                                    'required_count' => 1,
+                                    'children' => [
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Titanium',
+                                            'quantity_scu' => 1,
+                                        ],
+                                        [
+                                            'kind' => 'item',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Fastener',
+                                            'quantity' => 2,
+                                        ],
+                                        [
+                                            'kind' => 'resource',
+                                            'uuid' => fake()->uuid(),
+                                            'name' => 'Copper',
+                                            'quantity_scu' => 1,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $craftTimeResponse = $this->getJson('/api/blueprints?sort=-craft_time_seconds');
+    $ingredientCountResponse = $this->getJson('/api/blueprints?sort=-ingredient_count');
+
+    $craftTimeResponse->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $manyIngredientsBlueprint->uuid)
+        ->assertJsonPath('data.1.uuid', $fewIngredientsBlueprint->uuid);
+
+    $ingredientCountResponse->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $manyIngredientsBlueprint->uuid)
+        ->assertJsonPath('data.0.ingredient_count', 3)
+        ->assertJsonPath('data.1.uuid', $fewIngredientsBlueprint->uuid)
+        ->assertJsonPath('data.1.ingredient_count', 1);
+});

@@ -50,7 +50,7 @@ class SyncGameData extends Command
      *
      * @var string
      */
-    protected $description = 'Sync game manufacturers, entity tags, and optional data imports.';
+    protected $description = 'Sync game labels, manufacturers, entity tags, resource types, and optional game data imports.';
 
     /**
      * Execute the console command.
@@ -61,10 +61,11 @@ class SyncGameData extends Command
         $skipVehicles = (bool) $this->option('skip-vehicles');
         $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
+        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles);
 
-        $gameVersion = $this->resolveGameVersion($skipItems, $skipVehicles);
+        $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
 
-        if ($gameVersion === null && (! $skipItems || ! $skipVehicles)) {
+        if ($gameVersion === null && $shouldImportVersionedData) {
             return self::FAILURE;
         }
 
@@ -87,20 +88,45 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
-        if (! $skipItems && $gameVersion !== null) {
+        if (Artisan::call('game:import-resource-types') !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
+        if ($gameVersion === null) {
+            return self::SUCCESS;
+        }
+
+        if (Artisan::call('game:import-blueprints', [
+            'version' => $gameVersion->code,
+        ]) !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
+        if (! $skipItems) {
             $this->dispatchItemImports($gameVersion, $skipComputeBaseIds);
         }
 
-        if (! $skipVehicles && $gameVersion !== null) {
+        if (! $skipVehicles) {
             $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds);
         }
 
         return self::SUCCESS;
     }
 
-    private function resolveGameVersion(bool $skipItems, bool $skipVehicles): ?GameVersion
+    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles): bool
     {
-        if ($skipItems && $skipVehicles) {
+        if (! $skipItems || ! $skipVehicles) {
+            return true;
+        }
+
+        $versionCode = $this->option('game-version');
+
+        return is_string($versionCode) && $versionCode !== '';
+    }
+
+    private function resolveGameVersion(bool $shouldImportVersionedData): ?GameVersion
+    {
+        if (! $shouldImportVersionedData) {
             return null;
         }
 

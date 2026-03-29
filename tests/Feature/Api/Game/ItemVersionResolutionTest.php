@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -142,6 +144,108 @@ it('resolves specific game versions from the version query parameter', function 
         ->assertJsonPath('data.version', '3.21.0-PTU')
         ->assertJsonPath('data.name', 'PTU Variant')
         ->assertJsonPath('data.class_name', 'ptu_variant');
+});
+
+it('resolves crafting blueprints for the requested game version', function (): void {
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '3.21.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now()->subDay(),
+    ]);
+
+    $ptuVersion = GameVersion::factory()->create([
+        'code' => '3.21.0-PTU',
+        'channel' => 'ptu',
+        'is_default' => false,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Version Labs',
+        'code' => 'VER',
+    ]);
+
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($defaultVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Live Crafted Item',
+            'class_name' => 'live_crafted_item',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($ptuVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'PTU Crafted Item',
+            'class_name' => 'ptu_crafted_item',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $defaultBlueprint = Blueprint::factory()->create();
+    $ptuBlueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($defaultBlueprint, 'blueprint')
+        ->for($defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_LIVE_CRAFTED_ITEM',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Live Crafted Blueprint',
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Live Crafted Blueprint',
+                    'class' => 'bp_live_crafted_item',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for($ptuBlueprint, 'blueprint')
+        ->for($ptuVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_PTU_CRAFTED_ITEM',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'PTU Crafted Blueprint',
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'PTU Crafted Blueprint',
+                    'class' => 'bp_ptu_crafted_item',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $defaultResponse = $this->getJson("/api/items/{$item->uuid}");
+    $ptuResponse = $this->getJson("/api/items/{$item->uuid}?version=3.21.0-PTU");
+
+    $defaultResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-LIVE')
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonPath('data.blueprint.0.uuid', $defaultBlueprint->uuid)
+        ->assertJsonPath('data.blueprint.0.link', route('blueprints.show', ['blueprint' => $defaultBlueprint->uuid]));
+
+    $ptuResponse->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-PTU')
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonPath('data.blueprint.0.uuid', $ptuBlueprint->uuid)
+        ->assertJsonPath(
+            'data.blueprint.0.link',
+            route('blueprints.show', ['blueprint' => $ptuBlueprint->uuid, 'version' => '3.21.0-PTU'])
+        );
 });
 
 it('resolves equipped items using the requested game version', function (): void {

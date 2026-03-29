@@ -80,6 +80,26 @@
     </x-app.sidemenu-item>
 
     <x-app.sidemenu-item
+        :route="'web.blueprints.index'"
+        :route-is="['web.blueprints.index', 'web.blueprints.show']"
+    >
+        <x-slot:icon>
+            <x-icon name="drafting-compass" class="size-4" />
+        </x-slot:icon>
+        Blueprints
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item
+        :route="'web.blueprints.search'"
+        route-is="web.blueprints.search"
+    >
+        <x-slot:icon>
+            <x-icon name="search" class="size-4" />
+        </x-slot:icon>
+        Blueprint Search
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item
         :route="'web.items.index'"
         :active-when-filters-empty="true"
     >

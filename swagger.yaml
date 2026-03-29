@@ -8,6 +8,109 @@ servers:
   -
     url: 'https://api.star-citizen.wiki'
 paths:
+  /api/blueprints:
+    get:
+      tags:
+        - In-Game
+        - Blueprints
+      summary: 'List Game Blueprints'
+      description: 'Returns paginated blueprints for the requested or default game version.'
+      operationId: 3033beb74ac207ad11e7683f92d3909f
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: sort
+          in: query
+          description: 'Sort field. Prefix with "-" for descending. Supported: craft_time_seconds, ingredient_count.'
+          schema:
+            type: string
+            example: '-craft_time_seconds'
+        -
+          name: 'filter[query]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[output.uuid]'
+          in: query
+          schema:
+            type: string
+            format: uuid
+        -
+          name: 'filter[output.name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[output.class]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[output.type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[default]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[ingredient]'
+          in: query
+          description: 'Matches ingredient resource type by name, key, or UUID before filtering blueprints.'
+          schema:
+            type: string
+        -
+          name: 'filter[ingredient.uuid]'
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'List of blueprints'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/blueprint'
+  '/api/blueprints/{blueprint}':
+    get:
+      tags:
+        - In-Game
+        - Blueprints
+      summary: 'Get Game Blueprint Detail'
+      description: 'Returns blueprint detail for the requested or default game version, including raw blueprint tiers.'
+      operationId: 977cfa4c847352551a7bcb7cdc7e5364
+      parameters:
+        -
+          name: blueprint
+          in: path
+          required: true
+          schema:
+            description: 'Blueprint UUID'
+            type: string
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'Blueprint detail'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/blueprint'
+        '404':
+          description: 'Blueprint not found for the requested game version'
   /api/game-versions:
     get:
       tags:
@@ -465,6 +568,72 @@ paths:
                 items:
                   $ref: '#/components/schemas/manufacturer_link'
       deprecated: true
+  /api/resource-types:
+    get:
+      tags:
+        - In-Game
+        - 'Resource Types'
+      summary: 'List Game Resource Types'
+      description: 'Returns paginated game resource types, optionally filtered to only those consumed by blueprints in the requested or default game version.'
+      operationId: eb5efab2b9ccf62e79b5ece5b8918447
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[used]'
+          in: query
+          description: 'When true, only resource types used by blueprint ingredients in the requested or default game version are returned.'
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 'List of resource types'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/resource_type_link'
+  '/api/resource-types/{resourceType}/blueprints':
+    get:
+      tags:
+        - In-Game
+        - 'Resource Types'
+        - Blueprints
+      summary: 'Lookup Blueprints By Resource Type'
+      description: 'Returns paginated blueprints that consume the given resource type in the requested or default game version.'
+      operationId: 5073fc0678f97f3519c93c6b8795aadd
+      parameters:
+        -
+          name: resourceType
+          in: path
+          required: true
+          schema:
+            description: 'Resource type UUID'
+            type: string
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'List of blueprints that consume the resource type'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/blueprint'
   /api/vehicles:
     get:
       tags:
@@ -1884,6 +2053,324 @@ components:
           type: string
         count:
           type: integer
+      type: object
+    blueprint_output:
+      title: 'Blueprint Output'
+      description: 'Crafted output metadata for a blueprint.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        class:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        subtype:
+          type: string
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        item_web_url:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    blueprint_reward_pool:
+      title: 'Blueprint Reward Pool'
+      description: 'Reward pool that can grant access to a blueprint.'
+      properties:
+        key:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+      type: object
+    blueprint_availability:
+      title: 'Blueprint Availability'
+      description: 'Availability metadata for a blueprint.'
+      properties:
+        default:
+          type: boolean
+        reward_pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_reward_pool'
+      type: object
+    blueprint_modifier_quality_range:
+      title: 'Blueprint Modifier Quality Range'
+      properties:
+        min:
+          type: number
+          format: float
+          nullable: true
+        max:
+          type: number
+          format: float
+          nullable: true
+      type: object
+    blueprint_modifier_range:
+      title: 'Blueprint Modifier Range'
+      properties:
+        at_min_quality:
+          type: number
+          format: float
+          nullable: true
+        at_max_quality:
+          type: number
+          format: float
+          nullable: true
+      type: object
+    blueprint_modifier:
+      title: 'Blueprint Modifier'
+      description: 'Modifier interpolation metadata used for blueprint quality effects.'
+      properties:
+        property_key:
+          type: string
+        property_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        label:
+          type: string
+        better_when:
+          type: string
+          enum:
+            - higher
+            - lower
+            - neutral
+          nullable: true
+        quality_range:
+          $ref: '#/components/schemas/blueprint_modifier_quality_range'
+        modifier_range:
+          $ref: '#/components/schemas/blueprint_modifier_range'
+      type: object
+    blueprint_summary_property:
+      title: 'Blueprint Summary Property'
+      description: 'Aggregated modifier property shown in blueprint output summaries.'
+      properties:
+        property_key:
+          type: string
+        property_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        label:
+          type: string
+        better_when:
+          type: string
+          enum:
+            - higher
+            - lower
+            - neutral
+          nullable: true
+      type: object
+    blueprint_requirement_child:
+      title: 'Blueprint Requirement Child'
+      description: 'Normalized blueprint requirement child entry. Children can represent groups, resources, or discrete items.'
+      properties:
+        key:
+          type: string
+          nullable: true
+        kind:
+          type: string
+          enum:
+            - group
+            - resource
+            - item
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        required_count:
+          type: integer
+          nullable: true
+        quantity:
+          type: number
+          format: float
+          nullable: true
+        quantity_scu:
+          type: number
+          format: float
+          nullable: true
+        min_quality:
+          type: integer
+          nullable: true
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_modifier'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_requirement_child'
+          nullable: true
+      type: object
+    blueprint_requirement_group:
+      title: 'Blueprint Requirement Group'
+      description: 'Normalized requirement group derived from the first blueprint tier.'
+      properties:
+        key:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        kind:
+          type: string
+          enum:
+            - group
+        required_count:
+          type: integer
+          nullable: true
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_modifier'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_requirement_child'
+      type: object
+    blueprint_requirement_node:
+      title: 'Blueprint Requirement Node'
+      description: 'Raw recursive requirement node returned under tiers[].requirements.'
+      properties:
+        kind:
+          type: string
+          enum:
+            - root
+            - group
+            - resource
+            - item
+          nullable: true
+        key:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        required_count:
+          type: integer
+          nullable: true
+        quantity:
+          type: number
+          format: float
+          nullable: true
+        quantity_scu:
+          type: number
+          format: float
+          nullable: true
+        min_quality:
+          type: integer
+          nullable: true
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_modifier'
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_requirement_node'
+          nullable: true
+      type: object
+    blueprint_tier:
+      title: 'Blueprint Tier'
+      description: 'Raw blueprint tier as imported from the source payload.'
+      properties:
+        tier_index:
+          type: integer
+          nullable: true
+        craft_time_seconds:
+          type: integer
+          nullable: true
+        requirements:
+          oneOf:
+            -
+              $ref: '#/components/schemas/blueprint_requirement_node'
+          nullable: true
+      type: object
+    blueprint:
+      title: Blueprint
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        key:
+          type: string
+        category_uuid:
+          type: string
+          format: uuid
+        output_item_uuid:
+          type: string
+          format: uuid
+        output_name:
+          type: string
+          nullable: true
+        output_class:
+          type: string
+          nullable: true
+        craft_time_seconds:
+          type: integer
+          nullable: true
+        is_available_by_default:
+          type: boolean
+        game_version:
+          type: string
+          nullable: true
+        ingredient_count:
+          type: integer
+        output:
+          $ref: '#/components/schemas/blueprint_output'
+        ingredient_resource_type_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        availability:
+          $ref: '#/components/schemas/blueprint_availability'
+        requirement_groups:
+          description: 'Only included on blueprint detail responses.'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_requirement_group'
+        summary_properties:
+          description: 'Only included on blueprint detail responses.'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_summary_property'
+        tiers:
+          description: 'Only included on blueprint detail responses.'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_tier'
+        link:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+        output_item_web_url:
+          type: string
+          format: uri
+          nullable: true
       type: object
     game_version:
       title: 'Game Version'
@@ -8501,6 +8988,31 @@ components:
         uuid:
           type: string
       type: object
+    resource_type_link:
+      title: 'Resource Type Link'
+      properties:
+        uuid:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        refined_version_uuid:
+          type: string
+          nullable: true
+        validate_default_cargo_box:
+          type: boolean
+        has_default_cargo_containers:
+          type: boolean
+        box_sizes_scu:
+          type: array
+          items:
+            type: number
+        link:
+          type: string
+      type: object
     game_vehicle_cargo_grid:
       title: 'Vehicle Cargo Grid'
       description: 'Cargo grid slots from ship data, presented as-is.'
@@ -10488,6 +11000,9 @@ tags:
     name: In-Game
     description: In-Game
   -
+    name: Blueprints
+    description: Blueprints
+  -
     name: 'Game Version'
     description: 'Game Version'
   -
@@ -10499,6 +11014,9 @@ tags:
   -
     name: Manufacturers
     description: Manufacturers
+  -
+    name: 'Resource Types'
+    description: 'Resource Types'
   -
     name: Vehicles
     description: Vehicles

@@ -87,20 +87,23 @@ function get(obj, path, fallback = undefined) {
     return path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : undefined), obj) ?? fallback;
 }
 
-function mapFilterFieldToApiField(field) {
+function mapFilterFieldToApiField(field, columnToApiFilterFieldMap = null) {
     if (!field) return field;
+    if (columnToApiFilterFieldMap?.[field]) {
+        return columnToApiFilterFieldMap[field];
+    }
     return field === "created_at_human" ? "created_at" : field;
 }
 
 function mapApiFilterFieldToColumnField(apiField, columnFieldsSet, apiToColumnFilterFieldMap) {
     if (!apiField) return apiField;
 
-    if (apiField === "created_at" && columnFieldsSet?.has?.("created_at_human")) {
-        return "created_at_human";
-    }
-
     if (apiToColumnFilterFieldMap?.[apiField]) {
         return apiToColumnFilterFieldMap[apiField];
+    }
+
+    if (apiField === "created_at" && columnFieldsSet?.has?.("created_at_human")) {
+        return "created_at_human";
     }
 
     return apiField;
@@ -117,17 +120,17 @@ function collectColumnFields(columns, set = new Set()) {
     return set;
 }
 
-function collectManagedHeaderFilterApiFields(columns, set = new Set()) {
+function collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap = null, set = new Set()) {
     (columns ?? []).forEach((column) => {
         if (Array.isArray(column?.columns) && column.columns.length > 0) {
-            collectManagedHeaderFilterApiFields(column.columns, set);
+            collectManagedHeaderFilterApiFields(column.columns, columnToApiFilterFieldMap, set);
             return;
         }
 
         if (!column?.field) return;
 
         if (column.headerFilter !== undefined && column.headerFilter !== false) {
-            set.add(mapFilterFieldToApiField(column.field));
+            set.add(mapFilterFieldToApiField(column.field, columnToApiFilterFieldMap));
         }
     });
 
@@ -205,6 +208,7 @@ function parseJsonApiStateFromLocation({ columnFields, apiToColumnSortFieldMap, 
 // Convert Tabulator params -> JSON:API query string
 function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     const u = new URL(baseUrl, window.location.origin);
+    const columnToApiFilterFieldMap = defaults.columnToApiFilterFieldMap ?? null;
 
     // pagination
     const defaultPage = defaults.page ?? 1;
@@ -245,7 +249,7 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
         : [];
     const managedFields = new Set([
         ...managedDefaults,
-        ...filters.map(f => mapFilterFieldToApiField(f?.field)).filter(Boolean),
+        ...filters.map(f => mapFilterFieldToApiField(f?.field, columnToApiFilterFieldMap)).filter(Boolean),
     ]);
 
     // Preserve existing filter[...] keys that aren't managed by Tabulator
@@ -276,7 +280,7 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
     // Then add/override with Tabulator's filters
     for (const f of filters) {
         if (f?.field && f?.value != null && String(f.value).length) {
-            const name = mapFilterFieldToApiField(f.field);
+            const name = mapFilterFieldToApiField(f.field, columnToApiFilterFieldMap);
             u.searchParams.set(`filter[${name}]`, String(f.value));
         }
     }
@@ -514,6 +518,7 @@ export function initTabulatorTables() {
         const lastPagePath = config?.meta?.lastPagePath || "meta.last_page";
         const pageSize = config.pageSize ?? 25;
         const headerFilterOptionsMap = config.headerFilterOptionsMap ?? null;
+        const columnToApiFilterFieldMap = headerFilterOptionsMap;
         const headerFilterOptionsSeed = config.initialHeaderFilterOptions
             ?? (Array.isArray(config.initialHeaderFilter)
                 ? null
@@ -534,8 +539,8 @@ export function initTabulatorTables() {
         const historySyncScope = config.historySyncScope ?? "all";
         const sortFieldMap = buildSortFieldMap(config.columns ?? []);
         const apiToColumnSortFieldMap = buildInverseSortFieldMap(sortFieldMap);
-        const apiToColumnFilterFieldMap = headerFilterOptionsMap
-            ? Object.entries(headerFilterOptionsMap).reduce((acc, [columnField, apiField]) => {
+        const apiToColumnFilterFieldMap = columnToApiFilterFieldMap
+            ? Object.entries(columnToApiFilterFieldMap).reduce((acc, [columnField, apiField]) => {
                 if (apiField) {
                     acc[apiField] = columnField;
                 }
@@ -553,7 +558,7 @@ export function initTabulatorTables() {
 
         // Persistent set of API filter fields that Tabulator manages for this table instance.
         // This is what prevents "sticky" filter[...] params when a header filter is cleared.
-        const managedApiFilterFields = collectManagedHeaderFilterApiFields(columns);
+        const managedApiFilterFields = collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap);
 
         // Seed table state from the current browser URL so reload keeps sort/filter/page.
         const urlState = parseJsonApiStateFromLocation({
@@ -632,7 +637,7 @@ export function initTabulatorTables() {
                 // Track filters as "managed" once seen (important when cleared later).
                 const requestFilters = requestParams.filter ?? requestParams.filters ?? [];
                 for (const f of requestFilters) {
-                    const apiField = mapFilterFieldToApiField(f?.field);
+                    const apiField = mapFilterFieldToApiField(f?.field, columnToApiFilterFieldMap);
                     if (apiField) managedApiFilterFields.add(apiField);
                 }
 
@@ -647,6 +652,7 @@ export function initTabulatorTables() {
 
                 const finalUrl = buildJsonApiUrl(url, requestParams, {
                     pageSize,
+                    columnToApiFilterFieldMap,
                     managedFilterFields: managedApiFilterFields,
                 });
 
