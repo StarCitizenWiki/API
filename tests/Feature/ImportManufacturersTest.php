@@ -23,18 +23,20 @@ it('imports manufacturers and skips invalid rows', function (): void {
     $m1 = fake()->uuid();
     $m2 = fake()->uuid();
     $m3 = fake()->uuid();
+    $m4 = fake()->uuid();
 
     $payload = [
         ['reference' => $m1, 'name' => 'Alpha', 'code' => 'ALP'],
         ['reference' => $m2, 'name' => 'Beta', 'code' => 'BET'],
         ['reference' => $m3, 'name' => 'Gamma'],
+        ['reference' => $m4, 'code' => 'NON'],
     ];
 
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode($payload, JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-manufacturers')
         ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('Imported 2 manufacturers (2 new, 0 updated). Skipped 1 invalid.');
+        ->expectsOutput('Imported 3 manufacturers (3 new, 0 updated). Skipped 1 invalid.');
 
     $this->assertDatabaseHas('game_manufacturers', [
         'uuid' => $m1,
@@ -46,6 +48,12 @@ it('imports manufacturers and skips invalid rows', function (): void {
         'uuid' => $m2,
         'name' => 'Beta',
         'code' => 'BET',
+    ]);
+
+    $this->assertDatabaseHas('game_manufacturers', [
+        'uuid' => $m3,
+        'name' => 'Gamma',
+        'code' => '',
     ]);
 });
 

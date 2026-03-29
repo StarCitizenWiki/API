@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Game;
 
 use App\Models\Game\Manufacturer;
@@ -56,27 +58,29 @@ class ImportManufacturers extends Command
         $skipped = 0;
 
         $manufacturers = collect($payload)
-            ->filter(static function ($manufacturer) use (&$skipped): bool {
+            ->filter(function (mixed $manufacturer) use (&$skipped): bool {
                 if (! is_array($manufacturer)) {
                     $skipped++;
 
                     return false;
                 }
 
-                $hasRequiredKeys = isset($manufacturer['reference']);
+                $reference = $this->normalizeString($manufacturer['reference'] ?? null);
+                $name = $this->normalizeString($manufacturer['name'] ?? null);
+                $hasRequiredValues = $reference !== null && $name !== null;
 
-                if (! $hasRequiredKeys) {
+                if (! $hasRequiredValues) {
                     $skipped++;
                 }
 
-                return $hasRequiredKeys;
+                return $hasRequiredValues;
             })
-            ->keyBy(fn (array $manufacturer): string => (string) $manufacturer['reference'])
+            ->keyBy(fn (array $manufacturer): string => (string) $this->normalizeString($manufacturer['reference']))
             ->map(function (array $manufacturer) use ($now): array {
                 return [
-                    'uuid' => (string) $manufacturer['reference'],
-                    'name' => (string) $manufacturer['name'],
-                    'code' => (string) $manufacturer['code'],
+                    'uuid' => (string) $this->normalizeString($manufacturer['reference']),
+                    'name' => (string) $this->normalizeString($manufacturer['name']),
+                    'code' => $this->normalizeString($manufacturer['code'] ?? null) ?? '',
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -116,5 +120,16 @@ class ImportManufacturers extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    private function normalizeString(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 }
