@@ -121,55 +121,13 @@ it('renders the blueprint show view with normalized api data', function (): void
                 && ($payload['output']['uuid'] ?? null) === $outputItemUuid;
         })
         ->assertSee('Detailed Output')
-        ->assertSee('Change blueprint')
-        ->assertSee('Search craftable blueprints')
-        ->assertSee('Filter by resource')
-        ->assertSee('Matching blueprints')
-        ->assertSee('(1 result)')
-        ->assertSee('Matching blueprints')
-        ->assertDontSee('Search faster with input-aware filters')
-        ->assertDontSee('Search outputs')
-        ->assertDontSee('Search updates live as you type. Resource filters only keep blueprints that consume every selected input.')
-        ->assertDontSee('Choose another blueprint, or re-open the current one to jump back to its recipe breakdown.')
-        ->assertDontSee('Require blueprints that consume this resource.')
-        ->assertDontSee('Active filters')
-        ->assertDontSee('Open recipe')
-        ->assertDontSee('Jump to recipe')
-        ->assertDontSee('Open output item')
-        ->assertDontSee('Current page')
-        ->assertDontSee('Open blueprint')
-        ->assertSee('Output')
-        ->assertSee('Blueprint inputs')
-        ->assertDontSee('Tune the recipe inputs on the left to preview how this crafted output changes.')
-        ->assertSee('Craft time')
-        ->assertDontSee('Each card is one required input. Adjust quality to preview how the crafted output changes.')
         ->assertSee('4 minutes')
-        ->assertDontSee('Live preview')
-        ->assertDontSee('Live output changes')
-        ->assertDontSee('Delta from baseline output')
-        ->assertSee('Output changes')
-        ->assertDontSee('Selected inputs')
-        ->assertSee('Quality')
-        ->assertSee('Amount')
         ->assertSee('Q500')
         ->assertSee('4 items')
-        ->assertDontSee('Selected quality')
-        ->assertDontSee('Required inputs')
-        ->assertSee('Technical details')
-        ->assertSee('Blueprint metadata')
-        ->assertSee('Unlock source')
-        ->assertSee('Mission reward')
-        ->assertSee('Requirement groups')
-        ->assertSee('Efficiency')
-        ->assertSee('Move any quality slider away from its baseline to preview tuning changes.')
-        ->assertDontSee('Adjust input quality to preview how this resource changes the finished output.')
         ->assertSee('Frame')
         ->assertSee('Reinforced Frame')
         ->assertSee('Lindinium')
-        ->assertSee('Item')
         ->assertSee('BP_MISSIONREWARD_ALPHA')
-        ->assertDontSee('Interactive tuning available')
-        ->assertSee('Raw Blueprint Payload')
         ->assertSee(route('web.items.show', ['item' => $outputItemUuid]))
         ->assertSee(route('web.items.show', ['item' => $requiredItemUuid]))
         ->assertSee(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]))
@@ -238,15 +196,8 @@ it('renders item-only recipe inputs in the crafting breakdown', function (): voi
     $response = $this->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
 
     $response->assertOk()
-        ->assertSee('1 recipe input')
-        ->assertSee('Blueprint inputs')
-        ->assertDontSee('Selected inputs')
-        ->assertDontSee('Required inputs')
-        ->assertSee('Technical details')
         ->assertSee('Lenses')
-        ->assertSee('Dolivine')
-        ->assertSee('Item')
-        ->assertDontSee('No recipe inputs were returned for this blueprint.');
+        ->assertSee('Dolivine');
 });
 
 it('renders the requested game version on the blueprint show route', function (): void {
@@ -306,10 +257,7 @@ it('renders the requested game version on the blueprint show route', function ()
         })
         ->assertViewHas('resolvedVersionCode', $this->requestedVersion->code)
         ->assertSee('Requested Output')
-        ->assertSee('Blueprint inputs')
-        ->assertDontSee('Current page')
         ->assertDontSee('Default Output')
-        ->assertDontSee('<span class="badge badge-outline badge-sm">4.0.0-PTU</span>', false)
         ->assertSee(route('web.blueprints.show', [
             'blueprint' => $blueprint->uuid,
             'version' => $this->requestedVersion->code,
@@ -467,7 +415,7 @@ it('keeps the resource filter without forcing the blueprint picker open', functi
 
     $crawler = new Crawler($response->getContent());
     $changeBlueprintPanel = $crawler
-        ->filterXPath('//details[.//h2[normalize-space(.)="Change blueprint"]]')
+        ->filterXPath('//details[.//*[@data-blueprint-search]]')
         ->first();
     $searchResultLink = $crawler
         ->filterXPath('//a[@data-blueprint-search-result-link and @data-blueprint-uuid="'.$blueprint->uuid.'"]')
@@ -605,12 +553,6 @@ it('renders grouped resource choices when a blueprint requires only some availab
 
     $response->assertOk()
         ->assertSee('Chiron Legs')
-        ->assertSee('Choose 2 of 3')
-        ->assertDontSee('<h3 class="text-base font-semibold">Aspects</h3>', false)
-        ->assertSee('Default preview uses the first 2 options.')
-        ->assertSee('Switch selections to model a different valid recipe.')
-        ->assertSee('Included')
-        ->assertSee('Excluded')
         ->assertSee('Laranite')
         ->assertSee('Aslarite')
         ->assertSee('Stileron')

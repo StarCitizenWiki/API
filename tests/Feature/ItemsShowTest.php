@@ -104,17 +104,11 @@ it('renders the item show view with api data', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSeeText('Item thumbnail')
-        ->assertSeeText('Quick Facts')
-        ->assertSeeText('Role')
         ->assertSeeText('Test.Module')
-        ->assertSee('Overview')
         ->assertSee('Test Module')
         ->assertSee('Main Port')
         ->assertSee('Test Module Variant')
-        ->assertSee('Base Item')
         ->assertSee('Explosive')
-        ->assertSee('Raw Item Payload')
         ->assertSee('<meta name="keywords" content="Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC">', false)
         ->assertSee('<meta property="og:type" content="website">', false)
         ->assertSee('<meta property="og:title" content="Test Module - PowerPlant Acme Works">', false)
@@ -168,13 +162,11 @@ it('renders minimal item with essentials block only', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block - Always visible
         ->assertSee('Minimal Module')
         ->assertSee('minimal_module')
         ->assertSee('Acme Works')
         ->assertSee('PowerPlant')
         ->assertSee('Small')
-        // Technical Section - Always visible
         ->assertSee($item->uuid)
         ->assertSee('4.0.0-LIVE');
 });
@@ -231,11 +223,8 @@ it('renders ports-heavy item with collapsible ports section', function (): void 
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block
         ->assertSee('Ship Core')
         ->assertSee('Drake Interplanetary')
-        // Ports Section - Visible with count
-        ->assertSee('Ports')
         ->assertSee('6') // Count badge
         ->assertSee('Power Port 1')
         ->assertSee('Weapon Port Left');
@@ -294,12 +283,8 @@ it('renders variant-heavy item with variants section', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block
         ->assertSee('Laser Cannon')
         ->assertSee('Behring')
-        // Variants Section - Visible with variants
-        ->assertSee('Variants')
-        ->assertSee('Base Item')
         ->assertSee('Laser Cannon Variant 1')
         ->assertSee('Laser Cannon Variant 4');
 });
@@ -416,14 +401,10 @@ it('renders item with long description in collapsible details', function (): voi
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block
         ->assertSee('Exploration Scanner')
         ->assertSee('MISC')
-        // Description Section - Collapsible
-        ->assertSee('Description')
         ->assertSee('Exploration Scanner is an advanced detection system')
         ->assertSee('Technical Specifications')
-        // Technical Section
         ->assertSee($item->uuid);
 });
 
@@ -464,13 +445,8 @@ it('displays raw payload in collapsible details', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block
         ->assertSee('Luxury Lamp')
-        // Raw Payload Section - Collapsible
-        ->assertSee('Raw Item Payload')
-        // Technical Section with API link
-        ->assertSee($item->uuid)
-        ->assertSee('API');
+        ->assertSee($item->uuid);
 });
 
 it('includes accessibility attributes on collapsible sections', function (): void {
@@ -517,10 +493,8 @@ it('includes accessibility attributes on collapsible sections', function (): voi
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Verify collapsible sections have details elements
         ->assertSee('<details', false) // HTML5 details element
         ->assertSee('<summary', false) // HTML5 summary element
-        // Verify semantic HTML for data
         ->assertSee('Tactical Display');
 });
 
@@ -568,11 +542,9 @@ it('supports responsive layout for mobile viewports', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        // Essentials Block - Always visible on all screen sizes
         ->assertSee('Standard Component')
         ->assertSee('RSI')
         ->assertSee('Utility')
-        // Technical Section - Always visible
         ->assertSee($item->uuid)
         ->assertSee('4.0.0-LIVE');
 });

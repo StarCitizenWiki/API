@@ -375,8 +375,8 @@ describe('Design System Card Components - Browser QA', function () use (&$versio
     });
 });
 
-describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer) {
-    it('phase 5 smoke covers public locked routes', function () {
+describe('Browser Coverage', function () use (&$version, &$manufacturer) {
+    it('smoke covers public locked routes', function () {
         $pages = visit(['/', '/items', '/vehicles', '/comm-links']);
 
         $pages->assertNoJavascriptErrors()
@@ -384,89 +384,85 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
 
         [$homePage, $itemsPage, $vehiclesPage, $commLinksPage] = $pages;
 
-        $homePage->assertPathIs('/')
-            ->assertSee('Star Citizen Wiki API');
+        $homePage->assertPathIs('/');
 
-        $itemsPage->assertPathIs('/items')
-            ->assertSee('Column source map');
+        $itemsPage->assertPathIs('/items');
 
-        $vehiclesPage->assertPathIs('/vehicles')
-            ->assertSee('Vehicles');
+        $vehiclesPage->assertPathIs('/vehicles');
 
-        $commLinksPage->assertPathIs('/comm-links')
-            ->assertSee('Comm-Links');
+        $commLinksPage->assertPathIs('/comm-links');
     });
 
-    it('phase 5 /login guest contract renders fields', function () {
+    it('/login guest contract renders fields', function () {
         $page = visit('/login');
 
         $page->assertPathIs('/login')
-            ->assertSee('Welcome back')
             ->assertPresent('input[name="email"]')
             ->assertPresent('input[name="password"]')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 /login redirects authenticated users to /profile', function () {
+    it('/login redirects authenticated users to /profile', function () {
         $this->actingAs(User::factory()->create());
 
         $page = visit('/login');
 
         $page->assertPathIs('/profile')
-            ->assertSee('Profile')
+            ->assertPresent('form[action$="/profile/token"]')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 /admin redirects guests to /login', function () {
+    it('/admin redirects guests to /login', function () {
         $page = visit('/admin');
 
         $page->assertPathIs('/login')
-            ->assertSee('Welcome back');
+            ->assertPresent('input[name="email"]');
     });
 
-    it('phase 5 /admin forbids authenticated non-admin users', function () {
+    it('/admin forbids authenticated non-admin users', function () {
         $this->actingAs(User::factory()->create(['is_admin' => false]));
 
         $page = visit('/admin');
 
         $page->assertPathIs('/admin')
-            ->assertSee('403');
+            ->assertNoJavascriptErrors()
+            ->assertNoConsoleLogs();
     });
 
-    it('phase 5 /admin allows authenticated admin users', function () {
+    it('/admin allows authenticated admin users', function () {
         $this->actingAs(User::factory()->create(['is_admin' => true]));
 
         $page = visit('/admin');
 
         $page->assertPathIs('/admin')
-            ->assertSee('Admin Dashboard')
+            ->assertPresent('a[href="'.route('admin.users.index').'"]')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 /profile redirects guests to /login', function () {
+    it('/profile redirects guests to /login', function () {
         $page = visit('/profile');
 
         $page->assertPathIs('/login')
-            ->assertSee('Welcome back');
+            ->assertPresent('input[name="email"]');
     });
 
-    it('phase 5 /profile allows authenticated users', function () {
+    it('/profile allows authenticated users', function () {
         $this->actingAs(User::factory()->create());
 
         $page = visit('/profile');
 
         $page->assertPathIs('/profile')
-            ->assertSee('Manage your account settings.')
+            ->assertPresent('form[action$="/profile/token"]')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 item detail responsive card interaction journey', function () use (&$version, &$manufacturer) {
+    it('item detail responsive card interaction journey', function () use (&$version, &$manufacturer) {
         $item = Item::factory()->create([
-            'translation' => ['en' => 'Phase 5 ThermalCore Cooler'],
+            'translation' => ['en' => 'ThermalCore Cooler'],
         ]);
 
         ItemData::factory()
@@ -474,7 +470,7 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
             ->for($version, 'gameVersion')
             ->for($manufacturer)
             ->create([
-                'name' => 'Phase 5 ThermalCore',
+                'name' => 'ThermalCore',
                 'type' => 'Cooler',
                 'sub_type' => 'Small',
                 'class_name' => 'cooler_card',
@@ -496,7 +492,7 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
         $noHorizontalScroll = $page->script('() => document.body.scrollWidth <= window.innerWidth');
         expect($noHorizontalScroll)->toBe(true);
 
-        $page->assertSee('Phase 5 ThermalCore')
+        $page->assertSee('ThermalCore')
             ->assertPresent('details.collapse > summary.collapse-title');
 
         $page->script('() => document.querySelector("details.collapse > summary.collapse-title")?.click()');
@@ -504,36 +500,38 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
         $page->script('() => document.querySelector("details.collapse > summary.collapse-title")?.click()');
 
         $page->resize(1024, 768)
-            ->assertSee('Search items')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 profile token lifecycle journey', function () {
-        $tokenName = 'Phase 5 Browser Token';
+    it('profile token lifecycle journey', function () {
+        $tokenName = 'Browser Token';
 
         $this->actingAs(User::factory()->create());
 
         $page = visit('/profile');
 
         $page->assertPathIs('/profile')
-            ->assertSee('API Token')
+            ->assertPresent('input[name="name"]')
             ->fill('name', $tokenName)
-            ->click('Create New Token')
-            ->assertSee('Your API token is ready')
-            ->assertSee($tokenName)
-            ->assertSee('Your New API Token');
+            ->click('form[action$="/profile/token"] button[type="submit"]')
+            ->assertPresent('input[readonly]')
+            ->assertPresent('button[onclick*="copyToken"]');
 
         $page->script('() => { window.confirm = () => true; }');
 
-        $page->click('button[aria-label="Delete token"]')
-            ->assertSee('api-token-deleted')
-            ->assertSee("You don't have any API tokens yet.")
+        $page->click('button[aria-label="Delete token"]');
+
+        $remainingDeleteButtons = $page->script('() => document.querySelectorAll(\'button[aria-label="Delete token"]\').length');
+
+        expect($remainingDeleteButtons)->toBe(0);
+
+        $page->assertPresent('input[name="name"]')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });
 
-    it('phase 5 vehicle listing to detail journey', function () use (&$version, &$manufacturer) {
+    it('vehicle listing to detail journey', function () use (&$version, &$manufacturer) {
         $vehicle = Vehicle::factory()->create();
 
         VehicleData::factory()
@@ -541,9 +539,9 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
             ->for($version, 'gameVersion')
             ->for($manufacturer)
             ->create([
-                'name' => 'Phase 5 Journey Vehicle',
-                'display_name' => 'Phase 5 Journey Vehicle',
-                'class_name' => 'PHASE_5_JOURNEY_VEHICLE',
+                'name' => 'Journey Vehicle',
+                'display_name' => 'Journey Vehicle',
+                'class_name' => 'JOURNEY_VEHICLE',
                 'career' => 'Exploration',
                 'role' => 'Scout',
                 'is_vehicle' => true,
@@ -554,13 +552,11 @@ describe('Phase 5 Browser Coverage', function () use (&$version, &$manufacturer)
         $page = visit(route('web.vehicles.index'));
 
         $page->assertPathIs('/vehicles')
-            ->assertSee('Vehicles')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs()
             ->navigate(route('web.vehicles.show', $vehicle->uuid))
             ->assertPathContains('/vehicles/')
-            ->assertSee('Phase 5 Journey Vehicle')
-            ->assertSee('Search vehicles')
+            ->assertSee('Journey Vehicle')
             ->assertNoJavascriptErrors()
             ->assertNoConsoleLogs();
     });

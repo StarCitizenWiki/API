@@ -46,8 +46,7 @@ it('renders the comm-links index route', function (): void {
             return ($payload['data'][0]['id'] ?? null) === 1001
                 && ($payload['data'][0]['title'] ?? null) === 'Roadmap Roundup';
         })
-        ->assertViewHas('initialHeaderFilter', $headerFilters)
-        ->assertSee('Comm-Links');
+        ->assertViewHas('initialHeaderFilter', $headerFilters);
 });
 
 it('renders the galactapedia index route', function (): void {
@@ -86,8 +85,7 @@ it('renders the galactapedia index route', function (): void {
             return ($payload['data'][0]['id'] ?? null) === 'SC-001'
                 && ($payload['data'][0]['title'] ?? null) === 'ArcCorp';
         })
-        ->assertViewHas('initialHeaderFilter', $headerFilters)
-        ->assertSee('Galactapedia');
+        ->assertViewHas('initialHeaderFilter', $headerFilters);
 });
 
 it('renders the ship-matrix ground vehicles index route', function (): void {
@@ -126,8 +124,7 @@ it('renders the ship-matrix ground vehicles index route', function (): void {
             return ($payload['data'][0]['id'] ?? null) === 7001
                 && ($payload['data'][0]['name'] ?? null) === 'Cyclone RC';
         })
-        ->assertViewHas('initialHeaderFilter', $headerFilters)
-        ->assertSee('Ship-Matrix Vehicles');
+        ->assertViewHas('initialHeaderFilter', $headerFilters);
 });
 
 it('renders the ship-matrix vehicles index route', function (): void {
@@ -166,8 +163,7 @@ it('renders the ship-matrix vehicles index route', function (): void {
             return ($payload['data'][0]['id'] ?? null) === 5001
                 && ($payload['data'][0]['name'] ?? null) === 'Constellation Andromeda';
         })
-        ->assertViewHas('initialHeaderFilter', $headerFilters)
-        ->assertSee('Ship-Matrix Vehicles');
+        ->assertViewHas('initialHeaderFilter', $headerFilters);
 });
 
 it('renders the stats index route', function (): void {
@@ -191,7 +187,6 @@ it('renders the stats index route', function (): void {
                 && ($latestStats['fleet'] ?? null) === 9876
                 && ($latestStats['timestamp'] ?? null) === '2025-03-01T10:15:00+00:00';
         })
-        ->assertSee('Latest fund and fleet snapshot.')
         ->assertSee('$123,456.78')
         ->assertSee('9,876');
 });

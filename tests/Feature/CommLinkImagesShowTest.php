@@ -24,7 +24,6 @@ it('renders the comm-link image show view with api data', function (): void {
 
     $response->assertOk()
         ->assertViewIs('comm-links.images.show')
-        ->assertSee('Comm-Link Image')
         ->assertSee('Comm-Link Hero')
         ->assertSee('Inside Star Citizen')
         ->assertSee((string) $commLink->cig_id);

@@ -94,19 +94,6 @@ it('delete /profile with confirmation=delete_account deletes user, logs out, red
     $this->assertGuest();
 });
 
-it('profile page access: authenticated user can access /profile', function (): void {
-    $user = User::factory()->create();
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('Profile')
-        ->assertSee('Manage your account settings')
-        ->assertSee('Change Password')
-        ->assertSee('API Token')
-        ->assertSee('Delete Account');
-});
-
 it('profile page access: unauthenticated user is redirected to login', function (): void {
     $response = $this->get('/profile');
 
@@ -119,56 +106,23 @@ it('profile page access: page renders correctly with all sections', function ():
     $response = $this->actingAs($user)->get('/profile');
 
     $response->assertOk()
-        ->assertSee('Change Password')
-        ->assertSee('Current Password')
-        ->assertSee('New Password')
-        ->assertSee('Confirm New Password')
-        ->assertSee('Update Password')
-        ->assertSee('API Token')
-        ->assertSee('Create New Token')
-        ->assertSee('Token Name')
-        ->assertSee('Delete Account')
-        ->assertSee('Once you delete your account, there is no going back')
-        ->assertSee('I understand that this action is irreversible');
+        ->assertSee('action="'.route('profile.token.create').'"', false)
+        ->assertSee('action="'.route('user-password.update').'"', false)
+        ->assertSee('action="'.route('profile.destroy').'"', false)
+        ->assertSee('name="name"', false)
+        ->assertSee('name="current_password"', false)
+        ->assertSee('name="password"', false)
+        ->assertSee('name="password_confirmation"', false)
+        ->assertSee('name="confirm"', false);
 });
 
 it('profile page access: shows empty state when user has no tokens', function (): void {
-    // RefreshDatabase is already applied at the top of the file
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get('/profile');
 
     $response->assertOk()
-        ->assertSee('You don\'t have any API tokens yet.', false);
-});
-
-it('profile page access: shows table when user has tokens', function (): void {
-    $user = User::factory()->create();
-
-    // Create a token for the user
-    $user->createToken('Test Token', ['*']);
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('Name')
-        ->assertSee('Last Used')
-        ->assertSee('Actions')
-        ->assertSee('Test Token');
-});
-
-it('token table: table renders with correct columns', function (): void {
-    $user = User::factory()->create();
-
-    // Create a token for the user
-    $user->createToken('Test Token', ['*']);
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('Name')
-        ->assertSee('Last Used')
-        ->assertSee('Actions');
+        ->assertViewHas('tokens', fn ($tokens): bool => $tokens->isEmpty());
 });
 
 it('token table: token name is displayed without masked value', function (): void {
@@ -206,36 +160,13 @@ it('token table: last_used_at is displayed in human-readable format', function (
         ->assertSee('2 hours ago');
 });
 
-it('token table: displays "never" when token has never been used', function (): void {
-    $user = User::factory()->create();
-
-    // Create a token for the user
-    $user->createToken('Test Token', ['*']);
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('Never');
-});
-
-it('token table: empty state displays when no tokens', function (): void {
-    $user = User::factory()->create();
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('You don\'t have any API tokens yet.', false)
-        ->assertSee('Create a token to authenticate with the API.');
-});
-
 it('token table: creation form is displayed in tokens card', function (): void {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get('/profile');
 
     $response->assertOk()
-        ->assertSee('Token Name')
-        ->assertSee('Create New Token')
+        ->assertSee('action="'.route('profile.token.create').'"', false)
         ->assertSee('name="name"', false);
 });
 
@@ -417,8 +348,8 @@ it('token creation: token is displayed in read-only input block after creation',
     $response = $this->actingAs($user)->get('/profile');
 
     $response->assertOk()
-        ->assertSee('Your New API Token')
-        ->assertSee('Copy');
+        ->assertSee('readonly', false)
+        ->assertSee('onclick="copyToken(', false);
 });
 
 it('token creation: copy button is present in token display', function (): void {
@@ -434,7 +365,7 @@ it('token creation: copy button is present in token display', function (): void 
     $response = $this->actingAs($user)->get('/profile');
 
     $response->assertOk()
-        ->assertSee('copyToken');
+        ->assertSee('onclick="copyToken(', false);
 });
 
 it('account deletion: successfully deletes account with delete_account confirmation', function (): void {

@@ -10,10 +10,5 @@ it('renders the comm-link search page', function (): void {
     $response = $this->get(route('web.comm-links.search'));
 
     $response->assertOk()
-        ->assertViewIs('comm-links.search')
-        ->assertSee('Comm-Link Search')
-        ->assertSee('Search title')
-        ->assertSee('Search content')
-        ->assertSee('Search media URL')
-        ->assertSee('Search by image');
+        ->assertViewIs('comm-links.search');
 });

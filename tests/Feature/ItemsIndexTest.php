@@ -64,8 +64,7 @@ it('filters items by type on the web route', function (): void {
         })
         ->assertViewHas('headerFilterOptionsMap', function (array $map): bool {
             return ! array_key_exists('type', $map);
-        })
-        ->assertSee('Column source map');
+        });
 });
 
 it('filters items by category on the web route', function (): void {

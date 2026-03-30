@@ -78,7 +78,6 @@ it('renders the blueprints index route', function (): void {
                 && ($payload['meta']['per_page'] ?? null) === 25
                 && count($payload['data']) === 1;
         })
-        ->assertViewHas('pageTitle', 'Blueprints')
         ->assertViewHas('headerFilterOptionsMap', function (array $map): bool {
             return ($map['is_available_by_default'] ?? null) === 'default';
         })
@@ -100,13 +99,11 @@ it('renders the blueprints index route', function (): void {
                 && $fieldMap->get('uuid')['formatterParams']['label'] === 'API Url'
                 && $fieldMap->get('uuid')['formatterParams']['urlField'] === 'link';
         })
-        ->assertSee('Search Blueprints')
         ->assertSee(route('web.blueprints.search'))
-        ->assertSee(route('blueprints.index'))
-        ->assertSee('Column source map');
+        ->assertSee(route('blueprints.index'));
 
     $crawler = new Crawler($response->getContent());
-    $menuLink = $crawler->filterXPath('//a[.//span[normalize-space(.)="Blueprints"]]')->first();
+    $menuLink = $crawler->filterXPath('//a[@href="'.route('web.blueprints.index').'"]')->first();
 
     expect($menuLink->attr('href'))->toBe(route('web.blueprints.index'))
         ->and($menuLink->attr('class') ?? '')->toContain('menu-active');

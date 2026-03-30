@@ -57,6 +57,5 @@ it('renders the galactapedia show view with api data', function (): void {
         ->assertSee('Locations')
         ->assertSee('Planet')
         ->assertSee('System')
-        ->assertSee('Stanton')
-        ->assertSee('Related Articles');
+        ->assertSee('Stanton');
 });

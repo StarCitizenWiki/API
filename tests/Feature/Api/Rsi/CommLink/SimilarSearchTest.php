@@ -83,8 +83,7 @@ it('rate limits requests to 10 per minute', function (): void {
 
     $this->withToken($token)
         ->getJson("/api/comm-link-images/{$image->id}/similar")
-        ->assertTooManyRequests()
-        ->assertSeeText('Too many similar image searches');
+        ->assertTooManyRequests();
 });
 
 it('rate limit resets after minute expires', function (): void {

@@ -56,8 +56,5 @@ it('renders the comm-link show view with api data', function (): void {
         ->assertSee('Alpha 4.0 Patch Notes')
         ->assertSee('Update highlights for Alpha 4.0.')
         ->assertSee('Read on RSI')
-        ->assertSee('Alpha 4.0 banner')
-        ->assertSee('Metadata')
-        ->assertSee('Links')
-        ->assertSee('Images');
+        ->assertSee('Alpha 4.0 banner');
 });

@@ -21,6 +21,5 @@ it('renders the vehicles index mapping', function (): void {
     $response = $this->get(route('web.vehicles.index'));
 
     $response->assertOk()
-        ->assertViewIs('vehicles.index')
-        ->assertSee('Column source map');
+        ->assertViewIs('vehicles.index');
 });

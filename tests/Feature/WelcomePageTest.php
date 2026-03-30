@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
 
@@ -12,29 +13,15 @@ it('renders the welcome page categories for guests', function (): void {
     $response = $this->get(route('home'));
 
     $response->assertSuccessful()
-        ->assertSee([
-            'Search items',
-            'Home',
-            'Comm-Link',
-            'Galactapedia',
-            'Universe',
-            'Statistics',
-            'Ship-Matrix',
-            'Starmap',
-            'Explore',
-            'Comm-Links',
-            'Vehicles',
-            'All Items',
-            'Stats',
-            'Systems',
-            'Celestial Objects',
-            'Api Documentation',
-            'Source Code',
-        ]);
+        ->assertSee('name="filter[name]"', false);
 
-    $response->assertSee('name="filter[name]"', false);
+    if (! Route::has('admin.dashboard')) {
+        return;
+    }
 
-    $response->assertDontSee('Admin');
+    $crawler = new Crawler($response->getContent());
+
+    expect($crawler->filterXPath('//a[@href="'.route('admin.dashboard').'"]')->count())->toBe(0);
 });
 
 it('shows the admin link for authorized users when the route exists', function (): void {
@@ -46,5 +33,7 @@ it('shows the admin link for authorized users when the route exists', function (
 
     $response = $this->actingAs($user)->get(route('home'))->assertSuccessful();
 
-    $response->assertSee('Admin');
+    $crawler = new Crawler($response->getContent());
+
+    expect($crawler->filterXPath('//a[@href="'.route('admin.dashboard').'"]')->count())->toBeGreaterThan(0);
 });
