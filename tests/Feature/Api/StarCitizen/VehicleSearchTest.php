@@ -22,7 +22,7 @@ it('searches vehicles by name', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -83,7 +83,7 @@ it('returns empty results when no results found', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -144,7 +144,7 @@ it('supports pagination in search results', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -188,7 +188,7 @@ it('supports filters with search', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);

@@ -67,18 +67,27 @@ class ProductionNote extends BaseElement
     private function createNewProductionNote(): ProductionNoteModel
     {
         $translation = $this->getNormalizedStatus();
-        $contentHash = md5($translation ?? '');
+        $englishLocale = (string) config('language.english');
+
+        if ($translation === null || $translation === '') {
+            return ProductionNoteModel::findOrFail(1);
+        }
+
+        /** @var ProductionNoteModel|null $productionNote */
+        $productionNote = ProductionNoteModel::query()
+            ->where('translation->'.$englishLocale, $translation)
+            ->first();
+
+        if ($productionNote instanceof ProductionNoteModel) {
+            return $productionNote;
+        }
 
         /** @var ProductionNoteModel $productionNote */
-        $productionNote = ProductionNoteModel::query()->firstOrCreate(
-            ['content_hash' => $contentHash],
-            ['content_hash' => $contentHash]
-        );
-
-        if ($translation !== null && $translation !== '') {
-            $productionNote->setTranslation('translation', config('language.english'), $translation);
-            $productionNote->save();
-        }
+        $productionNote = ProductionNoteModel::query()->create([
+            'translation' => [
+                $englishLocale => $translation,
+            ],
+        ]);
 
         app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
 

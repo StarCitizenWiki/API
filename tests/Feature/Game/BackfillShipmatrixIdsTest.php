@@ -25,8 +25,7 @@ beforeEach(function (): void {
     ]);
 
     $this->productionNote = ProductionNote::query()->create([
-        'note' => 'None',
-        'slug' => 'none',
+        'translation' => ['en' => 'None'],
     ]);
 
     $this->size = ShipSize::query()->create([

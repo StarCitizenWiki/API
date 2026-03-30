@@ -22,7 +22,7 @@ it('returns a vehicle by slug', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -63,7 +63,7 @@ it('returns vehicle with correct structure', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -151,7 +151,7 @@ it('handles url-encoded slugs', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);

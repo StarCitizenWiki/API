@@ -304,8 +304,9 @@ it('matches shipmatrix vehicle using override name and manufacturer code', funct
     ]);
 
     $productionStatus = ProductionStatus::query()->create(['slug' => 'in-production']);
-    $productionNote = new ProductionNote;
-    $productionNote->save();
+    $productionNote = ProductionNote::query()->create([
+        'translation' => ['en' => 'None'],
+    ]);
     $size = ShipSize::query()->create(['slug' => 'medium']);
     $type = ShipType::query()->create(['slug' => 'combat']);
 
@@ -373,8 +374,9 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
     ]);
 
     $productionStatus = ProductionStatus::query()->create(['slug' => 'concept']);
-    $productionNote = new ProductionNote;
-    $productionNote->save();
+    $productionNote = ProductionNote::query()->create([
+        'translation' => ['en' => 'None'],
+    ]);
     $size = ShipSize::query()->create(['slug' => 'small']);
     $type = ShipType::query()->create(['slug' => 'fighter']);
 

@@ -29,7 +29,7 @@ it('returns the vehicle list without error', function (): void {
     ]);
 
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create([
@@ -37,7 +37,7 @@ it('returns the vehicle list without error', function (): void {
     ]);
 
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     Vehicle::query()->create([
@@ -69,7 +69,7 @@ it('returns paginated results', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -106,7 +106,7 @@ it('does not duplicate page number in pagination links', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
@@ -150,7 +150,7 @@ it('ignores custom pagination limit', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -191,7 +191,7 @@ it('filters by manufacturer name', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -238,7 +238,7 @@ it('filters by size code', function (): void {
     $large = Size::query()->create(['slug' => 'large']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -285,7 +285,7 @@ it('filters by type slug', function (): void {
     $fighter = Type::query()->create(['slug' => 'fighter']);
     $transport = Type::query()->create(['slug' => 'transport']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -331,7 +331,7 @@ it('filters by focus slug', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'multi-role']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
@@ -383,7 +383,7 @@ it('filters by production status slug', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
     $flightReady = ProductionStatus::query()->create(['slug' => 'flight-ready']);
     $inDevelopment = ProductionStatus::query()->create(['slug' => 'in-development']);
@@ -429,7 +429,7 @@ it('has correct response structure', function (): void {
     $size = Size::query()->create(['slug' => 'small']);
     $type = Type::query()->create(['slug' => 'fighter']);
     $note = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test note'],
     ]);
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);

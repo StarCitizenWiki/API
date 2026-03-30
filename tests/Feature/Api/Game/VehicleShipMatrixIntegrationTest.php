@@ -42,7 +42,7 @@ beforeEach(function () {
     ]);
 
     $this->productionNote = ProductionNote::query()->create([
-        'content_hash' => 'test-hash',
+        'translation' => ['en' => 'Test Note'],
     ]);
 
     $this->shipType = ShipType::query()->create([

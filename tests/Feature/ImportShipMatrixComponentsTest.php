@@ -20,7 +20,7 @@ it('imports vehicle components from ship matrix data', function (): void {
     );
 
     ProductionNote::query()->create([
-        'content_hash' => md5('default'),
+        'translation' => ['en' => 'None'],
     ]);
 
     (new ImportVehicle(new Collection($payload)))->handle();
