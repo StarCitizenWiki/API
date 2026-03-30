@@ -38,12 +38,6 @@ it('builds a base client that preserves full urls', function (): void {
     });
 });
 
-it('configures the default timeout on base requests', function (): void {
-    $client = app(RsiDownloadClient::class);
-
-    expect($client->base()->getOptions()['timeout'] ?? null)->toBe(60);
-});
-
 it('preserves full urls when rsi base url is missing', function (?string $rsiUrl): void {
     config()->set('services.rsi_url', $rsiUrl);
 

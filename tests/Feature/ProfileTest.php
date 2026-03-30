@@ -77,6 +77,42 @@ it('post /profile/token creates token and flashes status + token_name', function
     ]);
 });
 
+it('post /profile/token rejects a missing token name with the custom message', function (): void {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', []);
+
+    $response->assertRedirect('/profile')
+        ->assertSessionHasErrors([
+            'name' => 'A token name is required.',
+        ]);
+
+    $this->assertDatabaseMissing('personal_access_tokens', [
+        'tokenable_id' => $user->id,
+        'tokenable_type' => get_class($user),
+    ]);
+});
+
+it('post /profile/token rejects names longer than 255 characters with the custom message', function (): void {
+    $user = User::factory()->create();
+    $tokenName = str_repeat('a', 256);
+
+    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
+        'name' => $tokenName,
+    ]);
+
+    $response->assertRedirect('/profile')
+        ->assertSessionHasErrors([
+            'name' => 'The token name must not exceed 255 characters.',
+        ]);
+
+    $this->assertDatabaseMissing('personal_access_tokens', [
+        'tokenable_id' => $user->id,
+        'tokenable_type' => get_class($user),
+        'name' => $tokenName,
+    ]);
+});
+
 it('delete /profile with confirmation=delete_account deletes user, logs out, redirects \'/\'', function (): void {
     $user = User::factory()->create();
     $userId = $user->id;
