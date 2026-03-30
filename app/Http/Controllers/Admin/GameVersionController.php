@@ -25,10 +25,34 @@ class GameVersionController extends Controller
     {
         DB::transaction(static function () use ($gameVersion) {
             GameVersion::query()->update(['is_default' => false]);
-            $gameVersion->update(['is_default' => true]);
+            $gameVersion->update([
+                'is_default' => true,
+                'is_hidden' => false,
+            ]);
         });
 
         return redirect()->route('admin.game-versions.index')
             ->with('success', "Game version {$gameVersion->code} set as default.");
+    }
+
+    public function hide(GameVersion $gameVersion): RedirectResponse
+    {
+        if ($gameVersion->is_default) {
+            return redirect()->route('admin.game-versions.index')
+                ->with('error', "Game version {$gameVersion->code} is the default version and cannot be hidden.");
+        }
+
+        $gameVersion->update(['is_hidden' => true]);
+
+        return redirect()->route('admin.game-versions.index')
+            ->with('success', "Game version {$gameVersion->code} hidden from the selector.");
+    }
+
+    public function show(GameVersion $gameVersion): RedirectResponse
+    {
+        $gameVersion->update(['is_hidden' => false]);
+
+        return redirect()->route('admin.game-versions.index')
+            ->with('success', "Game version {$gameVersion->code} shown in the selector.");
     }
 }

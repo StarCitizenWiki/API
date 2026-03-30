@@ -24,6 +24,8 @@ Route::delete('/jobs', [FailedJobController::class, 'truncate'])->name('jobs.tru
 // Game Versions Management
 Route::get('/game-versions', [GameVersionController::class, 'index'])->name('game-versions.index');
 Route::post('/game-versions/{gameVersion}/set-default', [GameVersionController::class, 'setDefault'])->name('game-versions.set-default');
+Route::post('/game-versions/{gameVersion}/hide', [GameVersionController::class, 'hide'])->name('game-versions.hide');
+Route::post('/game-versions/{gameVersion}/show', [GameVersionController::class, 'show'])->name('game-versions.show');
 
 // Translations Management
 Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

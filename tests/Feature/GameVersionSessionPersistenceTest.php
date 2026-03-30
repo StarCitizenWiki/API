@@ -74,3 +74,58 @@ it('does not persist anything when the requested version is unknown', function (
     $response->assertSuccessful();
     $this->assertNull(session('game_version_code'));
 });
+
+it('hides hidden versions from the selector', function () {
+    $visibleVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+    ]);
+
+    $hiddenVersion = GameVersion::factory()->create([
+        'code' => '4.6.0-PTU.1',
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->get(route('home'));
+
+    $response->assertSuccessful()
+        ->assertSeeText($visibleVersion->code)
+        ->assertDontSeeText($hiddenVersion->code);
+});
+
+it('persists hidden requested versions from the query string', function () {
+    GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+    ]);
+
+    $hiddenVersion = GameVersion::factory()->create([
+        'code' => '4.6.0-PTU.1',
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->get(route('home', ['version' => strtolower($hiddenVersion->code)]));
+
+    $response->assertSuccessful();
+    $this->assertSame($hiddenVersion->code, session('game_version_code'));
+});
+
+it('falls back to the default visible version in the selector when a hidden version is requested', function () {
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+    ]);
+
+    $hiddenVersion = GameVersion::factory()->create([
+        'code' => '4.6.0-PTU.1',
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->get(route('home', ['version' => strtolower($hiddenVersion->code)]));
+
+    $response->assertSuccessful()
+        ->assertSee('<option value="'.$defaultVersion->code.'" selected>', false)
+        ->assertDontSeeText($hiddenVersion->code);
+
+    $this->assertSame($hiddenVersion->code, session('game_version_code'));
+});

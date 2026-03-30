@@ -19,6 +19,7 @@
                         <th>Channel</th>
                         <th>Released At</th>
                         <th>Status</th>
+                        <th>Selector</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -38,32 +39,53 @@
                                 @endif
                             </td>
                             <td>
-                                @if (!$version->is_default)
-                                    <button onclick="setDefaultModal{{ $version->id }}.showModal()" class="btn btn-primary btn-sm">
-                                        Set as Default
-                                    </button>
-
-                                    <dialog id="setDefaultModal{{ $version->id }}" class="modal">
-                                        <div class="modal-box">
-                                            <h3 class="text-lg font-bold">Confirm Default Version</h3>
-                                            <p class="py-4">Are you sure you want to set "{{ $version->code }}" as the default version?</p>
-                                            <div class="modal-action">
-                                                <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-primary">Set as Default</button>
-                                                </form>
-                                                <button class="btn" onclick="setDefaultModal{{ $version->id }}.close()">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </dialog>
+                                @if ($version->is_hidden)
+                                    <span class="badge badge-warning">Hidden</span>
                                 @else
-                                    <span class="text-sm text-base-content/60">Current Default</span>
+                                    <span class="badge badge-success">Visible</span>
                                 @endif
+                            </td>
+                            <td>
+                                <div class="flex flex-wrap gap-2">
+                                    @if (!$version->is_default)
+                                        <button onclick="setDefaultModal{{ $version->id }}.showModal()" class="btn btn-primary btn-sm">
+                                            Set as Default
+                                        </button>
+
+                                        <dialog id="setDefaultModal{{ $version->id }}" class="modal">
+                                            <div class="modal-box">
+                                                <h3 class="text-lg font-bold">Confirm Default Version</h3>
+                                                <p class="py-4">Are you sure you want to set "{{ $version->code }}" as the default version?</p>
+                                                <div class="modal-action">
+                                                    <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-primary">Set as Default</button>
+                                                    </form>
+                                                    <button class="btn" onclick="setDefaultModal{{ $version->id }}.close()">Cancel</button>
+                                                </div>
+                                            </div>
+                                        </dialog>
+                                    @else
+                                        <span class="text-sm text-base-content/60">Current Default</span>
+                                    @endif
+
+                                    @if ($version->is_hidden)
+                                        <form method="POST" action="{{ route('admin.game-versions.show', $version) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline btn-sm">Show</button>
+                                        </form>
+                                    @elseif (!$version->is_default)
+                                        <form method="POST" action="{{ route('admin.game-versions.hide', $version) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline btn-sm">Hide</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-base-content/60">No game versions found.</td>
+                            <td colspan="6" class="text-center text-base-content/60">No game versions found.</td>
                         </tr>
                     @endforelse
                 </tbody>

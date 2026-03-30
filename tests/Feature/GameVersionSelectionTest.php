@@ -49,3 +49,18 @@ it('prevents external redirects', function () {
 
     $response->assertRedirect(url()->query(url('/'), ['version' => $version->code]));
 });
+
+it('stores hidden selected versions in session and redirects with query string', function () {
+    $version = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->post(route('game-version.select'), [
+        'version' => $version->code,
+        'redirect' => '/?foo=bar',
+    ]);
+
+    $response->assertRedirect(url()->query('/?foo=bar', ['version' => $version->code]));
+    $this->assertSame($version->code, session('game_version_code'));
+});

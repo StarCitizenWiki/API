@@ -17,11 +17,13 @@ class GameVersion extends Model
         'channel',
         'released_at',
         'is_default',
+        'is_hidden',
     ];
 
     protected $casts = [
         'released_at' => 'datetime',
         'is_default' => 'boolean',
+        'is_hidden' => 'boolean',
     ];
 
     public function scopeRequestedOrDefault(Builder $query, ?string $code): Builder

@@ -26,6 +26,7 @@ class GameVersionFactory extends Factory
             'channel' => fake()->randomElement(['live', 'ptu', 'eptu']),
             'released_at' => fake()->dateTimeBetween('-2 years', 'now'),
             'is_default' => false,
+            'is_hidden' => false,
         ];
     }
 }

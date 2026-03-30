@@ -14,6 +14,7 @@ class AppShellComposer
     {
         try {
             $gameVersions = GameVersion::query()
+                ->where('is_hidden', false)
                 ->orderByDesc('is_default')
                 ->orderByDesc('released_at')
                 ->orderBy('code')

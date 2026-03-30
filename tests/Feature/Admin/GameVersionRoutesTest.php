@@ -70,7 +70,25 @@ it('forbids authenticated non-admin users for post admin/game-versions/{gamevers
     $response->assertForbidden();
 });
 
-it('allows authenticated admins to set exactly one selected version as default', function (): void {
+it('redirects guests for post admin/game-versions/{gameversion}/hide to login', function (): void {
+    $gameVersion = GameVersion::factory()->create();
+
+    $response = $this->post(route('admin.game-versions.hide', $gameVersion));
+
+    $response->assertRedirect(route('login'));
+});
+
+it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/hide', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+    $gameVersion = GameVersion::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->post(route('admin.game-versions.hide', $gameVersion));
+
+    $response->assertForbidden();
+});
+
+it('allows authenticated admins to set exactly one selected version as default and makes it visible', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $currentDefaultVersion = GameVersion::factory()->create([
@@ -80,6 +98,7 @@ it('allows authenticated admins to set exactly one selected version as default',
     $selectedVersion = GameVersion::factory()->create([
         'code' => '4.1.0-PTU.2',
         'is_default' => false,
+        'is_hidden' => true,
     ]);
     $otherVersion = GameVersion::factory()->create([
         'code' => '4.1.0-LIVE.3',
@@ -97,6 +116,7 @@ it('allows authenticated admins to set exactly one selected version as default',
     $this->assertDatabaseHas('game_versions', [
         'id' => $selectedVersion->id,
         'is_default' => true,
+        'is_hidden' => false,
     ]);
     $this->assertDatabaseHas('game_versions', [
         'id' => $currentDefaultVersion->id,
@@ -105,5 +125,64 @@ it('allows authenticated admins to set exactly one selected version as default',
     $this->assertDatabaseHas('game_versions', [
         'id' => $otherVersion->id,
         'is_default' => false,
+    ]);
+});
+
+it('allows authenticated admins to hide non-default versions', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $gameVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => false,
+        'is_hidden' => false,
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.game-versions.hide', $gameVersion));
+
+    $response->assertRedirect(route('admin.game-versions.index'));
+    $response->assertSessionHas('success', "Game version {$gameVersion->code} hidden from the selector.");
+
+    $this->assertDatabaseHas('game_versions', [
+        'id' => $gameVersion->id,
+        'is_hidden' => true,
+    ]);
+});
+
+it('allows authenticated admins to show hidden versions', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $gameVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.game-versions.show', $gameVersion));
+
+    $response->assertRedirect(route('admin.game-versions.index'));
+    $response->assertSessionHas('success', "Game version {$gameVersion->code} shown in the selector.");
+
+    $this->assertDatabaseHas('game_versions', [
+        'id' => $gameVersion->id,
+        'is_hidden' => false,
+    ]);
+});
+
+it('does not allow authenticated admins to hide the default version', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $gameVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+        'is_hidden' => false,
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.game-versions.hide', $gameVersion));
+
+    $response->assertRedirect(route('admin.game-versions.index'));
+    $response->assertSessionHas('error', "Game version {$gameVersion->code} is the default version and cannot be hidden.");
+
+    $this->assertDatabaseHas('game_versions', [
+        'id' => $gameVersion->id,
+        'is_hidden' => false,
     ]);
 });
