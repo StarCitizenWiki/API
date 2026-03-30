@@ -60,7 +60,7 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'sort',
-                description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity',
+                description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity',
                 in: 'query',
                 schema: new OA\Schema(
                     type: 'string',
@@ -626,7 +626,7 @@ class VehicleController extends Controller
     {
         return array_merge(
             [
-                'name',
+                AllowedSort::field('name', 'display_name'),
                 'class_name',
                 'career',
                 'role',
@@ -635,6 +635,7 @@ class VehicleController extends Controller
                 'is_spaceship',
                 'size',
                 AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
+                AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('msrp', new SortByRelation, 'shipmatrixVehicle.msrp'),
                 AllowedSort::field('size_class', 'size'),
             ],

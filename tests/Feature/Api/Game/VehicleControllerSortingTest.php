@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
+use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,14 +14,14 @@ beforeEach(function () {
     $this->defaultVersion = GameVersion::factory()->create(['is_default' => true]);
 });
 
-it('sorts vehicles by name ascending', function () {
+it('sorts vehicles by display name ascending', function (): void {
     foreach (['Avenger', 'Cutlass', 'Freelancer', 'Hornet', 'Mustang'] as $name) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
-            'name' => $name,
-            'display_name' => null,
+            'name' => "Manufacturer {$name}",
+            'display_name' => $name,
         ]);
     }
 
@@ -29,6 +30,59 @@ it('sorts vehicles by name ascending', function () {
     $response->assertSuccessful();
     $names = collect($response->json('data'))->pluck('name')->toArray();
     expect($names)->toBe(['Avenger', 'Cutlass', 'Freelancer', 'Hornet', 'Mustang']);
+});
+
+it('sorts vehicles by display name when display names differ from stored names', function (): void {
+    foreach ([
+        ['manufacturer' => 'Origin Jumpworks', 'name' => 'Origin 100i', 'display_name' => '100i'],
+        ['manufacturer' => 'Aegis Dynamics', 'name' => 'Aegis Avenger Titan', 'display_name' => 'Avenger Titan'],
+        ['manufacturer' => 'Anvil Aerospace', 'name' => 'Anvil Carrack', 'display_name' => 'Carrack'],
+        ['manufacturer' => 'Roberts Space Industries', 'name' => 'RSI Zeus CL', 'display_name' => 'Zeus CL'],
+    ] as $entry) {
+        $vehicle = Vehicle::factory()->create();
+        $manufacturer = Manufacturer::factory()->create(['name' => $entry['manufacturer']]);
+
+        VehicleData::factory()->create([
+            'vehicle_id' => $vehicle->id,
+            'game_version_id' => $this->defaultVersion->id,
+            'manufacturer_id' => $manufacturer->id,
+            'name' => $entry['name'],
+            'display_name' => $entry['display_name'],
+        ]);
+    }
+
+    $response = $this->getJson('/api/vehicles?sort=name');
+
+    $response->assertSuccessful();
+
+    expect(collect($response->json('data'))->pluck('name')->toArray())
+        ->toBe(['100i', 'Avenger Titan', 'Carrack', 'Zeus CL']);
+});
+
+it('sorts vehicles by manufacturer name descending', function (): void {
+    foreach ([
+        ['manufacturer' => 'Alpha Corp', 'name' => 'Zulu'],
+        ['manufacturer' => 'Beta Corp', 'name' => 'Charlie'],
+        ['manufacturer' => 'Gamma Corp', 'name' => 'Alpha'],
+    ] as $entry) {
+        $vehicle = Vehicle::factory()->create();
+        $manufacturer = Manufacturer::factory()->create(['name' => $entry['manufacturer']]);
+
+        VehicleData::factory()->create([
+            'vehicle_id' => $vehicle->id,
+            'game_version_id' => $this->defaultVersion->id,
+            'manufacturer_id' => $manufacturer->id,
+            'name' => "Stored {$entry['name']}",
+            'display_name' => $entry['name'],
+        ]);
+    }
+
+    $response = $this->getJson('/api/vehicles?sort=-manufacturer.name');
+
+    $response->assertSuccessful();
+
+    expect(collect($response->json('data'))->pluck('manufacturer.name')->toArray())
+        ->toBe(['Gamma Corp', 'Beta Corp', 'Alpha Corp']);
 });
 
 it('sorts vehicles by size descending', function () {
