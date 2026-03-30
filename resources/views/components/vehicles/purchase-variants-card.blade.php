@@ -13,7 +13,7 @@
     $shipMatrixSkus = data_get($vehicle, 'skus', []);
 @endphp
 
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
+<details data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
     <summary class="collapse-title min-h-11 py-3 font-semibold">
         Loaner & SKUs
     </summary>
@@ -72,7 +72,7 @@
                     <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">SKUs</dt>
                     <dd class="text-sm font-medium">
                         <div class="overflow-x-auto">
-                            <table class="table table-sm">
+                            <table class="table table-sm" data-testid="purchase-variants-skus">
                                 <thead>
                                 <tr>
                                     <th>Name</th>

@@ -7,9 +7,34 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
+
+function elementMarkupByTestId(string $content, string $testId): string
+{
+    preg_match(
+        '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
+        $content,
+        $matches
+    );
+
+    expect($matches[0] ?? null)->not->toBeNull();
+
+    return $matches[0];
+}
+
+function attributeForTestId(string $content, string $testId, string $attribute): ?string
+{
+    $markup = elementMarkupByTestId($content, $testId);
+
+    preg_match(
+        '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
+        $markup,
+        $matches
+    );
+
+    return isset($matches[1]) ? html_entity_decode($matches[1], ENT_QUOTES) : null;
+}
 
 it('filters items by type on the web route', function (): void {
     $version = GameVersion::factory()->create([
@@ -53,9 +78,16 @@ it('filters items by type on the web route', function (): void {
     $response = $this->get(route('web.items.index', ['filter' => ['type' => 'Widget']]));
 
     $response->assertOk()
-        ->assertSee('Widget Items')
-        ->assertSee('Widget One')
-        ->assertDontSee('Gadget One');
+        ->assertViewIs('items.index')
+        ->assertViewHas('pageTitle', 'Widget Items')
+        ->assertViewHas('endpointFilters', ['type' => 'Widget'])
+        ->assertViewHas('initialFilters', [
+            ['field' => 'type', 'value' => 'Widget'],
+        ])
+        ->assertSee('data-testid="items-index-heading"', false)
+        ->assertSeeText('Widget Items')
+        ->assertSeeText('Widget One')
+        ->assertDontSeeText('Gadget One');
 });
 
 it('filters items by category on the web route', function (): void {
@@ -100,25 +132,39 @@ it('filters items by category on the web route', function (): void {
     $response = $this->get(route('web.items.index', ['filter' => ['category' => 'food']]));
 
     $response->assertOk()
-        ->assertSee('Food & Drinks')
-        ->assertSee('Trail Mix')
-        ->assertDontSee('Pulse Pistol');
+        ->assertViewIs('items.index')
+        ->assertViewHas('pageTitle', 'Food & Drinks')
+        ->assertViewHas('endpointFilters', ['category' => 'food'])
+        ->assertViewHas('initialFilters', [])
+        ->assertSee('data-testid="items-index-heading"', false)
+        ->assertSeeText('Food & Drinks')
+        ->assertSeeText('Trail Mix')
+        ->assertDontSeeText('Pulse Pistol');
 });
 
 it('activates vehicle items menu for vehicle type filters', function (): void {
     $response = $this->get(route('web.items.index', ['filter' => ['type' => 'PowerPlant']]));
 
-    $response->assertOk();
+    $response->assertOk()
+        ->assertViewIs('items.index')
+        ->assertViewHas('pageTitle', 'Power Plants')
+        ->assertViewHas('endpointFilters', ['type' => 'PowerPlant'])
+        ->assertViewHas('initialFilters', [
+            ['field' => 'type', 'value' => 'PowerPlant'],
+        ])
+        ->assertSee('data-testid="items-menu-vehicle-items"', false)
+        ->assertSee('data-testid="items-menu-fps-items"', false)
+        ->assertSee('data-testid="items-menu-all-items"', false);
 
-    $crawler = new Crawler($response->getContent());
+    $content = $response->getContent();
+    $vehicleMenuClasses = attributeForTestId($content, 'items-menu-vehicle-items', 'class');
+    $fpsMenuClasses = attributeForTestId($content, 'items-menu-fps-items', 'class');
+    $allItemsMenuClasses = attributeForTestId($content, 'items-menu-all-items', 'class') ?? '';
 
-    $vehicleMenu = $crawler->filterXPath('//summary[contains(normalize-space(.), "Vehicle-Items")]')->first();
-    $fpsMenu = $crawler->filterXPath('//summary[contains(normalize-space(.), "FPS-Items")]')->first();
-    $allItemsMenu = $crawler->filterXPath('//a[contains(normalize-space(.), "All Items")]')->first();
-
-    expect($vehicleMenu->attr('class'))->toContain('menu-active')
-        ->and($fpsMenu->attr('class'))->not->toContain('menu-active')
-        ->and($allItemsMenu->attr('class') ?? '')->not->toContain('menu-active');
+    expect($vehicleMenuClasses)->toContain('menu-active')
+        ->and($fpsMenuClasses)->toContain('menu-item')
+        ->and($fpsMenuClasses)->not->toContain('menu-active')
+        ->and($allItemsMenuClasses)->not->toContain('menu-active');
 });
 
 it('renders breadcrumbs for item filters', function (): void {
@@ -131,26 +177,30 @@ it('renders breadcrumbs for item filters', function (): void {
         ],
     ]));
 
-    $response->assertOk();
+    $response->assertOk()
+        ->assertViewIs('items.index')
+        ->assertSee('data-testid="item-breadcrumbs"', false)
+        ->assertSee('data-testid="item-breadcrumbs-all-link"', false)
+        ->assertSee('data-testid="item-breadcrumb-link-1"', false)
+        ->assertSee('data-testid="item-breadcrumb-link-2"', false)
+        ->assertSee('data-testid="item-breadcrumb-link-3"', false)
+        ->assertSeeText('All Items')
+        ->assertSeeText('Weapon')
+        ->assertSeeText('Rail Gun')
+        ->assertSeeText('Aegis Dynamics');
 
-    $crawler = new Crawler($response->getContent());
-    $breadcrumbs = $crawler->filter('.breadcrumbs a');
+    $content = $response->getContent();
 
-    expect($breadcrumbs->count())->toBe(4)
-        ->and($breadcrumbs->eq(0)->text())->toBe('All Items')
-        ->and($breadcrumbs->eq(0)->attr('href'))->toBe(route('web.items.index', ['version' => '4.1.0-LIVE']))
-        ->and($breadcrumbs->eq(1)->text())->toBe('Weapon')
-        ->and($breadcrumbs->eq(1)->attr('href'))->toBe(route('web.items.index', [
+    expect(attributeForTestId($content, 'item-breadcrumbs-all-link', 'href'))->toBe(route('web.items.index', ['version' => '4.1.0-LIVE']))
+        ->and(attributeForTestId($content, 'item-breadcrumb-link-1', 'href'))->toBe(route('web.items.index', [
             'version' => '4.1.0-LIVE',
             'filter' => ['type' => 'weapon'],
         ]))
-        ->and($breadcrumbs->eq(2)->text())->toBe('Rail Gun')
-        ->and($breadcrumbs->eq(2)->attr('href'))->toBe(route('web.items.index', [
+        ->and(attributeForTestId($content, 'item-breadcrumb-link-2', 'href'))->toBe(route('web.items.index', [
             'version' => '4.1.0-LIVE',
             'filter' => ['type' => 'weapon', 'sub_type' => 'rail_gun'],
         ]))
-        ->and($breadcrumbs->eq(3)->text())->toBe('Aegis Dynamics')
-        ->and($breadcrumbs->eq(3)->attr('href'))->toBe(route('web.items.index', [
+        ->and(attributeForTestId($content, 'item-breadcrumb-link-3', 'href'))->toBe(route('web.items.index', [
             'version' => '4.1.0-LIVE',
             'filter' => [
                 'type' => 'weapon',

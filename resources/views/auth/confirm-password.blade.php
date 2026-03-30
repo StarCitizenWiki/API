@@ -6,12 +6,12 @@
 @section('content')
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
-            <h1 class="text-2xl font-semibold">Confirm your password</h1>
+            <h1 class="text-2xl font-semibold" data-testid="auth-confirm-password-heading">Confirm your password</h1>
             <p class="text-sm text-base-content/70">This action requires a fresh confirmation.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('password.confirm.store') }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('password.confirm.store') }}" class="card-body gap-4" data-testid="auth-confirm-password-form">
                 @csrf
 
                 @if ($errors->any())
@@ -29,13 +29,14 @@
                     <input
                         type="password"
                         name="password"
+                        data-testid="auth-confirm-password-password"
                         required
                         autocomplete="current-password"
                         class="input input-bordered w-full"
                     />
                 </label>
 
-                <button type="submit" class="btn btn-primary w-full">Confirm</button>
+                <button type="submit" class="btn btn-primary w-full" data-testid="auth-confirm-password-submit">Confirm</button>
             </form>
         </div>
     </div>

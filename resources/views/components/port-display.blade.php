@@ -96,19 +96,21 @@
     }
 @endphp
 
-<div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}">
+<div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}" data-testid="port-display">
     <details
         id="{{ $portIdentifier }}"
+        data-testid="port-display-details"
         class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-sm"
     >
         <summary
+            data-testid="port-display-summary"
             class="collapse-title min-h-10 py-2 text-sm font-semibold flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
             aria-expanded="false"
             aria-controls="{{ $portIdentifier }}-content"
         >
             <span class="flex flex-wrap items-center gap-2">
                 @if ($isDeactivated)
-                    <span class="badge badge-soft badge-sm" title="{{ $deactivationReason }}">
+                    <span class="badge badge-soft badge-sm" data-testid="port-display-deactivated" title="{{ $deactivationReason }}">
                         <x-icon name="power-off" class="size-3"/>
                         <span>Deactivated</span>
                     </span>
@@ -213,8 +215,11 @@
                             </span>
                             <span class="text-sm font-medium">{{ $equippedItemName }}</span>
                             @if (! empty(data_get($equippedItem, 'uuid')))
-                                <a href="{{ route('web.items.show', data_get($equippedItem, 'uuid')) }}"
-                                   class="link link-primary text-sm">View</a>
+                                <a
+                                    data-testid="port-display-equipped-item-link"
+                                    href="{{ route('web.items.show', data_get($equippedItem, 'uuid')) }}"
+                                    class="link link-primary text-sm"
+                                >View</a>
                             @endif
                         </div>
                         <div class="grid gap-3 lg:grid-cols-2">

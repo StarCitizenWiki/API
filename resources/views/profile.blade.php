@@ -6,7 +6,7 @@
 @section('content')
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-8">
         <div class="text-center">
-            <h1 class="text-2xl font-semibold">Profile</h1>
+            <h1 class="text-2xl font-semibold" data-testid="profile-heading">Profile</h1>
             <p class="text-sm text-base-content/70">Manage your account settings.</p>
         </div>
 
@@ -24,12 +24,12 @@
             </div>
         @endif
 
-        <div class="card border border-base-200 bg-base-100 shadow">
+        <div class="card border border-base-200 bg-base-100 shadow" data-testid="profile-token-card">
             <div class="card-body gap-6">
                 <h2 class="card-title">API Token</h2>
 
                 @if (session('token'))
-                    <div class="space-y-2">
+                    <div class="space-y-2" data-testid="profile-new-token">
                         <label class="label">
                             <span class="label-text font-semibold">Your New API Token</span>
                         </label>
@@ -57,7 +57,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('profile.token.create') }}" class="space-y-4">
+                <form method="POST" action="{{ route('profile.token.create') }}" class="space-y-4" data-testid="profile-token-create-form">
                     @csrf
 
                     @if ($errors->any())
@@ -76,6 +76,7 @@
                         <input
                             type="text"
                             name="name"
+                            data-testid="profile-token-name-input"
                             placeholder="e.g., My Personal Token"
                             class="input input-bordered w-full"
                         />
@@ -84,12 +85,12 @@
                         @enderror
                     </label>
 
-                    <button type="submit" class="btn btn-primary mt-6">Create New Token</button>
+                    <button type="submit" class="btn btn-primary mt-6" data-testid="profile-token-create-submit">Create New Token</button>
                 </form>
 
                 @if ($tokens->isNotEmpty())
-                    <div class="overflow-x-auto">
-                        <table class="table table-zebra">
+                    <div class="overflow-x-auto" data-testid="profile-token-table-wrapper">
+                        <table class="table table-zebra" data-testid="profile-token-table">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -99,11 +100,11 @@
                             </thead>
                             <tbody>
                                 @foreach ($tokens as $token)
-                                    <tr>
+                                    <tr data-testid="profile-token-row-{{ $token->id }}">
                                         <td>
                                             <div class="font-medium">{{ $token->name }}</div>
                                         </td>
-                                        <td>
+                                        <td data-testid="profile-token-last-used-{{ $token->id }}">
                                             @if ($token->last_used_at)
                                                 {{ $token->last_used_at->diffForHumans() }}
                                             @else
@@ -115,11 +116,17 @@
                                                 method="POST"
                                                 action="{{ route('profile.token.delete', $token->id) }}"
                                                 onsubmit="return confirm('Are you sure you want to delete this token? This action cannot be undone.')"
+                                                data-testid="profile-token-delete-form-{{ $token->id }}"
                                                 class="inline-block"
                                             >
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-ghost btn-error btn-sm" aria-label="Delete token">
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-ghost btn-error btn-sm"
+                                                    aria-label="Delete token"
+                                                    data-testid="profile-token-delete-button-{{ $token->id }}"
+                                                >
                                                     <x-icon name="trash-2" />
                                                 </button>
                                             </form>
@@ -130,7 +137,7 @@
                         </table>
                     </div>
                 @else
-                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                    <div class="flex flex-col items-center justify-center py-8 text-center" data-testid="profile-token-empty-state">
                         <x-icon name="key" class="size-12 text-base-content/30 mb-3" />
                         <p class="text-base-content/60">You don't have any API tokens yet.</p>
                         <p class="text-sm text-base-content/40">Create a token to authenticate with the API.</p>
@@ -139,10 +146,10 @@
             </div>
         </div>
 
-        <div class="card border border-base-200 bg-base-100 shadow">
+        <div class="card border border-base-200 bg-base-100 shadow" data-testid="profile-password-card">
             <div class="card-body gap-4">
                 <h2 class="card-title">Change Password</h2>
-                <form method="POST" action="{{ route('user-password.update') }}">
+                <form method="POST" action="{{ route('user-password.update') }}" data-testid="profile-password-form">
                     @csrf
                     @method('PUT')
 
@@ -151,6 +158,7 @@
                         <input
                             type="password"
                             name="current_password"
+                            data-testid="profile-current-password-input"
                             required
                             autocomplete="current-password"
                             class="input input-bordered w-full"
@@ -165,6 +173,7 @@
                         <input
                             type="password"
                             name="password"
+                            data-testid="profile-password-input"
                             required
                             autocomplete="new-password"
                             class="input input-bordered w-full"
@@ -179,25 +188,26 @@
                         <input
                             type="password"
                             name="password_confirmation"
+                            data-testid="profile-password-confirmation-input"
                             required
                             autocomplete="new-password"
                             class="input input-bordered w-full"
                         />
                     </label>
 
-                    <button type="submit" class="btn btn-primary mt-4">Update Password</button>
+                    <button type="submit" class="btn btn-primary mt-4" data-testid="profile-password-submit">Update Password</button>
                 </form>
             </div>
         </div>
 
-        <div class="card border border-base-200 bg-base-100 shadow">
+        <div class="card border border-base-200 bg-base-100 shadow" data-testid="profile-delete-card">
             <div class="card-body gap-4">
                 <h2 class="card-title text-error">Delete Account</h2>
                 <p class="text-sm text-base-content/70">
                     Once you delete your account, there is no going back. Please be certain.
                 </p>
 
-                <form method="POST" action="{{ route('profile.destroy') }}">
+                <form method="POST" action="{{ route('profile.destroy') }}" data-testid="profile-delete-form">
                     @csrf
                     @method('DELETE')
 
@@ -208,6 +218,7 @@
                                     type="checkbox"
                                     name="confirm"
                                     value="1"
+                                    data-testid="profile-delete-confirm-checkbox"
                                     required
                                     class="checkbox checkbox-error checkbox-sm"
                                 />
@@ -215,7 +226,7 @@
                             </div>
                         </label>
 
-                        <button type="submit" class="btn btn-error btn-sm">Delete Account</button>
+                        <button type="submit" class="btn btn-error btn-sm" data-testid="profile-delete-submit">Delete Account</button>
                     </div>
                 </form>
             </div>

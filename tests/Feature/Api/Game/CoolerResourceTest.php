@@ -7,7 +7,6 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 
 uses(RefreshDatabase::class);
 
@@ -26,7 +25,7 @@ it('returns cooler specification when item type is cooler', function (): void {
 
     $item = Item::factory()->create();
 
-    $itemData = ItemData::factory()
+    ItemData::factory()
         ->for($item)
         ->for($version, 'gameVersion')
         ->for($manufacturer)
@@ -52,12 +51,11 @@ it('returns cooler specification when item type is cooler', function (): void {
         ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
-    $coolerData = Arr::get($itemData->data, 'stdItem.Cooler', []);
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.cooler.cooling_rate', Arr::get($coolerData, 'CoolingRate'))
-        ->assertJsonPath('data.cooler.suppression_ir_factor', Arr::get($coolerData, 'SuppressionIRFactor'))
-        ->assertJsonPath('data.cooler.suppression_heat_factor', Arr::get($coolerData, 'SuppressionHeatFactor'))
+        ->assertJsonPath('data.cooler.cooling_rate', 4080000)
+        ->assertJsonPath('data.cooler.suppression_ir_factor', 0.1)
+        ->assertJsonPath('data.cooler.suppression_heat_factor', 0.2)
         ->assertJsonPath('data.cooler.coolant_segment_generation', 22)
         ->assertJsonMissingPath('data.emp');
 });

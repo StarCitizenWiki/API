@@ -59,6 +59,9 @@ beforeEach(function () {
 });
 
 it('includes ship-matrix data when shipmatrix_id is set', function () {
+    $this->focus->setTranslation('translation', 'en', 'Combat');
+    $this->focus->save();
+
     $this->productionStatus->setTranslation('translation', 'en', 'Flight Ready');
     $this->productionStatus->save();
 
@@ -105,18 +108,13 @@ it('includes ship-matrix data when shipmatrix_id is set', function () {
     $response->assertJsonPath('data.id', 12345);
     $response->assertJsonPath('data.chassis_id', 100);
     $response->assertJsonPath('data.shipmatrix_name', 'Avenger Titan');
+    $response->assertJsonPath('data.foci.0.en', 'Combat');
+    $response->assertJsonPath('data.production_status.en', 'Flight Ready');
+    $response->assertJsonPath('data.production_note.en', 'Test Note');
+    $response->assertJsonPath('data.type.en', 'Combat');
 
     $response->assertJsonPath('data.msrp', 50);
     $response->assertJsonPath('data.pledge_url', 'https://robertsspaceindustries.com/pledge/ships/aegis-avenger/Avenger-Titan');
-
-    $response->assertJsonStructure([
-        'data' => [
-            'foci',
-            'production_status',
-            'production_note',
-            'type',
-        ],
-    ]);
 });
 
 it('does not include ship-matrix data when shipmatrix_id is null', function () {
@@ -137,16 +135,16 @@ it('does not include ship-matrix data when shipmatrix_id is null', function () {
     $response = $this->getJson('/api/vehicles/22222222-2222-2222-2222-222222222222');
 
     $response->assertOk();
-    $response->assertJsonMissing(['id']);
-    $response->assertJsonMissing(['chassis_id']);
-    $response->assertJsonMissing(['shipmatrix_name']);
-    $response->assertJsonMissing(['foci']);
-    $response->assertJsonMissing(['production_status']);
-    $response->assertJsonMissing(['production_note']);
-    $response->assertJsonMissing(['type']);
-    $response->assertJsonMissing(['size_name']);
-    $response->assertJsonMissing(['msrp']);
-    $response->assertJsonMissing(['pledge_url']);
+    $response->assertJsonMissingPath('data.id');
+    $response->assertJsonMissingPath('data.chassis_id');
+    $response->assertJsonMissingPath('data.shipmatrix_name');
+    $response->assertJsonMissingPath('data.foci');
+    $response->assertJsonMissingPath('data.production_status');
+    $response->assertJsonMissingPath('data.production_note');
+    $response->assertJsonMissingPath('data.type');
+    $response->assertJsonMissingPath('data.size_name');
+    $response->assertJsonPath('data.msrp', null);
+    $response->assertJsonPath('data.pledge_url', null);
 });
 
 it('preserves game name when ship-matrix name is different', function () {
@@ -227,19 +225,10 @@ it('includes loaner vehicles when present', function () {
     $response = $this->getJson('/api/vehicles/66666666-6666-6666-6666-666666666666');
 
     $response->assertOk();
-    $response->assertJsonStructure([
-        'data' => [
-            'loaner' => [
-                '*' => ['name', 'link', 'version'],
-            ],
-        ],
-    ]);
-
-    // Verify loaner data is present
-    $loaner = $response->json('data.loaner');
-    expect($loaner)->toHaveCount(1);
-    expect($loaner[0]['name'])->toBe('Loaner Ship');
-    expect($loaner[0]['version'])->toBe('PU');
+    $response->assertJsonCount(1, 'data.loaner')
+        ->assertJsonPath('data.loaner.0.name', 'Loaner Ship')
+        ->assertJsonPath('data.loaner.0.version', 'PU')
+        ->assertJsonPath('data.loaner.0.link', route('vehicles.show', ['vehicle' => 'Loaner Ship']));
 });
 
 it('handles missing ship-matrix relationships gracefully', function () {
@@ -261,9 +250,8 @@ it('handles missing ship-matrix relationships gracefully', function () {
     $response = $this->getJson('/api/vehicles/77777777-7777-7777-7777-777777777777');
 
     $response->assertOk();
-    // Should not have Ship-Matrix fields since the relation doesn't exist
-    $response->assertJsonMissing(['id' => 999999]);
-    $response->assertJsonMissing(['shipmatrix_name']);
+    $response->assertJsonMissingPath('data.id');
+    $response->assertJsonMissingPath('data.shipmatrix_name');
 });
 
 it('includes skus when present', function () {
@@ -304,13 +292,10 @@ it('includes skus when present', function () {
     $response = $this->getJson('/api/vehicles/88888888-8888-8888-8888-888888888888');
 
     $response->assertOk();
-    $response->assertJsonStructure([
-        'data' => [
-            'skus' => [
-                '*' => ['title', 'available', 'price'],
-            ],
-        ],
-    ]);
+    $response->assertJsonCount(1, 'data.skus')
+        ->assertJsonPath('data.skus.0.title', 'Avenger Titan - IAE 2953')
+        ->assertJsonPath('data.skus.0.available', 1)
+        ->assertJsonPath('data.skus.0.price', 50);
 });
 
 it('formats pledge_url correctly', function () {
@@ -407,7 +392,7 @@ it('finds ship-matrix vehicle by slug on versioned routes', function (string $ve
     $response->assertJsonPath('data.slug', 'slug-test-ship');
 })->with(['v2', 'v3']);
 
-it('finds ship-matrix vehicle when game vehicle data exists but game vehicle deleted', function () {
+it('finds ship-matrix vehicle when orphaned game vehicle data exists', function () {
     $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
         'cig_id' => 77777,
         'chassis_id' => 777,
@@ -420,11 +405,22 @@ it('finds ship-matrix vehicle when game vehicle data exists but game vehicle del
         'size_id' => $this->shipSize->id,
     ]);
 
-    $response = $this->getJson('/api/vehicles/Orphan Test Ship');
+    VehicleData::query()->create([
+        'vehicle_id' => 999999,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Orphan Test Ship',
+        'class_name' => 'Orphan_Test_Ship',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $response = $this->getJson('/api/vehicles/orphan-test-ship');
 
     $response->assertOk();
     $response->assertJsonPath('data.name', 'Orphan Test Ship');
     $response->assertJsonPath('data.id', 77777);
+    $response->assertJsonPath('data.slug', 'orphan-test-ship');
 });
 
 it('prefers game vehicle over ship-matrix when both exist', function () {

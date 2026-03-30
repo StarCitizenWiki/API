@@ -28,7 +28,7 @@ class DestroyAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'confirmation' => ['required', 'string', 'in:DELETE_ACCOUNT'],
+            'confirm' => ['accepted'],
         ];
     }
 
@@ -40,8 +40,7 @@ class DestroyAccountRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'confirmation.required' => 'You must confirm account deletion.',
-            'confirmation.in' => 'You must type DELETE_ACCOUNT to confirm.',
+            'confirm.accepted' => 'You must confirm account deletion.',
         ];
     }
 }

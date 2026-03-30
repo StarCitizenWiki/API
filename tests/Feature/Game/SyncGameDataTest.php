@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Jobs\Game\AddBatchJobs;
+use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
+use App\Jobs\Game\ImportItemData;
+use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
@@ -158,4 +162,9 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
         ->expectsOutput('blueprints.json not found in scunpacked storage.');
 
     Bus::assertNothingBatched();
+    Bus::assertNothingDispatched();
+    Bus::assertNotDispatched(AddBatchJobs::class);
+    Bus::assertNotDispatched(ImportItemData::class);
+    Bus::assertNotDispatched(ImportVehicleData::class);
+    Bus::assertNotDispatched(ComputeItemBaseIdsJob::class);
 });

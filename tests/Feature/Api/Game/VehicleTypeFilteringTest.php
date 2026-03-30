@@ -182,6 +182,20 @@ it('returns all vehicles on the main vehicles route', function (): void {
 
     $response->assertOk()
         ->assertJsonCount(3, 'data');
+
+    $returnedUuids = collect($response->json('data'))
+        ->pluck('uuid')
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($returnedUuids)->toBe(
+        collect([
+            $groundVehicle->uuid,
+            $gravlevVehicle->uuid,
+            $spaceship->uuid,
+        ])->sort()->values()->all()
+    );
 });
 
 it('filters ground-vehicles search results correctly', function (): void {

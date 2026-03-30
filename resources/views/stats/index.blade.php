@@ -22,17 +22,17 @@
             <p class="text-sm text-base-content/70">Latest fund and fleet snapshot.</p>
         </div>
 
-        <div class="stats stats-vertical bg-base-100 shadow sm:stats-horizontal">
-            <div class="stat">
-                <div class="stat-title">Funds</div>
-                <div class="stat-value">${{ $fundsValue }}</div>
-                <div class="stat-desc">Updated {{ $updatedLabel }}</div>
+        <div class="stats stats-vertical bg-base-100 shadow sm:stats-horizontal" data-testid="stats-summary">
+            <div class="stat" data-testid="stats-funds-card">
+                <div class="stat-title" data-testid="stats-funds-title">Funds</div>
+                <div class="stat-value" data-testid="stats-funds-value">${{ $fundsValue }}</div>
+                <div class="stat-desc" data-testid="stats-funds-updated">Updated {{ $updatedLabel }}</div>
             </div>
 
-            <div class="stat">
-                <div class="stat-title">Fleet</div>
-                <div class="stat-value">{{ $fleetValue }}</div>
-                <div class="stat-desc">Updated {{ $updatedLabel }}</div>
+            <div class="stat" data-testid="stats-fleet-card">
+                <div class="stat-title" data-testid="stats-fleet-title">Fleet</div>
+                <div class="stat-value" data-testid="stats-fleet-value">{{ $fleetValue }}</div>
+                <div class="stat-desc" data-testid="stats-fleet-updated">Updated {{ $updatedLabel }}</div>
             </div>
         </div>
     </div>

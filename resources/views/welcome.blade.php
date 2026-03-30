@@ -14,7 +14,7 @@
             <div class="hero-content flex-col gap text-center lg:flex-row lg:text-left">
                 <div class="max-w-xl shrink-0">
                     <div class="min-w-0 flex-1 max-w-xl">
-                        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl" data-testid="welcome-page-title">
                             Star Citizen Wiki API
                         </h1>
                         <h2 class="text-xl tracking-tight">Verse Data Mine</h2>
@@ -23,12 +23,14 @@
             </div>
         </div>
 
-        <x-resource-search
-            title="Search items"
-            description="Find items by name across the universe database."
-            :route="route('web.items.index')"
-            placeholder="Search item names"
-        />
+        <div data-testid="welcome-search-items">
+            <x-resource-search
+                title="Search items"
+                description="Find items by name across the universe database."
+                :route="route('web.items.index')"
+                placeholder="Search item names"
+            />
+        </div>
 
         <div class="flex flex-col gap-4">
             <div>
@@ -44,7 +46,7 @@
                                 <li>
                                     <h2 class="menu-title">Vehicles</h2>
                                     <ul>
-                                        <li><a href="{{ route('web.vehicles.index') }}">Ships & Vehicles</a></li>
+                                        <li><a data-testid="welcome-vehicles-link" href="{{ route('web.vehicles.index') }}">Ships & Vehicles</a></li>
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'vehicle-components']]) }}">Components</a></li>
                                     </ul>
                                 </li>
@@ -72,7 +74,7 @@
                                     <h2 class="menu-title">Comm-Link</h2>
                                     <ul>
                                         <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
-                                        <li><a href="{{ route('web.comm-links.search') }}">Search</a></li>
+                                        <li><a data-testid="welcome-comm-links-search-link" href="{{ route('web.comm-links.search') }}">Search</a></li>
                                         <li><a href="{{ route('web.comm-links.images.index') }}">Comm-Link Images</a></li>
                                     </ul>
                                 </li>
@@ -109,7 +111,7 @@
                                 <li>
                                     <h2 class="menu-title">Starmap</h2>
                                     <ul>
-                                        <li><a href="{{ route('web.starmap.systems.index') }}">Systems</a></li>
+                                        <li><a data-testid="welcome-starmap-systems-link" href="{{ route('web.starmap.systems.index') }}">Systems</a></li>
                                         <li><a href="{{ route('web.starmap.celestial-objects.index') }}">Celestial Objects</a></li>
                                     </ul>
                                 </li>
@@ -129,14 +131,14 @@
                 </div>
 
                 @can('access-admin')
-                    <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card border border-base-300 bg-base-100 shadow" data-testid="welcome-admin-card">
                         <div class="card-body gap-4">
                             <h3 class="card-title text-base">Home</h3>
                             <div class="flex flex-wrap gap-2">
-                                <a class="btn btn-sm btn-outline" href="{{ route('home') }}">Home</a>
+                                <a class="btn btn-sm btn-outline" data-testid="welcome-home-link" href="{{ route('home') }}">Home</a>
                                 @auth
                                     @if (Route::has('admin.dashboard'))
-                                        <a class="btn btn-sm btn-outline" href="{{ route('admin.dashboard') }}">Admin</a>
+                                        <a class="btn btn-sm btn-outline" data-testid="welcome-admin-link" href="{{ route('admin.dashboard') }}">Admin</a>
                                     @endif
                                 @endauth
                             </div>

@@ -6,9 +6,27 @@ use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
+
+function attributeForTestId(string $content, string $testId, string $attribute): ?string
+{
+    preg_match(
+        '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
+        $content,
+        $matches
+    );
+
+    expect($matches[0] ?? null)->not->toBeNull();
+
+    preg_match(
+        '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
+        $matches[0],
+        $attributeMatches
+    );
+
+    return isset($attributeMatches[1]) ? html_entity_decode($attributeMatches[1], ENT_QUOTES) : null;
+}
 
 beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create([
@@ -30,16 +48,25 @@ it('renders the blueprint search route with an empty state', function (): void {
     $response = $this->get(route('web.blueprints.search'));
 
     $response->assertOk()
-        ->assertSee('Find craftable items')
-        ->assertSee('Search by output name or pick resource filters to load matching blueprints.')
-        ->assertSee(route('web.blueprints.search'));
+        ->assertViewIs('blueprints.show')
+        ->assertViewHas('isEmptyMode', true)
+        ->assertViewHas('pageTitle', 'Search Blueprints')
+        ->assertSeeText('Find craftable items')
+        ->assertSeeText('Search by output name or pick resource filters to load matching blueprints.')
+        ->assertSee('data-testid="blueprints-search-heading"', false)
+        ->assertSee('data-testid="blueprints-search-input"', false)
+        ->assertSee('data-testid="blueprints-search-empty-state"', false)
+        ->assertSee('data-testid="blueprints-search-menu-link"', false)
+        ->assertSee('data-testid="blueprints-menu-link"', false)
+        ->assertSee(route('web.blueprints.search'), false);
 
-    $crawler = new Crawler($response->getContent());
-    $blueprintsLink = $crawler->filterXPath('//a[@href="'.route('web.blueprints.index').'"]')->first();
-    $searchLink = $crawler->filterXPath('//a[@href="'.route('web.blueprints.search').'"]')->first();
+    $content = $response->getContent();
+    $searchLinkClasses = attributeForTestId($content, 'blueprints-search-menu-link', 'class') ?? '';
+    $blueprintsLinkClasses = attributeForTestId($content, 'blueprints-menu-link', 'class') ?? '';
 
-    expect($searchLink->attr('class') ?? '')->toContain('menu-active')
-        ->and($blueprintsLink->attr('class') ?? '')->not->toContain('menu-active');
+    expect(attributeForTestId($content, 'blueprints-search-menu-link', 'href'))->toBe(route('web.blueprints.search'))
+        ->and($searchLinkClasses)->toContain('menu-active')
+        ->and($blueprintsLinkClasses)->not->toContain('menu-active');
 });
 
 it('renders matching blueprint search results without keeping the search query in result links', function (): void {
@@ -119,26 +146,22 @@ it('renders matching blueprint search results without keeping the search query i
     ]));
 
     $response->assertOk()
+        ->assertViewIs('blueprints.show')
+        ->assertViewHas('isEmptyMode', true)
         ->assertSee('Requested Output')
         ->assertSee('Hephaestanite, Iron')
         ->assertDontSee('Default Output')
-        ->assertSee(route('web.blueprints.show', [
+        ->assertSee('data-testid="blueprints-search-result-link-'.$requestedBlueprint->uuid.'"', false);
+
+    expect(attributeForTestId($response->getContent(), 'blueprints-search-result-link-'.$requestedBlueprint->uuid, 'href'))->toBe(
+        route('web.blueprints.show', [
             'blueprint' => $requestedBlueprint->uuid,
             'version' => $this->requestedVersion->code,
-        ]));
-
-    $crawler = new Crawler($response->getContent());
-    $searchResultLink = $crawler
-        ->filterXPath('//a[@data-blueprint-search-result-link and @data-blueprint-uuid="'.$requestedBlueprint->uuid.'"]')
-        ->first();
-
-    expect($searchResultLink->attr('href'))->toBe(route('web.blueprints.show', [
-        'blueprint' => $requestedBlueprint->uuid,
-        'version' => $this->requestedVersion->code,
-        'filter' => [
-            'ingredient.uuid' => $resourceTypeUuid,
-        ],
-    ]));
+            'filter' => [
+                'ingredient.uuid' => $resourceTypeUuid,
+            ],
+        ])
+    );
 });
 
 it('limits rendered blueprint search results to five records', function (): void {
@@ -159,7 +182,11 @@ it('limits rendered blueprint search results to five records', function (): void
     ]));
 
     $response->assertOk()
+        ->assertViewIs('blueprints.show')
+        ->assertViewHas('isEmptyMode', true)
         ->assertSee('Limiter Output 1')
         ->assertSee('Limiter Output 5')
         ->assertDontSee('Limiter Output 6');
+
+    expect(substr_count($response->getContent(), 'data-testid="blueprints-search-result-link-'))->toBe(5);
 });

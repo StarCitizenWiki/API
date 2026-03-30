@@ -157,41 +157,125 @@ it('builds grouped blueprint detail view data', function (): void {
             'results' => [],
             'result_count' => 0,
         ],
-        pageTitle: 'Chiron Legs',
+        pageTitle: 'Chiron &amp; Legs',
     );
 
-    $clientPayload = json_decode($page['clientPayload'], true, 512, JSON_THROW_ON_ERROR);
+    $initialResult = $page['initialSearchResults'][0];
 
     expect($page['mode'])->toBe('detail')
         ->and($page['isEmptyMode'])->toBeFalse()
+        ->and($page['pageTitleDecoded'])->toBe('Chiron & Legs')
         ->and($page['blueprintName'])->toBe('Chiron Legs')
         ->and($page['craftTimeLabel'])->toBe('3 minutes')
-        ->and($page['unlockSources'])->toBe([
-            [
-                'label' => 'A L P H A',
-                'type' => 'Mission reward',
-                'key' => 'BP_MISSIONREWARD_ALPHA',
-                'uuid' => null,
-            ],
-        ])
+        ->and($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
+        ->and($page['canonicalUrl'])->toBe(route('web.blueprints.show', [
+            'blueprint' => $blueprintUuid,
+            'version' => '4.0.0-PTU',
+        ]))
+        ->and($page['metaDescription'])->toBe('Chiron Legs blueprint, type Armor, craft time 180 seconds, 3 inputs')
+        ->and($page['outputItemWebUrl'])->toBe(route('web.items.show', [
+            'item' => $outputItemUuid,
+            'version' => '4.0.0-PTU',
+        ]))
+        ->and($page['unlockSources'])->toHaveCount(1)
+        ->and($page['unlockSources'][0]['type'])->toBe('Mission reward')
+        ->and($page['unlockSources'][0]['key'])->toBe('BP_MISSIONREWARD_ALPHA')
         ->and($page['hasSearchFilters'])->toBeFalse()
         ->and($page['renderSearchResultCount'])->toBe(1)
-        ->and($page['initialSearchResults'][0]['uuid'])->toBe($blueprintUuid)
-        ->and($page['initialSearchResults'][0]['ingredients'])->toBe([
-            [
-                'name' => 'Laranite',
-                'resource_type_uuid' => $laraniteUuid,
-            ],
-            [
-                'name' => 'Aslarite',
-                'resource_type_uuid' => $aslariteUuid,
-            ],
-            [
-                'name' => 'Stileron',
-                'resource_type_uuid' => $stileronUuid,
-            ],
+        ->and($initialResult['uuid'])->toBe($blueprintUuid)
+        ->and(collect($initialResult['ingredients'])->pluck('resource_type_uuid')->all())->toBe([
+            $laraniteUuid,
+            $aslariteUuid,
+            $stileronUuid,
         ])
-        ->and($page['hasInteractiveAspects'])->toBeTrue()
+        ->and($page['summaryPropertyList'])->toHaveCount(2)
+        ->and($page['hasInteractiveAspects'])->toBeTrue();
+});
+
+it('builds interactive aspect state from grouped requirements', function (): void {
+    app('request')->query->set('version', '4.0.0-PTU');
+
+    $page = app(BlueprintShowViewData::class)->build(
+        mode: 'detail',
+        blueprint: [
+            'requirement_groups' => [
+                [
+                    'key' => 'ASPECTS',
+                    'name' => '<= PLACEHOLDER =>',
+                    'required_count' => 2,
+                    'children' => [
+                        [
+                            'kind' => 'group',
+                            'key' => 'CASING',
+                            'name' => 'Casing',
+                            'required_count' => 1,
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => fake()->uuid(),
+                                    'name' => 'Laranite',
+                                    'quantity_scu' => 0.03,
+                                    'min_quality' => 0,
+                                ],
+                            ],
+                        ],
+                        [
+                            'kind' => 'group',
+                            'key' => 'INSULATIVE LINER',
+                            'name' => 'Insulative Liner',
+                            'required_count' => 1,
+                            'modifiers' => [
+                                [
+                                    'property_key' => 'armor_temperaturemax',
+                                    'quality_range' => [
+                                        'min' => 0,
+                                        'max' => 1000,
+                                    ],
+                                    'modifier_range' => [
+                                        'at_min_quality' => 0.8,
+                                        'at_max_quality' => 1.2,
+                                    ],
+                                    'better_when' => 'higher',
+                                ],
+                            ],
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => fake()->uuid(),
+                                    'name' => 'Aslarite',
+                                    'quantity_scu' => 0.02,
+                                    'min_quality' => 0,
+                                ],
+                            ],
+                        ],
+                        [
+                            'kind' => 'group',
+                            'key' => 'CASING WEAVE',
+                            'name' => 'Casing Weave',
+                            'required_count' => 1,
+                            'children' => [
+                                [
+                                    'kind' => 'resource',
+                                    'uuid' => fake()->uuid(),
+                                    'name' => 'Stileron',
+                                    'quantity_scu' => 0.03,
+                                    'min_quality' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        search: [
+            'filters' => [],
+            'results' => [],
+            'result_count' => 0,
+        ],
+        pageTitle: 'Chiron Legs',
+    );
+
+    expect($page['hasInteractiveAspects'])->toBeTrue()
         ->and($page['aspectGroups'])->toHaveCount(1)
         ->and($page['aspectGroups'][0]['is_choice_group'])->toBeTrue()
         ->and($page['aspectGroups'][0]['selected_count'])->toBe(2)
@@ -199,10 +283,7 @@ it('builds grouped blueprint detail view data', function (): void {
         ->and($page['aspects'])->toHaveCount(3)
         ->and($page['aspects'][0]['is_selected'])->toBeTrue()
         ->and($page['aspects'][1]['is_selected'])->toBeTrue()
-        ->and($page['aspects'][2]['is_selected'])->toBeFalse()
-        ->and($clientPayload['search']['currentBlueprintUuid'])->toBe($blueprintUuid)
-        ->and($clientPayload['detail']['hasInteractiveAspects'])->toBeTrue()
-        ->and($clientPayload['detail']['aspects'])->toHaveCount(3);
+        ->and($page['aspects'][2]['is_selected'])->toBeFalse();
 });
 
 it('builds empty blueprint search view data', function (): void {
@@ -221,14 +302,16 @@ it('builds empty blueprint search view data', function (): void {
         pageTitle: 'Search Blueprints',
     );
 
-    $clientPayload = json_decode($page['clientPayload'], true, 512, JSON_THROW_ON_ERROR);
-
     expect($page['isEmptyMode'])->toBeTrue()
+        ->and($page['pageTitleDecoded'])->toBe('Search Blueprints')
         ->and($page['canonicalUrl'])->toBe(route('web.blueprints.search', ['version' => '4.0.0-PTU']))
         ->and($page['metaTitle'])->toBe('Search Blueprints - Star Citizen')
+        ->and($page['metaDescription'])->toBe('Search Star Citizen blueprints by output name, class, item, or input resource.')
+        ->and($page['rawBlueprintJson'])->toBe('{}')
+        ->and($page['searchQuery'])->toBe('legs')
         ->and($page['renderSearchResultCount'])->toBe(0)
-        ->and($clientPayload['detail'])->toBeNull()
-        ->and($clientPayload['search']['version'])->toBe('4.0.0-PTU');
+        ->and($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
+        ->and($page['hasInteractiveAspects'])->toBeFalse();
 });
 
 it('prefers the explicit query version over the stored session version', function (): void {
@@ -246,11 +329,9 @@ it('prefers the explicit query version over the stored session version', functio
         pageTitle: 'Search Blueprints',
     );
 
-    $clientPayload = json_decode($page['clientPayload'], true, 512, JSON_THROW_ON_ERROR);
-
     expect($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
         ->and($page['canonicalUrl'])->toBe(route('web.blueprints.search', ['version' => '4.0.0-PTU']))
-        ->and($clientPayload['search']['version'])->toBe('4.0.0-PTU');
+        ->and($page['metaTitle'])->toBe('Search Blueprints - Star Citizen');
 });
 
 it('escapes embedded client payload json for script tags', function (): void {

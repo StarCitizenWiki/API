@@ -27,7 +27,7 @@
                 </ul>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h1 class="text-2xl font-semibold tracking-tight">Comm-Link Images</h1>
+                <h1 class="text-2xl font-semibold tracking-tight" data-testid="comm-links-images-heading">Comm-Link Images</h1>
                 <div class="text-sm text-base-content/70">
                     Page {{ $currentPage }} of {{ max($lastPage, 1) }}
                     @if ($total !== null)
@@ -48,7 +48,7 @@
         @endif
 
         @if ($searchType)
-            <div class="alert alert-info text-sm">
+            <div class="alert alert-info text-sm" data-testid="comm-links-images-search-summary">
                 @if ($searchType === 'media-name')
                     Showing results for media name search: <span class="font-semibold">{{ $searchQuery ?: '—' }}</span>.
                 @elseif ($searchType === 'reverse-image')
@@ -72,13 +72,13 @@
         </div>
 
         @if ($images !== [])
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5" data-testid="comm-links-images-grid">
                 @foreach ($images as $image)
                     <x-comm-links.image-card :image="$image" />
                 @endforeach
             </div>
         @else
-            <div class="text-sm text-base-content/70">No images available.</div>
+            <div class="text-sm text-base-content/70" data-testid="comm-links-images-empty-state">No images available.</div>
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">

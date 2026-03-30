@@ -27,7 +27,13 @@ it('lists all game versions with default sort order', function (): void {
     $response->assertSuccessful()
         ->assertJsonCount(2, 'data')
         ->assertJsonPath('data.0.code', $newestVersion->code)
+        ->assertJsonPath('data.0.channel', $newestVersion->channel)
+        ->assertJsonPath('data.0.released_at', $newestVersion->released_at?->toIso8601String())
+        ->assertJsonPath('data.0.is_default', true)
         ->assertJsonPath('data.1.code', $olderVersion->code)
+        ->assertJsonPath('data.1.channel', $olderVersion->channel)
+        ->assertJsonPath('data.1.released_at', $olderVersion->released_at?->toIso8601String())
+        ->assertJsonPath('data.1.is_default', false)
         ->assertJsonPath('meta.current_page', 1)
         ->assertJsonPath('meta.valid_relations', []);
 });
@@ -223,38 +229,4 @@ it('paginates game versions with custom page size', function (): void {
         ->assertJsonCount(5, 'data')
         ->assertJsonPath('meta.per_page', 5)
         ->assertJsonPath('meta.current_page', 1);
-});
-
-it('includes all required fields in json response', function (): void {
-    GameVersion::factory()->create([
-        'code' => '3.24.1-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
-
-    $response = $this->getJson('/api/game-versions');
-
-    $response->assertSuccessful()
-        ->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'code',
-                    'channel',
-                    'released_at',
-                    'is_default',
-                ],
-            ],
-            'links' => ['first', 'last', 'prev', 'next'],
-            'meta' => ['current_page', 'per_page', 'total', 'processed_at', 'valid_relations'],
-        ]);
-});
-
-it('returns empty valid_relations in meta', function (): void {
-    GameVersion::factory()->create();
-
-    $response = $this->getJson('/api/game-versions');
-
-    $response->assertSuccessful()
-        ->assertJsonPath('meta.valid_relations', []);
 });

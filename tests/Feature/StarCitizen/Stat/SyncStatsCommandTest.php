@@ -9,7 +9,8 @@ it('dispatches a stats sync job', function (): void {
     Bus::fake();
 
     $this->artisan('stats:sync')
+        ->expectsOutput('Dispatching Stats Sync')
         ->assertExitCode(0);
 
-    Bus::assertDispatched(SyncStats::class);
+    Bus::assertDispatchedTimes(SyncStats::class, 1);
 });

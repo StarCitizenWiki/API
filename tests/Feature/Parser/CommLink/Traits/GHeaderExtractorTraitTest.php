@@ -5,158 +5,89 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts title and content from g-header element', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-header :background-options="{&quot;isTransparent&quot;:false}">
-  <template slot="title">IN-GAME REWARDS (FLAIR)</template>
-  <template slot="content">
-    <p>The 'verse is full of dangerous outlaws and questionable characters.</p>
-  </template>
-</g-header>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
+function headerExtractor(): object
+{
+    return new class
     {
         use GHeaderExtractorTrait;
     };
+}
 
-    $result = $extractor->getHeader($crawler);
+function headerText(string $markup): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($markup))));
+}
 
-    expect($result)->toContain('<h1>IN-GAME REWARDS (FLAIR)</h1>');
-    expect($result)->toContain('<p>The \'verse is full of dangerous outlaws and questionable characters.</p>');
+it('extracts the title and content slots from a g-header element', function (): void {
+    $result = headerExtractor()->getHeader(new Crawler(<<<'HTML'
+        <g-header :background-options="{&quot;isTransparent&quot;:false}">
+          <template slot="title">IN-GAME REWARDS (FLAIR)</template>
+          <template slot="content">
+            <p>The 'verse is full of dangerous outlaws and questionable characters.</p>
+          </template>
+        </g-header>
+        HTML));
+
+    expect(headerText($result))->toContain('IN-GAME REWARDS (FLAIR)')
+        ->and(headerText($result))->toContain("The 'verse is full of dangerous outlaws and questionable characters.");
 });
 
-it('preserves html in content slot', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-header :background-options="{}">
-  <template slot="title">Test Title</template>
-  <template slot="content">
-    <p>Paragraph 1</p>
-    <p><strong>Bold text</strong></p>
-    <ul><li>Item 1</li><li>Item 2</li></ul>
-  </template>
-</g-header>
-</body>
-</html>
-HTML;
+it('keeps multiple headers in the output', function (): void {
+    $result = headerExtractor()->getHeader(new Crawler(<<<'HTML'
+        <g-header>
+          <template slot="title">First Title</template>
+          <template slot="content"><p>First Content</p></template>
+        </g-header>
+        <g-header>
+          <template slot="title">Second Title</template>
+          <template slot="content"><p>Second Content</p></template>
+        </g-header>
+        HTML));
 
-    $crawler = new Crawler($html);
+    $text = headerText($result);
 
-    $extractor = new class
-    {
-        use GHeaderExtractorTrait;
-    };
-
-    $result = $extractor->getHeader($crawler);
-
-    expect($result)->toContain('<p>Paragraph 1</p>');
-    expect($result)->toContain('<p><strong>Bold text</strong></p>');
-    expect($result)->toContain('<ul><li>Item 1</li><li>Item 2</li></ul>');
+    expect(substr_count($text, 'First Title'))->toBe(1)
+        ->and(substr_count($text, 'Second Title'))->toBe(1)
+        ->and(substr_count($text, 'First Content'))->toBe(1)
+        ->and(substr_count($text, 'Second Content'))->toBe(1);
 });
 
-it('handles missing title slot gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-header :background-options="{}">
-  <template slot="content">
-    <p>Content without title</p>
-  </template>
-</g-header>
-</body>
-</html>
-HTML;
+it('handles missing title and content slots independently', function (string $markup, string $expected, string $unexpected): void {
+    $result = headerExtractor()->getHeader(new Crawler($markup));
 
-    $crawler = new Crawler($html);
+    $text = headerText($result);
 
-    $extractor = new class
-    {
-        use GHeaderExtractorTrait;
-    };
+    expect($text)->toContain($expected)
+        ->and($text)->not->toContain($unexpected);
+})->with([
+    'missing title slot' => [
+        <<<'HTML'
+        <g-header :background-options="{}">
+          <template slot="content">
+            <p>Content without title</p>
+          </template>
+        </g-header>
+        HTML,
+        'Content without title',
+        'Title Only',
+    ],
+    'missing content slot' => [
+        <<<'HTML'
+        <g-header :background-options="{}">
+          <template slot="title">Title Only</template>
+        </g-header>
+        HTML,
+        'Title Only',
+        'Content without title',
+    ],
+]);
 
-    $result = $extractor->getHeader($crawler);
-
-    expect($result)->not->toContain('<h1>');
-    expect($result)->toContain('<p>Content without title</p>');
+it('returns an empty string when both slots are missing', function (): void {
+    expect(headerExtractor()->getHeader(new Crawler(<<<'HTML'
+        <g-header :background-options="{}"></g-header>
+        HTML)))->toBe('');
 });
 
-it('handles missing content slot gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-header :background-options="{}">
-  <template slot="title">Title Only</template>
-</g-header>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GHeaderExtractorTrait;
-    };
-
-    $result = $extractor->getHeader($crawler);
-
-    expect($result)->toContain('<h1>Title Only</h1>');
-    expect($result)->not->toContain('<p>');
-});
-
-it('handles missing both slots gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-header :background-options="{}">
-</g-header>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GHeaderExtractorTrait;
-    };
-
-    $result = $extractor->getHeader($crawler);
-
-    expect($result)->toBe('');
-});
-
-it('handles missing g-header element', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<p>No header here</p>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GHeaderExtractorTrait;
-    };
-
-    $result = $extractor->getHeader($crawler);
-
-    expect($result)->toBe('');
+it('returns an empty string when no g-header element is present', function (): void {
+    expect(headerExtractor()->getHeader(new Crawler('<p>No header here</p>')))->toBe('');
 });

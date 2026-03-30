@@ -18,9 +18,10 @@ class VehicleController extends Controller
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
+        $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
 
-        $initialTableData = $this->apiJsonRequest->request(route('vehicles.index', [], false), $request);
-        $filterPayload = $this->apiJsonRequest->request(route('vehicles.filters', [], false), $request);
+        $initialTableData = $this->apiJsonRequest->request(route('vehicles.index', [], false), $apiRequest);
+        $filterPayload = $this->apiJsonRequest->request(route('vehicles.filters', [], false), $apiRequest);
 
         $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
 
@@ -116,5 +117,23 @@ class VehicleController extends Controller
         $normalized = trim((string) $value);
 
         return $normalized === '' ? null : $normalized;
+    }
+
+    /**
+     * @param  array<string, string>  $filters
+     */
+    private function prepareApiRequest(Request $request, array $filters): Request
+    {
+        $apiRequest = $request->duplicate();
+
+        if ($filters === []) {
+            $apiRequest->query->remove('filter');
+
+            return $apiRequest;
+        }
+
+        $apiRequest->query->set('filter', $filters);
+
+        return $apiRequest;
     }
 }

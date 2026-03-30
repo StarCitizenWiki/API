@@ -54,6 +54,7 @@
         class="{{ $isSelectedResult
             ? 'group rounded-box border border-primary/40 bg-primary/5 px-4 py-4 shadow-sm transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30'
             : 'group rounded-box border border-base-300 bg-base-100 px-4 py-4 shadow-sm transition hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30' }}"
+        @if (is_string($searchResultUuid) && trim($searchResultUuid) !== '') data-testid="blueprints-search-result-link-{{ $searchResultUuid }}" @endif
         data-blueprint-search-result-link
         data-blueprint-uuid="{{ $searchResultUuid }}"
         @if ($isSelectedResult) aria-current="page" @endif

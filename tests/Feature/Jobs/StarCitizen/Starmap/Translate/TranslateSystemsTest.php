@@ -31,6 +31,32 @@ it('translates systems without german translation', function () {
     expect($starsystem->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Sonne');
 });
 
+it('skips systems without english translation', function (): void {
+    $starsystem = Starsystem::factory()->create();
+
+    $this->mock(TranslationService::class, function ($mock) {
+        $mock->shouldNotReceive('translate');
+    });
+
+    (new TranslateSystems)->handle(app(TranslationService::class));
+
+    expect($starsystem->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+});
+
+it('skips systems with empty english translation', function (): void {
+    $starsystem = Starsystem::factory()->create();
+    $starsystem->setTranslation('translation', Language::ENGLISH, '');
+    $starsystem->save();
+
+    $this->mock(TranslationService::class, function ($mock) {
+        $mock->shouldNotReceive('translate');
+    });
+
+    (new TranslateSystems)->handle(app(TranslationService::class));
+
+    expect($starsystem->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
+});
+
 it('stores system translations in the configured locale', function (): void {
     config()->set('services.deepl.target_locale', 'zh_CN');
     config()->set('services.deepl.translation_locale', Language::CHINESE);

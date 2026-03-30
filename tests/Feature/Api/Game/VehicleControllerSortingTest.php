@@ -173,9 +173,8 @@ it('sorts vehicles by shield face type alphabetically', function () {
     expect($returned)->toBe(['Dual', 'Quad', 'Single']); // Alphabetical
 });
 
-it('places null values last when sorting ascending', function () {
-    // Create vehicles with cargo data
-    foreach ([100, 200, 300] as $cargo) {
+it('sorts cargo ascending and places null values last', function () {
+    foreach ([300, 100, 200] as $cargo) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
@@ -186,7 +185,6 @@ it('places null values last when sorting ascending', function () {
         ]);
     }
 
-    // Create vehicles without cargo data
     foreach (['No Cargo 1', 'No Cargo 2'] as $name) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
@@ -201,16 +199,12 @@ it('places null values last when sorting ascending', function () {
     $response = $this->getJson('/api/vehicles?sort=Cargo');
 
     $response->assertSuccessful();
-    $data = collect($response->json('data'));
-
-    // First 3 should have values, last 2 should be null
-    expect($data->take(3)->every(fn ($item) => isset($item['cargo_capacity'])))->toBeTrue()
-        ->and($data->slice(3)->every(fn ($item) => ! isset($item['cargo_capacity'])))->toBeTrue();
+    expect(collect($response->json('data'))->pluck('cargo_capacity')->toArray())
+        ->toBe([100, 200, 300, null, null]);
 });
 
-it('places null values last when sorting descending', function () {
-    // Create vehicles with health data
-    foreach ([5000, 10000, 7500] as $health) {
+it('sorts health descending and places null values last', function () {
+    foreach ([5000, 7500, 10000] as $health) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
@@ -221,7 +215,6 @@ it('places null values last when sorting descending', function () {
         ]);
     }
 
-    // Create vehicles without health data
     foreach (['No Health 1', 'No Health 2'] as $name) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
@@ -236,11 +229,8 @@ it('places null values last when sorting descending', function () {
     $response = $this->getJson('/api/vehicles?sort=-Health');
 
     $response->assertSuccessful();
-    $data = collect($response->json('data'));
-
-    // First 3 should have values (descending), last 2 should be null
-    expect($data->take(3)->every(fn ($item) => empty($item['health'])))->toBeFalse()
-        ->and($data->slice(3)->every(fn ($item) => empty($item['health'])))->toBeTrue();
+    expect(collect($response->json('data'))->pluck('health')->toArray())
+        ->toBe([10000, 7500, 5000, 0, 0]);
 });
 
 it('supports multiple field sorting', function () {
@@ -325,13 +315,13 @@ it('combines json sorting with filtering', function () {
 });
 
 it('works with pagination', function () {
-    foreach (range(1, 15) as $i) {
+    foreach (range(1, 15) as $size) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
-            'size' => random_int(1, 4),
-            'name' => "Ship {$i}",
+            'size' => $size,
+            'name' => "Ship {$size}",
             'display_name' => null,
         ]);
     }
@@ -340,10 +330,17 @@ it('works with pagination', function () {
 
     $response->assertSuccessful();
     expect($response->json('meta.per_page'))->toBe(5)
-        ->and($response->json('meta.current_page'))->toBe(1);
-
-    $sizes = collect($response->json('data'))->pluck('size_class')->toArray();
-    expect($sizes)->toBe(collect($sizes)->sortDesc()->values()->toArray());
+        ->and($response->json('meta.current_page'))->toBe(1)
+        ->and($response->json('meta.total'))->toBe(15)
+        ->and($response->json('meta.last_page'))->toBe(3)
+        ->and(collect($response->json('data'))->pluck('size_class')->toArray())->toBe([15, 14, 13, 12, 11])
+        ->and(collect($response->json('data'))->pluck('name')->toArray())->toBe([
+            'Ship 15',
+            'Ship 14',
+            'Ship 13',
+            'Ship 12',
+            'Ship 11',
+        ]);
 });
 
 it('sorts by cross section dimensions', function () {

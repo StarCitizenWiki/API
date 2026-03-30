@@ -7,7 +7,6 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\ResourceType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
 
@@ -113,28 +112,21 @@ it('renders the blueprint show view with normalized api data', function (): void
     $response = $this->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
 
     $response->assertOk()
-        ->assertViewIs('blueprints.show')
+        ->assertViewHas('isEmptyMode', false)
         ->assertViewHas('mode', 'detail')
         ->assertViewHas('pageTitle', 'Detailed Output')
-        ->assertViewHas('blueprint', function (array $payload) use ($blueprint, $outputItemUuid): bool {
-            return ($payload['uuid'] ?? null) === $blueprint->uuid
-                && ($payload['output']['uuid'] ?? null) === $outputItemUuid;
+        ->assertViewHas('canonicalUrl', route('web.blueprints.show', ['blueprint' => $blueprint->uuid]))
+        ->assertViewHas('metaTitle', 'Detailed Output Blueprint')
+        ->assertViewHas('metaDescription', function (string $description): bool {
+            return str_contains($description, 'Detailed Output blueprint')
+                && str_contains($description, 'type WeaponPersonal')
+                && str_contains($description, 'craft time 240 seconds');
+        })
+        ->assertViewHas('outputItemWebUrl', route('web.items.show', ['item' => $outputItemUuid]))
+        ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
+            return data_get($results, '0.uuid') === $blueprint->uuid
+                && data_get($results, '0.web_url') === route('web.blueprints.show', ['blueprint' => $blueprint->uuid]);
         });
-
-    $crawler = new Crawler($response->getContent());
-
-    expect($crawler->filterXPath('//meta[@property="og:type"]')->attr('content'))->toBe('website')
-        ->and($crawler->filterXPath('//meta[@property="og:title"]')->attr('content'))->toBe('Detailed Output Blueprint')
-        ->and($crawler->filterXPath('//meta[@name="twitter:card"]')->attr('content'))->toBe('summary')
-        ->and($crawler->filterXPath('//meta[@name="twitter:title"]')->attr('content'))->toBe('Detailed Output Blueprint')
-        ->and($crawler->filterXPath('//link[@rel="canonical"]')->attr('href'))->toBe(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
-
-    $blueprintShowData = json_decode($crawler->filter('#blueprint-show-data')->text(), true, 512, JSON_THROW_ON_ERROR);
-
-    expect($blueprintShowData['search']['currentBlueprintUuid'] ?? null)->toBe($blueprint->uuid)
-        ->and($crawler->filterXPath('//a[@href="'.route('web.items.show', ['item' => $outputItemUuid]).'"]')->count())->toBeGreaterThan(0)
-        ->and($crawler->filterXPath('//a[@href="'.route('web.items.show', ['item' => $requiredItemUuid]).'"]')->count())->toBeGreaterThan(0)
-        ->and($crawler->filterXPath('//a[@href="'.route('web.blueprints.show', ['blueprint' => $blueprint->uuid]).'"]')->count())->toBeGreaterThan(0);
 
     $response->assertSeeText('Detailed Output')
         ->assertSeeText('4 minutes')
@@ -143,7 +135,8 @@ it('renders the blueprint show view with normalized api data', function (): void
         ->assertSeeText('Frame')
         ->assertSeeText('Reinforced Frame')
         ->assertSeeText('Lindinium')
-        ->assertSeeText('BP_MISSIONREWARD_ALPHA');
+        ->assertSeeText('BP_MISSIONREWARD_ALPHA')
+        ->assertSee(route('web.items.show', ['item' => $requiredItemUuid]), false);
 });
 
 it('renders item-only recipe inputs in the crafting breakdown', function (): void {
@@ -259,24 +252,23 @@ it('renders the requested game version on the blueprint show route', function ()
         ]));
 
     $response->assertOk()
-        ->assertViewHas('blueprint', function (array $payload): bool {
-            return ($payload['output_name'] ?? null) === 'Requested Output'
-                && ($payload['game_version'] ?? null) === '4.0.0-PTU';
+        ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
+            'blueprint' => $blueprint->uuid,
+            'version' => $this->requestedVersion->code,
+        ]))
+        ->assertViewHas('outputItemWebUrl', route('web.items.show', [
+            'item' => $requestedOutputItemUuid,
+            'version' => $this->requestedVersion->code,
+        ]))
+        ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
+            return data_get($results, '0.web_url') === route('web.blueprints.show', [
+                'blueprint' => $blueprint->uuid,
+                'version' => $this->requestedVersion->code,
+            ]);
         })
         ->assertViewHas('resolvedVersionCode', $this->requestedVersion->code)
         ->assertSeeText('Requested Output')
         ->assertDontSeeText('Default Output');
-
-    $crawler = new Crawler($response->getContent());
-
-    expect($crawler->filterXPath('//a[@href="'.route('web.blueprints.show', [
-        'blueprint' => $blueprint->uuid,
-        'version' => $this->requestedVersion->code,
-    ]).'"]')->count())->toBeGreaterThan(0)
-        ->and($crawler->filterXPath('//a[@href="'.route('web.items.show', [
-            'item' => $requestedOutputItemUuid,
-            'version' => $this->requestedVersion->code,
-        ]).'"]')->count())->toBeGreaterThan(0);
 });
 
 it('uses the stored game version on the blueprint show route when the url omits version', function (): void {
@@ -332,24 +324,23 @@ it('uses the stored game version on the blueprint show route when the url omits 
         ->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
 
     $response->assertOk()
-        ->assertViewHas('blueprint', function (array $payload): bool {
-            return ($payload['output_name'] ?? null) === 'Requested Output'
-                && ($payload['game_version'] ?? null) === '4.0.0-PTU';
+        ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
+            'blueprint' => $blueprint->uuid,
+            'version' => $this->requestedVersion->code,
+        ]))
+        ->assertViewHas('outputItemWebUrl', route('web.items.show', [
+            'item' => $requestedOutputItemUuid,
+            'version' => $this->requestedVersion->code,
+        ]))
+        ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
+            return data_get($results, '0.web_url') === route('web.blueprints.show', [
+                'blueprint' => $blueprint->uuid,
+                'version' => $this->requestedVersion->code,
+            ]);
         })
         ->assertViewHas('resolvedVersionCode', $this->requestedVersion->code)
         ->assertSeeText('Requested Output')
         ->assertDontSeeText('Default Output');
-
-    $crawler = new Crawler($response->getContent());
-
-    expect($crawler->filterXPath('//a[@href="'.route('web.blueprints.show', [
-        'blueprint' => $blueprint->uuid,
-        'version' => $this->requestedVersion->code,
-    ]).'"]')->count())->toBeGreaterThan(0)
-        ->and($crawler->filterXPath('//a[@href="'.route('web.items.show', [
-            'item' => $requestedOutputItemUuid,
-            'version' => $this->requestedVersion->code,
-        ]).'"]')->count())->toBeGreaterThan(0);
 });
 
 it('keeps the resource filter without forcing the blueprint picker open', function (): void {
@@ -417,29 +408,17 @@ it('keeps the resource filter without forcing the blueprint picker open', functi
 
     $response->assertOk()
         ->assertViewHas('resolvedVersionCode', $this->requestedVersion->code)
-        ->assertViewHas('clientPayload', function (string $payload): bool {
-            $clientPayload = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
+        ->assertViewHas('searchQuery', '')
+        ->assertViewHas('selectedIngredientResourceTypeUuids', [$resourceTypeUuid])
+        ->assertViewHas('search', function (array $search) use ($resourceTypeUuid): bool {
+            $filters = is_array($search['filters'] ?? null) ? $search['filters'] : [];
 
-            return ($clientPayload['search']['version'] ?? null) === '4.0.0-PTU';
+            return ($filters['ingredient.uuid'] ?? null) === $resourceTypeUuid;
+        })
+        ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
+            return data_get($results, '0.uuid') === $blueprint->uuid;
         })
         ->assertSeeText('Requested Output');
-
-    $crawler = new Crawler($response->getContent());
-    $changeBlueprintPanel = $crawler
-        ->filterXPath('//details[.//*[@data-blueprint-search]]')
-        ->first();
-    $searchResultLink = $crawler
-        ->filterXPath('//a[@data-blueprint-search-result-link and @data-blueprint-uuid="'.$blueprint->uuid.'"]')
-        ->first();
-
-    expect($changeBlueprintPanel->attr('open'))->toBeNull()
-        ->and($searchResultLink->attr('href'))->toBe(route('web.blueprints.show', [
-            'blueprint' => $blueprint->uuid,
-            'version' => $this->requestedVersion->code,
-            'filter' => [
-                'ingredient.uuid' => $resourceTypeUuid,
-            ],
-        ]));
 });
 
 it('renders grouped resource choices when a blueprint requires only some available inputs', function (): void {

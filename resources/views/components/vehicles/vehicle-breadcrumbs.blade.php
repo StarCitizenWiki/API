@@ -5,13 +5,16 @@
     'manufacturerCode' => 'string|null',
 ])
 
-<div class="breadcrumbs text-sm text-base-content/70">
+<div class="breadcrumbs text-sm text-base-content/70" data-testid="vehicle-breadcrumbs">
     <ul>
         <li>
-            <a href="{{ route('web.vehicles.index') }}">All Vehicles</a>
+            <a data-testid="vehicle-breadcrumbs-all-link" href="{{ route('web.vehicles.index') }}">All Vehicles</a>
         </li>
         <li>
-            <a href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]) }}">
+            <a
+                data-testid="vehicle-breadcrumbs-manufacturer-link"
+                href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]) }}"
+            >
                 {{ data_get($vehicle, 'manufacturer.name') }}
             </a>
         </li>

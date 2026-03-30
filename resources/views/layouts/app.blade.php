@@ -64,9 +64,9 @@
                                 @csrf
                                 <input type="hidden" name="redirect" value="{{ url()->full() }}">
                                 <label class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version</label>
-                                <select name="version" class="select select-bordered select-sm" onchange="this.form.submit()">
+                                <select name="version" data-testid="game-version-select-desktop" class="select select-bordered select-sm" onchange="this.form.submit()">
                                     @foreach ($gameVersions as $version)
-                                        <option value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>
+                                        <option data-testid="game-version-option-desktop-{{ $version->code }}" value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>
                                             {{ $version->code }}@if ($version->channel) · {{ strtoupper($version->channel) }}@endif
                                         </option>
                                     @endforeach
@@ -91,13 +91,13 @@
                             @endguest
 
                             @auth
-                                @if (Route::has('profile.show'))
-                                    <a class="btn btn-ghost btn-sm" href="{{ route('profile.show') }}">Profile</a>
+                                @if (Route::has('profile'))
+                                    <a class="btn btn-ghost btn-sm" data-testid="app-shell-profile-link" href="{{ route('profile') }}">Profile</a>
                                 @endif
                                 @if (Route::has('logout'))
-                                    <form method="POST" action="{{ route('logout') }}">
+                                    <form method="POST" action="{{ route('logout') }}" data-testid="app-shell-logout-form">
                                         @csrf
-                                        <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+                                        <button type="submit" class="btn btn-ghost btn-sm" data-testid="app-shell-logout-submit">Logout</button>
                                     </form>
                                 @endif
                             @endauth
@@ -114,9 +114,9 @@
                                             @csrf
                                             <input type="hidden" name="redirect" value="{{ url()->full() }}">
                                             <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version</span>
-                                            <select name="version" class="select select-bordered select-sm" onchange="this.form.submit()">
+                                            <select name="version" data-testid="game-version-select-mobile" class="select select-bordered select-sm" onchange="this.form.submit()">
                                                 @foreach ($gameVersions as $version)
-                                                    <option value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>
+                                                    <option data-testid="game-version-option-mobile-{{ $version->code }}" value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>
                                                         {{ $version->code }}@if ($version->channel) · {{ strtoupper($version->channel) }}@endif
                                                     </option>
                                                 @endforeach
@@ -136,8 +136,8 @@
                                 @endguest
 
                                 @auth
-                                    @if (Route::has('profile.show'))
-                                        <li><a href="{{ route('profile.show') }}">Profile</a></li>
+                                    @if (Route::has('profile'))
+                                        <li><a href="{{ route('profile') }}">Profile</a></li>
                                     @endif
                                     @if (Route::has('logout'))
                                         <li>

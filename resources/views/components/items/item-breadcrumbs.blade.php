@@ -203,12 +203,15 @@
         }
     }
 @endphp
-<div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto">
+<div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto" data-testid="item-breadcrumbs">
     <ul class="w">
         @foreach ($breadcrumbs as $breadcrumb)
             <li>
                 @if ($breadcrumb['url'] !== null)
-                    <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['label'] }}</a>
+                    <a
+                        href="{{ $breadcrumb['url'] }}"
+                        data-testid="{{ $loop->first ? 'item-breadcrumbs-all-link' : 'item-breadcrumb-link-'.$loop->index }}"
+                    >{{ $breadcrumb['label'] }}</a>
                 @else
                     <span>{{ $breadcrumb['label'] }}</span>
                 @endif

@@ -38,10 +38,11 @@ it('searches celestial objects by text query without bigint cast errors', functi
     ]);
 
     $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
         ->assertHeader('Deprecated', 'true');
 
     expect($response->json('meta.deprecated'))->toBeTrue()
-        ->and(collect($response->json('data'))->pluck('id'))->toContain($matchingObject->cig_id);
+        ->and(collect($response->json('data'))->pluck('id')->all())->toBe([$matchingObject->cig_id]);
 });
 
 it('searches celestial objects by numeric cig id', function (): void {
@@ -72,8 +73,9 @@ it('searches celestial objects by numeric cig id', function (): void {
         'query' => (string) $targetObject->cig_id,
     ]);
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data');
 
-    expect(collect($response->json('data'))->pluck('id'))
-        ->toContain($targetObject->cig_id);
+    expect(collect($response->json('data'))->pluck('id')->all())
+        ->toBe([$targetObject->cig_id]);
 });

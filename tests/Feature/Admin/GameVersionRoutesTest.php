@@ -23,33 +23,54 @@ it('forbids authenticated non-admin users for get admin/game-versions', function
     $response->assertForbidden();
 });
 
-it('allows authenticated admins and returns game versions in the index view', function (): void {
+it('allows authenticated admins to see game versions in the index', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
-    $latestVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE.1',
+    $newestVersion = GameVersion::factory()->create([
+        'code' => '4.1.0-LIVE.1',
         'released_at' => now(),
-        'is_default' => true,
-    ]);
-    $olderVersion = GameVersion::factory()->create([
-        'code' => '3.24.2-PTU.5',
-        'released_at' => now()->subDay(),
         'is_default' => false,
+        'is_hidden' => false,
+    ]);
+
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE.1',
+        'released_at' => now()->subDay(),
+        'is_default' => true,
+        'is_hidden' => false,
+    ]);
+
+    $hiddenVersion = GameVersion::factory()->create([
+        'code' => '3.24.2-PTU.5',
+        'released_at' => now()->subDays(2),
+        'is_default' => false,
+        'is_hidden' => true,
     ]);
 
     $response = $this->actingAs($admin)
         ->get(route('admin.game-versions.index'));
 
-    $response->assertSuccessful();
-    $response->assertViewIs('admin.game-versions.index');
-    $response->assertViewHas('versions', function ($versions) use ($latestVersion, $olderVersion): bool {
-        return $versions->contains($latestVersion)
-            && $versions->contains($olderVersion);
-    });
-    $response->assertSeeText([
-        $latestVersion->code,
-        $olderVersion->code,
-    ]);
+    $response->assertSuccessful()
+        ->assertSeeText('Game Versions')
+        ->assertSeeText('Total: 3')
+        ->assertSeeTextInOrder([
+            $newestVersion->code,
+            $defaultVersion->code,
+            $hiddenVersion->code,
+        ])
+        ->assertSeeText('Default')
+        ->assertSeeText('Visible')
+        ->assertSeeText('Hidden');
+
+    $response->assertSee(route('admin.game-versions.set-default', $newestVersion), false)
+        ->assertSee(route('admin.game-versions.hide', $newestVersion), false)
+        ->assertDontSee(route('admin.game-versions.show', $newestVersion), false)
+        ->assertDontSee(route('admin.game-versions.set-default', $defaultVersion), false)
+        ->assertDontSee(route('admin.game-versions.hide', $defaultVersion), false)
+        ->assertDontSee(route('admin.game-versions.show', $defaultVersion), false)
+        ->assertSee(route('admin.game-versions.set-default', $hiddenVersion), false)
+        ->assertSee(route('admin.game-versions.show', $hiddenVersion), false)
+        ->assertDontSee(route('admin.game-versions.hide', $hiddenVersion), false);
 });
 
 it('redirects guests for post admin/game-versions/{gameversion}/set-default to login', function (): void {
@@ -84,6 +105,28 @@ it('forbids authenticated non-admin users for post admin/game-versions/{gamevers
 
     $response = $this->actingAs($user)
         ->post(route('admin.game-versions.hide', $gameVersion));
+
+    $response->assertForbidden();
+});
+
+it('redirects guests for post admin/game-versions/{gameversion}/show to login', function (): void {
+    $gameVersion = GameVersion::factory()->create([
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->post(route('admin.game-versions.show', $gameVersion));
+
+    $response->assertRedirect(route('login'));
+});
+
+it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/show', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+    $gameVersion = GameVersion::factory()->create([
+        'is_hidden' => true,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->post(route('admin.game-versions.show', $gameVersion));
 
     $response->assertForbidden();
 });

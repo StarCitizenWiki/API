@@ -55,11 +55,31 @@ it('uses existing bootup data when available', function (): void {
 
     Http::assertNothingSent();
 
-    Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
+    Bus::assertDispatched(ImportJumppoint::class, function (ImportJumppoint $job): bool {
+        return $job->getData()->all() === [
+            'cig_id' => 10,
+            'direction' => 'bidirectional',
+            'entry_id' => 1,
+            'exit_id' => 2,
+            'name' => 'Sol-Pyro',
+            'size' => 'medium',
+            'entry_status' => 'open',
+            'exit_status' => 'open',
+        ];
+    });
 
     Bus::assertBatched(function (PendingBatch $batch): bool {
         return $batch->jobs->count() === 1
-            && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
+            && $batch->hasJobs([
+                fn (DownloadStarsystem $job): bool => $job->systemCode === 'SOL'
+                    && $job->folder === now()->format('Y-m-d')
+                    && $job->bootupData?->all() === [
+                        'id' => 1,
+                        'code' => 'SOL',
+                        'name' => 'Sol',
+                        'celestial_objects' => [],
+                    ],
+            ]);
     });
 
     Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
@@ -117,11 +137,39 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
             && $request->method() === 'POST';
     });
 
-    Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
+    Bus::assertDispatched(ImportJumppoint::class, function (ImportJumppoint $job): bool {
+        return $job->getData()->all() === [
+            'cig_id' => 10,
+            'direction' => 'bidirectional',
+            'entry_id' => 1,
+            'exit_id' => 2,
+            'name' => 'Sol-Pyro',
+            'size' => 'medium',
+            'entry_status' => 'open',
+            'exit_status' => 'open',
+        ];
+    });
 
     Bus::assertBatched(function (PendingBatch $batch): bool {
         return $batch->jobs->count() === 2
-            && $batch->jobs->every(fn ($job) => $job instanceof DownloadStarsystem);
+            && $batch->hasJobs([
+                fn (DownloadStarsystem $job): bool => $job->systemCode === 'SOL'
+                    && $job->folder === now()->format('Y-m-d')
+                    && $job->bootupData?->all() === [
+                        'id' => 1,
+                        'code' => 'SOL',
+                        'name' => 'Sol',
+                        'celestial_objects' => [],
+                    ],
+                fn (DownloadStarsystem $job): bool => $job->systemCode === 'PYRO'
+                    && $job->folder === now()->format('Y-m-d')
+                    && $job->bootupData?->all() === [
+                        'id' => 2,
+                        'code' => 'PYRO',
+                        'name' => 'Pyro',
+                        'celestial_objects' => [],
+                    ],
+            ]);
     });
 
     Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
@@ -173,11 +221,25 @@ it('skips starsystem downloads and imports from disk when data already exists', 
     );
     Storage::disk('starmap')->put(
         now()->format('Y-m-d').'/sol_system.json',
-        json_encode(['name' => 'Sol'], JSON_THROW_ON_ERROR)
+        json_encode([
+            'id' => 1,
+            'code' => 'SOL',
+            'name' => 'Sol',
+            'description' => '',
+            'affiliation' => [],
+            'celestial_objects' => [],
+        ], JSON_THROW_ON_ERROR)
     );
     Storage::disk('starmap')->put(
         now()->format('Y-m-d').'/pyro_system.json',
-        json_encode(['name' => 'Pyro'], JSON_THROW_ON_ERROR)
+        json_encode([
+            'id' => 2,
+            'code' => 'PYRO',
+            'name' => 'Pyro',
+            'description' => '',
+            'affiliation' => [],
+            'celestial_objects' => [],
+        ], JSON_THROW_ON_ERROR)
     );
 
     Http::fake([
@@ -189,11 +251,65 @@ it('skips starsystem downloads and imports from disk when data already exists', 
 
     Http::assertNothingSent();
 
-    Bus::assertDispatchedTimes(ImportJumppoint::class, 1);
+    Bus::assertDispatched(ImportJumppoint::class, function (ImportJumppoint $job): bool {
+        return $job->getData()->all() === [
+            'cig_id' => 10,
+            'direction' => 'bidirectional',
+            'entry_id' => 1,
+            'exit_id' => 2,
+            'name' => 'Sol-Pyro',
+            'size' => 'medium',
+            'entry_status' => 'open',
+            'exit_status' => 'open',
+        ];
+    });
 
     Bus::assertBatched(function (PendingBatch $batch): bool {
         return $batch->jobs->count() === 2
-            && $batch->jobs->every(fn ($job) => $job instanceof ImportStarsystem);
+            && $batch->hasJobs([
+                fn (ImportStarsystem $job): bool => $job->getData()->all() === [
+                    'cig_id' => 1,
+                    'code' => 'SOL',
+                    'status' => null,
+                    'info_url' => null,
+                    'name' => 'Sol',
+                    'type' => null,
+                    'position_x' => null,
+                    'position_y' => null,
+                    'position_z' => null,
+                    'frost_line' => null,
+                    'habitable_zone_inner' => null,
+                    'habitable_zone_outer' => null,
+                    'aggregated_size' => null,
+                    'aggregated_population' => null,
+                    'aggregated_economy' => null,
+                    'aggregated_danger' => null,
+                    'time_modified' => null,
+                    'description' => '',
+                    'affiliation' => [],
+                ],
+                fn (ImportStarsystem $job): bool => $job->getData()->all() === [
+                    'cig_id' => 2,
+                    'code' => 'PYRO',
+                    'status' => null,
+                    'info_url' => null,
+                    'name' => 'Pyro',
+                    'type' => null,
+                    'position_x' => null,
+                    'position_y' => null,
+                    'position_z' => null,
+                    'frost_line' => null,
+                    'habitable_zone_inner' => null,
+                    'habitable_zone_outer' => null,
+                    'aggregated_size' => null,
+                    'aggregated_population' => null,
+                    'aggregated_economy' => null,
+                    'aggregated_danger' => null,
+                    'time_modified' => null,
+                    'description' => '',
+                    'affiliation' => [],
+                ],
+            ]);
     });
 
     Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');

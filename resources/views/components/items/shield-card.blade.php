@@ -32,7 +32,7 @@
         @endphp
 
         @if ($hasReservePool)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="shield-card-reserve-pool" open>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Reserve Pool
                 </summary>
@@ -91,7 +91,7 @@
         @endphp
 
         @if ($hasRegenDelay)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="shield-card-regen-delay">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Regen Delay
                 </summary>
@@ -122,7 +122,7 @@
         @endphp
 
         @if ($hasAbsorption)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="shield-card-absorption">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Absorption
                 </summary>
@@ -153,7 +153,7 @@
         @endphp
 
         @if ($hasResistance)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="shield-card-resistance">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Resistance
                 </summary>

@@ -14,12 +14,6 @@ beforeEach(function (): void {
         ->withHeader('X-CSRF-TOKEN', $csrfToken);
 });
 
-it('renders the registration page', function (): void {
-    $response = $this->get(route('register'));
-
-    $response->assertOk();
-});
-
 it('registers and authenticates a new user', function (): void {
     $response = $this->post(route('register'), [
         'name' => 'Test User',

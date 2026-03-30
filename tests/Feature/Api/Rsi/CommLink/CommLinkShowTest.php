@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('does not lazy load optional image relationships on comm-link show', function (): void {
+it('returns the comm-link show response contract', function (): void {
     $channel = Channel::factory()->create([
         'name' => 'News',
         'slug' => 'news',
@@ -32,6 +32,9 @@ it('does not lazy load optional image relationships on comm-link show', function
         'channel_id' => $channel->id,
         'category_id' => $category->id,
         'series_id' => $series->id,
+        'comment_count' => 17,
+        'images_count' => 12,
+        'links_count' => 0,
     ]);
 
     $images = Image::factory()->count(12)->create();
@@ -42,13 +45,22 @@ it('does not lazy load optional image relationships on comm-link show', function
 
     $response->assertSuccessful()
         ->assertJsonPath('data.id', $commLink->cig_id)
+        ->assertJsonPath('data.api_url', route('comm-links.show', ['id' => $commLink->cig_id]))
+        ->assertJsonPath('data.api_public_url', route('web.comm-links.show', $commLink->cig_id))
         ->assertJsonPath('data.channel', $channel->name)
         ->assertJsonPath('data.category', $category->name)
         ->assertJsonPath('data.series', $series->name)
+        ->assertJsonPath('data.links_count', 0)
+        ->assertJsonPath('data.comment_count', 17)
+        ->assertJsonPath('data.created_at', $commLink->created_at->toIso8601String())
+        ->assertJsonPath('data.images.0.id', $images->first()->id)
+        ->assertJsonPath('data.images.0.api_url', route('comm-link-images.show', $images->first()->id))
+        ->assertJsonPath('data.images.0.similar_url', route('comm-link-images.similar', $images->first()->id))
         ->assertJsonCount($images->count(), 'data.images')
         ->assertJsonPath('data.images.0.name', $images->first()->name)
-        ->assertJsonMissingPath('data.images.0.tags')
-        ->assertJsonMissingPath('data.images.0.comm_links')
-        ->assertJsonMissingPath('data.images.0.duplicates')
-        ->assertJsonMissingPath('data.images.0.base_image');
+        ->assertJsonPath('meta.prev_id', -1)
+        ->assertJsonPath('meta.next_id', -1)
+        ->assertJsonPath('meta.valid_relations.0', 'images')
+        ->assertJsonPath('meta.valid_relations.1', 'links')
+        ->assertJsonPath('meta.valid_relations.2', 'translations');
 });

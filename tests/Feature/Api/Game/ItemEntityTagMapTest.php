@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -25,7 +25,7 @@ beforeEach(function () {
     ]);
 });
 
-it('returns entity tag map with correct structure when tags are attached', function () {
+it('returns entity tags and entity tag map when tags are attached', function (): void {
     $tag1 = EntityTag::factory()->create(['name' => 'Tag One']);
     $tag2 = EntityTag::factory()->create(['name' => 'Tag Two']);
 
@@ -47,36 +47,32 @@ it('returns entity tag map with correct structure when tags are attached', funct
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
-    $response->assertSuccessful()
-        ->assertJsonStructure([
-            'data' => [
-                'entity_tag_map' => [
-                    '*' => [
-                        'uuid',
-                        'name',
-                    ],
-                ],
-            ],
-        ])
-        ->assertJsonCount(2, 'data.entity_tag_map')
-        ->assertJsonCount(2, 'data.entity_tags');
+    $response->assertSuccessful();
 
-    $entityTagMap = $response->json('data.entity_tag_map');
-    expect($entityTagMap)->toBeArray()
-        ->and($entityTagMap)->toHaveCount(2);
+    $expectedEntityTagMap = [
+        [
+            'uuid' => $tag1->uuid,
+            'name' => 'Tag One',
+        ],
+        [
+            'uuid' => $tag2->uuid,
+            'name' => 'Tag Two',
+        ],
+    ];
 
-    $uuids = collect($entityTagMap)->pluck('uuid')->toArray();
-    $names = collect($entityTagMap)->pluck('name')->toArray();
+    $expectedEntityTags = [
+        $tag1->uuid,
+        $tag2->uuid,
+    ];
 
-    expect($uuids)->toContain($tag1->uuid, $tag2->uuid)
-        ->and($names)->toContain('Tag One', 'Tag Two');
-
-    $entityTags = $response->json('data.entity_tags');
-    expect($entityTags)->toBeArray()
-        ->and($entityTags)->toContain($tag1->uuid, $tag2->uuid);
+    expect(collect($response->json('data.entity_tag_map'))->sortBy('uuid')->values()->all())->toBe(
+        collect($expectedEntityTagMap)->sortBy('uuid')->values()->all()
+    )->and(collect($response->json('data.entity_tags'))->sort()->values()->all())->toBe(
+        collect($expectedEntityTags)->sort()->values()->all()
+    );
 });
 
-it('returns empty array when no entity tags are attached', function () {
+it('returns empty array when no entity tags are attached', function (): void {
     $item = Item::factory()->create();
 
     ItemData::factory()
@@ -96,66 +92,4 @@ it('returns empty array when no entity tags are attached', function () {
     $response->assertSuccessful()
         ->assertJsonPath('data.entity_tag_map', [])
         ->assertJsonPath('data.entity_tags', []);
-});
-
-it('returns correct uuid and name values for entity tags', function () {
-    $tag = EntityTag::factory()->create(['name' => 'Specific Tag Name']);
-
-    $item = Item::factory()->create();
-
-    $itemData = ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Test Item',
-            'type' => 'TestType',
-            'class_name' => 'test_item',
-            'classification' => 'Test.Category',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $itemData->entityTags()->attach($tag->id);
-
-    $response = $this->getJson("/api/items/{$item->uuid}");
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.entity_tag_map.0.uuid', $tag->uuid)
-        ->assertJsonPath('data.entity_tag_map.0.name', 'Specific Tag Name');
-});
-
-it('returns entity tag map for items with multiple tags in correct format', function () {
-    $tags = [];
-    for ($i = 1; $i <= 5; $i++) {
-        $tags[] = EntityTag::factory()->create(['name' => "Tag {$i}"]);
-    }
-
-    $item = Item::factory()->create();
-
-    $itemData = ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Test Item Multiple Tags',
-            'type' => 'TestType',
-            'class_name' => 'test_item_multiple',
-            'classification' => 'Test.Category',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $itemData->entityTags()->attach(collect($tags)->pluck('id')->toArray());
-
-    $response = $this->getJson("/api/items/{$item->uuid}");
-
-    $response->assertSuccessful()
-        ->assertJsonCount(5, 'data.entity_tag_map');
-
-    $entityTagMap = $response->json('data.entity_tag_map');
-
-    foreach ($entityTagMap as $tagData) {
-        expect($tagData)->toHaveKeys(['uuid', 'name'])
-            ->and($tagData['uuid'])->toBeString()
-            ->and($tagData['name'])->toBeString();
-    }
 });

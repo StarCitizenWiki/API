@@ -6,7 +6,6 @@ use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
 
@@ -71,16 +70,17 @@ it('renders the blueprints index route', function (): void {
     $response = $this->get(route('web.blueprints.index'));
 
     $response->assertOk()
-        ->assertSee('FS-9 LMG')
-        ->assertDontSee('P4-AR')
-        ->assertSee(route('web.blueprints.search'))
-        ->assertSee(route('blueprints.index'));
-
-    $crawler = new Crawler($response->getContent());
-    $menuLink = $crawler->filterXPath('//a[@href="'.route('web.blueprints.index').'"]')->first();
-
-    expect($menuLink->attr('href'))->toBe(route('web.blueprints.index'))
-        ->and($menuLink->attr('class') ?? '')->toContain('menu-active');
+        ->assertViewHas('pageTitle', 'Blueprints')
+        ->assertViewHas('pageSize', 25)
+        ->assertViewHas('initialTableData', function (array $tableData): bool {
+            return data_get($tableData, 'data.0.output_name') === 'FS-9 LMG'
+                && ! collect(data_get($tableData, 'data', []))
+                    ->pluck('output_name')
+                    ->contains('P4-AR');
+        })
+        ->assertSeeText('Blueprints')
+        ->assertSee(route('web.blueprints.search'), false)
+        ->assertSee(route('blueprints.index'), false);
 });
 
 it('renders blueprints for the requested version on the web route', function (): void {
@@ -109,8 +109,13 @@ it('renders blueprints for the requested version on the web route', function ():
         ->get(route('web.blueprints.index', ['version' => $this->requestedVersion->code]));
 
     $response->assertOk()
-        ->assertSee('Requested Output')
-        ->assertDontSee('Default Output')
-        ->assertSee(route('web.blueprints.search', ['version' => $this->requestedVersion->code]))
-        ->assertSee(route('blueprints.index', ['version' => $this->requestedVersion->code]));
+        ->assertViewHas('pageTitle', 'Blueprints')
+        ->assertViewHas('initialTableData', function (array $tableData): bool {
+            return data_get($tableData, 'data.0.output_name') === 'Requested Output'
+                && ! collect(data_get($tableData, 'data', []))
+                    ->pluck('output_name')
+                    ->contains('Default Output');
+        })
+        ->assertSee(route('web.blueprints.search', ['version' => $this->requestedVersion->code]), false)
+        ->assertSee(route('blueprints.index', ['version' => $this->requestedVersion->code]), false);
 });

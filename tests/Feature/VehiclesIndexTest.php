@@ -40,5 +40,9 @@ it('returns the vehicle list without error', function (): void {
     $response = $this->getJson(route('vehicles.index'));
 
     $response->assertOk();
-    expect($response->json('data.0.uuid'))->toBe($vehicle->uuid);
+    expect($response->json('data.0.uuid'))->toBe($vehicle->uuid)
+        ->and($response->json('data.0.name'))->toBe('Test Vehicle')
+        ->and($response->json('data.0.link'))->toBe(route('vehicles.show', ['vehicle' => $vehicle->uuid]))
+        ->and($response->json('data.0.web_url'))->toBe(route('web.vehicles.show', ['vehicle' => $vehicle->uuid]))
+        ->and($response->json('meta.total'))->toBe(1);
 });

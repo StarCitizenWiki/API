@@ -7,7 +7,7 @@
     'entityTagMap',
 ])
 
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
+<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-technical-card']) }}>
     <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
         Technical
     </summary>

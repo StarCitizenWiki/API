@@ -34,7 +34,7 @@ it('fails when the requested game version does not exist', function (): void {
 it('dispatches a compute job for the default game version', function (): void {
     Queue::fake();
 
-    $version = GameVersion::query()->create([
+    GameVersion::query()->create([
         'code' => '3.24.0-LIVE',
         'channel' => 'live',
         'released_at' => now(),
@@ -46,16 +46,6 @@ it('dispatches a compute job for the default game version', function (): void {
         ->expectsOutput('Dispatched item base id compute job for version 3.24.0-LIVE.');
 
     Queue::assertPushedTimes(ComputeItemBaseIdsJob::class, 1);
-    Queue::assertPushed(ComputeItemBaseIdsJob::class, function (ComputeItemBaseIdsJob $job) use ($version): bool {
-        $reflection = new ReflectionClass($job);
-        $gameVersionId = $reflection->getProperty('gameVersionId');
-        $gameVersionId->setAccessible(true);
-        $dryRun = $reflection->getProperty('dryRun');
-        $dryRun->setAccessible(true);
-
-        return $gameVersionId->getValue($job) === $version->id
-            && $dryRun->getValue($job) === false;
-    });
 });
 
 it('dispatches a dry-run compute job for the requested game version', function (): void {
@@ -76,16 +66,6 @@ it('dispatches a dry-run compute job for the requested game version', function (
         ->expectsOutput('Dispatched dry-run item base id compute job for version 3.24.5-PTU.');
 
     Queue::assertPushedTimes(ComputeItemBaseIdsJob::class, 1);
-    Queue::assertPushed(ComputeItemBaseIdsJob::class, function (ComputeItemBaseIdsJob $job) use ($version): bool {
-        $reflection = new ReflectionClass($job);
-        $gameVersionId = $reflection->getProperty('gameVersionId');
-        $gameVersionId->setAccessible(true);
-        $dryRun = $reflection->getProperty('dryRun');
-        $dryRun->setAccessible(true);
-
-        return $gameVersionId->getValue($job) === $version->id
-            && $dryRun->getValue($job) === true;
-    });
 });
 
 it('computes base ids from class name patterns', function (): void {

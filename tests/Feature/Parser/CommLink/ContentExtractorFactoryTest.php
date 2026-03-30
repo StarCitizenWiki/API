@@ -8,138 +8,50 @@ use App\Services\Parser\CommLink\Content\LayoutSystemExtractor;
 use App\Services\Parser\CommLink\Content\UniversalContentExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('selects universalcontentextractor for html with g- elements', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <g-introduction>Test Introduction</g-introduction>
-    <g-banner-advanced>
-        <g-banner-text>Advanced Banner</g-banner-text>
-    </g-banner-advanced>
-    <g-explore>Explore Content</g-explore>
-</body>
-</html>
-HTML;
+it('selects the extractor with the highest behavioural priority', function (
+    string $html,
+    ?string $expectedClass,
+): void {
+    $extractor = ContentExtractorFactory::getParserFromCrawler(new Crawler($html));
 
-    $crawler = new Crawler($html);
+    if ($expectedClass === null) {
+        expect($extractor)->toBeNull();
 
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
+        return;
+    }
 
-    expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
-});
-
-it('selects layoutsystemextractor for html with layout-system', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <div id="layout-system">
-        <div class="content">Layout System Content</div>
-    </div>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(LayoutSystemExtractor::class);
-});
-
-it('selects universalcontentextractor for html with alexandria g-platform-client-component', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <g-platform-client-component>
-        <div>Alexandria Component</div>
-    </g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
-});
-
-it('selects universalcontentextractor for html with g-article', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <g-article headline="Test Headline" byline="Test Byline" body="Test Body">
-    </g-article>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
-});
-
-it('selects defaultextractor for html with .segment', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <div class="segment">Default Segment Content</div>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(DefaultExtractor::class);
-});
-
-it('selects universalcontentextractor for html with g-feature', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <g-feature>
-        <div>Feature Content</div>
-    </g-feature>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
-});
-
-it('universal content extractor has highest priority over layout-system', function () {
-    $html = <<<'HTML'
-<html>
-<body>
-    <g-introduction>Test Introduction</g-introduction>
-    <div id="layout-system">
-        <div class="content">Layout System Content</div>
-    </div>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeInstanceOf(UniversalContentExtractor::class);
-});
-
-it('returns null for empty crawler', function () {
-    $html = '<html><body></body></html>';
-
-    $crawler = new Crawler($html);
-
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
-
-    expect($extractor)->toBeNull();
-});
+    expect($extractor)->toBeInstanceOf($expectedClass);
+})->with([
+    'universal markup' => [
+        '<g-introduction :info=\'{"title":"Intro"}\'></g-introduction>',
+        UniversalContentExtractor::class,
+    ],
+    'universal g-article markup' => [
+        '<g-article headline="Article Title" byline="Author" body="<p>Body</p>"></g-article>',
+        UniversalContentExtractor::class,
+    ],
+    'universal alexandria markup' => [
+        '<g-platform-client-component :properties=\'{"componentId":"Text","componentProps":{"title":"Alexandria Title"}}\'></g-platform-client-component>',
+        UniversalContentExtractor::class,
+    ],
+    'universal g-feature markup' => [
+        '<g-feature :is-header-declared="true"><template slot="title">Feature Title</template></g-feature>',
+        UniversalContentExtractor::class,
+    ],
+    'universal outranks layout-system' => [
+        '<g-introduction :info=\'{"title":"Intro"}\'></g-introduction><div id="layout-system">Layout</div>',
+        UniversalContentExtractor::class,
+    ],
+    'layout-system markup' => [
+        '<div id="layout-system"><div class="content">Layout</div></div>',
+        LayoutSystemExtractor::class,
+    ],
+    'default segment markup' => [
+        '<div class="segment">Default</div>',
+        DefaultExtractor::class,
+    ],
+    'empty page' => [
+        '<html><body></body></html>',
+        null,
+    ],
+]);

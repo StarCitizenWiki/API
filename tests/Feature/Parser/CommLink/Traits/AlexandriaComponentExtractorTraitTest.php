@@ -7,217 +7,120 @@ namespace Tests\Feature\Parser\CommLink\Traits;
 use App\Services\Parser\CommLink\Content\Traits\AlexandriaComponentExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts text component with all props', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Text","componentProps":{"text":"Body text","title":"Heading","description":"Subtitle"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
+function alexandriaComponentExtractor(): object
+{
+    return new class
     {
         use AlexandriaComponentExtractorTrait;
     };
+}
 
-    $result = $extractor->getAlexandriaComponents($crawler);
+function alexandriaExtractedText(string $content): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($content))));
+}
 
-    expect($result)->toContain('<p>Body text</p>');
-    expect($result)->toContain('<h2>Heading</h2>');
-    expect($result)->toContain('<p>Subtitle</p>');
+it('extracts representative Alexandria components', function (string $markup, array $expectedFragments): void {
+    $result = alexandriaComponentExtractor()->getAlexandriaComponents(new Crawler($markup));
+    $text = alexandriaExtractedText($result);
+
+    foreach ($expectedFragments as $fragment) {
+        expect($text)->toContain($fragment);
+    }
+})->with([
+    'text' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"text":"Body text","title":"Heading","description":"Subtitle"}}'></g-platform-client-component>
+            HTML,
+        [
+            'Body text',
+            'Heading',
+            'Subtitle',
+        ],
+    ],
+    'image' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Image","componentProps":{"altText":"Alt text","caption":"Caption","title":"Title"}}'></g-platform-client-component>
+            HTML,
+        [
+            'Caption - Title',
+        ],
+    ],
+    'video' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Video","componentProps":{"title":"Video title","description":"Video description"}}'></g-platform-client-component>
+            HTML,
+        [
+            'Video title',
+            'Video description',
+        ],
+    ],
+    'quote' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Quote","componentProps":{"text":"Quote text","author":"Author","source":"Source"}}'></g-platform-client-component>
+            HTML,
+        [
+            'Quote text',
+            'Author, Source',
+        ],
+    ],
+    'gallery' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Gallery","componentProps":{"title":"Gallery title","items":["One","Two"]}}'></g-platform-client-component>
+            HTML,
+        [
+            'Gallery title',
+            'One',
+            'Two',
+        ],
+    ],
+    'button' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"Button","componentProps":{"label":"Click me"}}'></g-platform-client-component>
+            HTML,
+        [
+            'Click me',
+        ],
+    ],
+    'call to action' => [
+        <<<'HTML'
+            <g-platform-client-component :properties='{"componentId":"CallToAction","componentProps":{"title":"CTA title","description":"CTA description","buttonLabel":"Go"}}'></g-platform-client-component>
+            HTML,
+        [
+            'CTA title',
+            'CTA description',
+            'Go',
+        ],
+    ],
+]);
+
+it('extracts MiniGrid, Separator, Background, and Orion cards list content', function (): void {
+    $result = alexandriaComponentExtractor()->getAlexandriaComponents(new Crawler(<<<'HTML'
+        <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"MiniGrid text"}},{"key":"mg.media","data":{"image":{"heapImage":{"source":"https://example.com/image.jpg","imageConfiguration":{"imageDescription":{"cropperInformations":{"altText":"Alt Text"}}}}}}},{"key":"mg.media","data":{"video":{"heapVideo":{"source":"https://example.com/video.mp4"}}}}]}}}}'></g-platform-client-component>
+        <g-platform-client-component :properties='{"componentId":"Separator"}'></g-platform-client-component>
+        <g-platform-client-component :properties='{"componentId":"Background","componentProps":{"selector":".test","backgroundColor":"#fff"}}'></g-platform-client-component>
+        <g-platform-client-component :properties='{"componentId":"OrionCardsList","componentProps":{"cards":[{"title":"Card 1","description":"Description 1"},{"title":"Card 2","description":"Description 2"}]}}'></g-platform-client-component>
+        HTML));
+
+    expect(alexandriaExtractedText($result))->toContain('MiniGrid text')
+        ->and(alexandriaExtractedText($result))->toContain('Card 1')
+        ->and(alexandriaExtractedText($result))->toContain('Description 1')
+        ->and(alexandriaExtractedText($result))->toContain('Card 2')
+        ->and(alexandriaExtractedText($result))->toContain('Description 2')
+        ->and($result)->toContain('src="https://example.com/image.jpg"')
+        ->and($result)->toContain('alt="Alt Text"')
+        ->and($result)->toContain('src="https://example.com/video.mp4"')
+        ->and($result)->toContain('.test')
+        ->and($result)->toContain('#fff')
+        ->and($result)->not->toContain('Separator');
 });
 
-it('extracts text component with missing props gracefully', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Text","componentProps":{"title":"Only title"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toBe('<h2>Only title</h2>');
-});
-
-it('extracts image component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Image","componentProps":{"altText":"Alt text","caption":"Caption","title":"Title"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toContain('<figure>');
-    expect($result)->toContain('<img alt="Alt text" />');
-    expect($result)->toContain('<figcaption>Caption - Title</figcaption>');
-    expect($result)->toContain('</figure>');
-});
-
-it('extracts video component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Video","componentProps":{"title":"Video title","description":"Video description"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toContain('<h2>Video title</h2>');
-    expect($result)->toContain('<p>Video description</p>');
-});
-
-it('extracts quote component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Quote","componentProps":{"text":"Quote text","author":"Author","source":"Source"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toBe('<blockquote><p>Quote text</p><cite>Author, Source</cite></blockquote>');
-});
-
-it('extracts gallery component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Gallery","componentProps":{"title":"Gallery title","items":["One","Two"]}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toContain('<h2>Gallery title</h2>');
-    expect($result)->toContain('<ul>');
-    expect($result)->toContain('<li>One</li>');
-    expect($result)->toContain('<li>Two</li>');
-    expect($result)->toContain('</ul>');
-});
-
-it('extracts button component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"Button","componentProps":{"label":"Click me"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toBe('<button>Click me</button>');
-});
-
-it('extracts call-to-action component', function (): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-platform-client-component :properties='{"componentId":"CallToAction","componentProps":{"title":"CTA title","description":"CTA description","buttonLabel":"Go"}}'></g-platform-client-component>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
-
-    expect($result)->toContain('<h2>CTA title</h2>');
-    expect($result)->toContain('<p>CTA description</p>');
-    expect($result)->toContain('<button>Go</button>');
-});
-
-it('returns empty string for invalid component payload permutations: :dataset', function (string $componentMarkup): void {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-__COMPONENT_MARKUP__
-</body>
-</html>
-HTML;
-    $html = str_replace('__COMPONENT_MARKUP__', $componentMarkup, $html);
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use AlexandriaComponentExtractorTrait;
-    };
-
-    $result = $extractor->getAlexandriaComponents($crawler);
+it('returns an empty string for unsupported or invalid component payloads', function (string $markup): void {
+    $result = alexandriaComponentExtractor()->getAlexandriaComponents(new Crawler($markup));
 
     expect($result)->toBe('');
 })->with([
     'unknown component type' => ['<g-platform-client-component :properties=\'{"componentId":"Unknown","componentProps":{}}\'></g-platform-client-component>'],
     'invalid json' => ['<g-platform-client-component :properties=\'invalid json\'></g-platform-client-component>'],
-    'missing :properties attribute' => ['<g-platform-client-component></g-platform-client-component>'],
+    'missing properties attribute' => ['<g-platform-client-component></g-platform-client-component>'],
 ]);

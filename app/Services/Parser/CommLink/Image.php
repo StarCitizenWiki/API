@@ -38,25 +38,36 @@ class Image extends AbstractBaseElement
         $this->extractImages();
         $imageIds = [];
 
-        $contentImages = collect($this->images);
-        $contentImages->filter(static function (array $image): bool {
-            $host = parse_url($image['src'], PHP_URL_HOST);
+        $contentImages = collect($this->images)
+            ->filter(static function (array $image): bool {
+                $host = parse_url($image['src'], PHP_URL_HOST);
 
-            return $host === null || in_array($host, self::RSI_DOMAINS, true);
-        })
+                return $host === null || in_array($host, self::RSI_DOMAINS, true);
+            })
             ->filter(function (array $image): bool {
                 $extension = pathinfo(parse_url($image['src'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
                 return $extension !== null && $extension !== '';
             })
-            ->each(function (array $image) use (&$imageIds): void {
+            ->map(function (array $image): array {
                 $src = self::cleanImgSource($image['src']);
 
-                $imageIds[] = ImageModel::query()->firstOrCreate([
+                return [
                     'src' => $this->cleanText($src),
                     'alt' => $this->cleanText($image['alt'] ?? ''),
                     'dir' => self::getDirHash($src),
-                ])->id;
+                ];
+            })
+            ->groupBy('src')
+            ->map(static function ($images): array {
+                return $images->first(static fn (array $image): bool => $image['alt'] !== '')
+                    ?? $images->first();
+            })
+            ->values();
+
+        $contentImages
+            ->each(function (array $image) use (&$imageIds): void {
+                $imageIds[] = ImageModel::query()->firstOrCreate($image)->id;
             });
 
         return array_values(array_unique($imageIds));

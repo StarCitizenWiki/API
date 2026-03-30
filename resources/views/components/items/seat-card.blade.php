@@ -67,7 +67,7 @@
 
         {{-- Secondary Data (Collapsible, default open) --}}
         @if ($hasYaw || $hasPitch)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="seat-card-axis-limits" open>
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Axis Limits
                 </summary>
@@ -96,7 +96,7 @@
 
         {{-- Tertiary Data (Collapsible, default closed) --}}
         @if ($hasEjection && $hasEjectionData && $showTertiary)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+            <details class="collapse collapse-arrow border border-base-300 bg-base-100" data-testid="seat-card-ejection">
                 <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
                     Ejection
                 </summary>

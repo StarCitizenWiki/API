@@ -12,9 +12,9 @@
 @endphp
 
 @if ($showApiUrl && $apiUrlTargetId)
-    <div class="card card-border border-base-300 bg-base-100 shadow">
+    <div class="card card-border border-base-300 bg-base-100 shadow" data-testid="tabulator-api-url-card-{{ $id }}">
         <div class="card-body gap-3 p-4">
-            <label class="label p-0" for="{{ $apiUrlTargetId }}">
+            <label class="label p-0" for="{{ $apiUrlTargetId }}" data-testid="tabulator-api-url-label-{{ $id }}">
                 <span class="label-text text-xs font-semibold uppercase tracking-wide text-base-content/60">
                     {{ $apiUrlLabel }}
                 </span>
@@ -22,12 +22,14 @@
             <div class="join w-full">
                 <input
                     id="{{ $apiUrlTargetId }}"
+                    data-testid="tabulator-api-url-input-{{ $id }}"
                     class="input input-bordered join-item w-full font-mono text-xs"
                     type="text"
                     readonly
                     value="{{ $apiUrlEndpoint }}"
                 >
                 <a
+                    data-testid="tabulator-api-url-open-{{ $id }}"
                     class="btn btn-neutral join-item"
                     href="{{ $apiUrlEndpoint }}"
                     target="_blank"
@@ -45,11 +47,12 @@
     id="{{ $id }}"
     data-tabulator
     data-tabulator-id="{{ $id }}"
+    data-testid="tabulator-table-{{ $id }}"
     class="w-full shadow"
 ></div>
 
-<script type="application/json" id="{{ $id }}-config">@json($config)</script>
+<script type="application/json" id="{{ $id }}-config" data-testid="tabulator-config-{{ $id }}">@json($config)</script>
 
 @if($initial !== null)
-    <script type="application/json" id="{{ $id }}-initial">@json($initial)</script>
+    <script type="application/json" id="{{ $id }}-initial" data-testid="tabulator-initial-{{ $id }}">@json($initial)</script>
 @endif

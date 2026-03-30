@@ -82,6 +82,7 @@
     <x-app.sidemenu-item
         :route="'web.blueprints.index'"
         :route-is="['web.blueprints.index', 'web.blueprints.show']"
+        test-id="blueprints-menu-link"
     >
         <x-slot:icon>
             <x-icon name="drafting-compass" class="size-4" />
@@ -92,6 +93,7 @@
     <x-app.sidemenu-item
         :route="'web.blueprints.search'"
         route-is="web.blueprints.search"
+        test-id="blueprints-search-menu-link"
     >
         <x-slot:icon>
             <x-icon name="search" class="size-4" />
@@ -101,6 +103,7 @@
 
     <x-app.sidemenu-item
         :route="'web.items.index'"
+        test-id="items-menu-all-items"
         :active-when-filters-empty="true"
     >
         <x-slot:icon>
@@ -111,6 +114,7 @@
 
     <x-app.sidemenu-item
         :route="'web.items.index'"
+        test-id="items-menu-fps-items"
         :active-filters-any="[
             'category' => ['fps-armor', 'clothes', 'food', 'weapon-attachments', 'medical'],
             'type' => ['WeaponPersonal', 'Food', 'Bottle', 'Drink'],
@@ -180,6 +184,7 @@
     <x-app.sidemenu-item
         :route="'web.items.index'"
         :params="['filter' => ['category' => 'vehicle-items']]"
+        test-id="items-menu-vehicle-items"
         :active-filters-any="[
             'category' => ['vehicle-items', 'vehicle-flair-items', 'mining-modifiers'],
             'type' => [

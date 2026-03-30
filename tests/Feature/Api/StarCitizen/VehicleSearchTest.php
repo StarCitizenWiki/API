@@ -164,12 +164,24 @@ it('supports pagination in search results', function (): void {
         ]);
     }
 
-    $response = $this->postJson(route('shipmatrix.vehicles.search'), [
+    $response = $this->postJson(route('shipmatrix.vehicles.search', [
+        'sort' => 'id',
+        'page' => [
+            'number' => 2,
+            'size' => 5,
+        ],
+    ]), [
         'query' => 'Test',
     ]);
 
-    $response->assertOk();
-    expect($response->json('data'))->toHaveCount(20);
+    $response->assertOk()
+        ->assertJsonCount(5, 'data')
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.per_page', 5)
+        ->assertJsonPath('meta.total', 20)
+        ->assertJsonPath('meta.last_page', 4);
+
+    expect(collect($response->json('data'))->pluck('id')->all())->toBe([6, 7, 8, 9, 10]);
 });
 
 it('supports filters with search', function (): void {

@@ -42,16 +42,26 @@ it('returns ship matrix vehicle filter values with counts', function (): void {
         'production_status_id' => $status->id,
     ]);
 
-    $response = $this->getJson(route('shipmatrix.vehicles.filters'));
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['manufacturer'])->contains(fn (array $row) => $row['value'] === 'Aegis' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['size'])->contains(fn (array $row) => $row['value'] === 'small' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'fighter' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['focus'])->contains(fn (array $row) => $row['value'] === 'combat' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['production_status'])->contains(fn (array $row) => $row['value'] === 'flight-ready' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['focus'])->contains(fn (array $row) => $row['value'] === null && $row['label'] === 'Unknown'))->toBeTrue();
+    $this->getJson(route('shipmatrix.vehicles.filters'))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'manufacturer' => [
+                    ['value' => 'Aegis', 'label' => 'Aegis', 'count' => 2],
+                ],
+                'size' => [
+                    ['value' => 'small', 'label' => 'small', 'count' => 2],
+                ],
+                'type' => [
+                    ['value' => 'fighter', 'label' => 'fighter', 'count' => 2],
+                ],
+                'focus' => [
+                    ['value' => 'combat', 'label' => 'combat', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'production_status' => [
+                    ['value' => 'flight-ready', 'label' => 'flight-ready', 'count' => 2],
+                ],
+            ],
+        ]);
 });

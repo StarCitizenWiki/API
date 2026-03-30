@@ -7,7 +7,6 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 
 uses(RefreshDatabase::class);
 
@@ -26,7 +25,7 @@ it('returns seat specification when item type is seat', function (): void {
 
     $item = Item::factory()->create();
 
-    $itemData = ItemData::factory()
+    ItemData::factory()
         ->for($item)
         ->for($version, 'gameVersion')
         ->for($manufacturer)
@@ -48,7 +47,7 @@ it('returns seat specification when item type is seat', function (): void {
                             'Maximum' => 65,
                         ],
                         'SetYawPitchLimits' => false,
-                        'HasEjection' => false,
+                        'HasEjection' => true,
                         'Ejection' => [
                             'MaxLinearVelocity' => 2000,
                             'MaxLinearAcceleration' => 100,
@@ -63,21 +62,19 @@ it('returns seat specification when item type is seat', function (): void {
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
-    $seatData = Arr::get($itemData->data, 'stdItem.Seat', []);
-
     $response->assertSuccessful()
-        ->assertJsonPath('data.seat.seat_type', Arr::get($seatData, 'SeatType'))
-        ->assertJsonPath('data.seat.yaw.minimum', Arr::get($seatData, 'Yaw.Minimum'))
-        ->assertJsonPath('data.seat.yaw.maximum', Arr::get($seatData, 'Yaw.Maximum'))
-        ->assertJsonPath('data.seat.pitch.minimum', Arr::get($seatData, 'Pitch.Minimum'))
-        ->assertJsonPath('data.seat.pitch.maximum', Arr::get($seatData, 'Pitch.Maximum'))
-        ->assertJsonPath('data.seat.set_yaw_pitch_limits', Arr::get($seatData, 'SetYawPitchLimits'))
+        ->assertJsonPath('data.seat.seat_type', 'HOTAS_C_L')
+        ->assertJsonPath('data.seat.yaw.minimum', -70)
+        ->assertJsonPath('data.seat.yaw.maximum', 70)
+        ->assertJsonPath('data.seat.pitch.minimum', -65)
+        ->assertJsonPath('data.seat.pitch.maximum', 65)
+        ->assertJsonPath('data.seat.set_yaw_pitch_limits', false)
         ->assertJsonPath('data.seat.has_ejection', true)
-        ->assertJsonPath('data.seat.ejection.max_linear_velocity', Arr::get($seatData, 'Ejection.MaxLinearVelocity'))
-        ->assertJsonPath('data.seat.ejection.max_linear_acceleration', Arr::get($seatData, 'Ejection.MaxLinearAcceleration'))
-        ->assertJsonPath('data.seat.ejection.max_angular_velocity', Arr::get($seatData, 'Ejection.MaxAngularVelocity'))
-        ->assertJsonPath('data.seat.ejection.max_angular_acceleration', Arr::get($seatData, 'Ejection.MaxAngularAcceleration'))
-        ->assertJsonPath('data.seat.ejection.ejection_loop_time', Arr::get($seatData, 'Ejection.EjectionLoopTime'));
+        ->assertJsonPath('data.seat.ejection.max_linear_velocity', 2000)
+        ->assertJsonPath('data.seat.ejection.max_linear_acceleration', 100)
+        ->assertJsonPath('data.seat.ejection.max_angular_velocity', 2000)
+        ->assertJsonPath('data.seat.ejection.max_angular_acceleration', 100)
+        ->assertJsonPath('data.seat.ejection.ejection_loop_time', 1);
 });
 
 it('returns null axis limits and ejection data when seat values are missing', function (): void {
@@ -120,6 +117,7 @@ it('returns null axis limits and ejection data when seat values are missing', fu
         ->assertJsonPath('data.seat.seat_type', 'HOTAS_C_L')
         ->assertJsonPath('data.seat.yaw', null)
         ->assertJsonPath('data.seat.pitch', null)
+        ->assertJsonPath('data.seat.set_yaw_pitch_limits', null)
         ->assertJsonPath('data.seat.has_ejection', false)
         ->assertJsonPath('data.seat.ejection', null);
 });

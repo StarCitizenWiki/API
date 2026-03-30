@@ -55,6 +55,7 @@ it('returns matching similar image contract when authenticated', function (): vo
         ->getJson("/api/comm-link-images/{$queryImage->id}/similar?similarity=95");
 
     $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', 1)
             ->where('data.0.id', $similarImage->id)
@@ -78,7 +79,7 @@ it('rate limits requests to 10 per minute', function (): void {
         $this->withToken($token)
             ->getJson("/api/comm-link-images/{$image->id}/similar")
             ->assertSuccessful()
-            ->assertJsonStructure(['data']);
+            ->assertJsonCount(0, 'data');
     }
 
     $this->withToken($token)
@@ -108,7 +109,7 @@ it('rate limit resets after minute expires', function (): void {
         $this->withToken($token)
             ->getJson("/api/comm-link-images/{$image->id}/similar")
             ->assertSuccessful()
-            ->assertJsonStructure(['data']);
+            ->assertJsonCount(0, 'data');
     } finally {
         $this->travelBack();
     }
@@ -125,7 +126,7 @@ it('validates similarity parameter', function (mixed $similarity, bool $shouldSu
 
     if ($shouldSucceed) {
         $response->assertSuccessful()
-            ->assertJsonStructure(['data']);
+            ->assertJsonCount(0, 'data');
 
         return;
     }

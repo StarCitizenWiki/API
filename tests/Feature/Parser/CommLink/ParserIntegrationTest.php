@@ -5,94 +5,122 @@ declare(strict_types=1);
 namespace Tests\Feature\Parser\CommLink;
 
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
-use App\Services\Parser\CommLink\Content\ContentExtractorFactory;
 use App\Services\Parser\CommLink\Content\DefaultExtractor;
 use App\Services\Parser\CommLink\Content\LayoutSystemExtractor;
 use App\Services\Parser\CommLink\Content\UniversalContentExtractor;
-use App\Services\Parser\CommLink\Content\VueArticleExtractor;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('selects the correct extractor based on content', function (string $html, string $expectedClass) {
-    $crawler = new Crawler($html);
-    $extractor = ContentExtractorFactory::getParserFromCrawler($crawler);
+function parsedText(string $content): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($content))));
+}
 
-    expect($extractor)->toBeInstanceOf($expectedClass);
-})->with([
-    'UniversalContentExtractor' => ['<g-introduction></g-introduction>', UniversalContentExtractor::class],
-    'DefaultExtractor' => ['<div class="segment">Content</div>', DefaultExtractor::class],
-    'LayoutSystemExtractor' => ['<div id="layout-system">Content</div>', LayoutSystemExtractor::class],
-    // UniversalContentExtractor has higher priority (PHP_INT_MAX) for any g-* element
-    'VueArticleExtractor (via Universal)' => ['<g-article headline="Test"></g-article>', UniversalContentExtractor::class],
-    'AlexandriaExtractor (via Universal)' => ['<g-platform-client-component></g-platform-client-component>', UniversalContentExtractor::class],
-]);
+function assertStringsAppearInOrder(string $content, array $needles): void
+{
+    $offset = 0;
 
-it('extracts content using universalcontentextractor for supported g-* elements', function (string $element, string $html, string $expectedContent) {
-    $crawler = new Crawler($html);
-    $extractor = new UniversalContentExtractor($crawler);
+    foreach ($needles as $needle) {
+        $position = strpos($content, $needle, $offset);
 
-    expect($extractor->getContent())->toContain($expectedContent);
-})->with([
-    'g-introduction' => ['g-introduction', '<g-introduction :info=\'{"title": "Intro Text"}\'></g-introduction>', 'Intro Text'],
-    'g-banner-advanced' => ['g-banner-advanced', '<g-banner-advanced :content=\'{"text": {"title": "Banner Title"}}\'></g-banner-advanced>', 'Banner Title'],
-    'g-explore' => ['g-explore', '<g-explore :decks=\'[{"title": "Explore Title"}]\'></g-explore>', 'Explore Title'],
-    'g-grid' => ['g-grid', '<g-grid :cards=\'[{"content": {"title": "Grid Title"}}]\'></g-grid>', 'Grid Title'],
-    'g-skus' => ['g-skus', '<g-skus :properties=\'{"blocks": [{"type": "text", "properties": {"title": "Skus Title"}}]}\'></g-skus>', 'Skus Title'],
-    'g-tumbril-features' => ['g-tumbril-features', '<g-tumbril-features :features="[{title: \'Tumbril Title\'}]"></g-tumbril-features>', 'Tumbril Title'],
-    'g-narrative-group' => ['g-narrative-group', '<g-narrative-group><g-article headline="Narrative Title"></g-article></g-narrative-group>', 'Narrative Title'],
-    'g-illustration' => ['g-illustration', '<g-illustration sign-intro="Illustration Title"></g-illustration>', 'Illustration Title'],
-    'g-author' => ['g-author', '<g-author author-name="Author Name"></g-author>', 'Author Name'],
-    'g-faq' => ['g-faq', '<g-faq :question-list=\'[{"title": "Q1", "content": "A1"}]\'></g-faq>', 'Q1'],
-    'g-header' => ['g-header', '<g-header><template slot="title">Header Title</template></g-header>', 'Header Title'],
-    'g-platform-client-component' => ['g-platform-client-component', '<g-platform-client-component :properties=\'{"componentId": "Text", "componentProps": {"title": "Alexandria Title"}}\'></g-platform-client-component>', 'Alexandria Title'],
-]);
+        expect($position)->not->toBeFalse();
 
-it('extracts g-feature using alexandriaextractor', function () {
-    $html = '<g-feature><template slot="title">Feature Title</template></g-feature>';
-    $crawler = new Crawler($html);
-    $extractor = new AlexandriaExtractor($crawler);
+        $offset = $position + strlen($needle);
+    }
+}
 
-    expect($extractor->getContent())->toContain('Feature Title');
+it('extracts representative universal content and preserves fallback text', function (): void {
+    $extractor = new UniversalContentExtractor(new Crawler(<<<'HTML'
+        <div>
+            <g-introduction :info='{"title":"Intro Title","subtitle":"Intro Subtitle","contents":["Body line 1","Body line 2"]}'></g-introduction>
+            <g-banner-advanced :content='{"text":{"title":"Banner Title","subtitle":"Banner Subtitle","paragraph":"Banner paragraph"}}'></g-banner-advanced>
+            <g-feature :is-header-declared="true">
+                <template slot="title">Feature Title</template>
+                <template slot="subtitle">Feature Subtitle</template>
+            </g-feature>
+            <g-unknown-element>Fallback text</g-unknown-element>
+        </div>
+        HTML));
+
+    $content = $extractor->getContent();
+    $text = parsedText($content);
+
+    expect($text)->toContain('Intro Title')
+        ->and($text)->toContain('Intro Subtitle')
+        ->and($text)->toContain('Body line 1')
+        ->and($text)->toContain('Banner Title')
+        ->and($text)->toContain('Banner paragraph')
+        ->and($text)->toContain('Feature Title')
+        ->and($text)->toContain('Feature Subtitle')
+        ->and($text)->toContain('Fallback text');
 });
 
-it('extracts g-article using vuearticleextractor', function () {
-    $html = '<g-article headline="Article Headline"></g-article>';
-    $crawler = new Crawler($html);
-    $extractor = new VueArticleExtractor($crawler);
+it('handles universal extractor edge cases', function (): void {
+    expect((new UniversalContentExtractor(new Crawler('')))->getContent())->toBe('');
 
-    expect($extractor->getContent())->toContain('Article Headline');
+    expect(parsedText((new UniversalContentExtractor(new Crawler('<div>Standard HTML</div><g-introduction :info=\'{"title":"Intro"}\'></g-introduction>')))->getContent()))
+        ->toContain('Intro');
+
+    Log::shouldReceive('warning')
+        ->once()
+        ->with('No extractor for <g-unknown-element>');
+
+    expect(parsedText((new UniversalContentExtractor(new Crawler('<g-unknown-element>Unknown Content</g-unknown-element>')))->getContent()))->toBe('Unknown Content');
 });
 
-it('handles edge cases in universalcontentextractor', function () {
-    // Empty content
-    $crawler = new Crawler('');
-    $extractor = new UniversalContentExtractor($crawler);
-    expect($extractor->getContent())->toBe('');
+it('extracts alexandria content in the expected order', function (): void {
+    $extractor = new AlexandriaExtractor(new Crawler(<<<'HTML'
+        <div>
+            <g-platform-client-component :properties='{"componentId":"Text","componentProps":{"text":"Body text","title":"Heading","description":"Subtitle"}}'></g-platform-client-component>
+            <g-feature :is-header-declared="true">
+                <template slot="title">Feature Title</template>
+                <template slot="subtitle">Feature Subtitle</template>
+            </g-feature>
+            <g-navigation-sales :navigation='{"items":[{"label":"First"},{"label":"Second"}]}'></g-navigation-sales>
+        </div>
+        HTML));
 
-    // Mixed content
-    $crawler = new Crawler('<div>Standard HTML</div><g-introduction :info=\'{"title": "Intro"}\'></g-introduction>');
-    $extractor = new UniversalContentExtractor($crawler);
-    expect($extractor->getContent())->toContain('Intro'); // Universal only looks for g-* elements
+    $content = $extractor->getContent();
 
-    // Unknown g-* element
-    Log::shouldReceive('warning')->once()->with('No extractor for <g-unknown>');
-    $crawler = new Crawler('<g-unknown>Unknown Content</g-unknown>');
-    $extractor = new UniversalContentExtractor($crawler);
-    expect($extractor->getContent())->toBe('Unknown Content');
+    assertStringsAppearInOrder(parsedText($content), [
+        'Body text',
+        'Heading',
+        'Feature Title',
+        'Feature Subtitle',
+        'First',
+        'Second',
+    ]);
 });
 
-it('extracts content using defaultextractor', function () {
-    $html = '<div class="segment">Segment 1</div><div class="segment">Segment 2</div>';
-    $crawler = new Crawler($html);
-    $extractor = new DefaultExtractor($crawler);
+it('extracts default segment content and the introduction', function (): void {
+    $extractor = new DefaultExtractor(new Crawler(<<<'HTML'
+        <div>
+            <g-introduction :info='{"title":"Introduction"}'></g-introduction>
+            <div class="segment">
+                <p>Segment body</p>
+            </div>
+        </div>
+        HTML));
 
-    expect($extractor->getContent())->toContain('Segment 1')->toContain('Segment 2');
+    $content = $extractor->getContent();
+
+    expect(parsedText($content))->toContain('Introduction')
+        ->and(parsedText($content))->toContain('Segment body');
 });
 
-it('extracts content using layoutsystemextractor', function () {
-    $html = '<div id="layout-system"><g-introduction :info=\'{"title": "Intro"}\'></g-introduction><div class="content">Layout Content</div></div>';
-    $crawler = new Crawler($html);
-    $extractor = new LayoutSystemExtractor($crawler);
+it('extracts layout-system content and strips extracted g-elements', function (): void {
+    $extractor = new LayoutSystemExtractor(new Crawler(<<<'HTML'
+        <div id="layout-system">
+            <g-introduction :info='{"title":"Layout Title","contents":["Layout intro"]}'></g-introduction>
+            <div class="content">Layout body</div>
+        </div>
+        HTML));
 
-    expect($extractor->getContent())->toContain('Intro')->toContain('Layout Content');
+    $content = $extractor->getContent();
+
+    expect(parsedText($content))->toContain('Layout Title')
+        ->and(parsedText($content))->toContain('Layout intro')
+        ->and(parsedText($content))->toContain('Layout body')
+        ->and($content)->not->toContain('<g-introduction')
+        ->and($content)->not->toContain('id="layout-system"');
 });

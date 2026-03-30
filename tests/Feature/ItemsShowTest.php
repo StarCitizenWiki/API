@@ -9,9 +9,91 @@ use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
+
+function itemShowCrawler(TestResponse $response): Crawler
+{
+    return new Crawler($response->getContent());
+}
+
+function itemDetailsPanel(TestResponse $response, string $summary): Crawler
+{
+    return itemShowCrawler($response)->filterXPath(sprintf(
+        '//details[.//summary[contains(normalize-space(.), "%s")]]',
+        $summary,
+    ));
+}
+
+function assertItemMetaPanels(TestResponse $response, bool $showsPortsCard = false, ?int $portsCount = null): TestResponse
+{
+    expect(itemDetailsPanel($response, 'Technical')->count())->toBe(1);
+    expect(itemDetailsPanel($response, 'Raw Item Payload')->count())->toBe(1);
+
+    if ($showsPortsCard) {
+        $portsPanel = itemDetailsPanel($response, 'Ports');
+
+        expect($portsPanel->count())->toBe(1);
+
+        if ($portsCount !== null) {
+            expect($portsPanel->text())->toContain((string) $portsCount);
+        }
+
+        return $response;
+    }
+
+    expect(itemDetailsPanel($response, 'Ports')->count())->toBe(0);
+
+    return $response;
+}
+
+function assertTechnicalMetadataVisible(
+    TestResponse $response,
+    string $uuid,
+    string $classification,
+    string $className,
+    string $version,
+): TestResponse {
+    return $response->assertSeeText('Technical')
+        ->assertSeeText('UUID')
+        ->assertSeeText($uuid)
+        ->assertSeeText('Classification')
+        ->assertSeeText($classification)
+        ->assertSeeText('Class Name')
+        ->assertSeeText($className)
+        ->assertSeeText('Game Version')
+        ->assertSeeText($version)
+        ->assertSeeText('API Link')
+        ->assertSeeText('Entity Tag Map')
+        ->assertSee(route('items.show', ['identifier' => $uuid]), false);
+}
+
+function assertRawPayloadVisible(TestResponse $response, array $snippets): TestResponse
+{
+    $response->assertSeeText('Raw Item Payload');
+
+    foreach ($snippets as $snippet) {
+        $response->assertSeeText($snippet);
+    }
+
+    return $response;
+}
+
+function assertItemSeoMetadata(TestResponse $response, array $metadata): TestResponse
+{
+    $crawler = itemShowCrawler($response);
+
+    foreach ($metadata as $selector => $content) {
+        $tag = $crawler->filter($selector);
+
+        expect($tag->count())->toBe(1)
+            ->and($tag->attr('content'))->toBe($content);
+    }
+
+    return $response;
+}
 
 it('renders the item show view with api data', function (): void {
     $version = GameVersion::factory()->create([
@@ -104,20 +186,32 @@ it('renders the item show view with api data', function (): void {
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Test.Module')
         ->assertSeeText('Test Module')
+        ->assertSeeText('Acme Works')
+        ->assertSeeText('PowerPlant')
         ->assertSeeText('Main Port')
         ->assertSeeText('Test Module Variant')
-        ->assertSeeText('Explosive');
+        ->assertSeeText('Explosive')
+        ->assertSeeText($item->uuid)
+        ->assertSeeText('4.0.0-LIVE');
 
-    $crawler = new Crawler($response->getContent());
+    assertItemSeoMetadata($response, [
+        'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC',
+        'meta[property="og:type"]' => 'website',
+        'meta[property="og:title"]' => 'Test Module - PowerPlant Acme Works',
+        'meta[name="twitter:card"]' => 'summary',
+        'meta[name="twitter:title"]' => 'Test Module - PowerPlant',
+    ]);
 
-    expect($crawler->filterXPath('//meta[@name="keywords"]')->attr('content'))->toBe('Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC')
-        ->and($crawler->filterXPath('//meta[@property="og:type"]')->attr('content'))->toBe('website')
-        ->and($crawler->filterXPath('//meta[@property="og:title"]')->attr('content'))->toBe('Test Module - PowerPlant Acme Works')
-        ->and($crawler->filterXPath('//meta[@name="twitter:card"]')->attr('content'))->toBe('summary')
-        ->and($crawler->filterXPath('//meta[@name="twitter:title"]')->attr('content'))->toBe('Test Module - PowerPlant');
+    assertItemMetaPanels($response, showsPortsCard: true, portsCount: 1);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'test_module', '4.0.0-LIVE');
+    assertRawPayloadVisible($response, [
+        '"name": "Test Module"',
+        '"class_name": "test_module"',
+        '"classification": "Test.Module"',
+        '"type": "PowerPlant"',
+    ]);
 });
 
 it('renders minimal item with essentials block only', function (): void {
@@ -165,7 +259,6 @@ it('renders minimal item with essentials block only', function (): void {
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Minimal Module')
         ->assertSeeText('minimal_module')
         ->assertSeeText('Acme Works')
@@ -173,6 +266,9 @@ it('renders minimal item with essentials block only', function (): void {
         ->assertSeeText('Small')
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
+
+    assertItemMetaPanels($response);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'minimal_module', '4.0.0-LIVE');
 });
 
 it('renders ports-heavy item with collapsible ports section', function (): void {
@@ -226,17 +322,13 @@ it('renders ports-heavy item with collapsible ports section', function (): void 
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Ship Core')
         ->assertSeeText('Drake Interplanetary')
         ->assertSeeText('Power Port 1')
         ->assertSeeText('Weapon Port Left');
 
-    $crawler = new Crawler($response->getContent());
-    $portsBadge = $crawler->filterXPath('//details[.//span[normalize-space(.)="Ports"]]//summary//span[contains(@class, "badge")]');
-
-    expect($portsBadge->count())->toBe(1)
-        ->and(trim($portsBadge->text()))->toBe('6');
+    assertItemMetaPanels($response, showsPortsCard: true, portsCount: 6);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Ship.Component', 'ship_core', '4.0.0-LIVE');
 });
 
 it('renders variant-heavy item with variants section', function (): void {
@@ -291,7 +383,6 @@ it('renders variant-heavy item with variants section', function (): void {
     $response = $this->get(route('web.items.show', $baseItem->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Laser Cannon')
         ->assertSeeText('Behring')
         ->assertSeeText('Laser Cannon Variant 1')
@@ -351,7 +442,6 @@ it('renders spec-heavy item with dynamic component sections', function (): void 
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Heavy Shield Generator')
         ->assertSeeText('Aegis Dynamics')
         ->assertSeeText($item->uuid);
@@ -409,7 +499,6 @@ it('renders item with long description in collapsible details', function (): voi
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Exploration Scanner')
         ->assertSeeText('MISC')
         ->assertSeeText('Exploration Scanner is an advanced detection system')
@@ -453,12 +542,20 @@ it('displays raw payload in collapsible details', function (): void {
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Luxury Lamp')
         ->assertSeeText($item->uuid);
+
+    assertItemMetaPanels($response);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Furniture', 'luxury_lamp', '4.0.0-LIVE');
+    assertRawPayloadVisible($response, [
+        '"name": "Luxury Lamp"',
+        '"class_name": "luxury_lamp"',
+        '"classification": "Equipment.Furniture"',
+        '"type": "Furniture"',
+    ]);
 });
 
-it('includes accessibility attributes on collapsible sections', function (): void {
+it('renders the item page with technical metadata and raw payload details', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -501,16 +598,20 @@ it('includes accessibility attributes on collapsible sections', function (): voi
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
-        ->assertSeeText('Tactical Display');
+        ->assertSeeText('Tactical Display')
+        ->assertSeeText('Anvil Aerospace');
 
-    $crawler = new Crawler($response->getContent());
-
-    expect($crawler->filter('details')->count())->toBeGreaterThan(0)
-        ->and($crawler->filter('summary')->count())->toBeGreaterThan(0);
+    assertItemMetaPanels($response);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Display', 'tactical_display', '4.0.0-LIVE');
+    assertRawPayloadVisible($response, [
+        '"name": "Tactical Display"',
+        '"class_name": "tactical_display"',
+        '"classification": "Equipment.Display"',
+        '"type": "Display"',
+    ]);
 });
 
-it('supports responsive layout for mobile viewports', function (): void {
+it('renders the item page with core metadata', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -553,10 +654,18 @@ it('supports responsive layout for mobile viewports', function (): void {
     $response = $this->get(route('web.items.show', $item->uuid));
 
     $response->assertOk()
-        ->assertViewIs('items.show')
         ->assertSeeText('Standard Component')
         ->assertSeeText('RSI')
         ->assertSeeText('Utility')
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
+
+    assertItemMetaPanels($response);
+    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Standard', 'standard_component', '4.0.0-LIVE');
+    assertRawPayloadVisible($response, [
+        '"name": "Standard Component"',
+        '"class_name": "standard_component"',
+        '"classification": "Equipment.Standard"',
+        '"type": "Utility"',
+    ]);
 });

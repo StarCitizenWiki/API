@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpFoundation\Response;
 
 uses(RefreshDatabase::class);
 
@@ -18,14 +19,16 @@ beforeEach(function (): void {
     ]);
 });
 
-it('starsystem web route accepts code parameter', function (): void {
+it('returns no content for the current starsystem placeholder route', function (): void {
     $starsystem = Starsystem::factory()->create(['code' => 'TESTSYS']);
-    $response = $this->get(route('web.starmap.systems.show', ['code' => $starsystem->code]));
-    $response->assertNoContent();
+
+    $this->get(route('web.starmap.systems.show', ['code' => $starsystem->code]))
+        ->assertNoContent(Response::HTTP_NO_CONTENT);
 });
 
-it('celestial object web route accepts code parameter', function (): void {
+it('returns no content for the current celestial object placeholder route', function (): void {
     $celestial = CelestialObject::factory()->create(['code' => 'TESTOBJ']);
-    $response = $this->get(route('web.starmap.celestial-objects.show', ['code' => $celestial->code]));
-    $response->assertNoContent();
+
+    $this->get(route('web.starmap.celestial-objects.show', ['code' => $celestial->code]))
+        ->assertNoContent(Response::HTTP_NO_CONTENT);
 });

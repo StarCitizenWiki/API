@@ -33,6 +33,7 @@ it('searches galactapedia by text query without bigint cast errors', function ()
     ]);
 
     $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
         ->assertHeader('Deprecated', 'true');
 
     $ids = collect($response->json('data'))
@@ -40,7 +41,7 @@ it('searches galactapedia by text query without bigint cast errors', function ()
         ->map(static fn (mixed $id): int => (int) $id);
 
     expect($response->json('meta.deprecated'))->toBeTrue()
-        ->and($ids)->toContain($matchingArticle->cig_id);
+        ->and($ids->all())->toBe([$matchingArticle->cig_id]);
 });
 
 it('searches galactapedia by numeric cig id', function (): void {
@@ -67,12 +68,13 @@ it('searches galactapedia by numeric cig id', function (): void {
         'query' => (string) $targetArticle->cig_id,
     ]);
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data');
 
     $ids = collect($response->json('data'))
         ->pluck('id')
         ->map(static fn (mixed $id): int => (int) $id);
 
-    expect($ids)
-        ->toContain($targetArticle->cig_id);
+    expect($ids->all())
+        ->toBe([$targetArticle->cig_id]);
 });

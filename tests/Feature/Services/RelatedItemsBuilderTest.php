@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -9,8 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    // Create default game version
+beforeEach(function (): void {
     $this->defaultVersion = GameVersion::create([
         'code' => '3.21.0-LIVE',
         'channel' => 'live',
@@ -18,7 +19,6 @@ beforeEach(function () {
         'released_at' => now(),
     ]);
 
-    // Create older game version
     $this->oldVersion = GameVersion::create([
         'code' => '3.20.0-LIVE',
         'channel' => 'live',
@@ -26,7 +26,6 @@ beforeEach(function () {
         'released_at' => now()->subDays(7),
     ]);
 
-    // Create a manufacturer
     $this->manufacturer = Manufacturer::create([
         'uuid' => fake()->uuid(),
         'name' => 'Test Manufacturer',
@@ -34,8 +33,7 @@ beforeEach(function () {
     ]);
 });
 
-it('builds related items with default game version', function () {
-    // Create base item
+it('builds related items with default game version', function (): void {
     $base = fake()->uuid();
     $baseItem = Item::create(['uuid' => $base]);
     ItemData::create([
@@ -48,7 +46,6 @@ it('builds related items with default game version', function () {
         'data' => [],
     ]);
 
-    // Create variant
     $variant = fake()->uuid();
     $variantItem = Item::create(['uuid' => $variant]);
     $variantData = ItemData::create([
@@ -61,12 +58,10 @@ it('builds related items with default game version', function () {
         'data' => [],
     ]);
 
-    // Set variant relationship
     $baseData = ItemData::where('item_id', $baseItem->id)->first();
     $variantData->base_id = $baseData->id;
     $variantData->save();
 
-    // Build related items using default version (null)
     $builder = new RelatedItemsBuilder;
     $result = $builder->build($variantItem);
 
@@ -76,10 +71,9 @@ it('builds related items with default game version', function () {
         ->and($result['base_item']['name'])->toBe('Test Base');
 });
 
-it('builds related items with specific game version', function () {
+it('builds related items with specific game version', function (): void {
     $base = fake()->uuid();
 
-    // Create base item with data for both versions
     $baseItem = Item::create(['uuid' => $base]);
 
     $oldBaseData = ItemData::create([
@@ -102,7 +96,6 @@ it('builds related items with specific game version', function () {
         'data' => [],
     ]);
 
-    // Create variant with data for both versions
     $variant = fake()->uuid();
     $variantItem = Item::create(['uuid' => $variant]);
 
@@ -128,21 +121,18 @@ it('builds related items with specific game version', function () {
         'data' => [],
     ]);
 
-    // Build related items with old version
     $builder = new RelatedItemsBuilder($this->oldVersion->code);
     $result = $builder->build($variantItem);
 
     expect($result['base_item']['name'])->toBe('Old Base Name');
 
-    // Build related items with new version
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($variantItem);
 
     expect($result['base_item']['name'])->toBe('New Base Name');
 });
 
-it('detects variant items for correct game version', function () {
-    // Create base item
+it('detects variant items for correct game version', function (): void {
     $base = fake()->uuid();
     $baseItem = Item::create(['uuid' => $base]);
     $baseData = ItemData::create([
@@ -155,7 +145,6 @@ it('detects variant items for correct game version', function () {
         'data' => [],
     ]);
 
-    // Create variant 1
     $variant1Uuid = fake()->uuid();
     $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
@@ -169,7 +158,6 @@ it('detects variant items for correct game version', function () {
         'data' => [],
     ]);
 
-    // Create variant 2
     $variant2Uuid = fake()->uuid();
     $variant2 = Item::create(['uuid' => $variant2Uuid]);
     ItemData::create([
@@ -183,7 +171,6 @@ it('detects variant items for correct game version', function () {
         'data' => [],
     ]);
 
-    // Build related items from variant 1
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($variant1);
 
@@ -194,7 +181,7 @@ it('detects variant items for correct game version', function () {
         ->and($result['variant_items'][0]['name'])->toBe('Weapon Red');
 });
 
-it('falls back to stditem tags for variant grouping', function () {
+it('falls back to stdItem tags for variant grouping', function (): void {
     $firstUuid = fake()->uuid();
     $firstItem = Item::create(['uuid' => $firstUuid]);
     ItemData::create([
@@ -254,8 +241,7 @@ it('falls back to stditem tags for variant grouping', function () {
     expect($variantUuids)->toContain($secondUuid, $thirdUuid);
 });
 
-it('finds set items filtered by game version', function () {
-    // Create helmet item for default version
+it('finds set items filtered by game version', function (): void {
     $helmetUuid = fake()->uuid();
     $helmetItem = Item::create(['uuid' => $helmetUuid]);
     ItemData::create([
@@ -268,7 +254,6 @@ it('finds set items filtered by game version', function () {
         'data' => [],
     ]);
 
-    // Create core item for default version
     $codeUuid = fake()->uuid();
     $coreItem = Item::create(['uuid' => $codeUuid]);
     ItemData::create([
@@ -281,7 +266,6 @@ it('finds set items filtered by game version', function () {
         'data' => [],
     ]);
 
-    // Create arms item for default version
     $armsUuid = fake()->uuid();
     $armsItem = Item::create(['uuid' => $armsUuid]);
     ItemData::create([
@@ -294,7 +278,6 @@ it('finds set items filtered by game version', function () {
         'data' => [],
     ]);
 
-    // Create legs item for default version
     $legsUuid = fake()->uuid();
     $legsItem = Item::create(['uuid' => $legsUuid]);
     ItemData::create([
@@ -307,7 +290,6 @@ it('finds set items filtered by game version', function () {
         'data' => [],
     ]);
 
-    // Build related items from helmet
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($helmetItem);
 
@@ -318,8 +300,7 @@ it('finds set items filtered by game version', function () {
         ->and($setItemUuids)->not->toContain($helmetUuid);
 });
 
-it('filters set items by game version correctly', function () {
-    // Create helmet for both versions
+it('filters set items by game version correctly', function (): void {
     $helmetUuid = fake()->uuid();
     $helmetItem = Item::create(['uuid' => $helmetUuid]);
     ItemData::create([
@@ -342,7 +323,6 @@ it('filters set items by game version correctly', function () {
         'data' => [],
     ]);
 
-    // Create core only for old version
     $coreOldUuid = fake()->uuid();
     $coreOldItem = Item::create(['uuid' => $coreOldUuid]);
     ItemData::create([
@@ -355,7 +335,6 @@ it('filters set items by game version correctly', function () {
         'data' => [],
     ]);
 
-    // Create core only for new version
     $coreNewUuid = fake()->uuid();
     $coreNewItem = Item::create(['uuid' => $coreNewUuid]);
     ItemData::create([
@@ -368,7 +347,6 @@ it('filters set items by game version correctly', function () {
         'data' => [],
     ]);
 
-    // Build with old version - should find old core
     $builder = new RelatedItemsBuilder($this->oldVersion->code);
     $result = $builder->build($helmetItem);
 
@@ -376,7 +354,6 @@ it('filters set items by game version correctly', function () {
         ->and($result['set_items'][0]['uuid'])->toBe($coreOldUuid)
         ->and($result['set_items'][0]['name'])->toBe('Old Core');
 
-    // Build with new version - should find new core
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($helmetItem);
 
@@ -385,8 +362,7 @@ it('filters set items by game version correctly', function () {
         ->and($result['set_items'][0]['name'])->toBe('New Core');
 });
 
-it('computes correct set names for variant groups', function () {
-    // Create base item
+it('computes correct set names for variant groups', function (): void {
     $baseUuid = fake()->uuid();
     $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
@@ -399,7 +375,6 @@ it('computes correct set names for variant groups', function () {
         'data' => [],
     ]);
 
-    // Create variants
     $variant1Uuid = fake()->uuid();
     $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
@@ -426,7 +401,6 @@ it('computes correct set names for variant groups', function () {
         'data' => [],
     ]);
 
-    // Build from base item
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
@@ -436,8 +410,7 @@ it('computes correct set names for variant groups', function () {
         ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
 });
 
-it('handles multi-word color variant names correctly', function () {
-    // Create base item
+it('handles multi-word color variant names correctly', function (): void {
     $baseUuid = fake()->uuid();
     $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
@@ -450,7 +423,6 @@ it('handles multi-word color variant names correctly', function () {
         'data' => [],
     ]);
 
-    // Create multi-word color variants
     $colorUuid1 = fake()->uuid();
     $variant1 = Item::create(['uuid' => $colorUuid1]);
     ItemData::create([
@@ -477,7 +449,6 @@ it('handles multi-word color variant names correctly', function () {
         'data' => [],
     ]);
 
-    // Build from base item
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
@@ -487,8 +458,7 @@ it('handles multi-word color variant names correctly', function () {
         ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
 });
 
-it('handles quoted variant names correctly', function () {
-    // Create base item
+it('handles quoted variant names correctly', function (): void {
     $baseUuid = fake()->uuid();
     $baseItem = Item::create(['uuid' => $baseUuid]);
     $baseData = ItemData::create([
@@ -501,7 +471,6 @@ it('handles quoted variant names correctly', function () {
         'data' => [],
     ]);
 
-    // Create quoted variants
     $variant1Uuid = fake()->uuid();
     $variant1 = Item::create(['uuid' => $variant1Uuid]);
     ItemData::create([
@@ -541,14 +510,12 @@ it('handles quoted variant names correctly', function () {
         'data' => [],
     ]);
 
-    // Build from base item
     $builder = new RelatedItemsBuilder($this->defaultVersion->code);
     $result = $builder->build($baseItem);
 
     expect($result['set_name'])->toBe('A03')
         ->and($result['base_item']['variant_name'])->toBe('Sniper Rifle');
 
-    // Extract variant names from result
     $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
 
     expect($variantNames)->toContain('Scorched')

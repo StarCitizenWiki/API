@@ -60,18 +60,40 @@ it('returns item filter values with counts', function (): void {
             'data' => [],
         ]);
 
-    $response = $this->getJson('/api/items/filters');
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'Weapon' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['type'])->contains(fn (array $row) => $row['value'] === null && $row['label'] === 'Unknown'))->toBeTrue()
-        ->and(collect($filters['manufacturer'])->contains(fn (array $row) => $row['value'] === 'Acme' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['size'])->contains(fn (array $row) => $row['value'] === 1 && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['grade'])->contains(fn (array $row) => $row['value'] === 2 && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['class'])->contains(fn (array $row) => $row['value'] === 'A' && $row['count'] === 1))->toBeTrue();
+    $this->getJson(route('items.filters'))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'type' => [
+                    ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'sub_type' => [
+                    ['value' => 'Laser', 'label' => 'Laser', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'classification' => [
+                    ['value' => 'FPS.Weapon', 'label' => 'FPS.Weapon', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'size' => [
+                    ['value' => 1, 'label' => '1', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'grade' => [
+                    ['value' => 2, 'label' => 'B', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'class' => [
+                    ['value' => 'A', 'label' => 'A', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'manufacturer' => [
+                    ['value' => 'Acme', 'label' => 'Acme', 'count' => 1],
+                    ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
+                ],
+            ],
+        ]);
 });
 
 it('filters item filter values by category', function (): void {
@@ -97,6 +119,9 @@ it('filters item filter values by category', function (): void {
             'type' => 'Food',
             'sub_type' => 'Snack',
             'classification' => 'Test',
+            'size' => 1,
+            'grade' => 1,
+            'class' => 'Civilian',
             'data' => [],
         ]);
 
@@ -110,17 +135,39 @@ it('filters item filter values by category', function (): void {
             'type' => 'WeaponPersonal',
             'sub_type' => 'Pistol',
             'classification' => 'Test',
+            'size' => 2,
+            'grade' => 3,
+            'class' => 'Military',
             'data' => [],
         ]);
 
-    $response = $this->getJson('/api/items/filters?filter[category]=food');
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'Food' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'WeaponPersonal'))->toBeFalse();
+    $this->getJson(route('items.filters', ['filter' => ['category' => 'food']]))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'type' => [
+                    ['value' => 'Food', 'label' => 'Food', 'count' => 1],
+                ],
+                'sub_type' => [
+                    ['value' => 'Snack', 'label' => 'Snack', 'count' => 1],
+                ],
+                'classification' => [
+                    ['value' => 'Test', 'label' => 'Test', 'count' => 1],
+                ],
+                'size' => [
+                    ['value' => 1, 'label' => '1', 'count' => 1],
+                ],
+                'grade' => [
+                    ['value' => 1, 'label' => 'A', 'count' => 1],
+                ],
+                'class' => [
+                    ['value' => 'Civilian', 'label' => 'Civilian', 'count' => 1],
+                ],
+                'manufacturer' => [
+                    ['value' => 'Category Co', 'label' => 'Category Co', 'count' => 1],
+                ],
+            ],
+        ]);
 });
 
 it('filters item filter values by type', function (): void {
@@ -146,6 +193,9 @@ it('filters item filter values by type', function (): void {
             'type' => 'Armor',
             'sub_type' => 'Light',
             'classification' => 'FPS.Armor',
+            'size' => 3,
+            'grade' => 4,
+            'class' => 'Industrial',
             'data' => [],
         ]);
 
@@ -159,19 +209,37 @@ it('filters item filter values by type', function (): void {
             'type' => 'Weapon',
             'sub_type' => 'Pistol',
             'classification' => 'FPS.Weapon',
+            'size' => 1,
+            'grade' => 2,
+            'class' => 'Military',
             'data' => [],
         ]);
 
-    $response = $this->getJson('/api/items/filters?filter[type]=Armor');
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'Armor' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['type'])->contains(fn (array $row) => $row['value'] === 'Weapon'))->toBeFalse()
-        ->and(collect($filters['sub_type'])->contains(fn (array $row) => $row['value'] === 'Light' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['sub_type'])->contains(fn (array $row) => $row['value'] === 'Pistol'))->toBeFalse()
-        ->and(collect($filters['classification'])->contains(fn (array $row) => $row['value'] === 'FPS.Armor' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['classification'])->contains(fn (array $row) => $row['value'] === 'FPS.Weapon'))->toBeFalse();
+    $this->getJson(route('items.filters', ['filter' => ['type' => 'Armor']]))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'type' => [
+                    ['value' => 'Armor', 'label' => 'Armor', 'count' => 1],
+                ],
+                'sub_type' => [
+                    ['value' => 'Light', 'label' => 'Light', 'count' => 1],
+                ],
+                'classification' => [
+                    ['value' => 'FPS.Armor', 'label' => 'FPS.Armor', 'count' => 1],
+                ],
+                'size' => [
+                    ['value' => 3, 'label' => '3', 'count' => 1],
+                ],
+                'grade' => [
+                    ['value' => 4, 'label' => 'D', 'count' => 1],
+                ],
+                'class' => [
+                    ['value' => 'Industrial', 'label' => 'Industrial', 'count' => 1],
+                ],
+                'manufacturer' => [
+                    ['value' => 'Type Co', 'label' => 'Type Co', 'count' => 1],
+                ],
+            ],
+        ]);
 });

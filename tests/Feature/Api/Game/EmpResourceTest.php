@@ -7,7 +7,6 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 
 uses(RefreshDatabase::class);
 
@@ -26,7 +25,7 @@ it('returns emp specification when item type is emp', function (): void {
 
     $item = Item::factory()->create();
 
-    $itemData = ItemData::factory()
+    ItemData::factory()
         ->for($item)
         ->for($version, 'gameVersion')
         ->for($manufacturer)
@@ -51,14 +50,12 @@ it('returns emp specification when item type is emp', function (): void {
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
-    $empData = Arr::get($itemData->data, 'stdItem.Emp', []);
-
     $response->assertSuccessful()
-        ->assertJsonPath('data.emp.charge_duration', Arr::get($empData, 'ChargeTime'))
-        ->assertJsonPath('data.emp.emp_radius', Arr::get($empData, 'EmpRadius'))
-        ->assertJsonPath('data.emp.cooldown_duration', Arr::get($empData, 'CooldownTime'))
-        ->assertJsonPath('data.emp.distortion_damage', Arr::get($empData, 'DistortionDamage'))
-        ->assertJsonPath('data.emp.min_emp_radius', Arr::get($empData, 'MinEmpRadius'))
-        ->assertJsonPath('data.emp.unleash_duration', Arr::get($empData, 'UnleashTime'))
+        ->assertJsonPath('data.emp.distortion_damage', 1000)
+        ->assertJsonPath('data.emp.emp_radius', 400)
+        ->assertJsonPath('data.emp.min_emp_radius', 150)
+        ->assertJsonPath('data.emp.charge_duration', 12)
+        ->assertJsonPath('data.emp.unleash_duration', 0.75)
+        ->assertJsonPath('data.emp.cooldown_duration', 6)
         ->assertJsonMissingPath('data.cooler');
 });

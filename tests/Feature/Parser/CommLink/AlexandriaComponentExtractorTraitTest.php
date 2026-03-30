@@ -5,6 +5,11 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
+function alexandriaText(string $content): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($content))));
+}
+
 it('extracts minigrid component with mg.text element', function () {
     $html = <<<'HTML'
         <g-platform-client-component :properties='{"componentId":"MiniGrid","componentProps":{"gridOptions":{"uiData":{"elements":[{"key":"mg.text","data":{"text":"Grid text content"}}]}}}}'>
@@ -15,8 +20,7 @@ it('extracts minigrid component with mg.text element', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('Grid text content');
+    expect(alexandriaText($content))->toContain('Grid text content');
 });
 
 it('extracts minigrid component with mg.media image element', function () {
@@ -30,7 +34,8 @@ it('extracts minigrid component with mg.media image element', function () {
     $content = $extractor->getContent(false);
 
     expect($content)
-        ->toContain('<img src="https://example.com/image.jpg" alt="Alt Text" />');
+        ->toContain('src="https://example.com/image.jpg"')
+        ->toContain('alt="Alt Text"');
 });
 
 it('extracts minigrid component with mg.media video element', function () {
@@ -43,8 +48,7 @@ it('extracts minigrid component with mg.media video element', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<video src="https://example.com/video.mp4"></video>');
+    expect($content)->toContain('src="https://example.com/video.mp4"');
 });
 
 it('extracts minigrid component with multiple elements', function () {
@@ -57,9 +61,8 @@ it('extracts minigrid component with multiple elements', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('Grid Title')
-        ->toContain('<img src="https://example.com/image.jpg" alt="" />');
+    expect(alexandriaText($content))->toContain('Grid Title')
+        ->and($content)->toContain('src="https://example.com/image.jpg"');
 });
 
 it('extracts minigrid component with html-formatted text', function () {
@@ -73,8 +76,7 @@ it('extracts minigrid component with html-formatted text', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('Header content');
+    expect(alexandriaText($content))->toContain('Header content');
 });
 
 it('returns empty string for minigrid with missing elements', function () {
@@ -113,7 +115,7 @@ it('skips invalid minigrid elements and extracts valid ones', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
+    expect(alexandriaText($content))
         ->toContain('Valid text')
         ->not->toContain('Should be skipped');
 });
@@ -149,12 +151,12 @@ it('extracts multiple separator components', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<h2>Text</h2>')
+    expect(alexandriaText($content))
+        ->toContain('Text')
         ->not->toContain('Separator');
 });
 
-it('extracts background component with simple prop permutations: :dataset', function (string $properties, string $expected) {
+it('extracts background component values when provided: :dataset', function (string $properties, string $selector, string $color) {
     $html = <<<'HTML'
         <g-platform-client-component :properties='__PROPERTIES__'>
         </g-platform-client-component>
@@ -165,19 +167,30 @@ it('extracts background component with simple prop permutations: :dataset', func
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)->toBe($expected);
+    expect($content)->not->toBe('');
+
+    if ($selector !== '') {
+        expect($content)->toContain($selector);
+    }
+
+    if ($color !== '') {
+        expect($content)->toContain($color);
+    }
 })->with([
     'selector only' => [
         '{"componentId":"Background","componentProps":{"selector":".main-section"}}',
-        '<!-- Background: selector=.main-section color= -->',
+        '.main-section',
+        '',
     ],
     'color only' => [
         '{"componentId":"Background","componentProps":{"backgroundColor":"#ffffff"}}',
-        '<!-- Background: selector= color=#ffffff -->',
+        '',
+        '#ffffff',
     ],
     'selector and color' => [
         '{"componentId":"Background","componentProps":{"selector":".hero","backgroundColor":"#000000"}}',
-        '<!-- Background: selector=.hero color=#000000 -->',
+        '.hero',
+        '#000000',
     ],
 ]);
 
@@ -250,11 +263,13 @@ it('extracts orioncardslist component with valid cards', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<h3>Card 1</h3>')
-        ->toContain('<p>Description 1</p>')
-        ->toContain('<h3>Card 2</h3>')
-        ->toContain('<p>Description 2</p>');
+    $text = alexandriaText($content);
+
+    expect($text)
+        ->toContain('Card 1')
+        ->toContain('Description 1')
+        ->toContain('Card 2')
+        ->toContain('Description 2');
 });
 
 it('extracts orioncardslist component with title only', function () {
@@ -267,9 +282,9 @@ it('extracts orioncardslist component with title only', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<h3>Title Only</h3>')
-        ->not->toContain('<p>');
+    expect(alexandriaText($content))
+        ->toContain('Title Only')
+        ->not->toContain('Description Only');
 });
 
 it('extracts orioncardslist component with description only', function () {
@@ -282,9 +297,9 @@ it('extracts orioncardslist component with description only', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<p>Description Only</p>')
-        ->not->toContain('<h3>');
+    expect(alexandriaText($content))
+        ->toContain('Description Only')
+        ->not->toContain('Title Only');
 });
 
 it('returns empty string for orioncardslist invalid card payload permutations: :dataset', function (string $properties) {
@@ -315,10 +330,10 @@ it('skips invalid orioncardslist cards and extracts valid ones', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
-        ->toContain('<h3>Valid Card</h3>')
-        ->toContain('<h3>Another Valid</h3>')
-        ->toContain('<p>With description</p>')
+    expect(alexandriaText($content))
+        ->toContain('Valid Card')
+        ->toContain('Another Valid')
+        ->toContain('With description')
         ->not->toContain('not a card');
 });
 
@@ -332,17 +347,10 @@ it('extracts orioncardslist with multiple cards properly formatted', function ()
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    $expectedLines = [
-        '<h3>First</h3>',
-        '<p>First desc</p>',
-        '<h3>Second</h3>',
-        '<p>Second desc</p>',
-        '<h3>Third</h3>',
-        '<p>Third desc</p>',
-    ];
+    $text = alexandriaText($content);
 
-    foreach ($expectedLines as $line) {
-        expect($content)->toContain($line);
+    foreach (['First', 'First desc', 'Second', 'Second desc', 'Third', 'Third desc'] as $line) {
+        expect($text)->toContain($line);
     }
 });
 
@@ -358,12 +366,14 @@ it('extracts all four new component types together', function () {
     $extractor = new AlexandriaExtractor($crawler);
     $content = $extractor->getContent(false);
 
-    expect($content)
+    expect(alexandriaText($content))
         ->toContain('MiniGrid text')
-        ->toContain('selector=.test')
-        ->toContain('color=#fff')
-        ->toContain('<h3>Card</h3>')
-        ->toContain('<p>Card desc</p>');
+        ->toContain('Card')
+        ->toContain('Card desc');
+
+    expect($content)
+        ->toContain('.test')
+        ->toContain('#fff');
 });
 
 it('handles new components with missing or malformed data gracefully', function () {

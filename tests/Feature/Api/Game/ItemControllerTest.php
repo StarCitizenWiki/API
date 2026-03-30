@@ -325,6 +325,20 @@ it('includes related items when requested', function (): void {
             'data' => ['stdItem' => []],
         ]);
 
+    $variantSiblingItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($variantSiblingItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Variant Item Beta',
+            'type' => 'Weapon',
+            'class_name' => 'test_variant_beta',
+            'classification' => 'WeaponPersonal',
+            'base_id' => $baseData->id,
+            'data' => ['stdItem' => []],
+        ]);
+
     $variantItem = Item::factory()->create();
     ItemData::factory()
         ->for($variantItem)
@@ -343,16 +357,12 @@ it('includes related items when requested', function (): void {
 
     $response->assertSuccessful()
         ->assertJsonPath('data.uuid', $variantItem->uuid)
-        ->assertJsonStructure([
-            'data' => [
-                'related_items' => [
-                    'set_name',
-                    'base_item',
-                    'variant_items',
-                    'set_items',
-                ],
-            ],
-        ]);
+        ->assertJsonPath('data.related_items.base_item.uuid', $baseItem->uuid)
+        ->assertJsonPath('data.related_items.base_item.name', 'Test Base Item')
+        ->assertJsonCount(1, 'data.related_items.variant_items')
+        ->assertJsonPath('data.related_items.variant_items.0.uuid', $variantSiblingItem->uuid)
+        ->assertJsonPath('data.related_items.variant_items.0.name', 'Test Variant Item Beta')
+        ->assertJsonCount(0, 'data.related_items.set_items');
 });
 
 it('does not include related items when not requested', function (): void {
@@ -372,7 +382,7 @@ it('does not include related items when not requested', function (): void {
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
-        ->assertJsonMissing(['related_items']);
+        ->assertJsonMissingPath('data.related_items');
 });
 
 it('does not include related items on index route even when requested', function (): void {
@@ -392,7 +402,10 @@ it('does not include related items on index route even when requested', function
     $response = $this->getJson('/api/items?include=related_items');
 
     $response->assertSuccessful()
-        ->assertJsonMissing(['related_items']);
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $item->uuid)
+        ->assertJsonPath('data.0.name', 'Test Item')
+        ->assertJsonMissingPath('data.0.related_items');
 });
 
 it('includes web urls with version in item index', function (): void {

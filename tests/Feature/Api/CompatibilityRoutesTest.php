@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\System\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
@@ -86,8 +87,10 @@ it('redirects get /api/v2/{any?} to /api with 308 and preserves query string', f
 
     $response = $this->get('/api/v2/legacy/endpoint?baz=qux&foo=bar');
 
-    $response->assertPermanentRedirect()
-        ->assertLocation(url('/api/legacy/endpoint').'?baz=qux&foo=bar');
+    assertApiV2Redirect($response, '/api/legacy/endpoint', [
+        'baz' => 'qux',
+        'foo' => 'bar',
+    ]);
 });
 
 it('redirects post /api/v2/{any?} to /api with 308 and preserves query string', function (): void {
@@ -102,6 +105,38 @@ it('redirects post /api/v2/{any?} to /api with 308 and preserves query string', 
         'term' => 'vehicle',
     ]);
 
-    $response->assertPermanentRedirect()
-        ->assertLocation(url('/api/legacy/search').'?baz=qux&foo=bar');
+    assertApiV2Redirect($response, '/api/legacy/search', [
+        'baz' => 'qux',
+        'foo' => 'bar',
+    ]);
 });
+
+it('redirects the api v2 root to api without adding a trailing segment', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->get('/api/v2');
+
+    assertApiV2Redirect($response, '/api', []);
+});
+
+/**
+ * @param  array<string, string>  $expectedQuery
+ */
+function assertApiV2Redirect(TestResponse $response, string $expectedPath, array $expectedQuery): void
+{
+    $response->assertStatus(308);
+
+    $location = (string) $response->headers->get('Location');
+
+    expect(parse_url($location, PHP_URL_PATH))->toBe($expectedPath);
+
+    $actualQuery = [];
+    parse_str((string) parse_url($location, PHP_URL_QUERY), $actualQuery);
+
+    expect($actualQuery)->toBe($expectedQuery);
+}

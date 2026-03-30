@@ -35,13 +35,19 @@ it('returns comm-link filter values with counts', function (): void {
         'series_id' => $series->id,
     ]);
 
-    $response = $this->getJson(route('comm-links.filters'));
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['category'])->contains(fn (array $row) => $row['value'] === 'Updates' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['channel'])->contains(fn (array $row) => $row['value'] === 'News' && $row['count'] === 2))->toBeTrue()
-        ->and(collect($filters['series'])->contains(fn (array $row) => $row['value'] === 'Ship Shape' && $row['count'] === 2))->toBeTrue();
+    $this->getJson(route('comm-links.filters'))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'category' => [
+                    ['value' => 'Updates', 'label' => 'Updates', 'count' => 2],
+                ],
+                'channel' => [
+                    ['value' => 'News', 'label' => 'News', 'count' => 2],
+                ],
+                'series' => [
+                    ['value' => 'Ship Shape', 'label' => 'Ship Shape', 'count' => 2],
+                ],
+            ],
+        ]);
 });

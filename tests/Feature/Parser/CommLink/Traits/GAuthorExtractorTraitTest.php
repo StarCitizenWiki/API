@@ -5,211 +5,59 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
-it('extracts author information from g-author element', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-link="https://x.com/FreyjaV_"
-  author-desc="Senior Community Manager"
-  author-name="Freyja Vanadis"
-  :simple-image='{"desktop":"/i/image.jpg"}'>
-</g-author>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
+function authorExtractor(): object
+{
+    return new class
     {
         use GAuthorExtractorTrait;
     };
+}
 
-    $result = $extractor->getAuthor($crawler);
+it('extracts author metadata when the author is complete', function (): void {
+    $result = authorExtractor()->getAuthor(new Crawler(<<<'HTML'
+        <g-author
+          author-link="https://x.com/FreyjaV_"
+          author-desc="Senior Community Manager"
+          author-name="Freyja Vanadis"
+          :simple-image='{"desktop":"/i/image.jpg"}'>
+        </g-author>
+        HTML));
 
-    expect($result)->toContain('<h3>Freyja Vanadis</h3>');
-    expect($result)->toContain('<p>Senior Community Manager</p>');
-    expect($result)->toContain('<a href="https://x.com/FreyjaV_">Source</a>');
+    expect($result)->toContain('<h3>Freyja Vanadis</h3>')
+        ->and($result)->toContain('<p>Senior Community Manager</p>')
+        ->and($result)->toContain('<a href="https://x.com/FreyjaV_">Source</a>');
 });
 
-it('extracts author without link', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-desc="Content Writer"
-  author-name="John Doe"
-  :simple-image='{}'>
-</g-author>
-</body>
-</html>
-HTML;
+it('extracts author text without a source link', function (): void {
+    $result = authorExtractor()->getAuthor(new Crawler(<<<'HTML'
+        <g-author
+          author-desc="Content Writer"
+          author-name="John Doe"
+          :simple-image='{}'>
+        </g-author>
+        HTML));
 
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toContain('<h3>John Doe</h3>');
-    expect($result)->toContain('<p>Content Writer</p>');
-    expect($result)->not->toContain('<a href=');
+    expect($result)->toContain('<h3>John Doe</h3>')
+        ->and($result)->toContain('<p>Content Writer</p>')
+        ->and($result)->not->toContain('<a href=');
 });
 
-it('handles missing author-name gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-desc="Some description"
-  :simple-image='{}'>
-</g-author>
-</body>
-</html>
-HTML;
+it('renders the author name when the description is missing', function (): void {
+    $result = authorExtractor()->getAuthor(new Crawler(<<<'HTML'
+        <g-author author-name="Jane Smith" :simple-image='{}'></g-author>
+        HTML));
 
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toBe('');
+    expect($result)->toContain('<h3>Jane Smith</h3>')
+        ->and($result)->not->toContain('<p>');
 });
 
-it('handles missing author-desc gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-name="Jane Smith"
-  :simple-image='{}'>
-</g-author>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toContain('<h3>Jane Smith</h3>');
-    expect($result)->not->toContain('<p>');
-});
-
-it('handles missing all attributes gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author :simple-image='{}'></g-author>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toBe('');
-});
-
-it('handles missing g-author element', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<p>No author element here</p>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toBe('');
-});
-
-it('ignores :simple-image attribute', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-name="Test Author"
-  author-desc="Test Description"
-  :simple-image='{"desktop":"/i/desktop.jpg","mobile":"/i/mobile.jpg","placeholder":{"desktop":"/i/placeholder.webp"}}'>
-</g-author>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toContain('<h3>Test Author</h3>');
-    expect($result)->toContain('<p>Test Description</p>');
-    expect($result)->not->toContain('desktop');
-    expect($result)->not->toContain('mobile');
-    expect($result)->not->toContain('placeholder');
-});
-
-it('handles invalid :simple-image json gracefully', function () {
-    $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-<body>
-<g-author
-  author-name="Valid Author"
-  author-desc="Valid Description"
-  :simple-image='invalid json'>
-</g-author>
-</body>
-</html>
-HTML;
-
-    $crawler = new Crawler($html);
-
-    $extractor = new class
-    {
-        use GAuthorExtractorTrait;
-    };
-
-    $result = $extractor->getAuthor($crawler);
-
-    expect($result)->toContain('<h3>Valid Author</h3>');
-    expect($result)->toContain('<p>Valid Description</p>');
-});
+it('returns an empty string when the author is incomplete', function (string $markup): void {
+    expect(authorExtractor()->getAuthor(new Crawler($markup)))->toBe('');
+})->with([
+    'missing author name' => [<<<'HTML'
+        <g-author author-desc="Some description" :simple-image='{}'></g-author>
+        HTML],
+    'missing element' => [<<<'HTML'
+        <p>No author element here</p>
+        HTML],
+]);

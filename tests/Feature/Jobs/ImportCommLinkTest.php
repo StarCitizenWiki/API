@@ -53,16 +53,26 @@ HTML;
     expect($commLink)->not->toBeNull()
         ->and($commLink->title)->toBe('Test Comm-Link')
         ->and($commLink->comment_count)->toBe(5)
-        ->and($commLink->images_count)->toBeGreaterThanOrEqual(1)
+        ->and($commLink->images_count)->toBe(1)
         ->and($commLink->links_count)->toBe(1);
 
     $translation = $commLink?->getTranslation('translation', Language::ENGLISH, false);
 
     expect($translation)->not->toBeNull()
         ->and($translation)->toContain('Hello world')
-        ->and(Image::query()->count())->toBeGreaterThanOrEqual(1)
-        ->and($commLink->images_count)->toBeGreaterThanOrEqual(1)
-        ->and(Link::query()->count())->toBe(1)
-        ->and($commLink->links_count)->toBe(1);
+        ->and(Image::query()->count())->toBe(1)
+        ->and(Link::query()->count())->toBe(1);
+
+    $commLink->load(['images', 'links']);
+
+    expect($commLink->images)->toHaveCount(1)
+        ->and($commLink->links)->toHaveCount(1)
+        ->and($commLink->images->pluck('src')->values()->all())->toBe([
+            '/abcdef1234567890/source.jpg',
+        ])
+        ->and($commLink->images->pluck('alt')->values()->all())->toBe([
+            'Test',
+        ])
+        ->and($commLink->links->first()?->href)->toBe('https://example.com');
 
 });

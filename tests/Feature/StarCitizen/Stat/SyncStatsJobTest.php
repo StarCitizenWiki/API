@@ -13,16 +13,18 @@ it('dispatches download with a chained import using a shared filename', function
 
     Carbon::setTestNow(Carbon::parse('2025-01-02 03:04:05'));
 
-    $job = new SyncStats;
-    $job->handle();
+    try {
+        $job = new SyncStats;
+        $job->handle();
 
-    $fileName = 'stats_2025-01-02.json';
-    $year = 2025;
+        $fileName = 'stats_2025-01-02.json';
+        $year = 2025;
 
-    Bus::assertChained([
-        new DownloadStats($fileName, $year),
-        new ImportStat($fileName, $year),
-    ]);
-
-    Carbon::setTestNow();
+        Bus::assertChained([
+            new DownloadStats($fileName, $year),
+            new ImportStat($fileName, $year),
+        ]);
+    } finally {
+        Carbon::setTestNow();
+    }
 });

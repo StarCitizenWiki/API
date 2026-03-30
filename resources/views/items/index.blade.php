@@ -67,7 +67,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-semibold tracking-tight">{{ $pageTitle }}</h1>
+            <h1 class="text-2xl font-semibold tracking-tight" data-testid="items-index-heading">{{ $pageTitle }}</h1>
             <x-items.item-breadcrumbs :filterQuery="$filterQuery" :typeFilter="$typeFilter" :versionParams="$versionParams" />
         </div>
 

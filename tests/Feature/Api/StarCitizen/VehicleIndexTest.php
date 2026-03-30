@@ -28,10 +28,6 @@ it('returns the vehicle list without error', function (): void {
         'slug' => 'fighter',
     ]);
 
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
     $status = ProductionStatus::query()->create([
         'slug' => 'flight-ready',
     ]);
@@ -59,7 +55,7 @@ it('returns the vehicle list without error', function (): void {
     expect($response->json('data.0.slug'))->toBe('avenger');
 });
 
-it('returns paginated results', function (): void {
+it('paginates vehicles by requested page size and sort order', function (): void {
     $manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Test Manufacturer',
@@ -74,12 +70,11 @@ it('returns paginated results', function (): void {
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
-    // Create 20 vehicles
-    for ($i = 1; $i <= 20; $i++) {
+    foreach ([70, 10, 50, 20, 60, 30, 40] as $cigId) {
         Vehicle::query()->create([
-            'cig_id' => $i,
-            'name' => "Vehicle {$i}",
-            'slug' => "vehicle-{$i}",
+            'cig_id' => $cigId,
+            'name' => "Vehicle {$cigId}",
+            'slug' => "vehicle-{$cigId}",
             'manufacturer_id' => $manufacturer->id,
             'size_id' => $size->id,
             'type_id' => $type->id,
@@ -89,14 +84,24 @@ it('returns paginated results', function (): void {
         ]);
     }
 
-    $response = $this->getJson(route('shipmatrix.vehicles.index'));
+    $response = $this->getJson(route('shipmatrix.vehicles.index', [
+        'sort' => 'id',
+        'page' => [
+            'number' => 2,
+            'size' => 3,
+        ],
+    ]));
 
-    $response->assertOk();
-    expect($response->json('data'))->toHaveCount(20); // Fits within the JSON:API default page size.
-    expect($response->json('meta.total'))->toBe(20);
+    $response->assertOk()
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.per_page', 3)
+        ->assertJsonPath('meta.total', 7)
+        ->assertJsonPath('meta.last_page', 3);
+
+    expect(collect($response->json('data'))->pluck('id')->all())->toBe([40, 50, 60]);
 });
 
-it('does not duplicate page number in pagination links', function (): void {
+it('builds pagination links for the requested page size', function (): void {
     $manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Test Manufacturer',
@@ -110,7 +115,7 @@ it('does not duplicate page number in pagination links', function (): void {
     ]);
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
-    for ($i = 1; $i <= 12; $i++) {
+    foreach (range(1, 12) as $i) {
         Vehicle::query()->create([
             'cig_id' => $i,
             'name' => "Vehicle {$i}",
@@ -133,14 +138,26 @@ it('does not duplicate page number in pagination links', function (): void {
 
     $response->assertOk();
 
+    expect($response->json('meta.current_page'))->toBe(2)
+        ->and($response->json('meta.per_page'))->toBe(5)
+        ->and($response->json('meta.total'))->toBe(12)
+        ->and($response->json('meta.last_page'))->toBe(3)
+        ->and(collect($response->json('data'))->pluck('id')->all())->toBe([6, 7, 8, 9, 10]);
+
+    $prevLink = $response->json('links.prev');
+    $nextLink = $response->json('links.next');
     $lastLink = $response->json('links.last');
 
+    expect($prevLink)->toBeString();
+    expect($nextLink)->toBeString();
     expect($lastLink)->toBeString();
+    expect($prevLink)->toContain('page%5Bnumber%5D=1');
+    expect($nextLink)->toContain('page%5Bnumber%5D=3');
     expect($lastLink)->toContain('page%5Bsize%5D=5');
     expect(substr_count($lastLink, 'page%5Bnumber%5D='))->toBe(1);
 });
 
-it('ignores custom pagination limit', function (): void {
+it('uses the default page size when none is requested', function (): void {
     $manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Test Manufacturer',
@@ -155,7 +172,7 @@ it('ignores custom pagination limit', function (): void {
 
     $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
-    for ($i = 1; $i <= 20; $i++) {
+    for ($i = 1; $i <= 31; $i++) {
         Vehicle::query()->create([
             'cig_id' => $i,
             'name' => "Vehicle {$i}",
@@ -169,10 +186,27 @@ it('ignores custom pagination limit', function (): void {
         ]);
     }
 
-    $response = $this->getJson(route('shipmatrix.vehicles.index', ['limit' => 1]));
+    $response = $this->getJson(route('shipmatrix.vehicles.index'));
 
-    $response->assertOk();
-    expect($response->json('data'))->toHaveCount(20);
+    $response->assertOk()
+        ->assertJsonPath('meta.current_page', 1)
+        ->assertJsonPath('meta.per_page', 30)
+        ->assertJsonPath('meta.total', 31)
+        ->assertJsonPath('meta.last_page', 2)
+        ->assertJsonCount(30, 'data');
+
+    $secondPageResponse = $this->getJson(route('shipmatrix.vehicles.index', [
+        'page' => [
+            'number' => 2,
+        ],
+    ]));
+
+    $secondPageResponse->assertOk()
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.per_page', 30)
+        ->assertJsonPath('meta.total', 31)
+        ->assertJsonPath('meta.last_page', 2)
+        ->assertJsonCount(1, 'data');
 });
 
 it('filters by manufacturer name', function (): void {
@@ -223,8 +257,8 @@ it('filters by manufacturer name', function (): void {
     $response = $this->getJson(route('shipmatrix.vehicles.index', ['filter' => ['manufacturer' => 'Aegis Dynamics']]));
 
     $response->assertOk();
-    expect($response->json('data'))->toHaveCount(1);
-    expect($response->json('data.0.name'))->toBe('Avenger');
+    expect($response->json('data'))->toHaveCount(1)
+        ->and($response->json('data.0.name'))->toBe('Avenger');
 });
 
 it('filters by size code', function (): void {
@@ -270,8 +304,8 @@ it('filters by size code', function (): void {
     $response = $this->getJson(route('shipmatrix.vehicles.index', ['filter' => ['size' => 'small']]));
 
     $response->assertOk();
-    expect($response->json('data'))->toHaveCount(1);
-    expect($response->json('data.0.name'))->toBe('Small Ship');
+    expect($response->json('data'))->toHaveCount(1)
+        ->and($response->json('data.0.name'))->toBe('Small Ship');
 });
 
 it('filters by type slug', function (): void {
@@ -415,56 +449,103 @@ it('filters by production status slug', function (): void {
     $response = $this->getJson(route('shipmatrix.vehicles.index', ['filter' => ['production_status' => 'flight-ready']]));
 
     $response->assertOk();
-    expect($response->json('data'))->toHaveCount(1);
-    expect($response->json('data.0.name'))->toBe('Ready Ship');
+    expect($response->json('data'))->toHaveCount(1)
+        ->and($response->json('data.0.name'))->toBe('Ready Ship');
 });
 
-it('has correct response structure', function (): void {
+it('returns mapped vehicle fields and supports filtering by partial name', function (): void {
     $manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Aegis Dynamics',
         'name_short' => 'AEGS',
     ]);
 
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
+    $size = Size::query()->create([
+        'slug' => 'small',
+        'translation' => ['en' => 'Small'],
+    ]);
+    $type = Type::query()->create([
+        'slug' => 'fighter',
+        'translation' => ['en' => 'Fighter'],
+    ]);
     $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
+        'translation' => ['en' => 'In active production'],
+    ]);
+    $status = ProductionStatus::query()->create([
+        'slug' => 'flight-ready',
+        'translation' => ['en' => 'Flight Ready'],
     ]);
 
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
+    $focus = Focus::query()->create([
+        'slug' => 'combat',
+        'translation' => ['en' => 'Combat'],
+    ]);
 
-    Vehicle::query()->create([
+    $vehicle = Vehicle::query()->create([
         'cig_id' => 1,
-        'name' => 'Avenger',
-        'slug' => 'avenger',
+        'name' => 'Avenger Mk II',
+        'slug' => 'avenger-mk-ii',
         'manufacturer_id' => $manufacturer->id,
         'size_id' => $size->id,
         'type_id' => $type->id,
         'production_status_id' => $status->id,
         'production_note_id' => $note->id,
         'chassis_id' => 1,
+        'length' => 22.5,
+        'beam' => 6.75,
+        'height' => 4.25,
+        'mass' => 54321,
+        'cargo_capacity' => 8,
+        'min_crew' => 1,
+        'max_crew' => 2,
+        'scm_speed' => 210,
+        'afterburner_speed' => 1200,
+        'msrp' => 1250000,
+        'pledge_url' => '/pledge/ships/avenger',
+        'translation' => ['en' => 'Light combat ship'],
+    ]);
+    $vehicle->foci()->attach($focus->id);
+
+    Vehicle::query()->create([
+        'cig_id' => 2,
+        'name' => 'Cutter Scout',
+        'slug' => 'cutter-scout',
+        'manufacturer_id' => $manufacturer->id,
+        'size_id' => $size->id,
+        'type_id' => $type->id,
+        'production_status_id' => $status->id,
+        'production_note_id' => $note->id,
+        'chassis_id' => 2,
     ]);
 
-    $response = $this->getJson(route('shipmatrix.vehicles.index'));
+    $response = $this->getJson(route('shipmatrix.vehicles.index', [
+        'locale' => 'en',
+        'filter' => ['name' => 'Aveng'],
+    ]));
 
-    $response->assertOk();
-    $response->assertJsonStructure([
-        'data' => [
-            '*' => [
-                'id',
-                'name',
-                'slug',
-                'size',
-                'type',
-                'manufacturer' => [
-                    'name',
-                    'code',
-                ],
-                'production_status',
-                'updated_at',
-            ],
-        ],
-        'meta',
-    ]);
+    $response->assertOk()
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('data.0.id', 1)
+        ->assertJsonPath('data.0.chassis_id', 1)
+        ->assertJsonPath('data.0.name', 'Avenger Mk II')
+        ->assertJsonPath('data.0.slug', 'avenger-mk-ii')
+        ->assertJsonPath('data.0.dimension.length', 22.5)
+        ->assertJsonPath('data.0.dimension.width', 6.75)
+        ->assertJsonPath('data.0.dimension.height', 4.25)
+        ->assertJsonPath('data.0.crew.min', 1)
+        ->assertJsonPath('data.0.crew.max', 2)
+        ->assertJsonPath('data.0.speed.scm', 210)
+        ->assertJsonPath('data.0.speed.max', 1200)
+        ->assertJsonPath('data.0.type', 'Fighter')
+        ->assertJsonPath('data.0.size', 'Small')
+        ->assertJsonPath('data.0.production_status', 'Flight Ready')
+        ->assertJsonPath('data.0.production_note', 'In active production')
+        ->assertJsonPath('data.0.description', 'Light combat ship')
+        ->assertJsonPath('data.0.msrp', 1250000)
+        ->assertJsonPath('data.0.pledge_url', 'https://robertsspaceindustries.com/pledge/ships/avenger')
+        ->assertJsonPath('data.0.manufacturer.code', 'AEGS')
+        ->assertJsonPath('data.0.manufacturer.name', 'Aegis Dynamics')
+        ->assertJsonPath('data.0.link', route('shipmatrix.vehicles.show', 'avenger-mk-ii'));
+
+    expect($response->json('data.0.foci'))->toBe(['Combat']);
 });

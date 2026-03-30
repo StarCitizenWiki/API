@@ -5,6 +5,11 @@ declare(strict_types=1);
 use App\Services\Parser\CommLink\Content\LayoutSystemExtractor;
 use Symfony\Component\DomCrawler\Crawler;
 
+function extractedText(string $content): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($content))));
+}
+
 it('extracts narrative-group content from html', function () {
     $html = <<<'HTML'
         <div id="layout-system">
@@ -16,11 +21,11 @@ it('extracts narrative-group content from html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<h1>Test Headline</h1>')
-        ->toContain('<p>Test Byline<br /></p>');
+    expect($text)
+        ->toContain('Test Headline')
+        ->toContain('Test Byline');
 });
 
 it('extracts illustration content from html', function () {
@@ -32,10 +37,10 @@ it('extracts illustration content from html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<p class="illustration-credit">By </p>')
+    expect($text)
+        ->toContain('By')
         ->toContain('TestArtist');
 });
 
@@ -48,11 +53,11 @@ it('extracts author content from html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<h3>John Doe</h3>')
-        ->toContain('<p>Writer</p>');
+    expect($text)
+        ->toContain('John Doe')
+        ->toContain('Writer');
 });
 
 it('extracts faq content from html', function () {
@@ -64,10 +69,10 @@ it('extracts faq content from html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<h3>1. Question 1</h3>')
+    expect($text)
+        ->toContain('Question 1')
         ->toContain('Answer 1');
 });
 
@@ -83,11 +88,11 @@ it('extracts header content from html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<h1>Test Title</h1>')
-        ->toContain('<p>Test Content</p>');
+    expect($text)
+        ->toContain('Test Title')
+        ->toContain('Test Content');
 });
 
 it('extracts all 5 new traits from complex html', function () {
@@ -107,12 +112,35 @@ it('extracts all 5 new traits from complex html', function () {
 
     $crawler = new Crawler($html);
     $extractor = new LayoutSystemExtractor($crawler);
-    $content = $extractor->getContent();
+    $text = extractedText($extractor->getContent());
 
-    expect($content)
-        ->toContain('<h1>Main Title</h1>')
-        ->toContain('<h3>Jane Doe</h3>')
-        ->toContain('<h1>Section 1</h1>')
-        ->toContain('<p class="illustration-credit">Art by </p>')
-        ->toContain('<h3>1. Q1</h3>');
+    expect($text)
+        ->toContain('Main Title')
+        ->toContain('Jane Doe')
+        ->toContain('Section 1')
+        ->toContain('Art by')
+        ->toContain('Q1');
+});
+
+it('does not leak extracted g-elements or duplicate extracted content from layout markup', function () {
+    $html = <<<'HTML'
+        <div id="layout-system">
+            <g-header>
+                <template slot="title">No Dupes</template>
+                <template slot="content"><p>Scoped Body</p></template>
+            </g-header>
+            <div class="content">Layout Content</div>
+        </div>
+        HTML;
+
+    $crawler = new Crawler($html);
+    $extractor = new LayoutSystemExtractor($crawler);
+    $content = $extractor->getContent();
+    $text = extractedText($content);
+
+    expect(substr_count($text, 'No Dupes'))->toBe(1)
+        ->and(substr_count($text, 'Scoped Body'))->toBe(1)
+        ->and($text)->toContain('Layout Content')
+        ->and($content)->not->toContain('<g-header')
+        ->and($content)->not->toContain('id="layout-system"');
 });

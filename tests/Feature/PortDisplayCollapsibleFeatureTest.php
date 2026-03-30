@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('port display renders collapsible details elements', function (): void {
+it('renders nested hardpoints on the vehicle page', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.2.0-LIVE',
         'channel' => 'live',
@@ -70,12 +70,8 @@ it('port display renders collapsible details elements', function (): void {
     $response = $this->get(route('web.vehicles.show', $vehicle->uuid));
 
     $response->assertStatus(200)
-        ->assertViewIs('vehicles.show');
-
-    $content = $response->getContent();
-
-    expect($content)->toContain('Test Vehicle')
-        ->toContain('<details')
-        ->toContain('aria-expanded="false"')
-        ->toContain('summary');
+        ->assertSeeText('Hardpoints')
+        ->assertSeeText('Test Vehicle')
+        ->assertSeeText('S1')
+        ->assertSeeText('S1-1');
 });

@@ -13,6 +13,7 @@
                     class="w-full"
                     placeholder="Search craftable blueprints"
                     value="{{ $searchQuery }}"
+                    data-testid="blueprints-search-input"
                     data-blueprint-search
                     aria-label="Search craftable blueprints"
                 />
@@ -77,7 +78,7 @@
             </span>
         </div>
 
-        <div class="grid gap-3" data-blueprint-search-results-list>
+        <div class="grid gap-3" data-testid="blueprints-search-results-list" data-blueprint-search-results-list>
             @foreach ($initialSearchResults as $searchResult)
                 @include('blueprints.partials.search-result')
             @endforeach
@@ -89,6 +90,7 @@
 
         <div
             class="rounded-box border border-dashed border-base-300 bg-base-100 px-4 py-5 text-sm text-base-content/70"
+            data-testid="blueprints-search-empty-state"
             data-blueprint-search-empty
             @if ($initialSearchResults !== []) hidden @endif
         >

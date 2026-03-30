@@ -15,6 +15,9 @@ use App\Services\Parser\CommLink\Content\Traits\GIntroductionExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GNarrativeGroupExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GSkusExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GTumbrilFeaturesExtractorTrait;
+use DOMElement;
+use DOMNode;
+use DOMXPath;
 use Symfony\Component\DomCrawler\Crawler;
 
 final class LayoutSystemExtractor implements ContentExtractorInterface
@@ -61,10 +64,42 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
         }
 
         $this->page->filter(self::getFilter())->each(function (Crawler $crawler) use (&$content): void {
-            $content .= ltrim($crawler->html() ?? '');
+            $content .= $this->residualLayoutMarkup($crawler);
         });
 
         return $content;
+    }
+
+    private function residualLayoutMarkup(Crawler $crawler): string
+    {
+        $layoutNode = $crawler->getNode(0);
+        if (! $layoutNode instanceof DOMElement) {
+            return '';
+        }
+
+        $layoutClone = $layoutNode->cloneNode(true);
+        if (! $layoutClone instanceof DOMElement) {
+            return '';
+        }
+
+        $xpath = new DOMXPath($layoutClone->ownerDocument);
+        foreach ($xpath->query($this->extractedElementsXPath(), $layoutClone) as $node) {
+            if ($node instanceof DOMNode && $node->parentNode !== null) {
+                $node->parentNode->removeChild($node);
+            }
+        }
+
+        $markup = '';
+        foreach ($layoutClone->childNodes as $childNode) {
+            $markup .= $layoutClone->ownerDocument->saveHTML($childNode);
+        }
+
+        return ltrim($markup);
+    }
+
+    private function extractedElementsXPath(): string
+    {
+        return './/'.implode(' | .//', self::$extractionOrder);
     }
 
     private function getVueArticleContent(Crawler $page): string

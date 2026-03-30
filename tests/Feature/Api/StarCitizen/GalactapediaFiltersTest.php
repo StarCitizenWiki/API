@@ -33,14 +33,22 @@ it('returns galactapedia filter values with counts', function (): void {
 
     Article::factory()->create();
 
-    $response = $this->getJson(route('galactapedia.filters'));
-
-    $response->assertSuccessful();
-
-    $filters = $response->json('filters');
-
-    expect(collect($filters['category'])->contains(fn (array $row) => $row['value'] === 'Lore' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['tag'])->contains(fn (array $row) => $row['value'] === 'Banu' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['template'])->contains(fn (array $row) => $row['value'] === 'species' && $row['count'] === 1))->toBeTrue()
-        ->and(collect($filters['category'])->contains(fn (array $row) => $row['value'] === null && $row['label'] === 'Unknown'))->toBeTrue();
+    $this->getJson(route('galactapedia.filters'))
+        ->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'category' => [
+                    ['value' => 'Lore', 'label' => 'Lore', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'tag' => [
+                    ['value' => 'Banu', 'label' => 'Banu', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+                'template' => [
+                    ['value' => 'species', 'label' => 'species', 'count' => 1],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
+            ],
+        ]);
 });

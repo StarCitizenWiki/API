@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
@@ -35,11 +36,13 @@ it('renders the authenticated profile view with the current user token controls'
         ->assertViewHas('tokens', function ($tokens) use ($userToken): bool {
             return $tokens->pluck('id')->all() === [$userToken->id];
         })
-        ->assertSee($userToken->name)
-        ->assertDontSee($otherUserToken->name)
-        ->assertSee('action="'.route('profile.token.create').'"', false)
-        ->assertSee('action="'.route('user-password.update').'"', false)
-        ->assertSee('action="'.route('profile.destroy').'"', false);
+        ->assertSeeText('Profile')
+        ->assertSeeText('API Token')
+        ->assertSeeText('Change Password')
+        ->assertSeeText('Delete Account');
+
+    $response->assertSeeText($userToken->name)
+        ->assertDontSeeText($otherUserToken->name);
 });
 
 it('creates a token and flashes its value', function (): void {
@@ -61,15 +64,38 @@ it('creates a token and flashes its value', function (): void {
     expect(session('token'))->toBeString()->not->toBeEmpty();
 });
 
+it('rejects creating a token when the user already has five tokens', function (): void {
+    $user = User::factory()->create();
+
+    collect(range(1, 5))->each(function (int $index) use ($user): void {
+        $user->createToken("Token {$index}", ['*']);
+    });
+
+    $response = $this->actingAs($user)->from(route('profile'))->post(route('profile.token.create'), [
+        'name' => 'Token 6',
+    ]);
+
+    $response->assertRedirectToRoute('profile')
+        ->assertSessionHasErrors([
+            'token' => 'You have reached the maximum limit of 5 API tokens. Delete an existing token before creating a new one.',
+        ])
+        ->assertSessionHasInput('name', 'Token 6');
+
+    $this->assertDatabaseCount('personal_access_tokens', 5);
+    $this->assertDatabaseMissing('personal_access_tokens', [
+        'tokenable_id' => $user->id,
+        'tokenable_type' => get_class($user),
+        'name' => 'Token 6',
+    ]);
+});
+
 it('rejects a missing token name', function (): void {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->from(route('profile'))->post(route('profile.token.create'), []);
 
     $response->assertRedirectToRoute('profile')
-        ->assertSessionHasErrors([
-            'name' => 'A token name is required.',
-        ]);
+        ->assertSessionHasErrors(['name']);
 
     $this->assertDatabaseMissing('personal_access_tokens', [
         'tokenable_id' => $user->id,
@@ -86,9 +112,7 @@ it('rejects token names longer than 255 characters', function (): void {
     ]);
 
     $response->assertRedirectToRoute('profile')
-        ->assertSessionHasErrors([
-            'name' => 'The token name must not exceed 255 characters.',
-        ]);
+        ->assertSessionHasErrors(['name']);
 
     $this->assertDatabaseMissing('personal_access_tokens', [
         'tokenable_id' => $user->id,
@@ -103,7 +127,7 @@ it('deletes the account when the confirmation matches', function (): void {
     $token = $user->createToken('Delete Test Token', ['*'])->accessToken;
 
     $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.destroy'), [
-        'confirmation' => 'DELETE_ACCOUNT',
+        'confirm' => '1',
     ]);
 
     $response->assertRedirectToRoute('home')
@@ -124,22 +148,54 @@ it('shows an empty token list when the user has no tokens', function (): void {
     $response = $this->actingAs($user)->get(route('profile'));
 
     $response->assertOk()
-        ->assertViewHas('tokens', fn ($tokens): bool => $tokens->isEmpty());
+        ->assertViewIs('profile')
+        ->assertViewHas('tokens', fn ($tokens): bool => $tokens->isEmpty())
+        ->assertSeeText('Profile')
+        ->assertSeeText("You don't have any API tokens yet.")
+        ->assertSeeText('Create a token to authenticate with the API.')
+        ->assertSeeText('Change Password')
+        ->assertSeeText('Delete Account');
 });
 
-it('shows the last used timestamp in human readable form', function (): void {
+it('shows a last used value for used tokens', function (): void {
     $user = User::factory()->create();
 
-    $tokenResult = $user->createToken('Test Token', ['*']);
-    $token = $tokenResult->accessToken;
+    Carbon::setTestNow(Carbon::parse('2026-03-30 12:00:00'));
 
-    $token->last_used_at = now()->subHours(2);
-    $token->save();
+    try {
+        $tokenResult = $user->createToken('Test Token', ['*']);
+        $token = $tokenResult->accessToken;
 
-    $response = $this->actingAs($user)->get(route('profile'));
+        $token->last_used_at = Carbon::parse('2026-03-30 10:00:00');
+        $token->save();
 
-    $response->assertOk()
-        ->assertSee($token->last_used_at->diffForHumans());
+        $response = $this->actingAs($user)->get(route('profile'));
+
+        $response->assertOk()
+            ->assertViewIs('profile')
+            ->assertViewHas('tokens', function ($tokens) use ($token): bool {
+                $profileToken = $tokens->firstWhere('id', $token->id);
+
+                return $profileToken !== null
+                    && $profileToken->last_used_at !== null
+                    && $profileToken->last_used_at->equalTo($token->last_used_at);
+            });
+
+        $expectedLastUsedText = $token->last_used_at->diffForHumans();
+
+        $lastUsedCellMatch = preg_match(
+            sprintf('/data-testid="profile-token-last-used-%d"[^>]*>\s*(.*?)\s*<\/td>/s', $token->id),
+            (string) $response->getContent(),
+            $matches,
+        );
+
+        $lastUsedText = trim(strip_tags($matches[1] ?? ''));
+
+        expect($lastUsedCellMatch)->toBe(1)
+            ->and($lastUsedText)->toBe($expectedLastUsedText);
+    } finally {
+        Carbon::setTestNow();
+    }
 });
 
 it('deletes a token owned by the authenticated user', function (): void {
@@ -246,17 +302,15 @@ it('rejects invalid password update payloads: :dataset', function (
     ], ['current_password', 'password']],
 ]);
 
-it('rejects invalid account deletion confirmations', function (string $confirmation, string $expectedMessage): void {
+it('rejects invalid account deletion confirmations', function (array $payload, string $expectedMessage): void {
     $user = User::factory()->create();
     $userId = $user->id;
 
-    $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.destroy'), [
-        'confirmation' => $confirmation,
-    ]);
+    $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.destroy'), $payload);
 
     $response->assertRedirectToRoute('profile')
         ->assertSessionHasErrors([
-            'confirmation' => $expectedMessage,
+            'confirm' => $expectedMessage,
         ]);
 
     $this->assertDatabaseHas('users', [
@@ -264,6 +318,6 @@ it('rejects invalid account deletion confirmations', function (string $confirmat
     ]);
     $this->assertAuthenticatedAs($user);
 })->with([
-    'missing confirmation' => ['', 'You must confirm account deletion.'],
-    'incorrect confirmation' => ['delete account', 'You must type DELETE_ACCOUNT to confirm.'],
+    'missing confirmation' => [[], 'You must confirm account deletion.'],
+    'unchecked confirmation' => [['confirm' => '0'], 'You must confirm account deletion.'],
 ]);

@@ -60,7 +60,7 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      *
-     * Requires user to type "DELETE_ACCOUNT" to confirm deletion.
+     * Requires user to confirm deletion via checkbox.
      * After deletion, the user is logged out and redirected to the home page.
      */
     public function destroy(DestroyAccountRequest $request): RedirectResponse

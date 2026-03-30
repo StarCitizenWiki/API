@@ -6,12 +6,12 @@
 @section('content')
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
-            <h1 class="text-2xl font-semibold">Welcome back</h1>
+            <h1 class="text-2xl font-semibold" data-testid="auth-login-heading">Welcome back</h1>
             <p class="text-sm text-base-content/70">Sign in to continue.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('login.store') }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('login.store') }}" class="card-body gap-4" data-testid="auth-login-form">
                 @csrf
 
                 @if (session('status'))
@@ -33,6 +33,7 @@
                     <input
                         type="email"
                         name="email"
+                        data-testid="auth-login-email"
                         value="{{ old('email') }}"
                         required
                         autofocus
@@ -44,11 +45,12 @@
                 <label class="form-control">
                     <div class="label justify-between">
                         <span class="label-text">Password</span>
-                        <a class="text-xs text-primary" href="{{ route('password.request') }}">Forgot?</a>
+                        <a class="text-xs text-primary" data-testid="auth-login-forgot-link" href="{{ route('password.request') }}">Forgot?</a>
                     </div>
                     <input
                         type="password"
                         name="password"
+                        data-testid="auth-login-password"
                         required
                         autocomplete="current-password"
                         class="input input-bordered w-full"
@@ -60,14 +62,14 @@
                     <span class="label-text">Remember me</span>
                 </label>
 
-                <button type="submit" class="btn btn-primary w-full">Sign in</button>
+                <button type="submit" class="btn btn-primary w-full" data-testid="auth-login-submit">Sign in</button>
             </form>
         </div>
 
         @if (Route::has('register'))
             <div class="text-center text-sm">
                 <span class="text-base-content/70">New here?</span>
-                <a class="text-primary" href="{{ route('register') }}">Create an account</a>
+                <a class="text-primary" data-testid="auth-login-register-link" href="{{ route('register') }}">Create an account</a>
             </div>
         @endif
     </div>

@@ -11,17 +11,21 @@
             <a href="{{ route('admin.translations.index') }}" class="btn btn-ghost btn-sm">
                 <x-icon name="arrow-left" class="size-4" />
             </a>
-            <h1 class="text-2xl font-bold">Edit Translations</h1>
+            <h1 class="text-2xl font-bold" data-testid="translation-edit-heading">Edit Translations</h1>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow-sm">
             <div class="card-body">
-                <div class="mb-4">
+                <div class="mb-4" data-testid="translation-edit-meta">
                     <h2 class="text-lg font-semibold">{{ $model->title }}</h2>
                     <p class="text-sm text-base-content/60">ID: {{ $model->id }} | Type: {{ ucfirst(str_replace('-', ' ', $type)) }}</p>
                 </div>
 
-                <form method="POST" action="{{ route('admin.translations.update', ['type' => $type, 'id' => $model->id]) }}">
+                <form
+                    method="POST"
+                    action="{{ route('admin.translations.update', ['type' => $type, 'id' => $model->id]) }}"
+                    data-testid="translation-edit-form"
+                >
                     @csrf
                     @method('PUT')
 
@@ -34,6 +38,7 @@
                             </label>
                             <textarea
                                 name="translations[{{ \App\Models\System\Language::ENGLISH }}]"
+                                data-testid="translation-edit-field-{{ \App\Models\System\Language::ENGLISH }}"
                                 class="textarea textarea-bordered w-full"
                                 rows="10"
                                 placeholder="Enter English translation..."
@@ -48,6 +53,7 @@
                             </label>
                             <textarea
                                 name="translations[{{ \App\Models\System\Language::GERMAN }}]"
+                                data-testid="translation-edit-field-{{ \App\Models\System\Language::GERMAN }}"
                                 class="textarea textarea-bordered w-full"
                                 rows="10"
                                 placeholder="Enter German translation..."
@@ -62,6 +68,7 @@
                             </label>
                             <textarea
                                 name="translations[{{ \App\Models\System\Language::CHINESE }}]"
+                                data-testid="translation-edit-field-{{ \App\Models\System\Language::CHINESE }}"
                                 class="textarea textarea-bordered w-full"
                                 rows="10"
                                 placeholder="Enter Chinese translation..."
@@ -69,7 +76,7 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" data-testid="translation-edit-submit">
                                 Save Translations
                             </button>
                             <a href="{{ route('admin.translations.index') }}" class="btn btn-ghost">

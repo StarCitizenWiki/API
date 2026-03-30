@@ -44,12 +44,13 @@ it('searches comm-links by text query without bigint cast errors', function (): 
     ]);
 
     $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
         ->assertHeader('Deprecated', 'true');
 
     $ids = collect($response->json('data'))->pluck('id');
 
     expect($response->json('meta.deprecated'))->toBeTrue()
-        ->and($ids)->toContain($visibleCommLink->cig_id)
+        ->and($ids->all())->toBe([$visibleCommLink->cig_id])
         ->and($ids)->not->toContain($subscriberCommLink->cig_id);
 });
 
@@ -81,8 +82,9 @@ it('searches comm-links by numeric cig id', function (): void {
         'query' => (string) $targetCommLink->cig_id,
     ]);
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data');
 
-    expect(collect($response->json('data'))->pluck('id'))
-        ->toContain($targetCommLink->cig_id);
+    expect(collect($response->json('data'))->pluck('id')->all())
+        ->toBe([$targetCommLink->cig_id]);
 });

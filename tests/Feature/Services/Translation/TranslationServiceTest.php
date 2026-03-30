@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\Translation\AuthenticationException;
 use App\Exceptions\Translation\QuotaExceededException;
 use App\Exceptions\Translation\RateLimitException;
 use App\Exceptions\Translation\TranslationException;
@@ -9,6 +10,34 @@ use App\Services\Translation\TranslationService;
 use DeepL\DeepLException;
 use DeepL\TextResult;
 use DeepL\Translator;
+
+/**
+ * @return array{sentenceCount: int, text: string}
+ */
+function makeChunkedTranslationFixture(): array
+{
+    $maxTextLength = (new ReflectionClass(TranslationService::class))->getConstant('MAX_TEXT_LENGTH');
+
+    if (! is_int($maxTextLength)) {
+        throw new RuntimeException('TranslationService::MAX_TEXT_LENGTH must be an integer.');
+    }
+
+    $sentences = [];
+    $sentenceCount = 0;
+    $textLength = 0;
+
+    while ($textLength <= $maxTextLength) {
+        $sentence = sprintf('Sentence %04d.', $sentenceCount + 1);
+        $sentences[] = $sentence;
+        $sentenceCount++;
+        $textLength += strlen($sentence) + ($sentenceCount > 1 ? 1 : 0);
+    }
+
+    return [
+        'sentenceCount' => $sentenceCount,
+        'text' => implode(' ', $sentences),
+    ];
+}
 
 it(
     'translates text for locale permutations',
@@ -77,42 +106,59 @@ it('applies german text replacements', function (): void {
     $service = new TranslationService($mockTranslator);
     $result = $service->translate('Star Citizen gifts are great.', 'de');
 
-    expect($result)->toContain('Star Citizen Geschenke');
-    expect($result)->not->toContain('Sternenbürger');
+    expect($result)->toBe('Die Star Citizen Geschenke sind toll.');
 });
 
-it('chunks long text automatically', function (): void {
-    $firstChunk = str_repeat('Alpha sentence ', 2100).'A.';
-    $secondChunk = str_repeat('Bravo sentence ', 2100).'B.';
-    $longText = $firstChunk.' '.$secondChunk;
-    $translatedChunks = [];
+it('chunks long text while preserving sentence boundaries, order, and content', function (?string $formality, array $expectedOptions): void {
+    ['sentenceCount' => $sentenceCount, 'text' => $longText] = makeChunkedTranslationFixture();
+    $seenChunks = [];
 
     $mockTranslator = $this->mock(Translator::class);
     $mockTranslator->shouldReceive('translateText')
-        ->twice()
         ->andReturnUsing(function (
             string $chunk,
             string $sourceLocale,
             string $targetLocale,
             array $options,
-        ) use (&$translatedChunks): TextResult {
-            $translatedChunks[] = $chunk;
-
+        ) use (&$seenChunks, $expectedOptions): TextResult {
             expect($sourceLocale)->toBe('en');
             expect($targetLocale)->toBe('de');
-            expect($options)->toBe([]);
+            expect($options)->toBe($expectedOptions);
 
-            return new TextResult('chunk-'.count($translatedChunks), 'de', strlen($chunk));
+            $seenChunks[] = $chunk;
+
+            return new TextResult($chunk, 'de', strlen($chunk));
         });
 
     $service = new TranslationService($mockTranslator);
-    $result = $service->translate($longText, 'de');
+    $result = $service->translate($longText, 'de', 'en', $formality);
 
-    expect($translatedChunks)->toHaveCount(2)
-        ->and($translatedChunks[0])->toBe($firstChunk)
-        ->and($translatedChunks[1])->toBe($secondChunk)
-        ->and($result)->toBe('chunk-1 chunk-2');
-});
+    expect($seenChunks)->not->toBeEmpty()
+        ->and(count($seenChunks))->toBeGreaterThan(1)
+        ->and($result)->toBe(implode(' ', $seenChunks))
+        ->and(preg_split('/\s+/', trim($result)))->toBe(preg_split('/\s+/', trim($longText)));
+
+    $expectedSentence = 1;
+
+    foreach ($seenChunks as $index => $chunk) {
+        preg_match_all('/Sentence (\d{4})\./', $chunk, $matches);
+        $chunkSentenceNumbers = array_map('intval', $matches[1]);
+
+        expect($chunkSentenceNumbers)->not->toBeEmpty();
+        expect($chunkSentenceNumbers)->toBe(range($expectedSentence, $expectedSentence + count($chunkSentenceNumbers) - 1));
+
+        if ($index < count($seenChunks) - 1) {
+            expect(substr($chunk, -1))->toBe('.');
+        }
+
+        $expectedSentence += count($chunkSentenceNumbers);
+    }
+
+    expect($expectedSentence - 1)->toBe($sentenceCount);
+})->with([
+    'without formality' => [null, []],
+    'with formality' => ['less', ['formality' => 'less']],
+]);
 
 it('maps deepl exceptions', function (string $message, string $expectedException): void {
     $mockTranslator = $this->mock(Translator::class);
@@ -128,6 +174,7 @@ it('maps deepl exceptions', function (string $message, string $expectedException
 })->with([
     'rate limit exception' => ['Rate limit exceeded', RateLimitException::class],
     'quota exceeded exception' => ['Quota exceeded for this billing period', QuotaExceededException::class],
+    'authentication exception' => ['Invalid auth key', AuthenticationException::class],
     'generic exception' => ['Some unknown error', TranslationException::class],
 ]);
 
@@ -156,6 +203,5 @@ it('does not apply german replacements for other locales', function (): void {
     $service = new TranslationService($mockTranslator);
     $result = $service->translate('Some text', 'fr');
 
-    // Should NOT apply German replacements for French
-    expect($result)->toContain('Sternenbürger');
+    expect($result)->toBe('Some French text with Sternenbürger');
 });

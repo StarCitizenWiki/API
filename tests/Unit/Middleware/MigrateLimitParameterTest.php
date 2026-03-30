@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 it('migrates legacy page and limit parameters into json api pagination', function (): void {
-    $result = runLimitMiddleware('/api/items?limit=50&page=2');
+    $result = runLimitMiddleware('/api/items?filter=status&limit=50&page=2&sort=name');
 
     assertPageQuery($result['handledRequest'], [
         'number' => 2,
@@ -16,7 +16,9 @@ it('migrates legacy page and limit parameters into json api pagination', functio
 
     expect($result['response'])->toBe($result['nextResponse'])
         ->and($result['handledRequest'])->not->toBeNull()
-        ->and($result['handledRequest']->query->has('limit'))->toBeFalse();
+        ->and($result['handledRequest']->query->has('limit'))->toBeFalse()
+        ->and($result['handledRequest']?->query->get('filter'))->toBe('status')
+        ->and($result['handledRequest']?->query->get('sort'))->toBe('name');
 });
 
 it('keeps page number and page size regardless of parameter order', function (string $query): void {

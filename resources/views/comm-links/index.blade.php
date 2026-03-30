@@ -83,11 +83,11 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-semibold tracking-tight">Comm-Links</h1>
+            <h1 class="text-2xl font-semibold tracking-tight" data-testid="comm-links-index-heading">Comm-Links</h1>
         </div>
 
         @if (($searchType ?? null) === 'media-url')
-            <div class="card border border-base-200 bg-base-100 shadow">
+            <div class="card border border-base-200 bg-base-100 shadow" data-testid="comm-links-media-url-results">
                 <div class="card-body gap-3">
                     <div class="flex flex-col gap-1">
                         <h2 class="card-title">Media URL Results</h2>
@@ -99,13 +99,13 @@
                     @if (! empty($searchCommLinks))
                         <div class="flex flex-col gap-2 text-sm">
                             @foreach ($searchCommLinks as $commLink)
-                                <a class="link link-primary" href="{{ $commLink['url'] }}">
+                                <a class="link link-primary" href="{{ $commLink['url'] }}" data-testid="comm-links-media-url-result-{{ $commLink['id'] }}">
                                     {{ $commLink['id'] }} - {{ $commLink['title'] }}
                                 </a>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-base-content/70">No comm-links found for that media URL.</p>
+                        <p class="text-sm text-base-content/70" data-testid="comm-links-media-url-empty-state">No comm-links found for that media URL.</p>
                     @endif
                 </div>
             </div>

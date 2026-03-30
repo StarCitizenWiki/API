@@ -7,12 +7,12 @@
 @section('admin.content')
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold">Game Versions</h1>
-            <span class="text-sm text-base-content/60">Total: {{ $versions->count() }}</span>
+            <h1 class="text-2xl font-bold" data-testid="admin-game-versions-heading">Game Versions</h1>
+            <span class="text-sm text-base-content/60" data-testid="admin-game-versions-total">Total: {{ $versions->count() }}</span>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="table table-sm">
+            <table class="table table-sm" data-testid="admin-game-versions-table">
                 <thead>
                     <tr>
                         <th>Code</th>
@@ -25,30 +25,34 @@
                 </thead>
                 <tbody>
                     @forelse ($versions as $version)
-                        <tr class="{{ $version->is_default ? 'bg-success/10' : '' }}">
-                            <td class="font-mono font-semibold">{{ $version->code }}</td>
+                        <tr class="{{ $version->is_default ? 'bg-success/10' : '' }}" data-testid="admin-game-versions-row-{{ $version->id }}">
+                            <td class="font-mono font-semibold" data-testid="admin-game-versions-code-{{ $version->id }}">{{ $version->code }}</td>
                             <td>
                                 <span class="badge badge-outline">{{ $version->channel }}</span>
                             </td>
                             <td>{{ $version->released_at?->format('Y-m-d') ?? 'N/A' }}</td>
                             <td>
                                 @if ($version->is_default)
-                                    <span class="badge badge-success">Default</span>
+                                    <span class="badge badge-success" data-testid="admin-game-versions-default-status-{{ $version->id }}">Default</span>
                                 @else
-                                    <span class="badge badge-ghost">Not Default</span>
+                                    <span class="badge badge-ghost" data-testid="admin-game-versions-default-status-{{ $version->id }}">Not Default</span>
                                 @endif
                             </td>
                             <td>
                                 @if ($version->is_hidden)
-                                    <span class="badge badge-warning">Hidden</span>
+                                    <span class="badge badge-warning" data-testid="admin-game-versions-selector-status-{{ $version->id }}">Hidden</span>
                                 @else
-                                    <span class="badge badge-success">Visible</span>
+                                    <span class="badge badge-success" data-testid="admin-game-versions-selector-status-{{ $version->id }}">Visible</span>
                                 @endif
                             </td>
                             <td>
                                 <div class="flex flex-wrap gap-2">
                                     @if (!$version->is_default)
-                                        <button onclick="setDefaultModal{{ $version->id }}.showModal()" class="btn btn-primary btn-sm">
+                                        <button
+                                            onclick="setDefaultModal{{ $version->id }}.showModal()"
+                                            class="btn btn-primary btn-sm"
+                                            data-testid="admin-game-versions-set-default-button-{{ $version->id }}"
+                                        >
                                             Set as Default
                                         </button>
 
@@ -57,7 +61,7 @@
                                                 <h3 class="text-lg font-bold">Confirm Default Version</h3>
                                                 <p class="py-4">Are you sure you want to set "{{ $version->code }}" as the default version?</p>
                                                 <div class="modal-action">
-                                                    <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}">
+                                                    <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}" data-testid="admin-game-versions-set-default-form-{{ $version->id }}">
                                                         @csrf
                                                         <button type="submit" class="btn btn-primary">Set as Default</button>
                                                     </form>
@@ -66,16 +70,16 @@
                                             </div>
                                         </dialog>
                                     @else
-                                        <span class="text-sm text-base-content/60">Current Default</span>
+                                        <span class="text-sm text-base-content/60" data-testid="admin-game-versions-current-default-{{ $version->id }}">Current Default</span>
                                     @endif
 
                                     @if ($version->is_hidden)
-                                        <form method="POST" action="{{ route('admin.game-versions.show', $version) }}">
+                                        <form method="POST" action="{{ route('admin.game-versions.show', $version) }}" data-testid="admin-game-versions-show-form-{{ $version->id }}">
                                             @csrf
                                             <button type="submit" class="btn btn-outline btn-sm">Show</button>
                                         </form>
                                     @elseif (!$version->is_default)
-                                        <form method="POST" action="{{ route('admin.game-versions.hide', $version) }}">
+                                        <form method="POST" action="{{ route('admin.game-versions.hide', $version) }}" data-testid="admin-game-versions-hide-form-{{ $version->id }}">
                                             @csrf
                                             <button type="submit" class="btn btn-outline btn-sm">Hide</button>
                                         </form>
@@ -85,7 +89,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-base-content/60">No game versions found.</td>
+                            <td colspan="6" class="text-center text-base-content/60" data-testid="admin-game-versions-empty">No game versions found.</td>
                         </tr>
                     @endforelse
                 </tbody>

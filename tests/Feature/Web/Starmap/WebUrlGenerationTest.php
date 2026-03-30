@@ -46,5 +46,5 @@ it('celestial object resource generates correct web_url', function (): void {
 
     $webUrl = $response->json('data')['web_url'];
 
-    $this->assertNotEmpty($webUrl);
+    expect($webUrl)->toBe(route('web.starmap.celestial-objects.show', ['code' => $celestial->code]));
 });

@@ -81,13 +81,15 @@ it('skips comm-links with existing german translation', function () {
 
 it('skips comm-links without english translation', function () {
     $category = Category::factory()->create(['name' => 'General']);
-    CommLink::factory()->create(['category_id' => $category->id]);
+    $commLink = CommLink::factory()->create(['category_id' => $category->id]);
 
     $this->mock(TranslationService::class, function ($mock) {
         $mock->shouldNotReceive('translate');
     });
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
+
+    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('skips comm-links with empty english translation', function () {
@@ -102,6 +104,8 @@ it('skips comm-links with empty english translation', function () {
     });
 
     (new TranslateCommLinks)->handle(app(TranslationService::class));
+
+    expect($commLink->fresh()->getTranslation('translation', Language::GERMAN, false))->toBeEmpty();
 });
 
 it('uses category-based formality rules', function (

@@ -52,7 +52,7 @@
 @endphp
 
 
-<div class="card border border-base-200 bg-base-100 shadow-sm">
+<div class="card border border-base-200 bg-base-100 shadow-sm" data-testid="{{ $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card' }}">
     <div class="relative">
         @if ($previewTag)
             <span class="badge badge-neutral absolute left-3 top-3 z-10">
@@ -108,7 +108,7 @@
                 @endif
             </div>
             @if ($imageId)
-                <a class="link link-primary text-xs" href="{{ route('web.comm-links.images.show', $imageId) }}">Details</a>
+                <a class="link link-primary text-xs" data-testid="comm-link-image-details-link-{{ $imageId }}" href="{{ route('web.comm-links.images.show', $imageId) }}">Details</a>
             @endif
         </div>
 
@@ -127,10 +127,10 @@
 
         <div class="flex flex-wrap gap-2">
             @if ($rsiUrl)
-                <a class="btn btn-outline btn-xs" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">Source</a>
+                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-source-link-{{ $imageId }}" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">Source</a>
             @endif
             @if ($imageId)
-                <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
+                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-info-link-{{ $imageId }}" href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
             @endif
             @auth
                 @if ($isImage)

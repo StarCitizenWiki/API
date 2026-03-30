@@ -13,7 +13,7 @@
                 </ul>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h1 class="text-2xl font-semibold tracking-tight">Comm-Link Search</h1>
+                <h1 class="text-2xl font-semibold tracking-tight" data-testid="comm-links-search-heading">Comm-Link Search</h1>
             </div>
         </div>
 
@@ -29,14 +29,14 @@
 
         <section class="flex flex-col gap-4" aria-labelledby="text-search-heading">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h2 id="text-search-heading" class="text-lg font-semibold tracking-tight">Text Search</h2>
+                <h2 id="text-search-heading" class="text-lg font-semibold tracking-tight" data-testid="comm-links-search-text-heading">Text Search</h2>
                 <span class="badge badge-outline">Comm-Link records</span>
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
                 <div class="card card-border border-base-200 bg-base-100 shadow-sm">
-                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4">
-                        <input type="hidden" name="search" value="title">
+                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-title-form">
+                        <input type="hidden" name="search" value="title" data-testid="comm-links-search-title-mode">
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Title</h3>
@@ -60,8 +60,8 @@
                 </div>
 
                 <div class="card card-border border-base-200 bg-base-100 shadow-sm">
-                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4">
-                        <input type="hidden" name="search" value="content">
+                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-content-form">
+                        <input type="hidden" name="search" value="content" data-testid="comm-links-search-content-mode">
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Content</h3>
@@ -86,8 +86,8 @@
                 </div>
 
                 <div class="card card-border border-base-200 bg-base-100 shadow-sm lg:col-span-2">
-                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4">
-                        <input type="hidden" name="search" value="media-url">
+                    <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-media-url-form">
+                        <input type="hidden" name="search" value="media-url" data-testid="comm-links-search-media-url-mode">
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media URL</h3>
@@ -121,13 +121,13 @@
 
         <section class="flex flex-col gap-4" aria-labelledby="image-search-heading">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h2 id="image-search-heading" class="text-lg font-semibold tracking-tight">Image Search</h2>
+                <h2 id="image-search-heading" class="text-lg font-semibold tracking-tight" data-testid="comm-links-search-image-heading">Image Search</h2>
                 <span class="badge badge-outline">Comm-Link images</span>
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
                 <div class="card card-border border-base-200 bg-base-100 shadow-sm">
-                    <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4">
+                    <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4" data-testid="comm-links-search-media-name-form">
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media Name</h3>
                             <p class="text-sm text-base-content/70">Search comm-link images by filename.</p>
@@ -155,6 +155,7 @@
                         action="{{ route('web.comm-links.images.reverse-search') }}"
                         enctype="multipart/form-data"
                         class="card-body gap-4"
+                        data-testid="comm-links-search-reverse-image-form"
                     >
                         @csrf
 
@@ -165,7 +166,7 @@
 
                         <div class="flex flex-col gap-1 w-full">
                             <span class="label">Image file</span>
-                            <input type="file" name="image" accept="image/*" class="file-input w-full" required />
+                            <input type="file" name="image" accept="image/*" class="file-input w-full" data-testid="comm-links-search-image-input" required />
                             <span class="label-text-alt text-base-content/60">Max file size 5 MB.</span>
                         </div>
 

@@ -45,7 +45,7 @@
                 </ul>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <h1 class="text-2xl font-semibold tracking-tight">{{ $title }}</h1>
+                <h1 class="text-2xl font-semibold tracking-tight" data-testid="comm-link-show-heading">{{ $title }}</h1>
                 @if ($channel)
                     <span class="badge badge-outline">{{ $channel }}</span>
                 @endif
@@ -60,14 +60,14 @@
 
         <div class="flex flex-wrap gap-3">
             @if (is_int($prevId) && $prevId > 0)
-                <a class="btn btn-outline btn-sm" href="{{ route('web.comm-links.show', $prevId) }}">Previous</a>
+                <a class="btn btn-outline btn-sm" data-testid="comm-link-prev-link" href="{{ route('web.comm-links.show', $prevId) }}">Previous</a>
             @else
-                <button class="btn btn-outline btn-sm" disabled>Previous</button>
+                <button class="btn btn-outline btn-sm" data-testid="comm-link-prev-button" disabled>Previous</button>
             @endif
             @if (is_int($nextId) && $nextId > 0)
-                <a class="btn btn-outline btn-sm" href="{{ route('web.comm-links.show', $nextId) }}">Next</a>
+                <a class="btn btn-outline btn-sm" data-testid="comm-link-next-link" href="{{ route('web.comm-links.show', $nextId) }}">Next</a>
             @else
-                <button class="btn btn-outline btn-sm" disabled>Next</button>
+                <button class="btn btn-outline btn-sm" data-testid="comm-link-next-button" disabled>Next</button>
             @endif
         </div>
 

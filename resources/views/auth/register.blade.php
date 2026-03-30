@@ -6,12 +6,12 @@
 @section('content')
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
-            <h1 class="text-2xl font-semibold">Star Citizen Wiki API</h1>
+            <h1 class="text-2xl font-semibold" data-testid="auth-register-heading">Star Citizen Wiki API</h1>
             <p class="text-sm text-base-content/70">Create a new account.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
-            <form method="POST" action="{{ route('register.store') }}" class="card-body gap-4">
+            <form method="POST" action="{{ route('register.store') }}" class="card-body gap-4" data-testid="auth-register-form">
                 @csrf
 
                 @if ($errors->any())
@@ -29,6 +29,7 @@
                     <input
                         type="text"
                         name="name"
+                        data-testid="auth-register-name"
                         value="{{ old('name') }}"
                         required
                         autocomplete="name"
@@ -41,6 +42,7 @@
                     <input
                         type="email"
                         name="email"
+                        data-testid="auth-register-email"
                         value="{{ old('email') }}"
                         required
                         autocomplete="username"
@@ -53,6 +55,7 @@
                     <input
                         type="password"
                         name="password"
+                        data-testid="auth-register-password"
                         required
                         autocomplete="new-password"
                         class="input input-bordered w-full"
@@ -64,19 +67,20 @@
                     <input
                         type="password"
                         name="password_confirmation"
+                        data-testid="auth-register-password-confirmation"
                         required
                         autocomplete="new-password"
                         class="input input-bordered w-full"
                     />
                 </label>
 
-                <button type="submit" class="btn btn-primary w-full">Create account</button>
+                <button type="submit" class="btn btn-primary w-full" data-testid="auth-register-submit">Create account</button>
             </form>
         </div>
 
         <div class="text-center text-sm">
             <span class="text-base-content/70">Already have an account?</span>
-            <a class="text-primary" href="{{ route('login') }}">Sign in</a>
+            <a class="text-primary" data-testid="auth-register-login-link" href="{{ route('login') }}">Sign in</a>
         </div>
     </div>
 @endsection

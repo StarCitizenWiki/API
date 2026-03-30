@@ -6,12 +6,12 @@
     $portsCount = is_array($ports) ? count($ports) : 0;
 @endphp
 
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
+<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-ports-card']) }}>
     <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
         <span class="flex items-center gap-2">
             <span>Ports</span>
             @if ($portsCount > 0)
-                <span class="badge badge-ghost text-xs">{{ $portsCount }}</span>
+                <span class="badge badge-ghost text-xs" data-testid="item-ports-count">{{ $portsCount }}</span>
             @endif
         </span>
     </summary>

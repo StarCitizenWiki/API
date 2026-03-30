@@ -193,24 +193,22 @@ it('accepts custom path option', function (): void {
     expect(EntityTag::query()->where('uuid', $tag1)->exists())->toBeTrue();
 });
 
-it('handles large datasets with batching (>10,000 tags)', function (): void {
+it('imports large datasets across the 10,000-row boundary', function (): void {
     Storage::fake('scunpacked');
 
-    $tag1 = fake()->uuid();
-    // Generate 15,000 tags to test batching (should process in 2 batches)
-    $tags = [
-        $tag1 => 'Tag One',
-    ];
-    for ($i = 1; $i < 15000; $i++) {
-        $tags[fake()->uuid()] = "Tag {$i}";
+    $tags = [];
+    for ($i = 1; $i <= 10001; $i++) {
+        $tags[sprintf('00000000-0000-0000-0000-%012d', $i)] = sprintf('Tag %d', $i);
     }
 
     Storage::disk('scunpacked')->put('large-tags.json', json_encode($tags, JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-tags', ['--path' => 'large-tags.json'])
         ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('Imported 15000 entity tags (15000 new, 0 updated). Skipped 0 invalid.');
+        ->expectsOutput('Imported 10001 entity tags (10001 new, 0 updated). Skipped 0 invalid.');
 
-    expect(EntityTag::count())->toBe(15000)
-        ->and(EntityTag::query()->where('uuid', $tag1)->exists())->toBeTrue();
+    expect(EntityTag::count())->toBe(10001)
+        ->and(EntityTag::query()->where('uuid', '00000000-0000-0000-0000-000000000001')->exists())->toBeTrue()
+        ->and(EntityTag::query()->where('uuid', '00000000-0000-0000-0000-000000005000')->exists())->toBeTrue()
+        ->and(EntityTag::query()->where('uuid', '00000000-0000-0000-0000-000000010001')->exists())->toBeTrue();
 });

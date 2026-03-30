@@ -4,6 +4,7 @@
     'routeIs' => null,
     'href' => null,
     'params' => [],
+    'testId' => null,
     'activeFiltersAny' => [],
     'activeWhenFiltersEmpty' => false,
     'versionCode' => null,
@@ -140,7 +141,12 @@
 @if ($collapsible && isset($children) && !empty(trim((string) $children)))
     <li>
         <details @class(['collapse', 'collapse-arrow']) {{ ($defaultOpen || $isActive) ? 'open' : '' }}>
-            <summary @class(['menu-item', 'menu-active' => $isActive, 'flex'])>
+            <summary
+                @if ($testId)
+                    data-testid="{{ $testId }}"
+                @endif
+                @class(['menu-item', 'menu-active' => $isActive, 'flex'])
+            >
                 @isset($icon)
                     <span class="{{ $iconClass }}">
                         {{ $icon }}
@@ -155,7 +161,13 @@
     </li>
 @else
     <li>
-        <a href="{{ $resolvedHref }}" @class(['menu-active' => $isActive])>
+        <a
+            href="{{ $resolvedHref }}"
+            @if ($testId)
+                data-testid="{{ $testId }}"
+            @endif
+            @class(['menu-active' => $isActive])
+        >
             @isset($icon)
                 <span class="{{ $iconClass }}">
                     {{ $icon }}

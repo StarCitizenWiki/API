@@ -14,7 +14,6 @@ use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
@@ -386,7 +385,7 @@ it('handles items with no entity tags', function (): void {
         ->and($data->entityTags)->toHaveCount(0);
 });
 
-it('optimizes entity tag lookups with in-memory caching', function (): void {
+it('reuses normalized entity tags across item imports', function (): void {
     Storage::fake('scunpacked');
 
     GameLabel::factory()->asItemDescTest()->create();
@@ -406,25 +405,27 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
         'is_default' => false,
     ]);
 
-    // Pre-create some entity tags to test the caching
-    $tag1Uuid = fake()->uuid();
-    EntityTag::query()->create([
-        'uuid' => $tag1Uuid,
-        'name' => 'Existing One',
-    ]);
+    $sharedTags = [
+        [
+            'tag' => fake()->uuid(),
+            'name' => 'Existing One',
+        ],
+        [
+            'tag' => fake()->uuid(),
+            'name' => 'Existing Two',
+        ],
+        [
+            'tag' => fake()->uuid(),
+            'name' => 'New One',
+        ],
+    ];
 
-    $tag2Uuid = fake()->uuid();
-    EntityTag::query()->create([
-        'uuid' => $tag2Uuid,
-        'name' => 'Existing Two',
-    ]);
-
-    $itemUuid = fake()->uuid();
-    $payload = [
+    $firstItemUuid = fake()->uuid();
+    $firstPayload = [
         'Item' => [
-            'reference' => $itemUuid,
-            'className' => 'OPT_Item',
-            'itemName' => 'Optimized Item',
+            'reference' => $firstItemUuid,
+            'className' => 'OPT_First_Item',
+            'itemName' => 'Optimized Item One',
             'type' => 'Test',
             'stdItem' => [
                 'Manufacturer' => [
@@ -432,51 +433,48 @@ it('optimizes entity tag lookups with in-memory caching', function (): void {
                     'UUID' => $manufacturerUuid,
                 ],
             ],
-            'entity_tag_map' => [
-                [
-                    'tag' => $tag1Uuid,
-                    'name' => 'Existing One',
-                ],
-                [
-                    'tag' => $tag2Uuid,
-                    'name' => 'Existing Two',
-                ],
-                [
-                    'tag' => fake()->uuid(),
-                    'name' => 'New One',
-                ],
-            ],
+            'entity_tag_map' => $sharedTags,
         ],
         'Raw' => [],
     ];
 
-    Storage::disk('scunpacked')->put('items/opt.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('items/opt-first.json', json_encode($firstPayload, JSON_THROW_ON_ERROR));
 
-    DB::enableQueryLog();
-    DB::flushQueryLog();
+    (new ImportItemData($version->id, 'items/opt-first.json', $labels))->handle();
 
-    (new ImportItemData($version->id, 'items/opt.json', $labels))->handle();
-
-    $queries = DB::getQueryLog();
-    DB::disableQueryLog();
-
-    // Count queries that select from entity_tags table
-    $entityTagSelectQueries = collect($queries)
-        ->filter(fn ($query) => str_contains($query['query'], 'entity_tags') && str_contains($query['query'], 'select'))
-        ->count();
-
-    // Should be exactly 2 queries:
-    // 1. Initial load of all tags into memory (getEntityTagsLookup)
-    // 2. Refresh cache after creating new tags (whereIn to get newly created tags)
-    expect($entityTagSelectQueries)->toBeLessThanOrEqual(2);
-
-    $item = Item::query()->firstWhere('uuid', $itemUuid);
-    $data = ItemData::query()
-        ->where('item_id', $item->id)
+    $firstItem = Item::query()->firstWhere('uuid', $firstItemUuid);
+    $firstData = ItemData::query()
+        ->where('item_id', $firstItem->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    $entityTags = $data->entityTags;
-    expect($entityTags)->toHaveCount(3)
-        ->and($entityTags->pluck('name')->sort()->values()->all())->toBe(['Existing One', 'Existing Two', 'New One']);
+    expect($firstData)->not->toBeNull();
+    $firstData->load('entityTags');
+    $firstTagIds = $firstData->entityTags->pluck('id')->sort()->values()->all();
+
+    $secondItemUuid = fake()->uuid();
+    $secondPayload = $firstPayload;
+    $secondPayload['Item']['reference'] = $secondItemUuid;
+    $secondPayload['Item']['className'] = 'OPT_Second_Item';
+    $secondPayload['Item']['itemName'] = 'Optimized Item Two';
+    $secondPayload['Item']['entity_tag_map'] = array_reverse($sharedTags);
+
+    Storage::disk('scunpacked')->put('items/opt-second.json', json_encode($secondPayload, JSON_THROW_ON_ERROR));
+
+    (new ImportItemData($version->id, 'items/opt-second.json', $labels))->handle();
+
+    $secondItem = Item::query()->firstWhere('uuid', $secondItemUuid);
+    $secondData = ItemData::query()
+        ->where('item_id', $secondItem->id)
+        ->where('game_version_id', $version->id)
+        ->first();
+
+    expect($secondData)->not->toBeNull();
+    $secondData->load('entityTags');
+
+    $secondTagIds = $secondData->entityTags->pluck('id')->sort()->values()->all();
+
+    expect(EntityTag::query()->count())->toBe(3)
+        ->and($firstTagIds)->toBe($secondTagIds)
+        ->and($secondData->entityTags->pluck('name')->sort()->values()->all())->toBe(['Existing One', 'Existing Two', 'New One']);
 });

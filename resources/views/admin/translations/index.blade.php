@@ -6,12 +6,12 @@
 
 @section('admin.content')
     <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-bold">Translations Management</h1>
+        <h1 class="text-2xl font-bold" data-testid="translation-index-heading">Translations Management</h1>
 
         <div role="tablist" class="tabs tabs-lifted">
             {{-- CommLinks Tab --}}
             <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="CommLinks" @if(!request()->has('articles_page')) checked @endif />
-            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
+            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6" data-testid="translation-index-comm-links-panel">
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold">Comm-Links</h2>
@@ -52,7 +52,11 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.translations.edit', ['type' => 'comm-link', 'id' => $commLink->id]) }}" class="btn btn-outline btn-sm">
+                                            <a
+                                                data-testid="translation-index-edit-link-comm-link-{{ $commLink->id }}"
+                                                href="{{ route('admin.translations.edit', ['type' => 'comm-link', 'id' => $commLink->id]) }}"
+                                                class="btn btn-outline btn-sm"
+                                            >
                                                 Edit
                                             </a>
                                         </td>
@@ -76,7 +80,7 @@
 
             {{-- Articles Tab --}}
             <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="Galctapedia" @if(request()->has('articles_page')) checked @endif />
-            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
+            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6" data-testid="translation-index-articles-panel">
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold">Articles</h2>
@@ -117,7 +121,11 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.translations.edit', ['type' => 'article', 'id' => $article->id]) }}" class="btn btn-outline btn-sm">
+                                            <a
+                                                data-testid="translation-index-edit-link-article-{{ $article->id }}"
+                                                href="{{ route('admin.translations.edit', ['type' => 'article', 'id' => $article->id]) }}"
+                                                class="btn btn-outline btn-sm"
+                                            >
                                                 Edit
                                             </a>
                                         </td>
@@ -141,7 +149,7 @@
 
             {{-- Ship-Matrix Tab --}}
             <input type="radio" name="translation_tabs" role="tab" class="tab" aria-label="Ship-Matrix" />
-            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
+            <div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6" data-testid="translation-index-ship-matrix-panel">
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold">Ship-Matrix</h2>
@@ -186,7 +194,11 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.translations.edit', ['type' => 'smSize', 'id' => $size->id]) }}" class="btn btn-outline btn-sm">
+                                            <a
+                                                data-testid="translation-index-edit-link-smSize-{{ $size->id }}"
+                                                href="{{ route('admin.translations.edit', ['type' => 'smSize', 'id' => $size->id]) }}"
+                                                class="btn btn-outline btn-sm"
+                                            >
                                                 Edit
                                             </a>
                                         </td>
@@ -224,7 +236,11 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.translations.edit', ['type' => 'smFocus', 'id' => $focus->id]) }}" class="btn btn-outline btn-sm">
+                                            <a
+                                                data-testid="translation-index-edit-link-smFocus-{{ $focus->id }}"
+                                                href="{{ route('admin.translations.edit', ['type' => 'smFocus', 'id' => $focus->id]) }}"
+                                                class="btn btn-outline btn-sm"
+                                            >
                                                 Edit
                                             </a>
                                         </td>
@@ -262,7 +278,11 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.translations.edit', ['type' => 'smType', 'id' => $type->id]) }}" class="btn btn-outline btn-sm">
+                                            <a
+                                                data-testid="translation-index-edit-link-smType-{{ $type->id }}"
+                                                href="{{ route('admin.translations.edit', ['type' => 'smType', 'id' => $type->id]) }}"
+                                                class="btn btn-outline btn-sm"
+                                            >
                                                 Edit
                                             </a>
                                         </td>

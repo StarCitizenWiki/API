@@ -33,5 +33,7 @@ it('rejects search query values that normalize to empty strings', function (): v
         'query' => '___',
     ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['query']);
+        ->assertInvalid([
+            'query' => 'A search query is required.',
+        ]);
 });

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -63,43 +62,53 @@ it('forbids non-admin users from failed jobs index', function (): void {
     $response->assertForbidden();
 });
 
-it('allows admin users to view failed jobs index with paginated jobs data', function () use ($insertFailedJob): void {
+it('allows admin users to view failed jobs index with failed job rows', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
+
+    $olderFailedAt = now()->subMinutes(5);
+    $newerFailedAt = now()->subMinute();
 
     $olderJobId = $insertFailedJob([
         'queue' => 'emails',
-        'failed_at' => now()->subMinutes(5),
+        'failed_at' => $olderFailedAt,
     ]);
 
     $newerJobId = $insertFailedJob([
         'queue' => 'critical',
         'exception' => "RuntimeException: Gateway timeout in /var/www/app/Jobs/SyncExternalMetrics.php:53\n#0 /var/www/app/vendor/laravel/framework/src/Illuminate/Queue/Worker.php(423): App\\Jobs\\SyncExternalMetrics->handle()",
-        'failed_at' => now()->subMinute(),
+        'failed_at' => $newerFailedAt,
     ]);
 
     $response = $this->actingAs($admin)
         ->get(route('admin.jobs.index'));
 
-    $response->assertSuccessful();
-    $response->assertViewIs('admin.jobs.index');
-    $response->assertViewHas('jobs', function (LengthAwarePaginator $jobs) use ($olderJobId, $newerJobId): bool {
-        $collection = $jobs->getCollection();
-
-        $olderJob = $collection->first(static fn (object $job): bool => (int) $job->id === $olderJobId);
-        $newerJob = $collection->first(static fn (object $job): bool => (int) $job->id === $newerJobId);
-
-        return $jobs->total() === 2
-            && $jobs->count() === 2
-            && $olderJob !== null
-            && $newerJob !== null
-            && $olderJob->queue === 'emails'
-            && $newerJob->queue === 'critical'
-            && str_contains((string) $newerJob->exception, 'Gateway timeout');
-    });
-    $response->assertSeeText((string) $olderJobId);
-    $response->assertSeeText((string) $newerJobId);
-    $response->assertSeeText('emails');
-    $response->assertSeeText('critical');
+    $response->assertSuccessful()
+        ->assertViewIs('admin.jobs.index')
+        ->assertViewHas('jobs', function ($jobs) use ($newerJobId, $olderJobId): bool {
+            return $jobs->total() === 2
+                && $jobs->pluck('id')->all() === [$newerJobId, $olderJobId]
+                && $jobs->pluck('queue')->all() === ['critical', 'emails'];
+        })
+        ->assertSeeText('Failed Jobs')
+        ->assertSeeText('Total: 2')
+        ->assertSeeText('ID')
+        ->assertSeeText('UUID')
+        ->assertSeeText('Connection')
+        ->assertSeeText('Queue')
+        ->assertSeeText('Failed At')
+        ->assertSeeText('Actions')
+        ->assertSeeText('View Exception')
+        ->assertSeeText('Delete')
+        ->assertSeeText('Truncate All')
+        ->assertSeeText((string) $newerJobId)
+        ->assertSeeText((string) $olderJobId)
+        ->assertSeeText('critical')
+        ->assertSeeText('emails')
+        ->assertSeeText($newerFailedAt->format('Y-m-d H:i'))
+        ->assertSeeText($olderFailedAt->format('Y-m-d H:i'))
+        ->assertSee(route('admin.jobs.destroy', ['id' => $newerJobId]), false)
+        ->assertSee(route('admin.jobs.destroy', ['id' => $olderJobId]), false)
+        ->assertSee(route('admin.jobs.truncate'), false);
 });
 
 it('redirects guests to login for deleting a failed job', function () use ($insertFailedJob): void {

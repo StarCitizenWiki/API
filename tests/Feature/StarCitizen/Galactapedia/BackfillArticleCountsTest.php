@@ -60,6 +60,8 @@ it('runs in dry-run mode without modifying data', function () {
 it('handles chunk size option', function () {
     $this->artisan('galactapedia:backfill-counts --chunk=1')
         ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Processed 1 articles...')
+        ->expectsOutput('Processed 2 articles...')
         ->expectsOutput('Successfully updated 2 articles.');
 
     expect($this->article1->fresh()->categories_count)->toBe(1)

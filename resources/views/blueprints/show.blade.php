@@ -1112,7 +1112,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <h1 class="text-3xl font-semibold tracking-tight">Find craftable items</h1>
+                        <h1 class="text-3xl font-semibold tracking-tight" data-testid="blueprints-search-heading">Find craftable items</h1>
                     </div>
 
                     @include('blueprints.partials.search-panel')

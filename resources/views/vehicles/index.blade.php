@@ -174,7 +174,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-semibold tracking-tight">Vehicles</h1>
+            <h1 class="text-2xl font-semibold tracking-tight" data-testid="vehicles-index-heading">Vehicles</h1>
         </div>
 
         <x-tabulator-table

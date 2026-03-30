@@ -9,6 +9,7 @@ use App\Services\Parser\CommLink\Content\Traits\GAuthorExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GBannerAdvancedExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GExploreExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
+use App\Services\Parser\CommLink\Content\Traits\GFeatureExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GGridExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GHeaderExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GIllustrationExtractorTrait;
@@ -26,6 +27,7 @@ final class UniversalContentExtractor implements ContentExtractorInterface
     use GBannerAdvancedExtractorTrait;
     use GExploreExtractorTrait;
     use GFaqExtractorTrait;
+    use GFeatureExtractorTrait;
     use GGridExtractorTrait;
     use GHeaderExtractorTrait;
     use GIllustrationExtractorTrait;
