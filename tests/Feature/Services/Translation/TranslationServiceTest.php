@@ -82,22 +82,36 @@ it('applies german text replacements', function (): void {
 });
 
 it('chunks long text automatically', function (): void {
-    // Create a text longer than 45,000 bytes
-    $longText = str_repeat('This is a test sentence. ', 2000); // ~50,000 bytes
+    $firstChunk = str_repeat('Alpha sentence ', 2100).'A.';
+    $secondChunk = str_repeat('Bravo sentence ', 2100).'B.';
+    $longText = $firstChunk.' '.$secondChunk;
+    $translatedChunks = [];
 
     $mockTranslator = $this->mock(Translator::class);
-    $mockResult = new TextResult('Dies ist ein Testsatz.', 'de', 23);
-
-    // Should receive multiple translateText calls (chunked)
     $mockTranslator->shouldReceive('translateText')
-        ->atLeast()
-        ->once()
-        ->andReturn($mockResult);
+        ->twice()
+        ->andReturnUsing(function (
+            string $chunk,
+            string $sourceLocale,
+            string $targetLocale,
+            array $options,
+        ) use (&$translatedChunks): TextResult {
+            $translatedChunks[] = $chunk;
+
+            expect($sourceLocale)->toBe('en');
+            expect($targetLocale)->toBe('de');
+            expect($options)->toBe([]);
+
+            return new TextResult('chunk-'.count($translatedChunks), 'de', strlen($chunk));
+        });
 
     $service = new TranslationService($mockTranslator);
     $result = $service->translate($longText, 'de');
 
-    expect($result)->toContain('Dies ist ein Testsatz');
+    expect($translatedChunks)->toHaveCount(2)
+        ->and($translatedChunks[0])->toBe($firstChunk)
+        ->and($translatedChunks[1])->toBe($secondChunk)
+        ->and($result)->toBe('chunk-1 chunk-2');
 });
 
 it('maps deepl exceptions', function (string $message, string $expectedException): void {

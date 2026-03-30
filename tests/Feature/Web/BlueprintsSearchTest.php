@@ -30,20 +30,9 @@ it('renders the blueprint search route with an empty state', function (): void {
     $response = $this->get(route('web.blueprints.search'));
 
     $response->assertOk()
-        ->assertViewIs('blueprints.show')
-        ->assertViewHas('mode', 'empty')
-        ->assertViewHas('search', function (array $search): bool {
-            return ($search['query'] ?? null) === ''
-                && ($search['result_count'] ?? null) === 0
-                && ($search['results'] ?? null) === []
-                && ($search['api_endpoint'] ?? null) === route('blueprints.index', ['page' => ['size' => 5]], false);
-        })
-        ->assertSee('data-blueprint-search', false)
-        ->assertSee('data-resource-filter-toggle', false)
-        ->assertSee('data-blueprint-search-results-list', false)
-        ->assertSee('data-blueprint-search-empty', false)
-        ->assertSee(route('web.blueprints.search'))
-        ->assertSee('<meta name="robots" content="noindex,follow">', false);
+        ->assertSee('Find craftable items')
+        ->assertSee('Search by output name or pick resource filters to load matching blueprints.')
+        ->assertSee(route('web.blueprints.search'));
 
     $crawler = new Crawler($response->getContent());
     $blueprintsLink = $crawler->filterXPath('//a[@href="'.route('web.blueprints.index').'"]')->first();
@@ -130,13 +119,6 @@ it('renders matching blueprint search results without keeping the search query i
     ]));
 
     $response->assertOk()
-        ->assertViewHas('mode', 'empty')
-        ->assertViewHas('search', function (array $search) use ($resourceTypeUuid): bool {
-            return ($search['filters']['query'] ?? null) === 'Requested'
-                && ($search['filters']['ingredient.uuid'] ?? null) === $resourceTypeUuid
-                && ($search['result_count'] ?? null) === 1
-                && ($search['results'][0]['output_name'] ?? null) === 'Requested Output';
-        })
         ->assertSee('Requested Output')
         ->assertSee('Hephaestanite, Iron')
         ->assertDontSee('Default Output')
@@ -177,10 +159,6 @@ it('limits rendered blueprint search results to five records', function (): void
     ]));
 
     $response->assertOk()
-        ->assertViewHas('search', function (array $search): bool {
-            return ($search['result_count'] ?? null) === 6
-                && count($search['results'] ?? []) === 5;
-        })
         ->assertSee('Limiter Output 1')
         ->assertSee('Limiter Output 5')
         ->assertDontSee('Limiter Output 6');

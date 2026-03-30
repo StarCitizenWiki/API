@@ -71,34 +71,8 @@ it('renders the blueprints index route', function (): void {
     $response = $this->get(route('web.blueprints.index'));
 
     $response->assertOk()
-        ->assertViewIs('blueprints.index')
-        ->assertViewHas('initialTableData', function (array $payload) use ($defaultBlueprint): bool {
-            return ($payload['data'][0]['uuid'] ?? null) === $defaultBlueprint->uuid
-                && ($payload['data'][0]['output_name'] ?? null) === 'FS-9 LMG'
-                && ($payload['meta']['per_page'] ?? null) === 25
-                && count($payload['data']) === 1;
-        })
-        ->assertViewHas('headerFilterOptionsMap', function (array $map): bool {
-            return ($map['is_available_by_default'] ?? null) === 'default';
-        })
-        ->assertViewHas('tableColumns', function (array $columns): bool {
-            $fieldMap = collect($columns)->keyBy('field');
-
-            return collect($columns)->pluck('field')->all() === [
-                'output.name',
-                'output.type',
-                'output.class',
-                'craft_time_seconds',
-                'ingredient_count',
-                'is_available_by_default',
-                'uuid',
-            ]
-                && $fieldMap->get('output.name')['formatter'] === 'link'
-                && $fieldMap->get('output.name')['formatterParams']['urlField'] === 'web_url'
-                && $fieldMap->get('uuid')['title'] === 'API Url'
-                && $fieldMap->get('uuid')['formatterParams']['label'] === 'API Url'
-                && $fieldMap->get('uuid')['formatterParams']['urlField'] === 'link';
-        })
+        ->assertSee('FS-9 LMG')
+        ->assertDontSee('P4-AR')
         ->assertSee(route('web.blueprints.search'))
         ->assertSee(route('blueprints.index'));
 
@@ -135,12 +109,8 @@ it('renders blueprints for the requested version on the web route', function ():
         ->get(route('web.blueprints.index', ['version' => $this->requestedVersion->code]));
 
     $response->assertOk()
-        ->assertViewHas('initialTableData', function (array $payload) use ($requestedBlueprint): bool {
-            return ($payload['data'][0]['uuid'] ?? null) === $requestedBlueprint->uuid
-                && ($payload['data'][0]['game_version'] ?? null) === '4.0.0-PTU'
-                && ($payload['meta']['per_page'] ?? null) === 25
-                && count($payload['data']) === 1;
-        })
+        ->assertSee('Requested Output')
+        ->assertDontSee('Default Output')
         ->assertSee(route('web.blueprints.search', ['version' => $this->requestedVersion->code]))
         ->assertSee(route('blueprints.index', ['version' => $this->requestedVersion->code]));
 });

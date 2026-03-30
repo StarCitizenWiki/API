@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -28,11 +29,10 @@ it('lists manufacturers', function (): void {
 
     $response->assertSuccessful()
         ->assertJsonPath('data.0.name', $manufacturer->name)
-        ->assertJsonPath('data.0.code', $manufacturer->code);
-})->skip(
-    (string) ($_ENV['DB_CONNECTION'] ?? getenv('DB_CONNECTION') ?: '') !== 'pgsql',
-    'PostgreSQL only test'
-)->group('db-pgsql');
+        ->assertJsonPath('data.0.code', $manufacturer->code)
+        ->assertJsonPath('data.0.link', route('manufacturers.show', ['manufacturer' => $manufacturer->code]));
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
 
 it('shows a manufacturer by underscored name', function (): void {
     $manufacturer = Manufacturer::factory()->create([
@@ -69,8 +69,8 @@ it('searches manufacturers with plain text queries that are not uuids', function
     $response->assertSuccessful()
         ->assertJsonPath('data.0.name', $manufacturer->name)
         ->assertJsonPath('data.0.code', $manufacturer->code)
-        ->assertJsonPath('data.0.uuid', $manufacturer->uuid);
-})->skip(
-    (string) ($_ENV['DB_CONNECTION'] ?? getenv('DB_CONNECTION') ?: '') !== 'pgsql',
-    'PostgreSQL only test'
-)->group('db-pgsql');
+        ->assertJsonPath('data.0.uuid', $manufacturer->uuid)
+        ->assertJsonPath('meta.deprecated', true)
+        ->assertHeader('Deprecated', 'true');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');

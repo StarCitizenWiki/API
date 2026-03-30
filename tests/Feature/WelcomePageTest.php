@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Route;
 use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
@@ -12,26 +11,21 @@ uses(RefreshDatabase::class);
 it('renders the welcome page categories for guests', function (): void {
     $response = $this->get(route('home'));
 
-    $response->assertSuccessful()
-        ->assertSee('name="filter[name]"', false);
-
-    if (! Route::has('admin.dashboard')) {
-        return;
-    }
+    $response->assertSuccessful();
 
     $crawler = new Crawler($response->getContent());
 
-    expect($crawler->filterXPath('//a[@href="'.route('admin.dashboard').'"]')->count())->toBe(0);
+    expect($crawler->filter('h1')->text())->toBe('Star Citizen Wiki API')
+        ->and($crawler->filter('form[action="'.route('web.items.index').'"]')->count())->toBeGreaterThan(0)
+        ->and($crawler->filterXPath('//a[@href="'.route('admin.dashboard').'"]')->count())->toBe(0);
 });
 
-it('shows the admin link for authorized users when the route exists', function (): void {
-    if (! Route::has('admin.dashboard')) {
-        $this->markTestSkipped('Admin dashboard route not registered.');
-    }
-
+it('shows the admin link for authorized users', function (): void {
     $user = User::factory()->create(['is_admin' => true]);
 
-    $response = $this->actingAs($user)->get(route('home'))->assertSuccessful();
+    $response = $this->actingAs($user)->get(route('home'));
+
+    $response->assertSuccessful();
 
     $crawler = new Crawler($response->getContent());
 

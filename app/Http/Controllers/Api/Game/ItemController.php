@@ -306,7 +306,7 @@ class ItemController extends Controller
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        if ($item->data->first()?->type === 'NOITEM_Vehicle' && $item->data->first()?->repairRestoreRatio > 0) {
+        if ($item->data->first()?->type === 'NOITEM_Vehicle') {
             return redirect(sprintf('/api/vehicles/%s', $item->uuid));
         }
 

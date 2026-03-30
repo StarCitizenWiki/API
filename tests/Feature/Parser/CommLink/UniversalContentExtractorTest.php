@@ -77,19 +77,22 @@ it('getcontent returns text content for unknown g- elements', function () {
     expect($content)->toContain('Unknown text content');
 });
 
-it('getcontent extracts content from real html sample', function () {
-    $htmlPath = storage_path('app/comm_links/20913/2026-01-19_100707.html');
+it('getcontent extracts content from a representative html sample', function () {
+    $html = <<<'HTML'
+        <div>
+            <g-introduction :info="{&quot;title&quot;:&quot;Archive Title&quot;,&quot;subtitle&quot;:&quot;Archive Subtitle&quot;,&quot;contents&quot;:[&quot;Archive body line 1&quot;,&quot;Archive body line 2&quot;]}"></g-introduction>
+            <g-banner-advanced :content="{&quot;displayed&quot;:true,&quot;text&quot;:{&quot;displayed&quot;:true,&quot;content&quot;:&quot;Archive banner&quot;,&quot;paragraph&quot;:&quot;Archive banner paragraph&quot;}}"></g-banner-advanced>
+        </div>
+    HTML;
 
-    if (! file_exists($htmlPath)) {
-        $this->markTestSkipped('Required comm-link HTML fixture is missing for extraction coverage.');
-    }
-
-    $html = file_get_contents($htmlPath);
     $crawler = new Crawler($html);
     $extractor = new UniversalContentExtractor($crawler);
 
     $content = $extractor->getContent();
 
-    expect($content)->toBeString();
-    expect(strlen($content))->toBeGreaterThan(0);
+    expect($content)->toBeString()
+        ->and($content)->toContain('Archive Title')
+        ->and($content)->toContain('Archive Subtitle')
+        ->and($content)->toContain('Archive body line 1')
+        ->and($content)->toContain('Archive banner paragraph');
 });

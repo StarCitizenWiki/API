@@ -7,8 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('does not persist the default game version in session for web requests', function () {
-    $defaultVersion = GameVersion::factory()->create([
+it('does not persist the default game version in session for web requests', function (): void {
+    GameVersion::factory()->create([
         'code' => '3.24.1',
         'is_default' => true,
     ]);
@@ -24,7 +24,7 @@ it('does not persist the default game version in session for web requests', func
     $this->assertNull(session('game_version_code'));
 });
 
-it('stores the requested game version from the query string', function () {
+it('stores the requested game version from the query string across subsequent web requests', function (): void {
     GameVersion::factory()->create([
         'code' => '3.24.0',
         'is_default' => true,
@@ -39,9 +39,13 @@ it('stores the requested game version from the query string', function () {
 
     $response->assertSuccessful();
     $this->assertSame($requestedVersion->code, session('game_version_code'));
+
+    $this->get(route('home'))->assertSuccessful();
+
+    $this->assertSame($requestedVersion->code, session('game_version_code'));
 });
 
-it('does not persist the default when the requested version matches it', function () {
+it('does not persist the default when the requested version matches it', function (): void {
     $defaultVersion = GameVersion::factory()->create([
         'code' => '3.24.1',
         'is_default' => true,
@@ -58,7 +62,7 @@ it('does not persist the default when the requested version matches it', functio
     $this->assertNull(session('game_version_code'));
 });
 
-it('does not persist anything when the requested version is unknown', function () {
+it('does not persist anything when the requested version is unknown', function (): void {
     GameVersion::factory()->create([
         'code' => '3.24.1',
         'is_default' => true,
@@ -75,7 +79,7 @@ it('does not persist anything when the requested version is unknown', function (
     $this->assertNull(session('game_version_code'));
 });
 
-it('hides hidden versions from the selector', function () {
+it('hides hidden versions from the selector', function (): void {
     $visibleVersion = GameVersion::factory()->create([
         'code' => '4.7.0-LIVE.1',
         'is_default' => true,
@@ -88,29 +92,12 @@ it('hides hidden versions from the selector', function () {
 
     $response = $this->get(route('home'));
 
-    $response->assertSuccessful()
-        ->assertSeeText($visibleVersion->code)
-        ->assertDontSeeText($hiddenVersion->code);
-});
-
-it('persists hidden requested versions from the query string', function () {
-    GameVersion::factory()->create([
-        'code' => '4.7.0-LIVE.1',
-        'is_default' => true,
-    ]);
-
-    $hiddenVersion = GameVersion::factory()->create([
-        'code' => '4.6.0-PTU.1',
-        'is_hidden' => true,
-    ]);
-
-    $response = $this->get(route('home', ['version' => strtolower($hiddenVersion->code)]));
-
     $response->assertSuccessful();
-    $this->assertSame($hiddenVersion->code, session('game_version_code'));
+    $response->assertSee($visibleVersion->code, false)
+        ->assertDontSee(sprintf('<option value="%s"', $hiddenVersion->code), false);
 });
 
-it('falls back to the default visible version in the selector when a hidden version is requested', function () {
+it('keeps hidden versions in session while rendering the default visible version', function (): void {
     $defaultVersion = GameVersion::factory()->create([
         'code' => '4.7.0-LIVE.1',
         'is_default' => true,
@@ -123,9 +110,12 @@ it('falls back to the default visible version in the selector when a hidden vers
 
     $response = $this->get(route('home', ['version' => strtolower($hiddenVersion->code)]));
 
-    $response->assertSuccessful()
-        ->assertSee('<option value="'.$defaultVersion->code.'" selected>', false)
-        ->assertDontSeeText($hiddenVersion->code);
+    $response->assertSuccessful();
+    $response->assertSee($defaultVersion->code, false)
+        ->assertDontSee(sprintf('<option value="%s"', $hiddenVersion->code), false);
+    $this->assertSame($hiddenVersion->code, session('game_version_code'));
+
+    $this->get(route('home'))->assertSuccessful();
 
     $this->assertSame($hiddenVersion->code, session('game_version_code'));
 });

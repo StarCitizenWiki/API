@@ -35,14 +35,29 @@ it('returns cooler specification when item type is cooler', function (): void {
             'name' => 'Test Cooler',
             'class_name' => 'COOL_TEST_S01',
             'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Cooler' => [
+                        'CoolingRate' => 4080000,
+                        'SuppressionIRFactor' => 0.1,
+                        'SuppressionHeatFactor' => 0.2,
+                    ],
+                    'ResourceNetwork' => [
+                        'Generation' => [
+                            'Coolant' => 22,
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
-
     $coolerData = Arr::get($itemData->data, 'stdItem.Cooler', []);
 
     $response->assertSuccessful()
         ->assertJsonPath('data.cooler.cooling_rate', Arr::get($coolerData, 'CoolingRate'))
         ->assertJsonPath('data.cooler.suppression_ir_factor', Arr::get($coolerData, 'SuppressionIRFactor'))
-        ->assertJsonPath('data.cooler.suppression_heat_factor', Arr::get($coolerData, 'SuppressionHeatFactor'));
+        ->assertJsonPath('data.cooler.suppression_heat_factor', Arr::get($coolerData, 'SuppressionHeatFactor'))
+        ->assertJsonPath('data.cooler.coolant_segment_generation', 22)
+        ->assertJsonMissingPath('data.emp');
 });

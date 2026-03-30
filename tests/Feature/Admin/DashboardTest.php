@@ -156,14 +156,16 @@ it('displays failed jobs queue breakdown', function (): void {
     expect($breakdown['expensive'])->toBe(1);
 });
 
-it('displays queue breakdowns sorted by count descending', function (): void {
+it('orders queue breakdowns by count descending', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     DB::table('jobs')->insert([
         ['queue' => 'high', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
+        ['queue' => 'high', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
+        ['queue' => 'high', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
+        ['queue' => 'medium', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
         ['queue' => 'medium', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
         ['queue' => 'low', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
-        ['queue' => 'default', 'payload' => json_encode(['displayName' => 'Job']), 'attempts' => 0, 'reserved_at' => null, 'available_at' => time(), 'created_at' => time()],
     ]);
 
     $response = $this->actingAs($admin)
@@ -176,11 +178,9 @@ it('displays queue breakdowns sorted by count descending', function (): void {
     $breakdown = $stats['queuedBreakdown'];
 
     expect($breakdown)->toBeArray();
-    expect($breakdown)->toHaveCount(4);
-
-    $keys = array_keys($breakdown);
-    expect($keys)->toContain('low');   // 2 jobs
-    expect($keys)->toContain('high');  // 1 job
-    expect($keys)->toContain('medium');  // 1 job
-    expect($keys)->toContain('default');  // 1 job
+    expect($breakdown)->toHaveCount(3);
+    expect(array_keys($breakdown))->toBe(['high', 'medium', 'low']);
+    expect($breakdown['high'])->toBe(3);
+    expect($breakdown['medium'])->toBe(2);
+    expect($breakdown['low'])->toBe(1);
 });

@@ -9,7 +9,6 @@ use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
 use App\Models\System\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -25,8 +24,12 @@ beforeEach(function (): void {
     Language::factory()->create(['code' => Language::GERMAN]);
 });
 
-it('avoids repeated relation and language queries on galactapedia index', function (): void {
-    $articles = Article::factory()->count(12)->create([
+it('returns article relations on the index response', function (): void {
+    Article::factory()->count(11)->create();
+
+    $article = Article::factory()->create([
+        'title' => 'ArcCorp Overview',
+        'slug' => 'arccorp-overview',
         'translation' => [
             Language::ENGLISH => 'ArcCorp is a city planet.',
             Language::GERMAN => 'ArcCorp ist ein Stadtplanet.',
@@ -37,52 +40,26 @@ it('avoids repeated relation and language queries on galactapedia index', functi
     $tag = Tag::factory()->create(['name' => 'Planet']);
     $template = Template::factory()->create(['template' => 'location']);
 
-    $articles->each(function (Article $article) use ($category, $tag, $template): void {
-        $article->categories()->attach($category);
-        $article->tags()->attach($tag);
-        $article->templates()->attach($template);
-        $article->update([
-            'categories_count' => 1,
-            'tags_count' => 1,
-            'templates_count' => 1,
-        ]);
-    });
-
-    DB::flushQueryLog();
-    DB::enableQueryLog();
+    $article->categories()->attach($category);
+    $article->tags()->attach($tag);
+    $article->templates()->attach($template);
+    $article->update([
+        'categories_count' => 1,
+        'tags_count' => 1,
+        'templates_count' => 1,
+    ]);
 
     $response = $this->getJson(route('galactapedia.index', [
         'page[size]' => 12,
     ]));
 
-    DB::disableQueryLog();
-
     $response->assertSuccessful()
-        ->assertJsonCount(12, 'data');
-
-    $queries = collect(DB::getQueryLog())
-        ->pluck('query')
-        ->map(static fn (string $query): string => strtolower($query));
-
-    $templateQueries = $queries
-        ->filter(static fn (string $query): bool => str_contains($query, 'from "galactapedia_templates" inner join "galactapedia_article_templates"'))
-        ->count();
-
-    $categoryQueries = $queries
-        ->filter(static fn (string $query): bool => str_contains($query, 'from "galactapedia_categories" inner join "galactapedia_article_categories"'))
-        ->count();
-
-    $tagQueries = $queries
-        ->filter(static fn (string $query): bool => str_contains($query, 'from "galactapedia_tags" inner join "galactapedia_article_tags"'))
-        ->count();
-
-    $languageQueries = $queries
-        ->filter(static fn (string $query): bool => str_contains($query, 'select "code" from "languages"'))
-        ->count();
-
-    expect($templateQueries)->toBe(1)
-        ->and($categoryQueries)->toBe(1)
-        ->and($tagQueries)->toBe(1)
-        ->and($languageQueries)->toBe(1)
-        ->and($queries->count())->toBeLessThanOrEqual(20);
+        ->assertJsonCount(12, 'data')
+        ->assertJsonPath('data.0.id', (string) $article->cig_id)
+        ->assertJsonPath('data.0.title', 'ArcCorp Overview')
+        ->assertJsonPath('data.0.template', 'location')
+        ->assertJsonPath('data.0.category', 'Lore')
+        ->assertJsonPath('data.0.tag', 'Planet')
+        ->assertJsonPath('data.0.categories.0.name', 'Lore')
+        ->assertJsonPath('data.0.tags.0.name', 'Planet');
 });

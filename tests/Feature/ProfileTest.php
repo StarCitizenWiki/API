@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -16,57 +15,41 @@ beforeEach(function (): void {
         ->withHeader('X-CSRF-TOKEN', $csrfToken);
 });
 
-it('profile controller exists and has required methods', function (): void {
-    $controller = new ProfileController;
+it('redirects guests to login', function (): void {
+    $response = $this->get(route('profile'));
 
-    expect($controller)->toBeInstanceOf(ProfileController::class)
-        ->and(method_exists($controller, 'show'))->toBeTrue()
-        ->and(method_exists($controller, 'createToken'))->toBeTrue()
-        ->and(method_exists($controller, 'destroy'))->toBeTrue();
+    $response->assertRedirectToRoute('login');
 });
 
-it('profile controller methods have proper return types', function (): void {
-    $controller = new ProfileController;
-
-    $showReflection = new ReflectionMethod($controller, 'show');
-    $createTokenReflection = new ReflectionMethod($controller, 'createToken');
-    $destroyReflection = new ReflectionMethod($controller, 'destroy');
-
-    expect($showReflection->getReturnType()->getName())->toBe('Illuminate\View\View')
-        ->and($createTokenReflection->getReturnType()->getName())->toBe('Illuminate\Http\RedirectResponse')
-        ->and($destroyReflection->getReturnType()->getName())->toBe('Illuminate\Http\RedirectResponse');
-});
-
-it('profile controller has auth middleware', function (): void {
-    // Test that unauthenticated users are redirected to login (proves auth middleware)
-    $response = $this->get('/profile');
-    $response->assertRedirect('/login');
-});
-
-it('authenticated get /profile returns profile view with tokens', function (): void {
+it('renders the authenticated profile view with the current user token controls', function (): void {
     $user = User::factory()->create();
     $userToken = $user->createToken('Phase 1 Token', ['*'])->accessToken;
 
     $otherUser = User::factory()->create();
-    $otherUser->createToken('Other User Token', ['*']);
+    $otherUserToken = $otherUser->createToken('Other User Token', ['*'])->accessToken;
 
-    $response = $this->actingAs($user)->get('/profile');
+    $response = $this->actingAs($user)->get(route('profile'));
 
     $response->assertOk()
         ->assertViewIs('profile')
         ->assertViewHas('tokens', function ($tokens) use ($userToken): bool {
             return $tokens->pluck('id')->all() === [$userToken->id];
-        });
+        })
+        ->assertSee($userToken->name)
+        ->assertDontSee($otherUserToken->name)
+        ->assertSee('action="'.route('profile.token.create').'"', false)
+        ->assertSee('action="'.route('user-password.update').'"', false)
+        ->assertSee('action="'.route('profile.destroy').'"', false);
 });
 
-it('post /profile/token creates token and flashes status + token_name', function (): void {
+it('creates a token and flashes its value', function (): void {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
+    $response = $this->actingAs($user)->from(route('profile'))->post(route('profile.token.create'), [
         'name' => 'Phase 1 Token',
     ]);
 
-    $response->assertRedirect('/profile')
+    $response->assertRedirectToRoute('profile')
         ->assertSessionHas('status', 'Your API token is ready')
         ->assertSessionHas('token_name', 'Phase 1 Token');
 
@@ -75,14 +58,15 @@ it('post /profile/token creates token and flashes status + token_name', function
         'tokenable_type' => get_class($user),
         'name' => 'Phase 1 Token',
     ]);
+    expect(session('token'))->toBeString()->not->toBeEmpty();
 });
 
-it('post /profile/token rejects a missing token name with the custom message', function (): void {
+it('rejects a missing token name', function (): void {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', []);
+    $response = $this->actingAs($user)->from(route('profile'))->post(route('profile.token.create'), []);
 
-    $response->assertRedirect('/profile')
+    $response->assertRedirectToRoute('profile')
         ->assertSessionHasErrors([
             'name' => 'A token name is required.',
         ]);
@@ -93,15 +77,15 @@ it('post /profile/token rejects a missing token name with the custom message', f
     ]);
 });
 
-it('post /profile/token rejects names longer than 255 characters with the custom message', function (): void {
+it('rejects token names longer than 255 characters', function (): void {
     $user = User::factory()->create();
     $tokenName = str_repeat('a', 256);
 
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
+    $response = $this->actingAs($user)->from(route('profile'))->post(route('profile.token.create'), [
         'name' => $tokenName,
     ]);
 
-    $response->assertRedirect('/profile')
+    $response->assertRedirectToRoute('profile')
         ->assertSessionHasErrors([
             'name' => 'The token name must not exceed 255 characters.',
         ]);
@@ -113,103 +97,93 @@ it('post /profile/token rejects names longer than 255 characters with the custom
     ]);
 });
 
-it('delete /profile with confirmation=delete_account deletes user, logs out, redirects \'/\'', function (): void {
+it('deletes the account when the confirmation matches', function (): void {
     $user = User::factory()->create();
     $userId = $user->id;
+    $token = $user->createToken('Delete Test Token', ['*'])->accessToken;
 
-    $response = $this->actingAs($user)->from('/profile')->delete('/profile', [
+    $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.destroy'), [
         'confirmation' => 'DELETE_ACCOUNT',
     ]);
 
-    $response->assertRedirect('/')
+    $response->assertRedirectToRoute('home')
         ->assertSessionHas('status', 'account-deleted');
 
     $this->assertDatabaseMissing('users', [
         'id' => $userId,
     ]);
+    $this->assertDatabaseMissing('personal_access_tokens', [
+        'id' => $token->id,
+    ]);
     $this->assertGuest();
 });
 
-it('profile page access: unauthenticated user is redirected to login', function (): void {
-    $response = $this->get('/profile');
-
-    $response->assertRedirect('/login');
-});
-
-it('profile page access: page renders correctly with all sections', function (): void {
+it('shows an empty token list when the user has no tokens', function (): void {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('action="'.route('profile.token.create').'"', false)
-        ->assertSee('action="'.route('user-password.update').'"', false)
-        ->assertSee('action="'.route('profile.destroy').'"', false)
-        ->assertSee('name="name"', false)
-        ->assertSee('name="current_password"', false)
-        ->assertSee('name="password"', false)
-        ->assertSee('name="password_confirmation"', false)
-        ->assertSee('name="confirm"', false);
-});
-
-it('profile page access: shows empty state when user has no tokens', function (): void {
-    $user = User::factory()->create();
-
-    $response = $this->actingAs($user)->get('/profile');
+    $response = $this->actingAs($user)->get(route('profile'));
 
     $response->assertOk()
         ->assertViewHas('tokens', fn ($tokens): bool => $tokens->isEmpty());
 });
 
-it('token table: token name is displayed without masked value', function (): void {
+it('shows the last used timestamp in human readable form', function (): void {
     $user = User::factory()->create();
 
-    // Create a token for the user
-    $user->createToken('Test Token', ['*']);
-
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk();
-    $content = $response->getContent();
-
-    // Verify token name is shown
-    expect($content)->toContain('Test Token');
-
-    // Verify masked pattern does NOT exist
-    expect($content)->not->toContain('•••');
-});
-
-it('token table: last_used_at is displayed in human-readable format', function (): void {
-    $user = User::factory()->create();
-
-    // Create a token for the user
     $tokenResult = $user->createToken('Test Token', ['*']);
     $token = $tokenResult->accessToken;
 
-    // Update last_used_at to a known time
     $token->last_used_at = now()->subHours(2);
     $token->save();
 
-    $response = $this->actingAs($user)->get('/profile');
+    $response = $this->actingAs($user)->get(route('profile'));
 
     $response->assertOk()
-        ->assertSee('2 hours ago');
+        ->assertSee($token->last_used_at->diffForHumans());
 });
 
-it('token table: creation form is displayed in tokens card', function (): void {
+it('deletes a token owned by the authenticated user', function (): void {
+    $user = User::factory()->create();
+    $tokenResult = $user->createToken('Test Token', ['*']);
+    $tokenId = $tokenResult->accessToken->id;
+
+    $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.token.delete', $tokenId));
+
+    $response->assertRedirectToRoute('profile')
+        ->assertSessionHas('status', 'api-token-deleted');
+
+    $this->assertDatabaseMissing('personal_access_tokens', [
+        'id' => $tokenId,
+    ]);
+    $this->assertAuthenticatedAs($user);
+});
+
+it('rejects deleting another user\'s token', function (): void {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $tokenId = $otherUser->createToken('Other User Token', ['*'])->accessToken->id;
+
+    $response = $this->actingAs($user)->delete(route('profile.token.delete', $tokenId));
+
+    $response->assertNotFound();
+
+    $this->assertDatabaseHas('personal_access_tokens', [
+        'id' => $tokenId,
+    ]);
+});
+
+it('returns 404 when deleting a missing token', function (): void {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->get('/profile');
+    $response = $this->actingAs($user)->delete(route('profile.token.delete', 999999));
 
-    $response->assertOk()
-        ->assertSee('action="'.route('profile.token.create').'"', false)
-        ->assertSee('name="name"', false);
+    $response->assertNotFound();
 });
 
-it('password change: successfully changes password with correct current password', function (): void {
-    $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
+it('changes the password and allows the new password to be used', function (): void {
+    $user = User::factory()->create(['password' => Hash::make('OldPassword123!')]);
 
-    $response = $this->actingAs($user)->put('/user/password', [
+    $response = $this->actingAs($user)->put(route('user-password.update'), [
         'current_password' => 'OldPassword123!',
         'password' => 'NewPassword456!',
         'password_confirmation' => 'NewPassword456!',
@@ -217,445 +191,79 @@ it('password change: successfully changes password with correct current password
 
     $response->assertSessionHasNoErrors();
 
-    // Verify password was changed
     $user->refresh();
     expect(Hash::check('NewPassword456!', $user->password))->toBeTrue()
         ->and(Hash::check('OldPassword123!', $user->password))->toBeFalse();
+
+    $this->post(route('logout'));
+
+    $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'OldPassword123!',
+    ])->assertSessionHasErrors();
+
+    $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'NewPassword456!',
+    ])->assertRedirectToRoute('profile');
+
+    $this->assertAuthenticatedAs($user);
 });
 
-it('password change: rejects invalid payload permutations: :dataset', function (
+it('rejects invalid password update payloads: :dataset', function (
     array $payload,
-    string|array $expectedErrors,
-    bool $assertNewPasswordWasNotSet
+    string|array $expectedErrors
 ): void {
     $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
 
-    $response = $this->actingAs($user)->from('/profile')->put('/user/password', $payload);
+    $response = $this->actingAs($user)->from(route('profile'))->put(route('user-password.update'), $payload);
 
-    $response->assertRedirect('/profile')
+    $response->assertRedirectToRoute('profile')
         ->assertSessionHasErrorsIn('updatePassword', $expectedErrors);
 
     $user->refresh();
     expect(Hash::check('OldPassword123!', $user->password))->toBeTrue();
-
-    if ($assertNewPasswordWasNotSet) {
-        expect(Hash::check('NewPassword456!', $user->password))->toBeFalse();
-    }
 })->with([
     'incorrect current password' => [[
         'current_password' => 'WrongPassword123!',
         'password' => 'NewPassword456!',
         'password_confirmation' => 'NewPassword456!',
-    ], 'current_password', true],
+    ], 'current_password'],
     'password too short' => [[
         'current_password' => 'OldPassword123!',
         'password' => 'short',
         'password_confirmation' => 'short',
-    ], ['password'], false],
+    ], ['password']],
     'password confirmation mismatch' => [[
         'current_password' => 'OldPassword123!',
         'password' => 'NewPassword456!',
         'password_confirmation' => 'DifferentPassword789!',
-    ], ['password'], false],
+    ], ['password']],
     'required fields missing' => [[
         'current_password' => '',
         'password' => '',
         'password_confirmation' => '',
-    ], ['current_password', 'password'], false],
+    ], ['current_password', 'password']],
 ]);
 
-it('password change: new password works for login', function (): void {
-    $user = User::factory()->create(['password' => bcrypt('OldPassword123!')]);
-
-    // Change password
-    $this->actingAs($user)->put('/user/password', [
-        'current_password' => 'OldPassword123!',
-        'password' => 'NewPassword456!',
-        'password_confirmation' => 'NewPassword456!',
-    ]);
-
-    // Logout
-    $this->post('/logout');
-
-    // Verify old password doesn't work
-    $this->post('/login', [
-        'email' => $user->email,
-        'password' => 'OldPassword123!',
-    ])->assertSessionHasErrors();
-
-    // Verify new password works
-    $this->post('/login', [
-        'email' => $user->email,
-        'password' => 'NewPassword456!',
-    ])->assertRedirect('/profile');
-
-    $this->assertAuthenticated();
-});
-
-it('token creation: successfully creates token with user-provided name', function (): void {
-    $user = User::factory()->create(['email' => 'test@example.com']);
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => 'My Custom Token',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHas('status', 'Your API token is ready')
-        ->assertSessionHas('token')
-        ->assertSessionHas('token_name');
-
-    // Verify token appears in personal_access_tokens table
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-        'tokenable_type' => get_class($user),
-        'name' => 'My Custom Token',
-    ]);
-
-    // Verify token name in session matches user-provided name
-    expect(session('token_name'))->toBe('My Custom Token');
-
-    // Verify token is not empty
-    expect(session('token'))->not->toBeEmpty();
-});
-
-it('token creation: successfully creates up to 5 tokens', function (): void {
-    $user = User::factory()->create();
-
-    // Create 5 tokens with different names
-    for ($i = 1; $i <= 5; $i++) {
-        $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-            'name' => "Token {$i}",
-        ]);
-
-        $response->assertRedirect('/profile')
-            ->assertSessionHas('status', 'Your API token is ready');
-    }
-
-    // Verify all 5 tokens exist in database
-    $tokenCount = $user->tokens()->count();
-    expect($tokenCount)->toBe(5);
-
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-        'name' => 'Token 1',
-    ]);
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-        'name' => 'Token 5',
-    ]);
-});
-
-it('token creation: blocked when user attempts to create 6th token', function (): void {
-    $user = User::factory()->create();
-
-    // Create 5 tokens
-    for ($i = 1; $i <= 5; $i++) {
-        $this->actingAs($user)->from('/profile')->post('/profile/token', [
-            'name' => "Token {$i}",
-        ]);
-    }
-
-    // Verify 5 tokens exist
-    expect($user->tokens()->count())->toBe(5);
-
-    // Try to create 6th token
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => 'Token 6',
-    ]);
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrors('token', 'You have reached the maximum limit of 5 API tokens. Delete an existing token before creating a new one.');
-
-    // Verify still only 5 tokens exist in database
-    $tokenCount = $user->tokens()->count();
-    expect($tokenCount)->toBe(5);
-});
-
-it('token creation: token is displayed in read-only input block after creation', function (): void {
-    $user = User::factory()->create(['email' => 'display@example.com']);
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => 'Display Test Token',
-    ]);
-
-    $response->assertRedirect('/profile');
-
-    // Follow redirect to see the displayed token
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('readonly', false)
-        ->assertSee('onclick="copyToken(', false);
-});
-
-it('token creation: copy button is present in token display', function (): void {
-    $user = User::factory()->create(['email' => 'copy@example.com']);
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => 'Copy Test Token',
-    ]);
-
-    $response->assertRedirect('/profile');
-
-    // Follow redirect to check for copy button
-    $response = $this->actingAs($user)->get('/profile');
-
-    $response->assertOk()
-        ->assertSee('onclick="copyToken(', false);
-});
-
-it('account deletion: successfully deletes account with delete_account confirmation', function (): void {
+it('rejects invalid account deletion confirmations', function (string $confirmation, string $expectedMessage): void {
     $user = User::factory()->create();
     $userId = $user->id;
 
-    $response = $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => 'DELETE_ACCOUNT',
+    $response = $this->actingAs($user)->from(route('profile'))->delete(route('profile.destroy'), [
+        'confirmation' => $confirmation,
     ]);
 
-    // Verify redirect to home page
-    $response->assertRedirect('/')
-        ->assertSessionHas('status', 'account-deleted');
+    $response->assertRedirectToRoute('profile')
+        ->assertSessionHasErrors([
+            'confirmation' => $expectedMessage,
+        ]);
 
-    // Verify user is hard deleted (not soft deleted)
-    $this->assertDatabaseMissing('users', [
-        'id' => $userId,
-    ]);
-
-    // Verify user is logged out (cannot access protected route)
-    $this->get('/profile')->assertRedirect('/login');
-});
-
-it('account deletion: fails without confirmation', function (): void {
-    $user = User::factory()->create();
-    $userId = $user->id;
-
-    $response = $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => '',
-    ]);
-
-    // Verify redirect back with errors
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrors('confirmation');
-
-    // Verify user still exists in database
     $this->assertDatabaseHas('users', [
         'id' => $userId,
     ]);
-
-    // Verify user is still logged in
     $this->assertAuthenticatedAs($user);
-});
-
-it('account deletion: fails with incorrect confirmation text', function (): void {
-    $user = User::factory()->create();
-    $userId = $user->id;
-
-    $response = $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => 'delete account',
-    ]);
-
-    // Verify redirect back with validation error
-    $response->assertRedirect('/profile')
-        ->assertSessionHasErrors('confirmation');
-
-    // Verify user still exists in database
-    $this->assertDatabaseHas('users', [
-        'id' => $userId,
-    ]);
-
-    // Verify user is still logged in
-    $this->assertAuthenticatedAs($user);
-});
-
-it('account deletion: cascades and deletes related tokens', function (): void {
-    $user = User::factory()->create(['email' => 'delete@example.com']);
-    $userId = $user->id;
-
-    // Create a token for the user
-    $token = $user->createToken('Delete Test Token', ['*']);
-    $tokenId = $token->accessToken->id;
-
-    // Verify token exists before deletion
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'id' => $tokenId,
-        'tokenable_id' => $userId,
-        'tokenable_type' => get_class($user),
-    ]);
-
-    // Delete the account
-    $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => 'DELETE_ACCOUNT',
-    ]);
-
-    // Verify user is hard deleted
-    $this->assertDatabaseMissing('users', [
-        'id' => $userId,
-    ]);
-
-    // Verify token is also deleted (cascade)
-    $this->assertDatabaseMissing('personal_access_tokens', [
-        'id' => $tokenId,
-        'tokenable_id' => $userId,
-    ]);
-});
-
-it('account deletion: multiple tokens are all deleted', function (): void {
-    $user = User::factory()->create(['email' => 'multitoken@example.com']);
-    $userId = $user->id;
-
-    // Create multiple tokens for the user
-    $token1 = $user->createToken('Token 1', ['*']);
-    $token2 = $user->createToken('Token 2', ['*']);
-    $token3 = $user->createToken('Token 3', ['*']);
-
-    $tokenIds = [$token1->accessToken->id, $token2->accessToken->id, $token3->accessToken->id];
-
-    // Verify all tokens exist before deletion
-    $this->assertDatabaseCount('personal_access_tokens', 3);
-
-    // Delete the account
-    $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => 'DELETE_ACCOUNT',
-    ]);
-
-    // Verify user is hard deleted
-    $this->assertDatabaseMissing('users', [
-        'id' => $userId,
-    ]);
-
-    // Verify all tokens are deleted
-    foreach ($tokenIds as $tokenId) {
-        $this->assertDatabaseMissing('personal_access_tokens', [
-            'id' => $tokenId,
-        ]);
-    }
-
-    $this->assertDatabaseCount('personal_access_tokens', 0);
-});
-
-it('account deletion: user cannot access authenticated routes after deletion', function (): void {
-    $user = User::factory()->create();
-    $userId = $user->id;
-
-    // Verify user can access profile before deletion
-    $this->actingAs($user)->get('/profile')->assertOk();
-
-    // Delete the account
-    $this->actingAs($user)->from('/profile')->delete('/profile', [
-        'confirmation' => 'DELETE_ACCOUNT',
-    ]);
-
-    // Verify user is hard deleted
-    $this->assertDatabaseMissing('users', [
-        'id' => $userId,
-    ]);
-
-    // Verify user is logged out and redirected to login
-    $this->get('/profile')->assertRedirect('/login');
-});
-
-it('token deletion: user can delete their own token successfully', function (): void {
-    $user = User::factory()->create();
-
-    // Create a token for the user
-    $tokenResult = $user->createToken('Test Token', ['*']);
-    $tokenId = $tokenResult->accessToken->id;
-
-    // Verify token exists before deletion
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'id' => $tokenId,
-        'tokenable_id' => $user->id,
-    ]);
-
-    // Delete the token
-    $response = $this->actingAs($user)->from('/profile')->delete("/profile/token/{$tokenId}");
-
-    $response->assertRedirect('/profile')
-        ->assertSessionHas('status', 'api-token-deleted');
-
-    // Verify token is removed from database
-    $this->assertDatabaseMissing('personal_access_tokens', [
-        'id' => $tokenId,
-    ]);
-
-    // Verify user still exists and is logged in
-    $this->assertDatabaseHas('users', [
-        'id' => $user->id,
-    ]);
-    $this->assertAuthenticatedAs($user);
-});
-
-it('token deletion: user cannot delete another user\'s token (404)', function (): void {
-    $user1 = User::factory()->create();
-    $user2 = User::factory()->create();
-
-    // Create a token for user2
-    $tokenResult = $user2->createToken('User2 Token', ['*']);
-    $tokenId = $tokenResult->accessToken->id;
-
-    // Verify token exists
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'id' => $tokenId,
-        'tokenable_id' => $user2->id,
-    ]);
-
-    // User1 tries to delete user2's token
-    $response = $this->actingAs($user1)->delete("/profile/token/{$tokenId}");
-
-    // Should return 404
-    $response->assertNotFound();
-
-    // Verify token still exists (was not deleted)
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'id' => $tokenId,
-        'tokenable_id' => $user2->id,
-    ]);
-});
-
-it('token deletion: deleting non-existent token returns 404', function (): void {
-    $user = User::factory()->create();
-
-    // Try to delete a token that doesn't exist
-    $response = $this->actingAs($user)->delete('/profile/token/999999');
-
-    $response->assertNotFound();
-});
-
-it('token deletion: unauthenticated user cannot delete token', function (): void {
-    // Try to delete token without authentication
-    $response = $this->delete('/profile/token/1');
-
-    // Should redirect to login
-    $response->assertRedirect('/login');
-});
-
-it('multi-token creation: validates token name length permutations: :dataset', function (
-    string $tokenName,
-    bool $expectsValidationError
-): void {
-    $user = User::factory()->create();
-
-    $response = $this->actingAs($user)->from('/profile')->post('/profile/token', [
-        'name' => $tokenName,
-    ]);
-
-    $response->assertRedirect('/profile');
-
-    if ($expectsValidationError) {
-        $response->assertSessionHasErrors('name');
-        $this->assertDatabaseMissing('personal_access_tokens', [
-            'tokenable_id' => $user->id,
-        ]);
-
-        return;
-    }
-
-    $response->assertSessionHas('status', 'Your API token is ready');
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'tokenable_id' => $user->id,
-    ]);
 })->with([
-    'name required' => ['', true],
-    'name exceeds 255 chars' => [str_repeat('a', 256), true],
-    'name at 255 chars' => [str_repeat('a', 255), false],
+    'missing confirmation' => ['', 'You must confirm account deletion.'],
+    'incorrect confirmation' => ['delete account', 'You must type DELETE_ACCOUNT to confirm.'],
 ]);

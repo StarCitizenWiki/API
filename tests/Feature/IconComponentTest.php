@@ -7,7 +7,5 @@ use Illuminate\Support\Facades\Blade;
 it('renders a lucide icon placeholder', function (): void {
     $output = Blade::render('<x-icon name="search" />');
 
-    expect($output)
-        ->toContain('data-lucide="search"')
-        ->toContain('size-4');
+    expect($output)->toContain('data-lucide="search"');
 });

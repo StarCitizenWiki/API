@@ -177,15 +177,23 @@ it('shows the default game version via /default endpoint', function (): void {
         ->assertJsonPath('data.is_default', true);
 });
 
-it('shows the default game version using "default" as identifier', function (): void {
+it('returns the default game version even when a newer version exists', function (): void {
     GameVersion::factory()->create([
         'code' => '3.24.0-LIVE',
         'is_default' => false,
+        'released_at' => now()->subDay(),
     ]);
 
     $defaultVersion = GameVersion::factory()->create([
         'code' => '3.24.1-LIVE',
         'is_default' => true,
+        'released_at' => now()->subDays(2),
+    ]);
+
+    GameVersion::factory()->create([
+        'code' => '3.24.2-LIVE',
+        'is_default' => false,
+        'released_at' => now(),
     ]);
 
     $response = $this->getJson('/api/game-versions/default');
@@ -218,7 +226,7 @@ it('paginates game versions with custom page size', function (): void {
 });
 
 it('includes all required fields in json response', function (): void {
-    $version = GameVersion::factory()->create([
+    GameVersion::factory()->create([
         'code' => '3.24.1-LIVE',
         'channel' => 'live',
         'released_at' => now(),

@@ -48,7 +48,7 @@ it('returns seat specification when item type is seat', function (): void {
                             'Maximum' => 65,
                         ],
                         'SetYawPitchLimits' => false,
-                        'HasEjection' => true,
+                        'HasEjection' => false,
                         'Ejection' => [
                             'MaxLinearVelocity' => 2000,
                             'MaxLinearAcceleration' => 100,
@@ -72,7 +72,7 @@ it('returns seat specification when item type is seat', function (): void {
         ->assertJsonPath('data.seat.pitch.minimum', Arr::get($seatData, 'Pitch.Minimum'))
         ->assertJsonPath('data.seat.pitch.maximum', Arr::get($seatData, 'Pitch.Maximum'))
         ->assertJsonPath('data.seat.set_yaw_pitch_limits', Arr::get($seatData, 'SetYawPitchLimits'))
-        ->assertJsonPath('data.seat.has_ejection', Arr::get($seatData, 'HasEjection'))
+        ->assertJsonPath('data.seat.has_ejection', true)
         ->assertJsonPath('data.seat.ejection.max_linear_velocity', Arr::get($seatData, 'Ejection.MaxLinearVelocity'))
         ->assertJsonPath('data.seat.ejection.max_linear_acceleration', Arr::get($seatData, 'Ejection.MaxLinearAcceleration'))
         ->assertJsonPath('data.seat.ejection.max_angular_velocity', Arr::get($seatData, 'Ejection.MaxAngularVelocity'))
@@ -80,7 +80,7 @@ it('returns seat specification when item type is seat', function (): void {
         ->assertJsonPath('data.seat.ejection.ejection_loop_time', Arr::get($seatData, 'Ejection.EjectionLoopTime'));
 });
 
-it('returns null ejection when no ejection data is available', function (): void {
+it('returns null axis limits and ejection data when seat values are missing', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.4.0-LIVE',
         'channel' => 'live',
@@ -108,8 +108,7 @@ it('returns null ejection when no ejection data is available', function (): void
                 'stdItem' => [
                     'Seat' => [
                         'SeatType' => 'HOTAS_C_L',
-                        'HasEjection' => false,
-                        'Ejection' => [],
+                        'SetYawPitchLimits' => null,
                     ],
                 ],
             ],
@@ -119,6 +118,8 @@ it('returns null ejection when no ejection data is available', function (): void
 
     $response->assertSuccessful()
         ->assertJsonPath('data.seat.seat_type', 'HOTAS_C_L')
+        ->assertJsonPath('data.seat.yaw', null)
+        ->assertJsonPath('data.seat.pitch', null)
         ->assertJsonPath('data.seat.has_ejection', false)
         ->assertJsonPath('data.seat.ejection', null);
 });

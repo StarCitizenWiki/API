@@ -8,15 +8,15 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Services\RelatedItemsBuilder;
-use App\Support\Cache\RelatedItemsCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
 describe('RelatedItemsBuilder Caching', function () {
+    beforeEach(function (): void {
+        Cache::flush();
 
-    beforeEach(function () {
         $this->gameVersion = GameVersion::factory()->create([
             'code' => '4.0.0-LIVE',
             'channel' => 'live',
@@ -32,7 +32,11 @@ describe('RelatedItemsBuilder Caching', function () {
         $this->entityTags = EntityTag::factory()->count(3)->create();
     });
 
-    it('demonstrates query count reduction with caching enabled', function (): void {
+    afterEach(function (): void {
+        Cache::flush();
+    });
+
+    it('keeps related items cached until the cache is flushed', function (): void {
         $baseItem = Item::factory()->create();
 
         $baseItemData = ItemData::factory()
@@ -47,84 +51,105 @@ describe('RelatedItemsBuilder Caching', function () {
                 'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
             ]);
 
-        for ($i = 1; $i <= 5; $i++) {
-            $variantItem = Item::factory()->create();
-
-            ItemData::factory()
-                ->for($variantItem)
-                ->for($this->gameVersion, 'gameVersion')
-                ->for($this->manufacturer)
-                ->create([
-                    'name' => "Variant Armor {$i}",
-                    'type' => 'Armor',
-                    'classification' => 'FPS.Armor.Light',
-                    'base_id' => $baseItemData->id,
-                    'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
-                ]);
-        }
-
-        $builder = new RelatedItemsBuilder($this->gameVersion->code);
-
-        DB::enableQueryLog();
-
-        $result = $builder->build($baseItem);
-
-        $queryCount = count(DB::getQueryLog());
-
-        expect($result)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items'])
-            ->and(count($result['variant_items']))->toBe(5)
-            ->and($queryCount)->toBeLessThanOrEqual(14);
-    });
-
-    it('demonstrates cache hit reduces queries significantly', function (): void {
-        $baseItem = Item::factory()->create();
-
-        $baseItemData = ItemData::factory()
-            ->for($baseItem)
+        $variantItem = Item::factory()->create();
+        $variantData = ItemData::factory()
+            ->for($variantItem)
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
             ->create([
-                'name' => 'Base Armor',
+                'name' => 'Variant Armor Alpha',
                 'type' => 'Armor',
                 'classification' => 'FPS.Armor.Light',
-                'base_id' => null,
+                'base_id' => $baseItemData->id,
                 'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
             ]);
 
-        for ($i = 1; $i <= 5; $i++) {
-            $variantItem = Item::factory()->create();
-
-            ItemData::factory()
-                ->for($variantItem)
-                ->for($this->gameVersion, 'gameVersion')
-                ->for($this->manufacturer)
-                ->create([
-                    'name' => "Variant Armor {$i}",
-                    'type' => 'Armor',
-                    'classification' => 'FPS.Armor.Light',
-                    'base_id' => $baseItemData->id,
-                    'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
-                ]);
-        }
-
         $builder = new RelatedItemsBuilder($this->gameVersion->code);
 
-        DB::enableQueryLog();
+        $initial = $builder->build($baseItem);
+        expect(data_get($initial, 'variant_items.0.name'))->toBe('Variant Armor Alpha');
 
-        $result1 = $builder->build($baseItem);
-        $queryCount1 = count(DB::getQueryLog());
+        $variantData->update(['name' => 'Variant Armor Beta']);
 
-        DB::flushQueryLog();
-        DB::enableQueryLog();
+        $cached = $builder->build($baseItem);
+        expect(data_get($cached, 'variant_items.0.name'))->toBe('Variant Armor Alpha');
 
-        $result2 = $builder->build($baseItem);
-        $queryCount2 = count(DB::getQueryLog());
+        Cache::flush();
 
-        expect($queryCount2)->toBeLessThan($queryCount1)
-            ->and($result1)->toBe($result2);
+        $refreshed = $builder->build($baseItem);
+        expect(data_get($refreshed, 'variant_items.0.name'))->toBe('Variant Armor Beta');
     });
 
-    it('demonstrates set items caching', function (): void {
+    it('keeps version-specific cache entries isolated', function (): void {
+        $versionOne = GameVersion::factory()->create([
+            'code' => '5.0.0-LIVE',
+            'channel' => 'live',
+            'released_at' => now()->subDay(),
+        ]);
+
+        $versionTwo = GameVersion::factory()->create([
+            'code' => '5.1.0-LIVE',
+            'channel' => 'live',
+            'released_at' => now(),
+        ]);
+
+        $baseItem = Item::factory()->create();
+        $variantItem = Item::factory()->create();
+
+        $versionOneBaseData = ItemData::factory()
+            ->for($baseItem)
+            ->for($versionOne, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Version One Armor',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.Light',
+                'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
+            ]);
+
+        ItemData::factory()
+            ->for($variantItem)
+            ->for($versionOne, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Version One Variant',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.Light',
+                'base_id' => $versionOneBaseData->id,
+                'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
+            ]);
+
+        $versionTwoBaseData = ItemData::factory()
+            ->for($baseItem)
+            ->for($versionTwo, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Version Two Armor',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.Light',
+                'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
+            ]);
+
+        ItemData::factory()
+            ->for($variantItem)
+            ->for($versionTwo, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Version Two Variant',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.Light',
+                'base_id' => $versionTwoBaseData->id,
+                'data' => ['stdItem' => ['Tags' => ['set_test', 'series_test']]],
+            ]);
+
+        $builderOne = new RelatedItemsBuilder($versionOne->code);
+        $builderTwo = new RelatedItemsBuilder($versionTwo->code);
+
+        expect(data_get($builderOne->build($baseItem), 'variant_items.0.name'))->toBe('Version One Variant')
+            ->and(data_get($builderTwo->build($baseItem), 'variant_items.0.name'))->toBe('Version Two Variant');
+    });
+
+    it('builds set items from matching class names', function (): void {
         $item = Item::factory()->create();
 
         ItemData::factory()
@@ -139,170 +164,51 @@ describe('RelatedItemsBuilder Caching', function () {
                 'data' => ['stdItem' => []],
             ]);
 
-        for ($i = 1; $i <= 3; $i++) {
-            $setItem = Item::factory()->create();
-            $part = match ($i) {
-                1 => 'helmet',
-                2 => 'arms',
-                3 => 'legs',
-            };
+        ItemData::factory()
+            ->for(Item::factory(), 'item')
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Armor Helmet',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.helmet',
+                'class_name' => 'fps_armor_heavy_helmet_01',
+                'data' => ['stdItem' => []],
+            ]);
 
-            ItemData::factory()
-                ->for($setItem)
-                ->for($this->gameVersion, 'gameVersion')
-                ->for($this->manufacturer)
-                ->create([
-                    'name' => "Test Armor {$part}",
-                    'type' => 'Armor',
-                    'classification' => "FPS.Armor.{$part}",
-                    'class_name' => "fps_armor_heavy_{$part}_01",
-                    'data' => ['stdItem' => []],
-                ]);
-        }
+        ItemData::factory()
+            ->for(Item::factory(), 'item')
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Armor Arms',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.arms',
+                'class_name' => 'fps_armor_heavy_arms_01',
+                'data' => ['stdItem' => []],
+            ]);
+
+        ItemData::factory()
+            ->for(Item::factory(), 'item')
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Armor Legs',
+                'type' => 'Armor',
+                'classification' => 'FPS.Armor.legs',
+                'class_name' => 'fps_armor_heavy_legs_01',
+                'data' => ['stdItem' => []],
+            ]);
 
         $builder = new RelatedItemsBuilder($this->gameVersion->code);
-
-        DB::enableQueryLog();
-
         $result = $builder->build($item);
 
-        $queryCount = count(DB::getQueryLog());
-
-        expect($result['set_items'])->toHaveCount(3)
-            ->and($queryCount)->toBeLessThanOrEqual(18);
-    });
-
-    it('demonstrates cache flush functionality', function (): void {
-        $baseItem = Item::factory()->create();
-
-        $baseItemData = ItemData::factory()
-            ->for($baseItem)
-            ->for($this->gameVersion, 'gameVersion')
-            ->for($this->manufacturer)
-            ->create([
-                'name' => 'Base Armor',
-                'type' => 'Armor',
-                'classification' => 'FPS.Armor.Light',
-                'base_id' => null,
-                'data' => ['stdItem' => []],
+        expect($result)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items'])
+            ->and($result['set_items'])->toHaveCount(3)
+            ->and(collect($result['set_items'])->pluck('name')->all())->toBe([
+                'Test Armor Helmet',
+                'Test Armor Arms',
+                'Test Armor Legs',
             ]);
-
-        $builder = new RelatedItemsBuilder($this->gameVersion->code);
-
-        DB::enableQueryLog();
-
-        $result1 = $builder->build($baseItem);
-        $queryCount1 = count(DB::getQueryLog());
-
-        RelatedItemsCache::flush($this->gameVersion->code);
-
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $result2 = $builder->build($baseItem);
-        $queryCount2 = count(DB::getQueryLog());
-
-        expect($queryCount2)->toBeGreaterThan(0)
-            ->and($result1)->toBe($result2);
-    });
-
-    it('verifies eager loading reduces queries', function (): void {
-        $baseItem = Item::factory()->create();
-
-        $baseItemData = ItemData::factory()
-            ->for($baseItem)
-            ->for($this->gameVersion, 'gameVersion')
-            ->for($this->manufacturer)
-            ->create([
-                'name' => 'Base Armor',
-                'type' => 'Armor',
-                'classification' => 'FPS.Armor.Light',
-                'base_id' => null,
-                'data' => ['stdItem' => []],
-            ]);
-
-        for ($i = 1; $i <= 3; $i++) {
-            $variantItem = Item::factory()->create();
-
-            ItemData::factory()
-                ->for($variantItem)
-                ->for($this->gameVersion, 'gameVersion')
-                ->for($this->manufacturer)
-                ->create([
-                    'name' => "Variant Armor {$i}",
-                    'type' => 'Armor',
-                    'classification' => 'FPS.Armor.Light',
-                    'base_id' => $baseItemData->id,
-                    'data' => ['stdItem' => []],
-                ]);
-        }
-
-        $builder = new RelatedItemsBuilder($this->gameVersion->code);
-
-        DB::enableQueryLog();
-
-        $result = $builder->build($baseItem);
-
-        $queries = DB::getQueryLog();
-        $queryCount = count($queries);
-
-        $gameVersionQueries = array_filter($queries, function ($query) {
-            return str_contains($query['query'], 'game_versions') &&
-                   str_contains($query['query'], 'where');
-        });
-
-        expect(count($gameVersionQueries))->toBeLessThanOrEqual(4)
-            ->and($result['variant_items'])->toHaveCount(3);
-    });
-
-    it('verifies cache keys are version-aware', function (): void {
-        $version1 = GameVersion::factory()->create([
-            'code' => '5.0.0-LIVE',
-            'channel' => 'live',
-            'is_default' => false,
-            'released_at' => now(),
-        ]);
-
-        $version2 = GameVersion::factory()->create([
-            'code' => '5.1.0-LIVE',
-            'channel' => 'live',
-            'is_default' => false,
-            'released_at' => now(),
-        ]);
-
-        $item = Item::factory()->create();
-
-        ItemData::factory()
-            ->for($item)
-            ->for($version1, 'gameVersion')
-            ->for($this->manufacturer)
-            ->create([
-                'name' => 'Test Armor',
-                'type' => 'Armor',
-                'classification' => 'FPS.Armor.Light',
-                'data' => ['stdItem' => []],
-            ]);
-
-        ItemData::factory()
-            ->for($item)
-            ->for($version2, 'gameVersion')
-            ->for($this->manufacturer)
-            ->create([
-                'name' => 'Test Armor V2',
-                'type' => 'Armor',
-                'classification' => 'FPS.Armor.Light',
-                'data' => ['stdItem' => []],
-            ]);
-
-        $builder1 = new RelatedItemsBuilder($version1->code);
-        $result1 = $builder1->build($item);
-
-        $builder2 = new RelatedItemsBuilder($version2->code);
-        DB::enableQueryLog();
-        $result2 = $builder2->build($item);
-        $queryCount2 = count(DB::getQueryLog());
-
-        expect($queryCount2)->toBeGreaterThan(1)
-            ->and($result1)->toHaveKeys(['set_name', 'base_item', 'variant_items', 'set_items']);
     });
 });

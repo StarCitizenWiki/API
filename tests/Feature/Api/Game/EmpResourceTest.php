@@ -35,6 +35,18 @@ it('returns emp specification when item type is emp', function (): void {
             'name' => 'Test EMP',
             'class_name' => 'EMP_TEST_S01',
             'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Emp' => [
+                        'ChargeTime' => 12.0,
+                        'DistortionDamage' => 1000.0,
+                        'EmpRadius' => 400.0,
+                        'MinEmpRadius' => 150.0,
+                        'UnleashTime' => 0.75,
+                        'CooldownTime' => 6.0,
+                    ],
+                ],
+            ],
         ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
@@ -45,5 +57,8 @@ it('returns emp specification when item type is emp', function (): void {
         ->assertJsonPath('data.emp.charge_duration', Arr::get($empData, 'ChargeTime'))
         ->assertJsonPath('data.emp.emp_radius', Arr::get($empData, 'EmpRadius'))
         ->assertJsonPath('data.emp.cooldown_duration', Arr::get($empData, 'CooldownTime'))
-        ->assertJsonPath('data.emp.distortion_damage', Arr::get($empData, 'DistortionDamage'));
+        ->assertJsonPath('data.emp.distortion_damage', Arr::get($empData, 'DistortionDamage'))
+        ->assertJsonPath('data.emp.min_emp_radius', Arr::get($empData, 'MinEmpRadius'))
+        ->assertJsonPath('data.emp.unleash_duration', Arr::get($empData, 'UnleashTime'))
+        ->assertJsonMissingPath('data.cooler');
 });

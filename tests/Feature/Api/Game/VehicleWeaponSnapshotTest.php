@@ -122,17 +122,13 @@ it('excludes weapon snapshot from index route', function (): void {
 
     $response = $this->getJson('/api/v3/vehicles');
 
-    $response->assertSuccessful();
-
-    $json = $response->json();
-    expect($json['data'])->toBeArray();
-
-    if (count($json['data']) > 0) {
-        expect($json['data'][0])->not->toHaveKey('weapon_snapshot');
-    }
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $vehicle->uuid)
+        ->assertJsonMissingPath('data.0.weapon_snapshot');
 });
 
-it('returns null weapon snapshot when loadout is empty', function (): void {
+it('does not include weapon snapshot when loadout is empty', function (): void {
     $vehicle = Vehicle::factory()->create();
 
     VehicleData::factory()
@@ -149,10 +145,9 @@ it('returns null weapon snapshot when loadout is empty', function (): void {
 
     $response = $this->getJson("/api/v3/vehicles/{$vehicle->uuid}");
 
-    $response->assertSuccessful();
-
-    $json = $response->json('data');
-    expect($json)->not->toHaveKey('weapon_snapshot');
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $vehicle->uuid)
+        ->assertJsonMissingPath('data.weapon_snapshot');
 });
 
 it('computes correct weapon snapshot for 300i-like vehicle', function (): void {

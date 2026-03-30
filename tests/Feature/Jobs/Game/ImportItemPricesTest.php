@@ -8,20 +8,23 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
-it('imports prices for existing items only', function () {
+it('imports prices for existing items only', function (): void {
+    Log::spy();
+
     $version = GameVersion::factory()->create(['is_default' => true]);
 
     $existingItem = Item::factory()->create();
-    ItemData::factory()->create([
+    $existingItemData = ItemData::factory()->create([
         'item_id' => $existingItem->id,
         'game_version_id' => $version->id,
     ]);
 
     $unknownItem = Item::factory()->create();
-    ItemData::factory()->create([
+    $unknownItemData = ItemData::factory()->create([
         'item_id' => $unknownItem->id,
         'game_version_id' => $version->id,
     ]);
@@ -53,14 +56,9 @@ it('imports prices for existing items only', function () {
     $job = new ImportItemPrices($version->id);
     $job->handle();
 
-    $itemData = ItemData::query()
-        ->where('item_id', $existingItem->id)
-        ->where('game_version_id', $version->id)
-        ->first()
-        ->refresh();
+    $itemData = $existingItemData->refresh();
 
-    expect($itemData)->not->toBeNull()
-        ->and($itemData->uex_prices)->toBeArray()
+    expect($itemData->uex_prices)->toBeArray()
         ->and($itemData->uex_prices)->toHaveCount(1)
         ->and($itemData->uex_prices[0])->toMatchArray([
             'terminal_id' => 1,
@@ -68,19 +66,27 @@ it('imports prices for existing items only', function () {
             'price_buy' => 100,
             'price_sell' => 50,
             'date_updated' => '2023-11-14T22:13:20+00:00',
-        ]);
+        ])
+        ->and($unknownItemData->refresh()->uex_prices)->toBeNull();
+
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 1,
+        'game_version_id' => $version->id,
+    ]);
 });
 
-it('updates only the specified game version', function () {
+it('updates only the specified game version', function (): void {
+    Log::spy();
+
     $targetVersion = GameVersion::factory()->create(['is_default' => true, 'code' => '4.0.0']);
     $otherVersion = GameVersion::factory()->create(['is_default' => false, 'code' => '3.22.0']);
 
     $item = Item::factory()->create();
-    ItemData::factory()->create([
+    $targetItemData = ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $targetVersion->id,
     ]);
-    ItemData::factory()->create([
+    $otherItemData = ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $otherVersion->id,
     ]);
@@ -103,42 +109,65 @@ it('updates only the specified game version', function () {
     $job = new ImportItemPrices($targetVersion->id);
     $job->handle();
 
-    $targetItemData = ItemData::query()
-        ->where('item_id', $item->id)
-        ->where('game_version_id', $targetVersion->id)
-        ->first()
-        ->refresh();
+    expect($targetItemData->refresh()->uex_prices)->toBeArray()->toHaveCount(1)
+        ->and($otherItemData->refresh()->uex_prices)->toBeNull();
 
-    $otherItemData = ItemData::query()
-        ->where('item_id', $item->id)
-        ->where('game_version_id', $otherVersion->id)
-        ->first()
-        ->refresh();
-
-    expect($targetItemData->uex_prices)->toBeArray()->toHaveCount(1)
-        ->and($otherItemData->uex_prices)->toBeNull();
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 1,
+        'game_version_id' => $targetVersion->id,
+    ]);
 });
 
-it('handles api failures gracefully', function () {
+it('logs api failures and leaves existing prices untouched', function (): void {
+    Log::spy();
+
     Http::fake([
         'api.uexcorp.uk/*' => Http::response(status: 500),
     ]);
 
     $version = GameVersion::factory()->create(['is_default' => true]);
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_id' => 7,
+                'terminal_name' => 'Existing Terminal',
+                'price_buy' => 900,
+                'price_sell' => 450,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
 
     $job = new ImportItemPrices($version->id);
+    $job->handle();
 
-    expect(fn () => $job->handle())->not->toThrow(Exception::class);
+    expect($itemData->refresh()->uex_prices)->toBe([
+        [
+            'terminal_id' => 7,
+            'terminal_name' => 'Existing Terminal',
+            'price_buy' => 900,
+            'price_sell' => 450,
+            'date_updated' => '2024-01-01T00:00:00+00:00',
+        ],
+    ]);
+
+    Log::shouldHaveReceived('error')->with('UEX API request failed', [
+        'status' => 500,
+        'game_version_id' => $version->id,
+    ]);
 });
 
-it('handles items without itemdata for the version', function () {
-    $version = GameVersion::factory()->create(['is_default' => true]);
-    $otherVersion = GameVersion::factory()->create(['is_default' => false]);
+it('logs when item data is missing for the requested game version', function (): void {
+    Log::spy();
 
+    $version = GameVersion::factory()->create(['is_default' => true]);
     $item = Item::factory()->create();
     ItemData::factory()->create([
         'item_id' => $item->id,
-        'game_version_id' => $otherVersion->id,
+        'game_version_id' => GameVersion::factory()->create(['is_default' => false])->id,
     ]);
 
     Http::fake([
@@ -159,15 +188,29 @@ it('handles items without itemdata for the version', function () {
     $job = new ImportItemPrices($version->id);
     $job->handle();
 
-    // Job completes without error
-    expect($item->id)->toBeInt();
+    expect(ItemData::query()
+        ->where('item_id', $item->id)
+        ->where('game_version_id', $version->id)
+        ->exists())->toBeFalse();
+
+    Log::shouldHaveReceived('debug')->with('ItemData not found for item', [
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 0,
+        'game_version_id' => $version->id,
+    ]);
 });
 
-it('deduplicates prices by terminal_id', function () {
+it('deduplicates prices by terminal_id', function (): void {
+    Log::spy();
+
     $version = GameVersion::factory()->create(['is_default' => true]);
 
     $item = Item::factory()->create();
-    ItemData::factory()->create([
+    $itemData = ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $version->id,
     ]);
@@ -206,14 +249,13 @@ it('deduplicates prices by terminal_id', function () {
     $job = new ImportItemPrices($version->id);
     $job->handle();
 
-    $itemData = ItemData::query()
-        ->where('item_id', $item->id)
-        ->where('game_version_id', $version->id)
-        ->first()
-        ->refresh();
-
-    expect($itemData->uex_prices)->toBeArray()
+    expect($itemData->refresh()->uex_prices)->toBeArray()
         ->and($itemData->uex_prices)->toHaveCount(2)
         ->and($itemData->uex_prices[0]['terminal_id'])->toBe(1)
         ->and($itemData->uex_prices[1]['terminal_id'])->toBe(2);
+
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 1,
+        'game_version_id' => $version->id,
+    ]);
 });

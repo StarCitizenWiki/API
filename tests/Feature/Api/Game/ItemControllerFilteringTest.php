@@ -41,11 +41,24 @@ it('filters items by type and manufacturer', function (): void {
             'data' => [],
         ]);
 
-    $other = Item::factory()->create();
+    $typeOnly = Item::factory()->create();
     ItemData::factory()
-        ->for($other)
+        ->for($typeOnly)
         ->for($version, 'gameVersion')
         ->for($otherManufacturer)
+        ->create([
+            'name' => 'Widget Two',
+            'type' => 'Widget',
+            'class_name' => 'WidgetTwo',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $manufacturerOnly = Item::factory()->create();
+    ItemData::factory()
+        ->for($manufacturerOnly)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
         ->create([
             'name' => 'Gadget One',
             'type' => 'Gadget',

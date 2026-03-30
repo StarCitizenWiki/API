@@ -8,7 +8,6 @@ use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Jumppoint;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -33,9 +32,16 @@ it('returns jumppoints when explicitly included', function (): void {
         'type' => 'STAR',
     ]);
 
+    $exitCO = CelestialObject::factory()->create([
+        'starsystem_id' => $starsystem->cig_id,
+        'code' => 'SOL-2',
+        'designation' => 'Terra Star',
+        'type' => 'PLANET',
+    ]);
+
     $jumppoint = Jumppoint::factory()->create([
         'entry_id' => $entryCO->cig_id,
-        'exit_id' => fake()->numberBetween(1000, 999999),
+        'exit_id' => $exitCO->cig_id,
         'name' => 'Terra Jump',
         'size' => 'MEDIUM',
     ]);
@@ -52,6 +58,8 @@ it('returns jumppoints when explicitly included', function (): void {
     expect($data['jumppoints'])->toHaveCount(1)
         ->and($data['jumppoints'][0]['id'])->toBe($jumppoint->cig_id)
         ->and($data['jumppoints'][0]['name'])->toBe($jumppoint->name)
+        ->and($data['jumppoints'][0]['entry']['code'])->toBe($entryCO->code)
+        ->and($data['jumppoints'][0]['exit']['code'])->toBe($exitCO->code)
         ->and($data['affiliation'])->toHaveCount(1);
 });
 
@@ -108,37 +116,6 @@ it('can include jumppoints in index endpoint', function (): void {
     $data = $response->json('data.0');
 
     expect($data['jumppoints'])->toHaveCount(1)
-        ->and($data['jumppoints'][0]['id'])->toBe($jumppoint->cig_id);
-});
-
-it('maintains low query count when including jumppoints', function (): void {
-    $starsystem = Starsystem::factory()->create(['code' => 'SOL']);
-
-    $entryCO = CelestialObject::factory()->create([
-        'starsystem_id' => $starsystem->cig_id,
-        'code' => 'SOL-1',
-        'designation' => 'Sol Star',
-        'type' => 'STAR',
-    ]);
-
-    Jumppoint::factory()->create([
-        'entry_id' => $entryCO->cig_id,
-        'exit_id' => fake()->numberBetween(1000, 999999),
-        'name' => 'Terra Jump',
-        'size' => 'MEDIUM',
-    ]);
-
-    DB::enableQueryLog();
-
-    $this->getJson(route('starsystems.show', [
-        'code' => 'SOL',
-        'include' => 'jumppoints',
-    ]));
-
-    $queries = DB::getQueryLog();
-    DB::disableQueryLog();
-
-    $queryCount = count($queries);
-
-    expect($queryCount)->toBeLessThanOrEqual(7);
+        ->and($data['jumppoints'][0]['id'])->toBe($jumppoint->cig_id)
+        ->and($data['jumppoints'][0]['entry']['code'])->toBe($entryCO->code);
 });

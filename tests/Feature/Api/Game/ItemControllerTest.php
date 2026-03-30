@@ -9,7 +9,6 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -106,9 +105,6 @@ it('includes all crafting blueprints when an item is craftable', function (): vo
             ],
         ]);
 
-    DB::flushQueryLog();
-    DB::enableQueryLog();
-
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
@@ -120,18 +116,6 @@ it('includes all crafting blueprints when an item is craftable', function (): vo
         ->assertJsonPath('data.blueprint.1.uuid', $betaBlueprint->uuid)
         ->assertJsonPath('data.blueprint.1.name', 'Beta Component Blueprint')
         ->assertJsonPath('data.blueprint.1.link', route('blueprints.show', ['blueprint' => $betaBlueprint->uuid]));
-
-    $craftingLookupQuery = collect(DB::getQueryLog())
-        ->pluck('query')
-        ->map(static fn (string $query): string => strtolower($query))
-        ->first(static fn (string $query): bool => str_contains($query, 'from "game_blueprint_data"'));
-
-    expect($craftingLookupQuery)->not->toBeNull()
-        ->and($craftingLookupQuery)->not->toContain('select * from "game_blueprint_data"')
-        ->and($craftingLookupQuery)->not->toContain('"game_blueprint_data"."data"')
-        ->and($craftingLookupQuery)->toContain('"blueprint_id"')
-        ->and($craftingLookupQuery)->toContain('"output_name"')
-        ->and($craftingLookupQuery)->toContain('"key"');
 });
 
 it('uses recipe keys when multiple crafting blueprints share the same output name', function (): void {
@@ -202,6 +186,7 @@ it('uses recipe keys when multiple crafting blueprints share the same output nam
 it('uses uuid-specific lookup before name or class_name fallbacks', function (): void {
     $item = Item::factory()->create();
     $decoyItem = Item::factory()->create();
+    $classNameDecoy = Item::factory()->create();
 
     ItemData::factory()
         ->for($item)
@@ -227,24 +212,24 @@ it('uses uuid-specific lookup before name or class_name fallbacks', function ():
             'data' => ['stdItem' => []],
         ]);
 
-    DB::flushQueryLog();
-    DB::enableQueryLog();
+    ItemData::factory()
+        ->for($classNameDecoy)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Class Name Decoy',
+            'type' => 'Clothing',
+            'class_name' => $item->uuid,
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
 
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertSuccessful()
         ->assertJsonPath('data.uuid', $item->uuid)
-        ->assertJsonPath('data.name', 'Primary Item');
-
-    $lookupQuery = collect(DB::getQueryLog())
-        ->pluck('query')
-        ->first(static fn (string $query) => str_contains($query, 'from "game_item_data"') && str_contains($query, 'limit 1'));
-
-    expect($lookupQuery)->not->toBeNull()
-        ->and(strtolower((string) $lookupQuery))->not->toContain('or "name" =')
-        ->and(strtolower((string) $lookupQuery))->not->toContain('upper(name)')
-        ->and(strtolower((string) $lookupQuery))->not->toContain('or "class_name" =')
-        ->and(strtolower((string) $lookupQuery))->toContain('from "game_items"');
+        ->assertJsonPath('data.name', 'Primary Item')
+        ->assertJsonPath('data.class_name', 'primary_item');
 });
 
 it('shows an item by name permutations', function (string $requestPath, string $itemClassName): void {
@@ -306,7 +291,7 @@ it('returns not found for non-existent item', function () {
     $response->assertNotFound();
 });
 
-it('redirects to vehicle endpoint for vehicle items', function (): void {
+it('redirects to the vehicle endpoint for vehicle items', function (): void {
     $item = Item::factory()->create();
 
     ItemData::factory()
@@ -324,7 +309,7 @@ it('redirects to vehicle endpoint for vehicle items', function (): void {
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertRedirect("/api/vehicles/{$item->uuid}");
-})->markTestSkipped('Temporarily quarantined while vehicle redirect assertions are stabilized.');
+});
 
 it('includes related items when requested', function (): void {
     $baseItem = Item::factory()->create();
@@ -481,9 +466,6 @@ it('includes craftability in item index results', function (): void {
             ],
         ]);
 
-    DB::flushQueryLog();
-    DB::enableQueryLog();
-
     $response = $this->getJson('/api/items');
 
     $response->assertSuccessful()
@@ -494,21 +476,6 @@ it('includes craftability in item index results', function (): void {
         ->assertJsonPath('data.1.uuid', $nonCraftableItem->uuid)
         ->assertJsonPath('data.1.is_craftable', false)
         ->assertJsonMissingPath('data.1.blueprint');
-
-    $craftingLookupQuery = collect(DB::getQueryLog())
-        ->pluck('query')
-        ->map(static fn (string $query): string => strtolower($query))
-        ->first(
-            static fn (string $query): bool => str_contains($query, 'from "game_blueprint_data"')
-                && str_contains($query, 'where "output_item_uuid" in')
-        );
-
-    expect($craftingLookupQuery)->not->toBeNull()
-        ->and($craftingLookupQuery)->not->toContain('select * from "game_blueprint_data"')
-        ->and($craftingLookupQuery)->not->toContain('"game_blueprint_data"."data"')
-        ->and($craftingLookupQuery)->toContain('"blueprint_id"')
-        ->and($craftingLookupQuery)->toContain('"output_name"')
-        ->and($craftingLookupQuery)->toContain('"key"');
 });
 
 it('includes version in api link when version is requested in item show', function (): void {

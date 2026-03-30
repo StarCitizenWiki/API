@@ -9,6 +9,7 @@ use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\DomCrawler\Crawler;
 
 uses(RefreshDatabase::class);
 
@@ -105,15 +106,18 @@ it('renders the item show view with api data', function (): void {
     $response->assertOk()
         ->assertViewIs('items.show')
         ->assertSeeText('Test.Module')
-        ->assertSee('Test Module')
-        ->assertSee('Main Port')
-        ->assertSee('Test Module Variant')
-        ->assertSee('Explosive')
-        ->assertSee('<meta name="keywords" content="Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC">', false)
-        ->assertSee('<meta property="og:type" content="website">', false)
-        ->assertSee('<meta property="og:title" content="Test Module - PowerPlant Acme Works">', false)
-        ->assertSee('<meta name="twitter:card" content="summary">', false)
-        ->assertSee('<meta name="twitter:title" content="Test Module - PowerPlant">', false);
+        ->assertSeeText('Test Module')
+        ->assertSeeText('Main Port')
+        ->assertSeeText('Test Module Variant')
+        ->assertSeeText('Explosive');
+
+    $crawler = new Crawler($response->getContent());
+
+    expect($crawler->filterXPath('//meta[@name="keywords"]')->attr('content'))->toBe('Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC')
+        ->and($crawler->filterXPath('//meta[@property="og:type"]')->attr('content'))->toBe('website')
+        ->and($crawler->filterXPath('//meta[@property="og:title"]')->attr('content'))->toBe('Test Module - PowerPlant Acme Works')
+        ->and($crawler->filterXPath('//meta[@name="twitter:card"]')->attr('content'))->toBe('summary')
+        ->and($crawler->filterXPath('//meta[@name="twitter:title"]')->attr('content'))->toBe('Test Module - PowerPlant');
 });
 
 it('renders minimal item with essentials block only', function (): void {
@@ -162,13 +166,13 @@ it('renders minimal item with essentials block only', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Minimal Module')
-        ->assertSee('minimal_module')
-        ->assertSee('Acme Works')
-        ->assertSee('PowerPlant')
-        ->assertSee('Small')
-        ->assertSee($item->uuid)
-        ->assertSee('4.0.0-LIVE');
+        ->assertSeeText('Minimal Module')
+        ->assertSeeText('minimal_module')
+        ->assertSeeText('Acme Works')
+        ->assertSeeText('PowerPlant')
+        ->assertSeeText('Small')
+        ->assertSeeText($item->uuid)
+        ->assertSeeText('4.0.0-LIVE');
 });
 
 it('renders ports-heavy item with collapsible ports section', function (): void {
@@ -223,11 +227,16 @@ it('renders ports-heavy item with collapsible ports section', function (): void 
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Ship Core')
-        ->assertSee('Drake Interplanetary')
-        ->assertSee('6') // Count badge
-        ->assertSee('Power Port 1')
-        ->assertSee('Weapon Port Left');
+        ->assertSeeText('Ship Core')
+        ->assertSeeText('Drake Interplanetary')
+        ->assertSeeText('Power Port 1')
+        ->assertSeeText('Weapon Port Left');
+
+    $crawler = new Crawler($response->getContent());
+    $portsBadge = $crawler->filterXPath('//details[.//span[normalize-space(.)="Ports"]]//summary//span[contains(@class, "badge")]');
+
+    expect($portsBadge->count())->toBe(1)
+        ->and(trim($portsBadge->text()))->toBe('6');
 });
 
 it('renders variant-heavy item with variants section', function (): void {
@@ -283,10 +292,10 @@ it('renders variant-heavy item with variants section', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Laser Cannon')
-        ->assertSee('Behring')
-        ->assertSee('Laser Cannon Variant 1')
-        ->assertSee('Laser Cannon Variant 4');
+        ->assertSeeText('Laser Cannon')
+        ->assertSeeText('Behring')
+        ->assertSeeText('Laser Cannon Variant 1')
+        ->assertSeeText('Laser Cannon Variant 4');
 });
 
 it('renders spec-heavy item with dynamic component sections', function (): void {
@@ -343,9 +352,9 @@ it('renders spec-heavy item with dynamic component sections', function (): void 
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Heavy Shield Generator')
-        ->assertSee('Aegis Dynamics')
-        ->assertSee($item->uuid);
+        ->assertSeeText('Heavy Shield Generator')
+        ->assertSeeText('Aegis Dynamics')
+        ->assertSeeText($item->uuid);
 });
 
 it('renders item with long description in collapsible details', function (): void {
@@ -401,11 +410,11 @@ it('renders item with long description in collapsible details', function (): voi
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Exploration Scanner')
-        ->assertSee('MISC')
-        ->assertSee('Exploration Scanner is an advanced detection system')
-        ->assertSee('Technical Specifications')
-        ->assertSee($item->uuid);
+        ->assertSeeText('Exploration Scanner')
+        ->assertSeeText('MISC')
+        ->assertSeeText('Exploration Scanner is an advanced detection system')
+        ->assertSeeText('Technical Specifications')
+        ->assertSeeText($item->uuid);
 });
 
 it('displays raw payload in collapsible details', function (): void {
@@ -445,8 +454,8 @@ it('displays raw payload in collapsible details', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Luxury Lamp')
-        ->assertSee($item->uuid);
+        ->assertSeeText('Luxury Lamp')
+        ->assertSeeText($item->uuid);
 });
 
 it('includes accessibility attributes on collapsible sections', function (): void {
@@ -493,9 +502,12 @@ it('includes accessibility attributes on collapsible sections', function (): voi
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('<details', false) // HTML5 details element
-        ->assertSee('<summary', false) // HTML5 summary element
-        ->assertSee('Tactical Display');
+        ->assertSeeText('Tactical Display');
+
+    $crawler = new Crawler($response->getContent());
+
+    expect($crawler->filter('details')->count())->toBeGreaterThan(0)
+        ->and($crawler->filter('summary')->count())->toBeGreaterThan(0);
 });
 
 it('supports responsive layout for mobile viewports', function (): void {
@@ -542,9 +554,9 @@ it('supports responsive layout for mobile viewports', function (): void {
 
     $response->assertOk()
         ->assertViewIs('items.show')
-        ->assertSee('Standard Component')
-        ->assertSee('RSI')
-        ->assertSee('Utility')
-        ->assertSee($item->uuid)
-        ->assertSee('4.0.0-LIVE');
+        ->assertSeeText('Standard Component')
+        ->assertSeeText('RSI')
+        ->assertSeeText('Utility')
+        ->assertSeeText($item->uuid)
+        ->assertSeeText('4.0.0-LIVE');
 });

@@ -21,11 +21,11 @@ beforeEach(function (): void {
 it('starsystem web route accepts code parameter', function (): void {
     $starsystem = Starsystem::factory()->create(['code' => 'TESTSYS']);
     $response = $this->get(route('web.starmap.systems.show', ['code' => $starsystem->code]));
-    $response->assertSuccessful();
+    $response->assertNoContent();
 });
 
 it('celestial object web route accepts code parameter', function (): void {
     $celestial = CelestialObject::factory()->create(['code' => 'TESTOBJ']);
     $response = $this->get(route('web.starmap.celestial-objects.show', ['code' => $celestial->code]));
-    $response->assertSuccessful();
+    $response->assertNoContent();
 });

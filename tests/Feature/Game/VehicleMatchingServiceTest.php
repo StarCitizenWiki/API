@@ -86,35 +86,41 @@ it('finds matches for default manufacturer name permutations', function (
 ]);
 
 it('uses config overrides for matching', function (): void {
-    config(['game.vehicle_name_overrides' => [
-        'Difficult Name' => 'Easy Name',
-    ]]);
+    $originalOverrides = config('game.vehicle_name_overrides', []);
 
-    $vehicle = ShipMatrixVehicle::query()->create([
-        'cig_id' => 3,
-        'name' => 'Easy Name',
-        'slug' => 'easy-name',
-        'manufacturer_id' => $this->manufacturer->id,
-        'production_status_id' => $this->productionStatus->id,
-        'production_note_id' => $this->productionNote->id,
-        'size_id' => $this->size->id,
-        'type_id' => $this->type->id,
-        'chassis_id' => 3,
-    ]);
+    try {
+        config(['game.vehicle_name_overrides' => [
+            'Difficult Name' => 'Easy Name',
+        ]]);
 
-    $payload = [
-        'UUID' => 'test-uuid',
-        'Name' => 'Difficult Name',
-        'ClassName' => 'TEST_CLASS',
-        'Manufacturer' => [
-            'Name' => 'Anvil Aerospace',
-            'Code' => 'ANV',
-        ],
-    ];
+        $vehicle = ShipMatrixVehicle::query()->create([
+            'cig_id' => 3,
+            'name' => 'Easy Name',
+            'slug' => 'easy-name',
+            'manufacturer_id' => $this->manufacturer->id,
+            'production_status_id' => $this->productionStatus->id,
+            'production_note_id' => $this->productionNote->id,
+            'size_id' => $this->size->id,
+            'type_id' => $this->type->id,
+            'chassis_id' => 3,
+        ]);
 
-    $result = $this->service->findMatch($payload);
+        $payload = [
+            'UUID' => 'test-uuid',
+            'Name' => 'Difficult Name',
+            'ClassName' => 'TEST_CLASS',
+            'Manufacturer' => [
+                'Name' => 'Anvil Aerospace',
+                'Code' => 'ANV',
+            ],
+        ];
 
-    expect($result)->toBe($vehicle->id);
+        $result = $this->service->findMatch($payload);
+
+        expect($result)->toBe($vehicle->id);
+    } finally {
+        config(['game.vehicle_name_overrides' => $originalOverrides]);
+    }
 });
 
 it('returns null when no match found', function (): void {
