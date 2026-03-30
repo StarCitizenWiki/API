@@ -1,0 +1,86 @@
+@props(['vehicle'])
+
+@php
+    use Illuminate\Support\Arr;
+
+    $vehicleName = data_get($vehicle, 'name', 'Vehicle');
+    $manufacturerName = data_get($vehicle, 'manufacturer.name');
+    $sizeClass = data_get($vehicle, 'size_class');
+    $career = data_get($vehicle, 'career');
+    $role = data_get($vehicle, 'role');
+    $description = data_get($vehicle, 'description.en');
+
+    if (is_array($description)) {
+        $description = Arr::first($description, static fn (mixed $value): bool => is_string($value) && $value !== '');
+    }
+
+    if ($description === null || $description === '') {
+        $description = data_get($vehicle, 'description');
+
+        if (is_array($description)) {
+            $description = Arr::first($description, static fn (mixed $value): bool => is_string($value) && $value !== '');
+        }
+    }
+
+    $msrp = data_get($vehicle, 'msrp');
+@endphp
+
+<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow']) }}>
+    <div class="card-body gap-4 p-5 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0 space-y-1">
+                <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {{ $vehicleName }}
+                </h1>
+
+                @if ($manufacturerName || $career || $role || $sizeClass !== null)
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-base-content/60">
+                        @if ($manufacturerName)
+                            <a
+                                href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerName]]) }}"
+                                class="link link-hover font-semibold text-base-content/70"
+                            >
+                                {{ $manufacturerName }}
+                            </a>
+                        @endif
+                        @if ($manufacturerName && ($career || $role || $sizeClass !== null))
+                            <span aria-hidden="true" class="text-base-content/35">|</span>
+                        @endif
+                        @if ($career)
+                            <span>{{ $career }}</span>
+                        @endif
+                        @if ($career && ($role || $sizeClass !== null))
+                            <span aria-hidden="true" class="text-base-content/35">|</span>
+                        @endif
+                        @if ($role)
+                            <span>{{ $role }}</span>
+                        @endif
+                        @if ($role && $sizeClass !== null)
+                            <span aria-hidden="true" class="text-base-content/35">|</span>
+                        @endif
+                        @if ($sizeClass !== null)
+                            <span>S{{ $sizeClass }}</span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
+            @if ($msrp !== null)
+                <div class="rounded-xl border border-base-300 bg-base-200/45 px-3 py-2.5 sm:shrink-0">
+                    <div class="text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/50">
+                        MSRP
+                    </div>
+                    <div class="mt-1.5 text-base font-semibold leading-none text-base-content">
+                        ${{ number_format((float) $msrp, 0) }}
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        @if ($description)
+            <div class="max-w-2xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base">
+                {!! nl2br(e((string) $description)) !!}
+            </div>
+        @endif
+    </div>
+</section>

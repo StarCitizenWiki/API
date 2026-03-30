@@ -1,4 +1,4 @@
-@php use Illuminate\Support\Str; @endphp
+@php use Illuminate\Support\Arr; use Illuminate\Support\Str; @endphp
 @extends('layouts.app')
 
 @php
@@ -12,6 +12,18 @@
     $role = data_get($vehicle, 'role');
     $className = data_get($vehicle, 'class_name');
     $shipMatrixDescription = data_get($vehicle, 'description.en');
+
+    if (is_array($shipMatrixDescription)) {
+        $shipMatrixDescription = Arr::first($shipMatrixDescription, static fn (mixed $value): bool => is_string($value) && $value !== '');
+    }
+
+    if ($shipMatrixDescription === null || $shipMatrixDescription === '') {
+        $shipMatrixDescription = data_get($vehicle, 'description');
+
+        if (is_array($shipMatrixDescription)) {
+            $shipMatrixDescription = Arr::first($shipMatrixDescription, static fn (mixed $value): bool => is_string($value) && $value !== '');
+        }
+    }
     $classification = data_get($vehicle, 'classification');
 
     $isSpaceship = data_get($vehicle, 'is_spaceship');
@@ -49,15 +61,9 @@
 
 
 @section('content')
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
             <x-vehicles.vehicle-breadcrumbs :vehicle="$vehicle" :manufacturerCode="$manufacturerCode" />
-            <h1 class="text-2xl font-semibold tracking-tight">
-                {{ $vehicleName }}
-                @if ($className)
-                    <span class="text-secondary">({{ $className }})</span>
-                @endif
-            </h1>
         </div>
 
         <x-resource-search
@@ -65,10 +71,15 @@
             description="Find vehicles by name across the universe database."
             :route="route('web.vehicles.index')"
             placeholder="Search Vehicles"
+            variant="minimal"
         />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <x-vehicles.quick-summary-card :vehicle="$vehicle" class="col-span-1 xl:col-span-2" />
+        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
+            <x-vehicles.hero :vehicle="$vehicle" class="xl:col-span-6" />
+            <x-vehicles.quick-facts-card :vehicle="$vehicle" class="col-span-6 2xl:col-span-4" />
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
             <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
             <x-vehicles.systems-signatures-card :vehicle="$vehicle" class="col-span-full" />
@@ -82,17 +93,6 @@
 
             @if($hasPurchaseData)
                 <x-vehicles.purchase-variants-card :vehicle="$vehicle" class="md:col-span-2 xl:col-span-1" />
-            @endif
-
-            @if ($shipMatrixDescription)
-                <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-full">
-                    <summary class="collapse-title min-h-11 py-3 font-semibold">Description</summary>
-                    <div class="collapse-content">
-                        <div class="text-sm text-base-content/80 leading-relaxed">
-                            {!! nl2br(e($shipMatrixDescription)) !!}
-                        </div>
-                    </div>
-                </details>
             @endif
 
             <x-vehicles.metadata-footer-card :vehicle="$vehicle" class="mt-6 col-span-full" />
