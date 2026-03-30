@@ -5,7 +5,6 @@ vendor
 resources/assets
 bootstrap/cache/*
 /var
-/storage/app/api/scunpacked-data
-/storage/app/api/ScToolBoxLocales
-/storage/app/api/StarCitizenDeutsch
+/storage/app/api/
 .gitmodules
+/v2

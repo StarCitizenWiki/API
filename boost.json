@@ -11,7 +11,5 @@
         "opencode",
         "phpstorm"
     ],
-    "guidelines": [
-        "laravel/fortify"
-    ]
+    "guidelines": true
 }
