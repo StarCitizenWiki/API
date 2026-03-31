@@ -656,7 +656,7 @@ paths:
         -
           name: sort
           in: query
-          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
+          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
           schema:
             type: string
             example: '-cargo_capacity'
@@ -9312,19 +9312,123 @@ components:
       title: 'Turret Summary'
       description: 'Manned or remote turret entry as provided by the ship data.'
       properties:
+        category:
+          type: string
+          example: manned
+          nullable: true
+        display_name:
+          type: string
+          example: hardpoint_turret_upper
+          nullable: true
+        hardpoint_name:
+          type: string
+          example: hardpoint_turret_upper
+          nullable: true
+        part_name:
+          type: string
+          example: hardpoint_turret_upper
+          nullable: true
+        turret_type:
+          type: string
+          example: TurretBase.MannedTurret
+          nullable: true
+        class_name:
+          type: string
+          example: ORIG_890J_SCItem_Turret_Upper
+          nullable: true
         size:
           type: integer
           example: 5
           nullable: true
+        turret:
+          type: boolean
+          example: true
+          nullable: true
+        gimballed:
+          type: boolean
+          example: false
+          nullable: true
         fixed:
           type: boolean
           example: true
+          nullable: true
+        mount_count:
+          type: integer
+          example: 2
           nullable: true
         weapon_sizes:
           type: array
           items:
             type: integer
             example: 5
+          nullable: true
+        payload_sizes:
+          type: array
+          items:
+            type: integer
+            example: 5
+          nullable: true
+        payload_types:
+          type: array
+          items:
+            type: string
+            example: WeaponGun.Gun
+          nullable: true
+        payload_class_names:
+          type: array
+          items:
+            type: string
+            example: BEHR_LaserCannon_S4
+          nullable: true
+        mounts:
+          type: array
+          items:
+            properties:
+              display_name:
+                type: string
+                example: turret_left
+                nullable: true
+              hardpoint_name:
+                type: string
+                example: turret_left
+                nullable: true
+              mount_type:
+                type: string
+                example: Turret.GunTurret
+                nullable: true
+              class_name:
+                type: string
+                example: Mount_Gimbal_S4
+                nullable: true
+              size:
+                type: integer
+                example: 4
+                nullable: true
+              weapon_sizes:
+                type: array
+                items:
+                  type: integer
+                  example: 4
+                nullable: true
+              payload_sizes:
+                type: array
+                items:
+                  type: integer
+                  example: 4
+                nullable: true
+              payload_types:
+                type: array
+                items:
+                  type: string
+                  example: WeaponGun.Gun
+                nullable: true
+              payload_class_names:
+                type: array
+                items:
+                  type: string
+                  example: BEHR_LaserCannon_S4
+                nullable: true
+            type: object
           nullable: true
       type: object
     vehicle_link:
@@ -10017,6 +10121,11 @@ components:
                 $ref: '#/components/schemas/game_vehicle_turret'
               nullable: true
             remote:
+              type: array
+              items:
+                $ref: '#/components/schemas/game_vehicle_turret'
+              nullable: true
+            pdc:
               type: array
               items:
                 $ref: '#/components/schemas/game_vehicle_turret'
