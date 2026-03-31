@@ -144,6 +144,7 @@
             description="Find items by name across the universe database."
             :route="route('web.items.index')"
             placeholder="Search item names"
+            variant="minimal"
         />
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-3">

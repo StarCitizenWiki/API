@@ -23,15 +23,44 @@
     }
 
     $msrp = data_get($vehicle, 'msrp');
+    $isSpaceship = data_get($vehicle, 'is_spaceship') === true;
+    $isGravlev = data_get($vehicle, 'is_gravlev') === true;
+    $isVehicle = data_get($vehicle, 'is_vehicle') === true;
+
+    $vehicleTypeIcon = null;
+    $vehicleTypeLabel = null;
+
+    if ($isGravlev) {
+        $vehicleTypeIcon = 'drone';
+        $vehicleTypeLabel = 'Gravlev vehicle';
+    } elseif ($isSpaceship) {
+        $vehicleTypeIcon = 'rocket';
+        $vehicleTypeLabel = 'Ship';
+    } elseif ($isVehicle) {
+        $vehicleTypeIcon = 'truck';
+        $vehicleTypeLabel = 'Ground vehicle';
+    }
 @endphp
 
 <section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-1">
-                <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
-                    {{ $vehicleName }}
-                </h1>
+                <div class="flex items-center gap-3">
+                    @if ($vehicleTypeIcon)
+                        <span
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
+                            title="{{ $vehicleTypeLabel }}"
+                            aria-label="{{ $vehicleTypeLabel }}"
+                        >
+                            <x-icon :name="$vehicleTypeIcon" class="size-5 sm:size-6" />
+                        </span>
+                    @endif
+
+                    <h1 class="min-w-0 text-3xl font-semibold tracking-tight sm:text-4xl">
+                        {{ $vehicleName }}
+                    </h1>
+                </div>
 
                 @if ($manufacturerName || $career || $role || $sizeClass !== null)
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-base-content/60">

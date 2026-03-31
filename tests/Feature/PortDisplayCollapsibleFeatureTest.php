@@ -47,6 +47,18 @@ it('renders nested hardpoints on the vehicle page', function (): void {
                 'Width' => 10,
                 'Height' => 5,
                 'Mass' => 10000,
+                'MassLoadout' => 12000,
+                'MassTotal' => 22000,
+                'CrossSection' => [
+                    'X' => 8,
+                    'Y' => 6,
+                    'Z' => 4,
+                ],
+                'Insurance' => [
+                    'StandardClaimTime' => 12.5,
+                    'ExpeditedClaimTime' => 4.5,
+                    'ExpeditedCost' => 1250,
+                ],
                 'Loadout' => [
                     [
                         'HardpointName' => 'S1',
@@ -64,6 +76,30 @@ it('renders nested hardpoints on the vehicle page', function (): void {
                         ],
                     ],
                 ],
+                'MannedTurrets' => [
+                    [
+                        'Size' => 2,
+                        'Turret' => true,
+                        'Fixed' => true,
+                        'WeaponSizes' => [2, 2],
+                    ],
+                ],
+                'RemoteTurrets' => [
+                    [
+                        'Size' => 3,
+                        'Gimballed' => true,
+                        'WeaponSizes' => [1, 1],
+                    ],
+                ],
+                'CargoGrids' => [
+                    [
+                        'SCU' => 8,
+                        'X' => 2,
+                        'Y' => 4,
+                        'Z' => 1,
+                        'IsOpenContainer' => true,
+                    ],
+                ],
             ],
         ]);
 
@@ -71,7 +107,18 @@ it('renders nested hardpoints on the vehicle page', function (): void {
 
     $response->assertStatus(200)
         ->assertSeeText('Hardpoints')
+        ->assertSeeText('Turrets')
+        ->assertSeeText('Manned')
+        ->assertSeeText('Remote')
         ->assertSeeText('Test Vehicle')
+        ->assertSeeText('Gimballed')
+        ->assertSeeText('Fixed')
+        ->assertSeeText('Weapon Sizes')
+        ->assertSeeText('Dimensions & Mass')
+        ->assertSeeText('Cargo Grids')
+        ->assertSeeText('Insurance')
+        ->assertSeeText('Expedite')
+        ->assertSeeText('Open')
         ->assertSeeText('S1')
         ->assertSeeText('S1-1');
 });

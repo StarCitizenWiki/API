@@ -7,54 +7,74 @@
     $height = data_get($dimension, 'height');
 
     $crossSection = data_get($vehicle, 'cross_section', []);
+    $crossSectionLength = data_get($crossSection, 'length');
+    $crossSectionWidth = data_get($crossSection, 'width');
+    $crossSectionHeight = data_get($crossSection, 'height');
 
     $massTotal = data_get($vehicle, 'mass_total', data_get($vehicle, 'mass'));
     $massHull = data_get($vehicle, 'mass_hull');
     $massLoadout = data_get($vehicle, 'mass_loadout');
+
+    $sections = [
+        [
+            'label' => 'Dimensions',
+            'rows' => [
+                ['label' => 'Length', 'value' => $length !== null ? fmt_value_with_unit($length, 'm', 1) : '-'],
+                ['label' => 'Width', 'value' => $width !== null ? fmt_value_with_unit($width, 'm', 1) : '-'],
+                ['label' => 'Height', 'value' => $height !== null ? fmt_value_with_unit($height, 'm', 1) : '-'],
+            ],
+            'render' => $length !== null || $width !== null || $height !== null,
+        ],
+        [
+            'label' => 'Cross Section',
+            'rows' => [
+                ['label' => 'Length', 'value' => fmt_or_dash($crossSectionLength)],
+                ['label' => 'Width', 'value' => fmt_or_dash($crossSectionWidth)],
+                ['label' => 'Height', 'value' => fmt_or_dash($crossSectionHeight)],
+            ],
+            'render' => $crossSectionLength !== null || $crossSectionWidth !== null || $crossSectionHeight !== null,
+        ],
+        [
+            'label' => 'Mass',
+            'rows' => [
+                ['label' => 'Total', 'value' => $massTotal !== null ? fmt_value_with_unit($massTotal, 'kg', 0) : '-'],
+                ['label' => 'Hull', 'value' => $massHull !== null ? fmt_value_with_unit($massHull, 'kg', 0) : '-'],
+                ['label' => 'Loadout', 'value' => $massLoadout !== null ? fmt_value_with_unit($massLoadout, 'kg', 0) : '-'],
+            ],
+            'render' => $massTotal !== null || $massHull !== null || $massLoadout !== null,
+        ],
+    ];
+
+    $sections = array_values(array_filter($sections, static fn (array $section): bool => $section['render']));
 @endphp
 
-<details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
-    <summary class="collapse-title min-h-11 py-3 font-semibold">
-        Dimensions & Mass
-    </summary>
-    <div class="collapse-content">
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Length</dt>
-                <dd class="text-sm font-medium">{{ $length ? number_format($length, 1) . ' m' : '-' }}</dd>
+@if ($sections !== [])
+    <section class="card bg-base-100 shadow">
+        <div class="card-body p-5 sm:p-6">
+            <h3 class="card-title text-base">Dimensions & Mass</h3>
+
+            <div class="grid gap-12 lg:grid-cols-3">
+                @foreach ($sections as $section)
+                    <section class="min-w-0 space-y-3">
+                        <div class="text-sm font-semibold text-base-content/65">
+                            {{ $section['label'] }}
+                        </div>
+
+                        <dl class="space-y-2">
+                            @foreach ($section['rows'] as $row)
+                                <div class="grid grid-cols-2 items-start gap-x-3">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                        {{ $row['label'] }}
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-base-content">
+                                        {{ $row['value'] }}
+                                    </dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    </section>
+                @endforeach
             </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Width</dt>
-                <dd class="text-sm font-medium">{{ $width ? number_format($width, 1) . ' m' : '-' }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Height</dt>
-                <dd class="text-sm font-medium">{{ $height ? number_format($height, 1) . ' m' : '-' }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cross Section</dt>
-                <dd class="text-sm font-medium">
-                    @if (data_get($crossSection, 'length') || data_get($crossSection, 'width') || data_get($crossSection, 'height'))
-                        {{ fmt_or_dash(data_get($crossSection, 'length')) }}
-                        × {{ fmt_or_dash(data_get($crossSection, 'width')) }}
-                        × {{ fmt_or_dash(data_get($crossSection, 'height')) }}
-                    @else
-                        -
-                    @endif
-                </dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Total</dt>
-                <dd class="text-sm font-medium">{{ $massTotal ? fmt_value_with_unit($massTotal, 'kg', 0) : '-' }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Hull</dt>
-                <dd class="text-sm font-medium">{{ $massHull ? fmt_value_with_unit($massHull, 'kg', 0) : '-' }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mass Loadout</dt>
-                <dd class="text-sm font-medium">{{ $massLoadout ? fmt_value_with_unit($massLoadout, 'kg', 0) : '-' }}</dd>
-            </div>
-        </dl>
-    </div>
-</details>
+        </div>
+    </section>
+@endif

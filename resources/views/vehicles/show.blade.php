@@ -40,6 +40,7 @@
     $shipMatrixFoci = data_get($vehicle, 'foci', []);
     $shipMatrixSkus = data_get($vehicle, 'skus', []);
     $hasPurchaseData = $shipMatrixName || $shipMatrixMsrp || $shipMatrixPledgeUrl || $shipMatrixLoaner || $shipMatrixFoci || $shipMatrixSkus;
+    $hasOwnershipData = $hasInsuranceData || $hasPurchaseData;
 @endphp
 
 @section('title')
@@ -76,26 +77,63 @@
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
             <x-vehicles.hero :vehicle="$vehicle" class="xl:col-span-6" />
-            <x-vehicles.quick-facts-card :vehicle="$vehicle" class="col-span-6 2xl:col-span-4" />
+            <x-vehicles.quick-facts-card :vehicle="$vehicle" class="xl:col-span-6" />
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
-            <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
-            <x-vehicles.systems-signatures-card :vehicle="$vehicle" class="col-span-full" />
+        <div class="flex flex-col gap-8">
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold tracking-tight">Flight & Mobility</h2>
 
-            <x-vehicles.parts-turrets-card :vehicle="$vehicle" />
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
+                    <x-vehicles.propulsion-card :vehicle="$vehicle" />
+                </div>
+            </section>
 
-            <x-vehicles.dimensions-mass-card :vehicle="$vehicle" />
-            <x-vehicles.propulsion-card :vehicle="$vehicle" />
-            <x-vehicles.cargo-inventory-card :vehicle="$vehicle" />
-            <x-vehicles.insurance-logistics-card :vehicle="$vehicle" />
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold tracking-tight">Combat & Systems</h2>
 
-            @if($hasPurchaseData)
-                <x-vehicles.purchase-variants-card :vehicle="$vehicle" class="md:col-span-2 xl:col-span-1" />
-            @endif
+                <div class="flex flex-col gap-4">
+                    <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
 
-            <x-vehicles.metadata-footer-card :vehicle="$vehicle" class="mt-6 col-span-full" />
+                    <div class="grid grid-cols-1 gap-4 2xl:grid-cols-2">
+                        <x-vehicles.systems-signatures-card :vehicle="$vehicle" />
+                        <x-vehicles.systems-breakdown-card :vehicle="$vehicle" />
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="parts" />
+                        <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold tracking-tight">Dimensions & Cargo</h2>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <x-vehicles.dimensions-mass-card :vehicle="$vehicle" />
+                    <x-vehicles.cargo-inventory-card :vehicle="$vehicle" />
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold tracking-tight">Purchase & Insurance</h2>
+
+                @if ($hasOwnershipData)
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        <x-vehicles.purchase-variants-card :vehicle="$vehicle" />
+                    </div>
+                @endif
+            </section>
+
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <x-vehicles.metadata-footer-card :vehicle="$vehicle" />
+                </div>
+            </section>
         </div>
     </div>
 @endsection

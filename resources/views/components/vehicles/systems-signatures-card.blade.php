@@ -1,194 +1,177 @@
 @props(['vehicle'])
 
 @php
-    use Illuminate\Support\Str;
-
     $signature = data_get($vehicle, 'signature', []);
     $cooling = data_get($vehicle, 'cooling', []);
     $power = data_get($vehicle, 'power', []);
+
+    $formatWholeNumber = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
+
+    $signatureSummaryRows = array_values(array_filter([
+        [
+            'label' => 'IR',
+            'shields' => data_get($signature, 'ir_shields'),
+            'quantum' => data_get($signature, 'ir_quantum'),
+        ],
+        [
+            'label' => 'EM',
+            'shields' => data_get($signature, 'em_shields'),
+            'quantum' => data_get($signature, 'em_quantum'),
+        ],
+    ], static fn (array $row): bool => $row['shields'] !== null || $row['quantum'] !== null));
+
+    $coolingGeneration = data_get($cooling, 'generation_segments');
+    $coolingSummaryRows = array_values(array_filter([
+        [
+            'label' => 'Segments',
+            'shields' => data_get($cooling, 'used_segments_shields') !== null
+                ? fmt_value_with_unit(data_get($cooling, 'used_segments_shields'), 'Segments', 0)
+                : null,
+            'quantum' => data_get($cooling, 'used_segments_quantum') !== null
+                ? fmt_value_with_unit(data_get($cooling, 'used_segments_quantum'), 'Segments', 0)
+                : null,
+        ],
+        [
+            'label' => 'Usage',
+            'shields' => data_get($cooling, 'usage_shields_pct') !== null
+                ? fmt_value_with_unit(data_get($cooling, 'usage_shields_pct') * 100, '%', 1)
+                : null,
+            'quantum' => data_get($cooling, 'usage_quantum_pct') !== null
+                ? fmt_value_with_unit(data_get($cooling, 'usage_quantum_pct') * 100, '%', 1)
+                : null,
+        ],
+    ], static fn (array $row): bool => $row['shields'] !== null || $row['quantum'] !== null));
+
+    $powerGeneration = data_get($power, 'generation_segments');
+    $emPerSegment = data_get($signature, 'em_per_segment');
+    $powerSummaryRows = array_values(array_filter([
+        [
+            'label' => 'Segments',
+            'shields' => data_get($power, 'used_segments_shields') !== null
+                ? fmt_value_with_unit(data_get($power, 'used_segments_shields'), 'Segments', 0)
+                : null,
+            'quantum' => data_get($power, 'used_segments_quantum') !== null
+                ? fmt_value_with_unit(data_get($power, 'used_segments_quantum'), 'Segments', 0)
+                : null,
+        ],
+    ], static fn (array $row): bool => $row['shields'] !== null || $row['quantum'] !== null));
+
+    $hasSummaryPanels = $signatureSummaryRows !== []
+        || $coolingGeneration !== null
+        || $coolingSummaryRows !== []
+        || $powerGeneration !== null
+        || $emPerSegment !== null
+        || $powerSummaryRows !== [];
 @endphp
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
-    <summary class="collapse-title min-h-11 py-3 font-semibold">
-        Emission & Resource Network
-    </summary>
-    <div class="collapse-content gap-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">IR / EM Signature</h3>
-                <dl class="grid gap-4 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">IR (Quantum Drive active)</dt>
-                        <dd class="text-sm font-medium">{{ data_get($signature, 'ir_quantum') ? number_format(data_get($signature, 'ir_quantum'), 0) : '-' }}</dd>
-                    </div>
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">EM Quantum</dt>
-                        <dd class="text-sm font-medium">{{ data_get($signature, 'em_quantum') ? number_format(data_get($signature, 'em_quantum'), 0) : '-' }}</dd>
-                    </div>
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">IR (Shields active)</dt>
-                        <dd class="text-sm font-medium">{{ data_get($signature, 'ir_shields') ? number_format(data_get($signature, 'ir_shields'), 0) : '-' }}</dd>
-                    </div>
 
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">EM Shields</dt>
-                        <dd class="text-sm font-medium">{{ data_get($signature, 'em_shields') ? number_format(data_get($signature, 'em_shields'), 0) : '-' }}</dd>
-                    </div>
+@if ($hasSummaryPanels)
+    <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+        <div class="card-body gap-5">
+            <h2 class="card-title text-base">Resource Network</h2>
 
-                </dl>
-            </div>
-
-            <div>
-                <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling</h3>
-                <dl class="grid gap-4 sm:grid-cols-3 mb-3">
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">Generation</dt>
-                        <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($cooling, 'generation_segments'), 'Segments', 0) }}</dd>
-                    </div>
-                    <div class="space-y-1" title="{{ fmt_value_with_unit(data_get($cooling, 'used_segments_shields'), 'Segments', 0, 0) }}">
-                        <dt class="text-xs text-base-content/60">Usage (Shields)</dt>
-                        <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($cooling, 'usage_shields_pct') * 100, '%', 1) }}</dd>
-                    </div>
-                    <div class="space-y-1" title="{{ fmt_value_with_unit(data_get($cooling, 'used_segments_quantum'), 'Segments', 0, 0) }}">
-                        <dt class="text-xs text-base-content/60">Usage (Quantum)</dt>
-                        <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($cooling, 'usage_quantum_pct') * 100, '%', 1) }}</dd>
-                    </div>
-                </dl>
-
-                <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60 mt-3">Power</h3>
-                <dl class="grid gap-4 sm:grid-cols-3">
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">Generation</dt>
-                        <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($power, 'generation_segments'), 'Segments', 0) }}</dd>
-                    </div>
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">Used Segments</dt>
-                        <dd class="text-sm font-medium">
-                            @if (data_get($power, 'used_segments_shields') !== null)
-                                {{ number_format(data_get($power, 'used_segments_shields'), 0) }} (S)
-                            @endif
-                            @if (data_get($power, 'used_segments_quantum') !== null)
-                                {{ number_format(data_get($power, 'used_segments_quantum'), 0) }} (Q)
-                            @endif
-                        </dd>
-                    </div>
-                    <div class="space-y-1">
-                        <dt class="text-xs text-base-content/60">EM Per Segment</dt>
-                        <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($signature, 'em_per_segment'), 'EM', 0) }}</dd>
-                    </div>
-                </dl>
-            </div>
-
-            <div class="flex flex-col gap-3">
-                <details id="signature-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="signature-details-content">
-                    <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">EM Groups</summary>
-                    <div id="signature-details-content" class="collapse-content">
-                        <div class="overflow-x-auto">
-                            <table class="table table-compact table-zebra table-xs w-full">
-                                <thead>
-                                <tr>
-                                    <th>System (Shields active)</th>
-                                    <th>EM Emission</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (data_get($signature, 'em_groups_shields') ?? [] as $system => $group)
-                                    <tr>
-                                        <td>{{ Str::headline($system) }}</td>
-                                        <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
-                                    </tr>
-                                @endforeach
-                                <thead>
-                                <tr>
-                                    <th>System (QD active)</th>
-                                    <th>EM Emission</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (data_get($signature, 'em_groups_quantum') ?? [] as $system => $group)
-                                    <tr>
-                                        <td>{{ Str::headline($system) }}</td>
-                                        <td>{{ fmt_value_with_unit($group, 'EM', 0) }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
+            <div class="grid gap-12 lg:grid-cols-3">
+                @if ($signatureSummaryRows !== [])
+                    <section class="space-y-4">
+                        <div class="space-y-1">
+                            <h3 class="text-sm font-semibold text-base-content">Signature</h3>
                         </div>
-                    </div>
-                </details>
 
-            </div>
+                        <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
+                            <div></div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
-            <div class="flex flex-col gap-3">
-                <!-- Cooling Details Collapsible -->
-                @if (!empty(data_get($cooling, 'used_segments_shields_grouped')) || !empty(data_get($cooling, 'used_segments_quantum_grouped')))
-                    <details id="cooling-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="cooling-details-content">
-                        <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">Cooling usage Groups</summary>
-                        <div id="cooling-details-content" class="collapse-content">
-                            <div class="overflow-x-auto">
-                                <table class="table table-compact table-xs table-zebra w-full mb-4">
-                                    <thead>
-                                    <tr>
-                                        <th>System (Shields active)</th>
-                                        <th>Segments</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (data_get($cooling, 'used_segments_shields_grouped') ?? [] as $system => $group)
-                                        <tr>
-                                            <td>{{ Str::headline($system) }}</td>
-                                            <td>{{ fmt_or_dash($group) }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-
-                                    <thead>
-                                    <tr>
-                                        <th>System (QD active)</th>
-                                        <th>Segments</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (data_get($cooling, 'used_segments_quantum_grouped') ?? [] as $system => $group)
-                                        <tr>
-                                            <td>{{ Str::headline($system) }}</td>
-                                            <td>{{ fmt_or_dash($group) }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </details>
+                            @foreach ($signatureSummaryRows as $row)
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                    {{ $row['label'] }}
+                                </dt>
+                                <dd class="text-right text-sm font-semibold text-base-content">
+                                    {{ $row['shields'] !== null ? $formatWholeNumber($row['shields']) : '-' }}
+                                </dd>
+                                <dd class="text-right text-sm font-semibold text-base-content">
+                                    {{ $row['quantum'] !== null ? $formatWholeNumber($row['quantum']) : '-' }}
+                                </dd>
+                            @endforeach
+                        </dl>
+                    </section>
                 @endif
 
-
-                <!-- Power Details Collapsible -->
-                @if (!empty(data_get($power, 'used_segments_grouped')))
-                    <details id="power-details" class="collapse collapse-arrow border border-base-300 bg-base-100" aria-expanded="false" aria-controls="power-details-content">
-                        <summary class="collapse-title min-h-11 py-3 text-xs font-semibold">Power usage Groups</summary>
-                        <div id="power-details-content" class="collapse-content">
-                            <div class="overflow-x-auto">
-                                <table class="table table-compact table-xs table-zebra w-full">
-                                    <thead>
-                                    <tr>
-                                        <th>System</th>
-                                        <th>Segments</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (data_get($power, 'used_segments_grouped') ?? [] as $system => $group)
-                                        <tr>
-                                            <td>{{ Str::headline($system) ?? $system }}</td>
-                                            <td>{{ fmt_or_dash($group) }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
+                @if ($coolingGeneration !== null || $coolingSummaryRows !== [])
+                    <section class="space-y-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-semibold text-base-content">Cooling</h3>
                             </div>
+
+                            @if ($coolingGeneration !== null)
+                                <div class="text-sm font-semibold text-base-content">
+                                    {{ fmt_value_with_unit($coolingGeneration, 'Segments', 0) }}
+                                </div>
+                            @endif
                         </div>
-                    </details>
+
+                        @if ($coolingSummaryRows !== [])
+                            <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
+                                <div></div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+
+                                @foreach ($coolingSummaryRows as $row)
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                        {{ $row['label'] }}
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-base-content">
+                                        {{ $row['shields'] ?? '-' }}
+                                    </dd>
+                                    <dd class="text-right text-sm font-semibold text-base-content">
+                                        {{ $row['quantum'] ?? '-' }}
+                                    </dd>
+                                @endforeach
+                            </dl>
+                        @endif
+                    </section>
+                @endif
+
+                @if ($powerGeneration !== null || $emPerSegment !== null || $powerSummaryRows !== [])
+                    <section class="space-y-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-semibold text-base-content">Power</h3>
+                            </div>
+
+                            @if ($powerGeneration !== null)
+                                <div class="text-sm font-semibold text-base-content">
+                                    {{ fmt_value_with_unit($powerGeneration, 'Segments', 0) }}
+
+                                    @if ($emPerSegment !== null)
+                                        <span class="text-xs text-secondary">/ {{ fmt_value_with_unit($emPerSegment, 'EM per Segment', 0) }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+
+                        @if ($powerSummaryRows !== [])
+                            <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
+                                <div></div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+
+                                @foreach ($powerSummaryRows as $row)
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                        {{ $row['label'] }}
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-base-content">
+                                        {{ $row['shields'] ?? '-' }}
+                                    </dd>
+                                    <dd class="text-right text-sm font-semibold text-base-content">
+                                        {{ $row['quantum'] ?? '-' }}
+                                    </dd>
+                                @endforeach
+                            </dl>
+                        @endif
+                    </section>
                 @endif
             </div>
         </div>
-    </div>
-</details>
+    </section>
+@endif

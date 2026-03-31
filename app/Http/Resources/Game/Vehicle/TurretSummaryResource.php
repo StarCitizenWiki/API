@@ -15,6 +15,8 @@ use OpenApi\Attributes as OA;
     description: 'Manned or remote turret entry as provided by the ship data.',
     properties: [
         new OA\Property(property: 'size', type: 'integer', example: 5, nullable: true),
+        new OA\Property(property: 'turret', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'gimballed', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'fixed', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'weapon_sizes', type: 'array', items: new OA\Items(type: 'integer', example: 5), nullable: true),
     ],
@@ -31,6 +33,8 @@ class TurretSummaryResource extends AbstractBaseResource
     {
         return array_filter([
             'size' => Arr::get($this->resource, 'Size'),
+            'turret' => Arr::get($this->resource, 'Turret'),
+            'gimballed' => Arr::get($this->resource, 'Gimballed'),
             'fixed' => Arr::get($this->resource, 'Fixed'),
             'weapon_sizes' => Arr::get($this->resource, 'WeaponSizes'),
         ], static fn ($value) => $value !== null && $value !== []);

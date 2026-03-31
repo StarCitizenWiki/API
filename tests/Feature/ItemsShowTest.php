@@ -196,6 +196,8 @@ it('renders the item show view with api data', function (): void {
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
 
+    expect(itemShowCrawler($response)->filter(sprintf('form[action="%s"] .join button.btn.btn-outline.join-item', route('web.items.index')))->count())->toBe(1);
+
     assertItemSeoMetadata($response, [
         'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC',
         'meta[property="og:type"]' => 'website',

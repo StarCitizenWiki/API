@@ -25,6 +25,7 @@ function assertWelcomeLinks(TestResponse $response, array $expectedUrls): void
 
 it('renders the welcome page categories for guests', function (): void {
     $response = $this->get(route('home'));
+    $crawler = welcomePageCrawler($response);
 
     $response->assertSuccessful();
     assertWelcomeLinks($response, [
@@ -34,7 +35,8 @@ it('renders the welcome page categories for guests', function (): void {
         route('web.starmap.systems.index'),
     ]);
 
-    expect(welcomePageCrawler($response)->filter(sprintf('a[href="%s"]', route('admin.dashboard')))->count())->toBe(0);
+    expect($crawler->filter('[data-testid="welcome-search-items"] .btn.btn-primary')->count())->toBe(1)
+        ->and($crawler->filter(sprintf('a[href="%s"]', route('admin.dashboard')))->count())->toBe(0);
 });
 
 it('shows the admin link for authorized users', function (): void {

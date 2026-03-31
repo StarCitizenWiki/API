@@ -98,7 +98,7 @@
 @if ($quickFacts !== [])
     <section {{ $attributes->merge(['class' => 'card h-full bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
-            <div class="grid h-full gap-6 xl:grid-cols-3 xl:gap-8">
+            <div class="grid h-full gap-6 xl:grid-cols-2 xl:gap-8 2xl:grid-cols-3">
                 @foreach ($factColumns as $column)
                     <div class="space-y-6">
                         @foreach ($column as $fact)
@@ -127,7 +127,7 @@
                     </div>
                 @endforeach
 
-                <section class="space-y-3">
+                <section class="space-y-3 xl:col-span-2 2xl:col-span-1">
                     <div class="text-sm font-semibold text-base-content/65">Stats</div>
 
                     <dl class="space-y-2">
