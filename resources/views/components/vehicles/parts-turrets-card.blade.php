@@ -32,14 +32,61 @@
 
     $mannedTurrets = data_get($vehicle, 'turrets.manned', []);
     $remoteTurrets = data_get($vehicle, 'turrets.remote', []);
+    $pdcTurrets = data_get($vehicle, 'turrets.pdc', []);
     $showParts = in_array($section, ['all', 'parts'], true);
     $showTurrets = in_array($section, ['all', 'turrets'], true);
+    $hasTurretData = !empty($mannedTurrets) || !empty($remoteTurrets) || !empty($pdcTurrets);
     $turretTraits = static function (array $turret): array {
         return array_values(array_filter([
             data_get($turret, 'gimballed') ? 'Gimballed' : null,
             data_get($turret, 'fixed') ? 'Fixed' : null,
         ]));
     };
+    $turretLabel = static function (array $turret): array {
+        $title = data_get($turret, 'hardpoint_name')
+            ?? data_get($turret, 'display_name')
+            ?? data_get($turret, 'class_name')
+            ?? '-';
+
+        $subtitle = collect([
+            data_get($turret, 'display_name'),
+            data_get($turret, 'class_name'),
+        ])->first(static fn ($value) => is_string($value) && $value !== '' && $value !== $title);
+
+        return [
+            'title' => $title,
+            'subtitle' => $subtitle,
+        ];
+    };
+    $weaponSizeLabel = static function (array $weaponSizes): ?string {
+        $sizes = collect($weaponSizes)
+            ->filter(static fn ($size) => is_int($size) || is_float($size) || (is_string($size) && is_numeric($size)))
+            ->map(static fn ($size) => (float) $size)
+            ->sort()
+            ->values();
+
+        if ($sizes->isEmpty()) {
+            return null;
+        }
+
+        $label = fmt_range($sizes->first(), $sizes->last(), '');
+
+        return $label === '—' ? null : 'S'.$label;
+    };
+    $turretSections = [
+        'Manned' => [
+            'items' => $mannedTurrets,
+            'empty' => 'No manned turrets.',
+        ],
+        'Remote' => [
+            'items' => $remoteTurrets,
+            'empty' => 'No remote turrets.',
+        ],
+        'PDC' => [
+            'items' => $pdcTurrets,
+            'empty' => 'No PDC turrets.',
+        ],
+    ];
 @endphp
 
 <!-- Parts -->
@@ -95,113 +142,68 @@
 @endif
 
 <!-- Turrets -->
-@if ($showTurrets && (!empty($mannedTurrets) || !empty($remoteTurrets)))
+@if ($showTurrets && $hasTurretData)
     <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
         <summary class="collapse-title min-h-11 py-3 font-semibold">Turrets</summary>
         <div class="collapse-content">
             <div class="space-y-4">
-                <div>
-                    <h4 class="text-sm font-semibold mb-2">Manned</h4>
-                    @if (is_array($mannedTurrets) && $mannedTurrets !== [])
-                        <div class="overflow-x-auto">
-                            <table class="table table-auto table-sm">
-                                <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Traits</th>
-                                    <th class="hidden sm:table-cell">Weapon Sizes</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($mannedTurrets as $turret)
-                                    @php
-                                        $traits = $turretTraits($turret);
-                                        $weaponSizes = data_get($turret, 'weapon_sizes', []);
-                                    @endphp
+                @foreach ($turretSections as $heading => $sectionData)
+                    @php
+                        $turrets = $sectionData['items'];
+                    @endphp
+                    <div>
+                        <h4 class="text-sm font-semibold mb-2">{{ $heading }}</h4>
+                        @if (is_array($turrets) && $turrets !== [])
+                            <div class="overflow-x-auto">
+                                <table class="table table-auto table-sm">
+                                    <thead>
                                     <tr>
-                                        <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }}</td>
-                                        <td>
-                                            @if ($traits !== [])
-                                                <div class="flex flex-wrap gap-1">
-                                                    @foreach ($traits as $trait)
-                                                        <span class="badge badge-ghost badge-sm">{{ $trait }}</span>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <span class="text-base-content/60">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="hidden sm:table-cell">
-                                            @if (is_array($weaponSizes) && $weaponSizes !== [])
-                                                <div class="flex flex-wrap gap-1">
-                                                    @foreach ($weaponSizes as $weaponSize)
-                                                        <span class="badge badge-outline badge-sm">S{{ $weaponSize }}</span>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <span class="text-base-content/60">-</span>
-                                            @endif
-                                        </td>
+                                        <th>Turret</th>
+                                        <th>Size</th>
+                                        <th>Traits</th>
+                                        <th class="hidden sm:table-cell">Weapon Sizes</th>
                                     </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-sm text-base-content/70">No manned turrets.</div>
-                    @endif
-                </div>
-                <div>
-                    <h4 class="text-sm font-semibold mb-2">Remote</h4>
-                    @if (is_array($remoteTurrets) && $remoteTurrets !== [])
-                        <div class="overflow-x-auto">
-                            <table class="table table-auto table-sm">
-                                <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Traits</th>
-                                    <th class="hidden sm:table-cell">Weapon Sizes</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($remoteTurrets as $turret)
-                                    @php
-                                        $traits = $turretTraits($turret);
-                                        $weaponSizes = data_get($turret, 'weapon_sizes', []);
-                                    @endphp
-                                    <tr>
-                                        <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }}</td>
-                                        <td>
-                                            @if ($traits !== [])
-                                                <div class="flex flex-wrap gap-1">
-                                                    @foreach ($traits as $trait)
-                                                        <span class="badge badge-ghost badge-sm">{{ $trait }}</span>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <span class="text-base-content/60">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="hidden sm:table-cell">
-                                            @if (is_array($weaponSizes) && $weaponSizes !== [])
-                                                <div class="flex flex-wrap gap-1">
-                                                    @foreach ($weaponSizes as $weaponSize)
-                                                        <span class="badge badge-outline badge-sm">S{{ $weaponSize }}</span>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <span class="text-base-content/60">-</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-sm text-base-content/70">No remote turrets.</div>
-                    @endif
-                </div>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($turrets as $turret)
+                                        @php
+                                            $traits = $turretTraits($turret);
+                                            $weaponSizes = data_get($turret, 'weapon_sizes', []);
+                                            $label = $turretLabel($turret);
+                                            $weaponSizeLabelValue = is_array($weaponSizes) ? $weaponSizeLabel($weaponSizes) : null;
+                                        @endphp
+                                        <tr>
+                                            <td class="min-w-48">
+                                                <div class="font-medium">{{ $label['title'] }}</div>
+                                                @if (!empty($label['subtitle']))
+                                                    <div class="text-xs text-base-content/60">{{ $label['subtitle'] }}</div>
+                                                @endif
+                                            </td>
+                                            <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }}</td>
+                                            <td>
+                                                @if ($traits !== [])
+                                                    <div class="text-sm text-base-content/80">{{ implode(', ', $traits) }}</div>
+                                                @else
+                                                    <span class="text-base-content/60">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="hidden sm:table-cell">
+                                                @if ($weaponSizeLabelValue !== null)
+                                                    <span>{{ $weaponSizeLabelValue }}</span>
+                                                @else
+                                                    <span class="text-base-content/60">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-sm text-base-content/70">{{ $sectionData['empty'] }}</div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
         </div>
     </details>

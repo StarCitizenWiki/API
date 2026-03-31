@@ -17,6 +17,7 @@
     $length = data_get($dimension, 'length');
     $width = data_get($dimension, 'width');
     $height = data_get($dimension, 'height');
+    $version = data_get($vehicle, 'version');
 
     if ($crewMinimum !== null && $crewMaximum !== null && $crewMaximum !== $crewMinimum) {
         $crewValue = sprintf('%s-%s', $crewMinimum, $crewMaximum);
@@ -91,6 +92,10 @@
         [
             'label' => 'Mass',
             'value' => fmt_value_with_unit($massTotal, 'kg', 0),
+        ],
+        [
+            'label' => 'Version',
+            'value' => $version ?? '-',
         ],
     ];
 @endphp

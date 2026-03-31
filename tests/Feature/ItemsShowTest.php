@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\EntityTag;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
@@ -27,13 +29,28 @@ function itemDetailsPanel(TestResponse $response, string $summary): Crawler
     ));
 }
 
+function itemHero(TestResponse $response): Crawler
+{
+    return itemShowCrawler($response)->filter('[data-testid="item-hero"]');
+}
+
+function itemQuickFacts(TestResponse $response): Crawler
+{
+    return itemShowCrawler($response)->filter('[data-testid="item-quick-facts-card"]');
+}
+
+function itemRelatedItemsCard(TestResponse $response): Crawler
+{
+    return itemShowCrawler($response)->filter('[data-testid="item-related-items-card"]');
+}
+
 function assertItemMetaPanels(TestResponse $response, bool $showsPortsCard = false, ?int $portsCount = null): TestResponse
 {
     expect(itemDetailsPanel($response, 'Technical')->count())->toBe(1);
     expect(itemDetailsPanel($response, 'Raw Item Payload')->count())->toBe(1);
 
     if ($showsPortsCard) {
-        $portsPanel = itemDetailsPanel($response, 'Ports');
+        $portsPanel = itemShowCrawler($response)->filter('[data-testid="item-ports-card"]');
 
         expect($portsPanel->count())->toBe(1);
 
@@ -44,7 +61,7 @@ function assertItemMetaPanels(TestResponse $response, bool $showsPortsCard = fal
         return $response;
     }
 
-    expect(itemDetailsPanel($response, 'Ports')->count())->toBe(0);
+    expect(itemShowCrawler($response)->filter('[data-testid="item-ports-card"]')->count())->toBe(0);
 
     return $response;
 }
@@ -196,7 +213,11 @@ it('renders the item show view with api data', function (): void {
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
 
-    expect(itemShowCrawler($response)->filter(sprintf('form[action="%s"] .join button.btn.btn-outline.join-item', route('web.items.index')))->count())->toBe(1);
+    $searchForm = itemShowCrawler($response)->filter(sprintf('form[action="%s"]', route('web.items.index')));
+
+    expect($searchForm->count())->toBe(1)
+        ->and($searchForm->filter('input[name="filter[name]"]')->count())->toBe(1)
+        ->and($searchForm->filter('button[type="submit"]')->count())->toBe(1);
 
     assertItemSeoMetadata($response, [
         'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC',
@@ -389,6 +410,12 @@ it('renders variant-heavy item with variants section', function (): void {
         ->assertSeeText('Behring')
         ->assertSeeText('Laser Cannon Variant 1')
         ->assertSeeText('Laser Cannon Variant 4');
+
+    $relatedItemsCard = itemRelatedItemsCard($response);
+
+    expect($relatedItemsCard->count())->toBe(1)
+        ->and(itemShowCrawler($response)->filter('[data-testid="item-description-data-card"]')->count())->toBe(0)
+        ->and($relatedItemsCard->attr('class'))->not->toContain('xl:col-span-2');
 });
 
 it('renders spec-heavy item with dynamic component sections', function (): void {
@@ -670,4 +697,101 @@ it('renders the item page with core metadata', function (): void {
         '"classification": "Equipment.Standard"',
         '"type": "Utility"',
     ]);
+});
+
+it('shows variant state in the hero and base variant link in quick facts', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Behring',
+        'code' => 'BEHR',
+    ]);
+
+    $baseItem = Item::factory()->create([
+        'translation' => ['en' => 'Base rifle description'],
+    ]);
+
+    $baseItemData = ItemData::factory()
+        ->for($baseItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Prototype Base Rifle',
+            'class_name' => 'prototype_base_rifle',
+            'classification' => 'WeaponPersonal',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Rifle',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $variantItem = Item::factory()->create([
+        'translation' => ['en' => 'Variant rifle description'],
+    ]);
+
+    ItemData::factory()
+        ->for($variantItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Prototype Shadow Rifle',
+            'class_name' => 'prototype_shadow_rifle',
+            'classification' => 'WeaponPersonal',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Rifle',
+            'base_id' => $baseItemData->id,
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($version, 'gameVersion')
+        ->create([
+            'key' => 'BP_PROTOTYPE_SHADOW_RIFLE',
+            'output_item_uuid' => $variantItem->uuid,
+            'output_name' => 'Prototype Shadow Rifle Blueprint',
+            'data' => [
+                'output' => [
+                    'uuid' => $variantItem->uuid,
+                    'name' => 'Prototype Shadow Rifle',
+                    'class' => 'bp_prototype_shadow_rifle',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $variantResponse = $this->get(route('web.items.show', $variantItem->uuid));
+
+    $variantResponse->assertOk();
+
+    $variantHero = itemHero($variantResponse);
+    $variantQuickFacts = itemQuickFacts($variantResponse);
+
+    expect($variantHero->count())->toBe(1)
+        ->and($variantHero->filter('[data-testid="item-hero-pill-variant-state"]')->count())->toBe(1)
+        ->and(trim($variantHero->filter('[data-testid="item-hero-pill-variant-state"]')->text()))->toBe('Variant')
+        ->and($variantHero->filter('[data-testid="item-hero-pill-base-variant"]')->count())->toBe(0)
+        ->and($variantHero->filter('[data-testid="item-hero-pill-craftable"]')->count())->toBe(1)
+        ->and($variantHero->filter('[data-testid="item-hero-pill-craftable"]')->attr('href'))->toBe(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    expect($variantQuickFacts->count())->toBe(1)
+        ->and($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->count())->toBe(1)
+        ->and(trim($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->text()))->toBe('Prototype Base Rifle')
+        ->and($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->attr('href'))->toBe(route('web.items.show', $baseItem->uuid));
+
+    $baseResponse = $this->get(route('web.items.show', $baseItem->uuid));
+
+    $baseResponse->assertOk();
+
+    $baseHero = itemHero($baseResponse);
+
+    expect($baseHero->count())->toBe(1)
+        ->and($baseHero->filter('[data-testid="item-hero-pill-variant-state"]')->count())->toBe(1)
+        ->and(trim($baseHero->filter('[data-testid="item-hero-pill-variant-state"]')->text()))->toBe('Base Variant');
 });

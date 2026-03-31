@@ -315,6 +315,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'manned', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
                 new OA\Property(property: 'remote', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
+                new OA\Property(property: 'pdc', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -535,6 +536,9 @@ class VehicleResource extends AbstractBaseResource
         $cargoLimits = self::calculateCargoGridSizeLimits($cargoGridPayload);
 
         $weaponSnapshot = self::computeWeaponSnapshot(Arr::get($payload, 'Loadout', []));
+        $mannedTurrets = $this->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
+        $remoteTurrets = $this->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
+        $pdcTurrets = $this->buildPdcTurretEntries(Arr::get($payload, 'Loadout', []));
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -763,8 +767,9 @@ class VehicleResource extends AbstractBaseResource
             ),
             'parts' => PartResource::collection(Arr::get($payload, 'Parts', [])),
             'turrets' => [
-                'manned' => TurretSummaryResource::collection(Arr::get($payload, 'MannedTurrets', [])),
-                'remote' => TurretSummaryResource::collection(Arr::get($payload, 'RemoteTurrets', [])),
+                'manned' => TurretSummaryResource::collection($mannedTurrets),
+                'remote' => TurretSummaryResource::collection($remoteTurrets),
+                'pdc' => TurretSummaryResource::collection($pdcTurrets),
             ],
 
             'career' => $vehicleData->career ?? Arr::get($payload, 'Career'),
@@ -871,6 +876,171 @@ class VehicleResource extends AbstractBaseResource
             'item_type' => Arr::get($poolData, 'ItemType'),
             'size' => Arr::get($poolData, 'Size'),
         ], $powerPools);
+    }
+
+    /**
+     * @param  array<int, mixed>  $entries
+     * @return array<int, array<string, mixed>>
+     */
+    private function decorateTurretEntries(array $entries, string $category): array
+    {
+        return collect($entries)
+            ->filter(static fn (mixed $entry): bool => is_array($entry))
+            ->map(static fn (array $entry): array => [
+                ...$entry,
+                'Category' => $category,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, mixed>  $loadout
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildPdcTurretEntries(array $loadout): array
+    {
+        return collect($loadout)
+            ->filter(static fn (mixed $entry): bool => is_array($entry))
+            ->flatMap(fn (array $entry): array => $this->collectPdcTurretEntries($entry))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @return array<int, array<string, mixed>>
+     */
+    private function collectPdcTurretEntries(array $entry): array
+    {
+        $entries = [];
+
+        if ($this->isPdcTurretEntry($entry)) {
+            $entries[] = $this->normalizePdcTurretEntry($entry);
+        }
+
+        foreach (Arr::get($entry, 'Loadout', []) as $child) {
+            if (! is_array($child)) {
+                continue;
+            }
+
+            $entries = [...$entries, ...$this->collectPdcTurretEntries($child)];
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     */
+    private function isPdcTurretEntry(array $entry): bool
+    {
+        [$type, $subtype] = $this->splitLoadoutType(Arr::get($entry, 'Type'));
+
+        return $type === 'Turret' && $subtype === 'PDCTurret';
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @return array<string, mixed>
+     */
+    private function normalizePdcTurretEntry(array $entry): array
+    {
+        $mounts = $this->buildPdcTurretMounts(Arr::get($entry, 'Loadout', []));
+
+        return array_filter([
+            'Category' => 'pdc',
+            'DisplayName' => Arr::get($entry, 'Name', Arr::get($entry, 'HardpointName')),
+            'Size' => Arr::get($entry, 'MaxSize', Arr::get($entry, 'MinSize', Arr::get($entry, 'Size'))),
+            'Turret' => true,
+            'HardpointName' => Arr::get($entry, 'HardpointName'),
+            'PartName' => Arr::get($entry, 'HardpointName'),
+            'TurretType' => Arr::get($entry, 'Type'),
+            'TurretClassName' => Arr::get($entry, 'ClassName'),
+            'MountCount' => $mounts === [] ? null : count($mounts),
+            'WeaponSizes' => $this->collectUniqueMountValues($mounts, 'WeaponSizes'),
+            'PayloadSizes' => $this->collectUniqueMountValues($mounts, 'PayloadSizes'),
+            'PayloadTypes' => $this->collectUniqueMountValues($mounts, 'PayloadTypes'),
+            'PayloadClassNames' => $this->collectUniqueMountValues($mounts, 'PayloadClassNames'),
+            'Mounts' => $mounts,
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+    }
+
+    /**
+     * @param  array<int, mixed>  $loadout
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildPdcTurretMounts(array $loadout): array
+    {
+        return collect($loadout)
+            ->filter(static fn (mixed $entry): bool => is_array($entry))
+            ->filter(fn (array $entry): bool => $this->isRelevantPdcMountEntry($entry))
+            ->map(fn (array $entry): array => $this->normalizePdcTurretMount($entry))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     */
+    private function isRelevantPdcMountEntry(array $entry): bool
+    {
+        [$type] = $this->splitLoadoutType(Arr::get($entry, 'Type'));
+
+        return in_array($type, ['BombRack', 'MissileLauncher', 'Turret', 'WeaponGun'], true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @return array<string, mixed>
+     */
+    private function normalizePdcTurretMount(array $entry): array
+    {
+        $size = Arr::get($entry, 'MaxSize', Arr::get($entry, 'MinSize', Arr::get($entry, 'Size')));
+        $payloadType = Arr::get($entry, 'Type');
+        $payloadClassName = Arr::get($entry, 'ClassName');
+
+        return array_filter([
+            'DisplayName' => Arr::get($entry, 'Name', Arr::get($entry, 'HardpointName')),
+            'HardpointName' => Arr::get($entry, 'HardpointName'),
+            'MountType' => $payloadType,
+            'MountClassName' => $payloadClassName,
+            'Size' => $size,
+            'WeaponSizes' => $size === null ? [] : [$size],
+            'PayloadSizes' => $size === null ? [] : [$size],
+            'PayloadTypes' => $payloadType === null ? [] : [$payloadType],
+            'PayloadClassNames' => $payloadClassName === null ? [] : [$payloadClassName],
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $mounts
+     * @return array<int, int|string>
+     */
+    private function collectUniqueMountValues(array $mounts, string $key): array
+    {
+        return collect($mounts)
+            ->flatMap(static fn (array $mount): array => array_values(array_filter(
+                Arr::wrap(Arr::get($mount, $key, [])),
+                static fn (mixed $value): bool => is_int($value) || is_string($value)
+            )))
+            ->uniqueStrict()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array{0: string|null, 1: string|null}
+     */
+    private function splitLoadoutType(mixed $type): array
+    {
+        if (! is_string($type) || $type === '') {
+            return [null, null];
+        }
+
+        $parts = explode('.', $type, 2);
+
+        return [$parts[0] ?? null, $parts[1] ?? null];
     }
 
     private function buildWebUrl(Request $request): string

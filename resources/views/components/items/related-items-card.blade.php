@@ -13,21 +13,21 @@
     $isSelfReferential = $currentItemUuid !== null && $baseVariantUuid === $currentItemUuid;
 
     $showBaseVariant = !empty($baseVariant) && (!$isSelfReferential || $variantCount > 0);
+    $showsVariantSection = $showBaseVariant || (is_array($variants) && $variants !== []);
     $baseVariantCount = $showBaseVariant ? 1 : 0;
     $totalItemsCount = $setItemCount + $variantCount + $baseVariantCount;
 @endphp
 
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
-    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
-        <span class="flex items-center gap-2">
-            <span>Related Items</span>
+<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-related-items-card']) }}>
+    <div class="card-body gap-4 p-5 sm:p-6">
+        <div class="flex items-center gap-2">
+            <h2 class="card-title text-base">Related Items</h2>
             @if ($totalItemsCount > 0)
                 <span class="badge badge-ghost text-xs">{{ $totalItemsCount }}</span>
             @endif
-        </span>
-    </summary>
-    <div class="collapse-content">
-        <div class="space-y-4">
+        </div>
+
+        <div class="space-y-4 overflow-y-auto pr-1 sm:max-h-96">
             @if (is_array($setItems) && $setItems !== [])
                 <div class="space-y-2">
                     <h3 class="text-sm font-semibold">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
@@ -50,7 +50,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="overflow-x-auto hidden sm:block">
+                    <div class="hidden overflow-x-auto sm:block">
                         <table class="table table-sm">
                             <caption class="sr-only">Set items linked to this item</caption>
                             <thead>
@@ -78,11 +78,9 @@
                         </table>
                     </div>
                 </div>
-            @else
-                <div class="text-sm text-base-content/70">No Set Items available.</div>
             @endif
 
-            @if (is_array($variants) && $variants !== [])
+            @if ($showsVariantSection)
                 <div class="space-y-2">
                     <h3 class="text-sm font-semibold">Variants</h3>
                     <div class="overflow-x-auto">
@@ -126,9 +124,9 @@
                         </table>
                     </div>
                 </div>
-            @else
-                <div class="text-sm text-base-content/70">No variants available.</div>
+            @elseif ($setItemCount === 0)
+                <div class="text-sm text-base-content/70">No related items available.</div>
             @endif
         </div>
     </div>
-</details>
+</section>
