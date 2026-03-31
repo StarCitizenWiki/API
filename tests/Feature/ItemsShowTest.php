@@ -112,6 +112,39 @@ function assertItemSeoMetadata(TestResponse $response, array $metadata): TestRes
     return $response;
 }
 
+function assertItemSeoCanonical(TestResponse $response, string $canonicalUrl): TestResponse
+{
+    $crawler = itemShowCrawler($response);
+    $canonicalTag = $crawler->filter('link[rel="canonical"]');
+    $ogUrlTag = $crawler->filter('meta[property="og:url"]');
+
+    expect($canonicalTag->count())->toBe(1)
+        ->and($canonicalTag->attr('href'))->toBe($canonicalUrl)
+        ->and($ogUrlTag->count())->toBe(1)
+        ->and($ogUrlTag->attr('content'))->toBe($canonicalUrl);
+
+    return $response;
+}
+
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function itemStructuredData(TestResponse $response): array
+{
+    return itemShowCrawler($response)
+        ->filter('script[type="application/ld+json"]')
+        ->each(static fn (Crawler $node): array => json_decode($node->text(), true, 512, JSON_THROW_ON_ERROR));
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function itemStructuredDataBlock(TestResponse $response, string $type): array
+{
+    return collect(itemStructuredData($response))
+        ->first(static fn (array $block): bool => data_get($block, '@type') === $type, []);
+}
+
 it('renders the item show view with api data', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
@@ -220,12 +253,31 @@ it('renders the item show view with api data', function (): void {
         ->and($searchForm->filter('button[type="submit"]')->count())->toBe(1);
 
     assertItemSeoMetadata($response, [
-        'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Star Citizen,SC',
+        'meta[name="description"]' => 'Base item description',
+        'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Size 2,Star Citizen,SC',
         'meta[property="og:type"]' => 'website',
-        'meta[property="og:title"]' => 'Test Module - PowerPlant Acme Works',
+        'meta[property="og:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
         'meta[name="twitter:card"]' => 'summary',
-        'meta[name="twitter:title"]' => 'Test Module - PowerPlant',
+        'meta[name="twitter:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
     ]);
+    assertItemSeoCanonical($response, route('web.items.show', ['item' => $item->uuid]));
+
+    expect(trim(itemShowCrawler($response)->filter('title')->text()))
+        ->toBe('Test Module by Acme Works | PowerPlant Size 2 | Star Citizen');
+
+    $breadcrumbStructuredData = itemStructuredDataBlock($response, 'BreadcrumbList');
+    $productStructuredData = itemStructuredDataBlock($response, 'Product');
+
+    expect(itemStructuredData($response))->toHaveCount(2)
+        ->and(data_get($breadcrumbStructuredData, 'itemListElement'))->toHaveCount(5)
+        ->and(data_get($breadcrumbStructuredData, 'itemListElement.0.name'))->toBe('All Items')
+        ->and(data_get($breadcrumbStructuredData, 'itemListElement.3.name'))->toBe('Power-Plants')
+        ->and(data_get($breadcrumbStructuredData, 'itemListElement.4.item'))->toBe(route('web.items.show', ['item' => $item->uuid]))
+        ->and(data_get($productStructuredData, 'name'))->toBe('Test Module')
+        ->and(data_get($productStructuredData, 'brand.name'))->toBe('Acme Works')
+        ->and(data_get($productStructuredData, 'category'))->toBe('Power-Plants')
+        ->and(data_get($productStructuredData, 'description'))->toBe('Base item description')
+        ->and(data_get($productStructuredData, 'url'))->toBe(route('web.items.show', ['item' => $item->uuid]));
 
     assertItemMetaPanels($response, showsPortsCard: true, portsCount: 1);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'test_module', '4.0.0-LIVE');
@@ -235,6 +287,50 @@ it('renders the item show view with api data', function (): void {
         '"classification": "Test.Module"',
         '"type": "PowerPlant"',
     ]);
+});
+
+it('renders quoted item names in the page title without double-escaped entities', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Klaus & Werner',
+        'code' => 'KLWE',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Calibrated "test" shot.'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Arrowhead "Pathfinder" Sniper Rifle',
+            'class_name' => 'klwe_sniper_energy_01_imp01',
+            'classification' => 'FPS.Weapon.Medium',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Sniper',
+            'size' => 4,
+            'data' => [],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $title = trim(itemShowCrawler($response)->filter('title')->text());
+
+    expect($title)
+        ->toBe('Arrowhead "Pathfinder" Sniper Rifle by Klaus & Werner | WeaponPersonal FPS.Weapon.Medium | Star Citizen')
+        ->and($title)->not->toContain('&quot;')
+        ->and(itemShowCrawler($response)->filter('meta[name="description"]')->attr('content'))->toBe('Calibrated "test" shot.')
+        ->and($response->getContent())->not->toContain('&amp;quot;');
 });
 
 it('renders minimal item with essentials block only', function (): void {

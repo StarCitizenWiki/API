@@ -9,23 +9,25 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-function attributeForTestId(string $content, string $testId, string $attribute): ?string
-{
-    preg_match(
-        '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
-        $content,
-        $matches
-    );
+if (! function_exists('attributeForTestId')) {
+    function attributeForTestId(string $content, string $testId, string $attribute): ?string
+    {
+        preg_match(
+            '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
+            $content,
+            $matches
+        );
 
-    expect($matches[0] ?? null)->not->toBeNull();
+        expect($matches[0] ?? null)->not->toBeNull();
 
-    preg_match(
-        '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
-        $matches[0],
-        $attributeMatches
-    );
+        preg_match(
+            '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
+            $matches[0],
+            $attributeMatches
+        );
 
-    return isset($attributeMatches[1]) ? html_entity_decode($attributeMatches[1], ENT_QUOTES) : null;
+        return isset($attributeMatches[1]) ? html_entity_decode($attributeMatches[1], ENT_QUOTES) : null;
+    }
 }
 
 beforeEach(function (): void {

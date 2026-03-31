@@ -10,30 +10,34 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-function elementMarkupByTestId(string $content, string $testId): string
-{
-    preg_match(
-        '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
-        $content,
-        $matches
-    );
+if (! function_exists('elementMarkupByTestId')) {
+    function elementMarkupByTestId(string $content, string $testId): string
+    {
+        preg_match(
+            '/<[^>]*data-testid="'.preg_quote($testId, '/').'"[^>]*>/i',
+            $content,
+            $matches
+        );
 
-    expect($matches[0] ?? null)->not->toBeNull();
+        expect($matches[0] ?? null)->not->toBeNull();
 
-    return $matches[0];
+        return $matches[0];
+    }
 }
 
-function attributeForTestId(string $content, string $testId, string $attribute): ?string
-{
-    $markup = elementMarkupByTestId($content, $testId);
+if (! function_exists('attributeForTestId')) {
+    function attributeForTestId(string $content, string $testId, string $attribute): ?string
+    {
+        $markup = elementMarkupByTestId($content, $testId);
 
-    preg_match(
-        '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
-        $markup,
-        $matches
-    );
+        preg_match(
+            '/\b'.preg_quote($attribute, '/').'="([^"]*)"/i',
+            $markup,
+            $matches
+        );
 
-    return isset($matches[1]) ? html_entity_decode($matches[1], ENT_QUOTES) : null;
+        return isset($matches[1]) ? html_entity_decode($matches[1], ENT_QUOTES) : null;
+    }
 }
 
 it('filters items by type on the web route', function (): void {
