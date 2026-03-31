@@ -15,6 +15,8 @@ class ProductionNote extends BaseElement
 {
     protected const PRODUCTION_NOTE = 'production_note';
 
+    private const DEFAULT_PRODUCTION_NOTE = 'None';
+
     private const PRODUCTION_STATUSES = [
         'Update Pass Scheduled',
         'Update pass scheduled',
@@ -29,10 +31,11 @@ class ProductionNote extends BaseElement
     public function getProductionNote(): ProductionNoteModel
     {
         $note = $this->getNormalizedStatus();
+
         if ($note === null) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
-            return ProductionNoteModel::findOrFail(1);
+            return $this->defaultProductionNote();
         }
 
         try {
@@ -70,7 +73,7 @@ class ProductionNote extends BaseElement
         $englishLocale = (string) config('language.english');
 
         if ($translation === null || $translation === '') {
-            return ProductionNoteModel::findOrFail(1);
+            return $this->defaultProductionNote();
         }
 
         /** @var ProductionNoteModel|null $productionNote */
@@ -90,6 +93,22 @@ class ProductionNote extends BaseElement
         ]);
 
         app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
+
+        return $productionNote;
+    }
+
+    private function defaultProductionNote(): ProductionNoteModel
+    {
+        $englishLocale = (string) config('language.english');
+
+        /** @var ProductionNoteModel $productionNote */
+        $productionNote = ProductionNoteModel::query()->firstOrCreate([
+            'translation->'.$englishLocale => self::DEFAULT_PRODUCTION_NOTE,
+        ], [
+            'translation' => [
+                $englishLocale => self::DEFAULT_PRODUCTION_NOTE,
+            ],
+        ]);
 
         return $productionNote;
     }

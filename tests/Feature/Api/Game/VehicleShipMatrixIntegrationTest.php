@@ -294,7 +294,7 @@ it('includes skus when present', function () {
     $response->assertOk();
     $response->assertJsonCount(1, 'data.skus')
         ->assertJsonPath('data.skus.0.title', 'Avenger Titan - IAE 2953')
-        ->assertJsonPath('data.skus.0.available', 1)
+        ->assertJsonPath('data.skus.0.available', true)
         ->assertJsonPath('data.skus.0.price', 50);
 });
 

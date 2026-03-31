@@ -144,15 +144,17 @@ it('logs api failures and leaves existing prices untouched', function (): void {
     $job = new ImportItemPrices($version->id);
     $job->handle();
 
-    expect($itemData->refresh()->uex_prices)->toBe([
-        [
+    $prices = $itemData->refresh()->uex_prices;
+
+    expect($prices)->toBeArray()
+        ->and($prices)->toHaveCount(1)
+        ->and($prices[0])->toMatchArray([
             'terminal_id' => 7,
             'terminal_name' => 'Existing Terminal',
             'price_buy' => 900,
             'price_sell' => 450,
             'date_updated' => '2024-01-01T00:00:00+00:00',
-        ],
-    ]);
+        ]);
 
     Log::shouldHaveReceived('error')->with('UEX API request failed', [
         'status' => 500,

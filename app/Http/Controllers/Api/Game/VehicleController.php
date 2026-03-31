@@ -626,7 +626,13 @@ class VehicleController extends Controller
     {
         return array_merge(
             [
-                AllowedSort::field('name', 'display_name'),
+                AllowedSort::callback('name', static function (Builder $query, bool $descending): void {
+                    $direction = $descending ? 'desc' : 'asc';
+
+                    $query->orderByRaw(
+                        "coalesce(game_vehicle_data.display_name, game_vehicle_data.name) {$direction}"
+                    );
+                }),
                 'class_name',
                 'career',
                 'role',

@@ -19,6 +19,12 @@ class VehicleSku extends Model
         'cig_id',
     ];
 
+    protected $casts = [
+        'price' => 'integer',
+        'available' => 'boolean',
+        'cig_id' => 'integer',
+    ];
+
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);

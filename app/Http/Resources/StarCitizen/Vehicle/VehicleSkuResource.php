@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
 use Illuminate\Http\Request;
@@ -24,7 +26,7 @@ class VehicleSkuResource extends JsonResource
         return [
             'title' => $this->title,
             'price' => $this->price,
-            'available' => $this->available,
+            'available' => (bool) $this->available,
             'imported_at' => $this->created_at,
         ];
     }
