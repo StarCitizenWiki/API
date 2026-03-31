@@ -16,6 +16,12 @@ services:
     environment:
       APP_ENV: production
       CONTAINER_ROLE: app
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     volumes:
       - ./storage:/var/www/html/storage
       - /etc/localtime:/etc/localtime:ro
