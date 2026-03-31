@@ -3,21 +3,41 @@
 @props([
     'vehicle' => 'array', // API response array with vehicle data
     'manufacturerCode' => 'string|null',
+    'breadcrumbs' => [],
 ])
+
+@php
+    if (! is_array($breadcrumbs) || $breadcrumbs === []) {
+        $breadcrumbs = [
+            [
+                'label' => 'All Vehicles',
+                'url' => route('web.vehicles.index'),
+            ],
+            [
+                'label' => data_get($vehicle, 'manufacturer.name'),
+                'url' => route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]),
+            ],
+            [
+                'label' => data_get($vehicle, 'name'),
+                'url' => null,
+            ],
+        ];
+    }
+@endphp
 
 <div class="breadcrumbs text-sm text-base-content/70" data-testid="vehicle-breadcrumbs">
     <ul>
-        <li>
-            <a data-testid="vehicle-breadcrumbs-all-link" href="{{ route('web.vehicles.index') }}">All Vehicles</a>
-        </li>
-        <li>
-            <a
-                data-testid="vehicle-breadcrumbs-manufacturer-link"
-                href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]) }}"
-            >
-                {{ data_get($vehicle, 'manufacturer.name') }}
-            </a>
-        </li>
-        <li>{{ data_get($vehicle, 'name') }}</li>
+        @foreach ($breadcrumbs as $breadcrumb)
+            <li>
+                @if (! empty($breadcrumb['url']))
+                    <a
+                        data-testid="{{ $loop->first ? 'vehicle-breadcrumbs-all-link' : ($loop->iteration === 2 ? 'vehicle-breadcrumbs-manufacturer-link' : 'vehicle-breadcrumb-link-'.$loop->index) }}"
+                        href="{{ $breadcrumb['url'] }}"
+                    >{{ $breadcrumb['label'] }}</a>
+                @else
+                    <span>{{ $breadcrumb['label'] }}</span>
+                @endif
+            </li>
+        @endforeach
     </ul>
 </div>

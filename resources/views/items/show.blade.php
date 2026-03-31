@@ -1,49 +1,37 @@
 @php
-    use Illuminate\Support\Arr;
     use Illuminate\Support\Str;
 @endphp
 
 @extends('layouts.app')
 
-@props(['item', 'pageTitle'])
+@props(['item', 'pageTitle', 'seo'])
 
 @php
-    $pageTitleDecoded = html_entity_decode($pageTitle);
-
     $itemName = data_get($item, 'name', 'Item');
     $type = data_get($item, 'type');
-    $manufacturerName = data_get($item, 'manufacturer.name');
     $classification = data_get($item, 'classification');
     $translations = data_get($item, 'description');
-    $descriptionPreview = is_array($translations)
-        ? Arr::first($translations, static fn (mixed $value): bool => is_string($value) && trim($value) !== '')
-        : $translations;
-
-    $descriptionPreview = is_string($descriptionPreview)
-        ? trim(html_entity_decode($descriptionPreview))
-        : null;
-
-    if ($descriptionPreview === '') {
-        $descriptionPreview = null;
-    }
+    $breadcrumbs = data_get($seo, 'breadcrumbs', []);
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!} - Star Citizen Item
+    {!! data_get($seo, 'title', $itemName.' - Star Citizen Item') !!}
 @endsection
 
 @section('meta_description')
-    {!! Str::limit($descriptionPreview ?? $itemName.' '.($type ?? ''), 160) !!}
+    {!! data_get($seo, 'metaDescription', Str::limit($itemName.' '.($type ?? ''), 160)) !!}
 @endsection
 
 @section('meta')
-    <meta name="keywords" content="{{ $itemName }},{{ $type ?? '' }},{{ $manufacturerName ?? '' }},{{ $classification ?? '' }},Star Citizen,SC">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $itemName }} - {{ $type ?? '' }} {{ $manufacturerName ?? '' }}">
-    <meta property="og:description" content="{!! Str::limit($descriptionPreview ?? $itemName.' '.($type ?? ''), 160) !!}">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $itemName }} - {{ $type ?? '' }}">
-    <meta name="twitter:description" content="{!! Str::limit($descriptionPreview ?? $itemName.' '.($type ?? ''), 160) !!}">
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
 @endsection
 
 @section('content')
@@ -128,7 +116,7 @@
 
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-            <x-items.item-breadcrumbs :item="$item" />
+            <x-items.item-breadcrumbs :item="$item" :breadcrumbs="$breadcrumbs" />
         </div>
 
         <x-resource-search

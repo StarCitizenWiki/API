@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web\Game;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
+use App\Support\Seo\VehicleShowSeoData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -13,7 +14,10 @@ use Illuminate\View\View;
 
 class VehicleController extends Controller
 {
-    public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
+    public function __construct(
+        private readonly ApiJsonRequest $apiJsonRequest,
+        private readonly VehicleShowSeoData $vehicleShowSeoData,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -51,6 +55,7 @@ class VehicleController extends Controller
             'vehicle' => $vehicleData,
             'vehicleMeta' => Arr::get($payload, 'meta', []),
             'pageTitle' => Arr::get($vehicleData, 'name', 'Vehicle'),
+            'seo' => $this->vehicleShowSeoData->build($vehicleData, $request),
         ]);
     }
 

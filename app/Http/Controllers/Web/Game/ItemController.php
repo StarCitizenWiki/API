@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Game;
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
 use App\Support\Items\ItemTableConfig;
+use App\Support\Seo\ItemShowSeoData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -17,6 +18,7 @@ class ItemController extends Controller
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly ItemTableConfig $itemTableConfig,
+        private readonly ItemShowSeoData $itemShowSeoData,
     ) {}
 
     public function index(Request $request): View
@@ -64,6 +66,7 @@ class ItemController extends Controller
             'item' => $itemData,
             'itemMeta' => Arr::get($payload, 'meta', []),
             'pageTitle' => Arr::get($itemData, 'name', 'Item'),
+            'seo' => $this->itemShowSeoData->build($itemData, $request),
         ]);
     }
 

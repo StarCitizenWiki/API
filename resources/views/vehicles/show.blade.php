@@ -1,30 +1,11 @@
-@php use Illuminate\Support\Arr; use Illuminate\Support\Str; @endphp
+@php use Illuminate\Support\Str; @endphp
 @extends('layouts.app')
 
 @php
-    $pageTitleDecoded = html_entity_decode($pageTitle);
-
     $vehicleName = data_get($vehicle, 'name', 'Vehicle');
     $manufacturerName = data_get($vehicle, 'manufacturer.name');
     $manufacturerCode = data_get($vehicle, 'manufacturer.code');
-    $sizeClass = data_get($vehicle, 'size_class');
-    $career = data_get($vehicle, 'career');
-    $role = data_get($vehicle, 'role');
-    $className = data_get($vehicle, 'class_name');
-    $shipMatrixDescription = data_get($vehicle, 'description.en');
-
-    if (is_array($shipMatrixDescription)) {
-        $shipMatrixDescription = Arr::first($shipMatrixDescription, static fn (mixed $value): bool => is_string($value) && $value !== '');
-    }
-
-    if ($shipMatrixDescription === null || $shipMatrixDescription === '') {
-        $shipMatrixDescription = data_get($vehicle, 'description');
-
-        if (is_array($shipMatrixDescription)) {
-            $shipMatrixDescription = Arr::first($shipMatrixDescription, static fn (mixed $value): bool => is_string($value) && $value !== '');
-        }
-    }
-    $classification = data_get($vehicle, 'classification');
+    $breadcrumbs = data_get($seo, 'breadcrumbs', []);
 
     $isSpaceship = data_get($vehicle, 'is_spaceship');
     $quantum = data_get($vehicle, 'quantum', []);
@@ -44,27 +25,29 @@
 @endphp
 
 @section('title')
-    {!! $pageTitleDecoded !!} - {{ $manufacturerName }} - Star Citizen Vehicle
+    {!! data_get($seo, 'title', $vehicleName.' - Star Citizen Vehicle') !!}
 @endsection
 @section('meta_description')
-    {!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}
+    {!! data_get($seo, 'metaDescription', Str::limit($vehicleName, 160)) !!}
 @endsection
 
 @section('meta')
-    <meta name="keywords" content="{{ $vehicleName }},{{ $manufacturerName ?? '' }},{{ $sizeClass ? "Size {$sizeClass}" : '' }},{{ $career ?? '' }},{{ $role ?? '' }},Star Citizen,SC">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $vehicleName }} - {{ $manufacturerName ?? '' }} {{ $className ?? '' }}">
-    <meta property="og:description" content="{!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $vehicleName }} - {{ $manufacturerName ?? '' }}">
-    <meta name="twitter:description" content="{!! Str::limit($shipMatrixDescription ?? $vehicleName, 160) !!}">
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
 @endsection
 
 
 @section('content')
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-            <x-vehicles.vehicle-breadcrumbs :vehicle="$vehicle" :manufacturerCode="$manufacturerCode" />
+            <x-vehicles.vehicle-breadcrumbs :vehicle="$vehicle" :manufacturerCode="$manufacturerCode" :breadcrumbs="$breadcrumbs" />
         </div>
 
         <x-resource-search
