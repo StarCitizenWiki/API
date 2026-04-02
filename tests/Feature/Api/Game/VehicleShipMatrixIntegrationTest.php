@@ -316,7 +316,7 @@ it('includes ship-matrix components when requested on the v2 vehicle show route'
         'type' => 'Weapon',
         'name' => 'CF-227 Badger Repeater',
         'component_size' => 3,
-        'category' => 'Weapons',
+        'category' => null,
         'manufacturer' => 'Klaus & Werner',
         'component_class' => 'weapon',
     ]);
