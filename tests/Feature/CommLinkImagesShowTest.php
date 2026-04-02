@@ -28,3 +28,11 @@ it('renders the comm-link image show view with api data', function (): void {
         ->assertSee('Inside Star Citizen')
         ->assertSee((string) $commLink->cig_id);
 });
+
+it('returns not found for reserved legacy tag image routes', function (): void {
+    $this->get('/comm-links/images/tag-Constellation%20Phoenix')
+        ->assertNotFound();
+
+    $this->get('/comm-links/images/tag-Constellation%20Phoenix/similar')
+        ->assertNotFound();
+});

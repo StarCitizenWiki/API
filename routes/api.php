@@ -150,10 +150,10 @@ Route::group(
 
         // CommLink Images
         Route::get('comm-link-images', [ImageController::class, 'index'])->name('comm-link-images.index');
-        Route::get('comm-link-images/{image}', [ImageController::class, 'show'])->name('comm-link-images.show');
+        Route::get('comm-link-images/{image}', [ImageController::class, 'show'])->whereNumber('image')->name('comm-link-images.show');
         Route::get('comm-link-images/random', [ImageController::class, 'random'])->name('comm-link-images.random');
         Route::post('comm-link-images/search', [ImageController::class, 'search'])->name('comm-link-images.search');
-        Route::get('comm-link-images/{image}/similar', [CommLinkSearchController::class, 'similarSearch'])->middleware(['auth:sanctum', 'throttle:similar-image-search'])->name('comm-link-images.similar');
+        Route::get('comm-link-images/{image}/similar', [CommLinkSearchController::class, 'similarSearch'])->whereNumber('image')->middleware(['auth:sanctum', 'throttle:similar-image-search'])->name('comm-link-images.similar');
 
         // Galactapedia
         Route::get('galactapedia', [GalactapediaController::class, 'index'])->name('galactapedia.index');

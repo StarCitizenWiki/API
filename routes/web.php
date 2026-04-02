@@ -28,8 +28,14 @@ Route::get('/comm-links/images/search', [CommLinkController::class, 'searchImage
 Route::post('/comm-links/images/reverse-search', [CommLinkController::class, 'reverseImageSearch'])
     ->middleware('throttle:reverse-image-search')
     ->name('web.comm-links.images.reverse-search');
-Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])->name('web.comm-links.images.show');
+Route::get('/comm-links/images/tag-{tag}', static function (): never {
+    abort(404);
+});
+Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])
+    ->whereNumber('image')
+    ->name('web.comm-links.images.show');
 Route::get('/comm-links/images/{image}/similar', [CommLinkController::class, 'similarImages'])
+    ->whereNumber('image')
     ->middleware(['auth', 'throttle:similar-image-search'])
     ->name('web.comm-links.images.similar');
 Route::get('/comm-links/{id}', [CommLinkController::class, 'show'])->name('web.comm-links.show');
