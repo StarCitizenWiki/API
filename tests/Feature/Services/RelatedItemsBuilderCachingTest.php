@@ -15,7 +15,10 @@ uses(RefreshDatabase::class);
 
 describe('RelatedItemsBuilder Caching', function () {
     beforeEach(function (): void {
-        Cache::flush();
+        app('cache')->setDefaultDriver('array');
+        app('cache')->forgetDriver(['array', 'database']);
+        Cache::store('array')->flush();
+        Cache::store('database')->flush();
 
         $this->gameVersion = GameVersion::factory()->create([
             'code' => '4.0.0-LIVE',
@@ -33,10 +36,16 @@ describe('RelatedItemsBuilder Caching', function () {
     });
 
     afterEach(function (): void {
-        Cache::flush();
+        Cache::store('array')->flush();
+        Cache::store('database')->flush();
+        app('cache')->setDefaultDriver('array');
+        app('cache')->forgetDriver(['array', 'database']);
     });
 
-    it('keeps related items cached until the cache is flushed', function (): void {
+    it('keeps related items cached until the cache is flushed when values are serialized', function (): void {
+        app('cache')->setDefaultDriver('database');
+        app('cache')->forgetDriver(['array', 'database']);
+
         $baseItem = Item::factory()->create();
 
         $baseItemData = ItemData::factory()

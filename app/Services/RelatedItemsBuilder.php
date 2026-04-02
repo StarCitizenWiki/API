@@ -29,7 +29,7 @@ class RelatedItemsBuilder
 
         $names = collect($groupItems)->pluck('name')->all();
         if ($baseItem !== null) {
-            array_unshift($names, $baseItem->name);
+            array_unshift($names, $baseItem['name']);
         }
 
         [$setName, $variantNames] = $this->computeSetNameAndVariantNames($names, $baseItem, $groupItems);
@@ -37,11 +37,12 @@ class RelatedItemsBuilder
         $base = $baseItem !== null ? $this->toBaseLink($baseItem, $setName, true) : null;
 
         $variants = collect($groupItems)
-            ->filter(fn (ItemData $i) => $i->item->uuid !== $item->uuid)
-            ->map(function (ItemData $it) use ($variantNames) {
-                $link = $this->toBaseLink($it, null, false);
+            ->filter(fn (array $groupItem): bool => $groupItem['uuid'] !== $item->uuid)
+            ->map(function (array $groupItem) use ($variantNames): array {
+                /** @var array{uuid:string,name:string} $groupItem */
+                $link = $this->toBaseLink($groupItem, null, false);
 
-                $raw = $variantNames[$it->item->uuid] ?? null;
+                $raw = $variantNames[$groupItem['uuid']] ?? null;
                 $link['variant_name'] = $this->normalizeVariantName($raw);
 
                 return $link;
@@ -62,14 +63,18 @@ class RelatedItemsBuilder
     /**
      * Determine base item and full variant group for an item.
      *
-     * @return array{0:?ItemData,1:array<int,ItemData>}
+     * @return array{
+     *     0:?array{uuid:string,name:string},
+     *     1:array<int,array{uuid:string,name:string}>
+     * }
      */
     public function gatherVariantGroup(Item $item): array
     {
         $versionCode = $this->gameVersionCode;
         $itemId = $item->getAttribute('id');
 
-        return RelatedItemsCache::rememberVariantGroup(
+        /** @var array{base_item:?array{uuid:string,name:string},group_items:array<int,array{uuid:string,name:string}>} $cachedVariantGroup */
+        $cachedVariantGroup = RelatedItemsCache::rememberVariantGroup(
             $versionCode,
             $itemId,
             function () use ($item) {
@@ -90,13 +95,15 @@ class RelatedItemsBuilder
                 if ($shouldFallbackToTags) {
                     $tagGroup = $this->findVariantGroupFromTags($itemData);
                     if (count($tagGroup) > 1) {
-                        return [null, $tagGroup];
+                        return $this->toCachedVariantGroup(null, $tagGroup);
                     }
                 }
 
-                return [$base, $siblings];
+                return $this->toCachedVariantGroup($base, $siblings);
             }
         );
+
+        return [$cachedVariantGroup['base_item'], $cachedVariantGroup['group_items']];
     }
 
     /**
@@ -105,10 +112,11 @@ class RelatedItemsBuilder
      * - variant name: item name with the chosen prefix removed (trimmed); if empty, "Base".
      *
      * @param  array<int,string>  $names
-     * @param  array<int,ItemData>  $group
+     * @param  array{uuid:string,name:string}|null  $base
+     * @param  array<int,array{uuid:string,name:string}>  $group
      * @return array{0:?string,1:array<string,string>} [setName, map(uuid=>variantName)]
      */
-    public function computeSetNameAndVariantNames(array $names, ?ItemData $base, array $group): array
+    public function computeSetNameAndVariantNames(array $names, ?array $base, array $group): array
     {
         // --- compute set label (what you expose as set_name) ---
         $rawPrefix = $this->longestCommonPrefix($names);
@@ -143,7 +151,7 @@ class RelatedItemsBuilder
          * - "Lynx Arms" -> set_name "Lynx", base variant_name "Arms"
          * - "Gemini A03 Sniper Rifle" -> set_name "Gemini A03 Sniper", base variant_name "Rifle"
          */
-        if ($base !== null && $setName !== null && $setName === $base->name) {
+        if ($base !== null && $setName !== null && $setName === $base['name']) {
             $trimmed = $this->trimTrailingSlotOrTypeWord($setName);
             if ($trimmed !== null) {
                 $setName = $trimmed;
@@ -154,7 +162,7 @@ class RelatedItemsBuilder
         $stripPrefix = $setName;
 
         if ($base !== null) {
-            $baseName = $base->name;
+            $baseName = $base['name'];
 
             $allPrefixedByBase = true;
             foreach ($names as $n) {
@@ -176,16 +184,16 @@ class RelatedItemsBuilder
         // --- build uuid => remainder map ---
         $map = [];
         if ($base !== null) {
-            $map[$base->item->uuid] = 'Base';
+            $map[$base['uuid']] = 'Base';
         }
 
         foreach ($group as $it) {
             $remainder = $stripPrefix !== null
-                ? $this->stripPrefix($it->name, $stripPrefix)
-                : $it->name;
+                ? $this->stripPrefix($it['name'], $stripPrefix)
+                : $it['name'];
 
             $remainder = trim($remainder);
-            $map[$it->item->uuid] = $remainder === '' ? 'Base' : $remainder;
+            $map[$it['uuid']] = $remainder === '' ? 'Base' : $remainder;
         }
 
         return [$setName, $map];
@@ -248,16 +256,20 @@ class RelatedItemsBuilder
         );
     }
 
-    private function toBaseLink(ItemData $it, ?string $setName, bool $includeVariantName): array
+    /**
+     * @param  array{uuid:string,name:string}  $item
+     * @return array{uuid:string,name:string,link:string,variant_name?:string}
+     */
+    private function toBaseLink(array $item, ?string $setName, bool $includeVariantName): array
     {
         $link = [
-            'uuid' => $it->item->uuid,
-            'name' => $it->name,
-            'link' => $this->makeLink($it->item->uuid),
+            'uuid' => $item['uuid'],
+            'name' => $item['name'],
+            'link' => $this->makeLink($item['uuid']),
         ];
 
         if ($includeVariantName && $setName !== null) {
-            $variant = $this->stripPrefix($it->name, $setName);
+            $variant = $this->stripPrefix($item['name'], $setName);
             $variant = $variant === '' ? 'Base' : $variant;
             $link['variant_name'] = $this->normalizeVariantName($variant) ?? 'Base';
         }
@@ -510,6 +522,35 @@ class RelatedItemsBuilder
             ->where('game_version_id', $this->resolveGameVersion()->id)
             ->with(['item', 'gameVersion'])
             ->firstOrFail();
+    }
+
+    /**
+     * @param  array<int,ItemData>  $groupItems
+     * @return array{
+     *     base_item:?array{uuid:string,name:string},
+     *     group_items:array<int,array{uuid:string,name:string}>
+     * }
+     */
+    private function toCachedVariantGroup(?ItemData $baseItem, array $groupItems): array
+    {
+        return [
+            'base_item' => $baseItem !== null ? $this->toCachedVariantItem($baseItem) : null,
+            'group_items' => array_values(array_unique(array_map(
+                fn (ItemData $groupItem): array => $this->toCachedVariantItem($groupItem),
+                $groupItems
+            ), SORT_REGULAR)),
+        ];
+    }
+
+    /**
+     * @return array{uuid:string,name:string}
+     */
+    private function toCachedVariantItem(ItemData $itemData): array
+    {
+        return [
+            'uuid' => $itemData->item->uuid,
+            'name' => $itemData->name,
+        ];
     }
 
     private function normalizeVariantName(?string $value): ?string
