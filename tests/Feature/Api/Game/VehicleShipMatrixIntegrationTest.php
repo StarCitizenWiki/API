@@ -9,6 +9,7 @@ use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Component as ShipMatrixComponent;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
@@ -296,6 +297,59 @@ it('includes skus when present', function () {
         ->assertJsonPath('data.skus.0.title', 'Avenger Titan - IAE 2953')
         ->assertJsonPath('data.skus.0.available', true)
         ->assertJsonPath('data.skus.0.price', 50);
+});
+
+it('includes ship-matrix components when requested on the v2 vehicle show route', function () {
+    $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 12346,
+        'chassis_id' => 101,
+        'name' => 'Component Test Ship',
+        'slug' => 'component-test-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    $component = ShipMatrixComponent::query()->create([
+        'type' => 'Weapon',
+        'name' => 'CF-227 Badger Repeater',
+        'component_size' => 3,
+        'category' => 'Weapons',
+        'manufacturer' => 'Klaus & Werner',
+        'component_class' => 'weapon',
+    ]);
+
+    $shipMatrixVehicle->components()->attach($component, [
+        'mounts' => 2,
+        'size' => 3,
+        'details' => 'Wing hardpoints',
+        'quantity' => 2,
+    ]);
+
+    $vehicle = Vehicle::query()->create([
+        'uuid' => '12121212-1212-1212-1212-121212121212',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Component Test Ship',
+        'class_name' => 'Component_Test_Ship',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $response = $this->getJson(route('v2.vehicles.show', ['vehicle' => $vehicle->uuid]).'?include=components');
+
+    $response->assertOk()
+        ->assertJsonPath('data.components.0.name', 'CF-227 Badger Repeater')
+        ->assertJsonPath('data.components.0.mounts', 2)
+        ->assertJsonPath('data.components.0.size', '3')
+        ->assertJsonPath('data.components.0.quantity', 2)
+        ->assertJsonPath('data.components.0.component_class', 'weapon');
 });
 
 it('formats pledge_url correctly', function () {

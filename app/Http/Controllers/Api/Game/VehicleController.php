@@ -464,7 +464,7 @@ class VehicleController extends Controller
             ->toArray();
 
         $aliases = [
-            'components' => 'shipmatrixvehicle.components',
+            'shipmatrixvehicle.components' => 'components',
         ];
 
         $resolved = collect(explode(',', (string) $includeParam))
@@ -533,8 +533,7 @@ class VehicleController extends Controller
     private function allowedIncludes(): array
     {
         return [
-            'components',
-            AllowedInclude::relationship('shipMatrixVehicle.components', 'components'),
+            AllowedInclude::relationship('components', 'shipMatrixVehicle.components'),
         ];
     }
 
