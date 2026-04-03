@@ -54,7 +54,13 @@ class ItemController extends Controller
      */
     private function allowedIncludes(bool $includeRelatedItems = false): array
     {
-        $includes = ItemResource::validIncludes();
+        $includes = array_merge(
+            ItemResource::validIncludes(),
+            [
+                AllowedInclude::custom('shops', new PassthroughInclude),
+                AllowedInclude::custom('shops.items', new PassthroughInclude),
+            ]
+        );
 
         if ($includeRelatedItems) {
             $includes[] = AllowedInclude::custom('related_items', new PassthroughInclude);
