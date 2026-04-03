@@ -446,6 +446,28 @@ it('finds ship-matrix vehicle by slug on versioned routes', function (string $ve
     $response->assertJsonPath('data.slug', 'slug-test-ship');
 })->with(['v2', 'v3']);
 
+it('finds game vehicle by hyphenated display name on versioned routes', function (string $version) {
+    $vehicle = Vehicle::query()->create([
+        'uuid' => 'dededed0-1212-4343-9494-aaaaaaaaaaaa',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'name' => 'Drake Dragonfly Star Kitten',
+        'display_name' => 'Dragonfly Star Kitten',
+        'class_name' => 'DRAK_Dragonfly_Pink',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $response = $this->getJson("/api/{$version}/vehicles/dragonfly-star-kitten");
+
+    $response->assertOk();
+    $response->assertJsonPath('data.uuid', 'dededed0-1212-4343-9494-aaaaaaaaaaaa');
+    $response->assertJsonPath('data.name', 'Dragonfly Star Kitten');
+})->with(['v2', 'v3']);
+
 it('finds ship-matrix vehicle when orphaned game vehicle data exists', function () {
     $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
         'cig_id' => 77777,
