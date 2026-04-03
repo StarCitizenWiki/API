@@ -421,6 +421,33 @@ function normalizeColumns(columns) {
 
             return `${formatted}${params?.separator ?? ' '}${unit}`;
         },
+        labelList: (cell, params) => {
+            const value = cell.getValue();
+
+            if (!Array.isArray(value) || value.length === 0) {
+                return '';
+            }
+
+            const labelField = params?.labelField ?? 'label';
+            const fallbackField = params?.fallbackField ?? 'name';
+            const separator = params?.separator ?? ', ';
+
+            const labels = value
+                .map((entry) => {
+                    if (!entry || typeof entry !== 'object') {
+                        return '';
+                    }
+
+                    const preferred = get(entry, labelField, null);
+                    const fallback = get(entry, fallbackField, null);
+                    const resolved = preferred ?? fallback;
+
+                    return typeof resolved === 'string' ? resolved.trim() : '';
+                })
+                .filter((label) => label !== '');
+
+            return labels.join(separator);
+        },
         viewButton: (cell, params) => {
             const label = params?.label ?? "View";
             const hrefField = params?.hrefField ?? null;
@@ -493,6 +520,43 @@ function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
     });
 }
 
+function applyHeaderFilterOptionsToColumnComponents(columnComponents, optionsMap, payload) {
+    const filters = payload?.filters ?? {};
+
+    (columnComponents ?? []).forEach((column) => {
+        const subColumns = column?.getSubColumns?.() ?? [];
+
+        if (subColumns.length > 0) {
+            applyHeaderFilterOptionsToColumnComponents(subColumns, optionsMap, payload);
+            return;
+        }
+
+        const field = column?.getField?.();
+        const filterKey = optionsMap?.[field];
+        const definition = column?.getDefinition?.();
+
+        if (!filterKey || !definition || definition.headerFilter !== 'list') {
+            return;
+        }
+
+        definition.headerFilterParams = {
+            ...(definition.headerFilterParams ?? {}),
+            values: buildSelectValues(filters[filterKey] ?? []),
+        };
+
+        column.reloadHeaderFilter?.();
+    });
+}
+
+function buildMirroredQueryUrl(sourceUrl, targetBaseUrl) {
+    const source = new URL(sourceUrl, window.location.origin);
+    const target = new URL(targetBaseUrl, window.location.origin);
+
+    target.search = source.search;
+
+    return target.toString();
+}
+
 /**
  * Build a { [columnField]: sortField } map, including nested/group columns.
  */
@@ -531,6 +595,7 @@ export function initTabulatorTables() {
                 ? config.initialHeaderFilter
                 : false);
 
+        const filterOptionsEndpoint = config.filterOptionsEndpoint ?? null;
         const apiUrlTargetId = config.apiUrlTargetId ?? null;
         const apiUrlTarget = apiUrlTargetId ? document.getElementById(apiUrlTargetId) : null;
 
@@ -580,6 +645,33 @@ export function initTabulatorTables() {
         // - build JSON:API query params ourselves
         // - normalize response into {last_page, data}
         let servedInitial = false;
+        let latestFilterOptionsRequestId = 0;
+
+        const refreshHeaderFilterOptions = (sourceUrl, ajaxConfig) => {
+            if (!filterOptionsEndpoint || !headerFilterOptionsMap) {
+                return Promise.resolve();
+            }
+
+            const requestId = ++latestFilterOptionsRequestId;
+            const filterOptionsUrl = buildMirroredQueryUrl(sourceUrl, filterOptionsEndpoint);
+
+            return fetch(filterOptionsUrl, { ...ajaxConfig, method: "GET" })
+                .then(async (response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    return response.json();
+                })
+                .then((payload) => {
+                    if (requestId !== latestFilterOptionsRequestId) {
+                        return;
+                    }
+
+                    applyHeaderFilterOptionsToColumnComponents(table.getColumns(), headerFilterOptionsMap, payload);
+                })
+                .catch(() => {});
+        };
 
         const table = new Tabulator(mount, {
             layout: "fitDataFill",
@@ -676,6 +768,8 @@ export function initTabulatorTables() {
                         return r.json();
                     })
                     .then((json) => {
+                        void refreshHeaderFilterOptions(finalUrl, ajaxConfig);
+
                         const lastPage = get(json, lastPagePath, 1);
                         return {
                             last_page: lastPage,

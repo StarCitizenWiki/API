@@ -8,6 +8,7 @@
         $tableId = 'ship-matrix-vehicles-table';
         $tableConfig = [
             'endpoint' => route('shipmatrix.vehicles.index'),
+            'filterOptionsEndpoint' => route('shipmatrix.vehicles.filters'),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

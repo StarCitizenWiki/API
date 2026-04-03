@@ -23,20 +23,28 @@ use Spatie\QueryBuilder\QueryBuilder;
 class StarsystemController extends Controller
 {
     /**
+     * @return array<int, AllowedFilter>
+     */
+    private function allowedFilters(): array
+    {
+        return [
+            AllowedFilter::exact('affiliation', 'affiliation.name'),
+            AllowedFilter::exact('code'),
+            AllowedFilter::partial('name'),
+            AllowedFilter::exact('status'),
+            AllowedFilter::exact('type'),
+            AllowedFilter::exact('size', 'aggregated_size'),
+        ];
+    }
+
+    /**
      * Build base query with filters and sorts for starsystems.
      */
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Starsystem::class, $request)
             ->allowedIncludes(...StarsystemResource::validIncludes())
-            ->allowedFilters(...[
-                AllowedFilter::exact('affiliation', 'affiliation.name'),
-                AllowedFilter::exact('code'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::exact('status'),
-                AllowedFilter::exact('type'),
-                AllowedFilter::exact('size', 'aggregated_size'),
-            ])
+            ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...[
                 'name',
                 'code',
@@ -249,62 +257,69 @@ class StarsystemController extends Controller
             ),
         ]
     )]
-    public function filters(): JsonResponse
+    public function filters(Request $request): JsonResponse
     {
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_STARSYSTEMS,
-            FilterCache::starsystemsKey(),
-            static function (): array {
-                $baseQuery = (new Starsystem)->newQueryWithoutRelationships()->toBase();
+        $resolver = function () use ($request): array {
+            $baseQuery = QueryBuilder::for(Starsystem::class, $request)
+                ->allowedFilters(...$this->allowedFilters());
 
-                $facets = [
-                    'affiliation' => [
-                        'expr' => 'starmap_affiliations.name',
-                        'join' => static fn ($q) => $q
-                            ->leftJoin('starmap_starsystem_affiliation', 'starmap_starsystems.id', '=', 'starmap_starsystem_affiliation.starsystem_id')
-                            ->leftJoin('starmap_affiliations', 'starmap_starsystem_affiliation.affiliation_id', '=', 'starmap_affiliations.id'),
-                        'cast' => null,
-                    ],
-                    'status' => [
-                        'expr' => 'starmap_starsystems.status',
-                        'cast' => null,
-                    ],
-                    'type' => [
-                        'expr' => 'starmap_starsystems.type',
-                        'cast' => null,
-                    ],
-                    'size' => [
-                        'expr' => 'starmap_starsystems.aggregated_size',
-                        'cast' => static fn ($value) => $value === null ? null : (float) $value,
-                    ],
-                ];
+            $facets = [
+                'affiliation' => [
+                    'expr' => 'starmap_affiliations.name',
+                    'join' => static fn ($q) => $q
+                        ->leftJoin('starmap_starsystem_affiliation', 'starmap_starsystems.id', '=', 'starmap_starsystem_affiliation.starsystem_id')
+                        ->leftJoin('starmap_affiliations', 'starmap_starsystem_affiliation.affiliation_id', '=', 'starmap_affiliations.id'),
+                    'cast' => null,
+                ],
+                'status' => [
+                    'expr' => 'starmap_starsystems.status',
+                    'cast' => null,
+                ],
+                'type' => [
+                    'expr' => 'starmap_starsystems.type',
+                    'cast' => null,
+                ],
+                'size' => [
+                    'expr' => 'starmap_starsystems.aggregated_size',
+                    'cast' => static fn ($value) => $value === null ? null : (float) $value,
+                ],
+            ];
 
-                $out = [];
+            $out = [];
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
 
-                    $q = clone $baseQuery;
+                $q = clone $baseQuery;
 
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($q);
-                    }
-
-                    $rows = $q
-                        ->select([
-                            DB::raw("{$expr} as value"),
-                            DB::raw('count(*) as count'),
-                        ])
-                        ->groupByRaw($expr)
-                        ->orderByRaw("{$expr} IS NULL, {$expr}")
-                        ->get();
-
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($q);
                 }
 
-                return $out;
+                $rows = $q
+                    ->select([
+                        DB::raw("{$expr} as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->groupByRaw($expr)
+                    ->orderByRaw("{$expr} IS NULL, {$expr}")
+                    ->get();
+
+                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_STARSYSTEMS,
+                FilterCache::starsystemsKey(),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,

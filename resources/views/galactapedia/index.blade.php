@@ -8,6 +8,7 @@
         $tableId = 'galactapedia-table';
         $tableConfig = [
             'endpoint' => route('galactapedia.index'),
+            'filterOptionsEndpoint' => route('galactapedia.filters'),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

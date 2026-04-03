@@ -8,6 +8,7 @@
         $tableId = 'comm-links-table';
         $tableConfig = [
             'endpoint' => route('comm-links.index'),
+            'filterOptionsEndpoint' => route('comm-links.filters'),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

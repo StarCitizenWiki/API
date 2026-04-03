@@ -10,6 +10,7 @@
         $versionParams = $resolvedVersionCode ? ['version' => $resolvedVersionCode] : [];
         $tableConfig = [
             'endpoint' => route('vehicles.index', $versionParams),
+            'filterOptionsEndpoint' => route('vehicles.filters', $versionParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

@@ -26,19 +26,27 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class VehicleController extends Controller
 {
     /**
+     * @return array<int, AllowedFilter>
+     */
+    private function allowedFilters(): array
+    {
+        return [
+            AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+            AllowedFilter::exact('size', 'size.slug'),
+            AllowedFilter::scope('type'),
+            AllowedFilter::scope('focus'),
+            AllowedFilter::scope('production_status'),
+            AllowedFilter::partial('name'),
+        ];
+    }
+
+    /**
      * Build base query with filters and sorts for Ship Matrix vehicles.
      */
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Vehicle::class, $request)
-            ->allowedFilters(...[
-                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('size', 'size.slug'),
-                AllowedFilter::scope('type'),
-                AllowedFilter::scope('focus'),
-                AllowedFilter::scope('production_status'),
-                AllowedFilter::partial('name'),
-            ])
+            ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...[
                 AllowedSort::field('id', 'cig_id'),
                 'chassis_id',
@@ -121,70 +129,77 @@ class VehicleController extends Controller
             ),
         ]
     )]
-    public function filters(): JsonResponse
+    public function filters(Request $request): JsonResponse
     {
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_SHIPMATRIX,
-            FilterCache::shipMatrixKey(),
-            static function (): array {
-                $baseQuery = (new Vehicle)->newQueryWithoutRelationships()->toBase();
+        $resolver = function () use ($request): array {
+            $baseQuery = QueryBuilder::for(Vehicle::class, $request)
+                ->allowedFilters(...$this->allowedFilters());
 
-                $facets = [
-                    'manufacturer' => [
-                        'expr' => 'shipmatrix_manufacturers.name',
-                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id'),
-                        'cast' => null,
-                    ],
-                    'size' => [
-                        'expr' => 'shipmatrix_vehicle_sizes.slug',
-                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id'),
-                        'cast' => null,
-                    ],
-                    'type' => [
-                        'expr' => 'shipmatrix_vehicle_types.slug',
-                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id'),
-                        'cast' => null,
-                    ],
-                    'focus' => [
-                        'expr' => 'shipmatrix_vehicle_foci.slug',
-                        'join' => static fn ($q) => $q
-                            ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
-                            ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id'),
-                        'cast' => null,
-                    ],
-                    'production_status' => [
-                        'expr' => 'shipmatrix_production_statuses.slug',
-                        'join' => static fn ($q) => $q->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id'),
-                        'cast' => null,
-                    ],
-                ];
+            $facets = [
+                'manufacturer' => [
+                    'expr' => 'shipmatrix_manufacturers.name',
+                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id'),
+                    'cast' => null,
+                ],
+                'size' => [
+                    'expr' => 'shipmatrix_vehicle_sizes.slug',
+                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id'),
+                    'cast' => null,
+                ],
+                'type' => [
+                    'expr' => 'shipmatrix_vehicle_types.slug',
+                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id'),
+                    'cast' => null,
+                ],
+                'focus' => [
+                    'expr' => 'shipmatrix_vehicle_foci.slug',
+                    'join' => static fn ($q) => $q
+                        ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
+                        ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id'),
+                    'cast' => null,
+                ],
+                'production_status' => [
+                    'expr' => 'shipmatrix_production_statuses.slug',
+                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id'),
+                    'cast' => null,
+                ],
+            ];
 
-                $out = [];
+            $out = [];
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
 
-                    $q = clone $baseQuery;
+                $q = clone $baseQuery;
 
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($q);
-                    }
-
-                    $rows = $q
-                        ->select([
-                            DB::raw("{$expr} as value"),
-                            DB::raw('count(*) as count'),
-                        ])
-                        ->groupByRaw($expr)
-                        ->orderByRaw("{$expr} IS NULL, {$expr}")
-                        ->get();
-
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($q);
                 }
 
-                return $out;
+                $rows = $q
+                    ->select([
+                        DB::raw("{$expr} as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->groupByRaw($expr)
+                    ->orderByRaw("{$expr} IS NULL, {$expr}")
+                    ->get();
+
+                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_SHIPMATRIX,
+                FilterCache::shipMatrixKey(),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,

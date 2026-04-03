@@ -386,77 +386,83 @@ class VehicleController extends Controller
     {
         $versionCode = $this->gameVersionCode();
         $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
+        $resolver = function () use ($request, $versionCode, $vehicleType): array {
+            $baseQuery = QueryBuilder::for(VehicleData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->forVehicleType($vehicleType)
+                ->allowedFilters(...$this->allowedFilters());
 
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_VEHICLES,
-            FilterCache::vehiclesKey($versionCode, $vehicleType),
-            static function () use ($versionCode, $vehicleType): array {
-                $baseQuery = VehicleData::query()
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->forVehicleType($vehicleType);
+            $facets = [
+                'manufacturer' => [
+                    'expr' => 'game_manufacturers.name',
+                    'join' => static fn ($q) => $q->leftJoinRelationship('manufacturer'),
+                    'cast' => null,
+                ],
+                'is_vehicle' => [
+                    'expr' => 'game_vehicle_data.is_vehicle',
+                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                ],
+                'is_gravlev' => [
+                    'expr' => 'game_vehicle_data.is_gravlev',
+                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                ],
+                'is_spaceship' => [
+                    'expr' => 'game_vehicle_data.is_spaceship',
+                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                ],
+                'size' => [
+                    'expr' => 'game_vehicle_data.size',
+                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                ],
+                'role' => [
+                    'expr' => 'game_vehicle_data.role',
+                    'cast' => null,
+                ],
+                'career' => [
+                    'expr' => 'game_vehicle_data.career',
+                    'cast' => null,
+                ],
+                'shield.face_type' => [
+                    'expr' => $this->jsonExpression('ShieldController.FaceType'),
+                    'cast' => null,
+                ],
+            ];
 
-                $facets = [
-                    'manufacturer' => [
-                        'expr' => 'game_manufacturers.name',
-                        'join' => static fn ($q) => $q->leftJoinRelationship('manufacturer'),
-                        'cast' => null,
-                    ],
-                    'is_vehicle' => [
-                        'expr' => 'game_vehicle_data.is_vehicle',
-                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                    ],
-                    'is_gravlev' => [
-                        'expr' => 'game_vehicle_data.is_gravlev',
-                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                    ],
-                    'is_spaceship' => [
-                        'expr' => 'game_vehicle_data.is_spaceship',
-                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                    ],
-                    'size' => [
-                        'expr' => 'game_vehicle_data.size',
-                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                    ],
-                    'role' => [
-                        'expr' => 'game_vehicle_data.role',
-                        'cast' => null,
-                    ],
-                    'career' => [
-                        'expr' => 'game_vehicle_data.career',
-                        'cast' => null,
-                    ],
-                    'shield.face_type' => [
-                        'expr' => "(game_vehicle_data.data #>> '{ShieldController,FaceType}')",
-                        'cast' => null,
-                    ],
-                ];
+            $out = [];
 
-                $out = [];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
+                $q = clone $baseQuery;
 
-                    $q = clone $baseQuery;
-
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($q);
-                    }
-
-                    $rows = $q
-                        ->select([
-                            DB::raw("{$expr} as value"),
-                            DB::raw('count(*) as count'),
-                        ])
-                        ->groupByRaw($expr)
-                        ->orderByRaw("{$expr} IS NULL, {$expr}")
-                        ->get();
-
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($q);
                 }
 
-                return $out;
+                $rows = $q
+                    ->select([
+                        DB::raw("{$expr} as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->groupByRaw($expr)
+                    ->orderByRaw("{$expr} IS NULL, {$expr}")
+                    ->get();
+
+                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_VEHICLES,
+                FilterCache::vehiclesKey($versionCode, $vehicleType),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,

@@ -46,6 +46,63 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 )]
 class CommLinkController extends Controller
 {
+    /**
+     * @return array<int, AllowedFilter>
+     */
+    private function allowedFilters(): array
+    {
+        return [
+            AllowedFilter::exact('id', 'cig_id'),
+            AllowedFilter::partial('title'),
+            AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
+                if (! is_string($value)) {
+                    return;
+                }
+
+                $searchTerm = trim($value);
+
+                if ($searchTerm === '') {
+                    return;
+                }
+
+                if (DB::connection()->getDriverName() === 'pgsql') {
+                    $query->whereFullText('translation->en', $searchTerm, [
+                        'language' => 'english',
+                        'mode' => 'websearch',
+                    ]);
+
+                    return;
+                }
+
+                $query->whereRaw(
+                    "LOWER(COALESCE(json_extract(comm_links.translation, '$.en'), '')) LIKE ?",
+                    ['%'.strtolower($searchTerm).'%']
+                );
+            }),
+            AllowedFilter::exact('channel', 'channel.name'),
+            AllowedFilter::exact('category', 'category.name'),
+            AllowedFilter::exact('series', 'series.name'),
+            AllowedFilter::custom('created_at', new DateFilter('created_at')),
+        ];
+    }
+
+    private function buildBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(CommLink::class, $request)
+            ->allowedIncludes(...CommLinkResource::validIncludes())
+            ->allowedFilters(...$this->allowedFilters())
+            ->allowedSorts(...[
+                AllowedSort::field('id', 'cig_id'),
+                'title',
+                'images_count',
+                'links_count',
+                AllowedSort::custom('channel', new SortByRelation, 'channel.name'),
+                AllowedSort::custom('category', new SortByRelation, 'category.name'),
+                AllowedSort::custom('series', new SortByRelation, 'series.name'),
+                'created_at',
+            ]);
+    }
+
     #[OA\Get(
         path: '/api/comm-links',
         description: 'Returns paginated comm-links with optional includes, categories, series, and channel filters.',
@@ -81,58 +138,14 @@ class CommLinkController extends Controller
             ),
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(CommLink::class)
-            ->allowedIncludes(...CommLinkResource::validIncludes())
-            ->allowedFilters(...[
-                AllowedFilter::exact('id', 'cig_id'),
-                AllowedFilter::partial('title'),
-                AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
-                    if (! is_string($value)) {
-                        return;
-                    }
-
-                    $searchTerm = trim($value);
-
-                    if ($searchTerm === '') {
-                        return;
-                    }
-
-                    if (DB::connection()->getDriverName() === 'pgsql') {
-                        $query->whereFullText('translation->en', $searchTerm, [
-                            'language' => 'english',
-                            'mode' => 'websearch',
-                        ]);
-
-                        return;
-                    }
-
-                    $query->whereRaw(
-                        "LOWER(COALESCE(json_extract(comm_links.translation, '$.en'), '')) LIKE ?",
-                        ['%'.strtolower($searchTerm).'%']
-                    );
-                }),
-                AllowedFilter::exact('channel', 'channel.name'),
-                AllowedFilter::exact('category', 'category.name'),
-                AllowedFilter::exact('series', 'series.name'),
-                AllowedFilter::custom('created_at', new DateFilter('created_at')),
-            ])
-            ->allowedSorts(...[
-                AllowedSort::field('id', 'cig_id'),
-                'title',
-                'images_count',
-                'links_count',
-                AllowedSort::custom('channel', new SortByRelation, 'channel.name'),
-                AllowedSort::custom('category', new SortByRelation, 'category.name'),
-                AllowedSort::custom('series', new SortByRelation, 'series.name'),
-                'created_at',
-            ])
-            ->when(! request()->has('sort'), function ($query) {
+        $query = $this->buildBaseQuery($request)
+            ->when(! $request->has('sort'), function ($query) {
                 $query->orderByDesc('cig_id');
             })
             ->jsonPaginate()
-            ->appends(request()->query());
+            ->appends($request->query());
 
         return CommLinkResource::collection($query);
     }
@@ -166,57 +179,63 @@ class CommLinkController extends Controller
     public function filters(Request $request): JsonResponse
     {
         $isAuthenticated = $request->user() !== null;
+        $resolver = function () use ($request): array {
+            $baseQuery = QueryBuilder::for(CommLink::class, $request)
+                ->allowedFilters(...$this->allowedFilters());
 
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_COMM_LINKS,
-            FilterCache::commLinksKey($isAuthenticated),
-            static function (): array {
-                $baseQuery = (new CommLink)->newQueryWithoutRelationships()->toBase();
+            $facets = [
+                'category' => [
+                    'expr' => 'comm_link_categories.name',
+                    'join' => static fn ($q) => $q->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id'),
+                    'cast' => null,
+                ],
+                'channel' => [
+                    'expr' => 'comm_link_channels.name',
+                    'join' => static fn ($q) => $q->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id'),
+                    'cast' => null,
+                ],
+                'series' => [
+                    'expr' => 'comm_link_series.name',
+                    'join' => static fn ($q) => $q->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id'),
+                    'cast' => null,
+                ],
+            ];
 
-                $facets = [
-                    'category' => [
-                        'expr' => 'comm_link_categories.name',
-                        'join' => static fn ($q) => $q->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id'),
-                        'cast' => null,
-                    ],
-                    'channel' => [
-                        'expr' => 'comm_link_channels.name',
-                        'join' => static fn ($q) => $q->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id'),
-                        'cast' => null,
-                    ],
-                    'series' => [
-                        'expr' => 'comm_link_series.name',
-                        'join' => static fn ($q) => $q->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id'),
-                        'cast' => null,
-                    ],
-                ];
+            $out = [];
 
-                $out = [];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
+                $q = clone $baseQuery;
 
-                    $q = clone $baseQuery;
-
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($q);
-                    }
-
-                    $rows = $q
-                        ->select([
-                            DB::raw("{$expr} as value"),
-                            DB::raw('count(*) as count'),
-                        ])
-                        ->groupByRaw($expr)
-                        ->orderByRaw("{$expr} IS NULL, {$expr}")
-                        ->get();
-
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($q);
                 }
 
-                return $out;
+                $rows = $q
+                    ->select([
+                        DB::raw("{$expr} as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->groupByRaw($expr)
+                    ->orderByRaw("{$expr} IS NULL, {$expr}")
+                    ->get();
+
+                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_COMM_LINKS,
+                FilterCache::commLinksKey($isAuthenticated),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,

@@ -8,6 +8,7 @@
         $tableId = 'starmap-systems-table';
         $tableConfig = [
             'endpoint' => route('starsystems.index'),
+            'filterOptionsEndpoint' => route('starsystems.filters'),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

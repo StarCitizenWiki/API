@@ -6,8 +6,17 @@ use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    app()->instance('env', 'production');
+    app('cache')->setDefaultDriver('array');
+    app()->forgetInstance('cache');
+    app('cache')->forgetDriver(['array', 'database']);
+    Cache::store('array')->flush();
+});
 
 it('returns starsystem filter values with counts', function (): void {
     GameVersion::factory()->create([
@@ -53,4 +62,47 @@ it('returns starsystem filter values with counts', function (): void {
                 ],
             ],
         ]);
+});
+
+it('returns filtered starsystem facet values without caching the filtered response', function (): void {
+    $uee = Affiliation::factory()->create(['name' => 'UEE']);
+    $vanduul = Affiliation::factory()->create(['name' => 'Vanduul']);
+
+    $active = Starsystem::factory()->create([
+        'status' => 'ACTIVE',
+        'type' => 'SYSTEM',
+        'aggregated_size' => 42.5,
+    ]);
+    $active->affiliation()->attach($uee);
+
+    $inactive = Starsystem::factory()->create([
+        'status' => 'INACTIVE',
+        'type' => 'GATEWAY',
+        'aggregated_size' => 10.0,
+    ]);
+    $inactive->affiliation()->attach($vanduul);
+
+    $response = $this->getJson(route('starsystems.filters', [
+        'filter' => ['status' => 'ACTIVE'],
+    ]));
+
+    $response->assertOk()
+        ->assertExactJson([
+            'filters' => [
+                'affiliation' => [
+                    ['value' => 'UEE', 'label' => 'UEE', 'count' => 1],
+                ],
+                'status' => [
+                    ['value' => 'ACTIVE', 'label' => 'ACTIVE', 'count' => 1],
+                ],
+                'type' => [
+                    ['value' => 'SYSTEM', 'label' => 'SYSTEM', 'count' => 1],
+                ],
+                'size' => [
+                    ['value' => 42.5, 'label' => '42.5', 'count' => 1],
+                ],
+            ],
+        ]);
+
+    expect(Cache::get('filters:index:starsystems'))->toBeNull();
 });

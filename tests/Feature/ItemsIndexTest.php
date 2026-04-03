@@ -40,6 +40,21 @@ if (! function_exists('attributeForTestId')) {
     }
 }
 
+if (! function_exists('tabulatorConfigPayloadByTestId')) {
+    function tabulatorConfigPayloadByTestId(string $content, string $testId): array
+    {
+        preg_match(
+            '/<script type="application\/json" id="[^"]+-config" data-testid="'.preg_quote($testId, '/').'">(.*?)<\/script>/s',
+            $content,
+            $matches
+        );
+
+        expect($matches[1] ?? null)->not->toBeNull();
+
+        return json_decode(html_entity_decode($matches[1], ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+
 it('filters items by type on the web route', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
@@ -144,6 +159,12 @@ it('filters items by category on the web route', function (): void {
         ->assertSeeText('Food & Drinks')
         ->assertSeeText('Trail Mix')
         ->assertDontSeeText('Pulse Pistol');
+
+    $config = tabulatorConfigPayloadByTestId($response->getContent(), 'tabulator-config-items-table');
+
+    expect($config['filterOptionsEndpoint'])->toBe(route('items.filters', [
+        'filter' => ['category' => 'food'],
+    ]));
 });
 
 it('activates vehicle items menu for vehicle type filters', function (): void {

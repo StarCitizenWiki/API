@@ -12,6 +12,7 @@
         $versionParams = $resolvedVersionCode ? ['version' => $resolvedVersionCode] : [];
         $tableConfig = [
             'endpoint' => route('starmap-locations.index', $versionParams),
+            'filterOptionsEndpoint' => route('starmap-locations.filters', $versionParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,
