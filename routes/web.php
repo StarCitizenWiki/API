@@ -6,6 +6,7 @@ use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
 use App\Http\Controllers\Web\Game\ItemController;
+use App\Http\Controllers\Web\Game\StarmapLocationController;
 use App\Http\Controllers\Web\Game\VehicleController;
 use App\Http\Controllers\Web\Rsi\CommLinkController;
 use App\Http\Controllers\Web\StarCitizen\GalactapediaController;
@@ -70,6 +71,8 @@ Route::get('/starmap/celestial-objects', [CelestialObjectController::class, 'ind
     ->name('web.starmap.celestial-objects.index');
 Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::class, 'show'])
     ->name('web.starmap.celestial-objects.show');
+Route::get('/starmap/locations', [StarmapLocationController::class, 'index'])
+    ->name('web.starmap.locations.index');
 
 Route::post('/game-version', GameVersionSelectionController::class)
     ->name('game-version.select');

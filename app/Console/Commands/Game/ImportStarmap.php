@@ -16,7 +16,7 @@ class ImportStarmap extends Command implements PromptsForMissingInput
 {
     protected $signature = 'game:import-starmap {version : Game version code to import}';
 
-    protected $description = 'Dispatch starmap import job for a specific game version';
+    protected $description = 'Import starmap data for a specific game version';
 
     public function handle(): int
     {
@@ -38,10 +38,10 @@ class ImportStarmap extends Command implements PromptsForMissingInput
             return self::SUCCESS;
         }
 
-        ImportStarmapData::dispatch($gameVersion->id);
+        (new ImportStarmapData($gameVersion->id))->handle();
 
         $this->info(sprintf(
-            'Dispatched starmap import job for version %s.',
+            'Imported starmap data for version %s.',
             $gameVersion->code
         ));
 

@@ -17,6 +17,8 @@ final class FilterCache
 
     public const NAMESPACE_STARSYSTEMS = 'starsystems';
 
+    public const NAMESPACE_STARMAP_LOCATIONS = 'starmap-locations';
+
     public const NAMESPACE_SHIPMATRIX = 'shipmatrix';
 
     public const NAMESPACE_VEHICLES = 'vehicles';
@@ -68,6 +70,15 @@ final class FilterCache
     public static function vehiclesKey(?string $versionCode, string $vehicleType): string
     {
         return sprintf('filters:vehicles:%s:%s', self::normalizeVersion($versionCode), $vehicleType);
+    }
+
+    public static function starmapLocationsFiltersKey(?string $versionCode, string $filtersHash): string
+    {
+        return sprintf(
+            'filters:starmap-locations:%s:%s',
+            self::normalizeVersion($versionCode),
+            $filtersHash
+        );
     }
 
     public static function commLinksKey(bool $isAuthenticated): string

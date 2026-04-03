@@ -458,7 +458,9 @@ function buildSelectValues(options) {
             return;
         }
 
-        values[option.value] = `${option.label} (${option.count})`;
+        values[option.value] = typeof option?.count === "number"
+            ? `${option.label} (${option.count})`
+            : option.label;
     });
 
     return values;

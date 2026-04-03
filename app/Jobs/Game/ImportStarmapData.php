@@ -8,6 +8,7 @@ use App\Models\Game\EntityTag;
 use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Filters\FilterCache;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,6 +18,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 
 class ImportStarmapData implements ShouldQueue
@@ -84,6 +86,8 @@ class ImportStarmapData implements ShouldQueue
             $this->resolveParents($firstPass);
             $this->resolveSystems($firstPass);
         });
+
+        FilterCache::bust(FilterCache::NAMESPACE_STARMAP_LOCATIONS);
     }
 
     /**
@@ -199,9 +203,10 @@ class ImportStarmapData implements ShouldQueue
     private function resolveSystems(array $firstPass): void
     {
         $resolvedSystems = [];
+        $solarSystemLookup = $this->buildSolarSystemLookup($firstPass);
 
         foreach (array_keys($firstPass) as $uuid) {
-            $systemUuid = $this->resolveSystemUuid($uuid, $firstPass, $resolvedSystems);
+            $systemUuid = $this->resolveSystemUuid($uuid, $firstPass, $resolvedSystems, $solarSystemLookup);
 
             $firstPass[$uuid]['location']->update([
                 'system_uuid' => $systemUuid,
@@ -212,9 +217,14 @@ class ImportStarmapData implements ShouldQueue
     /**
      * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
      * @param  array<string, string|null>  $resolvedSystems
+     * @param  array<string, string>  $solarSystemLookup
      */
-    private function resolveSystemUuid(string $uuid, array $firstPass, array &$resolvedSystems): ?string
-    {
+    private function resolveSystemUuid(
+        string $uuid,
+        array $firstPass,
+        array &$resolvedSystems,
+        array $solarSystemLookup,
+    ): ?string {
         if (array_key_exists($uuid, $resolvedSystems)) {
             return $resolvedSystems[$uuid];
         }
@@ -225,17 +235,77 @@ class ImportStarmapData implements ShouldQueue
             return $resolvedSystems[$uuid] = null;
         }
 
-        if ($this->extractTypeName($current) === 'SolarSystem') {
+        $currentType = $this->extractTypeName($current);
+
+        if ($currentType === 'SolarSystem') {
             return $resolvedSystems[$uuid] = $uuid;
         }
 
         $parentUuid = $current['parentUuid'] ?? null;
 
         if (! is_string($parentUuid) || trim($parentUuid) === '') {
+            if ($currentType === 'Star') {
+                return $resolvedSystems[$uuid] = $this->resolveSolarSystemUuidForStar($current, $solarSystemLookup);
+            }
+
             return $resolvedSystems[$uuid] = null;
         }
 
-        return $resolvedSystems[$uuid] = $this->resolveSystemUuid($parentUuid, $firstPass, $resolvedSystems);
+        return $resolvedSystems[$uuid] = $this->resolveSystemUuid($parentUuid, $firstPass, $resolvedSystems, $solarSystemLookup);
+    }
+
+    /**
+     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
+     * @return array<string, string>
+     */
+    private function buildSolarSystemLookup(array $firstPass): array
+    {
+        $lookup = [];
+
+        foreach ($firstPass as $uuid => $imported) {
+            if ($this->extractTypeName($imported['entry']) !== 'SolarSystem') {
+                continue;
+            }
+
+            $normalizedSystemName = $this->normalizeSystemLookupKey($this->extractName($imported['entry']));
+
+            if ($normalizedSystemName !== null) {
+                $lookup[$normalizedSystemName] = $uuid;
+            }
+        }
+
+        return $lookup;
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @param  array<string, string>  $solarSystemLookup
+     */
+    private function resolveSolarSystemUuidForStar(array $entry, array $solarSystemLookup): ?string
+    {
+        $normalizedStarName = $this->normalizeSystemLookupKey($this->extractName($entry));
+
+        if ($normalizedStarName === null) {
+            return null;
+        }
+
+        return $solarSystemLookup[$normalizedStarName] ?? null;
+    }
+
+    private function normalizeSystemLookupKey(?string $name): ?string
+    {
+        if ($name === null) {
+            return null;
+        }
+
+        $normalized = Str::of($name)
+            ->trim()
+            ->lower()
+            ->replaceMatches('/\s+system$/', '')
+            ->squish()
+            ->value();
+
+        return $normalized === '' ? null : $normalized;
     }
 
     /**
