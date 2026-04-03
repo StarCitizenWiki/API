@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Nightwatch\Facades\Nightwatch;
+use Laravel\Nightwatch\Records\Query;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -52,6 +54,18 @@ class AppServiceProvider extends ServiceProvider
                 ->response(function (Request $request, array $headers) {
                     return response('Too many similar image searches. Please try again later.', 429, $headers);
                 });
+        });
+
+        Nightwatch::rejectQueries(static function (Query $query) {
+            return str_contains($query->sql, 'into "jobs"')
+                || str_contains($query->sql, 'from "jobs"')
+                || str_contains($query->sql, 'update "jobs"');
+        });
+
+        Nightwatch::rejectQueries(static function (Query $query) {
+            return str_contains($query->sql, 'from "cache"')
+                || str_contains($query->sql, 'into "cache"')
+                || str_contains($query->sql, 'from "game_versions"');
         });
     }
 
