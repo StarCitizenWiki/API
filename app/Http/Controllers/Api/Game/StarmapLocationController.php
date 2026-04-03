@@ -323,106 +323,110 @@ class StarmapLocationController extends Controller
     {
         $versionCode = $this->gameVersionCode();
         $gameVersionId = $this->gameVersion()->id;
-        $filtersHash = $this->filtersCacheHash($request);
+        $resolver = function () use ($request, $versionCode, $gameVersionId): array {
+            $baseQuery = QueryBuilder::for(StarmapLocationData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->whereHas('location', static function (Builder $query): void {
+                    $query->whereNotNull('system_uuid');
+                })
+                ->allowedFilters(...$this->allowedFilters());
 
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_STARMAP_LOCATIONS,
-            FilterCache::starmapLocationsFiltersKey($versionCode, $filtersHash),
-            function () use ($request, $versionCode, $gameVersionId): array {
-                $baseQuery = QueryBuilder::for(StarmapLocationData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->whereHas('location', static function (Builder $query): void {
-                        $query->whereNotNull('system_uuid');
-                    })
-                    ->allowedFilters(...$this->allowedFilters());
+            $facets = [
+                'type_name' => [
+                    'expr' => 'game_starmap_location_data.type_name',
+                    'cast' => null,
+                ],
+                'type_classification' => [
+                    'expr' => 'game_starmap_location_data.type_classification',
+                    'cast' => null,
+                ],
+                'respawn_location_type' => [
+                    'expr' => 'game_starmap_location_data.respawn_location_type',
+                    'cast' => null,
+                ],
+                'jurisdiction_name' => [
+                    'expr' => 'game_starmap_location_data.jurisdiction_name',
+                    'cast' => null,
+                ],
+                'affiliation_name' => [
+                    'expr' => 'game_starmap_location_data.affiliation_name',
+                    'cast' => null,
+                ],
+                'system_name' => [
+                    'expr' => 'system_data.name',
+                    'join' => static fn ($query) => $query
+                        ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
+                        ->join('game_starmap_locations as systems', 'game_starmap_locations.system_uuid', '=', 'systems.uuid')
+                        ->join('game_starmap_location_data as system_data', static function ($join) use ($gameVersionId): void {
+                            $join->on('system_data.starmap_location_id', '=', 'systems.id')
+                                ->where('system_data.game_version_id', '=', $gameVersionId);
+                        }),
+                    'cast' => null,
+                ],
+                'parent_name' => [
+                    'expr' => 'parents.name',
+                    'join' => static fn ($query) => $query
+                        ->leftJoin('game_starmap_location_data as parents', 'game_starmap_location_data.parent_data_id', '=', 'parents.id'),
+                    'cast' => null,
+                ],
+                'jurisdiction_is_prison' => [
+                    'expr' => 'game_starmap_location_data.jurisdiction_is_prison',
+                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+                ],
+                'amenity' => [
+                    'expr' => 'game_starmap_amenities.uuid',
+                    'label_expr' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
+                    'group_by' => 'game_starmap_amenities.uuid, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
+                    'order_by' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name) IS NULL, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name), game_starmap_amenities.uuid',
+                    'join' => static fn ($query) => $query
+                        ->leftJoin('game_starmap_location_data_amenity', 'game_starmap_location_data.id', '=', 'game_starmap_location_data_amenity.location_data_id')
+                        ->leftJoin('game_starmap_amenities', 'game_starmap_location_data_amenity.amenity_id', '=', 'game_starmap_amenities.id'),
+                    'cast' => null,
+                ],
+            ];
 
-                $facets = [
-                    'type_name' => [
-                        'expr' => 'game_starmap_location_data.type_name',
-                        'cast' => null,
-                    ],
-                    'type_classification' => [
-                        'expr' => 'game_starmap_location_data.type_classification',
-                        'cast' => null,
-                    ],
-                    'respawn_location_type' => [
-                        'expr' => 'game_starmap_location_data.respawn_location_type',
-                        'cast' => null,
-                    ],
-                    'jurisdiction_name' => [
-                        'expr' => 'game_starmap_location_data.jurisdiction_name',
-                        'cast' => null,
-                    ],
-                    'affiliation_name' => [
-                        'expr' => 'game_starmap_location_data.affiliation_name',
-                        'cast' => null,
-                    ],
-                    'system_name' => [
-                        'expr' => 'system_data.name',
-                        'join' => static fn ($query) => $query
-                            ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
-                            ->join('game_starmap_locations as systems', 'game_starmap_locations.system_uuid', '=', 'systems.uuid')
-                            ->join('game_starmap_location_data as system_data', static function ($join) use ($gameVersionId): void {
-                                $join->on('system_data.starmap_location_id', '=', 'systems.id')
-                                    ->where('system_data.game_version_id', '=', $gameVersionId);
-                            }),
-                        'cast' => null,
-                    ],
-                    'parent_name' => [
-                        'expr' => 'parents.name',
-                        'join' => static fn ($query) => $query
-                            ->leftJoin('game_starmap_location_data as parents', 'game_starmap_location_data.parent_data_id', '=', 'parents.id'),
-                        'cast' => null,
-                    ],
-                    'jurisdiction_is_prison' => [
-                        'expr' => 'game_starmap_location_data.jurisdiction_is_prison',
-                        'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                    ],
-                    'amenity' => [
-                        'expr' => 'game_starmap_amenities.uuid',
-                        'label_expr' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
-                        'group_by' => 'game_starmap_amenities.uuid, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
-                        'order_by' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name) IS NULL, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name), game_starmap_amenities.uuid',
-                        'join' => static fn ($query) => $query
-                            ->leftJoin('game_starmap_location_data_amenity', 'game_starmap_location_data.id', '=', 'game_starmap_location_data_amenity.location_data_id')
-                            ->leftJoin('game_starmap_amenities', 'game_starmap_location_data_amenity.amenity_id', '=', 'game_starmap_amenities.id'),
-                        'cast' => null,
-                    ],
-                ];
+            $out = [];
 
-                $out = [];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
+                $labelExpr = $facet['label_expr'] ?? null;
+                $groupBy = $facet['group_by'] ?? $expr;
+                $orderBy = $facet['order_by'] ?? "{$expr} IS NULL, {$expr}";
+                $query = clone $baseQuery;
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
-                    $labelExpr = $facet['label_expr'] ?? null;
-                    $groupBy = $facet['group_by'] ?? $expr;
-                    $orderBy = $facet['order_by'] ?? "{$expr} IS NULL, {$expr}";
-                    $query = clone $baseQuery;
-
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($query);
-                    }
-
-                    $select = [
-                        DB::raw("{$expr} as value"),
-                    ];
-
-                    if ($labelExpr !== null) {
-                        $select[] = DB::raw("{$labelExpr} as label");
-                    }
-
-                    $rows = $query
-                        ->select($select)
-                        ->groupByRaw($groupBy)
-                        ->orderByRaw($orderBy)
-                        ->get();
-
-                    $out[$key] = $this->formatFilterRowsWithoutCount($rows, $facet['cast'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($query);
                 }
 
-                return $out;
+                $select = [
+                    DB::raw("{$expr} as value"),
+                ];
+
+                if ($labelExpr !== null) {
+                    $select[] = DB::raw("{$labelExpr} as label");
+                }
+
+                $rows = $query
+                    ->select($select)
+                    ->groupByRaw($groupBy)
+                    ->orderByRaw($orderBy)
+                    ->get();
+
+                $out[$key] = $this->formatFilterRowsWithoutCount($rows, $facet['cast'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_STARMAP_LOCATIONS,
+                FilterCache::starmapLocationsKey($versionCode),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,
@@ -526,84 +530,6 @@ class StarmapLocationController extends Controller
         }
 
         return " ESCAPE '\\'";
-    }
-
-    private function filtersCacheHash(Request $request): string
-    {
-        $filters = $this->normalizeFilterParams($request->input('filter', []));
-
-        if ($filters === []) {
-            return 'all';
-        }
-
-        return hash('sha256', json_encode($filters) ?: '');
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function normalizeFilterParams(mixed $filters): array
-    {
-        if (! is_array($filters) || $filters === []) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($filters as $field => $value) {
-            if (! is_string($field) || $field === '') {
-                continue;
-            }
-
-            $normalizedValue = $this->normalizeFilterValue($value);
-
-            if ($normalizedValue === null) {
-                continue;
-            }
-
-            $normalized[$field] = $normalizedValue;
-        }
-
-        ksort($normalized);
-
-        return $normalized;
-    }
-
-    private function normalizeFilterValue(mixed $value): ?string
-    {
-        if (is_array($value)) {
-            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
-            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
-
-            if ($values === []) {
-                return null;
-            }
-
-            sort($values);
-
-            return implode(',', $values);
-        }
-
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        if ($normalized === '') {
-            return null;
-        }
-
-        $parts = array_map('trim', explode(',', $normalized));
-        $parts = array_values(array_filter($parts, static fn (string $entry): bool => $entry !== ''));
-
-        if ($parts === []) {
-            return null;
-        }
-
-        sort($parts);
-
-        return implode(',', $parts);
     }
 
     /**

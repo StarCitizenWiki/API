@@ -7,11 +7,18 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Filters\FilterCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    app()->instance('env', 'production');
+    app('cache')->setDefaultDriver('array');
+    app('cache')->forgetDriver(['array', 'database']);
+    Cache::store('array')->flush();
+
     $this->defaultVersion = GameVersion::factory()->create([
         'code' => '4.1.0-LIVE',
         'channel' => 'live',
@@ -864,4 +871,64 @@ it('returns separate amenity facet rows for duplicate labels with different uuid
             'value' => $clinicAmenityTwo->uuid,
             'label' => 'Clinic',
         ]);
+});
+
+it('caches only broad starmap facet responses', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    $systemLocation->update([
+        'system_uuid' => $systemLocation->uuid,
+    ]);
+
+    StarmapLocationData::factory()
+        ->for($systemLocation, 'location')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Stanton',
+            'type_name' => 'SolarSystem',
+            'type_classification' => 'Solar System',
+        ]);
+
+    $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
+
+    $this->getJson(route('starmap-locations.filters', ['version' => $this->defaultVersion->code]))
+        ->assertOk();
+
+    expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
+        ->and(Cache::get($broadKey))->not->toBeNull();
+
+    Cache::flush();
+
+    $this->getJson(route('starmap-locations.filters', [
+        'version' => $this->defaultVersion->code,
+        'filter' => ['type_name' => 'SolarSystem'],
+    ]))->assertOk();
+
+    expect(Cache::get('filters:index:starmap-locations'))->toBeNull()
+        ->and(Cache::get($broadKey))->toBeNull();
+});
+
+it('treats blank starmap facet inputs as broad cache requests', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    $systemLocation->update([
+        'system_uuid' => $systemLocation->uuid,
+    ]);
+
+    StarmapLocationData::factory()
+        ->for($systemLocation, 'location')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Stanton',
+            'type_name' => 'SolarSystem',
+            'type_classification' => 'Solar System',
+        ]);
+
+    $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
+
+    $this->getJson(route('starmap-locations.filters', [
+        'version' => $this->defaultVersion->code,
+        'filter' => ['type_name' => ''],
+    ]))->assertOk();
+
+    expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
+        ->and(Cache::get($broadKey))->not->toBeNull();
 });

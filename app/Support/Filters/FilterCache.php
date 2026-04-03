@@ -34,6 +34,36 @@ final class FilterCache
         return $resolver();
     }
 
+    /**
+     * @param  array<int, string>  $ignored
+     */
+    public static function hasEffectiveFilters(mixed $filters, array $ignored = []): bool
+    {
+        if (! is_array($filters) || $filters === []) {
+            return false;
+        }
+
+        foreach ($filters as $field => $value) {
+            if (is_string($field) && in_array($field, $ignored, true)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                if (self::hasEffectiveFilters($value)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if ($value !== null && trim((string) $value) !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function bust(string $namespace): void
     {
         $indexKey = self::indexKey($namespace);
@@ -57,28 +87,14 @@ final class FilterCache
         return sprintf('filters:items:%s:%s', self::normalizeVersion($versionCode), $category);
     }
 
-    public static function itemsFiltersKey(?string $versionCode, string $category, string $filtersHash): string
-    {
-        return sprintf(
-            'filters:items:%s:%s:%s',
-            self::normalizeVersion($versionCode),
-            $category,
-            $filtersHash
-        );
-    }
-
     public static function vehiclesKey(?string $versionCode, string $vehicleType): string
     {
         return sprintf('filters:vehicles:%s:%s', self::normalizeVersion($versionCode), $vehicleType);
     }
 
-    public static function starmapLocationsFiltersKey(?string $versionCode, string $filtersHash): string
+    public static function starmapLocationsKey(?string $versionCode): string
     {
-        return sprintf(
-            'filters:starmap-locations:%s:%s',
-            self::normalizeVersion($versionCode),
-            $filtersHash
-        );
+        return sprintf('filters:starmap-locations:%s', self::normalizeVersion($versionCode));
     }
 
     public static function commLinksKey(bool $isAuthenticated): string

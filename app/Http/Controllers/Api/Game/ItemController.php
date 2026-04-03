@@ -450,168 +450,93 @@ class ItemController extends Controller
             $category = trim($category);
         }
 
-        $filtersHash = $this->filtersCacheHash($request);
+        $resolver = function () use ($request, $versionCode, $category): array {
+            $baseQuery = QueryBuilder::for(ItemData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->forCategory($category)
+                ->allowedFilters(...$this->allowedFilters());
 
-        $filters = FilterCache::rememberForever(
-            FilterCache::NAMESPACE_ITEMS,
-            FilterCache::itemsFiltersKey($versionCode, $category, $filtersHash),
-            function () use ($request, $versionCode, $category): array {
-                $baseQuery = QueryBuilder::for(ItemData::class, $request)
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->forCategory($category)
-                    ->allowedFilters(...$this->allowedFilters());
+            $facets = [
+                'type' => [
+                    'expr' => 'game_item_data.type',
+                    'cast' => null,
+                ],
+                'sub_type' => [
+                    'expr' => 'game_item_data.sub_type',
+                    'cast' => null,
+                ],
+                'classification' => [
+                    'expr' => 'game_item_data.classification',
+                    'cast' => null,
+                ],
+                'size' => [
+                    'expr' => 'game_item_data.size',
+                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                ],
+                'grade' => [
+                    'expr' => 'game_item_data.grade',
+                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                    'labelResolver' => static fn ($value, $Lbl) => match ($value) {
+                        1 => 'A',
+                        2 => 'B',
+                        3 => 'C',
+                        4 => 'D',
+                        5 => 'E',
+                        6 => 'F',
+                        7 => 'G',
+                        default => null,
+                    },
+                ],
+                'class' => [
+                    'expr' => 'game_item_data.class',
+                    'cast' => null,
+                ],
+                'manufacturer' => [
+                    'expr' => 'game_manufacturers.name',
+                    'join' => static fn ($q) => $q->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id'),
+                    'cast' => null,
+                ],
+            ];
 
-                $facets = [
-                    'type' => [
-                        'expr' => 'game_item_data.type',
-                        'cast' => null,
-                    ],
-                    'sub_type' => [
-                        'expr' => 'game_item_data.sub_type',
-                        'cast' => null,
-                    ],
-                    'classification' => [
-                        'expr' => 'game_item_data.classification',
-                        'cast' => null,
-                    ],
-                    'size' => [
-                        'expr' => 'game_item_data.size',
-                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                    ],
-                    'grade' => [
-                        'expr' => 'game_item_data.grade',
-                        'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                        'labelResolver' => static fn ($value, $Lbl) => match ($value) {
-                            1 => 'A',
-                            2 => 'B',
-                            3 => 'C',
-                            4 => 'D',
-                            5 => 'E',
-                            6 => 'F',
-                            7 => 'G',
-                            default => null,
-                        },
-                    ],
-                    'class' => [
-                        'expr' => 'game_item_data.class',
-                        'cast' => null,
-                    ],
-                    'manufacturer' => [
-                        'expr' => 'game_manufacturers.name',
-                        'join' => static fn ($q) => $q->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id'),
-                        'cast' => null,
-                    ],
-                ];
+            $out = [];
 
-                $out = [];
+            foreach ($facets as $key => $facet) {
+                $expr = $facet['expr'];
 
-                foreach ($facets as $key => $facet) {
-                    $expr = $facet['expr'];
+                $q = clone $baseQuery;
 
-                    $q = clone $baseQuery;
-
-                    if (isset($facet['join'])) {
-                        ($facet['join'])($q);
-                    }
-
-                    $rows = $q
-                        ->select([
-                            DB::raw("{$expr} as value"),
-                            DB::raw('count(*) as count'),
-                        ])
-                        ->groupByRaw($expr)
-                        ->orderByRaw("{$expr} IS NULL, {$expr}")
-                        ->get();
-
-                    $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null, $facet['labelResolver'] ?? null);
+                if (isset($facet['join'])) {
+                    ($facet['join'])($q);
                 }
 
-                return $out;
+                $rows = $q
+                    ->select([
+                        DB::raw("{$expr} as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->groupByRaw($expr)
+                    ->orderByRaw("{$expr} IS NULL, {$expr}")
+                    ->get();
+
+                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null, $facet['labelResolver'] ?? null);
             }
-        );
+
+            return $out;
+        };
+
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []), ['category'])) {
+            $filters = $resolver();
+        } else {
+            $filters = FilterCache::rememberForever(
+                FilterCache::NAMESPACE_ITEMS,
+                FilterCache::itemsKey($versionCode, $category),
+                $resolver
+            );
+        }
 
         return response()->json([
             'filters' => $filters,
         ]);
-    }
-
-    private function filtersCacheHash(Request $request): string
-    {
-        $filters = $this->normalizeFilterParams($request->input('filter', []));
-        unset($filters['category']);
-
-        if ($filters === []) {
-            return 'all';
-        }
-
-        return hash('sha256', json_encode($filters) ?: '');
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function normalizeFilterParams(mixed $filters): array
-    {
-        if (! is_array($filters) || $filters === []) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($filters as $field => $value) {
-            if (! is_string($field) || $field === '') {
-                continue;
-            }
-
-            $normalizedValue = $this->normalizeFilterValue($value);
-
-            if ($normalizedValue === null) {
-                continue;
-            }
-
-            $normalized[$field] = $normalizedValue;
-        }
-
-        ksort($normalized);
-
-        return $normalized;
-    }
-
-    private function normalizeFilterValue(mixed $value): ?string
-    {
-        if (is_array($value)) {
-            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
-            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
-
-            if ($values === []) {
-                return null;
-            }
-
-            sort($values);
-
-            return implode(',', $values);
-        }
-
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        if ($normalized === '') {
-            return null;
-        }
-
-        $parts = array_map('trim', explode(',', $normalized));
-        $parts = array_values(array_filter($parts, static fn (string $entry): bool => $entry !== ''));
-
-        if ($parts === []) {
-            return null;
-        }
-
-        sort($parts);
-
-        return implode(',', $parts);
     }
 
     /**
