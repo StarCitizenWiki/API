@@ -7,6 +7,7 @@ namespace App\Console\Commands\Game;
 use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
 use App\Jobs\Game\ImportItemData;
+use App\Jobs\Game\ImportStarmapData;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
@@ -31,6 +32,7 @@ class SyncGameData extends Command
                             {--game-version= : Specific game version code}
                             {--skip-items : Skip importing item data}
                             {--skip-vehicles : Skip importing vehicle data}
+                            {--skip-starmap : Skip importing starmap data}
                             {--skip-compute-item-base-ids : Skip computing item base ids}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}';
 
@@ -59,9 +61,10 @@ class SyncGameData extends Command
     {
         $skipItems = (bool) $this->option('skip-items');
         $skipVehicles = (bool) $this->option('skip-vehicles');
+        $skipStarmap = (bool) $this->option('skip-starmap');
         $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
-        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles);
+        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap);
 
         $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
 
@@ -110,12 +113,16 @@ class SyncGameData extends Command
             $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds);
         }
 
+        if (! $skipStarmap) {
+            $this->dispatchStarmapImport($gameVersion);
+        }
+
         return self::SUCCESS;
     }
 
-    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles): bool
+    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap): bool
     {
-        if (! $skipItems || ! $skipVehicles) {
+        if (! $skipItems || ! $skipVehicles || ! $skipStarmap) {
             return true;
         }
 
@@ -205,6 +212,17 @@ class SyncGameData extends Command
                 '--game-version' => $gameVersion->code,
             ]);
         });
+    }
+
+    private function dispatchStarmapImport(GameVersion $gameVersion): void
+    {
+        if (Storage::disk('scunpacked')->missing('starmap.json')) {
+            $this->warn('No starmap file found in storage/app/api/scunpacked-data/starmap.json.');
+
+            return;
+        }
+
+        ImportStarmapData::dispatch($gameVersion->id);
     }
 
     /**

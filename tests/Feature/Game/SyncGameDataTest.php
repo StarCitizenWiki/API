@@ -128,6 +128,7 @@ it('syncs non-versioned data without requiring a game version when item and vehi
     $this->artisan('game:sync-data', [
         '--skip-items' => true,
         '--skip-vehicles' => true,
+        '--skip-starmap' => true,
         '--skip-compute-item-base-ids' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
