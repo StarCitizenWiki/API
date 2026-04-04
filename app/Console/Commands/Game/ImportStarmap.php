@@ -38,7 +38,7 @@ class ImportStarmap extends Command implements PromptsForMissingInput
             return self::SUCCESS;
         }
 
-        (new ImportStarmapData($gameVersion->id))->handle();
+        new ImportStarmapData($gameVersion->id)->handle();
 
         $this->info(sprintf(
             'Imported starmap data for version %s.',

@@ -60,6 +60,12 @@
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'weapon-attachments']]) }}">Weapon Attachments</a></li>
                                     </ul>
                                 </li>
+                                <li>
+                                    <h2 class="menu-title">Locations</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.locations.index') }}">Locations</a></li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -113,7 +119,6 @@
                                     <ul>
                                         <li><a data-testid="welcome-starmap-systems-link" href="{{ route('web.starmap.systems.index') }}">Systems</a></li>
                                         <li><a href="{{ route('web.starmap.celestial-objects.index') }}">Celestial Objects</a></li>
-                                        <li><a href="{{ route('web.starmap.locations.index') }}">Locations</a></li>
                                     </ul>
                                 </li>
                             </ul>

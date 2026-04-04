@@ -58,6 +58,12 @@ Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
 Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
 Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.items.show');
 
+Route::get('/locations', [StarmapLocationController::class, 'index'])
+    ->name('web.locations.index');
+Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])
+    ->whereUuid('identifier')
+    ->name('web.locations.show');
+
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');
 Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 'index'])
@@ -71,8 +77,6 @@ Route::get('/starmap/celestial-objects', [CelestialObjectController::class, 'ind
     ->name('web.starmap.celestial-objects.index');
 Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::class, 'show'])
     ->name('web.starmap.celestial-objects.show');
-Route::get('/starmap/locations', [StarmapLocationController::class, 'index'])
-    ->name('web.starmap.locations.index');
 
 Route::post('/game-version', GameVersionSelectionController::class)
     ->name('game-version.select');

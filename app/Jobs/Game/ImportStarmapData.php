@@ -29,8 +29,6 @@ class ImportStarmapData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private const UNINITIALIZED = '<= UNINITIALIZED =>';
-
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path = 'starmap.json',
@@ -41,7 +39,10 @@ class ImportStarmapData implements ShouldQueue
      */
     public function handle(): void
     {
-        $entries = $this->readPayload();
+        $contents = Storage::disk('scunpacked')->get($this->path);
+        $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+
+        $entries = is_array($payload) ? $payload : [];
 
         if ($entries === []) {
             return;
@@ -55,7 +56,7 @@ class ImportStarmapData implements ShouldQueue
                     continue;
                 }
 
-                $uuid = $this->extractUuid($entry);
+                $uuid = $entry['uuid'] ?? null;
 
                 if ($uuid === null) {
                     continue;
@@ -83,37 +84,10 @@ class ImportStarmapData implements ShouldQueue
                 ];
             }
 
-            $this->resolveParents($firstPass);
-            $this->resolveSystems($firstPass);
+            $this->resolveHierarchy($firstPass);
         });
 
         FilterCache::bust(FilterCache::NAMESPACE_STARMAP_LOCATIONS);
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     *
-     * @throws JsonException
-     */
-    private function readPayload(): array
-    {
-        $contents = Storage::disk('scunpacked')->get($this->path);
-        $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-
-        return is_array($payload) ? $payload : [];
-    }
-
-    private function extractUuid(array $entry): ?string
-    {
-        $uuid = $entry['uuid'] ?? null;
-
-        if (! is_string($uuid)) {
-            return null;
-        }
-
-        $uuid = trim($uuid);
-
-        return $uuid === '' ? null : $uuid;
     }
 
     /**
@@ -124,23 +98,15 @@ class ImportStarmapData implements ShouldQueue
     {
         return [
             'parent_data_id' => null,
-            'location_hierarchy_entity_tag_id' => $this->resolveLocationHierarchyEntityTagId($entry),
+            'star_data_id' => null,
+            'location_hierarchy_entity_tag_id' => EntityTag::query()->where('uuid', Arr::get($entry, 'locationHierarchyTag.uuid'))->first()?->id,
             'name' => $this->extractName($entry),
             'description' => $this->normalizeNullableString($entry['description'] ?? null),
             'type_name' => $this->extractTypeName($entry),
-            'type_classification' => $this->normalizeNullableString(Arr::get($entry, 'type.classification')),
-            'respawn_location_type' => $this->normalizeNullableString($entry['respawnLocationType'] ?? null) ?? 'None',
-            'size' => $this->nullableFloat($entry['size'] ?? null),
-            'minimum_display_size' => $this->nullableFloat($entry['minimumDisplaySize'] ?? null),
+            'system' => null,
+            'size' => is_numeric($entry['size'] ?? null) ? (float) $entry['size'] : null,
             'is_scannable' => (bool) ($entry['isScannable'] ?? false),
-            'hide_in_starmap' => (bool) ($entry['hideInStarmap'] ?? false),
-            'hide_in_world' => (bool) ($entry['hideInWorld'] ?? false),
             'block_travel' => (bool) ($entry['blockTravel'] ?? false),
-            'jurisdiction_name' => $this->normalizeNullableString(Arr::get($entry, 'jurisdiction.name')),
-            'jurisdiction_is_prison' => $this->nullableBoolean(Arr::get($entry, 'jurisdiction.isPrison')),
-            'affiliation_name' => $this->normalizeNullableString(Arr::get($entry, 'affiliation.displayName')),
-            'quantum_travel' => $this->nullableArray($entry['quantumTravel'] ?? null),
-            'asteroid_ring' => $this->nullableArray($entry['asteroidRing'] ?? null),
             'data' => $entry,
         ];
     }
@@ -159,99 +125,133 @@ class ImportStarmapData implements ShouldQueue
         return $typeName ?? 'Unknown';
     }
 
-    private function resolveLocationHierarchyEntityTagId(array $entry): ?int
-    {
-        $uuid = Arr::get($entry, 'locationHierarchyTag.uuid');
-
-        if (! is_string($uuid) || trim($uuid) === '') {
-            return null;
-        }
-
-        $entityTag = EntityTag::query()->updateOrCreate(
-            ['uuid' => trim($uuid)],
-            ['name' => $this->normalizeNullableString(Arr::get($entry, 'locationHierarchyTag.name')) ?? trim($uuid)]
-        );
-
-        return $entityTag->id;
-    }
-
     /**
      * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
      */
-    private function resolveParents(array $firstPass): void
+    private function resolveHierarchy(array $firstPass): void
     {
-        foreach ($firstPass as $uuid => $imported) {
-            $parentUuid = $imported['entry']['parentUuid'] ?? null;
-
-            if (! is_string($parentUuid) || trim($parentUuid) === '') {
-                $imported['location_data']->update(['parent_data_id' => null]);
-
-                continue;
-            }
-
-            $parent = $firstPass[$parentUuid]['location_data'] ?? null;
-
-            $imported['location_data']->update([
-                'parent_data_id' => $parent?->id,
-            ]);
-        }
-    }
-
-    /**
-     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
-     */
-    private function resolveSystems(array $firstPass): void
-    {
-        $resolvedSystems = [];
         $solarSystemLookup = $this->buildSolarSystemLookup($firstPass);
+        $resolvedHierarchy = [];
 
         foreach (array_keys($firstPass) as $uuid) {
-            $systemUuid = $this->resolveSystemUuid($uuid, $firstPass, $resolvedSystems, $solarSystemLookup);
+            $hierarchy = $this->resolveHierarchyData($uuid, $firstPass, $resolvedHierarchy, $solarSystemLookup);
 
-            $firstPass[$uuid]['location']->update([
-                'system_uuid' => $systemUuid,
+            $firstPass[$uuid]['location_data']->update([
+                'parent_data_id' => $hierarchy['parent_data_id'],
+                'star_data_id' => $hierarchy['star_data_id'],
+                'system' => $hierarchy['system'],
             ]);
         }
     }
 
     /**
      * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
-     * @param  array<string, string|null>  $resolvedSystems
+     * @param  array<string, array{parent_data_id: int|null, star_data_id: int|null, system: string|null}>  $resolvedHierarchy
      * @param  array<string, string>  $solarSystemLookup
+     * @return array{parent_data_id: int|null, star_data_id: int|null, system: string|null}
      */
-    private function resolveSystemUuid(
+    private function resolveHierarchyData(
         string $uuid,
         array $firstPass,
-        array &$resolvedSystems,
+        array &$resolvedHierarchy,
         array $solarSystemLookup,
-    ): ?string {
-        if (array_key_exists($uuid, $resolvedSystems)) {
-            return $resolvedSystems[$uuid];
+    ): array {
+        if (array_key_exists($uuid, $resolvedHierarchy)) {
+            return $resolvedHierarchy[$uuid];
         }
 
         $current = $firstPass[$uuid]['entry'] ?? null;
 
         if ($current === null) {
-            return $resolvedSystems[$uuid] = null;
+            return $resolvedHierarchy[$uuid] = [
+                'parent_data_id' => null,
+                'star_data_id' => null,
+                'system' => null,
+            ];
         }
 
         $currentType = $this->extractTypeName($current);
+        $parentUuid = $this->normalizeNullableString($current['parentUuid'] ?? null);
+        $currentName = $this->extractName($current);
 
         if ($currentType === 'SolarSystem') {
-            return $resolvedSystems[$uuid] = $uuid;
+            return $resolvedHierarchy[$uuid] = [
+                'parent_data_id' => null,
+                'star_data_id' => null,
+                'system' => $currentName,
+            ];
         }
 
-        $parentUuid = $current['parentUuid'] ?? null;
-
-        if (! is_string($parentUuid) || trim($parentUuid) === '') {
-            if ($currentType === 'Star') {
-                return $resolvedSystems[$uuid] = $this->resolveSolarSystemUuidForStar($current, $solarSystemLookup);
+        if ($parentUuid !== null) {
+            if (! isset($firstPass[$parentUuid])) {
+                return $resolvedHierarchy[$uuid] = [
+                    'parent_data_id' => null,
+                    'star_data_id' => null,
+                    'system' => null,
+                ];
             }
 
-            return $resolvedSystems[$uuid] = null;
+            $parentHierarchy = $this->resolveHierarchyData($parentUuid, $firstPass, $resolvedHierarchy, $solarSystemLookup);
+
+            return $resolvedHierarchy[$uuid] = [
+                'parent_data_id' => $firstPass[$parentUuid]['location_data']->id,
+                'star_data_id' => $currentType === 'Star'
+                    ? $firstPass[$uuid]['location_data']->id
+                    : $parentHierarchy['star_data_id'],
+                'system' => $parentHierarchy['system'],
+            ];
         }
 
-        return $resolvedSystems[$uuid] = $this->resolveSystemUuid($parentUuid, $firstPass, $resolvedSystems, $solarSystemLookup);
+        if ($currentType !== 'Star') {
+            return $resolvedHierarchy[$uuid] = [
+                'parent_data_id' => null,
+                'star_data_id' => null,
+                'system' => null,
+            ];
+        }
+
+        $system = $this->resolveSystemNameForStar($current, $firstPass, $solarSystemLookup);
+
+        return $resolvedHierarchy[$uuid] = [
+            'parent_data_id' => null,
+            'star_data_id' => $firstPass[$uuid]['location_data']->id,
+            'system' => $system,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
+     * @param  array<string, string>  $solarSystemLookup
+     */
+    private function resolveSystemNameForStar(array $entry, array $firstPass, array $solarSystemLookup): ?string
+    {
+        $solarSystemUuid = $this->resolveSolarSystemUuidForStar($entry, $solarSystemLookup);
+
+        if ($solarSystemUuid !== null) {
+            $solarSystem = $firstPass[$solarSystemUuid]['entry'] ?? null;
+
+            if (is_array($solarSystem)) {
+                return $this->extractName($solarSystem);
+            }
+        }
+
+        return $this->extractName($entry);
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @param  array<string, string>  $solarSystemLookup
+     */
+    private function resolveSolarSystemUuidForStar(array $entry, array $solarSystemLookup): ?string
+    {
+        $normalizedStarName = $this->normalizeSystemLookupKey($this->extractName($entry));
+
+        if ($normalizedStarName === null) {
+            return null;
+        }
+
+        return $solarSystemLookup[$normalizedStarName] ?? null;
     }
 
     /**
@@ -275,21 +275,6 @@ class ImportStarmapData implements ShouldQueue
         }
 
         return $lookup;
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     * @param  array<string, string>  $solarSystemLookup
-     */
-    private function resolveSolarSystemUuidForStar(array $entry, array $solarSystemLookup): ?string
-    {
-        $normalizedStarName = $this->normalizeSystemLookupKey($this->extractName($entry));
-
-        if ($normalizedStarName === null) {
-            return null;
-        }
-
-        return $solarSystemLookup[$normalizedStarName] ?? null;
     }
 
     private function normalizeSystemLookupKey(?string $name): ?string
@@ -316,16 +301,16 @@ class ImportStarmapData implements ShouldQueue
         return collect($entry['amenities'] ?? [])
             ->filter(fn (mixed $amenity): bool => is_array($amenity))
             ->map(function (array $amenity): ?int {
-                $uuid = $amenity['uuid'] ?? null;
+                $uuid = trim($amenity['uuid'] ?? '');
 
-                if (! is_string($uuid) || trim($uuid) === '') {
+                if (empty($uuid)) {
                     return null;
                 }
 
                 $starmapAmenity = StarmapAmenity::query()->updateOrCreate(
-                    ['uuid' => trim($uuid)],
+                    ['uuid' => $uuid],
                     [
-                        'name' => $this->normalizeNullableString($amenity['name'] ?? null) ?? trim($uuid),
+                        'name' => $this->normalizeNullableString($amenity['name'] ?? null) ?? $uuid,
                         'display_name' => $this->normalizeNullableString($amenity['displayName'] ?? null),
                     ]
                 );
@@ -345,36 +330,10 @@ class ImportStarmapData implements ShouldQueue
 
         $value = trim($value);
 
-        if ($value === '' || $value === self::UNINITIALIZED) {
+        if ($value === '') {
             return null;
         }
 
         return $value;
-    }
-
-    private function nullableFloat(mixed $value): ?float
-    {
-        if (! is_numeric($value)) {
-            return null;
-        }
-
-        return (float) $value;
-    }
-
-    private function nullableBoolean(mixed $value): ?bool
-    {
-        if (! is_bool($value)) {
-            return null;
-        }
-
-        return $value;
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function nullableArray(mixed $value): ?array
-    {
-        return is_array($value) ? $value : null;
     }
 }

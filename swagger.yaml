@@ -634,6 +634,220 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/blueprint'
+  /api/locations:
+    get:
+      tags:
+        - In-Game
+        - Starmap
+      summary: 'Game Starmap Locations Overview'
+      description: 'Returns paginated versioned starmap locations with optional filters.'
+      operationId: a226a3e5745777c39876fb640a9b3e53
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
+            example: '-size,name'
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type_classification]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[respawn_location_type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[jurisdiction_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[affiliation_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[is_scannable]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[block_travel]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[amenity]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[tag]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[parent_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[parent_uuid]'
+          in: query
+          schema:
+            type: string
+            format: uuid
+        -
+          name: 'filter[system]'
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of starmap locations'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/game_starmap_location'
+  '/api/locations/{identifier}':
+    get:
+      tags:
+        - In-Game
+        - Starmap
+      summary: 'Game Starmap Location Detail'
+      description: 'Retrieve a versioned starmap location by location UUID.'
+      operationId: a94f2428b5133a755b80610db7fa0e90
+      parameters:
+        -
+          name: identifier
+          in: path
+          required: true
+          schema:
+            description: 'Starmap location UUID'
+            type: string
+            format: uuid
+        -
+          $ref: '#/components/parameters/include'
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'A starmap location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/game_starmap_location'
+        '404':
+          description: 'No starmap location with specified UUID found.'
+  /api/locations/filters:
+    get:
+      tags:
+        - In-Game
+        - Starmap
+      summary: 'Game Starmap Location Filters'
+      description: 'Return all available filter values for versioned starmap locations.'
+      operationId: d17a238ab990d199ac57dd8aeeb2b405
+      parameters:
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type_classification]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[respawn_location_type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[jurisdiction_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[affiliation_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[is_scannable]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[block_travel]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[amenity]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[tag]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[parent_name]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[parent_uuid]'
+          in: query
+          schema:
+            type: string
+            format: uuid
+        -
+          name: 'filter[system]'
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Available filters for starmap locations.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { type_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type_classification: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, respawn_location_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, jurisdiction_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, affiliation_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, parent_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, amenity: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/vehicles:
     get:
       tags:
@@ -9044,6 +9258,223 @@ components:
         link:
           type: string
       type: object
+    game_starmap_location_linked_summary:
+      title: 'Game Starmap Location Linked Summary'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type_name:
+          type: string
+      type: object
+    game_starmap_location_type:
+      title: 'Game Starmap Location Type'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+        classification:
+          type: string
+          nullable: true
+        spawn_nav_points:
+          type: boolean
+          nullable: true
+        valid_quantum_travel_destination:
+          type: boolean
+          nullable: true
+      type: object
+    game_starmap_location_jurisdiction:
+      title: 'Game Starmap Location Jurisdiction'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        base_fine:
+          type: integer
+          nullable: true
+        max_stolen_goods_possession_scu:
+          type: integer
+          nullable: true
+        is_prison:
+          type: boolean
+          nullable: true
+      type: object
+    game_starmap_location_affiliation:
+      title: 'Game Starmap Location Affiliation'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+      type: object
+    game_starmap_location_amenity:
+      title: 'Game Starmap Location Amenity'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+      type: object
+    game_starmap_location_tag:
+      title: 'Game Starmap Location Tag'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+      type: object
+    game_starmap_location_radar_contact_type:
+      title: 'Game Starmap Location Radar Contact Type'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        display_name:
+          type: string
+          nullable: true
+        tag_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        tag_name:
+          type: string
+          nullable: true
+        is_object_of_interest:
+          type: boolean
+          nullable: true
+      type: object
+    game_starmap_location_child_summary:
+      title: 'Game Starmap Location Child Summary'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type_name:
+          type: string
+        type_classification:
+          type: string
+          nullable: true
+        respawn_location_type:
+          type: string
+          nullable: true
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/game_starmap_location_amenity'
+      type: object
+    game_starmap_location:
+      title: 'Game Starmap Location'
+      description: 'Versioned starmap location data imported from game starmap data.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        size:
+          type: number
+          nullable: true
+        respawn_location_type:
+          type: string
+          nullable: true
+        child_count:
+          type: integer
+        is_scannable:
+          type: boolean
+        hide_in_starmap:
+          type: boolean
+        hide_in_world:
+          type: boolean
+        block_travel:
+          type: boolean
+        quantum_travel:
+          type: object
+          nullable: true
+        asteroid_ring:
+          type: object
+          nullable: true
+        link:
+          type: string
+        web_url:
+          type: string
+        version:
+          type: string
+          nullable: true
+        system:
+          type: string
+          nullable: true
+        parent:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_linked_summary'
+          nullable: true
+        star:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_linked_summary'
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/game_starmap_location_child_summary'
+          nullable: true
+        type:
+          $ref: '#/components/schemas/game_starmap_location_type'
+        jurisdiction:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_jurisdiction'
+          nullable: true
+        affiliation:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_affiliation'
+          nullable: true
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/game_starmap_location_amenity'
+        tag:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_tag'
+          nullable: true
+        radar_contact_type:
+          oneOf:
+            -
+              $ref: '#/components/schemas/game_starmap_location_radar_contact_type'
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
     game_vehicle_cargo_grid:
       title: 'Vehicle Cargo Grid'
       description: 'Cargo grid slots from ship data, presented as-is.'
@@ -11158,6 +11589,9 @@ tags:
     name: 'Resource Types'
     description: 'Resource Types'
   -
+    name: Starmap
+    description: Starmap
+  -
     name: Vehicles
     description: Vehicles
   -
@@ -11172,9 +11606,6 @@ tags:
   -
     name: Galactapedia
     description: Galactapedia
-  -
-    name: Starmap
-    description: Starmap
   -
     name: Stats
     description: Stats

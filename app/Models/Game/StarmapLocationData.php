@@ -7,11 +7,13 @@ namespace App\Models\Game;
 use Database\Factories\Game\StarmapLocationDataFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class StarmapLocationData extends Model
 {
@@ -24,23 +26,15 @@ class StarmapLocationData extends Model
         'starmap_location_id',
         'game_version_id',
         'parent_data_id',
+        'star_data_id',
         'location_hierarchy_entity_tag_id',
         'name',
         'description',
         'type_name',
-        'type_classification',
-        'respawn_location_type',
+        'system',
         'size',
-        'minimum_display_size',
         'is_scannable',
-        'hide_in_starmap',
-        'hide_in_world',
         'block_travel',
-        'jurisdiction_name',
-        'jurisdiction_is_prison',
-        'affiliation_name',
-        'quantum_travel',
-        'asteroid_ring',
         'data',
     ];
 
@@ -48,16 +42,12 @@ class StarmapLocationData extends Model
         'game_version_id' => 'integer',
         'starmap_location_id' => 'integer',
         'parent_data_id' => 'integer',
+        'star_data_id' => 'integer',
         'location_hierarchy_entity_tag_id' => 'integer',
         'size' => 'float',
-        'minimum_display_size' => 'float',
+        'system' => 'string',
         'is_scannable' => 'boolean',
-        'hide_in_starmap' => 'boolean',
-        'hide_in_world' => 'boolean',
         'block_travel' => 'boolean',
-        'jurisdiction_is_prison' => 'boolean',
-        'quantum_travel' => 'array',
-        'asteroid_ring' => 'array',
         'data' => AsCollection::class,
     ];
 
@@ -89,6 +79,11 @@ class StarmapLocationData extends Model
         return $this->belongsTo(self::class, 'parent_data_id');
     }
 
+    public function star(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'star_data_id');
+    }
+
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_data_id')->orderBy('name');
@@ -107,5 +102,43 @@ class StarmapLocationData extends Model
             'location_data_id',
             'amenity_id'
         )->orderBy('display_name');
+    }
+
+    protected function jurisdictionName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => data_get($this->payloadData(), 'jurisdiction.name'),
+        );
+    }
+
+    protected function affiliationName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => data_get($this->payloadData(), 'affiliation.displayName'),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function payloadData(): array
+    {
+        $payload = $this->attributes['data'] ?? null;
+
+        if (is_string($payload)) {
+            $decoded = json_decode($payload, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if (is_array($payload)) {
+            return $payload;
+        }
+
+        if ($this->data instanceof Collection) {
+            return $this->data->all();
+        }
+
+        return [];
     }
 }

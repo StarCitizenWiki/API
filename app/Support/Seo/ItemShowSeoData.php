@@ -7,7 +7,7 @@ namespace App\Support\Seo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-final class ItemShowSeoData
+final class ItemShowSeoData extends AbstractShowSeoData
 {
     /**
      * @return array<string, mixed>
@@ -351,95 +351,6 @@ final class ItemShowSeoData
         return $schema;
     }
 
-    /**
-     * @param  array<int, array{label: string, url: string}>  $breadcrumbs
-     * @return array<string, mixed>|null
-     */
-    private function buildBreadcrumbStructuredData(array $breadcrumbs): ?array
-    {
-        $items = [];
-
-        foreach ($breadcrumbs as $breadcrumb) {
-            $name = $this->normalizeString($breadcrumb['label'] ?? null);
-            $url = $this->normalizeString($breadcrumb['url'] ?? null);
-
-            if ($name === null || $url === null) {
-                continue;
-            }
-
-            $items[] = [
-                '@type' => 'ListItem',
-                'position' => count($items) + 1,
-                'name' => $name,
-                'item' => $url,
-            ];
-        }
-
-        if ($items === []) {
-            return null;
-        }
-
-        return [
-            '@context' => 'https://schema.org',
-            '@type' => 'BreadcrumbList',
-            'itemListElement' => $items,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $properties
-     * @return array<int, array<string, mixed>>
-     */
-    private function buildPropertyValues(array $properties): array
-    {
-        $values = [];
-
-        foreach ($properties as $name => $value) {
-            $normalizedValue = $this->normalizeScalar($value);
-
-            if ($normalizedValue === null) {
-                continue;
-            }
-
-            $values[] = [
-                '@type' => 'PropertyValue',
-                'name' => $name,
-                'value' => $normalizedValue,
-            ];
-        }
-
-        return $values;
-    }
-
-    private function resolveDescription(mixed $description): ?string
-    {
-        if (is_string($description)) {
-            return $this->normalizeString($description);
-        }
-
-        if (! is_array($description)) {
-            return null;
-        }
-
-        foreach (['en_EN', 'en'] as $preferredLocale) {
-            $preferredValue = $this->normalizeString($description[$preferredLocale] ?? null);
-
-            if ($preferredValue !== null) {
-                return $preferredValue;
-            }
-        }
-
-        foreach ($description as $value) {
-            $resolved = $this->normalizeString($value);
-
-            if ($resolved !== null) {
-                return $resolved;
-            }
-        }
-
-        return null;
-    }
-
     private function isShipComponent(?string $type, ?string $classification): bool
     {
         return str_starts_with($classification ?? '', 'Ship.')
@@ -461,22 +372,7 @@ final class ItemShowSeoData
         };
     }
 
-    private function resolveVersionCode(Request $request): ?string
-    {
-        $queryVersion = $this->normalizeString($request->query('version'));
-
-        if ($queryVersion !== null) {
-            return $queryVersion;
-        }
-
-        if (! $request->hasSession()) {
-            return null;
-        }
-
-        return $this->normalizeString($request->session()->get('game_version_code'));
-    }
-
-    private function fallbackShowUrl(?string $uuid, ?string $version): string
+    protected function fallbackShowUrl(?string $uuid, ?string $version): string
     {
         if ($uuid === null) {
             return url()->current();
@@ -498,42 +394,5 @@ final class ItemShowSeoData
         }
 
         return $this->normalizeString($breadcrumbs[count($breadcrumbs) - 2]['label'] ?? null);
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim(html_entity_decode($value));
-
-        return $value === '' ? null : $value;
-    }
-
-    private function normalizeScalar(mixed $value): string|int|float|null
-    {
-        if (is_int($value) || is_float($value)) {
-            return $value;
-        }
-
-        return $this->normalizeString($value);
-    }
-
-    /**
-     * @param  array<int, mixed>  $values
-     * @return array<int, mixed>
-     */
-    private function compactValues(array $values): array
-    {
-        return array_values(array_filter($values, static fn (mixed $value): bool => $value !== null && $value !== ''));
-    }
-
-    /**
-     * @param  array<int, mixed>  $segments
-     */
-    private function joinSegments(array $segments, string $glue = ' '): string
-    {
-        return implode($glue, $this->compactValues($segments));
     }
 }

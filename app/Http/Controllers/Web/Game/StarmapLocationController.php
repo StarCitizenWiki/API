@@ -6,8 +6,11 @@ namespace App\Http\Controllers\Web\Game;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
+use App\Support\Seo\StarmapLocationShowSeoData;
+use App\Support\Starmap\StarmapLocationShowViewData;
 use App\Support\Starmap\StarmapLocationTableConfig;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -16,39 +19,69 @@ class StarmapLocationController extends Controller
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly StarmapLocationTableConfig $starmapLocationTableConfig,
+        private readonly StarmapLocationShowViewData $starmapLocationShowViewData,
+        private readonly StarmapLocationShowSeoData $starmapLocationShowSeoData,
     ) {}
 
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
         $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
-
-        $initialTableData = $this->apiJsonRequest->request(route('starmap-locations.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('starmap-locations.filters', [], false), $apiRequest);
-
         $tableConfig = $this->starmapLocationTableConfig->build();
+
+        $initialTableData = $this->apiJsonRequest->request(route('locations.index', [], false), $apiRequest);
+        $filterPayload = $this->apiJsonRequest->request(route('locations.filters', [], false), $apiRequest);
 
         return view('starmap.locations.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
-            'initialFilters' => $this->buildInitialFilters($endpointFilters),
+            'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
         ]);
     }
 
-    private function buildInitialFilters(array $filters): array
+    public function show(Request $request, string $identifier): View
+    {
+        $apiRequest = $request->duplicate();
+        $apiRequest->query->set('include', 'children');
+
+        $payload = $this->apiJsonRequest->request(
+            route('locations.show', ['identifier' => $identifier], false),
+            $apiRequest
+        );
+        $locationData = Arr::get($payload, 'data', []);
+
+        if ($locationData === []) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return view('starmap.locations.show', [
+            'location' => $locationData,
+            'viewData' => $this->starmapLocationShowViewData->build(is_array($locationData) ? $locationData : []),
+            'pageTitle' => Arr::get($locationData, 'name', 'Starmap Location'),
+            'seo' => $this->starmapLocationShowSeoData->build(is_array($locationData) ? $locationData : [], $request),
+        ]);
+    }
+
+    /**
+     * @param  array<string, string>  $filters
+     * @param  array<string, string>  $headerFilterOptionsMap
+     * @return array<int, array{field: string, value: string}>
+     */
+    private function buildInitialFilters(array $filters, array $headerFilterOptionsMap): array
     {
         if ($filters === []) {
             return [];
         }
 
         $initialFilters = [];
+        $apiFieldToColumnFieldMap = array_flip($headerFilterOptionsMap);
 
         foreach ($filters as $field => $value) {
             $initialFilters[] = [
-                'field' => $field,
+                'field' => $apiFieldToColumnFieldMap[$field] ?? $field,
                 'value' => $value,
             ];
         }

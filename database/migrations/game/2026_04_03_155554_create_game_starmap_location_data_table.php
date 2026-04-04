@@ -22,6 +22,10 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('game_starmap_location_data')
                 ->nullOnDelete();
+            $table->foreignId('star_data_id')
+                ->nullable()
+                ->constrained('game_starmap_location_data')
+                ->nullOnDelete();
             $table->foreignId('location_hierarchy_entity_tag_id')
                 ->nullable()
                 ->constrained('game_entity_tags')
@@ -29,33 +33,21 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('type_name');
-            $table->string('type_classification')->nullable();
-            $table->string('respawn_location_type')->nullable();
+            $table->string('system')->nullable();
             $table->double('size')->nullable();
-            $table->double('minimum_display_size')->nullable();
             $table->boolean('is_scannable')->default(false);
-            $table->boolean('hide_in_starmap')->default(false);
-            $table->boolean('hide_in_world')->default(false);
             $table->boolean('block_travel')->default(false);
-            $table->string('jurisdiction_name')->nullable();
-            $table->boolean('jurisdiction_is_prison')->nullable();
-            $table->string('affiliation_name')->nullable();
-            $table->jsonb('quantum_travel')->nullable();
-            $table->jsonb('asteroid_ring')->nullable();
             $table->jsonb('data');
             $table->timestamps();
 
             $table->unique(['starmap_location_id', 'game_version_id']);
             $table->index('game_version_id');
             $table->index('parent_data_id');
+            $table->index('star_data_id');
             $table->index('location_hierarchy_entity_tag_id');
             $table->index(['game_version_id', 'name']);
+            $table->index(['game_version_id', 'system']);
             $table->index(['game_version_id', 'type_name']);
-            $table->index(['game_version_id', 'type_classification']);
-            $table->index(['game_version_id', 'respawn_location_type']);
-            $table->index(['game_version_id', 'jurisdiction_name']);
-            $table->index(['game_version_id', 'affiliation_name']);
-            $table->index(['game_version_id', 'jurisdiction_is_prison']);
         });
     }
 

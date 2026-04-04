@@ -11,8 +11,8 @@
         $resolvedVersionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
         $versionParams = $resolvedVersionCode ? ['version' => $resolvedVersionCode] : [];
         $tableConfig = [
-            'endpoint' => route('starmap-locations.index', $versionParams),
-            'filterOptionsEndpoint' => route('starmap-locations.filters', $versionParams),
+            'endpoint' => route('locations.index', $versionParams),
+            'filterOptionsEndpoint' => route('locations.filters', $versionParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

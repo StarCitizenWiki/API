@@ -103,9 +103,9 @@ Route::group(
             Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
 
-            Route::get('starmap-locations', [StarmapLocationController::class, 'index'])->name('starmap-locations.index');
-            Route::get('starmap-locations/filters', [StarmapLocationController::class, 'filters'])->name('starmap-locations.filters');
-            Route::get('starmap-locations/{identifier}', [StarmapLocationController::class, 'show'])->whereUuid('identifier')->name('starmap-locations.show');
+            Route::get('locations', [StarmapLocationController::class, 'index'])->name('locations.index');
+            Route::get('locations/filters', [StarmapLocationController::class, 'filters'])->name('locations.filters');
+            Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->whereUuid('identifier')->name('locations.show');
 
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');

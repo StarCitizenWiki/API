@@ -13,10 +13,7 @@ return new class extends Migration
         Schema::create('game_starmap_locations', static function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('system_uuid')->nullable();
             $table->timestamps();
-
-            $table->index('system_uuid');
         });
     }
 

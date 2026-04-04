@@ -8,7 +8,6 @@ use Database\Factories\Game\StarmapLocationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StarmapLocation extends Model
@@ -20,22 +19,11 @@ class StarmapLocation extends Model
 
     protected $fillable = [
         'uuid',
-        'system_uuid',
     ];
 
     public function data(): HasMany
     {
         return $this->hasMany(StarmapLocationData::class, 'starmap_location_id');
-    }
-
-    public function system(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'system_uuid', 'uuid');
-    }
-
-    public function systemLocations(): HasMany
-    {
-        return $this->hasMany(self::class, 'system_uuid', 'uuid');
     }
 
     public function scopeWithDataForVersion(Builder $query, ?string $gameVersionCode = null): Builder

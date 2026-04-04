@@ -10,8 +10,22 @@ use App\Models\Game\StarmapLocationData;
 use App\Support\Filters\FilterCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Testing\Fluent\AssertableJson;
 
 uses(RefreshDatabase::class);
+
+function createStarmapLocationData(
+    GameVersion $version,
+    array $attributes,
+    ?StarmapLocation $location = null,
+): StarmapLocationData {
+    $location ??= StarmapLocation::factory()->create();
+
+    return StarmapLocationData::factory()
+        ->for($location, 'location')
+        ->for($version, 'gameVersion')
+        ->create($attributes);
+}
 
 beforeEach(function (): void {
     app()->instance('env', 'production');
@@ -36,160 +50,179 @@ beforeEach(function (): void {
 
 it('lists versioned starmap locations with filters and sorting', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $starLocation = StarmapLocation::factory()->create();
+    $planetLocation = StarmapLocation::factory()->create();
+    $stationLocation = StarmapLocation::factory()->create();
 
-    $planetLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'size' => 400.0,
+        'data' => [
+            'kind' => 'system',
+            'type' => [
+                'classification' => 'Solar System',
+            ],
+        ],
+    ], $systemLocation);
 
-    $stationLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $starData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'Star',
+        'data' => [
+            'kind' => 'star',
+            'type' => [
+                'classification' => 'Star',
+            ],
+        ],
+    ], $starLocation);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-            'size' => 400.0,
-            'data' => ['kind' => 'system'],
-        ]);
+    $planetData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $starData->id,
+        'star_data_id' => $starData->id,
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'size' => 120.0,
+        'data' => [
+            'kind' => 'planet',
+            'type' => [
+                'classification' => 'Planet',
+            ],
+        ],
+    ], $planetLocation);
 
-    $planetData = StarmapLocationData::factory()
-        ->for($planetLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcCorp',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-            'size' => 120.0,
-            'data' => ['kind' => 'planet'],
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $planetData->id,
+        'star_data_id' => $starData->id,
+        'name' => 'Baijini Point',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'size' => 10.0,
+        'data' => [
+            'kind' => 'station',
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+            'respawnLocationType' => 'Hospital',
+        ],
+    ], $stationLocation);
 
-    StarmapLocationData::factory()
-        ->for($stationLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $planetData->id,
-            'name' => 'Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-            'size' => 10.0,
-            'respawn_location_type' => 'Hospital',
-            'data' => ['kind' => 'station'],
-        ]);
+    createStarmapLocationData($this->oldVersion, [
+        'name' => 'Old Baijini Point',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'size' => 15.0,
+        'data' => [
+            'kind' => 'station-old',
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+        ],
+    ], $stationLocation);
 
-    StarmapLocationData::factory()
-        ->for($stationLocation, 'location')
-        ->for($this->oldVersion, 'gameVersion')
-        ->create([
-            'name' => 'Old Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-            'size' => 15.0,
-            'data' => ['kind' => 'station-old'],
-        ]);
-
-    $response = $this->getJson('/api/starmap-locations?filter[type_name]=Station&filter[parent_name]=Arc&filter[system_name]=Stan&sort=-size');
+    $response = $this->getJson('/api/locations?filter[type_name]=Station&filter[parent_name]=Arc&filter[system]=Stan&sort=-size');
 
     $response->assertSuccessful()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.uuid', $stationLocation->uuid)
-        ->assertJsonPath('data.0.name', 'Baijini Point')
-        ->assertJsonPath('data.0.system_name', 'Stanton')
-        ->assertJsonPath('data.0.parent_name', 'ArcCorp')
-        ->assertJsonPath('data.0.child_count', 0)
-        ->assertJsonPath('data.0.version', $this->defaultVersion->code);
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', 1, fn (AssertableJson $json) => $json
+                ->where('uuid', $stationLocation->uuid)
+                ->where('name', 'Baijini Point')
+                ->where('web_url', route('web.locations.show', ['identifier' => $stationLocation->uuid]))
+                ->where('system', 'Stanton')
+                ->where('star.uuid', $starLocation->uuid)
+                ->where('parent.name', 'ArcCorp')
+                ->where('type.name', 'Station')
+                ->where('child_count', 0)
+                ->where('version', $this->defaultVersion->code)
+                ->missing('children')
+                ->etc()
+            )
+            ->etc()
+        );
 });
 
 it('returns version scoped child counts and allows sorting by child_count', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $parentWithChildren = StarmapLocation::factory()->create();
+    $parentWithoutChildren = StarmapLocation::factory()->create();
 
-    $parentWithChildren = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'type' => [
+                'classification' => 'Solar System',
+            ],
+        ],
+    ], $systemLocation);
 
-    $parentWithoutChildren = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $parentWithChildrenData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => [
+            'type' => [
+                'classification' => 'Planet',
+            ],
+        ],
+    ], $parentWithChildren);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'MicroTech',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => [
+            'type' => [
+                'classification' => 'Planet',
+            ],
+        ],
+    ], $parentWithoutChildren);
 
-    $parentWithChildrenData = StarmapLocationData::factory()
-        ->for($parentWithChildren, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcCorp',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
+    $childLocationOne = StarmapLocation::factory()->create();
+    $childLocationTwo = StarmapLocation::factory()->create();
+    $legacyChildLocation = StarmapLocation::factory()->create();
 
-    StarmapLocationData::factory()
-        ->for($parentWithoutChildren, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'MicroTech',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentWithChildrenData->id,
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => [
+            'type' => [
+                'classification' => 'Landing Zone',
+            ],
+        ],
+    ], $childLocationOne);
 
-    $childLocationOne = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentWithChildrenData->id,
+        'name' => 'Baijini Point',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+        ],
+    ], $childLocationTwo);
 
-    $childLocationTwo = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->oldVersion, [
+        'parent_data_id' => $parentWithChildrenData->id,
+        'name' => 'Legacy Child',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+        ],
+    ], $legacyChildLocation);
 
-    $legacyChildLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    StarmapLocationData::factory()
-        ->for($childLocationOne, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $parentWithChildrenData->id,
-            'name' => 'Area18',
-            'type_name' => 'LandingZone',
-            'type_classification' => 'Landing Zone',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($childLocationTwo, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $parentWithChildrenData->id,
-            'name' => 'Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($legacyChildLocation, 'location')
-        ->for($this->oldVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $parentWithChildrenData->id,
-            'name' => 'Legacy Child',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    $response = $this->getJson('/api/starmap-locations?filter[type_name]=Planet&sort=-child_count');
+    $response = $this->getJson('/api/locations?filter[type_name]=Planet&sort=-child_count');
 
     $response->assertSuccessful()
         ->assertJsonPath('data.0.uuid', $parentWithChildren->uuid)
@@ -200,17 +233,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
 
 it('filters starmap locations by amenity display name and comma delimited values', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $clinicLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $armorLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $clinicLocation = StarmapLocation::factory()->create();
+    $armorLocation = StarmapLocation::factory()->create();
 
     $clinicAmenity = StarmapAmenity::factory()->create([
         'name' => 'Clinic',
@@ -222,37 +246,43 @@ it('filters starmap locations by amenity display name and comma delimited values
         'display_name' => 'Buy Armor',
     ]);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'type' => [
+                'classification' => 'Solar System',
+            ],
+        ],
+    ], $systemLocation);
 
-    $clinicData = StarmapLocationData::factory()
-        ->for($clinicLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Covalex Clinic',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
+    $clinicData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Covalex Clinic',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+        ],
+    ], $clinicLocation);
 
-    $armorData = StarmapLocationData::factory()
-        ->for($armorLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Armor Hub',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
+    $armorData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Armor Hub',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => [
+                'classification' => 'Manmade',
+            ],
+        ],
+    ], $armorLocation);
 
     $clinicData->amenities()->sync([$clinicAmenity->id]);
     $armorData->amenities()->sync([$buyArmorAmenity->id]);
 
-    $this->getJson('/api/starmap-locations?filter[amenity]=Buy+Armor')
+    $this->getJson('/api/locations?filter[amenity]=Buy+Armor')
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $armorLocation->uuid)
@@ -260,7 +290,7 @@ it('filters starmap locations by amenity display name and comma delimited values
             'uuid' => $clinicLocation->uuid,
         ]);
 
-    $this->getJson('/api/starmap-locations?filter[amenity]=Buy+Armor,Clinic')
+    $this->getJson('/api/locations?filter[amenity]=Buy+Armor,Clinic')
         ->assertSuccessful()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment([
@@ -270,115 +300,79 @@ it('filters starmap locations by amenity display name and comma delimited values
             'uuid' => $armorLocation->uuid,
         ]);
 
-    $this->getJson('/api/starmap-locations?filter[amenity]='.$buyArmorAmenity->uuid)
+    $this->getJson('/api/locations?filter[amenity]='.$buyArmorAmenity->uuid)
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $armorLocation->uuid);
 });
 
-it('filters starmap locations by parent and system uuids', function (): void {
+it('filters starmap locations by parent uuid and system name', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
     $otherSystemLocation = StarmapLocation::factory()->create();
-    $otherSystemLocation->update([
-        'system_uuid' => $otherSystemLocation->uuid,
-    ]);
+    $parentLocation = StarmapLocation::factory()->create();
+    $otherParentLocation = StarmapLocation::factory()->create();
+    $matchingLocation = StarmapLocation::factory()->create();
+    $differentParentLocation = StarmapLocation::factory()->create();
+    $differentSystemLocation = StarmapLocation::factory()->create();
 
-    $parentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
-    $otherParentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Pyro',
+        'system' => 'Pyro',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $otherSystemLocation);
 
-    $matchingLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $parentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => ['type' => ['classification' => 'Planet']],
+    ], $parentLocation);
 
-    $differentParentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $otherParentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Hurston',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => ['type' => ['classification' => 'Planet']],
+    ], $otherParentLocation);
 
-    $differentSystemLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $otherSystemLocation->uuid,
-    ]);
+    $matchingData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentData->id,
+        'name' => 'Baijini Point',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $matchingLocation);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $otherParentData->id,
+        'name' => 'Everus Harbor',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $differentParentLocation);
 
-    StarmapLocationData::factory()
-        ->for($otherSystemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Pyro',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Ruin Station',
+        'system' => 'Pyro',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $differentSystemLocation);
 
-    $parentData = StarmapLocationData::factory()
-        ->for($parentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcCorp',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
-
-    $otherParentData = StarmapLocationData::factory()
-        ->for($otherParentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Hurston',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
-
-    $matchingData = StarmapLocationData::factory()
-        ->for($matchingLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $parentData->id,
-            'name' => 'Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($differentParentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $otherParentData->id,
-            'name' => 'Everus Harbor',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($differentSystemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Ruin Station',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    $this->getJson('/api/starmap-locations?filter[type_name]=Station&filter[parent_uuid]='.$parentLocation->uuid)
+    $this->getJson('/api/locations?filter[type_name]=Station&filter[parent_uuid]='.$parentLocation->uuid)
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $matchingLocation->uuid)
         ->assertJsonPath('data.0.name', $matchingData->name);
 
-    $this->getJson('/api/starmap-locations?filter[type_name]=Station&filter[system_uuid]='.$systemLocation->uuid)
+    $this->getJson('/api/locations?filter[type_name]=Station&filter[system]=Stan')
         ->assertSuccessful()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment([
@@ -394,115 +388,74 @@ it('filters starmap locations by parent and system uuids', function (): void {
 
 it('treats wildcard characters in parent and system name filters as literal characters', function (): void {
     $literalSystemLocation = StarmapLocation::factory()->create();
-    $literalSystemLocation->update([
-        'system_uuid' => $literalSystemLocation->uuid,
-    ]);
-
     $wildcardSystemLocation = StarmapLocation::factory()->create();
-    $wildcardSystemLocation->update([
-        'system_uuid' => $wildcardSystemLocation->uuid,
-    ]);
+    $literalParentLocation = StarmapLocation::factory()->create();
+    $wildcardParentLocation = StarmapLocation::factory()->create();
+    $otherSystemParentLocation = StarmapLocation::factory()->create();
+    $matchingLocation = StarmapLocation::factory()->create();
+    $parentWildcardLocation = StarmapLocation::factory()->create();
+    $systemWildcardLocation = StarmapLocation::factory()->create();
 
-    $literalParentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $literalSystemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stan_100%',
+        'system' => 'Stan_100%',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $literalSystemLocation);
 
-    $wildcardParentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $literalSystemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'StanX100Y',
+        'system' => 'StanX100Y',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $wildcardSystemLocation);
 
-    $otherSystemParentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $wildcardSystemLocation->uuid,
-    ]);
+    $literalParentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Arc_100%',
+        'system' => 'Stan_100%',
+        'type_name' => 'Planet',
+        'data' => ['type' => ['classification' => 'Planet']],
+    ], $literalParentLocation);
 
-    $matchingLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $literalSystemLocation->uuid,
-    ]);
+    $wildcardParentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcA100Y',
+        'system' => 'Stan_100%',
+        'type_name' => 'Planet',
+        'data' => ['type' => ['classification' => 'Planet']],
+    ], $wildcardParentLocation);
 
-    $parentWildcardLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $literalSystemLocation->uuid,
-    ]);
+    $otherSystemParentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Arc_100%',
+        'system' => 'StanX100Y',
+        'type_name' => 'Planet',
+        'data' => ['type' => ['classification' => 'Planet']],
+    ], $otherSystemParentLocation);
 
-    $systemWildcardLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $wildcardSystemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $literalParentData->id,
+        'name' => 'Baijini Point',
+        'system' => 'Stan_100%',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $matchingLocation);
 
-    StarmapLocationData::factory()
-        ->for($literalSystemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stan_100%',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $wildcardParentData->id,
+        'name' => 'Area18 Station',
+        'system' => 'Stan_100%',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $parentWildcardLocation);
 
-    StarmapLocationData::factory()
-        ->for($wildcardSystemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'StanX100Y',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $otherSystemParentData->id,
+        'name' => 'Orbituary',
+        'system' => 'StanX100Y',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $systemWildcardLocation);
 
-    $literalParentData = StarmapLocationData::factory()
-        ->for($literalParentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Arc_100%',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
-
-    $wildcardParentData = StarmapLocationData::factory()
-        ->for($wildcardParentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcA100Y',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
-
-    $otherSystemParentData = StarmapLocationData::factory()
-        ->for($otherSystemParentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Arc_100%',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($matchingLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $literalParentData->id,
-            'name' => 'Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($parentWildcardLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $wildcardParentData->id,
-            'name' => 'Area18 Station',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($systemWildcardLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $otherSystemParentData->id,
-            'name' => 'Orbituary',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
-
-    $this->getJson('/api/starmap-locations?filter[type_name]=Station&filter[parent_name]=Arc_100%25&filter[system_name]=Stan_100%25')
+    $this->getJson('/api/locations?filter[type_name]=Station&filter[parent_name]=Arc_100%25&filter[system]=Stan_100%25')
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $matchingLocation->uuid)
@@ -516,9 +469,6 @@ it('treats wildcard characters in parent and system name filters as literal char
 
 it('filters starmap locations by tag name without querying uuid columns with text values', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
 
     $networkTag = EntityTag::query()->create([
         'uuid' => fake()->uuid(),
@@ -530,44 +480,33 @@ it('filters starmap locations by tag name without querying uuid columns with tex
         'name' => 'Transit',
     ]);
 
-    $networkLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $networkLocation = StarmapLocation::factory()->create();
+    $transitLocation = StarmapLocation::factory()->create();
 
-    $transitLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'location_hierarchy_entity_tag_id' => $networkTag->id,
+        'data' => ['type' => ['classification' => 'Landing Zone']],
+    ], $networkLocation);
 
-    StarmapLocationData::factory()
-        ->for($networkLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Area18',
-            'type_name' => 'LandingZone',
-            'type_classification' => 'Landing Zone',
-            'location_hierarchy_entity_tag_id' => $networkTag->id,
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Port Tressler',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'location_hierarchy_entity_tag_id' => $transitTag->id,
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $transitLocation);
 
-    StarmapLocationData::factory()
-        ->for($transitLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Port Tressler',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-            'location_hierarchy_entity_tag_id' => $transitTag->id,
-        ]);
-
-    $this->getJson('/api/starmap-locations?filter[tag]=ArcCorp+Network')
+    $this->getJson('/api/locations?filter[tag]=ArcCorp+Network')
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $networkLocation->uuid)
@@ -575,7 +514,7 @@ it('filters starmap locations by tag name without querying uuid columns with tex
             'uuid' => $transitLocation->uuid,
         ]);
 
-    $this->getJson('/api/starmap-locations?filter[tag]='.$networkTag->uuid)
+    $this->getJson('/api/locations?filter[tag]='.$networkTag->uuid)
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $networkLocation->uuid);
@@ -583,46 +522,31 @@ it('filters starmap locations by tag name without querying uuid columns with tex
 
 it('filters out starmap locations that do not have a system', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $validLocation = StarmapLocation::factory()->create();
+    $systemlessLocation = StarmapLocation::factory()->create();
 
-    $validLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
-    $systemlessLocation = StarmapLocation::factory()->create([
-        'system_uuid' => null,
-    ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => ['type' => ['classification' => 'Landing Zone']],
+    ], $validLocation);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Orphaned Location',
+        'system' => null,
+        'type_name' => 'Outpost',
+        'data' => ['type' => ['classification' => 'Outpost']],
+    ], $systemlessLocation);
 
-    StarmapLocationData::factory()
-        ->for($validLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Area18',
-            'type_name' => 'LandingZone',
-            'type_classification' => 'Landing Zone',
-        ]);
-
-    StarmapLocationData::factory()
-        ->for($systemlessLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Orphaned Location',
-            'type_name' => 'Outpost',
-            'type_classification' => 'Outpost',
-        ]);
-
-    $response = $this->getJson('/api/starmap-locations');
+    $response = $this->getJson('/api/locations');
 
     $response->assertSuccessful()
         ->assertJsonCount(2, 'data')
@@ -632,7 +556,7 @@ it('filters out starmap locations that do not have a system', function (): void 
         ]);
 });
 
-it('shows a starmap location by uuid with requested includes', function (): void {
+it('shows a detailed starmap location by uuid', function (): void {
     $tag = EntityTag::query()->create([
         'uuid' => fake()->uuid(),
         'name' => 'ArcCorp Network',
@@ -644,64 +568,358 @@ it('shows a starmap location by uuid with requested includes', function (): void
     ]);
 
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $starLocation = StarmapLocation::factory()->create();
+    $parentLocation = StarmapLocation::factory()->create();
+    $childLocation = StarmapLocation::factory()->create();
 
-    $parentLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $systemData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'kind' => 'system',
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $systemLocation);
 
-    $childLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $starData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $systemData->id,
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'Star',
+        'data' => [
+            'kind' => 'star',
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'Star',
+                'classification' => 'Star',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $starLocation);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-            'data' => ['kind' => 'system'],
-        ]);
+    $parentData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $starData->id,
+        'star_data_id' => $starData->id,
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'location_hierarchy_entity_tag_id' => $tag->id,
+        'data' => [
+            'kind' => 'parent',
+            'type' => [
+                'classification' => 'Planet',
+            ],
+        ],
+    ], $parentLocation);
 
-    $parentData = StarmapLocationData::factory()
-        ->for($parentLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcCorp',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-            'location_hierarchy_entity_tag_id' => $tag->id,
-            'data' => ['kind' => 'parent'],
-        ]);
-
-    $childData = StarmapLocationData::factory()
-        ->for($childLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $parentData->id,
-            'name' => 'Baijini Point',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-            'respawn_location_type' => 'Hospital',
-            'location_hierarchy_entity_tag_id' => $tag->id,
-            'data' => ['kind' => 'child'],
-        ]);
+    $childData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentData->id,
+        'star_data_id' => $starData->id,
+        'name' => 'Baijini Point',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'location_hierarchy_entity_tag_id' => $tag->id,
+        'data' => [
+            'kind' => 'child',
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'Station',
+                'classification' => 'Manmade',
+                'spawnNavPoints' => true,
+                'validQuantumTravelDestination' => true,
+            ],
+            'jurisdiction' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'UEE',
+                'baseFine' => 125,
+                'maxStolenGoodsPossessionScu' => 1,
+                'isPrison' => false,
+            ],
+            'affiliation' => [
+                'uuid' => fake()->uuid(),
+                'displayName' => 'Covalex',
+            ],
+            'radarContactType' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'SpaceStation',
+                'displayName' => 'Nav Point',
+                'tagUuid' => fake()->uuid(),
+                'tagName' => 'SpaceStation',
+                'isObjectOfInterest' => false,
+            ],
+        ],
+    ], $childLocation);
 
     $childData->amenities()->sync([$amenity->id]);
 
-    $response = $this->getJson('/api/starmap-locations/'.$childLocation->uuid.'?include=location,parent,amenities,tag');
+    $response = $this->getJson('/api/locations/'.$childLocation->uuid);
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.uuid', $childLocation->uuid)
-        ->assertJsonPath('data.location.uuid', $childLocation->uuid)
-        ->assertJsonPath('data.parent.uuid', $parentLocation->uuid)
-        ->assertJsonPath('data.parent.name', 'ArcCorp')
-        ->assertJsonPath('data.amenities.0.display_name', 'Clinic')
-        ->assertJsonPath('data.tag.uuid', $tag->uuid)
-        ->assertJsonPath('data.version', $this->defaultVersion->code);
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->where('data.uuid', $childLocation->uuid)
+            ->where('data.web_url', route('web.locations.show', ['identifier' => $childLocation->uuid]))
+            ->where('data.system', 'Stanton')
+            ->where('data.star.uuid', $starLocation->uuid)
+            ->where('data.parent.uuid', $parentLocation->uuid)
+            ->where('data.child_count', 0)
+            ->where('data.type.name', 'Station')
+            ->where('data.type.spawn_nav_points', true)
+            ->where('data.jurisdiction.name', 'UEE')
+            ->where('data.affiliation.name', 'Covalex')
+            ->where('data.amenities.0.display_name', 'Clinic')
+            ->where('data.tag.uuid', $tag->uuid)
+            ->where('data.radar_contact_type.name', 'SpaceStation')
+            ->where('data.version', $this->defaultVersion->code)
+            ->missing('data.children')
+            ->etc()
+        );
+});
+
+it('returns null for optional detailed starmap objects when source data is absent', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    $childLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $systemLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Ghost Hollow',
+        'system' => 'Stanton',
+        'type_name' => 'Outpost',
+        'location_hierarchy_entity_tag_id' => null,
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'Outpost',
+                'classification' => 'Outpost',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => true,
+            ],
+        ],
+    ], $childLocation);
+
+    $this->getJson('/api/locations/'.$childLocation->uuid)
+        ->assertSuccessful()
+        ->assertJsonPath('data.star', null)
+        ->assertJsonPath('data.parent', null)
+        ->assertJsonPath('data.child_count', 0)
+        ->assertJsonMissingPath('data.children')
+        ->assertJsonPath('data.jurisdiction', null)
+        ->assertJsonPath('data.affiliation', null)
+        ->assertJsonPath('data.tag', null)
+        ->assertJsonPath('data.radar_contact_type', null);
+});
+
+it('shows child links on the detailed parent starmap location response when requested', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    $parentLocation = StarmapLocation::factory()->create();
+    $childLocation = StarmapLocation::factory()->create();
+    $grandchildLocation = StarmapLocation::factory()->create();
+
+    $tag = EntityTag::factory()->create([
+        'name' => 'Landing Zone',
+    ]);
+
+    $amenity = StarmapAmenity::factory()->create([
+        'name' => 'refuel',
+        'display_name' => 'Refuel',
+    ]);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $systemLocation);
+
+    $parentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'Planet',
+                'classification' => 'Planet',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => true,
+            ],
+        ],
+    ], $parentLocation);
+
+    $childData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentData->id,
+        'location_hierarchy_entity_tag_id' => $tag->id,
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'description' => 'Major landing zone on ArcCorp.',
+        'type_name' => 'LandingZone',
+        'size' => 12.5,
+        'is_scannable' => true,
+        'block_travel' => true,
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'LandingZone',
+                'classification' => 'Landing Zone',
+                'spawnNavPoints' => true,
+                'validQuantumTravelDestination' => true,
+            ],
+            'jurisdiction' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'UEE',
+                'baseFine' => 125,
+                'maxStolenGoodsPossessionScu' => 1,
+                'isPrison' => false,
+            ],
+            'affiliation' => [
+                'uuid' => fake()->uuid(),
+                'displayName' => 'ArcCorp',
+            ],
+            'radarContactType' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'LandingZone',
+                'displayName' => 'Landing Zone',
+                'tagUuid' => fake()->uuid(),
+                'tagName' => 'LandingZone',
+                'isObjectOfInterest' => true,
+            ],
+            'respawnLocationType' => 'Hospital',
+            'hideInStarmap' => true,
+            'hideInWorld' => false,
+            'quantumTravel' => [
+                'arrivalRadius' => 1500,
+            ],
+            'asteroidRing' => [
+                'innerRadius' => 25,
+            ],
+        ],
+    ], $childLocation);
+
+    $childData->amenities()->sync([$amenity->id]);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $childData->id,
+        'name' => 'Area18 Commons',
+        'system' => 'Stanton',
+        'type_name' => 'District',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'District',
+                'classification' => 'District',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $grandchildLocation);
+
+    $this->getJson('/api/locations/'.$parentLocation->uuid.'?include=children')
+        ->assertSuccessful()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->where('data.parent', null)
+            ->where('data.child_count', 1)
+            ->has('data.children', 1, fn (AssertableJson $json) => $json
+                ->where('uuid', $childLocation->uuid)
+                ->where('name', 'Area18')
+                ->where('web_url', route('web.locations.show', ['identifier' => $childLocation->uuid]))
+                ->where('type_name', 'LandingZone')
+                ->where('respawn_location_type', 'Hospital')
+                ->where('amenities.0.display_name', 'Refuel')
+                ->where('amenity_labels.0', 'Refuel')
+                ->missing('type')
+                ->missing('system')
+                ->missing('parent')
+                ->missing('children')
+                ->etc()
+            )
+            ->etc()
+        );
+});
+
+it('does not allow include children on the starmap index response', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
+
+    $this->getJson('/api/locations?include=children')
+        ->assertStatus(400);
+});
+
+it('shows a star as child on the detailed solar system response when imported hierarchy links it', function (): void {
+    $systemLocation = StarmapLocation::factory()->create();
+    $starLocation = StarmapLocation::factory()->create();
+
+    $systemData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton System',
+        'system' => 'Stanton System',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $systemLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $systemData->id,
+        'name' => 'Stanton',
+        'system' => 'Stanton System',
+        'type_name' => 'Star',
+        'data' => [
+            'type' => [
+                'uuid' => fake()->uuid(),
+                'name' => 'Star',
+                'classification' => 'Star',
+                'spawnNavPoints' => false,
+                'validQuantumTravelDestination' => false,
+            ],
+        ],
+    ], $starLocation);
+
+    $this->getJson('/api/locations/'.$systemLocation->uuid.'?include=children')
+        ->assertSuccessful()
+        ->assertJsonPath('data.parent', null)
+        ->assertJsonPath('data.child_count', 1)
+        ->assertJsonPath('data.children.0.uuid', $starLocation->uuid)
+        ->assertJsonPath('data.children.0.name', 'Stanton')
+        ->assertJsonPath('data.children.0.type_name', 'Star');
 });
 
 it('returns 404 when the location has no data for the requested or default version', function (): void {
@@ -716,23 +934,14 @@ it('returns 404 when the location has no data for the requested or default versi
             'data' => ['kind' => 'legacy'],
         ]);
 
-    $this->getJson('/api/starmap-locations/'.$location->uuid)
+    $this->getJson('/api/locations/'.$location->uuid)
         ->assertNotFound();
 });
 
 it('returns filter facets scoped by the active request filters', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $planetLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $stationLocation = StarmapLocation::factory()->create([
-        'system_uuid' => $planetLocation->system_uuid,
-    ]);
+    $planetLocation = StarmapLocation::factory()->create();
+    $stationLocation = StarmapLocation::factory()->create();
 
     $clinicAmenity = StarmapAmenity::factory()->create([
         'name' => 'Clinic',
@@ -744,81 +953,121 @@ it('returns filter facets scoped by the active request filters', function (): vo
         'display_name' => 'Hangar',
     ]);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-            'data' => ['kind' => 'system'],
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => [
+            'kind' => 'system',
+            'type' => ['classification' => 'Solar System'],
+        ],
+    ], $systemLocation);
 
-    $planetData = StarmapLocationData::factory()
-        ->for($planetLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'ArcCorp',
-            'type_name' => 'Planet',
-            'type_classification' => 'Planet',
-            'jurisdiction_name' => 'UEE',
-            'jurisdiction_is_prison' => false,
-            'data' => ['kind' => 'planet'],
-        ]);
+    $planetData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'block_travel' => false,
+        'data' => [
+            'kind' => 'planet',
+            'type' => ['classification' => 'Planet'],
+            'jurisdiction' => ['name' => 'UEE'],
+            'affiliation' => ['displayName' => 'Empire'],
+        ],
+    ], $planetLocation);
 
-    $stationData = StarmapLocationData::factory()
-        ->for($stationLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'parent_data_id' => $planetData->id,
-            'name' => 'Klescher',
-            'type_name' => 'Station',
-            'type_classification' => 'Prison',
-            'jurisdiction_name' => 'UEE',
-            'jurisdiction_is_prison' => true,
-            'data' => ['kind' => 'station'],
-        ]);
+    $stationData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $planetData->id,
+        'name' => 'Klescher',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'block_travel' => true,
+        'data' => [
+            'kind' => 'station',
+            'type' => ['classification' => 'Prison'],
+            'respawnLocationType' => 'Hospital',
+            'jurisdiction' => ['name' => 'Advocacy'],
+            'affiliation' => ['displayName' => 'Corrections'],
+        ],
+    ], $stationLocation);
 
     $planetData->amenities()->sync([$clinicAmenity->id]);
     $stationData->amenities()->sync([$hangarAmenity->id]);
 
-    $response = $this->getJson('/api/starmap-locations/filters?filter[jurisdiction_name]=UEE&filter[type_name]=Planet');
+    $response = $this->getJson('/api/locations/filters?filter[block_travel]=false&filter[type_name]=Planet');
 
     $response->assertSuccessful()
         ->assertJsonPath('filters.type_name.0.value', 'Planet')
         ->assertJsonPath('filters.type_name.0.label', 'Planet')
-        ->assertJsonPath('filters.system_name.0.value', 'Stanton')
-        ->assertJsonPath('filters.system_name.0.label', 'Stanton')
-        ->assertJsonPath('filters.jurisdiction_is_prison.0.value', false)
-        ->assertJsonPath('filters.jurisdiction_is_prison.0.label', 'No')
+        ->assertJsonPath('filters.type_name.0.count', 1)
+        ->assertJsonPath('filters.type_classification.0.value', 'Planet')
+        ->assertJsonPath('filters.type_classification.0.label', 'Planet')
+        ->assertJsonPath('filters.type_classification.0.count', 1)
+        ->assertJsonPath('filters.jurisdiction_name.0.value', 'UEE')
+        ->assertJsonPath('filters.jurisdiction_name.0.label', 'UEE')
+        ->assertJsonPath('filters.jurisdiction_name.0.count', 1)
+        ->assertJsonPath('filters.affiliation_name.0.value', 'Empire')
+        ->assertJsonPath('filters.affiliation_name.0.label', 'Empire')
+        ->assertJsonPath('filters.affiliation_name.0.count', 1)
+        ->assertJsonPath('filters.system.0.value', 'Stanton')
+        ->assertJsonPath('filters.system.0.label', 'Stanton')
+        ->assertJsonPath('filters.system.0.count', 1)
         ->assertJsonPath('filters.amenity.0.value', $clinicAmenity->uuid)
         ->assertJsonPath('filters.amenity.0.label', 'Clinic')
-        ->assertJsonMissingPath('filters.type_name.0.count')
-        ->assertJsonMissingPath('filters.system_name.0.count')
-        ->assertJsonMissingPath('filters.jurisdiction_is_prison.0.count')
-        ->assertJsonMissingPath('filters.amenity.0.count')
+        ->assertJsonPath('filters.amenity.0.count', 1)
         ->assertJsonMissing([
             'value' => 'Hangar',
         ]);
 
-    $this->getJson('/api/starmap-locations/filters?filter[jurisdiction_name]=UEE&filter[type_name]=Station')
+    $this->getJson('/api/locations/filters?filter[block_travel]=true&filter[type_name]=Station')
         ->assertSuccessful()
-        ->assertJsonPath('filters.parent_name.0.value', 'ArcCorp');
+        ->assertJsonPath('filters.parent_name.0.value', 'ArcCorp')
+        ->assertJsonPath('filters.respawn_location_type.0.value', 'Hospital')
+        ->assertJsonPath('filters.jurisdiction_name.0.value', 'Advocacy')
+        ->assertJsonPath('filters.affiliation_name.0.value', 'Corrections');
+});
+
+it('filters starmap locations by restored json-backed fields', function (): void {
+    $matchingLocation = StarmapLocation::factory()->create();
+    $otherLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Everus Harbor',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => ['classification' => 'Orbital Station'],
+            'respawnLocationType' => 'Hospital',
+            'jurisdiction' => ['name' => 'UEE'],
+            'affiliation' => ['displayName' => 'Covalex'],
+        ],
+    ], $matchingLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Kareah',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => [
+            'type' => ['classification' => 'Security Post'],
+            'respawnLocationType' => 'Clinic',
+            'jurisdiction' => ['name' => 'Crusader'],
+            'affiliation' => ['displayName' => 'Crusader Security'],
+        ],
+    ], $otherLocation);
+
+    $this->getJson('/api/locations?filter[type_classification]=Orbital+Station&filter[respawn_location_type]=Hospital&filter[jurisdiction_name]=UEE&filter[affiliation_name]=Covalex')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $matchingLocation->uuid)
+        ->assertJsonMissing([
+            'uuid' => $otherLocation->uuid,
+        ]);
 });
 
 it('returns separate amenity facet rows for duplicate labels with different uuids', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $clinicLocationOne = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    $clinicLocationTwo = StarmapLocation::factory()->create([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
+    $clinicLocationOne = StarmapLocation::factory()->create();
+    $clinicLocationTwo = StarmapLocation::factory()->create();
 
     $clinicAmenityOne = StarmapAmenity::factory()->create([
         'name' => 'ClinicPrimary',
@@ -830,67 +1079,57 @@ it('returns separate amenity facet rows for duplicate labels with different uuid
         'display_name' => 'Clinic',
     ]);
 
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
-    $clinicDataOne = StarmapLocationData::factory()
-        ->for($clinicLocationOne, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Covalex Clinic',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
+    $clinicDataOne = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Covalex Clinic',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $clinicLocationOne);
 
-    $clinicDataTwo = StarmapLocationData::factory()
-        ->for($clinicLocationTwo, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Port Tressler Clinic',
-            'type_name' => 'Station',
-            'type_classification' => 'Manmade',
-        ]);
+    $clinicDataTwo = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Port Tressler Clinic',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['type' => ['classification' => 'Manmade']],
+    ], $clinicLocationTwo);
 
     $clinicDataOne->amenities()->sync([$clinicAmenityOne->id]);
     $clinicDataTwo->amenities()->sync([$clinicAmenityTwo->id]);
 
-    $this->getJson('/api/starmap-locations/filters?filter[type_name]=Station')
+    $this->getJson('/api/locations/filters?filter[type_name]=Station')
         ->assertSuccessful()
         ->assertJsonCount(2, 'filters.amenity')
         ->assertJsonFragment([
             'value' => $clinicAmenityOne->uuid,
             'label' => 'Clinic',
+            'count' => 1,
         ])
         ->assertJsonFragment([
             'value' => $clinicAmenityTwo->uuid,
             'label' => 'Clinic',
+            'count' => 1,
         ]);
 });
 
 it('caches only broad starmap facet responses', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
     $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
 
-    $this->getJson(route('starmap-locations.filters', ['version' => $this->defaultVersion->code]))
+    $this->getJson(route('locations.filters', ['version' => $this->defaultVersion->code]))
         ->assertOk();
 
     expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
@@ -898,7 +1137,7 @@ it('caches only broad starmap facet responses', function (): void {
 
     Cache::flush();
 
-    $this->getJson(route('starmap-locations.filters', [
+    $this->getJson(route('locations.filters', [
         'version' => $this->defaultVersion->code,
         'filter' => ['type_name' => 'SolarSystem'],
     ]))->assertOk();
@@ -909,22 +1148,16 @@ it('caches only broad starmap facet responses', function (): void {
 
 it('treats blank starmap facet inputs as broad cache requests', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
-    $systemLocation->update([
-        'system_uuid' => $systemLocation->uuid,
-    ]);
-
-    StarmapLocationData::factory()
-        ->for($systemLocation, 'location')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-            'type_name' => 'SolarSystem',
-            'type_classification' => 'Solar System',
-        ]);
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Stanton',
+        'system' => 'Stanton',
+        'type_name' => 'SolarSystem',
+        'data' => ['type' => ['classification' => 'Solar System']],
+    ], $systemLocation);
 
     $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
 
-    $this->getJson(route('starmap-locations.filters', [
+    $this->getJson(route('locations.filters', [
         'version' => $this->defaultVersion->code,
         'filter' => ['type_name' => ''],
     ]))->assertOk();

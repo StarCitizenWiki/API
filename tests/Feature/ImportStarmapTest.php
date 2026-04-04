@@ -80,12 +80,16 @@ it('imports starmap data synchronously for a version', function (): void {
         ->assertExitCode(Command::SUCCESS)
         ->expectsOutput('Imported starmap data for version 4.1.0.');
 
+    $childData = StarmapLocationData::query()
+        ->whereHas('location', fn ($query) => $query->where('uuid', $childUuid))
+        ->first();
+
     expect(StarmapLocation::query()->count())->toBe(2)
         ->and(StarmapLocationData::query()->count())->toBe(2)
-        ->and(StarmapLocation::query()->firstWhere('uuid', $childUuid)?->system_uuid)->toBe($systemUuid);
+        ->and($childData?->system)->toBe('Stanton');
 });
 
-it('imports starmap hierarchy, tags, amenities, and system uuids and upserts on re-run', function (): void {
+it('imports starmap hierarchy, tags, amenities, and system names and upserts on re-run', function (): void {
     Storage::fake('scunpacked');
 
     $version = GameVersion::factory()->create([
@@ -222,11 +226,8 @@ it('imports starmap hierarchy, tags, amenities, and system uuids and upserts on 
     $stationLocation = StarmapLocation::query()->firstWhere('uuid', $stationUuid);
 
     expect($systemLocation)->not->toBeNull()
-        ->and($systemLocation->system_uuid)->toBe($systemUuid)
         ->and($planetLocation)->not->toBeNull()
-        ->and($planetLocation->system_uuid)->toBe($systemUuid)
-        ->and($stationLocation)->not->toBeNull()
-        ->and($stationLocation->system_uuid)->toBe($systemUuid);
+        ->and($stationLocation)->not->toBeNull();
 
     $systemData = StarmapLocationData::query()->whereBelongsTo($systemLocation, 'location')->first();
     $planetData = StarmapLocationData::query()->whereBelongsTo($planetLocation, 'location')->first();
@@ -235,6 +236,9 @@ it('imports starmap hierarchy, tags, amenities, and system uuids and upserts on 
     expect($systemData)->not->toBeNull()
         ->and($planetData)->not->toBeNull()
         ->and($stationData)->not->toBeNull()
+        ->and($systemData->system)->toBe('Stanton')
+        ->and($planetData->system)->toBe('Stanton')
+        ->and($stationData->system)->toBe('Stanton')
         ->and($planetData->parent_data_id)->toBe($systemData->id)
         ->and($stationData->parent_data_id)->toBe($planetData->id)
         ->and($stationData->jurisdiction_name)->toBe('UEE')
@@ -273,7 +277,7 @@ it('imports starmap hierarchy, tags, amenities, and system uuids and upserts on 
         ->and($stationData->amenities()->pluck('name')->all())->toBe(['Docking']);
 });
 
-it('repairs stale system uuids when the starmap import command is rerun', function (): void {
+it('repairs stale system names when the starmap import command is rerun', function (): void {
     Storage::fake('scunpacked');
 
     $version = GameVersion::factory()->create([
@@ -285,12 +289,10 @@ it('repairs stale system uuids when the starmap import command is rerun', functi
 
     $systemLocation = StarmapLocation::query()->create([
         'uuid' => $systemUuid,
-        'system_uuid' => null,
     ]);
 
     $planetLocation = StarmapLocation::query()->create([
         'uuid' => $planetUuid,
-        'system_uuid' => null,
     ]);
 
     StarmapLocationData::query()->create([
@@ -299,22 +301,21 @@ it('repairs stale system uuids when the starmap import command is rerun', functi
         'parent_data_id' => null,
         'location_hierarchy_entity_tag_id' => null,
         'name' => 'Old Stanton',
+        'system' => null,
         'description' => null,
         'type_name' => 'SolarSystem',
-        'type_classification' => 'Solar System',
-        'respawn_location_type' => 'None',
         'size' => 400,
-        'minimum_display_size' => 0,
         'is_scannable' => false,
-        'hide_in_starmap' => false,
-        'hide_in_world' => false,
         'block_travel' => false,
-        'jurisdiction_name' => null,
-        'jurisdiction_is_prison' => null,
-        'affiliation_name' => null,
-        'quantum_travel' => null,
-        'asteroid_ring' => null,
-        'data' => [],
+        'data' => [
+            'type' => [
+                'classification' => 'Solar System',
+            ],
+            'respawnLocationType' => 'None',
+            'minimumDisplaySize' => 0,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+        ],
     ]);
 
     StarmapLocationData::query()->create([
@@ -323,22 +324,21 @@ it('repairs stale system uuids when the starmap import command is rerun', functi
         'parent_data_id' => null,
         'location_hierarchy_entity_tag_id' => null,
         'name' => 'Old ArcCorp',
+        'system' => null,
         'description' => null,
         'type_name' => 'Planet',
-        'type_classification' => 'Planet',
-        'respawn_location_type' => 'None',
         'size' => 120,
-        'minimum_display_size' => 5,
         'is_scannable' => false,
-        'hide_in_starmap' => false,
-        'hide_in_world' => false,
         'block_travel' => false,
-        'jurisdiction_name' => null,
-        'jurisdiction_is_prison' => null,
-        'affiliation_name' => null,
-        'quantum_travel' => null,
-        'asteroid_ring' => null,
-        'data' => [],
+        'data' => [
+            'type' => [
+                'classification' => 'Planet',
+            ],
+            'respawnLocationType' => 'None',
+            'minimumDisplaySize' => 5,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+        ],
     ]);
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
@@ -394,8 +394,214 @@ it('repairs stale system uuids when the starmap import command is rerun', functi
         ->assertExitCode(Command::SUCCESS)
         ->expectsOutput('Imported starmap data for version 4.1.2.');
 
-    expect($systemLocation->fresh()?->system_uuid)->toBe($systemUuid)
-        ->and($planetLocation->fresh()?->system_uuid)->toBe($systemUuid);
+    expect($systemLocation->fresh()?->dataForVersion($version->code)->first()?->system)->toBe('Stanton')
+        ->and($planetLocation->fresh()?->dataForVersion($version->code)->first()?->system)->toBe('Stanton');
+});
+
+it('maps root stars to the solar system name when the source omits a parent uuid', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.1.21',
+    ]);
+
+    $solarSystemUuid = fake()->uuid();
+    $starUuid = fake()->uuid();
+
+    Storage::disk('scunpacked')->put('starmap.json', json_encode([
+        [
+            'uuid' => $solarSystemUuid,
+            'name' => 'Stanton System',
+            'description' => 'System record',
+            'parentUuid' => null,
+            'respawnLocationType' => 'None',
+            'isScannable' => false,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+            'blockTravel' => false,
+            'size' => 400,
+            'minimumDisplaySize' => 0,
+            'quantumTravel' => null,
+            'locationHierarchyTag' => null,
+            'type' => [
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+            ],
+            'jurisdiction' => null,
+            'affiliation' => null,
+            'asteroidRing' => null,
+            'amenities' => [],
+        ],
+        [
+            'uuid' => $starUuid,
+            'name' => 'Stanton',
+            'description' => 'Root star',
+            'parentUuid' => null,
+            'respawnLocationType' => 'None',
+            'isScannable' => false,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+            'blockTravel' => false,
+            'size' => 696000000,
+            'minimumDisplaySize' => 0,
+            'quantumTravel' => null,
+            'locationHierarchyTag' => null,
+            'type' => [
+                'name' => 'Star',
+                'classification' => 'Star',
+            ],
+            'jurisdiction' => null,
+            'affiliation' => null,
+            'asteroidRing' => null,
+            'amenities' => [],
+        ],
+    ], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-starmap', ['version' => $version->code])
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Imported starmap data for version 4.1.21.');
+
+    $solarSystemLocation = StarmapLocation::query()->firstWhere('uuid', $solarSystemUuid);
+    $starLocation = StarmapLocation::query()->firstWhere('uuid', $starUuid);
+
+    $solarSystemData = StarmapLocationData::query()->whereBelongsTo($solarSystemLocation, 'location')->first();
+    $starData = StarmapLocationData::query()->whereBelongsTo($starLocation, 'location')->first();
+
+    expect($solarSystemLocation)->not->toBeNull()
+        ->and($starLocation)->not->toBeNull()
+        ->and($solarSystemData)->not->toBeNull()
+        ->and($starData)->not->toBeNull()
+        ->and($solarSystemData->system)->toBe('Stanton System')
+        ->and($starData->system)->toBe('Stanton System')
+        ->and($solarSystemData->star_data_id)->toBeNull()
+        ->and($starData->star_data_id)->toBe($starData->id)
+        ->and($starData->parent_data_id)->toBeNull()
+        ->and($solarSystemData->children()->pluck('name')->all())->toBe([]);
+});
+
+it('repairs stale system data for detached stars when the starmap import command is rerun', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.1.22',
+    ]);
+
+    $solarSystemUuid = fake()->uuid();
+    $starUuid = fake()->uuid();
+
+    $solarSystemLocation = StarmapLocation::query()->create([
+        'uuid' => $solarSystemUuid,
+    ]);
+
+    $starLocation = StarmapLocation::query()->create([
+        'uuid' => $starUuid,
+    ]);
+
+    $solarSystemData = StarmapLocationData::query()->create([
+        'starmap_location_id' => $solarSystemLocation->id,
+        'game_version_id' => $version->id,
+        'parent_data_id' => null,
+        'location_hierarchy_entity_tag_id' => null,
+        'name' => 'Old Stanton System',
+        'system' => null,
+        'description' => null,
+        'type_name' => 'SolarSystem',
+        'size' => 400,
+        'is_scannable' => false,
+        'block_travel' => false,
+        'data' => [
+            'type' => [
+                'classification' => 'Solar System',
+            ],
+            'respawnLocationType' => 'None',
+            'minimumDisplaySize' => 0,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+        ],
+    ]);
+
+    $starData = StarmapLocationData::query()->create([
+        'starmap_location_id' => $starLocation->id,
+        'game_version_id' => $version->id,
+        'parent_data_id' => null,
+        'location_hierarchy_entity_tag_id' => null,
+        'name' => 'Old Stanton',
+        'system' => null,
+        'description' => null,
+        'type_name' => 'Star',
+        'size' => 696000000,
+        'is_scannable' => false,
+        'block_travel' => false,
+        'data' => [
+            'type' => [
+                'classification' => 'Star',
+            ],
+            'respawnLocationType' => 'None',
+            'minimumDisplaySize' => 0,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+        ],
+    ]);
+
+    Storage::disk('scunpacked')->put('starmap.json', json_encode([
+        [
+            'uuid' => $solarSystemUuid,
+            'name' => 'Stanton System',
+            'description' => 'System record',
+            'parentUuid' => null,
+            'respawnLocationType' => 'None',
+            'isScannable' => false,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+            'blockTravel' => false,
+            'size' => 400,
+            'minimumDisplaySize' => 0,
+            'quantumTravel' => null,
+            'locationHierarchyTag' => null,
+            'type' => [
+                'name' => 'SolarSystem',
+                'classification' => 'Solar System',
+            ],
+            'jurisdiction' => null,
+            'affiliation' => null,
+            'asteroidRing' => null,
+            'amenities' => [],
+        ],
+        [
+            'uuid' => $starUuid,
+            'name' => 'Stanton',
+            'description' => 'Root star',
+            'parentUuid' => null,
+            'respawnLocationType' => 'None',
+            'isScannable' => false,
+            'hideInStarmap' => false,
+            'hideInWorld' => false,
+            'blockTravel' => false,
+            'size' => 696000000,
+            'minimumDisplaySize' => 0,
+            'quantumTravel' => null,
+            'locationHierarchyTag' => null,
+            'type' => [
+                'name' => 'Star',
+                'classification' => 'Star',
+            ],
+            'jurisdiction' => null,
+            'affiliation' => null,
+            'asteroidRing' => null,
+            'amenities' => [],
+        ],
+    ], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-starmap', ['version' => $version->code])
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Imported starmap data for version 4.1.22.');
+
+    expect($solarSystemData->fresh()?->system)->toBe('Stanton System')
+        ->and($starData->fresh()?->system)->toBe('Stanton System')
+        ->and($solarSystemData->fresh()?->parent_data_id)->toBeNull()
+        ->and($solarSystemData->fresh()?->star_data_id)->toBeNull()
+        ->and($starData->fresh()?->star_data_id)->toBe($starData->id)
+        ->and($starData->fresh()?->parent_data_id)->toBeNull();
 });
 
 it('maps descendants of a root star to the matching solar system uuid', function (): void {
@@ -509,13 +715,23 @@ it('maps descendants of a root star to the matching solar system uuid', function
         ->assertExitCode(Command::SUCCESS)
         ->expectsOutput('Imported starmap data for version 4.1.3.');
 
-    expect(StarmapLocation::query()->firstWhere('uuid', $solarSystemUuid)?->system_uuid)->toBe($solarSystemUuid)
-        ->and(StarmapLocation::query()->firstWhere('uuid', $starUuid)?->system_uuid)->toBe($solarSystemUuid)
-        ->and(StarmapLocation::query()->firstWhere('uuid', $planetUuid)?->system_uuid)->toBe($solarSystemUuid)
-        ->and(StarmapLocation::query()->firstWhere('uuid', $outpostUuid)?->system_uuid)->toBe($solarSystemUuid);
+    $starLocation = StarmapLocation::query()->firstWhere('uuid', $starUuid);
+    $planetLocation = StarmapLocation::query()->firstWhere('uuid', $planetUuid);
+    $outpostLocation = StarmapLocation::query()->firstWhere('uuid', $outpostUuid);
+    $starData = StarmapLocationData::query()->whereBelongsTo($starLocation, 'location')->first();
+    $planetData = StarmapLocationData::query()->whereBelongsTo($planetLocation, 'location')->first();
+    $outpostData = StarmapLocationData::query()->whereBelongsTo($outpostLocation, 'location')->first();
+
+    expect(StarmapLocationData::query()->whereHas('location', fn ($query) => $query->where('uuid', $solarSystemUuid))->first()?->system)->toBe('Stanton System')
+        ->and($starData?->system)->toBe('Stanton System')
+        ->and($planetData?->system)->toBe('Stanton System')
+        ->and($outpostData?->system)->toBe('Stanton System')
+        ->and($starData?->star_data_id)->toBe($starData?->id)
+        ->and($planetData?->star_data_id)->toBe($starData?->id)
+        ->and($outpostData?->star_data_id)->toBe($starData?->id);
 });
 
-it('leaves system uuid null when a root star has no matching solar system row', function (): void {
+it('falls back to the root star name when a root star has no matching solar system row', function (): void {
     Storage::fake('scunpacked');
 
     $version = GameVersion::factory()->create([
@@ -578,6 +794,13 @@ it('leaves system uuid null when a root star has no matching solar system row', 
         ->assertExitCode(Command::SUCCESS)
         ->expectsOutput('Imported starmap data for version 4.1.4.');
 
-    expect(StarmapLocation::query()->firstWhere('uuid', $starUuid)?->system_uuid)->toBeNull()
-        ->and(StarmapLocation::query()->firstWhere('uuid', $planetUuid)?->system_uuid)->toBeNull();
+    $starLocation = StarmapLocation::query()->firstWhere('uuid', $starUuid);
+    $planetLocation = StarmapLocation::query()->firstWhere('uuid', $planetUuid);
+    $starData = StarmapLocationData::query()->whereBelongsTo($starLocation, 'location')->first();
+    $planetData = StarmapLocationData::query()->whereBelongsTo($planetLocation, 'location')->first();
+
+    expect($starData?->system)->toBe('Orion')
+        ->and($planetData?->system)->toBe('Orion')
+        ->and($starData?->star_data_id)->toBe($starData?->id)
+        ->and($planetData?->star_data_id)->toBe($starData?->id);
 });

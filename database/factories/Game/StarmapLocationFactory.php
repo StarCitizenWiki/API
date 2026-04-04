@@ -23,7 +23,6 @@ class StarmapLocationFactory extends Factory
     {
         return [
             'uuid' => fake()->uuid(),
-            'system_uuid' => null,
         ];
     }
 }

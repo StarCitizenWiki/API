@@ -102,6 +102,17 @@
     </x-app.sidemenu-item>
 
     <x-app.sidemenu-item
+        :route="'web.locations.index'"
+        route-is="web.locations.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="map-pinned" class="size-4" />
+        </x-slot:icon>
+        Locations
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item
         :route="'web.items.index'"
         test-id="items-menu-all-items"
         :active-when-filters-empty="true"
@@ -528,16 +539,6 @@
             <x-icon name="star" class="size-4" />
         </x-slot:icon>
         Celestial Objects
-    </x-app.sidemenu-item>
-    <x-app.sidemenu-item
-        :route="'web.starmap.locations.index'"
-        route-is="web.starmap.locations.*"
-        :with-version="false"
-    >
-        <x-slot:icon>
-            <x-icon name="map-pinned" class="size-4" />
-        </x-slot:icon>
-        Locations
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 
