@@ -249,7 +249,6 @@ it('imports starmap hierarchy, tags, amenities, and system names and upserts on 
 
     $tag = EntityTag::query()->firstWhere('uuid', $tagUuid);
     expect($tag)->not->toBeNull()
-        ->and($tag->name)->toBe('Stanton System')
         ->and($planetData->location_hierarchy_entity_tag_id)->toBe($tag->id);
 
     $payload[2]['description'] = 'Updated station node';

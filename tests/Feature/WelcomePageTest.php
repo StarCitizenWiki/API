@@ -33,7 +33,7 @@ it('renders the welcome page categories for guests', function (): void {
         route('web.vehicles.index'),
         route('web.comm-links.search'),
         route('web.starmap.systems.index'),
-        route('web.starmap.locations.index'),
+        route('web.locations.index'),
     ]);
 
     expect($crawler->filter('[data-testid="welcome-search-items"] .btn.btn-primary')->count())->toBe(1)
