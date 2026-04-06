@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Blueprints;
 
-use Carbon\CarbonInterval;
+use App\Support\Formatting\FormatDuration;
 use Illuminate\Support\Str;
 
 final class BlueprintShowViewData
@@ -62,6 +62,34 @@ final class BlueprintShowViewData
             ?? $this->normalizeString(data_get($normalizedBlueprint, 'output_item_web_url'));
         $apiLink = $this->normalizeString(data_get($normalizedBlueprint, 'link'));
         $unlockSources = $this->buildUnlockSources($rewardPools);
+        $dismantle = is_array(data_get($normalizedBlueprint, 'dismantle'))
+            ? data_get($normalizedBlueprint, 'dismantle')
+            : [];
+        $dismantleTimeSeconds = data_get($dismantle, 'time_seconds');
+        $dismantleTimeLabel = self::formatCraftTime($dismantleTimeSeconds);
+        $dismantleEfficiency = is_numeric(data_get($dismantle, 'efficiency'))
+            ? data_get($dismantle, 'efficiency') + 0
+            : null;
+        $dismantleReturns = is_array(data_get($dismantle, 'returns'))
+            ? array_values(array_filter(
+                array_map(static function (mixed $return): ?array {
+                    if (! is_array($return)) {
+                        return null;
+                    }
+
+                    return [
+                        'name' => is_string(data_get($return, 'name')) ? data_get($return, 'name') : null,
+                        'resource_type_uuid' => is_string(data_get($return, 'resource_type_uuid')) ? data_get($return, 'resource_type_uuid') : null,
+                        'quantity_scu' => is_numeric(data_get($return, 'quantity_scu')) ? data_get($return, 'quantity_scu') + 0 : null,
+                        'web_url' => is_string(data_get($return, 'web_url')) ? data_get($return, 'web_url') : null,
+                    ];
+                }, data_get($dismantle, 'returns')),
+                static fn (?array $return): bool => $return !== null,
+            ))
+            : [];
+        $hasDismantleData = $dismantleTimeSeconds !== null
+            || $dismantleEfficiency !== null
+            || $dismantleReturns !== [];
         $canonicalUrl = $isEmptyMode
             ? route('web.blueprints.search', array_filter([
                 'version' => $resolvedVersionCode,
@@ -83,7 +111,7 @@ final class BlueprintShowViewData
         $searchApiEndpoint = $this->normalizeString(data_get($normalizedSearch, 'api_endpoint'))
             ?? route('blueprints.index', [], false);
         $resourceTypesEndpoint = $this->normalizeString(data_get($normalizedSearch, 'resource_types_endpoint'))
-            ?? route('resource-types.index', ['filter' => ['used' => 'true']], false);
+            ?? route('commodities.index', ['filter' => ['used' => 'true']], false);
         $selectedIngredientResourceTypeUuids = array_values(array_filter(
             array_map(
                 static fn (string $uuid): string => trim($uuid),
@@ -109,7 +137,7 @@ final class BlueprintShowViewData
         $hasSearchFilters = $searchQuery !== '' || $selectedIngredientResourceTypeUuids !== [];
         $renderSearchResultCount = $hasSearchFilters ? $searchResultCount : count($initialSearchResults);
         $summaryPropertyList = $this->normalizeArrayList($summaryProperties);
-        $aspectState = $this->buildAspectState($requirementGroups);
+        $aspectState = $this->buildAspectState($requirementGroups, $resolvedVersionCode);
         $clientPayload = $this->encodeHtmlSafeJson([
             'search' => [
                 'apiEndpoint' => $searchApiEndpoint,
@@ -150,6 +178,10 @@ final class BlueprintShowViewData
             'outputItemWebUrl' => $outputItemWebUrl,
             'apiLink' => $apiLink,
             'unlockSources' => $unlockSources,
+            'hasDismantleData' => $hasDismantleData,
+            'dismantleTimeLabel' => $dismantleTimeLabel,
+            'dismantleEfficiency' => $dismantleEfficiency,
+            'dismantleReturns' => $dismantleReturns,
             'canonicalUrl' => $canonicalUrl,
             'metaDescription' => $metaDescription,
             'rawBlueprintJson' => $rawBlueprintJson,
@@ -261,7 +293,7 @@ final class BlueprintShowViewData
      *     hasInteractiveAspects: bool
      * }
      */
-    private function buildAspectState(array $requirementGroups): array
+    private function buildAspectState(array $requirementGroups, ?string $resolvedVersionCode = null): array
     {
         $aspects = [];
 
@@ -298,6 +330,7 @@ final class BlueprintShowViewData
                     $groupKey,
                     $groupRequiredCount,
                     $topLevelSelectionGroup,
+                    $resolvedVersionCode,
                 ),
             ];
         }
@@ -416,6 +449,7 @@ final class BlueprintShowViewData
         ?string $aspectKey = null,
         ?int $requiredCount = null,
         ?array $selectionGroup = null,
+        ?string $resolvedVersionCode = null,
     ): array {
         $aspects = [];
 
@@ -459,6 +493,7 @@ final class BlueprintShowViewData
                         $resolvedAspectKey,
                         $resolvedRequiredCount,
                         $nextSelectionGroup,
+                        $resolvedVersionCode,
                     ),
                 ];
 
@@ -466,6 +501,15 @@ final class BlueprintShowViewData
             }
 
             $inputName = data_get($node, 'name') ?? 'Unknown input';
+            $inputUuid = data_get($node, 'uuid');
+            $inputWebUrl = null;
+
+            if ($kind === 'resource' && is_string($inputUuid) && Str::isUuid($inputUuid)) {
+                $inputWebUrl = route('web.commodities.show', array_filter([
+                    'identifier' => $inputUuid,
+                    'version' => $resolvedVersionCode,
+                ]));
+            }
 
             $aspects[] = [
                 'key' => $aspectKey ?? data_get($node, 'key') ?? Str::slug((string) $inputName),
@@ -474,11 +518,12 @@ final class BlueprintShowViewData
                 'selection_group' => $selectionGroup,
                 'input' => [
                     'kind' => $kind !== '' ? $kind : 'input',
-                    'uuid' => data_get($node, 'uuid'),
+                    'uuid' => $inputUuid,
                     'name' => $inputName,
                     'quantity' => is_numeric(data_get($node, 'quantity')) ? data_get($node, 'quantity') + 0 : null,
                     'quantity_scu' => is_numeric(data_get($node, 'quantity_scu')) ? data_get($node, 'quantity_scu') + 0 : null,
                     'min_quality' => is_numeric(data_get($node, 'min_quality')) ? (int) data_get($node, 'min_quality') : 0,
+                    'web_url' => $inputWebUrl,
                 ],
                 'modifiers' => $combinedModifiers,
             ];
@@ -528,8 +573,13 @@ final class BlueprintShowViewData
             $this->pushIngredient($ingredients, $ingredientName, null);
         }
 
-        foreach ($this->normalizeStringList(data_get($blueprint, 'ingredient_resource_type_uuids')) as $resourceTypeUuid) {
-            $this->pushIngredient($ingredients, null, $resourceTypeUuid);
+        foreach ($this->normalizeIngredientList(data_get($blueprint, 'ingredients')) as $ingredient) {
+            $uuid = $this->normalizeString(data_get($ingredient, 'resource_type_uuid'));
+            $name = $this->normalizeString(data_get($ingredient, 'name'));
+
+            if ($uuid !== null || $name !== null) {
+                $this->pushIngredient($ingredients, $name, $uuid);
+            }
         }
 
         if ($ingredients !== []) {
@@ -678,19 +728,7 @@ final class BlueprintShowViewData
 
     private static function formatCraftTime(mixed $seconds): ?string
     {
-        if (! is_numeric($seconds)) {
-            return null;
-        }
-
-        $normalizedSeconds = max(0, (int) round((float) $seconds));
-
-        if ($normalizedSeconds <= 60) {
-            return $normalizedSeconds.' seconds';
-        }
-
-        return CarbonInterval::seconds($normalizedSeconds)->cascade()->forHumans([
-            'parts' => 2,
-        ]);
+        return FormatDuration::fromSeconds($seconds);
     }
 
     private static function formatAspectAmount(array $aspect): ?string

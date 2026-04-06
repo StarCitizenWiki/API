@@ -330,6 +330,20 @@
                 />
             </section>
 
+            @php
+                $locationResources = data_get($location, 'resources', []);
+                $resourceGroupCount = is_array($locationResources) ? count($locationResources) : 0;
+            @endphp
+
+            @if ($resourceGroupCount > 0)
+                <section class="space-y-4" data-testid="starmap-location-resources-section">
+                    <h2 class="text-lg font-semibold tracking-tight">Resources</h2>
+
+                    <x-starmap.locations.resources-card :resources="$locationResources" />
+                    <x-starmap.locations.area-boosts-card :areas="data_get($location, 'area_boosts', [])" />
+                </section>
+            @endif
+
             <section class="space-y-4">
                 <h2 class="text-lg font-semibold tracking-tight">Location Details</h2>
 

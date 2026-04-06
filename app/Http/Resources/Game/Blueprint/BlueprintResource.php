@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Blueprint;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Support\Formatting\FormatDuration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -188,6 +189,61 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'name', type: 'string', nullable: true),
         new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_resource_summary',
+    title: 'Blueprint Resource Summary',
+    description: 'Combined unique resource entry from inputs and dismantle returns.',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_dismantle_return_summary',
+    title: 'Blueprint Dismantle Return Summary',
+    description: 'Lightweight dismantle return entry used by blueprint list responses.',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_dismantle_return',
+    title: 'Blueprint Dismantle Return',
+    description: 'A resource returned when dismantling a blueprint output.',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_dismantle',
+    title: 'Blueprint Dismantle',
+    description: 'Dismantle metadata for a blueprint. Only included on blueprint detail responses.',
+    properties: [
+        new OA\Property(property: 'time_seconds', type: 'integer', nullable: true),
+        new OA\Property(property: 'time_label', type: 'string', nullable: true),
+        new OA\Property(property: 'efficiency', type: 'number', format: 'float', nullable: true),
+        new OA\Property(
+            property: 'returns',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_dismantle_return')
+        ),
     ],
     type: 'object'
 )]
@@ -202,6 +258,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'output_name', type: 'string', nullable: true),
         new OA\Property(property: 'output_class', type: 'string', nullable: true),
         new OA\Property(property: 'craft_time_seconds', type: 'integer', nullable: true),
+        new OA\Property(property: 'craft_time_label', type: 'string', nullable: true),
         new OA\Property(property: 'is_available_by_default', type: 'boolean'),
         new OA\Property(property: 'game_version', type: 'string', nullable: true),
         new OA\Property(property: 'ingredient_count', type: 'integer'),
@@ -210,10 +267,25 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_ingredient')
         ),
+        new OA\Property(
+            property: 'dismantle_returns',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_dismantle_return_summary')
+        ),
+        new OA\Property(
+            property: 'resources',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_resource_summary')
+        ),
         new OA\Property(property: 'output', ref: '#/components/schemas/blueprint_output'),
         new OA\Property(
             property: 'availability',
             ref: '#/components/schemas/blueprint_availability',
+            description: 'Only included on blueprint detail responses.'
+        ),
+        new OA\Property(
+            property: 'dismantle',
+            ref: '#/components/schemas/blueprint_dismantle',
             description: 'Only included on blueprint detail responses.'
         ),
         new OA\Property(
@@ -242,6 +314,8 @@ use OpenApi\Attributes as OA;
 )]
 class BlueprintResource extends AbstractBaseResource
 {
+    private ?array $normalizedPayload = null;
+
     public function toArray(Request $request): array
     {
         $payload = $this->rawPayload();
@@ -254,15 +328,19 @@ class BlueprintResource extends AbstractBaseResource
             'output_name' => $this->output_name,
             'output_class' => $this->output_class,
             'craft_time_seconds' => $this->craft_time_seconds,
+            'craft_time_label' => FormatDuration::fromSeconds($this->craft_time_seconds),
             'is_available_by_default' => $this->is_available_by_default,
             'game_version' => $this->gameVersion?->code,
             'ingredient_count' => $this->ingredientCount($payload),
-            'ingredients' => $this->ingredients($payload),
+            'ingredients' => $this->ingredients($payload, $request),
+            'dismantle_returns' => $this->dismantleReturnsList($request),
+            'resources' => $this->resourcesList($payload, $request),
             'output' => $this->outputPayload($request, $payload),
             'web_url' => $this->webUrl($request),
             'output_item_web_url' => $this->whenNotNull($this->outputItemWebUrl($request)),
             $this->mergeWhen($this->shouldIncludeDetailFields($request), [
                 'availability' => $this->availabilityPayload($payload),
+                'dismantle' => $this->dismantlePayload($payload, $request),
                 'requirement_groups' => $this->requirementGroups($payload),
                 'summary_properties' => $this->summaryProperties($payload),
             ]),
@@ -287,13 +365,48 @@ class BlueprintResource extends AbstractBaseResource
      */
     private function rawPayload(): array
     {
+        if ($this->normalizedPayload !== null) {
+            return $this->normalizedPayload;
+        }
+
         $payload = $this->resource->data;
 
         if ($payload instanceof Collection) {
-            return $payload->toArray();
+            $payload = $payload->toArray();
         }
 
-        return is_array($payload) ? $payload : [];
+        $payload = is_array($payload) ? $payload : [];
+
+        $this->normalizedPayload = $this->normalizePayloadKeys($payload);
+
+        return $this->normalizedPayload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function normalizePayloadKeys(array $payload): array
+    {
+        $normalized = [];
+
+        foreach ($payload as $key => $value) {
+            $normalizedKey = is_string($key) ? $this->normalizeKey($key) : $key;
+            $normalized[$normalizedKey] = is_array($value) ? $this->normalizePayloadKeys($value) : $value;
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeKey(string $key): string
+    {
+        $key = preg_replace_callback(
+            '/[A-Z]{2,}/',
+            static fn (array $m): string => ucfirst(strtolower($m[0])),
+            $key,
+        );
+
+        return Str::snake($key);
     }
 
     private function rawTiers(): array
@@ -361,6 +474,101 @@ class BlueprintResource extends AbstractBaseResource
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function dismantlePayload(array $payload, Request $request): array
+    {
+        $dismantle = data_get($payload, 'dismantle');
+        $dismantle = is_array($dismantle) ? $dismantle : [];
+
+        $timeSeconds = $this->integerValue($dismantle['time_seconds'] ?? null);
+
+        $returns = $this->resource->relationLoaded('dismantleReturns')
+            ? $this->resource->dismantleReturns
+            : collect();
+
+        return [
+            'time_seconds' => $timeSeconds,
+            'time_label' => FormatDuration::fromSeconds($timeSeconds),
+            'efficiency' => $this->numericValue($dismantle['efficiency'] ?? null),
+            'returns' => $returns->map(fn ($commodity): array => [
+                'name' => $this->stringValue($commodity->name),
+                'resource_type_uuid' => $this->stringValue($commodity->uuid),
+                'quantity_scu' => $this->numericValue($commodity->pivot->quantity_scu ?? null),
+                'link' => $this->urlWithVersion(
+                    route('commodities.show', ['commodity' => $commodity->uuid]),
+                    $request,
+                ),
+                'web_url' => $this->urlWithVersion(
+                    route('web.commodities.show', ['identifier' => $commodity->uuid]),
+                    $request,
+                ),
+            ])->values()->all(),
+        ];
+    }
+
+    /**
+     * @return array<int, array{name: ?string, resource_type_uuid: ?string, quantity_scu: int|float|null, link: ?string, web_url: ?string}>
+     */
+    private function dismantleReturnsList(Request $request): array
+    {
+        $returns = $this->resource->relationLoaded('dismantleReturns')
+            ? $this->resource->dismantleReturns
+            : collect();
+
+        return $returns->map(fn ($commodity): array => [
+            'name' => $this->stringValue($commodity->name),
+            'resource_type_uuid' => $this->stringValue($commodity->uuid),
+            'quantity_scu' => $this->numericValue($commodity->pivot->quantity_scu ?? null),
+            'link' => $this->urlWithVersion(
+                route('commodities.show', ['commodity' => $commodity->uuid]),
+                $request,
+            ),
+            'web_url' => $this->urlWithVersion(
+                route('web.commodities.show', ['identifier' => $commodity->uuid]),
+                $request,
+            ),
+        ])->values()->all();
+    }
+
+    /**
+     * @return array<int, array{name: ?string, resource_type_uuid: ?string}>
+     */
+    private function resourcesList(array $payload, Request $request): array
+    {
+        $merged = [];
+
+        foreach ($this->ingredients($payload, $request) as $ingredient) {
+            $uuid = $ingredient['resource_type_uuid'] ?? null;
+            $key = $uuid ?? $ingredient['name'];
+
+            if ($key !== null && ! isset($merged[$key])) {
+                $merged[$key] = [
+                    'name' => $ingredient['name'],
+                    'resource_type_uuid' => $uuid,
+                ];
+            }
+        }
+
+        if ($this->resource->relationLoaded('dismantleReturns')) {
+            foreach ($this->resource->dismantleReturns as $commodity) {
+                $uuid = $this->stringValue($commodity->uuid);
+                $key = $uuid ?? $commodity->name;
+
+                if ($key !== null && ! isset($merged[$key])) {
+                    $merged[$key] = [
+                        'name' => $this->stringValue($commodity->name),
+                        'resource_type_uuid' => $uuid,
+                    ];
+                }
+            }
+        }
+
+        return array_values($merged);
+    }
+
     private function ingredientCount(array $payload): int
     {
         $ingredientCount = 0;
@@ -375,16 +583,16 @@ class BlueprintResource extends AbstractBaseResource
             return $ingredientCount;
         }
 
-        $ingredientResourceTypeUuids = $this->ingredient_resource_type_uuids ?? [];
+        $ingredientResourceTypeUuids = $this->ingredients->pluck('uuid')->all();
 
-        return is_array($ingredientResourceTypeUuids) ? count($ingredientResourceTypeUuids) : 0;
+        return count($ingredientResourceTypeUuids);
     }
 
     /**
      * @param  array<string, mixed>  $payload
-     * @return array<int, array{name: ?string, resource_type_uuid: ?string}>
+     * @return array<int, array{name: ?string, resource_type_uuid: ?string, quantity_scu: int|float|null, link: ?string, web_url: ?string}>
      */
-    private function ingredients(array $payload): array
+    private function ingredients(array $payload, Request $request): array
     {
         $ingredients = [];
 
@@ -395,7 +603,11 @@ class BlueprintResource extends AbstractBaseResource
             );
         }
 
-        $ingredientResourceTypeUuids = $this->ingredient_resource_type_uuids ?? [];
+        $loadedIngredients = $this->resource->relationLoaded('ingredients')
+            ? $this->resource->ingredients->keyBy('uuid')
+            : collect();
+
+        $ingredientResourceTypeUuids = $this->ingredients->pluck('uuid')->all();
 
         if (is_array($ingredientResourceTypeUuids)) {
             foreach ($ingredientResourceTypeUuids as $ingredientResourceTypeUuid) {
@@ -405,14 +617,43 @@ class BlueprintResource extends AbstractBaseResource
                     continue;
                 }
 
+                $commodity = $loadedIngredients->get($resourceTypeUuid);
+
                 $ingredients[$resourceTypeUuid] = [
-                    'name' => null,
+                    'name' => $commodity ? $this->stringValue($commodity->name) : null,
                     'resource_type_uuid' => $resourceTypeUuid,
+                    'quantity_scu' => null,
+                    'link' => null,
+                    'web_url' => null,
                 ];
             }
         }
 
-        return array_values($ingredients);
+        foreach ($ingredients as $key => $ingredient) {
+            if ($ingredient['name'] === null && $ingredient['resource_type_uuid'] !== null) {
+                $commodity = $loadedIngredients->get($ingredient['resource_type_uuid']);
+                if ($commodity !== null) {
+                    $ingredients[$key]['name'] = $this->stringValue($commodity->name);
+                }
+            }
+        }
+
+        return array_values(array_map(function (array $ingredient) use ($request): array {
+            $uuid = $ingredient['resource_type_uuid'];
+
+            if ($uuid !== null && Str::isUuid($uuid)) {
+                $ingredient['link'] = $this->urlWithVersion(
+                    route('commodities.show', ['commodity' => $uuid]),
+                    $request,
+                );
+                $ingredient['web_url'] = $this->urlWithVersion(
+                    route('web.commodities.show', ['identifier' => $uuid]),
+                    $request,
+                );
+            }
+
+            return $ingredient;
+        }, $ingredients));
     }
 
     /**
@@ -585,7 +826,7 @@ class BlueprintResource extends AbstractBaseResource
 
     /**
      * @param  array<int, array<string, mixed>>  $children
-     * @param  array<string, array{name: ?string, resource_type_uuid: ?string}>  $ingredients
+     * @param  array<string, array{name: ?string, resource_type_uuid: ?string, quantity_scu: int|float|null, link: ?string, web_url: ?string}>  $ingredients
      */
     private function collectIngredients(array $children, array &$ingredients): void
     {
@@ -614,10 +855,26 @@ class BlueprintResource extends AbstractBaseResource
                 continue;
             }
 
+            $quantityScu = $this->numericValue($child['quantity_scu'] ?? null);
+
+            if (isset($ingredients[$ingredientKey]) && $quantityScu !== null) {
+                $existing = $ingredients[$ingredientKey]['quantity_scu'];
+                if ($existing !== null) {
+                    $quantityScu = $existing + $quantityScu;
+                }
+            }
+
             $ingredients[$ingredientKey] ??= [
                 'name' => $name,
                 'resource_type_uuid' => $resourceTypeUuid,
+                'quantity_scu' => null,
+                'link' => null,
+                'web_url' => null,
             ];
+
+            if ($quantityScu !== null) {
+                $ingredients[$ingredientKey]['quantity_scu'] = $quantityScu;
+            }
         }
     }
 

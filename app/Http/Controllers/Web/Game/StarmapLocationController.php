@@ -38,6 +38,7 @@ class StarmapLocationController extends Controller
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
+            'externalFilters' => $tableConfig['externalFilters'] ?? [],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
         ]);
     }
@@ -45,7 +46,7 @@ class StarmapLocationController extends Controller
     public function show(Request $request, string $identifier): View
     {
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'children');
+        $apiRequest->query->set('include', 'children,resources');
 
         $payload = $this->apiJsonRequest->request(
             route('locations.show', ['identifier' => $identifier], false),

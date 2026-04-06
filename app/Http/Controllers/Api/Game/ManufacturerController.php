@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -26,17 +27,14 @@ class ManufacturerController extends Controller
      */
     private function buildBaseQuery(Request $request): QueryBuilder
     {
-        $query = QueryBuilder::for(Manufacturer::class, $request)
+        return QueryBuilder::for(Manufacturer::class, $request)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
-            ->where('name', '<>', '');
-
-        if ($request->has('filter.name')) {
-            $query->where('name', 'like', '%'.$request->input('filter.name').'%');
-        }
-
-        return $query->groupBy('name')->orderBy('name');
+            ->where('name', '<>', '')
+            ->allowedFilters(AllowedFilter::partial('name'))
+            ->groupBy('name')
+            ->orderBy('name');
     }
 
     #[OA\Get(

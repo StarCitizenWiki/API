@@ -34,7 +34,7 @@
             @if ($childHighlights !== [])
                 <div class="flex flex-wrap gap-2">
                     @foreach ($childHighlights as $highlight)
-                        <span class="badge badge-sm {{ $highlight['variant'] }}">{{ $highlight['label'] }}</span>
+                        <span class="badge badge-sm {{ $highlight['variant'] }}">@if ($highlight['icon'] ?? null)<x-icon :name="$highlight['icon']" class="size-3" /> @endif{{ $highlight['label'] }}</span>
                     @endforeach
                 </div>
             @endif
@@ -63,7 +63,7 @@
             @if ($childHighlights !== [])
                 <div class="flex flex-wrap gap-2">
                     @foreach ($childHighlights as $highlight)
-                        <span class="badge badge-sm {{ $highlight['variant'] }}">{{ $highlight['label'] }}</span>
+                        <span class="badge badge-sm {{ $highlight['variant'] }}">@if ($highlight['icon'] ?? null)<x-icon :name="$highlight['icon']" class="size-3" /> @endif{{ $highlight['label'] }}</span>
                     @endforeach
                 </div>
             @endif

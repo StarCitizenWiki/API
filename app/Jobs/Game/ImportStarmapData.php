@@ -50,13 +50,14 @@ class ImportStarmapData implements ShouldQueue
 
         DB::transaction(function () use ($entries): void {
             $firstPass = [];
+            $slugMap = [];
 
             foreach ($entries as $entry) {
                 if (! is_array($entry)) {
                     continue;
                 }
 
-                $uuid = $entry['uuid'] ?? null;
+                $uuid = $entry['UUID'] ?? null;
 
                 if ($uuid === null) {
                     continue;
@@ -67,12 +68,19 @@ class ImportStarmapData implements ShouldQueue
                     ['uuid' => $uuid]
                 );
 
+                $name = $this->extractName($entry);
+                $slug = $this->generateUniqueSlug(Str::slug($name), $slugMap);
+                $slugMap[$uuid] = $slug;
+
                 $locationData = StarmapLocationData::query()->updateOrCreate(
                     [
                         'starmap_location_id' => $location->id,
                         'game_version_id' => $this->gameVersionId,
                     ],
-                    $this->mapLocationData($entry)
+                    array_merge(
+                        $this->mapLocationData($entry),
+                        ['slug' => $slug]
+                    )
                 );
 
                 $locationData->amenities()->sync($this->syncAmenities($entry));
@@ -99,28 +107,28 @@ class ImportStarmapData implements ShouldQueue
         return [
             'parent_data_id' => null,
             'star_data_id' => null,
-            'location_hierarchy_entity_tag_id' => EntityTag::query()->where('uuid', Arr::get($entry, 'locationHierarchyTag.uuid'))->first()?->id,
+            'location_hierarchy_entity_tag_id' => EntityTag::query()->where('uuid', Arr::get($entry, 'LocationHierarchyTag.UUID'))->first()?->id,
             'name' => $this->extractName($entry),
-            'description' => $this->normalizeNullableString($entry['description'] ?? null),
+            'description' => $this->normalizeNullableString($entry['Description'] ?? null),
             'type_name' => $this->extractTypeName($entry),
             'system' => null,
-            'size' => is_numeric($entry['size'] ?? null) ? (float) $entry['size'] : null,
-            'is_scannable' => (bool) ($entry['isScannable'] ?? false),
-            'block_travel' => (bool) ($entry['blockTravel'] ?? false),
+            'size' => is_numeric($entry['Size'] ?? null) ? (float) $entry['Size'] : null,
+            'is_scannable' => (bool) ($entry['IsScannable'] ?? false),
+            'block_travel' => (bool) ($entry['BlockTravel'] ?? false),
             'data' => $entry,
         ];
     }
 
     private function extractName(array $entry): string
     {
-        $name = $this->normalizeNullableString($entry['name'] ?? null);
+        $name = $this->normalizeNullableString($entry['Name'] ?? null);
 
-        return $name ?? (string) ($entry['uuid'] ?? 'Unknown Location');
+        return $name ?? (string) ($entry['UUID'] ?? 'Unknown Location');
     }
 
     private function extractTypeName(array $entry): string
     {
-        $typeName = $this->normalizeNullableString(Arr::get($entry, 'type.name'));
+        $typeName = $this->normalizeNullableString(Arr::get($entry, 'Type.Name'));
 
         return $typeName ?? 'Unknown';
     }
@@ -171,7 +179,7 @@ class ImportStarmapData implements ShouldQueue
         }
 
         $currentType = $this->extractTypeName($current);
-        $parentUuid = $this->normalizeNullableString($current['parentUuid'] ?? null);
+        $parentUuid = $this->normalizeNullableString($current['ParentUUID'] ?? null);
         $currentName = $this->extractName($current);
 
         if ($currentType === 'SolarSystem') {
@@ -298,10 +306,10 @@ class ImportStarmapData implements ShouldQueue
      */
     private function syncAmenities(array $entry): array
     {
-        return collect($entry['amenities'] ?? [])
+        return collect($entry['Amenities'] ?? [])
             ->filter(fn (mixed $amenity): bool => is_array($amenity))
             ->map(function (array $amenity): ?int {
-                $uuid = trim($amenity['uuid'] ?? '');
+                $uuid = trim($amenity['UUID'] ?? '');
 
                 if (empty($uuid)) {
                     return null;
@@ -310,8 +318,8 @@ class ImportStarmapData implements ShouldQueue
                 $starmapAmenity = StarmapAmenity::query()->updateOrCreate(
                     ['uuid' => $uuid],
                     [
-                        'name' => $this->normalizeNullableString($amenity['name'] ?? null) ?? $uuid,
-                        'display_name' => $this->normalizeNullableString($amenity['displayName'] ?? null),
+                        'name' => $this->normalizeNullableString($amenity['Name'] ?? null) ?? $uuid,
+                        'display_name' => $this->normalizeNullableString($amenity['DisplayName'] ?? null),
                     ]
                 );
 
@@ -335,5 +343,25 @@ class ImportStarmapData implements ShouldQueue
         }
 
         return $value;
+    }
+
+    /**
+     * Generate a unique slug for starmap location data.
+     * Checks the database and local batch map, appending a counter if the slug already exists.
+     *
+     * @param  string  $baseSlug  The base slug to start with
+     * @param  array<string, string>  $slugMap  Local map of already generated slugs in this batch
+     */
+    private function generateUniqueSlug(string $baseSlug, array $slugMap): string
+    {
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (isset($slugMap[$slug]) || StarmapLocationData::query()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

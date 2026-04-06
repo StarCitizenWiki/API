@@ -43,13 +43,53 @@
     </div>
 @endif
 
-<div
-    id="{{ $id }}"
-    data-tabulator
-    data-tabulator-id="{{ $id }}"
-    data-testid="tabulator-table-{{ $id }}"
-    class="w-full shadow"
-></div>
+@if (!empty($config['externalFilters']))
+    <div class="card card-border border-base-300 bg-base-100 shadow" data-testid="tabulator-external-filters-{{ $id }}">
+        <div class="flex flex-wrap items-end gap-3 px-4 pt-4 pb-2" data-testid="tabulator-external-filters-bar-{{ $id }}">
+            @foreach ($config['externalFilters'] as $filter)
+                <label class="form-control">
+                    <div class="label">
+                        <span class="label-text text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            {{ $filter['title'] }}
+                        </span>
+                    </div>
+                    <select
+                        class="select select-bordered select-sm"
+                        data-external-filter="{{ $filter['field'] }}"
+                        data-testid="tabulator-external-filter-{{ $filter['field'] }}"
+                        @isset($filter['options'])
+                            data-external-filter-static
+                        @endisset
+                    >
+                        @isset($filter['options'])
+                            @foreach ($filter['options'] as $option)
+                                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                            @endforeach
+                        @else
+                            <option value="">All</option>
+                        @endisset
+                    </select>
+                </label>
+            @endforeach
+        </div>
+        <div class="divider my-0"></div>
+        <div
+            id="{{ $id }}"
+            data-tabulator
+            data-tabulator-id="{{ $id }}"
+            data-testid="tabulator-table-{{ $id }}"
+            class="w-full"
+        ></div>
+    </div>
+@else
+    <div
+        id="{{ $id }}"
+        data-tabulator
+        data-tabulator-id="{{ $id }}"
+        data-testid="tabulator-table-{{ $id }}"
+        class="w-full shadow"
+    ></div>
+@endif
 
 <script type="application/json" id="{{ $id }}-config" data-testid="tabulator-config-{{ $id }}">@json($config)</script>
 

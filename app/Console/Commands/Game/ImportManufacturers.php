@@ -65,8 +65,8 @@ class ImportManufacturers extends Command
                     return false;
                 }
 
-                $reference = $this->normalizeString($manufacturer['reference'] ?? null);
-                $name = $this->normalizeString($manufacturer['name'] ?? null);
+                $reference = $this->normalizeString($manufacturer['Reference'] ?? null);
+                $name = $this->normalizeString($manufacturer['Name'] ?? null);
                 $hasRequiredValues = $reference !== null && $name !== null;
 
                 if (! $hasRequiredValues) {
@@ -75,12 +75,12 @@ class ImportManufacturers extends Command
 
                 return $hasRequiredValues;
             })
-            ->keyBy(fn (array $manufacturer): string => (string) $this->normalizeString($manufacturer['reference']))
+            ->keyBy(fn (array $manufacturer): string => (string) $this->normalizeString($manufacturer['Reference']))
             ->map(function (array $manufacturer) use ($now): array {
                 return [
-                    'uuid' => (string) $this->normalizeString($manufacturer['reference']),
-                    'name' => (string) $this->normalizeString($manufacturer['name']),
-                    'code' => $this->normalizeString($manufacturer['code'] ?? null) ?? '',
+                    'uuid' => (string) $this->normalizeString($manufacturer['Reference']),
+                    'name' => (string) $this->normalizeString($manufacturer['Name']),
+                    'code' => $this->normalizeString($manufacturer['Code'] ?? null) ?? '',
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];

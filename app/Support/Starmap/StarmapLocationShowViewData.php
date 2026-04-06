@@ -119,6 +119,9 @@ final class StarmapLocationShowViewData
             $respawnLocationType !== null && $respawnLocationType !== 'None'
                 ? ['label' => 'Respawn: '.$respawnLocationType, 'variant' => 'badge-ghost']
                 : null,
+            Arr::get($child, 'has_resources') === true
+                ? ['label' => 'Resources', 'variant' => 'badge-primary', 'icon' => 'gem']
+                : null,
             ...array_map(
                 static fn (string $amenityLabel): array => ['label' => $amenityLabel, 'variant' => 'badge-outline'],
                 $visibleAmenityLabels,
@@ -128,9 +131,13 @@ final class StarmapLocationShowViewData
                 : null,
         ]));
 
+        $designation = Arr::get($child, 'designation');
+        $name = Arr::get($child, 'name', 'Unknown child location');
+        $displayName = $designation !== null ? "{$designation}: {$name}" : $name;
+
         return [
             'uuid' => $childUuid,
-            'name' => Arr::get($child, 'name', 'Unknown child location'),
+            'name' => $displayName,
             'type_name' => Arr::get($child, 'type_name'),
             'type_classification' => Arr::get($child, 'type_classification'),
             'url' => Arr::get($child, 'web_url'),

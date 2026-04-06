@@ -1289,6 +1289,49 @@
                                             </div>
                                         </div>
                                     @endif
+
+                                    @if ($hasDismantleData)
+                                        <div class="rounded-box border border-base-300 bg-base-100 px-4 py-4">
+                                            <div class="text-sm font-semibold text-base-content">Dismantle</div>
+                                            <div class="mt-3 space-y-3">
+                                                @if ($dismantleTimeLabel || $dismantleEfficiency !== null)
+                                                    <div class="grid gap-3 sm:grid-cols-2">
+                                                        @if ($dismantleTimeLabel)
+                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-2">
+                                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Time</div>
+                                                                <div class="mt-1 text-sm font-medium">{{ $dismantleTimeLabel }}</div>
+                                                            </div>
+                                                        @endif
+                                                        @if ($dismantleEfficiency !== null)
+                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-2">
+                                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Efficiency</div>
+                                                                <div class="mt-1 text-sm font-medium">{{ $dismantleEfficiency }}</div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
+
+                                                @if ($dismantleReturns !== [])
+                                                    <div class="space-y-2">
+                                                        @foreach ($dismantleReturns as $dismantleReturn)
+                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-3">
+                                                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                                                    @if (data_get($dismantleReturn, 'web_url'))
+                                                                        <a href="{{ data_get($dismantleReturn, 'web_url') }}" class="text-sm font-medium link link-hover">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</a>
+                                                                    @else
+                                                                        <div class="text-sm font-medium">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</div>
+                                                                    @endif
+                                                                    @if (data_get($dismantleReturn, 'quantity_scu') !== null)
+                                                                        <div class="text-xs text-base-content/70">{{ data_get($dismantleReturn, 'quantity_scu') }} SCU</div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <h4 class="text-sm font-semibold">Output changes</h4>

@@ -160,8 +160,6 @@ class VehicleController extends Controller
             str_replace('-', ' ', $identifier),
         ]));
 
-        $this->normalizeIncludes($request, $allowedIncludes);
-
         try {
             $vehicleData = QueryBuilder::for(VehicleData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
@@ -236,10 +234,6 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.manufacturer',
                 'shipMatrixVehicle.components',
             ];
-
-            if ($this->requestIncludesComponents($request)) {
-                $shipMatrixRelations[] = 'shipMatrixVehicle.components';
-            }
 
             $vehicleData->load($shipMatrixRelations);
 
@@ -470,79 +464,12 @@ class VehicleController extends Controller
     }
 
     /**
-     * Normalize requested includes: case-insensitive, aliases, and filtering to allowed list.
-     */
-    private function normalizeIncludes(Request $request, array $allowedIncludes): void
-    {
-        $includeParam = $request->query('include');
-
-        if ($includeParam === null || $includeParam === '') {
-            return;
-        }
-
-        $allowedLookup = collect($allowedIncludes)
-            ->mapWithKeys(function (AllowedInclude|string $include): array {
-                $includeName = $include instanceof AllowedInclude
-                    ? $include->getName()
-                    : $include;
-
-                return [strtolower($includeName) => $includeName];
-            })
-            ->toArray();
-
-        $aliases = [
-            'shipmatrixvehicle.components' => 'components',
-        ];
-
-        $resolved = collect(explode(',', (string) $includeParam))
-            ->map(fn (string $include) => strtolower(trim($include)))
-            ->filter()
-            ->map(function (string $include) use ($aliases, $allowedLookup) {
-                $include = $aliases[$include] ?? $include;
-
-                return $allowedLookup[$include] ?? null;
-            })
-            ->filter()
-            ->unique()
-            ->values();
-
-        if ($resolved->isEmpty()) {
-            $request->query->remove('include');
-
-            return;
-        }
-
-        $request->query->set('include', $resolved->implode(','));
-    }
-
-    /**
-     * Allow components to be requested via include=components or include=shipMatrixVehicle.components.
-     */
-    private function requestIncludesComponents(Request $request): bool
-    {
-        $includeParam = $request->query('include', '');
-
-        if ($includeParam === '') {
-            return false;
-        }
-
-        $includes = collect(explode(',', (string) $includeParam))
-            ->map(fn (string $include) => strtolower(trim($include)))
-            ->filter();
-
-        return $includes->contains('components') || $includes->contains('shipmatrixvehicle.components');
-    }
-
-    /**
      * Build base query with filters, sorts, and includes for vehicles.
      */
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         $versionCode = $this->gameVersionCode();
         $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
-        $allowedIncludes = $this->allowedIncludes();
-
-        $this->normalizeIncludes($request, $allowedIncludes);
 
         return QueryBuilder::for(VehicleData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
@@ -550,7 +477,7 @@ class VehicleController extends Controller
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...$this->allowedSorts())
             ->defaultSort('name')
-            ->allowedIncludes(...$allowedIncludes)
+            ->allowedIncludes(...$this->allowedIncludes())
             ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner', 'shipMatrixVehicle.skus']);
     }
 
@@ -560,7 +487,9 @@ class VehicleController extends Controller
     private function allowedIncludes(): array
     {
         return [
+            AllowedInclude::relationship('shipMatrixVehicle', 'shipMatrixVehicle'),
             AllowedInclude::relationship('components', 'shipMatrixVehicle.components'),
+            AllowedInclude::relationship('shipmatrixvehicle.components', 'shipMatrixVehicle.components'),
         ];
     }
 

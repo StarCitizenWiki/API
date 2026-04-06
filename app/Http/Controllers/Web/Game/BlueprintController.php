@@ -33,10 +33,14 @@ class BlueprintController extends Controller
             ]), false),
             $request,
         );
+        $filterPayload = $this->apiJsonRequest->request(
+            route('blueprints.filters', $this->buildVersionedRouteParameters($request), false),
+            $request,
+        );
 
         return view('blueprints.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => [],
+            'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'pageSize' => $tableConfig['pageSize'],
             'pageTitle' => $tableConfig['title'],
@@ -92,7 +96,7 @@ class BlueprintController extends Controller
         $apiEndpoint = route('blueprints.index', $this->buildVersionedRouteParameters($request, [
             'page' => ['size' => self::SEARCH_RESULTS_PAGE_SIZE],
         ]), false);
-        $resourceTypesEndpoint = route('resource-types.index', $this->buildVersionedRouteParameters($request, [
+        $resourceTypesEndpoint = route('commodities.index', $this->buildVersionedRouteParameters($request, [
             'filter' => ['used' => 'true'],
         ]), false);
         $filters = $this->normalizeFilterParams($request->input('filter', []));

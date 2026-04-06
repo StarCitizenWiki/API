@@ -23,6 +23,7 @@
             'headerFilterOptionsMap' => $headerFilterOptionsMap,
             'apiUrlTargetId' => 'starmap-locations-api-url',
             'columns' => $tableColumns,
+            'externalFilters' => $externalFilters,
         ];
     @endphp
 

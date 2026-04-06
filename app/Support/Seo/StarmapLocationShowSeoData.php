@@ -15,9 +15,9 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
     public function build(array $location, Request $request): array
     {
         $locationName = $this->normalizeString(data_get($location, 'name')) ?? 'Starmap Location';
-        $typeName = $this->normalizeString(data_get($location, 'type.name'))
+        $typeName = $this->normalizeString(data_get($location, 'Type.Name'))
             ?? $this->normalizeString(data_get($location, 'type_name'));
-        $classification = $this->normalizeString(data_get($location, 'type.classification'))
+        $classification = $this->normalizeString(data_get($location, 'Type.Classification'))
             ?? $this->normalizeString(data_get($location, 'type_classification'));
         $description = $this->resolveDescription(data_get($location, 'description'));
         $starName = $this->normalizeString(data_get($location, 'star.name'));
@@ -59,8 +59,8 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
                 $locationName,
                 $typeName,
                 $classification,
-                $this->normalizeString(data_get($location, 'affiliation.name')),
-                $this->normalizeString(data_get($location, 'jurisdiction.name')),
+                $this->normalizeString(data_get($location, 'Affiliation.Name')),
+                $this->normalizeString(data_get($location, 'Jurisdiction.Name')),
                 $starName,
                 $parentName,
                 'Star Citizen',
@@ -186,13 +186,13 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         ];
 
         $additionalProperty = $this->buildPropertyValues([
-            'Type' => $this->normalizeString(data_get($location, 'type.name'))
+            'Type' => $this->normalizeString(data_get($location, 'Type.Name'))
                 ?? $this->normalizeString(data_get($location, 'type_name')),
-            'Classification' => $this->normalizeString(data_get($location, 'type.classification'))
+            'Classification' => $this->normalizeString(data_get($location, 'Type.Classification'))
                 ?? $this->normalizeString(data_get($location, 'type_classification')),
             'Tag' => $this->normalizeString(data_get($location, 'tag.name')),
-            'Affiliation' => $this->normalizeString(data_get($location, 'affiliation.name')),
-            'Jurisdiction' => $this->normalizeString(data_get($location, 'jurisdiction.name')),
+            'Affiliation' => $this->normalizeString(data_get($location, 'Affiliation.Name')),
+            'Jurisdiction' => $this->normalizeString(data_get($location, 'Jurisdiction.Name')),
             'Respawn Location Type' => $this->normalizeString(data_get($location, 'respawn_location_type')),
             'Version' => $this->normalizeString(data_get($location, 'version')),
             'Child Count' => $this->normalizeInt(data_get($location, 'child_count')),

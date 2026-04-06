@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Filters\SortByRelation;
-use App\Http\Includes\PassthroughInclude;
+use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
@@ -57,14 +57,13 @@ class ItemController extends Controller
         $includes = array_merge(
             ItemResource::validIncludes(),
             [
-                AllowedInclude::custom('shops', new PassthroughInclude),
-                AllowedInclude::custom('shops.items', new PassthroughInclude),
+                AllowedInclude::custom('shops', new CustomEagerLoadInclude),
+                AllowedInclude::custom('shops.items', new CustomEagerLoadInclude),
+                AllowedInclude::custom('related_items', $includeRelatedItems
+                    ? new CustomEagerLoadInclude(['variants', 'baseVariant'])
+                    : new CustomEagerLoadInclude),
             ]
         );
-
-        if ($includeRelatedItems) {
-            $includes[] = AllowedInclude::custom('related_items', new PassthroughInclude);
-        }
 
         return $includes;
     }
@@ -78,11 +77,6 @@ class ItemController extends Controller
         $category = $request->route()->defaults['category'] ?? 'items';
 
         $withRelations = ['item', 'gameVersion', 'manufacturer', 'descriptionData'];
-
-        if (str_contains((string) $request->input('include', ''), 'related_items')) {
-            $withRelations[] = 'variants';
-            $withRelations[] = 'baseVariant';
-        }
 
         return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
@@ -277,7 +271,7 @@ class ItemController extends Controller
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->allowedIncludes(...$this->allowedIncludes(includeRelatedItems: true))
-                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData']);
+                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData', 'commodities']);
 
             $itemData = null;
 

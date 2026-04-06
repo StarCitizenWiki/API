@@ -113,6 +113,17 @@
     </x-app.sidemenu-item>
 
     <x-app.sidemenu-item
+        :route="'web.commodities.index'"
+        route-is="web.commodities.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="gem" class="size-4" />
+        </x-slot:icon>
+        Commodities
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item
         :route="'web.items.index'"
         test-id="items-menu-all-items"
         :active-when-filters-empty="true"

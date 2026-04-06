@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\Game;
+namespace Database\Factories\Game\Commodity;
 
-use App\Models\Game\ResourceType;
+use App\Models\Game\Commodity\Commodity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<ResourceType>
+ * @extends Factory<Commodity>
  */
-class ResourceTypeFactory extends Factory
+class CommodityFactory extends Factory
 {
-    protected $model = ResourceType::class;
+    protected $model = Commodity::class;
 
     /**
      * Define the model's default state.
@@ -23,13 +23,16 @@ class ResourceTypeFactory extends Factory
     {
         return [
             'uuid' => fake()->unique()->uuid(),
-            'key' => fake()->unique()->bothify('ResourceType_####'),
+            'key' => fake()->unique()->bothify('Commodity_####'),
             'name' => fake()->words(2, true),
             'description' => fake()->sentence(),
             'refined_version_uuid' => null,
             'validate_default_cargo_box' => fake()->boolean(),
             'has_default_cargo_containers' => fake()->boolean(),
             'box_sizes_scu' => [1, 2, 4],
+            'instability' => fake()->optional()->randomFloat(4, 0, 1000),
+            'resistance' => fake()->optional()->randomFloat(4, -1, 1),
+            'density_g_per_cc' => fake()->optional()->randomFloat(4, 1, 25),
             'data' => [
                 'uuid' => fake()->uuid(),
                 'key' => fake()->bothify('Data_####'),

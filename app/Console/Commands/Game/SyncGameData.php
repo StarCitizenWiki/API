@@ -33,6 +33,7 @@ class SyncGameData extends Command
                             {--skip-items : Skip importing item data}
                             {--skip-vehicles : Skip importing vehicle data}
                             {--skip-starmap : Skip importing starmap data}
+                            {--skip-resources : Skip importing resource data}
                             {--skip-compute-item-base-ids : Skip computing item base ids}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}';
 
@@ -62,9 +63,10 @@ class SyncGameData extends Command
         $skipItems = (bool) $this->option('skip-items');
         $skipVehicles = (bool) $this->option('skip-vehicles');
         $skipStarmap = (bool) $this->option('skip-starmap');
+        $skipResources = (bool) $this->option('skip-resources');
         $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
-        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap);
+        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources);
 
         $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
 
@@ -91,15 +93,29 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
-        if (Artisan::call('game:import-resource-types') !== self::SUCCESS) {
-            return self::FAILURE;
+        if (! $skipStarmap) {
+            $this->dispatchStarmapImport($gameVersion);
         }
 
-        if ($gameVersion === null) {
-            return self::SUCCESS;
+        if (! $skipResources) {
+            if (Artisan::call('game:import-commodities') !== self::SUCCESS) {
+                return self::FAILURE;
+            }
+
+            if (Artisan::call('game:import-resource-data', [
+                'version' => $gameVersion->code,
+            ]) !== self::SUCCESS) {
+                return self::FAILURE;
+            }
+
+            if (Artisan::call('game:import-resource-locations', [
+                'version' => $gameVersion->code,
+            ]) !== self::SUCCESS) {
+                return self::FAILURE;
+            }
         }
 
-        if (Artisan::call('game:import-blueprints', [
+        if ($gameVersion !== null && Artisan::call('game:import-blueprints', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
             return self::FAILURE;
@@ -113,16 +129,12 @@ class SyncGameData extends Command
             $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds);
         }
 
-        if (! $skipStarmap) {
-            $this->dispatchStarmapImport($gameVersion);
-        }
-
         return self::SUCCESS;
     }
 
-    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap): bool
+    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap, bool $skipResources): bool
     {
-        if (! $skipItems || ! $skipVehicles || ! $skipStarmap) {
+        if (! $skipItems || ! $skipVehicles || ! $skipStarmap || ! $skipResources) {
             return true;
         }
 
@@ -222,7 +234,7 @@ class SyncGameData extends Command
             return;
         }
 
-        ImportStarmapData::dispatch($gameVersion->id);
+        new ImportStarmapData($gameVersion->id)->handle();
     }
 
     /**

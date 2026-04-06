@@ -56,4 +56,50 @@ abstract class AbstractBaseResource extends JsonResource
 
         return url()->query($url, ['version' => $version]);
     }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function arrayString(array $data, string $key): string
+    {
+        $value = $data[$key] ?? null;
+
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function arrayNullableString(array $data, string $key): ?string
+    {
+        $value = $data[$key] ?? null;
+
+        if (! is_scalar($value)) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function arrayNullableInt(array $data, string $key): ?int
+    {
+        $value = $data[$key] ?? null;
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function arrayNullableFloat(array $data, string $key): ?float
+    {
+        $value = $data[$key] ?? null;
+
+        return is_numeric($value) ? (float) $value : null;
+    }
 }

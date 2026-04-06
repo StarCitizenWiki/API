@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\EntityTag;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -84,6 +85,7 @@ class ImportItemData implements ShouldQueue
         $this->syncDescriptionData($item, $itemPayload, $raw);
         $this->syncTranslations($item, $itemPayload, $raw);
         $this->syncEntityTags($itemData, $itemPayload);
+        $this->syncCommodities($itemData, $itemPayload);
     }
 
     /**
@@ -387,5 +389,36 @@ class ImportItemData implements ShouldQueue
             ->all();
 
         $itemData->entityTags()->sync($tagIds);
+    }
+
+    private function syncCommodities(ItemData $itemData, array $itemPayload): void
+    {
+        $defaultComposition = Arr::get($itemPayload, 'stdItem.ResourceContainer.DefaultComposition', []);
+
+        if (! is_array($defaultComposition) || $defaultComposition === []) {
+            $itemData->commodities()->sync([]);
+
+            return;
+        }
+
+        $commodityUuids = collect($defaultComposition)
+            ->filter(fn (mixed $entry): bool => is_array($entry) && is_string($entry['Entry'] ?? null))
+            ->map(fn (array $entry): string => $entry['Entry'])
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($commodityUuids === []) {
+            $itemData->commodities()->sync([]);
+
+            return;
+        }
+
+        $commodityIds = Commodity::query()
+            ->whereIn('uuid', $commodityUuids)
+            ->pluck('id')
+            ->all();
+
+        $itemData->commodities()->sync($commodityIds);
     }
 }

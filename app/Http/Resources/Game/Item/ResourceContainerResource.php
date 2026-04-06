@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Models\Game\Commodity\Commodity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -45,19 +47,52 @@ use OpenApi\Attributes as OA;
             description: 'Default composition entries and weights.',
             type: 'array',
             items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'entry', type: 'string', nullable: true),
-                    new OA\Property(property: 'weight', type: 'double', nullable: true),
-                ],
-                type: 'object'
+                ref: '#/components/schemas/resource_container_composition_entry'
             ),
             nullable: true
         ),
     ],
     type: 'object'
 )]
+#[OA\Schema(
+    schema: 'resource_container_composition_entry',
+    title: 'Resource Container Composition Entry',
+    properties: [
+        new OA\Property(property: 'entry', type: 'string', nullable: true),
+        new OA\Property(property: 'weight', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'commodity',
+            ref: '#/components/schemas/resource_container_commodity_link',
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'resource_container_commodity_link',
+    title: 'Commodity Link',
+    description: 'Link to the commodity that this composition entry references.',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'slug', type: 'string', nullable: true),
+        new OA\Property(property: 'link', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
 class ResourceContainerResource extends AbstractBaseResource
 {
+    /**
+     * @param  array  $containerData  Raw ResourceContainer data from stdItem
+     * @param  Collection<int, Commodity>|null  $commodities  Loaded commodities keyed by UUID
+     */
+    public function __construct(
+        ?array $containerData,
+        private readonly ?Collection $commodities = null,
+    ) {
+        parent::__construct($containerData ?? []);
+    }
+
     public function toArray(Request $request): array
     {
         $capacity = Arr::get($this, 'Capacity', []);
@@ -74,12 +109,38 @@ class ResourceContainerResource extends AbstractBaseResource
             ],
             'inclusive_resources' => Arr::get($this, 'InclusiveResources', []),
             'default_composition' => collect(Arr::get($this, 'DefaultComposition', []))
-                ->map(fn (array $entry) => [
-                    'entry' => Arr::get($entry, 'Entry'),
-                    'weight' => Arr::get($entry, 'Weight'),
-                ])
+                ->map(fn (array $entry) => $this->mapCompositionEntry($entry, $request))
                 ->values()
                 ->toArray(),
         ];
+    }
+
+    private function mapCompositionEntry(array $entry, Request $request): array
+    {
+        $uuid = Arr::get($entry, 'Entry');
+
+        $result = [
+            'entry' => $uuid,
+            'weight' => Arr::get($entry, 'Weight'),
+        ];
+
+        if ($this->commodities === null || ! is_string($uuid) || $uuid === '') {
+            return $result;
+        }
+
+        $commodity = $this->commodities->get($uuid);
+
+        if ($commodity === null) {
+            return $result;
+        }
+
+        $result['commodity'] = [
+            'uuid' => $commodity->uuid,
+            'name' => $commodity->name,
+            'slug' => $commodity->slug,
+            'link' => $this->urlWithVersion(route('commodities.show', ['commodity' => $commodity->uuid]), $request),
+        ];
+
+        return $result;
     }
 }

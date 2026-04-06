@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -84,20 +85,21 @@ it('renders matching blueprint search results without keeping the search query i
             'output_name' => 'Default Output',
             'output_class' => 'default_output',
             'craft_time_seconds' => 180,
-            'ingredient_resource_type_uuids' => [fake()->uuid()],
         ]);
 
     $requestedBlueprint = Blueprint::factory()->create();
 
+    $resourceType = Commodity::factory()->create(['uuid' => $resourceTypeUuid]);
+
     BlueprintData::factory()
         ->for($requestedBlueprint, 'blueprint')
         ->for($this->requestedVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_REQUESTED',
             'output_name' => 'Requested Output',
             'output_class' => 'requested_output',
             'craft_time_seconds' => 240,
-            'ingredient_resource_type_uuids' => [$resourceTypeUuid],
             'data' => [
                 'tiers' => [
                     [

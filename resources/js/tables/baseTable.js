@@ -109,21 +109,24 @@ function mapApiFilterFieldToColumnField(apiField, columnFieldsSet, apiToColumnFi
     return apiField;
 }
 
-function collectColumnFields(columns, set = new Set()) {
+function collectColumnFields(columns, externalFilters, set = new Set()) {
     (columns ?? []).forEach((column) => {
         if (Array.isArray(column?.columns) && column.columns.length > 0) {
-            collectColumnFields(column.columns, set);
+            collectColumnFields(column.columns, null, set);
         } else if (column?.field) {
             set.add(column.field);
         }
     });
+    (externalFilters ?? []).forEach((f) => {
+        if (f?.field) set.add(f.field);
+    });
     return set;
 }
 
-function collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap = null, set = new Set()) {
+function collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap = null, externalFilters = null, set = new Set()) {
     (columns ?? []).forEach((column) => {
         if (Array.isArray(column?.columns) && column.columns.length > 0) {
-            collectManagedHeaderFilterApiFields(column.columns, columnToApiFilterFieldMap, set);
+            collectManagedHeaderFilterApiFields(column.columns, columnToApiFilterFieldMap, null, set);
             return;
         }
 
@@ -131,6 +134,12 @@ function collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap 
 
         if (column.headerFilter !== undefined && column.headerFilter !== false) {
             set.add(mapFilterFieldToApiField(column.field, columnToApiFilterFieldMap));
+        }
+    });
+
+    (externalFilters ?? []).forEach((f) => {
+        if (f?.field) {
+            set.add(mapFilterFieldToApiField(f.field, columnToApiFilterFieldMap));
         }
     });
 
@@ -478,19 +487,52 @@ function normalizeColumns(columns) {
 }
 
 function buildSelectValues(options) {
-    const values = { "": "All" };
+    const hasGroups = (options ?? []).some((option) => typeof option?.group === "string" && option.group !== "");
 
+    if (!hasGroups) {
+        const values = { "": "All" };
+
+        (options ?? []).forEach((option) => {
+            if (option?.value === null || option?.value === "") {
+                return;
+            }
+
+            values[option.value] = typeof option?.count === "number"
+                ? `${option.label} (${option.count})`
+                : option.label;
+        });
+
+        return values;
+    }
+
+    const grouped = {};
     (options ?? []).forEach((option) => {
         if (option?.value === null || option?.value === "") {
             return;
         }
 
-        values[option.value] = typeof option?.count === "number"
-            ? `${option.label} (${option.count})`
-            : option.label;
+        const group = option.group || "Unknown";
+        if (!grouped[group]) {
+            grouped[group] = [];
+        }
+        grouped[group].push(option);
     });
 
-    return values;
+    const result = [{ label: "All", value: "" }];
+
+    Object.keys(grouped).sort().forEach((group) => {
+        result.push({
+            label: group,
+            options: grouped[group].map((option) => ({
+                label: typeof option?.count === "number"
+                    ? `${option.label} (${option.count})`
+                    : option.label,
+                value: option.value,
+            })),
+        });
+    });
+
+    return result;
 }
 
 function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
@@ -507,7 +549,14 @@ function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
             return column;
         }
 
-        const values = buildSelectValues(filters[filterKey] ?? []);
+        const facetData = filters[filterKey];
+        const hasExistingValues = Object.keys(column.headerFilterParams?.values ?? {}).length > 0;
+
+        if (!facetData && hasExistingValues) {
+            return column;
+        }
+
+        const values = buildSelectValues(facetData ?? []);
 
         return {
             ...column,
@@ -520,14 +569,14 @@ function applyHeaderFilterOptionsToColumns(columns, optionsMap, payload) {
     });
 }
 
-function applyHeaderFilterOptionsToColumnComponents(columnComponents, optionsMap, payload) {
+function applyHeaderFilterOptionsToColumnComponents(columnComponents, optionsMap, payload, mount = null) {
     const filters = payload?.filters ?? {};
 
     (columnComponents ?? []).forEach((column) => {
         const subColumns = column?.getSubColumns?.() ?? [];
 
         if (subColumns.length > 0) {
-            applyHeaderFilterOptionsToColumnComponents(subColumns, optionsMap, payload);
+            applyHeaderFilterOptionsToColumnComponents(subColumns, optionsMap, payload, mount);
             return;
         }
 
@@ -539,13 +588,68 @@ function applyHeaderFilterOptionsToColumnComponents(columnComponents, optionsMap
             return;
         }
 
+        const facetData = filters[filterKey];
+        const hasExistingValues = Object.keys(definition.headerFilterParams?.values ?? {}).length > 0;
+
+        if (!facetData && hasExistingValues) {
+            return;
+        }
+
         definition.headerFilterParams = {
             ...(definition.headerFilterParams ?? {}),
-            values: buildSelectValues(filters[filterKey] ?? []),
+            values: buildSelectValues(facetData ?? []),
         };
 
         column.reloadHeaderFilter?.();
     });
+
+    if (mount) {
+        const externalFilterContainer = mount.parentElement;
+        const externalSelects = externalFilterContainer?.querySelectorAll("[data-external-filter]") ?? [];
+        externalSelects.forEach((select) => {
+            if (select.dataset.externalFilterStatic !== undefined) return;
+
+            const field = select.dataset.externalFilter;
+            const filterKey = optionsMap?.[field];
+            if (!filterKey) return;
+
+            const facetData = filters[filterKey];
+            const current = select.value;
+            const values = buildSelectValues(facetData ?? []);
+
+            select.innerHTML = '';
+
+            if (Array.isArray(values)) {
+                values.forEach((group) => {
+                    if (group?.options) {
+                        const optgroup = document.createElement("optgroup");
+                        optgroup.label = group.label;
+                        group.options.forEach((opt) => {
+                            const o = document.createElement("option");
+                            o.value = opt.value;
+                            o.textContent = opt.label;
+                            optgroup.appendChild(o);
+                        });
+                        select.appendChild(optgroup);
+                    } else {
+                        const o = document.createElement("option");
+                        o.value = group.value;
+                        o.textContent = group.label;
+                        select.appendChild(o);
+                    }
+                });
+            } else if (typeof values === "object") {
+                Object.entries(values).forEach(([val, label]) => {
+                    const o = document.createElement("option");
+                    o.value = val;
+                    o.textContent = label;
+                    select.appendChild(o);
+                });
+            }
+
+            select.value = current;
+        });
+    }
 }
 
 function buildMirroredQueryUrl(sourceUrl, targetBaseUrl) {
@@ -621,11 +725,14 @@ export function initTabulatorTables() {
             })
             : (config.columns ?? []);
 
-        const columnFields = collectColumnFields(columns);
+        const externalFilters = config.externalFilters ?? null;
+        const externalFilterFields = new Set((externalFilters ?? []).map((f) => f.field).filter(Boolean));
+
+        const columnFields = collectColumnFields(columns, externalFilters);
 
         // Persistent set of API filter fields that Tabulator manages for this table instance.
         // This is what prevents "sticky" filter[...] params when a header filter is cleared.
-        const managedApiFilterFields = collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap);
+        const managedApiFilterFields = collectManagedHeaderFilterApiFields(columns, columnToApiFilterFieldMap, externalFilters);
 
         // Seed table state from the current browser URL so reload keeps sort/filter/page.
         const urlState = parseJsonApiStateFromLocation({
@@ -636,6 +743,18 @@ export function initTabulatorTables() {
 
         const effectiveInitialHeaderFilter = urlState.initialHeaderFilter ?? configInitialHeaderFilter;
         const effectiveInitialSort = urlState.initialSort ?? (Array.isArray(config.initialSort) ? config.initialSort : null);
+
+        // Separate external filter initial values from table header filter values
+        const externalInitialValues = new Map();
+        const tableInitialHeaderFilter = Array.isArray(effectiveInitialHeaderFilter)
+            ? effectiveInitialHeaderFilter.filter((f) => {
+                if (externalFilterFields.has(f.field)) {
+                    externalInitialValues.set(f.field, f.value);
+                    return false;
+                }
+                return true;
+            })
+            : effectiveInitialHeaderFilter;
 
         const effectivePaginationSize = urlState.paginationSize ?? pageSize;
         const effectivePaginationInitialPage = urlState.paginationInitialPage ?? null;
@@ -668,7 +787,7 @@ export function initTabulatorTables() {
                         return;
                     }
 
-                    applyHeaderFilterOptionsToColumnComponents(table.getColumns(), headerFilterOptionsMap, payload);
+                    applyHeaderFilterOptionsToColumnComponents(table.getColumns(), headerFilterOptionsMap, payload, mount);
                 })
                 .catch(() => {});
         };
@@ -704,7 +823,7 @@ export function initTabulatorTables() {
             paginationSizeSelector: [25, 50, 100],
             ...(effectivePaginationInitialPage ? { paginationInitialPage: effectivePaginationInitialPage } : {}),
 
-            initialHeaderFilter: effectiveInitialHeaderFilter,
+            initialHeaderFilter: tableInitialHeaderFilter,
             headerFilterLiveFilterDelay: 600,
 
             ...(effectiveInitialSort ? { initialSort: effectiveInitialSort } : {}),
@@ -781,6 +900,86 @@ export function initTabulatorTables() {
 
         tabulatorTables.set(id, table);
         window.dispatchEvent(new CustomEvent("tabulator:ready", { detail: { id, table, mount } }));
+
+        // Wire up external filter selects
+        if (externalFilters && externalFilters.length > 0) {
+            const externalFilterContainer = mount.parentElement;
+
+            if (externalFilterContainer) {
+                const externalSelects = externalFilterContainer.querySelectorAll("[data-external-filter]");
+
+                // Populate non-static external selects from seed data on initial load
+                if (headerFilterOptionsSeed && headerFilterOptionsMap) {
+                    const seedFilters = headerFilterOptionsSeed?.filters ?? headerFilterOptionsSeed;
+                    externalSelects.forEach((select) => {
+                        if (select.dataset.externalFilterStatic !== undefined) return;
+
+                        const field = select.dataset.externalFilter;
+                        const filterKey = headerFilterOptionsMap[field];
+                        if (!filterKey) return;
+
+                        const facetData = seedFilters?.[filterKey];
+                        if (!facetData) return;
+
+                        const values = buildSelectValues(facetData);
+                        select.innerHTML = '';
+
+                        if (Array.isArray(values)) {
+                            values.forEach((group) => {
+                                if (group?.options) {
+                                    const optgroup = document.createElement("optgroup");
+                                    optgroup.label = group.label;
+                                    group.options.forEach((opt) => {
+                                        const o = document.createElement("option");
+                                        o.value = opt.value;
+                                        o.textContent = opt.label;
+                                        optgroup.appendChild(o);
+                                    });
+                                    select.appendChild(optgroup);
+                                } else {
+                                    const o = document.createElement("option");
+                                    o.value = group.value;
+                                    o.textContent = group.label;
+                                    select.appendChild(o);
+                                }
+                            });
+                        } else if (typeof values === "object") {
+                            Object.entries(values).forEach(([val, label]) => {
+                                const o = document.createElement("option");
+                                o.value = val;
+                                o.textContent = label;
+                                select.appendChild(o);
+                            });
+                        }
+                    });
+                }
+
+                externalSelects.forEach((select) => {
+                    const field = select.dataset.externalFilter;
+
+                    // Seed initial value from URL
+                    if (externalInitialValues.has(field)) {
+                        select.value = externalInitialValues.get(field);
+                        table.addFilter(field, "=", externalInitialValues.get(field));
+                    }
+
+                    select.addEventListener("change", () => {
+                        const value = select.value;
+
+                        const current = table.getFilters().find((f) => f.field === field);
+                        if (current) {
+                            table.removeFilter(field, current.type, current.value);
+                        }
+
+                        if (value) {
+                            table.addFilter(field, "=", value);
+                        }
+
+                        table.setData();
+                    });
+                });
+            }
+        }
 
         if (apiUrlTarget) {
             apiUrlTarget.addEventListener("click", () => {

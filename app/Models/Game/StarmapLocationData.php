@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Models\Game\Resource\ResourceLocation;
 use Database\Factories\Game\StarmapLocationDataFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 
 class StarmapLocationData extends Model
 {
@@ -27,8 +27,10 @@ class StarmapLocationData extends Model
         'game_version_id',
         'parent_data_id',
         'star_data_id',
+        'provider_data_id',
         'location_hierarchy_entity_tag_id',
         'name',
+        'slug',
         'description',
         'type_name',
         'system',
@@ -43,6 +45,7 @@ class StarmapLocationData extends Model
         'starmap_location_id' => 'integer',
         'parent_data_id' => 'integer',
         'star_data_id' => 'integer',
+        'provider_data_id' => 'integer',
         'location_hierarchy_entity_tag_id' => 'integer',
         'size' => 'float',
         'system' => 'string',
@@ -104,41 +107,78 @@ class StarmapLocationData extends Model
         )->orderBy('display_name');
     }
 
+    public function resourceLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ResourceLocation::class,
+            'game_resource_location_placements',
+            'starmap_location_data_id',
+            'resource_location_id',
+        );
+    }
+
     protected function jurisdictionName(): Attribute
     {
         return Attribute::make(
-            get: fn (): ?string => data_get($this->payloadData(), 'jurisdiction.name'),
+            get: fn (): ?string => data_get($this->data, 'Jurisdiction.Name'),
         );
     }
 
     protected function affiliationName(): Attribute
     {
         return Attribute::make(
-            get: fn (): ?string => data_get($this->payloadData(), 'affiliation.displayName'),
+            get: fn (): ?string => data_get($this->data, 'Affiliation.DisplayName'),
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function payloadData(): array
+    protected function designation(): Attribute
     {
-        $payload = $this->attributes['data'] ?? null;
+        return Attribute::make(
+            get: function (): ?string {
+                if ($this->locationHierarchyEntityTag === null) {
+                    return null;
+                }
 
-        if (is_string($payload)) {
-            $decoded = json_decode($payload, true);
+                return self::formatDesignation($this->locationHierarchyEntityTag->name);
+            },
+        );
+    }
 
-            return is_array($decoded) ? $decoded : [];
+    public static function formatDesignation(string $tagName): ?string
+    {
+        if (! preg_match('/^([A-Za-z]+?)(\d+)([a-z]?)$/', $tagName, $matches)) {
+            return null;
         }
 
-        if (is_array($payload)) {
-            return $payload;
+        $prefix = $matches[1];
+        $number = (int) $matches[2];
+        $suffix = $matches[3];
+
+        $roman = self::toRoman($number);
+
+        return $prefix.' '.$roman.$suffix;
+    }
+
+    private static function toRoman(int $number): string
+    {
+        $map = [
+            50 => 'L',
+            40 => 'XL',
+            10 => 'X',
+            9 => 'IX',
+            5 => 'V',
+            4 => 'IV',
+            1 => 'I',
+        ];
+
+        $result = '';
+        foreach ($map as $value => $numeral) {
+            while ($number >= $value) {
+                $result .= $numeral;
+                $number -= $value;
+            }
         }
 
-        if ($this->data instanceof Collection) {
-            return $this->data->all();
-        }
-
-        return [];
+        return $result;
     }
 }

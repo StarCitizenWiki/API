@@ -243,20 +243,10 @@ class VehicleController extends Controller
     public function show(Request $request, string $slug): VehicleResource
     {
         try {
-            $vehicle = Vehicle::query()
+            $vehicle = QueryBuilder::for(Vehicle::class, $request)
+                ->allowedIncludes('components', 'loaner', 'skus')
                 ->where('slug', urldecode($slug))
                 ->firstOrFail();
-
-            // Handle optional includes
-            $requestedIncludes = collect(explode(',', $request->get('include', '')))
-                ->map('trim')
-                ->filter()
-                ->intersect(['components', 'loaner', 'skus'])
-                ->toArray();
-
-            if (! empty($requestedIncludes)) {
-                $vehicle->load($requestedIncludes);
-            }
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified slug found.');
         }

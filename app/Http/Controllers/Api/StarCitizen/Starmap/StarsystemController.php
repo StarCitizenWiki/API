@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
+use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
 use App\Models\StarCitizen\Starmap\Starsystem;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class StarsystemController extends Controller
@@ -43,7 +45,11 @@ class StarsystemController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Starsystem::class, $request)
-            ->allowedIncludes(...StarsystemResource::validIncludes())
+            ->allowedIncludes(
+                'affiliation',
+                'celestialObjects',
+                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
+            )
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...[
                 'name',
@@ -98,10 +104,6 @@ class StarsystemController extends Controller
         $collection = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
-
-        if ($request->has('include') && str_contains($request->input('include'), 'jumppoints')) {
-            $collection->load('jumppoints.entry', 'jumppoints.exit');
-        }
 
         return StarsystemResource::collection($collection);
     }
@@ -158,12 +160,12 @@ class StarsystemController extends Controller
         $starsystem = QueryBuilder::for(Starsystem::class, $request)
             ->where('code', $code)
             ->orWhere('name', 'LIKE', "%$code%")
-            ->allowedIncludes(...StarsystemResource::validIncludes())
+            ->allowedIncludes(
+                'affiliation',
+                'celestialObjects',
+                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
+            )
             ->firstOrFail();
-
-        if ($starsystem->relationLoaded('jumppoints')) {
-            $starsystem->load('jumppoints.entry', 'jumppoints.exit');
-        }
 
         return new StarsystemResource($starsystem);
     }

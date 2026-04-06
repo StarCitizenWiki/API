@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Models\Game\Commodity\Commodity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -161,6 +162,16 @@ class ItemData extends Model
             'game_item_data_entity_tag',
             'item_data_id',
             'entity_tag_id'
+        );
+    }
+
+    public function commodities(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Commodity::class,
+            'game_item_data_commodity',
+            'item_data_id',
+            'commodity_id'
         );
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -558,4 +559,86 @@ it('does not include version in api link when version is not requested in item s
     $response->assertSuccessful();
 
     expect($response->json('data.link'))->not->toContain('version=');
+});
+
+it('enriches resource container default composition with commodity data', function (): void {
+    $item = Item::factory()->create();
+
+    $commodity = Commodity::factory()->create([
+        'name' => 'Aphorite',
+        'slug' => 'aphorite',
+    ]);
+
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Aphorite Mineable',
+            'type' => 'Cargo',
+            'class_name' => 'aphorite_mineable',
+            'classification' => 'Cargo',
+            'data' => [
+                'stdItem' => [
+                    'ResourceContainer' => [
+                        'Capacity' => [
+                            'SCU' => 0.001,
+                            'Unit' => 'SMicroCargoUnit',
+                            'Value' => 1000,
+                            'UnitName' => 'µSCU',
+                        ],
+                        'Immutable' => false,
+                        'DefaultComposition' => [
+                            ['Entry' => $commodity->uuid, 'Weight' => 1],
+                        ],
+                        'DefaultFillFraction' => 1,
+                    ],
+                ],
+            ],
+        ]);
+
+    $itemData->commodities()->attach($commodity);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.resource_container.default_composition.0.entry', $commodity->uuid)
+        ->assertJsonPath('data.resource_container.default_composition.0.weight', 1)
+        ->assertJsonPath('data.resource_container.default_composition.0.commodity.uuid', $commodity->uuid)
+        ->assertJsonPath('data.resource_container.default_composition.0.commodity.name', 'Aphorite')
+        ->assertJsonPath('data.resource_container.default_composition.0.commodity.slug', 'aphorite');
+
+    expect($response->json('data.resource_container.default_composition.0.commodity.link'))->toContain('/api/commodities/'.$commodity->uuid);
+});
+
+it('omits commodity data when commodity is not in pivot table', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Unknown Commodity Item',
+            'type' => 'Cargo',
+            'class_name' => 'unknown_commodity_item',
+            'classification' => 'Cargo',
+            'data' => [
+                'stdItem' => [
+                    'ResourceContainer' => [
+                        'DefaultComposition' => [
+                            ['Entry' => '00000000-0000-0000-0000-000000000000', 'Weight' => 1],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.resource_container.default_composition.0.entry', '00000000-0000-0000-0000-000000000000')
+        ->assertJsonPath('data.resource_container.default_composition.0.weight', 1);
+
+    expect($response->json('data.resource_container.default_composition.0'))->not->toHaveKey('commodity');
 });

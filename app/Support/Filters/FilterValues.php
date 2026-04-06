@@ -11,14 +11,15 @@ final class FilterValues
 {
     /**
      * @param  Collection<int, object>  $rows
-     * @return array<int, array{value: mixed, label: string, count: int}>
+     * @return array<int, array{value: mixed, label: string, count: int, group?: string}>
      */
     public static function fromRows(
         Collection $rows,
         ?Closure $valueCaster = null,
-        ?Closure $labelResolver = null
+        ?Closure $labelResolver = null,
+        ?string $groupColumn = null,
     ): array {
-        return $rows->map(function (object $row) use ($valueCaster, $labelResolver): array {
+        return $rows->map(function (object $row) use ($valueCaster, $labelResolver, $groupColumn): array {
             $value = $row->value ?? null;
 
             if ($valueCaster !== null) {
@@ -43,11 +44,17 @@ final class FilterValues
                 $label = self::defaultLabel($value);
             }
 
-            return [
+            $result = [
                 'value' => $value,
                 'label' => $label,
                 'count' => (int) ($row->count ?? 0),
             ];
+
+            if ($groupColumn !== null && isset($row->$groupColumn)) {
+                $result['group'] = $row->$groupColumn;
+            }
+
+            return $result;
         })->values()->all();
     }
 

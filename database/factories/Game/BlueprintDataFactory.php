@@ -6,6 +6,7 @@ namespace Database\Factories\Game;
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,7 +27,6 @@ class BlueprintDataFactory extends Factory
         $outputItemUuid = fake()->uuid();
         $outputName = fake()->words(3, true);
         $outputClass = fake()->unique()->bothify('bp_output_####');
-        $ingredientResourceTypeUuid = fake()->uuid();
 
         return [
             'blueprint_id' => Blueprint::factory(),
@@ -38,7 +38,7 @@ class BlueprintDataFactory extends Factory
             'output_class' => $outputClass,
             'craft_time_seconds' => fake()->numberBetween(10, 600),
             'is_available_by_default' => fake()->boolean(),
-            'ingredient_resource_type_uuids' => [$ingredientResourceTypeUuid],
+            'ingredient_resource_type_uuids' => [],
             'data' => [
                 'uuid' => fake()->uuid(),
                 'output' => [
@@ -55,7 +55,7 @@ class BlueprintDataFactory extends Factory
                             'children' => [
                                 [
                                     'kind' => 'resource',
-                                    'uuid' => $ingredientResourceTypeUuid,
+                                    'uuid' => fake()->uuid(),
                                     'name' => fake()->word(),
                                     'quantity_scu' => 1.5,
                                     'min_quality' => 0,
@@ -66,5 +66,36 @@ class BlueprintDataFactory extends Factory
                 ],
             ],
         ];
+    }
+
+    public function withIngredients(Commodity ...$commodities): self
+    {
+        return $this->afterCreating(static function (BlueprintData $blueprintData) use ($commodities): void {
+            if ($commodities === []) {
+                return;
+            }
+
+            $blueprintData->ingredients()->sync(
+                collect($commodities)->pluck('id')->all()
+            );
+        });
+    }
+
+    public function withDismantleReturns(array $returns): self
+    {
+        return $this->afterCreating(static function (BlueprintData $blueprintData) use ($returns): void {
+            if ($returns === []) {
+                return;
+            }
+
+            $syncData = [];
+            foreach ($returns as $return) {
+                $syncData[$return['commodity']->id] = [
+                    'quantity_scu' => $return['quantity_scu'],
+                ];
+            }
+
+            $blueprintData->dismantleReturns()->sync($syncData);
+        });
     }
 }

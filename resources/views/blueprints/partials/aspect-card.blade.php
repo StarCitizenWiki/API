@@ -16,6 +16,7 @@
     $inputMinQuality = (int) ($input['min_quality'] ?? 0);
     $inputQuantity = $input['quantity'] ?? null;
     $inputQuantityScu = $input['quantity_scu'] ?? null;
+    $inputWebUrl = is_string($input['web_url'] ?? null) && trim($input['web_url']) !== '' ? trim($input['web_url']) : null;
     $cardClasses = $isSelected
         ? 'card border border-base-300 bg-base-200/60 shadow-sm'
         : 'card border border-dashed border-base-300 bg-base-100/70 opacity-70 shadow-sm';
@@ -29,7 +30,11 @@
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0 space-y-2">
                 <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/55">{{ $aspect['name'] }}</div>
-                <h3 class="text-lg font-semibold">{{ $inputName }}</h3>
+                @if ($inputWebUrl)
+                    <h3 class="text-lg font-semibold"><a class="link link-hover" href="{{ $inputWebUrl }}">{{ $inputName }}</a></h3>
+                @else
+                    <h3 class="text-lg font-semibold">{{ $inputName }}</h3>
+                @endif
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/70">
                     <span>{{ $inputKindLabel }}</span>
 

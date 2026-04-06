@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use App\Models\Game\ResourceType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -27,7 +27,7 @@ beforeEach(function (): void {
 });
 
 it('renders the blueprint show view with normalized api data', function (): void {
-    $resourceType = ResourceType::factory()->create([
+    $resourceType = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'name' => 'Lindinium',
     ]);
@@ -39,13 +39,13 @@ it('renders the blueprint show view with normalized api data', function (): void
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_DETAIL',
             'output_item_uuid' => $outputItemUuid,
             'output_name' => 'Detailed Output',
             'output_class' => 'detailed_output',
             'craft_time_seconds' => 240,
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'availability' => [
                     'default' => false,
@@ -347,13 +347,13 @@ it('keeps the resource filter without forcing the blueprint picker open', functi
     $resourceTypeUuid = fake()->uuid();
     $blueprint = Blueprint::factory()->create();
     $requiredItemUuid = fake()->uuid();
+    $resourceType = Commodity::factory()->create(['uuid' => $resourceTypeUuid]);
 
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
         ->create([
             'output_name' => 'Default Output',
-            'ingredient_resource_type_uuids' => [fake()->uuid()],
             'data' => [
                 'tiers' => [
                     [
@@ -369,10 +369,10 @@ it('keeps the resource filter without forcing the blueprint picker open', functi
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->requestedVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'output_name' => 'Requested Output',
             'output_item_uuid' => fake()->uuid(),
-            'ingredient_resource_type_uuids' => [$resourceTypeUuid],
             'data' => [
                 'output' => [
                     'name' => 'Requested Output',
@@ -437,7 +437,6 @@ it('renders grouped resource choices when a blueprint requires only some availab
             'output_name' => 'Chiron Legs',
             'output_class' => 'utility_light_legs',
             'craft_time_seconds' => 180,
-            'ingredient_resource_type_uuids' => [$laraniteUuid, $aslariteUuid, $stileronUuid],
             'data' => [
                 'output' => [
                     'uuid' => $outputItemUuid,

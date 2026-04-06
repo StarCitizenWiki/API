@@ -23,6 +23,10 @@ final class FilterCache
 
     public const NAMESPACE_VEHICLES = 'vehicles';
 
+    public const NAMESPACE_COMMODITIES = 'commodities';
+
+    public const NAMESPACE_BLUEPRINTS = 'blueprints';
+
     public static function rememberForever(string $namespace, string $key, Closure $resolver): mixed
     {
         self::trackKey($namespace, $key);
@@ -112,9 +116,19 @@ final class FilterCache
         return 'filters:starsystems';
     }
 
+    public static function commoditiesKey(?string $versionCode): string
+    {
+        return sprintf('filters:commodities:%s', self::normalizeVersion($versionCode));
+    }
+
     public static function shipMatrixKey(): string
     {
         return 'filters:shipmatrix';
+    }
+
+    public static function blueprintsKey(?string $versionCode): string
+    {
+        return sprintf('filters:blueprints:%s', self::normalizeVersion($versionCode));
     }
 
     private static function normalizeVersion(?string $versionCode): string

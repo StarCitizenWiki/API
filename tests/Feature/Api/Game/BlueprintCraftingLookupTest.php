@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use App\Models\Game\ResourceType;
+use App\Models\Game\Item;
+use App\Models\Game\ItemData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -26,39 +28,39 @@ beforeEach(function (): void {
     ]);
 });
 
-it('lists resource types', function (): void {
-    $alpha = ResourceType::factory()->create([
+it('lists commodities', function (): void {
+    $alpha = Commodity::factory()->create([
         'key' => 'AlphaResource',
         'name' => 'Alpha Resource',
     ]);
 
-    $beta = ResourceType::factory()->create([
+    $beta = Commodity::factory()->create([
         'key' => 'BetaResource',
         'name' => 'Beta Resource',
     ]);
 
-    $response = $this->getJson('/api/resource-types');
+    $response = $this->getJson('/api/commodities');
 
     $response->assertSuccessful()
         ->assertJsonCount(2, 'data')
         ->assertJsonPath('data.0.uuid', $alpha->uuid)
         ->assertJsonPath('data.0.key', 'AlphaResource')
-        ->assertJsonPath('data.0.link', route('resource-types.blueprints.lookup', ['resourceType' => $alpha->uuid]))
+        ->assertJsonPath('data.0.link', route('commodities.show', ['commodity' => $alpha->uuid]))
         ->assertJsonPath('data.1.uuid', $beta->uuid);
 });
 
-it('can filter resource types to only those used by blueprints for the resolved game version', function (): void {
-    $usedInDefault = ResourceType::factory()->create([
+it('can filter commodities to only those used by blueprints for the resolved game version', function (): void {
+    $usedInDefault = Commodity::factory()->create([
         'key' => 'UsedDefault',
         'name' => 'Used Default',
     ]);
 
-    $usedInRequested = ResourceType::factory()->create([
+    $usedInRequested = Commodity::factory()->create([
         'key' => 'UsedRequested',
         'name' => 'Used Requested',
     ]);
 
-    ResourceType::factory()->create([
+    Commodity::factory()->create([
         'key' => 'UnusedResource',
         'name' => 'Unused Resource',
     ]);
@@ -66,8 +68,8 @@ it('can filter resource types to only those used by blueprints for the resolved 
     BlueprintData::factory()
         ->for(Blueprint::factory(), 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($usedInDefault)
         ->create([
-            'ingredient_resource_type_uuids' => [$usedInDefault->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -76,20 +78,20 @@ it('can filter resource types to only those used by blueprints for the resolved 
     BlueprintData::factory()
         ->for(Blueprint::factory(), 'blueprint')
         ->for($this->requestedVersion, 'gameVersion')
+        ->withIngredients($usedInRequested)
         ->create([
-            'ingredient_resource_type_uuids' => [$usedInRequested->uuid],
             'data' => [
                 'tiers' => [],
             ],
         ]);
 
-    $defaultResponse = $this->getJson('/api/resource-types?'.http_build_query([
+    $defaultResponse = $this->getJson('/api/commodities?'.http_build_query([
         'filter' => [
             'used' => true,
         ],
     ]));
 
-    $requestedResponse = $this->getJson('/api/resource-types?'.http_build_query([
+    $requestedResponse = $this->getJson('/api/commodities?'.http_build_query([
         'version' => $this->requestedVersion->code,
         'filter' => [
             'used' => true,
@@ -105,15 +107,15 @@ it('can filter resource types to only those used by blueprints for the resolved 
         ->assertJsonPath('data.0.uuid', $usedInRequested->uuid)
         ->assertJsonPath(
             'data.0.link',
-            route('resource-types.blueprints.lookup', [
-                'resourceType' => $usedInRequested->uuid,
+            route('commodities.show', [
+                'commodity' => $usedInRequested->uuid,
                 'version' => $this->requestedVersion->code,
             ]),
         );
 });
 
 it('rejects invalid used filters', function (): void {
-    $response = $this->getJson('/api/resource-types?'.http_build_query([
+    $response = $this->getJson('/api/commodities?'.http_build_query([
         'filter' => [
             'used' => 'maybe',
         ],
@@ -123,18 +125,18 @@ it('rejects invalid used filters', function (): void {
         ->assertJsonValidationErrors(['filter.used']);
 });
 
-it('returns blueprints that consume a resource type for the resolved game version', function (): void {
-    $resourceType = ResourceType::factory()->create();
-    $otherResourceType = ResourceType::factory()->create();
+it('returns blueprints that consume a commodity for the resolved game version', function (): void {
+    $resourceType = Commodity::factory()->create();
+    $otherResourceType = Commodity::factory()->create();
 
     $matchingBlueprint = Blueprint::factory()->create();
     BlueprintData::factory()
         ->for($matchingBlueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType, $otherResourceType)
         ->create([
             'key' => 'BP_MATCHING',
             'output_item_uuid' => fake()->uuid(),
-            'ingredient_resource_type_uuids' => [$resourceType->uuid, $otherResourceType->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -144,10 +146,10 @@ it('returns blueprints that consume a resource type for the resolved game versio
     BlueprintData::factory()
         ->for($nonMatchingBlueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($otherResourceType)
         ->create([
             'key' => 'BP_NON_MATCHING',
             'output_item_uuid' => fake()->uuid(),
-            'ingredient_resource_type_uuids' => [$otherResourceType->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -156,27 +158,57 @@ it('returns blueprints that consume a resource type for the resolved game versio
     BlueprintData::factory()
         ->for($matchingBlueprint, 'blueprint')
         ->for($this->requestedVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_MATCHING_PTU',
             'output_item_uuid' => fake()->uuid(),
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'tiers' => [],
             ],
         ]);
 
-    $response = $this->getJson(route('resource-types.blueprints.lookup', ['resourceType' => $resourceType->uuid]));
+    $response = $this->getJson(route('commodities.show', ['commodity' => $resourceType->uuid, 'include' => 'blueprints']));
 
     $response->assertSuccessful()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
-        ->assertJsonPath('data.0.key', 'BP_MATCHING')
-        ->assertJsonPath('data.0.game_version', $this->defaultVersion->code)
-        ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $resourceType->uuid)
-        ->assertJsonMissingPath('data.0.tiers')
-        ->assertJsonMissingPath('data.0.ingredient_names')
-        ->assertJsonMissingPath('data.0.ingredient_resource_type_uuids')
-        ->assertJsonMissingPath('data.0.ingredient_overview');
+        ->assertJsonPath('data.uuid', $resourceType->uuid)
+        ->assertJsonCount(1, 'data.blueprints')
+        ->assertJsonPath('data.blueprints.0.key', 'BP_MATCHING')
+        ->assertJsonPath('data.blueprints.0.output_item_uuid', BlueprintData::where('blueprint_id', $matchingBlueprint->id)->where('game_version_id', $this->defaultVersion->id)->first()->output_item_uuid);
+});
+
+it('returns items that have a commodity in their default composition', function (): void {
+    $resourceType = Commodity::factory()->create([
+        'key' => 'TestResource',
+        'name' => 'Test Resource',
+    ]);
+
+    $itemWithResource = Item::factory()->create();
+    $itemData = ItemData::factory()
+        ->for($itemWithResource, 'item')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->hasAttached($resourceType, [], 'commodities')
+        ->create([
+            'name' => 'Item With Resource',
+        ]);
+
+    $itemWithoutResource = Item::factory()->create();
+    ItemData::factory()
+        ->for($itemWithoutResource, 'item')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Item Without Resource',
+        ]);
+
+    $response = $this->getJson(route('commodities.show', ['commodity' => $resourceType->uuid, 'include' => 'items']));
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $resourceType->uuid)
+        ->assertJsonCount(1, 'data.items')
+        ->assertJsonPath('data.items.0.name', 'Item With Resource')
+        ->assertJsonPath('data.items.0.uuid', $itemWithResource->uuid)
+        ->assertJsonPath('data.items.0.type', $itemData->type)
+        ->assertJsonPath('data.items.0.sub_type', $itemData->sub_type)
+        ->assertJsonPath('data.items.0.size', $itemData->size);
 });
 
 it('lists blueprints for the resolved game version', function (): void {
@@ -285,7 +317,7 @@ it('lists blueprints for the resolved game version', function (): void {
 });
 
 it('shows blueprint detail with output item uuid and raw tiers', function (): void {
-    $resourceType = ResourceType::factory()->create([
+    $resourceType = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'name' => 'Lindinium',
     ]);
@@ -297,12 +329,12 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_DETAIL',
             'output_item_uuid' => $outputItemUuid,
             'output_name' => 'Detailed Output',
             'output_class' => 'detailed_output',
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'availability' => [
                     'default' => false,
@@ -404,7 +436,7 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
 });
 
 it('resolves requested or default game versions for blueprint detail', function (): void {
-    $resourceType = ResourceType::factory()->create();
+    $resourceType = Commodity::factory()->create();
     $blueprint = Blueprint::factory()->create();
     $defaultOutputItemUuid = fake()->uuid();
     $requestedOutputItemUuid = fake()->uuid();
@@ -412,10 +444,10 @@ it('resolves requested or default game versions for blueprint detail', function 
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_VERSIONED',
             'output_item_uuid' => $defaultOutputItemUuid,
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'tiers' => [
                     [
@@ -441,10 +473,10 @@ it('resolves requested or default game versions for blueprint detail', function 
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->requestedVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_VERSIONED',
             'output_item_uuid' => $requestedOutputItemUuid,
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'tiers' => [
                     [
@@ -511,7 +543,7 @@ it('resolves requested or default game versions for blueprint detail', function 
 });
 
 it('preserves grouped requirement alternatives in raw tiers', function (): void {
-    $resourceType = ResourceType::factory()->create([
+    $resourceType = Commodity::factory()->create([
         'name' => 'Lindinium',
     ]);
 
@@ -520,9 +552,9 @@ it('preserves grouped requirement alternatives in raw tiers', function (): void 
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_GROUPED_REQUIREMENTS',
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'tiers' => [
                     [
@@ -575,7 +607,7 @@ it('preserves grouped requirement alternatives in raw tiers', function (): void 
 });
 
 it('preserves nested requirement children in normalized detail fields', function (): void {
-    $resourceType = ResourceType::factory()->create([
+    $resourceType = Commodity::factory()->create([
         'name' => 'Taranite',
     ]);
 
@@ -585,9 +617,9 @@ it('preserves nested requirement children in normalized detail fields', function
     BlueprintData::factory()
         ->for($blueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($resourceType)
         ->create([
             'key' => 'BP_NESTED_REQUIREMENT_GROUPS',
-            'ingredient_resource_type_uuids' => [$resourceType->uuid],
             'data' => [
                 'tiers' => [
                     [
@@ -659,7 +691,6 @@ it('searches blueprints by output query and explicit output filters', function (
             'output_item_uuid' => $matchingOutputUuid,
             'output_name' => 'Forge Beam Mk I',
             'output_class' => 'forge_beam_mk1',
-            'ingredient_resource_type_uuids' => [],
             'data' => [
                 'output' => [
                     'uuid' => $matchingOutputUuid,
@@ -679,7 +710,6 @@ it('searches blueprints by output query and explicit output filters', function (
             'key' => 'BP_OUTPUT_OTHER',
             'output_name' => 'Shield Array',
             'output_class' => 'shield_array',
-            'ingredient_resource_type_uuids' => [],
             'data' => [
                 'output' => [
                     'name' => 'Shield Array',
@@ -735,13 +765,13 @@ it('searches blueprints by output query and explicit output filters', function (
 });
 
 it('filters blueprints by ingredient name and uuid', function (): void {
-    $hephaestanite = ResourceType::factory()->create([
+    $hephaestanite = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'key' => 'Hephaestanite',
         'name' => 'Hephaestanite',
     ]);
 
-    $quantanium = ResourceType::factory()->create([
+    $quantanium = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'key' => 'Quantanium',
         'name' => 'Quantanium',
@@ -751,9 +781,9 @@ it('filters blueprints by ingredient name and uuid', function (): void {
     BlueprintData::factory()
         ->for($hephaestaniteBlueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($hephaestanite)
         ->create([
             'key' => 'BP_INPUT_HEPHAE',
-            'ingredient_resource_type_uuids' => [$hephaestanite->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -763,9 +793,9 @@ it('filters blueprints by ingredient name and uuid', function (): void {
     BlueprintData::factory()
         ->for($quantaniumBlueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($quantanium)
         ->create([
             'key' => 'BP_INPUT_QUANTA',
-            'ingredient_resource_type_uuids' => [$quantanium->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -786,24 +816,24 @@ it('filters blueprints by ingredient name and uuid', function (): void {
     $ingredientByNameResponse->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $hephaestaniteBlueprint->uuid)
-        ->assertJsonPath('data.0.ingredients.0.name', null)
+        ->assertJsonPath('data.0.ingredients.0.name', 'Hephaestanite')
         ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $hephaestanite->uuid);
 
     $ingredientByUuidResponse->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $quantaniumBlueprint->uuid)
-        ->assertJsonPath('data.0.ingredients.0.name', null)
+        ->assertJsonPath('data.0.ingredients.0.name', 'Quantanium')
         ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $quantanium->uuid);
 });
 
 it('filters blueprints by multiple ingredient uuids and requires every selected resource', function (): void {
-    $alpha = ResourceType::factory()->create([
+    $alpha = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'key' => 'AlphaResource',
         'name' => 'Alpha Resource',
     ]);
 
-    $beta = ResourceType::factory()->create([
+    $beta = Commodity::factory()->create([
         'uuid' => fake()->uuid(),
         'key' => 'BetaResource',
         'name' => 'Beta Resource',
@@ -813,9 +843,9 @@ it('filters blueprints by multiple ingredient uuids and requires every selected 
     BlueprintData::factory()
         ->for($matchingBlueprint, 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($alpha, $beta)
         ->create([
             'key' => 'BP_INPUT_ALPHA_BETA',
-            'ingredient_resource_type_uuids' => [$alpha->uuid, $beta->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -824,9 +854,9 @@ it('filters blueprints by multiple ingredient uuids and requires every selected 
     BlueprintData::factory()
         ->for(Blueprint::factory(), 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($alpha)
         ->create([
             'key' => 'BP_INPUT_ALPHA_ONLY',
-            'ingredient_resource_type_uuids' => [$alpha->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -835,9 +865,9 @@ it('filters blueprints by multiple ingredient uuids and requires every selected 
     BlueprintData::factory()
         ->for(Blueprint::factory(), 'blueprint')
         ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($beta)
         ->create([
             'key' => 'BP_INPUT_BETA_ONLY',
-            'ingredient_resource_type_uuids' => [$beta->uuid],
             'data' => [
                 'tiers' => [],
             ],
@@ -979,7 +1009,6 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
         ->create([
             'key' => 'BP_SORT_FAST',
             'craft_time_seconds' => 60,
-            'ingredient_resource_type_uuids' => [fake()->uuid()],
             'data' => [
                 'output' => [
                     'name' => 'Fast Build',
@@ -1012,7 +1041,6 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
         ->create([
             'key' => 'BP_SORT_SLOW',
             'craft_time_seconds' => 240,
-            'ingredient_resource_type_uuids' => [fake()->uuid(), fake()->uuid()],
             'data' => [
                 'output' => [
                     'name' => 'Slow Build',

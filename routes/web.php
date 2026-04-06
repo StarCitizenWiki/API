@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
+use App\Http\Controllers\Web\Game\CommodityController;
 use App\Http\Controllers\Web\Game\ItemController;
 use App\Http\Controllers\Web\Game\StarmapLocationController;
 use App\Http\Controllers\Web\Game\VehicleController;
@@ -57,6 +58,9 @@ Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
 
 Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
 Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.items.show');
+
+Route::get('/commodities', [CommodityController::class, 'index'])->name('web.commodities.index');
+Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->whereUuid('identifier')->name('web.commodities.show');
 
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');

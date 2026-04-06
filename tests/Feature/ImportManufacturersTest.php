@@ -26,10 +26,10 @@ it('imports manufacturers and skips invalid rows', function (): void {
     $m4 = fake()->uuid();
 
     $payload = [
-        ['reference' => $m1, 'name' => 'Alpha', 'code' => 'ALP'],
-        ['reference' => $m2, 'name' => 'Beta', 'code' => 'BET'],
-        ['reference' => $m3, 'name' => 'Gamma'],
-        ['reference' => $m4, 'code' => 'NON'],
+        ['Reference' => $m1, 'Name' => 'Alpha', 'Code' => 'ALP'],
+        ['Reference' => $m2, 'Name' => 'Beta', 'Code' => 'BET'],
+        ['Reference' => $m3, 'Name' => 'Gamma'],
+        ['Reference' => $m4, 'Code' => 'NON'],
     ];
 
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode($payload, JSON_THROW_ON_ERROR));
@@ -70,8 +70,8 @@ it('upserts existing manufacturers and reports counts', function (): void {
     ]);
 
     $payload = [
-        ['reference' => $existing, 'name' => 'Updated Name', 'code' => 'NEW'],
-        ['reference' => $new, 'name' => 'New Manufacturer', 'code' => 'NEWC'],
+        ['Reference' => $existing, 'Name' => 'Updated Name', 'Code' => 'NEW'],
+        ['Reference' => $new, 'Name' => 'New Manufacturer', 'Code' => 'NEWC'],
     ];
 
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode($payload, JSON_THROW_ON_ERROR));

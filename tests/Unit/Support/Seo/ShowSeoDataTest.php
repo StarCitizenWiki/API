@@ -95,9 +95,9 @@ it('builds starmap seo data with query-only version handling and identifier fall
     $seo = app(StarmapLocationShowSeoData::class)->build([
         'uuid' => $locationUuid,
         'name' => 'Port Tressler',
-        'type' => [
-            'name' => 'Station',
-            'classification' => 'Orbital',
+        'Type' => [
+            'Name' => 'Station',
+            'Classification' => 'Orbital',
         ],
         'description' => 'Orbital logistics hub.',
         'star' => [
@@ -108,8 +108,8 @@ it('builds starmap seo data with query-only version handling and identifier fall
             'name' => 'microTech',
             'uuid' => $parentUuid,
         ],
-        'affiliation' => ['name' => 'UEE'],
-        'jurisdiction' => ['name' => 'Civilian'],
+        'Affiliation' => ['Name' => 'UEE'],
+        'Jurisdiction' => ['Name' => 'Civilian'],
         'child_count' => '3',
     ], $request);
 

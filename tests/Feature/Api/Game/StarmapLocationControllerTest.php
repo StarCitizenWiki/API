@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\EntityTag;
 use App\Models\Game\GameVersion;
+use App\Models\Game\Resource\Resource;
+use App\Models\Game\Resource\ResourceCommodity;
+use App\Models\Game\Resource\ResourceData;
+use App\Models\Game\Resource\ResourceLocation;
+use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
@@ -61,8 +67,8 @@ it('lists versioned starmap locations with filters and sorting', function (): vo
         'size' => 400.0,
         'data' => [
             'kind' => 'system',
-            'type' => [
-                'classification' => 'Solar System',
+            'Type' => [
+                'Classification' => 'Solar System',
             ],
         ],
     ], $systemLocation);
@@ -73,8 +79,8 @@ it('lists versioned starmap locations with filters and sorting', function (): vo
         'type_name' => 'Star',
         'data' => [
             'kind' => 'star',
-            'type' => [
-                'classification' => 'Star',
+            'Type' => [
+                'Classification' => 'Star',
             ],
         ],
     ], $starLocation);
@@ -88,8 +94,8 @@ it('lists versioned starmap locations with filters and sorting', function (): vo
         'size' => 120.0,
         'data' => [
             'kind' => 'planet',
-            'type' => [
-                'classification' => 'Planet',
+            'Type' => [
+                'Classification' => 'Planet',
             ],
         ],
     ], $planetLocation);
@@ -103,10 +109,10 @@ it('lists versioned starmap locations with filters and sorting', function (): vo
         'size' => 10.0,
         'data' => [
             'kind' => 'station',
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
-            'respawnLocationType' => 'Hospital',
+            'RespawnLocationType' => 'Hospital',
         ],
     ], $stationLocation);
 
@@ -117,8 +123,8 @@ it('lists versioned starmap locations with filters and sorting', function (): vo
         'size' => 15.0,
         'data' => [
             'kind' => 'station-old',
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
         ],
     ], $stationLocation);
@@ -154,8 +160,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
         'data' => [
-            'type' => [
-                'classification' => 'Solar System',
+            'Type' => [
+                'Classification' => 'Solar System',
             ],
         ],
     ], $systemLocation);
@@ -165,8 +171,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'Planet',
         'data' => [
-            'type' => [
-                'classification' => 'Planet',
+            'Type' => [
+                'Classification' => 'Planet',
             ],
         ],
     ], $parentWithChildren);
@@ -176,8 +182,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'Planet',
         'data' => [
-            'type' => [
-                'classification' => 'Planet',
+            'Type' => [
+                'Classification' => 'Planet',
             ],
         ],
     ], $parentWithoutChildren);
@@ -192,8 +198,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'LandingZone',
         'data' => [
-            'type' => [
-                'classification' => 'Landing Zone',
+            'Type' => [
+                'Classification' => 'Landing Zone',
             ],
         ],
     ], $childLocationOne);
@@ -204,8 +210,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
         ],
     ], $childLocationTwo);
@@ -216,8 +222,8 @@ it('returns version scoped child counts and allows sorting by child_count', func
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
         ],
     ], $legacyChildLocation);
@@ -251,8 +257,8 @@ it('filters starmap locations by amenity display name and comma delimited values
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
         'data' => [
-            'type' => [
-                'classification' => 'Solar System',
+            'Type' => [
+                'Classification' => 'Solar System',
             ],
         ],
     ], $systemLocation);
@@ -262,8 +268,8 @@ it('filters starmap locations by amenity display name and comma delimited values
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
         ],
     ], $clinicLocation);
@@ -273,8 +279,8 @@ it('filters starmap locations by amenity display name and comma delimited values
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => [
-                'classification' => 'Manmade',
+            'Type' => [
+                'Classification' => 'Manmade',
             ],
         ],
     ], $armorLocation);
@@ -319,28 +325,28 @@ it('filters starmap locations by parent uuid and system name', function (): void
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Pyro',
         'system' => 'Pyro',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $otherSystemLocation);
 
     $parentData = createStarmapLocationData($this->defaultVersion, [
         'name' => 'ArcCorp',
         'system' => 'Stanton',
         'type_name' => 'Planet',
-        'data' => ['type' => ['classification' => 'Planet']],
+        'data' => ['Type' => ['Classification' => 'Planet']],
     ], $parentLocation);
 
     $otherParentData = createStarmapLocationData($this->defaultVersion, [
         'name' => 'Hurston',
         'system' => 'Stanton',
         'type_name' => 'Planet',
-        'data' => ['type' => ['classification' => 'Planet']],
+        'data' => ['Type' => ['Classification' => 'Planet']],
     ], $otherParentLocation);
 
     $matchingData = createStarmapLocationData($this->defaultVersion, [
@@ -348,7 +354,7 @@ it('filters starmap locations by parent uuid and system name', function (): void
         'name' => 'Baijini Point',
         'system' => 'Stanton',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $matchingLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -356,14 +362,14 @@ it('filters starmap locations by parent uuid and system name', function (): void
         'name' => 'Everus Harbor',
         'system' => 'Stanton',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $differentParentLocation);
 
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Ruin Station',
         'system' => 'Pyro',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $differentSystemLocation);
 
     $this->getJson('/api/locations?filter[type_name]=Station&filter[parent_uuid]='.$parentLocation->uuid)
@@ -400,35 +406,35 @@ it('treats wildcard characters in parent and system name filters as literal char
         'name' => 'Stan_100%',
         'system' => 'Stan_100%',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $literalSystemLocation);
 
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'StanX100Y',
         'system' => 'StanX100Y',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $wildcardSystemLocation);
 
     $literalParentData = createStarmapLocationData($this->defaultVersion, [
         'name' => 'Arc_100%',
         'system' => 'Stan_100%',
         'type_name' => 'Planet',
-        'data' => ['type' => ['classification' => 'Planet']],
+        'data' => ['Type' => ['Classification' => 'Planet']],
     ], $literalParentLocation);
 
     $wildcardParentData = createStarmapLocationData($this->defaultVersion, [
         'name' => 'ArcA100Y',
         'system' => 'Stan_100%',
         'type_name' => 'Planet',
-        'data' => ['type' => ['classification' => 'Planet']],
+        'data' => ['Type' => ['Classification' => 'Planet']],
     ], $wildcardParentLocation);
 
     $otherSystemParentData = createStarmapLocationData($this->defaultVersion, [
         'name' => 'Arc_100%',
         'system' => 'StanX100Y',
         'type_name' => 'Planet',
-        'data' => ['type' => ['classification' => 'Planet']],
+        'data' => ['Type' => ['Classification' => 'Planet']],
     ], $otherSystemParentLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -436,7 +442,7 @@ it('treats wildcard characters in parent and system name filters as literal char
         'name' => 'Baijini Point',
         'system' => 'Stan_100%',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $matchingLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -444,7 +450,7 @@ it('treats wildcard characters in parent and system name filters as literal char
         'name' => 'Area18 Station',
         'system' => 'Stan_100%',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $parentWildcardLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -452,7 +458,7 @@ it('treats wildcard characters in parent and system name filters as literal char
         'name' => 'Orbituary',
         'system' => 'StanX100Y',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $systemWildcardLocation);
 
     $this->getJson('/api/locations?filter[type_name]=Station&filter[parent_name]=Arc_100%25&filter[system]=Stan_100%25')
@@ -487,7 +493,7 @@ it('filters starmap locations by tag name without querying uuid columns with tex
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -495,7 +501,7 @@ it('filters starmap locations by tag name without querying uuid columns with tex
         'system' => 'Stanton',
         'type_name' => 'LandingZone',
         'location_hierarchy_entity_tag_id' => $networkTag->id,
-        'data' => ['type' => ['classification' => 'Landing Zone']],
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
     ], $networkLocation);
 
     createStarmapLocationData($this->defaultVersion, [
@@ -503,7 +509,7 @@ it('filters starmap locations by tag name without querying uuid columns with tex
         'system' => 'Stanton',
         'type_name' => 'Station',
         'location_hierarchy_entity_tag_id' => $transitTag->id,
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $transitLocation);
 
     $this->getJson('/api/locations?filter[tag]=ArcCorp+Network')
@@ -529,21 +535,21 @@ it('filters out starmap locations that do not have a system', function (): void 
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Area18',
         'system' => 'Stanton',
         'type_name' => 'LandingZone',
-        'data' => ['type' => ['classification' => 'Landing Zone']],
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
     ], $validLocation);
 
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Orphaned Location',
         'system' => null,
         'type_name' => 'Outpost',
-        'data' => ['type' => ['classification' => 'Outpost']],
+        'data' => ['Type' => ['Classification' => 'Outpost']],
     ], $systemlessLocation);
 
     $response = $this->getJson('/api/locations');
@@ -578,12 +584,12 @@ it('shows a detailed starmap location by uuid', function (): void {
         'type_name' => 'SolarSystem',
         'data' => [
             'kind' => 'system',
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'SolarSystem',
-                'classification' => 'Solar System',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'SolarSystem',
+                'Classification' => 'Solar System',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $systemLocation);
@@ -595,12 +601,12 @@ it('shows a detailed starmap location by uuid', function (): void {
         'type_name' => 'Star',
         'data' => [
             'kind' => 'star',
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'Star',
-                'classification' => 'Star',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'Star',
+                'Classification' => 'Star',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $starLocation);
@@ -614,8 +620,8 @@ it('shows a detailed starmap location by uuid', function (): void {
         'location_hierarchy_entity_tag_id' => $tag->id,
         'data' => [
             'kind' => 'parent',
-            'type' => [
-                'classification' => 'Planet',
+            'Type' => [
+                'Classification' => 'Planet',
             ],
         ],
     ], $parentLocation);
@@ -629,31 +635,31 @@ it('shows a detailed starmap location by uuid', function (): void {
         'location_hierarchy_entity_tag_id' => $tag->id,
         'data' => [
             'kind' => 'child',
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'Station',
-                'classification' => 'Manmade',
-                'spawnNavPoints' => true,
-                'validQuantumTravelDestination' => true,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'Station',
+                'Classification' => 'Manmade',
+                'SpawnNavPoints' => true,
+                'ValidQuantumTravelDestination' => true,
             ],
-            'jurisdiction' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'UEE',
-                'baseFine' => 125,
-                'maxStolenGoodsPossessionScu' => 1,
-                'isPrison' => false,
+            'Jurisdiction' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'UEE',
+                'BaseFine' => 125,
+                'MaxStolenGoodsPossessionScu' => 1,
+                'IsPrison' => false,
             ],
-            'affiliation' => [
-                'uuid' => fake()->uuid(),
-                'displayName' => 'Covalex',
+            'Affiliation' => [
+                'UUID' => fake()->uuid(),
+                'DisplayName' => 'Covalex',
             ],
-            'radarContactType' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'SpaceStation',
-                'displayName' => 'Nav Point',
-                'tagUuid' => fake()->uuid(),
-                'tagName' => 'SpaceStation',
-                'isObjectOfInterest' => false,
+            'RadarContactType' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'SpaceStation',
+                'DisplayName' => 'Nav Point',
+                'TagUUID' => fake()->uuid(),
+                'TagName' => 'SpaceStation',
+                'IsObjectOfInterest' => false,
             ],
         ],
     ], $childLocation);
@@ -692,12 +698,12 @@ it('returns null for optional detailed starmap objects when source data is absen
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'SolarSystem',
-                'classification' => 'Solar System',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'SolarSystem',
+                'Classification' => 'Solar System',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $systemLocation);
@@ -708,12 +714,12 @@ it('returns null for optional detailed starmap objects when source data is absen
         'type_name' => 'Outpost',
         'location_hierarchy_entity_tag_id' => null,
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'Outpost',
-                'classification' => 'Outpost',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => true,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'Outpost',
+                'Classification' => 'Outpost',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => true,
             ],
         ],
     ], $childLocation);
@@ -750,12 +756,12 @@ it('shows child links on the detailed parent starmap location response when requ
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'SolarSystem',
-                'classification' => 'Solar System',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'SolarSystem',
+                'Classification' => 'Solar System',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $systemLocation);
@@ -765,12 +771,12 @@ it('shows child links on the detailed parent starmap location response when requ
         'system' => 'Stanton',
         'type_name' => 'Planet',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'Planet',
-                'classification' => 'Planet',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => true,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'Planet',
+                'Classification' => 'Planet',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => true,
             ],
         ],
     ], $parentLocation);
@@ -786,40 +792,40 @@ it('shows child links on the detailed parent starmap location response when requ
         'is_scannable' => true,
         'block_travel' => true,
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'LandingZone',
-                'classification' => 'Landing Zone',
-                'spawnNavPoints' => true,
-                'validQuantumTravelDestination' => true,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'LandingZone',
+                'Classification' => 'Landing Zone',
+                'SpawnNavPoints' => true,
+                'ValidQuantumTravelDestination' => true,
             ],
-            'jurisdiction' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'UEE',
-                'baseFine' => 125,
-                'maxStolenGoodsPossessionScu' => 1,
-                'isPrison' => false,
+            'Jurisdiction' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'UEE',
+                'BaseFine' => 125,
+                'MaxStolenGoodsPossessionScu' => 1,
+                'IsPrison' => false,
             ],
-            'affiliation' => [
-                'uuid' => fake()->uuid(),
-                'displayName' => 'ArcCorp',
+            'Affiliation' => [
+                'UUID' => fake()->uuid(),
+                'DisplayName' => 'ArcCorp',
             ],
-            'radarContactType' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'LandingZone',
-                'displayName' => 'Landing Zone',
-                'tagUuid' => fake()->uuid(),
-                'tagName' => 'LandingZone',
-                'isObjectOfInterest' => true,
+            'RadarContactType' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'LandingZone',
+                'DisplayName' => 'Landing Zone',
+                'TagUUID' => fake()->uuid(),
+                'TagName' => 'LandingZone',
+                'IsObjectOfInterest' => true,
             ],
-            'respawnLocationType' => 'Hospital',
-            'hideInStarmap' => true,
-            'hideInWorld' => false,
-            'quantumTravel' => [
-                'arrivalRadius' => 1500,
+            'RespawnLocationType' => 'Hospital',
+            'HideInStarmap' => true,
+            'HideInWorld' => false,
+            'QuantumTravel' => [
+                'ArrivalRadius' => 1500,
             ],
-            'asteroidRing' => [
-                'innerRadius' => 25,
+            'AsteroidRing' => [
+                'InnerRadius' => 25,
             ],
         ],
     ], $childLocation);
@@ -832,12 +838,12 @@ it('shows child links on the detailed parent starmap location response when requ
         'system' => 'Stanton',
         'type_name' => 'District',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'District',
-                'classification' => 'District',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'District',
+                'Classification' => 'District',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $grandchildLocation);
@@ -855,6 +861,7 @@ it('shows child links on the detailed parent starmap location response when requ
                 ->where('respawn_location_type', 'Hospital')
                 ->where('amenities.0.display_name', 'Refuel')
                 ->where('amenity_labels.0', 'Refuel')
+                ->where('has_resources', false)
                 ->missing('type')
                 ->missing('system')
                 ->missing('parent')
@@ -865,13 +872,54 @@ it('shows child links on the detailed parent starmap location response when requ
         );
 });
 
+it('includes has_resources on child summaries in show response', function (): void {
+    $parentLocation = StarmapLocation::factory()->create();
+    $childWithResourcesLocation = StarmapLocation::factory()->create();
+    $childWithoutResourcesLocation = StarmapLocation::factory()->create();
+
+    $parentData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+    ], $parentLocation);
+
+    $childWithData = createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentData->id,
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+    ], $childWithResourcesLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'parent_data_id' => $parentData->id,
+        'name' => 'Area04',
+        'system' => 'Stanton',
+        'type_name' => 'Outpost',
+    ], $childWithoutResourcesLocation);
+
+    $resourceLocation = ResourceLocation::factory()->create();
+    $childWithData->resourceLocations()->sync([$resourceLocation->id]);
+
+    $this->getJson('/api/locations/'.$parentLocation->uuid.'?include=children')
+        ->assertSuccessful()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data.children', 2, fn (AssertableJson $childJson) => $childJson
+                ->where('has_resources', fn (mixed $value): bool => is_bool($value))
+                ->etc()
+            )
+            ->etc()
+        )
+        ->assertJsonPath('data.children.0.has_resources', false)
+        ->assertJsonPath('data.children.1.has_resources', true);
+});
+
 it('does not allow include children on the starmap index response', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     $this->getJson('/api/locations?include=children')
@@ -887,12 +935,12 @@ it('shows a star as child on the detailed solar system response when imported hi
         'system' => 'Stanton System',
         'type_name' => 'SolarSystem',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'SolarSystem',
-                'classification' => 'Solar System',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'SolarSystem',
+                'Classification' => 'Solar System',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $systemLocation);
@@ -903,12 +951,12 @@ it('shows a star as child on the detailed solar system response when imported hi
         'system' => 'Stanton System',
         'type_name' => 'Star',
         'data' => [
-            'type' => [
-                'uuid' => fake()->uuid(),
-                'name' => 'Star',
-                'classification' => 'Star',
-                'spawnNavPoints' => false,
-                'validQuantumTravelDestination' => false,
+            'Type' => [
+                'UUID' => fake()->uuid(),
+                'Name' => 'Star',
+                'Classification' => 'Star',
+                'SpawnNavPoints' => false,
+                'ValidQuantumTravelDestination' => false,
             ],
         ],
     ], $starLocation);
@@ -959,7 +1007,7 @@ it('returns filter facets scoped by the active request filters', function (): vo
         'type_name' => 'SolarSystem',
         'data' => [
             'kind' => 'system',
-            'type' => ['classification' => 'Solar System'],
+            'Type' => ['Classification' => 'Solar System'],
         ],
     ], $systemLocation);
 
@@ -970,9 +1018,9 @@ it('returns filter facets scoped by the active request filters', function (): vo
         'block_travel' => false,
         'data' => [
             'kind' => 'planet',
-            'type' => ['classification' => 'Planet'],
-            'jurisdiction' => ['name' => 'UEE'],
-            'affiliation' => ['displayName' => 'Empire'],
+            'Type' => ['Classification' => 'Planet'],
+            'Jurisdiction' => ['Name' => 'UEE'],
+            'Affiliation' => ['DisplayName' => 'Empire'],
         ],
     ], $planetLocation);
 
@@ -984,10 +1032,10 @@ it('returns filter facets scoped by the active request filters', function (): vo
         'block_travel' => true,
         'data' => [
             'kind' => 'station',
-            'type' => ['classification' => 'Prison'],
-            'respawnLocationType' => 'Hospital',
-            'jurisdiction' => ['name' => 'Advocacy'],
-            'affiliation' => ['displayName' => 'Corrections'],
+            'Type' => ['Classification' => 'Prison'],
+            'RespawnLocationType' => 'Hospital',
+            'Jurisdiction' => ['Name' => 'Advocacy'],
+            'Affiliation' => ['DisplayName' => 'Corrections'],
         ],
     ], $stationLocation);
 
@@ -1036,10 +1084,10 @@ it('filters starmap locations by restored json-backed fields', function (): void
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => ['classification' => 'Orbital Station'],
-            'respawnLocationType' => 'Hospital',
-            'jurisdiction' => ['name' => 'UEE'],
-            'affiliation' => ['displayName' => 'Covalex'],
+            'Type' => ['Classification' => 'Orbital Station'],
+            'RespawnLocationType' => 'Hospital',
+            'Jurisdiction' => ['Name' => 'UEE'],
+            'Affiliation' => ['DisplayName' => 'Covalex'],
         ],
     ], $matchingLocation);
 
@@ -1048,10 +1096,10 @@ it('filters starmap locations by restored json-backed fields', function (): void
         'system' => 'Stanton',
         'type_name' => 'Station',
         'data' => [
-            'type' => ['classification' => 'Security Post'],
-            'respawnLocationType' => 'Clinic',
-            'jurisdiction' => ['name' => 'Crusader'],
-            'affiliation' => ['displayName' => 'Crusader Security'],
+            'Type' => ['Classification' => 'Security Post'],
+            'RespawnLocationType' => 'Clinic',
+            'Jurisdiction' => ['Name' => 'Crusader'],
+            'Affiliation' => ['DisplayName' => 'Crusader Security'],
         ],
     ], $otherLocation);
 
@@ -1083,21 +1131,21 @@ it('returns separate amenity facet rows for duplicate labels with different uuid
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     $clinicDataOne = createStarmapLocationData($this->defaultVersion, [
         'name' => 'Covalex Clinic',
         'system' => 'Stanton',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $clinicLocationOne);
 
     $clinicDataTwo = createStarmapLocationData($this->defaultVersion, [
         'name' => 'Port Tressler Clinic',
         'system' => 'Stanton',
         'type_name' => 'Station',
-        'data' => ['type' => ['classification' => 'Manmade']],
+        'data' => ['Type' => ['Classification' => 'Manmade']],
     ], $clinicLocationTwo);
 
     $clinicDataOne->amenities()->sync([$clinicAmenityOne->id]);
@@ -1124,7 +1172,7 @@ it('caches only broad starmap facet responses', function (): void {
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
@@ -1152,7 +1200,7 @@ it('treats blank starmap facet inputs as broad cache requests', function (): voi
         'name' => 'Stanton',
         'system' => 'Stanton',
         'type_name' => 'SolarSystem',
-        'data' => ['type' => ['classification' => 'Solar System']],
+        'data' => ['Type' => ['Classification' => 'Solar System']],
     ], $systemLocation);
 
     $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
@@ -1164,4 +1212,385 @@ it('treats blank starmap facet inputs as broad cache requests', function (): voi
 
     expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
         ->and(Cache::get($broadKey))->not->toBeNull();
+});
+
+it('filters starmap locations by has_resources flag and includes has_resources in index response', function (): void {
+    $withResourcesLocation = StarmapLocation::factory()->create();
+    $withoutResourcesLocation = StarmapLocation::factory()->create();
+
+    $withData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Hurston',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+        'data' => ['Type' => ['Classification' => 'Planet']],
+    ], $withResourcesLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
+    ], $withoutResourcesLocation);
+
+    $resourceLocation = ResourceLocation::factory()->create();
+    $withData->resourceLocations()->sync([$resourceLocation->id]);
+
+    $this->getJson('/api/locations?filter[has_resources]=true')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $withResourcesLocation->uuid)
+        ->assertJsonPath('data.0.has_resources', true)
+        ->assertJsonMissing(['uuid' => $withoutResourcesLocation->uuid]);
+
+    $this->getJson('/api/locations?filter[has_resources]=false')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $withoutResourcesLocation->uuid)
+        ->assertJsonPath('data.0.has_resources', false)
+        ->assertJsonMissing(['uuid' => $withResourcesLocation->uuid]);
+
+    $this->getJson('/api/locations')
+        ->assertSuccessful()
+        ->assertJsonCount(2, 'data');
+});
+
+it('filters starmap locations by resource commodity name and uuid', function (): void {
+    $quantaniumLocation = StarmapLocation::factory()->create();
+    $hephaestaniteLocation = StarmapLocation::factory()->create();
+    $noResourcesLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Daymar',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+        'data' => ['Type' => ['Classification' => 'Moon']],
+    ], $quantaniumLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Yela',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+        'data' => ['Type' => ['Classification' => 'Moon']],
+    ], $hephaestaniteLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Port Olisar',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['Type' => ['Classification' => 'Manmade']],
+    ], $noResourcesLocation);
+
+    $quantanium = Commodity::factory()->create([
+        'name' => 'Quantanium (Raw)',
+    ]);
+
+    $hephaestanite = Commodity::factory()->create([
+        'name' => 'Hephaestanite (Raw)',
+    ]);
+
+    $quantaniumResourceData = ResourceData::factory()->create([
+        'game_version_id' => $this->defaultVersion->id,
+    ]);
+    $quantaniumResourceData->commodities()->sync([$quantanium->id]);
+
+    $hephaestaniteResourceData = ResourceData::factory()->create([
+        'game_version_id' => $this->defaultVersion->id,
+    ]);
+    $hephaestaniteResourceData->commodities()->sync([$hephaestanite->id]);
+
+    $quantaniumRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $quantaniumResourceData->id,
+    ]);
+    $hephaestaniteRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $hephaestaniteResourceData->id,
+    ]);
+
+    $quantaniumLocationData = StarmapLocationData::where('name', 'Daymar')
+        ->where('game_version_id', $this->defaultVersion->id)
+        ->first();
+    $quantaniumLocationData->resourceLocations()->sync([$quantaniumRL->id]);
+
+    $hephaestaniteLocationData = StarmapLocationData::where('name', 'Yela')
+        ->where('game_version_id', $this->defaultVersion->id)
+        ->first();
+    $hephaestaniteLocationData->resourceLocations()->sync([$hephaestaniteRL->id]);
+
+    $this->getJson('/api/locations?filter[resource]='.urlencode('Quantanium (Raw)'))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $quantaniumLocation->uuid)
+        ->assertJsonMissing(['uuid' => $hephaestaniteLocation->uuid]);
+
+    $this->getJson('/api/locations?filter[resource]='.$quantanium->uuid)
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $quantaniumLocation->uuid);
+
+    $this->getJson('/api/locations?filter[resource]='.urlencode('Quantanium (Raw)').','.urlencode('Hephaestanite (Raw)'))
+        ->assertSuccessful()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment(['uuid' => $quantaniumLocation->uuid])
+        ->assertJsonFragment(['uuid' => $hephaestaniteLocation->uuid]);
+
+    $this->getJson('/api/locations?filter[resource]='.$quantanium->uuid.','.$hephaestanite->uuid)
+        ->assertSuccessful()
+        ->assertJsonCount(2, 'data');
+});
+
+it('groups resources by deposit in include=resources', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+    $locationData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Daymar',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+    ], $starmapLocation);
+
+    $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold', 'tier' => 'rare']);
+    $borase = Commodity::factory()->create(['name' => 'Borase', 'key' => 'Ore_Borase', 'tier' => 'legendary']);
+
+    $resource = Resource::factory()->create();
+    $resourceData = ResourceData::factory()->create([
+        'resource_id' => $resource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'MineableRock_SurfaceRare_Gold',
+        'kind' => 'mineable',
+    ]);
+
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $gold->id,
+        'max_percentage' => 0.7,
+    ]);
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $borase->id,
+        'max_percentage' => 0.3,
+    ]);
+
+    $resourceLocation = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'quality_min' => 100,
+        'quality_max' => 500,
+    ]);
+    $resourceLocation->starmapLocationData()->attach($locationData->id);
+
+    $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=resources');
+
+    $response->assertSuccessful();
+
+    $resources = $response->json('data.resources');
+    $shipMiningGroup = collect($resources)->first(fn (array $g): bool => $g['mining_type'] === 'Ship Mining');
+    expect($shipMiningGroup)->not->toBeNull();
+
+    $groupResources = $shipMiningGroup['resources'];
+    expect($groupResources)->toHaveCount(1);
+
+    $deposit = $groupResources[0];
+    expect($deposit)->not->toHaveKey('deposits')
+        ->and($deposit['key'])->toBe('MineableRock_SurfaceRare_Gold')
+        ->and($deposit['name'])->toBe('Gold')
+        ->and($deposit['uuid'])->toBe($gold->uuid)
+        ->and($deposit['tier'])->toBe('rare');
+});
+
+it('deduplicates resource locations when deposit has multiple commodities', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+    $locationData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Yela',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+    ], $starmapLocation);
+
+    $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold', 'tier' => 'rare']);
+    $bexalite = Commodity::factory()->create(['name' => 'Bexalite', 'key' => 'Ore_Bexalite', 'tier' => 'epic']);
+
+    $resource = Resource::factory()->create();
+    $resourceData = ResourceData::factory()->create([
+        'resource_id' => $resource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'MineableRock_SurfaceRare_Gold',
+        'kind' => 'mineable',
+    ]);
+
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $gold->id,
+        'max_percentage' => 0.5,
+    ]);
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $bexalite->id,
+        'max_percentage' => 0.6,
+    ]);
+
+    $provider = ResourceProvider::factory()->create();
+
+    $rl1 = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'quality_min' => 100,
+        'quality_max' => 300,
+    ]);
+    $rl1->starmapLocationData()->attach($locationData->id);
+
+    $rl2 = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'quality_min' => 400,
+        'quality_max' => 800,
+    ]);
+    $rl2->starmapLocationData()->attach($locationData->id);
+
+    $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=resources');
+
+    $response->assertSuccessful();
+
+    $resources = $response->json('data.resources');
+    $shipMiningGroup = collect($resources)->first(fn (array $g): bool => $g['mining_type'] === 'Ship Mining');
+    $deposit = $shipMiningGroup['resources'][0];
+
+    expect($deposit['materials'])->toHaveCount(2);
+
+    $entryQualityMins = collect($deposit['materials'])->pluck('quality_min')->sort()->values()->all();
+    expect($entryQualityMins)->toBe([100, 400]);
+});
+
+it('selects primary commodity by highest max_percentage', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+    $locationData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'microTech',
+        'system' => 'Stanton',
+        'type_name' => 'Planet',
+    ], $starmapLocation);
+
+    $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold', 'tier' => 'rare']);
+    $bexalite = Commodity::factory()->create(['name' => 'Bexalite', 'key' => 'Ore_Bexalite', 'tier' => 'epic']);
+
+    $resource = Resource::factory()->create();
+    $resourceData = ResourceData::factory()->create([
+        'resource_id' => $resource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'MineableRock_SurfaceEpic_Bexalite',
+        'kind' => 'mineable',
+    ]);
+
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $gold->id,
+        'max_percentage' => 0.3,
+    ]);
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $bexalite->id,
+        'max_percentage' => 0.8,
+    ]);
+
+    $provider = ResourceProvider::factory()->create();
+
+    $rlGold = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'commodity_id' => $gold->id,
+    ]);
+    $rlGold->starmapLocationData()->attach($locationData->id);
+
+    $rlBexalite = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'commodity_id' => $bexalite->id,
+    ]);
+    $rlBexalite->starmapLocationData()->attach($locationData->id);
+
+    $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=resources');
+
+    $response->assertSuccessful();
+
+    $resources = $response->json('data.resources');
+    $shipMiningGroup = collect($resources)->first(fn (array $g): bool => $g['mining_type'] === 'Ship Mining');
+    $deposit = $shipMiningGroup['resources'][0];
+
+    expect($deposit['name'])->toBe('Bexalite')
+        ->and($deposit['uuid'])->toBe($bexalite->uuid)
+        ->and($deposit['tier'])->toBe('epic');
+
+    $materials = $deposit['materials'];
+    $bexaliteEntry = collect($materials)->first(fn (array $c): bool => $c['key'] === 'Ore_Bexalite');
+    $goldEntry = collect($materials)->first(fn (array $c): bool => $c['key'] === 'Ore_Gold');
+    expect($bexaliteEntry['is_current'])->toBeTrue()
+        ->and($goldEntry['is_current'])->toBeFalse();
+});
+
+it('separates deposits with different keys within same mining type', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+    $locationData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Daymar',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+    ], $starmapLocation);
+
+    $iron = Commodity::factory()->create(['name' => 'Iron', 'key' => 'Ore_Iron', 'tier' => 'common']);
+    $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold', 'tier' => 'rare']);
+
+    $ironResource = Resource::factory()->create();
+    $ironResourceData = ResourceData::factory()->create([
+        'resource_id' => $ironResource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'MineableRock_SurfaceCommon_Iron',
+        'kind' => 'mineable',
+    ]);
+    ResourceCommodity::create([
+        'resource_data_id' => $ironResourceData->id,
+        'commodity_id' => $iron->id,
+        'max_percentage' => 1.0,
+    ]);
+
+    $goldResource = Resource::factory()->create();
+    $goldResourceData = ResourceData::factory()->create([
+        'resource_id' => $goldResource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'MineableRock_SurfaceRare_Gold',
+        'kind' => 'mineable',
+    ]);
+    ResourceCommodity::create([
+        'resource_data_id' => $goldResourceData->id,
+        'commodity_id' => $gold->id,
+        'max_percentage' => 0.7,
+    ]);
+
+    $ironRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $ironResourceData->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+    ]);
+    $ironRL->starmapLocationData()->attach($locationData->id);
+
+    $goldRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $goldResourceData->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+    ]);
+    $goldRL->starmapLocationData()->attach($locationData->id);
+
+    $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=resources');
+
+    $response->assertSuccessful();
+
+    $resources = $response->json('data.resources');
+    $shipMiningGroup = collect($resources)->first(fn (array $g): bool => $g['mining_type'] === 'Ship Mining');
+    $groupResources = $shipMiningGroup['resources'];
+
+    expect($groupResources)->toHaveCount(2);
+
+    $names = collect($groupResources)->pluck('name')->sort()->values()->all();
+    expect($names)->toBe(['Gold', 'Iron']);
 });

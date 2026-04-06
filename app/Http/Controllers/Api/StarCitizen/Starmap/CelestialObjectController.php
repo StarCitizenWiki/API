@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
+use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
@@ -18,6 +19,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,7 +32,11 @@ class CelestialObjectController extends Controller
     private function buildBaseQuery(Request $request, ?string $code = null): QueryBuilder
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
-            ->allowedIncludes(...CelestialObjectResource::validIncludes())
+            ->allowedIncludes(
+                'affiliation',
+                'starsystem',
+                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppointEntry', 'jumppointExit'])),
+            )
             ->allowedFilters(...[
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
                 AllowedFilter::partial('name'),
@@ -51,16 +57,6 @@ class CelestialObjectController extends Controller
                 'sensor_economy',
                 'sensor_danger',
             ]);
-
-        $includes = $request->get('include', '');
-
-        if (str_contains($includes, 'starsystem')) {
-            $query->with(['starsystem']);
-        }
-
-        if (str_contains($includes, 'jumppoints')) {
-            $query->with(['jumppointEntry', 'jumppointExit']);
-        }
 
         if ($code !== null) {
             $query->whereRaw('upper(code) = ?', [$code]);

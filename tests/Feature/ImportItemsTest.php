@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ImportItemData;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\EntityTag;
 use App\Models\Game\GameLabel;
 use App\Models\Game\GameVersion;
@@ -477,4 +478,136 @@ it('reuses normalized entity tags across item imports', function (): void {
     expect(EntityTag::query()->count())->toBe(3)
         ->and($firstTagIds)->toBe($secondTagIds)
         ->and($secondData->entityTags->pluck('name')->sort()->values()->all())->toBe(['Existing One', 'Existing Two', 'New One']);
+});
+
+it('syncs commodities from ResourceContainer DefaultComposition', function (): void {
+    Storage::fake('scunpacked');
+
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new Labels;
+
+    $version = GameVersion::query()->create([
+        'code' => '3.26.0',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => false,
+    ]);
+
+    $manufacturerUuid = fake()->uuid();
+    Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Test Manufacturer',
+        'code' => 'TMFR',
+    ]);
+
+    $commodityUuid1 = fake()->uuid();
+    $commodityUuid2 = fake()->uuid();
+    $commodity1 = Commodity::factory()->create(['uuid' => $commodityUuid1, 'name' => 'Aphorite']);
+    $commodity2 = Commodity::factory()->create(['uuid' => $commodityUuid2, 'name' => 'EVA Fuel']);
+
+    $itemUuid = fake()->uuid();
+    $payload = [
+        'Item' => [
+            'reference' => $itemUuid,
+            'className' => 'TST_Commodity_Item',
+            'itemName' => 'Commodity Item',
+            'type' => 'Cargo',
+            'stdItem' => [
+                'Manufacturer' => [
+                    'Code' => 'TMFR',
+                    'UUID' => $manufacturerUuid,
+                ],
+                'ResourceContainer' => [
+                    'DefaultComposition' => [
+                        ['Entry' => $commodityUuid1, 'Weight' => 1],
+                        ['Entry' => $commodityUuid2, 'Weight' => 0.5],
+                    ],
+                ],
+            ],
+        ],
+        'Raw' => [],
+    ];
+
+    Storage::disk('scunpacked')->put('items/commodity.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    (new ImportItemData($version->id, 'items/commodity.json', $labels))->handle();
+
+    $data = ItemData::query()
+        ->whereHas('item', fn ($q) => $q->where('uuid', $itemUuid))
+        ->where('game_version_id', $version->id)
+        ->first();
+
+    expect($data)->not->toBeNull();
+
+    $commodities = $data->commodities;
+    expect($commodities)->toHaveCount(2)
+        ->and($commodities->pluck('uuid')->sort()->values()->all())->toBe(collect([$commodityUuid1, $commodityUuid2])->sort()->values()->all());
+
+    // Re-run with one commodity removed to verify sync is idempotent
+    $payload['Item']['stdItem']['ResourceContainer']['DefaultComposition'] = [
+        ['Entry' => $commodityUuid1, 'Weight' => 1],
+    ];
+    Storage::disk('scunpacked')->put('items/commodity.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    (new ImportItemData($version->id, 'items/commodity.json', $labels))->handle();
+
+    $data->refresh();
+    $commodities = $data->commodities;
+    expect($commodities)->toHaveCount(1)
+        ->and($commodities->first()->uuid)->toBe($commodityUuid1);
+});
+
+it('syncs commodities with unknown uuids gracefully', function (): void {
+    Storage::fake('scunpacked');
+
+    GameLabel::factory()->asItemDescTest()->create();
+    $labels = new Labels;
+
+    $version = GameVersion::query()->create([
+        'code' => '3.26.1',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => false,
+    ]);
+
+    $manufacturerUuid = fake()->uuid();
+    Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Test Manufacturer',
+        'code' => 'TMFR',
+    ]);
+
+    $itemUuid = fake()->uuid();
+    $payload = [
+        'Item' => [
+            'reference' => $itemUuid,
+            'className' => 'TST_Unknown_Commodity',
+            'itemName' => 'Unknown Commodity Item',
+            'type' => 'Cargo',
+            'stdItem' => [
+                'Manufacturer' => [
+                    'Code' => 'TMFR',
+                    'UUID' => $manufacturerUuid,
+                ],
+                'ResourceContainer' => [
+                    'DefaultComposition' => [
+                        ['Entry' => '00000000-0000-0000-0000-000000000000', 'Weight' => 1],
+                    ],
+                ],
+            ],
+        ],
+        'Raw' => [],
+    ];
+
+    Storage::disk('scunpacked')->put('items/unknown-commodity.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    (new ImportItemData($version->id, 'items/unknown-commodity.json', $labels))->handle();
+
+    $data = ItemData::query()
+        ->whereHas('item', fn ($q) => $q->where('uuid', $itemUuid))
+        ->where('game_version_id', $version->id)
+        ->first();
+
+    expect($data)->not->toBeNull()
+        ->and($data->commodities)->toHaveCount(0);
 });

@@ -5,6 +5,11 @@
     $typeName = data_get($location, 'type.name', data_get($location, 'type_name'));
     $description = data_get($location, 'description');
     $respawnLocationType = data_get($location, 'respawn_location_type');
+    $designation = data_get($location, 'designation');
+
+    $displayTitle = $designation !== null
+        ? $designation . ': ' . $locationName
+        : $locationName;
 
     if (is_string($description)) {
         $description = trim(html_entity_decode($description));
@@ -28,7 +33,7 @@
                     </span>
 
                     <h1 class="min-w-0 text-3xl font-semibold tracking-tight sm:text-4xl">
-                        {{ $locationName }}
+                        {{ $displayTitle }}
                     </h1>
                 </div>
             </div>

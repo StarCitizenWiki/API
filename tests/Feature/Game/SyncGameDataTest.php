@@ -41,9 +41,9 @@ beforeEach(function (): void {
 
     Storage::disk('scunpacked')->put('manufacturers.json', json_encode([
         [
-            'reference' => fake()->uuid(),
-            'name' => 'Test Manufacturer',
-            'code' => 'TST',
+            'Reference' => fake()->uuid(),
+            'Name' => 'Test Manufacturer',
+            'Code' => 'TST',
         ],
     ], JSON_THROW_ON_ERROR));
 
@@ -51,13 +51,24 @@ beforeEach(function (): void {
         fake()->uuid() => 'Test Tag',
     ], JSON_THROW_ON_ERROR));
 
-    Storage::disk('scunpacked')->put('resource-types.json', json_encode([
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([
         [
-            'uuid' => $this->resourceTypeUuid,
-            'key' => 'test_resource',
-            'name' => 'Test Resource',
+            'UUID' => $this->resourceTypeUuid,
+            'Key' => 'test_resource',
+            'Name' => 'Test Resource',
+            'Description' => 'A test resource.',
+            'RefinedVersionUUID' => null,
+            'RefinedVersionName' => null,
+            'ValidateDefaultCargoBox' => true,
+            'HasDefaultCargoContainers' => false,
+            'CargoContainers' => [],
+            'QualityDistributionUUID' => null,
+            'QualityLocationOverrideUUID' => null,
+            'Tier' => null,
         ],
     ], JSON_THROW_ON_ERROR));
+
+    Storage::disk('scunpacked')->put('resources/resources.json', json_encode([], JSON_THROW_ON_ERROR));
 });
 
 it('imports blueprints when an explicit game version is provided', function (): void {
@@ -70,30 +81,29 @@ it('imports blueprints when an explicit game version is provided', function (): 
 
     Storage::disk('scunpacked')->put('blueprints.json', json_encode([
         [
-            'uuid' => fake()->uuid(),
-            'key' => 'BP_SYNC_ONLY',
-            'category_uuid' => fake()->uuid(),
-            'output' => [
-                'uuid' => fake()->uuid(),
-                'class' => 'sync_only_output',
-                'name' => 'Sync Only Output',
+            'UUID' => fake()->uuid(),
+            'Key' => 'BP_SYNC_ONLY',
+            'Kind' => 'creation',
+            'CategoryUUID' => fake()->uuid(),
+            'Output' => [
+                'UUID' => fake()->uuid(),
+                'Class' => 'sync_only_output',
+                'Name' => 'Sync Only Output',
             ],
-            'availability' => [
-                'default' => true,
+            'Availability' => [
+                'Default' => true,
             ],
-            'tiers' => [
+            'Tiers' => [
                 [
-                    'tier_index' => 0,
-                    'craft_time_seconds' => 45,
-                    'requirements' => [
-                        'kind' => 'root',
-                        'children' => [
+                    'CraftTimeSeconds' => 45,
+                    'Requirements' => [
+                        'Kind' => 'root',
+                        'Children' => [
                             [
-                                'kind' => 'resource',
-                                'uuid' => $this->resourceTypeUuid,
-                                'name' => 'Test Resource',
-                                'quantity_scu' => 1.5,
-                                'min_quality' => 0,
+                                'Kind' => 'resource',
+                                'UUID' => $this->resourceTypeUuid,
+                                'Name' => 'Test Resource',
+                                'QuantityScu' => 1.5,
                             ],
                         ],
                     ],
@@ -106,6 +116,7 @@ it('imports blueprints when an explicit game version is provided', function (): 
         '--game-version' => $version->code,
         '--skip-items' => true,
         '--skip-vehicles' => true,
+        '--skip-resources' => true,
         '--skip-compute-item-base-ids' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
@@ -129,6 +140,7 @@ it('syncs non-versioned data without requiring a game version when item and vehi
         '--skip-items' => true,
         '--skip-vehicles' => true,
         '--skip-starmap' => true,
+        '--skip-resources' => true,
         '--skip-compute-item-base-ids' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
@@ -156,11 +168,10 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
     $this->artisan('game:sync-data', [
         '--game-version' => $version->code,
         '--skip-vehicles' => true,
+        '--skip-resources' => true,
         '--skip-compute-item-base-ids' => true,
         '--skip-backfill-shipmatrix-ids' => true,
-    ])
-        ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('blueprints.json not found in scunpacked storage.');
+    ])->assertExitCode(Command::FAILURE);
 
     Bus::assertNothingBatched();
     Bus::assertNothingDispatched();

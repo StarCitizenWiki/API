@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
+use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Starmap\StarmapLocationResource;
 use App\Models\Game\StarmapLocationData;
@@ -13,6 +14,8 @@ use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,37 +23,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class StarmapLocationController extends Controller
 {
     use FiltersJsonColumns;
     use ResolvesGameVersion;
-
-    /**
-     * @param  array<int, string>  $allowedIncludes
-     * @return array<int, string>
-     */
-    private function parseRequestedIncludes(Request $request, array $allowedIncludes): array
-    {
-        $requestedIncludes = array_values(array_filter(array_map(
-            static fn (string $include): string => trim($include),
-            explode(',', (string) $request->query('include', ''))
-        )));
-        $unsupportedIncludes = array_diff($requestedIncludes, $allowedIncludes);
-
-        if ($unsupportedIncludes !== []) {
-            $allowedMessage = $allowedIncludes === []
-                ? 'Requested includes are not allowed.'
-                : 'Requested includes are not allowed. Allowed includes: '.implode(', ', $allowedIncludes);
-
-            throw new BadRequestHttpException($allowedMessage);
-        }
-
-        return $requestedIncludes;
-    }
 
     /**
      * @return array<int, AllowedFilter>
@@ -109,13 +89,44 @@ class StarmapLocationController extends Controller
             });
         };
 
+        $hasResourcesFilter = static function (Builder $query, mixed $value): void {
+            if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                $query->whereHas('resourceLocations');
+            } else {
+                $query->whereDoesntHave('resourceLocations');
+            }
+        };
+
+        $resourceFilter = static function (Builder $query, mixed $value) use ($requestedFilterValues): void {
+            $values = $requestedFilterValues($value);
+            $textValues = array_values(array_filter($values, static fn (string $entry): bool => ! Str::isUuid($entry)));
+            $uuidValues = array_values(array_filter($values, static fn (string $entry): bool => Str::isUuid($entry)));
+
+            if ($textValues === [] && $uuidValues === []) {
+                return;
+            }
+
+            $query->whereHas('resourceLocations.resourceData.commodities', static function (Builder $commodityQuery) use ($textValues, $uuidValues): void {
+                $commodityQuery->where(static function (Builder $matchQuery) use ($textValues, $uuidValues): void {
+                    if ($textValues !== []) {
+                        $matchQuery->whereIn('game_commodities.name', $textValues);
+                    }
+
+                    if ($uuidValues !== []) {
+                        $method = $textValues === [] ? 'whereIn' : 'orWhereIn';
+                        $matchQuery->{$method}('game_commodities.uuid', $uuidValues);
+                    }
+                });
+            });
+        };
+
         return [
             AllowedFilter::partial('name'),
             AllowedFilter::exact('type_name'),
-            AllowedFilter::callback('type_classification', $jsonFilter('type.classification')),
-            AllowedFilter::callback('respawn_location_type', $jsonFilter('respawnLocationType')),
-            AllowedFilter::callback('jurisdiction_name', $jsonFilter('jurisdiction.name')),
-            AllowedFilter::callback('affiliation_name', $jsonFilter('affiliation.displayName')),
+            AllowedFilter::callback('type_classification', $jsonFilter('Type.Classification')),
+            AllowedFilter::callback('respawn_location_type', $jsonFilter('RespawnLocationType')),
+            AllowedFilter::callback('jurisdiction_name', $jsonFilter('Jurisdiction.Name')),
+            AllowedFilter::callback('affiliation_name', $jsonFilter('Affiliation.DisplayName')),
             AllowedFilter::exact('is_scannable'),
             AllowedFilter::exact('block_travel'),
             AllowedFilter::callback('amenity', $amenityFilter),
@@ -123,6 +134,8 @@ class StarmapLocationController extends Controller
             AllowedFilter::partial('parent_name', 'parent.name'),
             AllowedFilter::exact('parent_uuid', 'parent.location.uuid'),
             AllowedFilter::partial('system'),
+            AllowedFilter::callback('has_resources', $hasResourcesFilter),
+            AllowedFilter::callback('resource', $resourceFilter),
         ];
     }
 
@@ -149,6 +162,7 @@ class StarmapLocationController extends Controller
             'parent.location',
             'star.location',
             'amenities',
+            'locationHierarchyEntityTag',
         ];
     }
 
@@ -178,7 +192,9 @@ class StarmapLocationController extends Controller
                     ->with([
                         'location',
                         'amenities',
+                        'locationHierarchyEntityTag',
                     ])
+                    ->withExists('resourceLocations as has_resources')
                     ->orderBy('name');
             },
         ];
@@ -192,6 +208,7 @@ class StarmapLocationController extends Controller
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->whereNotNull('game_starmap_location_data.system')
             ->allowedFilters(...$this->allowedFilters())
+            ->allowedIncludes('amenities')
             ->allowedSorts(...[
                 'name',
                 'type_name',
@@ -200,7 +217,8 @@ class StarmapLocationController extends Controller
             ])
             ->defaultSort('name')
             ->with($this->indexRelations($gameVersionId))
-            ->withCount($this->childCountRelation($gameVersionId));
+            ->withCount($this->childCountRelation($gameVersionId))
+            ->withExists('resourceLocations as has_resources');
     }
 
     #[OA\Get(
@@ -227,6 +245,8 @@ class StarmapLocationController extends Controller
             new OA\Parameter(name: 'filter[parent_name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[parent_uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -238,8 +258,6 @@ class StarmapLocationController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $this->parseRequestedIncludes($request, []);
-
         return StarmapLocationResource::collection(
             $this->buildBaseQuery($request)->jsonPaginate()
         );
@@ -278,24 +296,36 @@ class StarmapLocationController extends Controller
     )]
     public function show(Request $request, string $identifier): StarmapLocationResource
     {
-        $requestedIncludes = $this->parseRequestedIncludes($request, StarmapLocationResource::validIncludes());
         $gameVersionId = $this->gameVersion()->id;
-        $location = StarmapLocationData::query()
-            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+        $versionCode = $this->gameVersionCode();
+        $childSummaryRelation = $this->childSummaryRelation($gameVersionId);
+
+        $location = QueryBuilder::for(StarmapLocationData::class, $request)
+            ->forRequestedOrDefaultVersion($versionCode)
             ->whereHas('location', static function (Builder $query) use ($identifier): void {
                 $query->where('uuid', $identifier);
             })
             ->whereNotNull('system')
             ->with($this->detailRelations($gameVersionId))
             ->withCount($this->childCountRelation($gameVersionId))
+            ->allowedIncludes(
+                AllowedInclude::custom('children', new CustomEagerLoadInclude($childSummaryRelation)),
+                AllowedInclude::custom('resources', new CustomEagerLoadInclude([
+                    'resourceLocations' => static function (BelongsToMany $q) use ($versionCode): void {
+                        $q->whereHas('resourceData', static fn (Builder $subQ) => $subQ->forRequestedOrDefaultVersion($versionCode))
+                            ->with([
+                                'provider',
+                                'resourceData' => static fn (BelongsTo $subQ) => $subQ
+                                    ->forRequestedOrDefaultVersion($versionCode)
+                                    ->with('commodities'),
+                            ]);
+                    },
+                ])),
+            )
             ->first();
 
         if ($location === null) {
             throw new NotFoundHttpException('No starmap location with specified UUID found.');
-        }
-
-        if (in_array('children', $requestedIncludes, true)) {
-            $location->load($this->childSummaryRelation($gameVersionId));
         }
 
         return new StarmapLocationResource($location);
@@ -321,6 +351,8 @@ class StarmapLocationController extends Controller
             new OA\Parameter(name: 'filter[parent_name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[parent_uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -339,6 +371,7 @@ class StarmapLocationController extends Controller
                                 new OA\Property(property: 'system', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'parent_name', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'amenity', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'resource', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -363,19 +396,19 @@ class StarmapLocationController extends Controller
                     'cast' => null,
                 ],
                 'type_classification' => [
-                    'expr' => $this->jsonExpression('type.classification'),
+                    'expr' => $this->jsonExpression('Type.Classification'),
                     'cast' => null,
                 ],
                 'respawn_location_type' => [
-                    'expr' => $this->jsonExpression('respawnLocationType'),
+                    'expr' => $this->jsonExpression('RespawnLocationType'),
                     'cast' => null,
                 ],
                 'jurisdiction_name' => [
-                    'expr' => $this->jsonExpression('jurisdiction.name'),
+                    'expr' => $this->jsonExpression('Jurisdiction.Name'),
                     'cast' => null,
                 ],
                 'affiliation_name' => [
-                    'expr' => $this->jsonExpression('affiliation.displayName'),
+                    'expr' => $this->jsonExpression('Affiliation.DisplayName'),
                     'cast' => null,
                 ],
                 'system' => [
@@ -396,6 +429,19 @@ class StarmapLocationController extends Controller
                     'join' => static fn ($query) => $query
                         ->leftJoin('game_starmap_location_data_amenity', 'game_starmap_location_data.id', '=', 'game_starmap_location_data_amenity.location_data_id')
                         ->leftJoin('game_starmap_amenities', 'game_starmap_location_data_amenity.amenity_id', '=', 'game_starmap_amenities.id'),
+                    'cast' => null,
+                ],
+                'resource' => [
+                    'expr' => 'game_commodities.uuid',
+                    'label_expr' => 'game_commodities.name',
+                    'group_by' => 'game_commodities.uuid, game_commodities.name',
+                    'order_by' => 'game_commodities.name IS NULL, game_commodities.name, game_commodities.uuid',
+                    'join' => static fn ($query) => $query
+                        ->leftJoin('game_resource_location_placements', 'game_starmap_location_data.id', '=', 'game_resource_location_placements.starmap_location_data_id')
+                        ->leftJoin('game_resource_locations', 'game_resource_location_placements.resource_location_id', '=', 'game_resource_locations.id')
+                        ->leftJoin('game_resource_data', 'game_resource_locations.resource_data_id', '=', 'game_resource_data.id')
+                        ->leftJoin('game_resource_commodity', 'game_resource_data.id', '=', 'game_resource_commodity.resource_data_id')
+                        ->leftJoin('game_commodities', 'game_resource_commodity.commodity_id', '=', 'game_commodities.id'),
                     'cast' => null,
                 ],
             ];

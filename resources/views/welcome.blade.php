@@ -66,6 +66,12 @@
                                         <li><a href="{{ route('web.locations.index') }}">Locations</a></li>
                                     </ul>
                                 </li>
+                                <li>
+                                    <h2 class="menu-title">Commodities</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.commodities.index') }}">Commodities</a></li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
                     </div>

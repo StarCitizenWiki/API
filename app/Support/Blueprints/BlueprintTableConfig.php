@@ -21,6 +21,7 @@ final class BlueprintTableConfig
             'pageSize' => 25,
             'headerFilterOptionsMap' => [
                 'is_available_by_default' => 'default',
+                'resources' => 'resource.uuid',
             ],
             'columns' => [
                 [
@@ -65,6 +66,17 @@ final class BlueprintTableConfig
                     'sorter' => 'number',
                     'hozAlign' => 'right',
                     'width' => 130,
+                ],
+                [
+                    'title' => 'Inputs / Dismantle',
+                    'field' => 'resources',
+                    'formatter' => 'labelList',
+                    'formatterParams' => [
+                        'labelField' => 'name',
+                        'fallbackField' => 'name',
+                    ],
+                    'headerFilter' => 'list',
+                    'minWidth' => 180,
                 ],
                 [
                     'title' => 'Default',

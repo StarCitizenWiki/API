@@ -10,6 +10,7 @@ final class StarmapLocationTableConfig
      * @return array{
      *     title:string,
      *     columns:array<int, array<string, mixed>>,
+     *     externalFilters:array<int, array{title:string, field:string, options?:array<int, array{value:string, label:string}>}>,
      *     headerFilterOptionsMap:array<string, string>
      * }
      */
@@ -26,12 +27,28 @@ final class StarmapLocationTableConfig
             'headerFilterOptionsMap' => [
                 'system' => 'system',
                 'parent.name' => 'parent_name',
-                'type.name' => 'type_name',
                 'type.classification' => 'type_classification',
                 'respawn_location_type' => 'respawn_location_type',
                 'jurisdiction.name' => 'jurisdiction_name',
                 'affiliation.name' => 'affiliation_name',
                 'amenities' => 'amenity',
+                'has_resources' => 'has_resources',
+                'resources' => 'resource',
+            ],
+            'externalFilters' => [
+                [
+                    'title' => 'Has Mineables',
+                    'field' => 'has_resources',
+                    'options' => [
+                        ['value' => '', 'label' => 'All'],
+                        ['value' => 'true', 'label' => 'Yes'],
+                        ['value' => 'false', 'label' => 'No'],
+                    ],
+                ],
+                [
+                    'title' => 'Available Commodities',
+                    'field' => 'resources',
+                ],
             ],
             'columns' => [
                 [
@@ -61,14 +78,6 @@ final class StarmapLocationTableConfig
                     'headerSort' => false,
                     'headerFilter' => 'list',
                     'minWidth' => 180,
-                ],
-                [
-                    'title' => 'Type',
-                    'field' => 'type.name',
-                    'headerSort' => true,
-                    'headerFilter' => 'list',
-                    'sortField' => 'type_name',
-                    'minWidth' => 160,
                 ],
                 [
                     'title' => 'Classification',
@@ -118,6 +127,7 @@ final class StarmapLocationTableConfig
                     'headerSort' => false,
                     'headerFilter' => 'list',
                     'minWidth' => 220,
+                    'maxWidth' => '80%',
                 ],
                 [
                     'title' => 'Scannable',

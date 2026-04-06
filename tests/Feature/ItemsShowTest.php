@@ -891,3 +891,123 @@ it('shows variant state in the hero and base variant link in quick facts', funct
         ->and($baseHero->filter('[data-testid="item-hero-pill-variant-state"]')->count())->toBe(1)
         ->and(trim($baseHero->filter('[data-testid="item-hero-pill-variant-state"]')->text()))->toBe('Base Variant');
 });
+
+it('shows true dimensions alongside overridden dimensions in quick facts', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Acme Works',
+        'code' => 'ACME',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Item with UI dimension overrides'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Override Test Item',
+            'class_name' => 'override_test_item',
+            'classification' => 'Test.Module',
+            'type' => 'PowerPlant',
+            'sub_type' => 'Small',
+            'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Mass' => 5.0,
+                    'InventoryOccupancy' => [
+                        'Dimensions' => [
+                            'Width' => 1.0,
+                            'Height' => 2.0,
+                            'Length' => 3.0,
+                        ],
+                        'UIDimensions' => [
+                            'Width' => 1.5,
+                            'Height' => 2.5,
+                            'Length' => 3.5,
+                        ],
+                        'Volume' => [
+                            'SCUConverted' => 0.5,
+                            'Unit' => 'SCU',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        ->and($quickFacts->text())->toContain('3 × 1 × 2m')
+        ->and($quickFacts->filter('span[title]')->count())->toBe(1)
+        ->and($quickFacts->filter('span[title]')->attr('title'))->toBe('UI: 3.5 × 1.5 × 2.5m');
+});
+
+it('does not show true dimensions when no override exists', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Acme Works',
+        'code' => 'ACME',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Item without overrides'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'No Override Item',
+            'class_name' => 'no_override_item',
+            'classification' => 'Test.Module',
+            'type' => 'PowerPlant',
+            'sub_type' => 'Small',
+            'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Mass' => 5.0,
+                    'InventoryOccupancy' => [
+                        'Dimensions' => [
+                            'Width' => 1.0,
+                            'Height' => 2.0,
+                            'Length' => 3.0,
+                        ],
+                        'Volume' => [
+                            'SCUConverted' => 0.5,
+                            'Unit' => 'SCU',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        ->and($quickFacts->text())->toContain('3 × 1 × 2m')
+        ->and($quickFacts->filter('span[title]')->count())->toBe(0);
+});

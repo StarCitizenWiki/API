@@ -56,6 +56,8 @@
         $uexPrices = data_get($item, 'uex_prices', []);
         $descriptionData = data_get($item, 'description_data', []);
         $entityTagMap = data_get($item, 'entity_tag_map', []);
+        $defaultComposition = data_get($item, 'resource_container.default_composition', []);
+        $versionQuery = request()->query('version');
 
         $fpsSpecsAvailable = (
             $type === 'WeaponPersonal' ||
@@ -111,6 +113,7 @@
         $hasDescriptionCard = (is_array($translations) && $translations !== []) || (is_string($translations) && trim($translations) !== '');
         $hasDescriptionDataCard = is_array($descriptionData) && $descriptionData !== [];
         $hasRelatedItemsCard = $relatedItemsCount > 0;
+        $hasCompositionCard = is_array($defaultComposition) && $defaultComposition !== [];
         $hasSpecificationSection = $portsCount > 0 || $fpsSpecsAvailable || $vehicleSpecsAvailable;
     @endphp
 
@@ -134,6 +137,7 @@
                 :ports-count="$portsCount"
                 :related-items-count="$relatedItemsCount"
                 :uex-prices-count="$uexPricesCount"
+                :composition="$defaultComposition"
                 class="xl:col-span-5"
             />
         </div>
@@ -171,6 +175,14 @@
 
                 @if ($uexPricesCount > 0)
                     <x-items.uex-prices-card :prices="$uexPrices" class="w-full" />
+                @endif
+
+                @if ($hasCompositionCard)
+                    <x-items.commodity-composition-card
+                        :composition="$defaultComposition"
+                        :version-query="$versionQuery"
+                        class="w-full"
+                    />
                 @endif
             </section>
 

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Models\Game\Commodity\Commodity;
 use Database\Factories\Game\BlueprintDataFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class BlueprintData extends Model
@@ -59,6 +61,17 @@ class BlueprintData extends Model
         return $this->belongsTo(Item::class, 'output_item_uuid', 'uuid');
     }
 
+    public function ingredients(): BelongsToMany
+    {
+        return $this->belongsToMany(Commodity::class, 'game_blueprint_data_ingredients', 'blueprint_data_id', 'resource_type_id');
+    }
+
+    public function dismantleReturns(): BelongsToMany
+    {
+        return $this->belongsToMany(Commodity::class, 'game_blueprint_data_dismantle_returns', 'blueprint_data_id', 'resource_type_id')
+            ->withPivot('quantity_scu');
+    }
+
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
     {
         if ($code !== null) {
@@ -74,7 +87,9 @@ class BlueprintData extends Model
 
     public function scopeConsumesResourceType(Builder $query, string $resourceTypeUuid): Builder
     {
-        return $query->whereJsonContains('ingredient_resource_type_uuids', $resourceTypeUuid);
+        return $query->whereHas('ingredients', static function (Builder $builder) use ($resourceTypeUuid): void {
+            $builder->where('uuid', $resourceTypeUuid);
+        });
     }
 
     /**
@@ -82,16 +97,15 @@ class BlueprintData extends Model
      */
     public function scopeConsumesAnyResourceTypes(Builder $query, array $resourceTypeUuids): Builder
     {
-        return $query->where(static function (Builder $builder) use ($resourceTypeUuids): void {
-            foreach (array_values(array_unique($resourceTypeUuids)) as $index => $resourceTypeUuid) {
-                if ($index === 0) {
-                    $builder->whereJsonContains('ingredient_resource_type_uuids', $resourceTypeUuid);
+        return $query->whereHas('ingredients', static function (Builder $builder) use ($resourceTypeUuids): void {
+            $builder->whereIn('uuid', $resourceTypeUuids);
+        });
+    }
 
-                    continue;
-                }
-
-                $builder->orWhereJsonContains('ingredient_resource_type_uuids', $resourceTypeUuid);
-            }
+    public function scopeDismantleReturnsResourceType(Builder $query, string $resourceTypeUuid): Builder
+    {
+        return $query->whereHas('dismantleReturns', static function (Builder $builder) use ($resourceTypeUuid): void {
+            $builder->where('uuid', $resourceTypeUuid);
         });
     }
 

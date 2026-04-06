@@ -138,14 +138,14 @@ it('normalizes incoming starmap location filters into initial filters for the ta
         ])
         ->assertViewHas('headerFilterOptionsMap', fn (array $map): bool => $map['system'] === 'system'
             && $map['parent.name'] === 'parent_name'
-            && $map['type.name'] === 'type_name'
             && $map['type.classification'] === 'type_classification'
             && $map['respawn_location_type'] === 'respawn_location_type'
             && $map['jurisdiction.name'] === 'jurisdiction_name'
             && $map['affiliation.name'] === 'affiliation_name'
-            && $map['amenities'] === 'amenity')
+            && $map['amenities'] === 'amenity'
+            && $map['has_resources'] === 'has_resources')
         ->assertViewHas('initialFilters', [
-            ['field' => 'type.name', 'value' => 'Station'],
+            ['field' => 'type_name', 'value' => 'Station'],
             ['field' => 'system', 'value' => 'Stan'],
             ['field' => 'block_travel', 'value' => 'true'],
         ])

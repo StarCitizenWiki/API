@@ -13,6 +13,7 @@
 
         $tableConfig = [
             'endpoint' => route('blueprints.index', $versionParams),
+            'filterOptionsEndpoint' => route('blueprints.filters', $versionParams),
             'pageSize' => $pageSize,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,

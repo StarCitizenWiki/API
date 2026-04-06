@@ -3,6 +3,7 @@
     'portsCount' => 0,
     'relatedItemsCount' => 0,
     'uexPricesCount' => 0,
+    'composition' => [],
 ])
 
 @php
@@ -18,6 +19,10 @@
     $length = data_get($dimension, 'length');
     $width = data_get($dimension, 'width');
     $height = data_get($dimension, 'height');
+    $trueDimension = data_get($dimension, 'true_dimension');
+    $trueLength = data_get($trueDimension, 'length');
+    $trueWidth = data_get($trueDimension, 'width');
+    $trueHeight = data_get($trueDimension, 'height');
     $volume = data_get($dimension, 'volume_converted', data_get($dimension, 'volume'));
     $volumeUnit = data_get($dimension, 'volume_converted_unit');
     $versionQuery = request()->query('version');
@@ -30,10 +35,15 @@
         default => $grade,
     };
 
-    if ($length || $width || $height) {
+    if ($trueDimension && ($trueLength || $trueWidth || $trueHeight)) {
+        $dimensionsValue = sprintf('%s × %s × %sm', $trueLength ?? '-', $trueWidth ?? '-', $trueHeight ?? '-');
+        $dimensionsTitle = sprintf('UI: %s × %s × %sm', $length ?? '-', $width ?? '-', $height ?? '-');
+    } elseif ($length || $width || $height) {
         $dimensionsValue = sprintf('%s × %s × %sm', $length ?? '-', $width ?? '-', $height ?? '-');
+        $dimensionsTitle = null;
     } else {
         $dimensionsValue = '-';
+        $dimensionsTitle = null;
     }
 
     $baseVariantUrl = null;
@@ -43,6 +53,19 @@
 
         if (is_string($versionQuery) && $versionQuery !== '') {
             $baseVariantUrl = url()->query($baseVariantUrl, ['version' => $versionQuery]);
+        }
+    }
+
+    $matchedCommodities = [];
+    $compositionEntries = is_array($composition) ? $composition : [];
+    foreach ($compositionEntries as $compEntry) {
+        $commodity = data_get($compEntry, 'commodity');
+        if ($commodity && ($commodityName = data_get($commodity, 'name')) && ($commodityUuid = data_get($commodity, 'uuid'))) {
+            $commodityUrl = route('web.commodities.show', $commodityUuid);
+            if (is_string($versionQuery) && $versionQuery !== '') {
+                $commodityUrl = url()->query($commodityUrl, ['version' => $versionQuery]);
+            }
+            $matchedCommodities[] = ['name' => $commodityName, 'url' => $commodityUrl];
         }
     }
 
@@ -72,6 +95,11 @@
                         'label' => 'Related',
                         'value' => $relatedItemsCount > 0 ? (string) $relatedItemsCount : '-',
                     ],
+                    ...($matchedCommodities !== [] ? [[
+                        'label' => 'Commodities',
+                        'value' => $matchedCommodities,
+                        'type' => 'commodity_links',
+                    ]] : []),
                 ],
             ],
         ],
@@ -90,6 +118,7 @@
                     [
                         'label' => 'Dimensions',
                         'value' => $dimensionsValue,
+                        ...($dimensionsTitle !== null ? ['title' => $dimensionsTitle] : []),
                     ],
                 ],
             ],
@@ -134,7 +163,16 @@
                                             {{ $row['label'] }}
                                         </dt>
                                         <dd class="text-right text-sm font-semibold text-base-content">
-                                            @if (! empty($row['url']))
+                                            @if (($row['type'] ?? null) === 'commodity_links')
+                                                <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
+                                                    @foreach ($row['value'] as $i => $commodity)
+                                                        <a
+                                                            href="{{ $commodity['url'] }}"
+                                                            class="link link-hover link-primary"
+                                                        >{{ $commodity['name'] }}</a>@if (!$loop->last),@endif
+                                                    @endforeach
+                                                </span>
+                                            @elseif (! empty($row['url']))
                                                 <a
                                                     href="{{ $row['url'] }}"
                                                     class="link link-hover link-primary"
@@ -143,7 +181,11 @@
                                                     {{ $row['value'] }}
                                                 </a>
                                             @else
-                                                {{ $row['value'] }}
+                                                @if (! empty($row['title']))
+                                                    <span title="{{ $row['title'] }}">{{ $row['value'] }}</span>
+                                                @else
+                                                    {{ $row['value'] }}
+                                                @endif
                                             @endif
                                         </dd>
                                     </div>

@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\Game\BlueprintController;
+use App\Http\Controllers\Api\Game\Commodity\CommodityController;
 use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
-use App\Http\Controllers\Api\Game\ResourceTypeController;
 use App\Http\Controllers\Api\Game\StarmapLocationController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;
@@ -15,11 +15,29 @@ use App\Http\Controllers\Api\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Api\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Api\StarCitizen\StatController;
 use App\Http\Controllers\Api\StarCitizen\VehicleController as ShipMatrixVehicleController;
+use App\Models\Game\GameVersion;
+use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
-Route::get('/user', function (Request $request) {
+Route::bind('location', function (string $value): StarmapLocationData {
+    $version = GameVersion::resolveRequestedOrDefault(request('version'));
+
+    $location = StarmapLocationData::query()
+        ->where('game_version_id', $version->id);
+
+    if (Str::isUuid($value)) {
+        $location->whereRelation('location', 'uuid', $value);
+    } else {
+        $location->where('slug', $value);
+    }
+
+    return $location->firstOrFail();
+});
+
+Route::get('/user', static function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
@@ -111,10 +129,13 @@ Route::group(
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
             Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
 
-            Route::get('resource-types', [ResourceTypeController::class, 'index'])->name('resource-types.index');
-            Route::get('resource-types/{resourceType}/blueprints', [ResourceTypeController::class, 'lookup'])
-                ->name('resource-types.blueprints.lookup');
+            // Commodities
+            Route::get('commodities', [CommodityController::class, 'index'])->name('commodities.index');
+            Route::get('commodities/filters', [CommodityController::class, 'filters'])->name('commodities.filters');
+            Route::get('commodities/{commodity}', [CommodityController::class, 'show'])->name('commodities.show');
+
             Route::get('blueprints', [BlueprintController::class, 'index'])->name('blueprints.index');
+            Route::get('blueprints/filters', [BlueprintController::class, 'filters'])->name('blueprints.filters');
             Route::get('blueprints/{blueprint}', [BlueprintController::class, 'show'])->name('blueprints.show');
 
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');

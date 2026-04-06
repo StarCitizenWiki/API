@@ -488,7 +488,10 @@ class ItemResource extends AbstractBaseResource
             'interactions' => $this->extractArray($itemData, 'Interactions'),
             'ports' => ItemPortResource::collection($this->when($this->hasInStdItem($itemData, 'Ports'), $this->extractPorts($itemData))),
             $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceContainer'), [
-                'resource_container' => new ResourceContainerResource($this->extractFromStdItem($itemData, 'ResourceContainer')),
+                'resource_container' => new ResourceContainerResource(
+                    $this->extractFromStdItem($itemData, 'ResourceContainer'),
+                    $itemData->relationLoaded('commodities') ? $itemData->commodities->keyBy('uuid') : null,
+                ),
             ]),
 
             $this->mergeWhen($this->hasInStdItem($itemData, 'RadiationResistance'), [

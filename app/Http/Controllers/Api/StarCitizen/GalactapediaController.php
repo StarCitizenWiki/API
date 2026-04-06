@@ -266,12 +266,10 @@ class GalactapediaController extends Controller
 
         $identifier = $this->cleanQueryName($identifier);
 
-        $includes = $request->has('include') ? ArticleResource::validIncludes() : [];
-
         try {
             $model = QueryBuilder::for(Article::class, $request)
                 ->where('cig_id', $identifier)
-                ->with($includes)
+                ->allowedIncludes(...ArticleResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Article with specified ID found.');
