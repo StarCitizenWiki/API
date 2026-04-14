@@ -9,7 +9,6 @@ use App\Http\Requests\Api\Game\CommodityIndexRequest;
 use App\Http\Resources\Game\Commodity\CommodityIndexResource;
 use App\Http\Resources\Game\Commodity\CommodityShowResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
-use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\Resource\ResourceData;
 use App\Support\Filters\FilterCache;
@@ -351,23 +350,9 @@ class CommodityController extends Controller
                     return;
                 }
 
-                $usedCommodityUuids = BlueprintData::query()
-                    ->forRequestedOrDefaultVersion($this->gameVersionCode())
-                    ->with('ingredients')
-                    ->get()
-                    ->flatMap(static fn (BlueprintData $blueprintData) => $blueprintData->ingredients->pluck('uuid'))
-                    ->filter(static fn (mixed $uuid): bool => is_string($uuid) && $uuid !== '')
-                    ->unique()
-                    ->values()
-                    ->all();
-
-                if ($usedCommodityUuids === []) {
-                    $query->whereRaw('0 = 1');
-
-                    return;
-                }
-
-                $query->whereIn('uuid', $usedCommodityUuids);
+                $query->whereHas('blueprints', function (Builder $q): void {
+                    $q->forRequestedOrDefaultVersion($this->gameVersionCode());
+                });
             }),
             AllowedFilter::callback('system', function (Builder $query, mixed $value): void {
                 $query->whereHas('resourceData', function (Builder $q) use ($value): void {

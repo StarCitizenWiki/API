@@ -137,6 +137,153 @@ paths:
                 properties:
                   filters: { properties: { ingredient.uuid: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, resource.uuid: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+  /api/commodities:
+    get:
+      tags:
+        - In-Game
+        - Commodities
+      summary: 'List Game Commodities'
+      description: 'Returns paginated game commodities, optionally filtered to only those consumed by blueprints in the requested or default game version.'
+      operationId: 4be9500d6805486b23924917cdd6a1fc
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[used]'
+          in: query
+          description: 'When true, only commodities used by blueprint ingredients in the requested or default game version are returned.'
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 'List of commodities'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/commodity_link'
+  '/api/commodities/{commodity}':
+    get:
+      tags:
+        - In-Game
+        - Commodities
+      summary: 'Show Game Commodity'
+      description: 'Returns full details for a single game commodity including detailed location entries, composition, areas, and clustering data.'
+      operationId: 39d1e5bb013bb8178d1d0e8632f24f85
+      parameters:
+        -
+          name: commodity
+          in: path
+          required: true
+          schema:
+            description: 'Commodity UUID or slug'
+            type: string
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'Commodity details'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commodity_show'
+  /api/commodities/filters:
+    get:
+      tags:
+        - In-Game
+        - Commodities
+      summary: 'Game Commodity Filters'
+      description: 'Return all available filter values for game commodities.'
+      operationId: d3f154ced9b209036d996ecf89c73e51
+      parameters:
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[used]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[system]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[type]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[rarity]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[kind]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[refined_version]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[location]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[query]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[ship]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[ground_vehicle]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[fps]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[harvestable]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[salvage]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[mineable]'
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 'Available filters for game commodities.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/game-versions:
     get:
       tags:
@@ -594,153 +741,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/manufacturer_link'
       deprecated: true
-  /api/resources:
-    get:
-      tags:
-        - In-Game
-        - Resources
-      summary: 'List Game Resources'
-      description: 'Returns paginated game resources, optionally filtered to only those consumed by blueprints in the requested or default game version.'
-      operationId: 7db7a4aaac8ba65b2e3aa7f5462483f2
-      parameters:
-        -
-          $ref: '#/components/parameters/page'
-        -
-          $ref: '#/components/parameters/page_number'
-        -
-          $ref: '#/components/parameters/page_size'
-        -
-          $ref: '#/components/parameters/version'
-        -
-          name: 'filter[used]'
-          in: query
-          description: 'When true, only resources used by blueprint ingredients in the requested or default game version are returned.'
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: 'List of resources'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/resource_link'
-  '/api/resources/{resource}':
-    get:
-      tags:
-        - In-Game
-        - Resources
-      summary: 'Show Game Resource'
-      description: 'Returns full details for a single game resource including detailed location entries, composition, areas, and clustering data.'
-      operationId: 100a755dc7a06a096a7034bdd50cad20
-      parameters:
-        -
-          name: resource
-          in: path
-          required: true
-          schema:
-            description: 'Resource UUID or slug'
-            type: string
-        -
-          $ref: '#/components/parameters/version'
-      responses:
-        '200':
-          description: 'Resource details'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resource_show'
-  /api/resources/filters:
-    get:
-      tags:
-        - In-Game
-        - Resources
-      summary: 'Game Resource Filters'
-      description: 'Return all available filter values for game resources.'
-      operationId: ead3933c6fd37e5d575eb240f81a1487
-      parameters:
-        -
-          $ref: '#/components/parameters/version'
-        -
-          name: 'filter[used]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[system]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[type]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[rarity]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[kind]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[refined_version]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[location]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[query]'
-          in: query
-          schema:
-            type: string
-        -
-          name: 'filter[ship]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[ground_vehicle]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[fps]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[harvestable]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[salvage]'
-          in: query
-          schema:
-            type: boolean
-        -
-          name: 'filter[mineable]'
-          in: query
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: 'Available filters for game resources.'
-          content:
-            application/json:
-              schema:
-                properties:
-                  filters: { properties: { system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
-                type: object
   /api/locations:
     get:
       tags:
@@ -840,6 +840,11 @@ paths:
           in: query
           schema:
             type: string
+        -
+          name: 'filter[hide_minor_locations]'
+          in: query
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'List of starmap locations'
@@ -966,6 +971,11 @@ paths:
           in: query
           schema:
             type: string
+        -
+          name: 'filter[hide_minor_locations]'
+          in: query
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'Available filters for starmap locations.'
@@ -2826,6 +2836,543 @@ components:
         output_item_web_url:
           type: string
           format: uri
+          nullable: true
+      type: object
+    commodity_index_location_entry:
+      title: 'Commodity Index Location Entry'
+      properties:
+        group_name:
+          type: string
+        resource_kind:
+          type: string
+          nullable: true
+        quality_min:
+          type: integer
+          nullable: true
+        quality_max:
+          type: integer
+          nullable: true
+        entry_count:
+          type: integer
+      type: object
+    commodity_index_location:
+      title: 'Commodity Index Location'
+      properties:
+        name:
+          type: string
+        display_name:
+          type: string
+        system:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        parent_name:
+          type: string
+          nullable: true
+        parent_type:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/commodity_index_location_entry'
+      type: object
+    commodity_link:
+      title: 'Commodity Link'
+      description: 'Game commodity summary used in list responses.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        key:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        tier:
+          type: string
+          nullable: true
+        refined_version:
+          properties:
+            name:
+              type: string
+            uuid:
+              type: string
+              format: uuid
+            web_url:
+              type: string
+              format: uri
+            link:
+              type: string
+              format: uri
+          type: object
+          nullable: true
+        density_g_per_cc:
+          type: number
+          nullable: true
+        instability:
+          type: number
+          nullable: true
+        resistance:
+          type: number
+          nullable: true
+        box_sizes_scu:
+          type: array
+          items:
+            type: number
+        validate_default_cargo_box:
+          type: boolean
+        has_default_cargo_containers:
+          type: boolean
+        is_mineable:
+          type: boolean
+        has_ship_mineables:
+          type: boolean
+        has_ground_vehicle_mineables:
+          type: boolean
+        has_fps_mineables:
+          type: boolean
+        has_harvestables:
+          type: boolean
+        has_salvage:
+          type: boolean
+        signature:
+          type: integer
+          nullable: true
+        kind:
+          type: string
+          nullable: true
+        methods:
+          type: array
+          items:
+            type: string
+        systems:
+          type: array
+          items:
+            type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/commodity_index_location'
+        link:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+      type: object
+    commodity_deposit_group:
+      title: 'Commodity Deposit Group'
+      description: 'Deposit base with commodity grouping fields.'
+      allOf:
+        -
+          $ref: '#/components/schemas/deposit_base'
+        -
+          properties:
+            resource_uuid:
+              type: string
+              format: uuid
+              nullable: true
+            group_name:
+              type: string
+            resource_kind:
+              type: string
+              nullable: true
+          type: object
+        -
+          $ref: '#/components/schemas/commodity_link'
+    commodity_show_location:
+      title: 'Commodity Show Location'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/commodity_link'
+        -
+          properties:
+            name:
+              type: string
+            designation:
+              type: string
+              nullable: true
+            display_name:
+              type: string
+            system:
+              type: string
+              nullable: true
+            type:
+              type: string
+              nullable: true
+            parent_name:
+              type: string
+              nullable: true
+            parent_type:
+              type: string
+              nullable: true
+            parent_uuid:
+              type: string
+              format: uuid
+              nullable: true
+            uuid:
+              type: string
+              format: uuid
+              nullable: true
+            link:
+              type: string
+              format: uri
+              nullable: true
+            group_probability:
+              type: number
+            group_probability_percent:
+              type: number
+            relative_probability:
+              type: number
+            relative_probability_percent:
+              type: number
+            quality_min:
+              type: integer
+              nullable: true
+            quality_max:
+              type: integer
+              nullable: true
+            areas:
+              type: array
+              items:
+                $ref: '#/components/schemas/area_boost'
+              nullable: true
+            resources:
+              type: array
+              items:
+                $ref: '#/components/schemas/commodity_deposit_group'
+          type: object
+    commodity_version_entry:
+      title: 'Commodity Version Entry'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/commodity_link'
+        -
+          properties:
+            name:
+              type: string
+            uuid:
+              type: string
+              format: uuid
+            web_url:
+              type: string
+              format: uri
+            link:
+              type: string
+              format: uri
+          type: object
+    commodity_system_group:
+      title: 'Commodity System Group'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/commodity_link'
+        -
+          properties:
+            name:
+              type: string
+            locations:
+              type: array
+              items:
+                $ref: '#/components/schemas/commodity_show_location'
+          type: object
+    commodity_show:
+      title: 'Commodity Show'
+      description: 'Full game commodity detail used in show responses.'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/commodity_link'
+        -
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            key:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            description:
+              type: string
+              nullable: true
+            tier:
+              type: string
+              nullable: true
+            refined_version:
+              properties:
+                name:
+                  type: string
+                uuid:
+                  type: string
+                  format: uuid
+                web_url:
+                  type: string
+                  format: uri
+                link:
+                  type: string
+                  format: uri
+              type: object
+              nullable: true
+            density_g_per_cc:
+              type: number
+              nullable: true
+            instability:
+              type: number
+              nullable: true
+            resistance:
+              type: number
+              nullable: true
+            box_sizes_scu:
+              type: array
+              items:
+                type: number
+            validate_default_cargo_box:
+              type: boolean
+            has_default_cargo_containers:
+              type: boolean
+            is_mineable:
+              type: boolean
+            has_ship_mineables:
+              type: boolean
+            has_ground_vehicle_mineables:
+              type: boolean
+            has_fps_mineables:
+              type: boolean
+            has_harvestables:
+              type: boolean
+            has_salvage:
+              type: boolean
+            signature:
+              type: integer
+              nullable: true
+            kind:
+              type: string
+              nullable: true
+            methods:
+              type: array
+              items:
+                type: string
+            systems:
+              type: array
+              items:
+                type: string
+            locations:
+              type: array
+              items:
+                $ref: '#/components/schemas/commodity_show_location'
+            systems_grouped:
+              type: array
+              items:
+                $ref: '#/components/schemas/commodity_system_group'
+            raw_versions:
+              type: array
+              items:
+                $ref: '#/components/schemas/commodity_version_entry'
+              nullable: true
+            blueprints:
+              type: array
+              items:
+                properties:
+                  key: { type: string }
+                  output_name: { type: string }
+                  output_item_uuid: { type: string, format: uuid, nullable: true }
+                  craft_time_label: { type: string }
+                  web_url: { type: string, format: uri }
+                  link: { type: string, format: uri }
+                type: object
+              nullable: true
+            items:
+              type: array
+              items:
+                properties:
+                  name: { type: string }
+                  uuid: { type: string, format: uuid, nullable: true }
+                  type: { type: string, nullable: true }
+                  sub_type: { type: string, nullable: true }
+                  size: { type: integer, nullable: true }
+                  web_url: { type: string, format: uri, nullable: true }
+                  link: { type: string, format: uri, nullable: true }
+                type: object
+              nullable: true
+            link:
+              type: string
+              format: uri
+            web_url:
+              type: string
+              format: uri
+          type: object
+    area_exception:
+      title: 'Area Exception'
+      properties:
+        name:
+          type: string
+          nullable: true
+        modifier:
+          type: number
+      type: object
+    area_boost:
+      title: 'Area Boost'
+      properties:
+        name:
+          type: string
+          nullable: true
+        global_modifier:
+          type: number
+          nullable: true
+      type: object
+    clustering_param:
+      title: 'Clustering Param'
+      properties:
+        min_size:
+          type: number
+          nullable: true
+        max_size:
+          type: number
+          nullable: true
+        min_proximity:
+          type: number
+          nullable: true
+        max_proximity:
+          type: number
+          nullable: true
+        relative_probability:
+          type: number
+          nullable: true
+      type: object
+    clustering:
+      title: Clustering
+      properties:
+        key:
+          type: string
+          nullable: true
+        min_size:
+          type: number
+          nullable: true
+        max_size:
+          type: number
+          nullable: true
+        min_proximity:
+          type: number
+          nullable: true
+        max_proximity:
+          type: number
+          nullable: true
+        probability:
+          type: number
+          nullable: true
+        probability_percent:
+          type: number
+          nullable: true
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/clustering_param'
+      type: object
+    material_entry:
+      title: 'Material Entry'
+      properties:
+        key:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        is_current:
+          type: boolean
+        quality_min:
+          type: integer
+          nullable: true
+        quality_max:
+          type: integer
+          nullable: true
+        quality_mean:
+          type: integer
+          nullable: true
+        quality_stddev:
+          type: integer
+          nullable: true
+        min_percentage:
+          type: number
+        max_percentage:
+          type: number
+        instability:
+          type: number
+          nullable: true
+        resistance:
+          type: number
+          nullable: true
+        group_probability:
+          type: number
+        group_probability_percent:
+          type: number
+        relative_probability:
+          type: number
+        relative_probability_percent:
+          type: number
+      type: object
+    deposit_base:
+      title: 'Deposit Base'
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        signature:
+          nullable: true
+        area_exceptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/area_exception'
+          nullable: true
+        clustering:
+          oneOf:
+            -
+              $ref: '#/components/schemas/clustering'
+          nullable: true
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/material_entry'
+        quality_min:
+          type: integer
+          nullable: true
+        quality_max:
+          type: integer
+          nullable: true
+        relative_probability_min:
+          type: number
+          nullable: true
+        relative_probability_max:
+          type: number
+          nullable: true
+        relative_probability_min_percent:
+          type: number
+          nullable: true
+        relative_probability_max_percent:
+          type: number
           nullable: true
       type: object
     game_version:
@@ -9488,547 +10035,6 @@ components:
         uuid:
           type: string
       type: object
-    resource_index_location_entry:
-      title: 'Resource Index Location Entry'
-      properties:
-        group_name:
-          type: string
-        resource_kind:
-          type: string
-          nullable: true
-        quality_min:
-          type: integer
-          nullable: true
-        quality_max:
-          type: integer
-          nullable: true
-        entry_count:
-          type: integer
-      type: object
-    resource_index_location:
-      title: 'Resource Index Location'
-      properties:
-        name:
-          type: string
-        display_name:
-          type: string
-        system:
-          type: string
-          nullable: true
-        type:
-          type: string
-          nullable: true
-        parent_name:
-          type: string
-          nullable: true
-        parent_type:
-          type: string
-          nullable: true
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        entries:
-          type: array
-          items:
-            $ref: '#/components/schemas/resource_index_location_entry'
-      type: object
-    resource_link:
-      title: 'Resource Link'
-      description: 'Game resource summary used in list responses.'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-        key:
-          type: string
-        name:
-          type: string
-        slug:
-          type: string
-        description:
-          type: string
-          nullable: true
-        tier:
-          type: string
-          nullable: true
-        refined_version:
-          properties:
-            name:
-              type: string
-            uuid:
-              type: string
-              format: uuid
-            web_url:
-              type: string
-              format: uri
-            link:
-              type: string
-              format: uri
-          type: object
-          nullable: true
-        density_g_per_cc:
-          type: number
-          nullable: true
-        instability:
-          type: number
-          nullable: true
-        resistance:
-          type: number
-          nullable: true
-        box_sizes_scu:
-          type: array
-          items:
-            type: number
-        validate_default_cargo_box:
-          type: boolean
-        has_default_cargo_containers:
-          type: boolean
-        is_mineable:
-          type: boolean
-        has_ship_mineables:
-          type: boolean
-        has_ground_vehicle_mineables:
-          type: boolean
-        has_fps_mineables:
-          type: boolean
-        has_harvestables:
-          type: boolean
-        has_salvage:
-          type: boolean
-        signature:
-          type: integer
-          nullable: true
-        kind:
-          type: string
-          nullable: true
-        methods:
-          type: array
-          items:
-            type: string
-        systems:
-          type: array
-          items:
-            type: string
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/resource_index_location'
-        link:
-          type: string
-          format: uri
-        web_url:
-          type: string
-          format: uri
-      type: object
-    deposit_entry:
-      title: 'Deposit Entry'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            quality_min:
-              type: integer
-              nullable: true
-            quality_max:
-              type: integer
-              nullable: true
-            quality_mean:
-              type: number
-              nullable: true
-            quality_stddev:
-              type: number
-              nullable: true
-            group_probability:
-              type: number
-            group_probability_percent:
-              type: number
-            relative_probability:
-              type: number
-            relative_probability_percent:
-              type: number
-          type: object
-    resource_composition_entry:
-      title: 'Resource Composition Entry'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            key:
-              type: string
-            name:
-              type: string
-            uuid:
-              type: string
-              format: uuid
-              nullable: true
-            is_current:
-              type: boolean
-            probability:
-              type: number
-            probability_percent:
-              type: number
-            min_percentage:
-              type: number
-            max_percentage:
-              type: number
-            instability:
-              type: number
-            resistance:
-              type: number
-          type: object
-    resource_clustering_param:
-      title: 'Resource Clustering Param'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            min_size:
-              type: integer
-              nullable: true
-            max_size:
-              type: integer
-              nullable: true
-            min_proximity:
-              type: number
-              nullable: true
-            max_proximity:
-              type: number
-              nullable: true
-            relative_probability:
-              type: number
-              nullable: true
-          type: object
-    resource_clustering:
-      title: 'Resource Clustering'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            key:
-              type: string
-              nullable: true
-            min_size:
-              type: integer
-              nullable: true
-            max_size:
-              type: integer
-              nullable: true
-            min_proximity:
-              type: number
-              nullable: true
-            max_proximity:
-              type: number
-              nullable: true
-            probability:
-              type: number
-              nullable: true
-            probability_percent:
-              type: number
-              nullable: true
-            params:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_clustering_param'
-          type: object
-    resource_area_exception:
-      title: 'Resource Area Exception'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            name:
-              type: string
-              nullable: true
-            modifier:
-              type: number
-          type: object
-    resource_deposit_group:
-      title: 'Resource Deposit Group'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            key:
-              type: string
-            resource_uuid:
-              type: string
-              format: uuid
-              nullable: true
-            label:
-              type: string
-            group_name:
-              type: string
-            resource_kind:
-              type: string
-              nullable: true
-            area_exceptions:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_area_exception'
-              nullable: true
-            clustering:
-              oneOf:
-                -
-                  $ref: '#/components/schemas/resource_clustering'
-              nullable: true
-            composition:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_composition_entry'
-            quality_min:
-              type: integer
-              nullable: true
-            quality_max:
-              type: integer
-              nullable: true
-            relative_probability_min:
-              type: number
-              nullable: true
-            relative_probability_max:
-              type: number
-              nullable: true
-            relative_probability_min_percent:
-              type: number
-              nullable: true
-            relative_probability_max_percent:
-              type: number
-              nullable: true
-            entries:
-              type: array
-              items:
-                $ref: '#/components/schemas/deposit_entry'
-          type: object
-    resource_area_boost:
-      title: 'Resource Area Boost'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            name:
-              type: string
-              nullable: true
-            global_modifier:
-              type: number
-              nullable: true
-          type: object
-    resource_show_location:
-      title: 'Resource Show Location'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            name:
-              type: string
-            designation:
-              type: string
-              nullable: true
-            display_name:
-              type: string
-            system:
-              type: string
-              nullable: true
-            type:
-              type: string
-              nullable: true
-            parent_name:
-              type: string
-              nullable: true
-            parent_type:
-              type: string
-              nullable: true
-            parent_uuid:
-              type: string
-              format: uuid
-              nullable: true
-            uuid:
-              type: string
-              format: uuid
-              nullable: true
-            link:
-              type: string
-              format: uri
-              nullable: true
-            group_probability:
-              type: number
-            group_probability_percent:
-              type: number
-            relative_probability:
-              type: number
-            relative_probability_percent:
-              type: number
-            quality_min:
-              type: integer
-              nullable: true
-            quality_max:
-              type: integer
-              nullable: true
-            areas:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_area_boost'
-              nullable: true
-            resources:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_deposit_group'
-          type: object
-    resource_version_entry:
-      title: 'Resource Version Entry'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            name:
-              type: string
-            uuid:
-              type: string
-              format: uuid
-            web_url:
-              type: string
-              format: uri
-            link:
-              type: string
-              format: uri
-          type: object
-    resource_system_group:
-      title: 'Resource System Group'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            name:
-              type: string
-            locations:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_show_location'
-          type: object
-    resource_show:
-      title: 'Resource Show'
-      description: 'Full game resource detail used in show responses.'
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/resource_link'
-        -
-          properties:
-            uuid:
-              type: string
-              format: uuid
-            key:
-              type: string
-            name:
-              type: string
-            slug:
-              type: string
-            description:
-              type: string
-              nullable: true
-            tier:
-              type: string
-              nullable: true
-            refined_version:
-              properties:
-                name:
-                  type: string
-                uuid:
-                  type: string
-                  format: uuid
-                web_url:
-                  type: string
-                  format: uri
-                link:
-                  type: string
-                  format: uri
-              type: object
-              nullable: true
-            density_g_per_cc:
-              type: number
-              nullable: true
-            instability:
-              type: number
-              nullable: true
-            resistance:
-              type: number
-              nullable: true
-            box_sizes_scu:
-              type: array
-              items:
-                type: number
-            validate_default_cargo_box:
-              type: boolean
-            has_default_cargo_containers:
-              type: boolean
-            is_mineable:
-              type: boolean
-            has_ship_mineables:
-              type: boolean
-            has_ground_vehicle_mineables:
-              type: boolean
-            has_fps_mineables:
-              type: boolean
-            has_harvestables:
-              type: boolean
-            has_salvage:
-              type: boolean
-            signature:
-              type: integer
-              nullable: true
-            kind:
-              type: string
-              nullable: true
-            methods:
-              type: array
-              items:
-                type: string
-            systems:
-              type: array
-              items:
-                type: string
-            locations:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_show_location'
-            systems_grouped:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_system_group'
-            raw_versions:
-              type: array
-              items:
-                $ref: '#/components/schemas/resource_version_entry'
-            link:
-              type: string
-              format: uri
-            web_url:
-              type: string
-              format: uri
-          type: object
     game_starmap_location_linked_summary:
       title: 'Game Starmap Location Linked Summary'
       properties:
@@ -10168,89 +10174,32 @@ components:
         has_resources:
           type: boolean
       type: object
-    starmap_location_area_boost:
-      title: 'Starmap Location Area Boost'
-      properties:
-        name:
-          type: string
-          nullable: true
-        global_modifier:
-          type: number
-          nullable: true
-      type: object
-    starmap_location_deposit:
-      title: 'Starmap Location Deposit'
-      properties:
-        key:
-          type: string
-        resource_uuid:
-          type: string
-          format: uuid
-          nullable: true
-        label:
-          type: string
-        area_exceptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/resource_area_exception'
-          nullable: true
-        clustering:
-          oneOf:
-            -
-              $ref: '#/components/schemas/resource_clustering'
-          nullable: true
-        composition:
-          type: array
-          items:
-            $ref: '#/components/schemas/resource_composition_entry'
-        quality_min:
-          type: integer
-          nullable: true
-        quality_max:
-          type: integer
-          nullable: true
-        relative_probability_min:
-          type: number
-          nullable: true
-        relative_probability_max:
-          type: number
-          nullable: true
-        relative_probability_min_percent:
-          type: number
-          nullable: true
-        relative_probability_max_percent:
-          type: number
-          nullable: true
-        entries:
-          type: array
-          items:
-            $ref: '#/components/schemas/deposit_entry'
-      type: object
     starmap_location_resource:
       title: 'Starmap Location Resource'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        name:
-          type: string
-        tier:
-          type: string
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_url:
-          type: string
-          format: uri
-          nullable: true
-        deposits:
-          type: array
-          items:
-            $ref: '#/components/schemas/starmap_location_deposit'
-      type: object
+      description: 'Deposit base with commodity identity fields.'
+      allOf:
+        -
+          $ref: '#/components/schemas/deposit_base'
+        -
+          properties:
+            name:
+              type: string
+            uuid:
+              type: string
+              format: uuid
+              nullable: true
+            tier:
+              type: string
+              nullable: true
+            link:
+              type: string
+              format: uri
+              nullable: true
+            web_url:
+              type: string
+              format: uri
+              nullable: true
+          type: object
     starmap_location_mining_type_group:
       title: 'Starmap Location Mining Type Group'
       properties:
@@ -10380,7 +10329,7 @@ components:
         area_boosts:
           type: array
           items:
-            $ref: '#/components/schemas/starmap_location_area_boost'
+            $ref: '#/components/schemas/area_boost'
           nullable: true
         resources:
           type: array
@@ -12486,6 +12435,9 @@ tags:
     name: Blueprints
     description: Blueprints
   -
+    name: Commodities
+    description: Commodities
+  -
     name: 'Game Version'
     description: 'Game Version'
   -
@@ -12497,9 +12449,6 @@ tags:
   -
     name: Manufacturers
     description: Manufacturers
-  -
-    name: Resources
-    description: Resources
   -
     name: Starmap
     description: Starmap

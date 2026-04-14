@@ -357,7 +357,7 @@ class ImportStarmapData implements ShouldQueue
         $slug = $baseSlug;
         $counter = 2;
 
-        while (isset($slugMap[$slug]) || StarmapLocationData::query()->where('slug', $slug)->exists()) {
+        while (in_array($slug, $slugMap, true) || StarmapLocationData::query()->where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$counter;
             $counter++;
         }

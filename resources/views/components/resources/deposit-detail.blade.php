@@ -71,7 +71,7 @@
         @endif
     </div>
 
-    @if ($materials !== [] && ! in_array($resourceKind, ['harvestable', 'salvage']))
+    @if ($materials !== [] && $resourceKind === 'mineable')
         <div class="overflow-x-auto">
             <table class="table table-sm">
                 <thead>

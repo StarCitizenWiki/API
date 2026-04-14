@@ -97,22 +97,10 @@ class SyncGameData extends Command
             $this->dispatchStarmapImport($gameVersion);
         }
 
-        if (! $skipResources) {
-            if (Artisan::call('game:import-commodities') !== self::SUCCESS) {
-                return self::FAILURE;
-            }
-
-            if (Artisan::call('game:import-resource-data', [
-                'version' => $gameVersion->code,
-            ]) !== self::SUCCESS) {
-                return self::FAILURE;
-            }
-
-            if (Artisan::call('game:import-resource-locations', [
-                'version' => $gameVersion->code,
-            ]) !== self::SUCCESS) {
-                return self::FAILURE;
-            }
+        if (! $skipResources && Artisan::call('game:import-resource-data', [
+            'version' => $gameVersion->code,
+        ]) !== self::SUCCESS) {
+            return self::FAILURE;
         }
 
         if ($gameVersion !== null && Artisan::call('game:import-blueprints', [

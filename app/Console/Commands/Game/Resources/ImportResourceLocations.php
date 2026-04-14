@@ -14,6 +14,7 @@ use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -60,6 +61,8 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
 
             return self::FAILURE;
         }
+
+        $this->cleanPivotTables($gameVersion->id);
 
         $resourceDataLookup = $this->buildResourceDataLookup($gameVersion->id);
         $starmapLookup = $this->buildStarmapLookup($gameVersion->id);
@@ -204,15 +207,31 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
         }
 
         $syncedProviders = 0;
-        foreach ($providerPlacements as $providerId => $starmapIds) {
-            ResourceProvider::query()->find($providerId)?->starmapLocationData()->sync($starmapIds);
-            $syncedProviders++;
+        $providerIds = array_keys($providerPlacements);
+        if ($providerIds !== []) {
+            $providers = ResourceProvider::query()
+                ->whereIn('id', $providerIds)
+                ->get()
+                ->keyBy('id');
+
+            foreach ($providerPlacements as $providerId => $starmapIds) {
+                $providers[$providerId]?->starmapLocationData()->sync($starmapIds);
+                $syncedProviders++;
+            }
         }
 
         $syncedLocations = 0;
-        foreach ($locationPlacements as $locationId => $starmapIds) {
-            ResourceLocation::query()->find($locationId)?->starmapLocationData()->sync($starmapIds);
-            $syncedLocations++;
+        $locationIds = array_keys($locationPlacements);
+        if ($locationIds !== []) {
+            $locations = ResourceLocation::query()
+                ->whereIn('id', $locationIds)
+                ->get()
+                ->keyBy('id');
+
+            foreach ($locationPlacements as $locationId => $starmapIds) {
+                $locations[$locationId]?->starmapLocationData()->sync($starmapIds);
+                $syncedLocations++;
+            }
         }
 
         $this->info(sprintf(
@@ -250,6 +269,31 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
                 );
             },
         ];
+    }
+
+    private function cleanPivotTables(int $gameVersionId): void
+    {
+        $providerIds = ResourceProvider::query()
+            ->where('game_version_id', $gameVersionId)
+            ->pluck('id');
+
+        if ($providerIds->isEmpty()) {
+            return;
+        }
+
+        DB::table('game_resource_provider_starmap')
+            ->whereIn('resource_provider_id', $providerIds)
+            ->delete();
+
+        $locationIds = ResourceLocation::query()
+            ->whereIn('resource_provider_id', $providerIds)
+            ->pluck('id');
+
+        if ($locationIds->isNotEmpty()) {
+            DB::table('game_resource_location_placements')
+                ->whereIn('resource_location_id', $locationIds)
+                ->delete();
+        }
     }
 
     /**

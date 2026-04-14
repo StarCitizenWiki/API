@@ -1254,6 +1254,53 @@ it('filters starmap locations by has_resources flag and includes has_resources i
         ->assertJsonCount(2, 'data');
 });
 
+it('filters starmap locations by hide_minor_locations flag excluding OnlyShowWhenParentSelected', function (): void {
+    $majorLocation = StarmapLocation::factory()->create();
+    $minorLocation = StarmapLocation::factory()->create();
+    $minorHiddenLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => [
+            'Type' => ['Classification' => 'Landing Zone'],
+            'OnlyShowWhenParentSelected' => 'false',
+        ],
+    ], $majorLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp Security Post 011',
+        'system' => 'Stanton',
+        'type_name' => 'Outpost',
+        'data' => [
+            'Type' => ['Classification' => 'Outpost'],
+            'OnlyShowWhenParentSelected' => 'true',
+        ],
+    ], $minorLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'ArcCorp Mining Area 045',
+        'system' => 'Stanton',
+        'type_name' => 'Outpost',
+        'data' => [
+            'Type' => ['Classification' => 'Outpost'],
+            'OnlyShowWhenParentSelected' => 'true',
+        ],
+    ], $minorHiddenLocation);
+
+    $this->getJson('/api/locations?filter[hide_minor_locations]=true')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $majorLocation->uuid)
+        ->assertJsonMissing(['uuid' => $minorLocation->uuid])
+        ->assertJsonMissing(['uuid' => $minorHiddenLocation->uuid]);
+
+    $this->getJson('/api/locations')
+        ->assertSuccessful()
+        ->assertJsonCount(3, 'data');
+});
+
 it('filters starmap locations by resource commodity name and uuid', function (): void {
     $quantaniumLocation = StarmapLocation::factory()->create();
     $hephaestaniteLocation = StarmapLocation::factory()->create();

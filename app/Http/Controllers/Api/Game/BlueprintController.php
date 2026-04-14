@@ -126,7 +126,7 @@ class BlueprintController extends Controller
         $blueprintData = BlueprintData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->where('blueprint_id', $blueprint->id)
-            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns'])
+            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients'])
             ->first();
 
         if ($blueprintData === null) {

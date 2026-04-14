@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
+use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
@@ -238,4 +239,117 @@ it('accumulates starmap placements from multiple providers for same resource loc
     $allPlacements = $locations->flatMap(fn (ResourceLocation $loc) => $loc->starmapLocationData->pluck('id'));
     expect($allPlacements)->toHaveCount(2);
     expect($allPlacements->unique())->toHaveCount(2);
+});
+
+it('removes stale provider starmap placements on re-import', function (): void {
+    Storage::fake('scunpacked');
+    $s = setupVersionWithResources();
+
+    $payloadV1 = [
+        [
+            'Provider' => ['Name' => 'TestProvider_Stale'],
+            'Locations' => [
+                ['Object' => $s['uuid1'], 'Key' => 'Loc1', 'Tag' => 'TAG1', 'System' => 'Stanton', 'Name' => 'Hurston', 'Type' => 'Planet'],
+                ['Object' => $s['uuid2'], 'Key' => 'Loc2', 'Tag' => 'TAG2', 'System' => 'Stanton', 'Name' => 'Lyria', 'Type' => 'Moon'],
+            ],
+            'Areas' => [],
+            'Groups' => [
+                [
+                    'GroupName' => 'SpaceShip_Mineables',
+                    'GroupProbability' => 1.0,
+                    'Deposits' => [
+                        [
+                            'ResourceUUID' => $s['resourceData']->resource->uuid,
+                            'ResourceKey' => 'Copper',
+                            'RelativeProbability' => 0.5,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode($payloadV1));
+
+    $this->artisan('game:import-resource-locations', ['version' => '4.0.0-LIVE'])
+        ->assertExitCode(Command::SUCCESS);
+
+    $provider = ResourceProvider::query()->first();
+    expect($provider->starmapLocationData)->toHaveCount(2);
+
+    $payloadV2 = [
+        [
+            'Provider' => ['Name' => 'TestProvider_Stale'],
+            'Locations' => [
+                ['Object' => $s['uuid1'], 'Key' => 'Loc1', 'Tag' => 'TAG1', 'System' => 'Stanton', 'Name' => 'Hurston', 'Type' => 'Planet'],
+            ],
+            'Areas' => [],
+            'Groups' => [
+                [
+                    'GroupName' => 'SpaceShip_Mineables',
+                    'GroupProbability' => 1.0,
+                    'Deposits' => [
+                        [
+                            'ResourceUUID' => $s['resourceData']->resource->uuid,
+                            'ResourceKey' => 'Copper',
+                            'RelativeProbability' => 0.5,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode($payloadV2));
+
+    $this->artisan('game:import-resource-locations', ['version' => '4.0.0-LIVE'])
+        ->assertExitCode(Command::SUCCESS);
+
+    $provider->refresh();
+    expect($provider->starmapLocationData)->toHaveCount(1);
+    expect($provider->starmapLocationData->first()->id)->toBe($s['starmapData1']->id);
+});
+
+it('cleans up all pivot rows when provider is removed from payload', function (): void {
+    Storage::fake('scunpacked');
+    $s = setupVersionWithResources();
+
+    $payloadV1 = [
+        [
+            'Provider' => ['Name' => 'TestProvider_ToRemove'],
+            'Locations' => [
+                ['Object' => $s['uuid1'], 'Key' => 'Loc1', 'Tag' => 'TAG1', 'System' => 'Stanton', 'Name' => 'Hurston', 'Type' => 'Planet'],
+            ],
+            'Areas' => [],
+            'Groups' => [
+                [
+                    'GroupName' => 'SpaceShip_Mineables',
+                    'GroupProbability' => 1.0,
+                    'Deposits' => [
+                        [
+                            'ResourceUUID' => $s['resourceData']->resource->uuid,
+                            'ResourceKey' => 'Copper',
+                            'RelativeProbability' => 0.5,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode($payloadV1));
+
+    $this->artisan('game:import-resource-locations', ['version' => '4.0.0-LIVE'])
+        ->assertExitCode(Command::SUCCESS);
+
+    expect(DB::table('game_resource_location_placements')->count())->toBe(1);
+    expect(DB::table('game_resource_provider_starmap')->count())->toBe(1);
+
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode([]));
+
+    $this->artisan('game:import-resource-locations', ['version' => '4.0.0-LIVE'])
+        ->assertExitCode(Command::SUCCESS);
+
+    expect(DB::table('game_resource_location_placements')->count())->toBe(0);
+    expect(DB::table('game_resource_provider_starmap')->count())->toBe(0);
 });

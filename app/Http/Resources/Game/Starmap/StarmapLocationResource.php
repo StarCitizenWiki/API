@@ -113,58 +113,22 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
-    schema: 'starmap_location_area_boost',
-    title: 'Starmap Location Area Boost',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'global_modifier', type: 'number', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'starmap_location_deposit',
-    title: 'Starmap Location Deposit',
-    properties: [
-        new OA\Property(property: 'key', type: 'string'),
-        new OA\Property(property: 'resource_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(
-            property: 'area_exceptions',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/resource_area_exception'),
-            nullable: true
-        ),
-        new OA\Property(property: 'clustering', ref: '#/components/schemas/resource_clustering', nullable: true),
-        new OA\Property(
-            property: 'materials',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/material_entry')
-        ),
-        new OA\Property(property: 'quality_min', type: 'integer', nullable: true),
-        new OA\Property(property: 'quality_max', type: 'integer', nullable: true),
-        new OA\Property(property: 'relative_probability_min', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_max', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_min_percent', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_max_percent', type: 'number', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
     schema: 'starmap_location_resource',
     title: 'Starmap Location Resource',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'tier', type: 'string', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(
-            property: 'deposits',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/starmap_location_deposit')
+    description: 'Deposit base with commodity identity fields.',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/deposit_base'),
+        new OA\Schema(
+            properties: [
+                new OA\Property(property: 'name', type: 'string'),
+                new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
+                new OA\Property(property: 'tier', type: 'string', nullable: true),
+                new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+                new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+            ],
+            type: 'object'
         ),
-    ],
-    type: 'object'
+    ]
 )]
 #[OA\Schema(
     schema: 'starmap_location_mining_type_group',
@@ -231,7 +195,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'area_boosts',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/starmap_location_area_boost'),
+            items: new OA\Items(ref: '#/components/schemas/area_boost'),
             nullable: true
         ),
         new OA\Property(

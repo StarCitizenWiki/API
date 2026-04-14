@@ -34,8 +34,17 @@ final class StarmapLocationTableConfig
                 'amenities' => 'amenity',
                 'has_resources' => 'has_resources',
                 'resources' => 'resource',
+                'hide_minor_locations' => 'hide_minor_locations',
             ],
             'externalFilters' => [
+                [
+                    'title' => 'Hide Minor Locations',
+                    'field' => 'hide_minor_locations',
+                    'options' => [
+                        ['value' => '', 'label' => 'All'],
+                        ['value' => 'true', 'label' => 'Yes'],
+                    ],
+                ],
                 [
                     'title' => 'Has Mineables',
                     'field' => 'has_resources',

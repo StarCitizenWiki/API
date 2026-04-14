@@ -129,6 +129,8 @@ Route::group(
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
             Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
 
+            Route::get('resource-types', static fn (Request $request) => redirect()->route('commodities.index', $request->query(), 308));
+
             // Commodities
             Route::get('commodities', [CommodityController::class, 'index'])->name('commodities.index');
             Route::get('commodities/filters', [CommodityController::class, 'filters'])->name('commodities.filters');

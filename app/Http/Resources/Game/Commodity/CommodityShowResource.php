@@ -14,120 +14,20 @@ use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'deposit_entry',
-    title: 'Deposit Entry',
-    properties: [
-        new OA\Property(property: 'quality_min', type: 'integer', nullable: true),
-        new OA\Property(property: 'quality_max', type: 'integer', nullable: true),
-        new OA\Property(property: 'quality_mean', type: 'number', nullable: true),
-        new OA\Property(property: 'quality_stddev', type: 'number', nullable: true),
-        new OA\Property(property: 'group_probability', type: 'number'),
-        new OA\Property(property: 'group_probability_percent', type: 'number'),
-        new OA\Property(property: 'relative_probability', type: 'number'),
-        new OA\Property(property: 'relative_probability_percent', type: 'number'),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'commodity_composition_entry',
-    title: 'Commodity Composition Entry',
-    properties: [
-        new OA\Property(property: 'key', type: 'string'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'is_current', type: 'boolean'),
-        new OA\Property(property: 'probability', type: 'number'),
-        new OA\Property(property: 'probability_percent', type: 'number'),
-        new OA\Property(property: 'min_percentage', type: 'number'),
-        new OA\Property(property: 'max_percentage', type: 'number'),
-        new OA\Property(property: 'instability', type: 'number'),
-        new OA\Property(property: 'resistance', type: 'number'),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'commodity_clustering_param',
-    title: 'Commodity Clustering Param',
-    properties: [
-        new OA\Property(property: 'min_size', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_size', type: 'integer', nullable: true),
-        new OA\Property(property: 'min_proximity', type: 'number', nullable: true),
-        new OA\Property(property: 'max_proximity', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability', type: 'number', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'commodity_clustering',
-    title: 'Commodity Clustering',
-    properties: [
-        new OA\Property(property: 'key', type: 'string', nullable: true),
-        new OA\Property(property: 'min_size', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_size', type: 'integer', nullable: true),
-        new OA\Property(property: 'min_proximity', type: 'number', nullable: true),
-        new OA\Property(property: 'max_proximity', type: 'number', nullable: true),
-        new OA\Property(property: 'probability', type: 'number', nullable: true),
-        new OA\Property(property: 'probability_percent', type: 'number', nullable: true),
-        new OA\Property(
-            property: 'params',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/commodity_clustering_param')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'commodity_area_exception',
-    title: 'Commodity Area Exception',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'modifier', type: 'number'),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
     schema: 'commodity_deposit_group',
     title: 'Commodity Deposit Group',
-    properties: [
-        new OA\Property(property: 'key', type: 'string'),
-        new OA\Property(property: 'resource_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(property: 'group_name', type: 'string'),
-        new OA\Property(property: 'resource_kind', type: 'string', nullable: true),
-        new OA\Property(
-            property: 'area_exceptions',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/commodity_area_exception'),
-            nullable: true
+    description: 'Deposit base with commodity grouping fields.',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/deposit_base'),
+        new OA\Schema(
+            properties: [
+                new OA\Property(property: 'resource_uuid', type: 'string', format: 'uuid', nullable: true),
+                new OA\Property(property: 'group_name', type: 'string'),
+                new OA\Property(property: 'resource_kind', type: 'string', nullable: true),
+            ],
+            type: 'object'
         ),
-        new OA\Property(property: 'clustering', ref: '#/components/schemas/commodity_clustering', nullable: true),
-        new OA\Property(
-            property: 'composition',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/commodity_composition_entry')
-        ),
-        new OA\Property(property: 'quality_min', type: 'integer', nullable: true),
-        new OA\Property(property: 'quality_max', type: 'integer', nullable: true),
-        new OA\Property(property: 'relative_probability_min', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_max', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_min_percent', type: 'number', nullable: true),
-        new OA\Property(property: 'relative_probability_max_percent', type: 'number', nullable: true),
-        new OA\Property(
-            property: 'entries',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/deposit_entry')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'commodity_area_boost',
-    title: 'Commodity Area Boost',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'global_modifier', type: 'number', nullable: true),
-    ],
-    type: 'object'
+    ]
 )]
 #[OA\Schema(
     schema: 'commodity_show_location',
@@ -152,7 +52,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'areas',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/commodity_area_boost'),
+            items: new OA\Items(ref: '#/components/schemas/area_boost'),
             nullable: true
         ),
         new OA\Property(
@@ -250,7 +150,41 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'raw_versions',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/commodity_version_entry')
+            items: new OA\Items(ref: '#/components/schemas/commodity_version_entry'),
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'blueprints',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'key', type: 'string'),
+                    new OA\Property(property: 'output_name', type: 'string'),
+                    new OA\Property(property: 'output_item_uuid', type: 'string', format: 'uuid', nullable: true),
+                    new OA\Property(property: 'craft_time_label', type: 'string'),
+                    new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
+                    new OA\Property(property: 'link', type: 'string', format: 'uri'),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string'),
+                    new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
+                    new OA\Property(property: 'type', type: 'string', nullable: true),
+                    new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+                    new OA\Property(property: 'size', type: 'integer', nullable: true),
+                    new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true
         ),
         new OA\Property(property: 'link', type: 'string', format: 'uri'),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri'),

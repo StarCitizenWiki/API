@@ -120,6 +120,17 @@ class StarmapLocationController extends Controller
             });
         };
 
+        $hideMinorLocationsFilter = function (Builder $query, mixed $value): void {
+            if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                $column = $this->getJsonTableName().'.'.$this->getJsonColumnName().'->OnlyShowWhenParentSelected';
+
+                $query->where(function (Builder $q) use ($column): void {
+                    $q->where($column, '!=', 'true')
+                        ->orWhereNull($column);
+                });
+            }
+        };
+
         return [
             AllowedFilter::partial('name'),
             AllowedFilter::exact('type_name'),
@@ -136,6 +147,7 @@ class StarmapLocationController extends Controller
             AllowedFilter::partial('system'),
             AllowedFilter::callback('has_resources', $hasResourcesFilter),
             AllowedFilter::callback('resource', $resourceFilter),
+            AllowedFilter::callback('hide_minor_locations', $hideMinorLocationsFilter),
         ];
     }
 
@@ -247,6 +259,7 @@ class StarmapLocationController extends Controller
             new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[hide_minor_locations]', in: 'query', schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [
             new OA\Response(
@@ -353,6 +366,7 @@ class StarmapLocationController extends Controller
             new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[hide_minor_locations]', in: 'query', schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [
             new OA\Response(
