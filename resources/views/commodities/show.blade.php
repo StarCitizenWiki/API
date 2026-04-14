@@ -90,31 +90,35 @@
                         <span class="badge badge-ghost badge-sm">{{ count($blueprints) }}</span>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="table table-zebra">
-                            <thead>
-                                <tr>
-                                    <th>Output</th>
-                                    <th>Key</th>
-                                    <th>Craft Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($blueprints as $blueprint)
-                                    <tr>
-                                        <td>
-                                            @if (!empty($blueprint['web_url']))
-                                                <a href="{{ $blueprint['web_url'] }}" class="link link-primary">{{ $blueprint['output_name'] ?? $blueprint['key'] }}</a>
-                                            @else
-                                                {{ $blueprint['output_name'] ?? $blueprint['key'] }}
-                                            @endif
-                                        </td>
-                                        <td class="font-mono text-sm">{{ $blueprint['key'] }}</td>
-                                        <td>{{ $blueprint['craft_time_label'] ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card-body p-5 sm:p-6">
+                            <div class="overflow-x-auto overflow-y-auto max-h-96">
+                                <table class="table table-zebra">
+                                    <thead>
+                                        <tr>
+                                            <th>Output</th>
+                                            <th>Key</th>
+                                            <th>Craft Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($blueprints as $blueprint)
+                                            <tr>
+                                                <td>
+                                                    @if (!empty($blueprint['web_url']))
+                                                        <a href="{{ $blueprint['web_url'] }}" class="link link-primary">{{ $blueprint['output_name'] ?? $blueprint['key'] }}</a>
+                                                    @else
+                                                        {{ $blueprint['output_name'] ?? $blueprint['key'] }}
+                                                    @endif
+                                                </td>
+                                                <td class="font-mono text-sm">{{ $blueprint['key'] }}</td>
+                                                <td>{{ $blueprint['craft_time_label'] ?? '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
             @endif
@@ -126,33 +130,37 @@
                         <span class="badge badge-ghost badge-sm">{{ count($items) }}</span>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="table table-zebra">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Type</th>
-                                    <th>Sub Type</th>
-                                    <th>Size</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($items as $item)
-                                    <tr>
-                                        <td>
-                                            @if (!empty($item['web_url']))
-                                                <a href="{{ $item['web_url'] }}" class="link link-primary">{{ $item['name'] }}</a>
-                                            @else
-                                                {{ $item['name'] }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $item['type'] ?? '-' }}</td>
-                                        <td>{{ $item['sub_type'] ?? '-' }}</td>
-                                        <td>{{ $item['size'] ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card-body p-5 sm:p-6">
+                            <div class="overflow-x-auto overflow-y-auto max-h-96">
+                                <table class="table table-zebra">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                            <th>Sub Type</th>
+                                            <th>Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($items as $item)
+                                            <tr>
+                                                <td>
+                                                    @if (!empty($item['web_url']))
+                                                        <a href="{{ $item['web_url'] }}" class="link link-primary">{{ $item['name'] }}</a>
+                                                    @else
+                                                        {{ $item['name'] }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ $item['type'] ?? '-' }}</td>
+                                                <td>{{ $item['sub_type'] ?? '-' }}</td>
+                                                <td>{{ $item['size'] ?? '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
             @endif

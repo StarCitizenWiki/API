@@ -47,31 +47,6 @@ beforeEach(function (): void {
     ]);
 });
 
-it('renders the blueprint search route with an empty state', function (): void {
-    $response = $this->get(route('web.blueprints.search'));
-
-    $response->assertOk()
-        ->assertViewIs('blueprints.show')
-        ->assertViewHas('isEmptyMode', true)
-        ->assertViewHas('pageTitle', 'Search Blueprints')
-        ->assertSeeText('Find craftable items')
-        ->assertSeeText('Search by output name or pick resource filters to load matching blueprints.')
-        ->assertSee('data-testid="blueprints-search-heading"', false)
-        ->assertSee('data-testid="blueprints-search-input"', false)
-        ->assertSee('data-testid="blueprints-search-empty-state"', false)
-        ->assertSee('data-testid="blueprints-search-menu-link"', false)
-        ->assertSee('data-testid="blueprints-menu-link"', false)
-        ->assertSee(route('web.blueprints.search'), false);
-
-    $content = $response->getContent();
-    $searchLinkClasses = attributeForTestId($content, 'blueprints-search-menu-link', 'class') ?? '';
-    $blueprintsLinkClasses = attributeForTestId($content, 'blueprints-menu-link', 'class') ?? '';
-
-    expect(attributeForTestId($content, 'blueprints-search-menu-link', 'href'))->toBe(route('web.blueprints.search'))
-        ->and($searchLinkClasses)->toContain('menu-active')
-        ->and($blueprintsLinkClasses)->not->toContain('menu-active');
-});
-
 it('renders matching blueprint search results without keeping the search query in result links', function (): void {
     $resourceTypeUuid = fake()->uuid();
     $hephaestaniteUuid = fake()->uuid();

@@ -15,17 +15,21 @@
     $depSignature = data_get($deposit, 'signature');
     $relProbMin = data_get($deposit, 'relative_probability_min_percent');
     $relProbMax = data_get($deposit, 'relative_probability_max_percent');
+    $harvestableSetup = data_get($deposit, 'harvestable_setup');
+    $providerNames = data_get($deposit, 'provider_names', []);
 
     $clusterMin = data_get($clustering, 'min_size');
     $clusterMax = data_get($clustering, 'max_size');
     $clusterProb = data_get($clustering, 'probability_percent');
+
+    $isMineable = $resourceKind === 'mineable';
 @endphp
 
 <div class="border-t border-base-200 pt-3 mt-1 first:border-t-0 first:mt-0 first:pt-0">
     <div class="flex flex-wrap items-center gap-2 mb-3">
         <span class="text-sm font-semibold" title="{{ $depKey }}">
             {{ $depLabel }}
-            @if ($resourceKind === 'mineable')
+            @if ($isMineable)
                 Deposit
             @endif
         </span>
@@ -45,6 +49,21 @@
 
         @if ($relProbMin !== null)
             <span class="badge badge-outline badge-sm" title="Relative probability within group">{{ $relProbMin === $relProbMax ? "{$relProbMin}%" : "{$relProbMin}-{$relProbMax}%" }}</span>
+        @endif
+
+        @if ($harvestableSetup !== null)
+            @if (data_get($harvestableSetup, 'respawn_formatted'))
+                <span class="badge badge-ghost badge-sm" title="Respawn time">Respawn: {{ $harvestableSetup['respawn_formatted'] }}</span>
+            @endif
+            @if (data_get($harvestableSetup, 'despawn_formatted'))
+                <span class="badge badge-ghost badge-sm" title="Despawn time">Despawn: {{ $harvestableSetup['despawn_formatted'] }}</span>
+            @endif
+            @if (data_get($harvestableSetup, 'relative_probability_percent') !== null)
+                <span class="badge badge-ghost badge-sm" title="Spawn probability">Spawn: {{ $harvestableSetup['relative_probability_percent'] }}%</span>
+            @endif
+            @if (data_get($harvestableSetup, 'additional_wait_formatted'))
+                <span class="badge badge-ghost badge-sm" title="Additional wait when players are nearby">Wait: {{ $harvestableSetup['additional_wait_formatted'] }}</span>
+            @endif
         @endif
 
         @php
@@ -71,7 +90,15 @@
         @endif
     </div>
 
-    @if ($materials !== [] && $resourceKind === 'mineable')
+    @if (is_array($providerNames) && $providerNames !== [] && ! $isMineable)
+        <div class="flex flex-wrap gap-1 mb-2">
+            @foreach ($providerNames as $providerName)
+                <span class="badge badge-outline badge-sm opacity-60">{{ $providerName }}</span>
+            @endforeach
+        </div>
+    @endif
+
+    @if ($materials !== [] && $isMineable)
         <div class="overflow-x-auto">
             <table class="table table-sm">
                 <thead>

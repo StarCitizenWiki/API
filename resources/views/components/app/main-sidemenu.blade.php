@@ -90,16 +90,16 @@
         Blueprints
     </x-app.sidemenu-item>
 
-    <x-app.sidemenu-item
-        :route="'web.blueprints.search'"
-        route-is="web.blueprints.search"
-        test-id="blueprints-search-menu-link"
-    >
-        <x-slot:icon>
-            <x-icon name="search" class="size-4" />
-        </x-slot:icon>
-        Blueprint Search
-    </x-app.sidemenu-item>
+{{--    <x-app.sidemenu-item--}}
+{{--        :route="'web.blueprints.search'"--}}
+{{--        route-is="web.blueprints.search"--}}
+{{--        test-id="blueprints-search-menu-link"--}}
+{{--    >--}}
+{{--        <x-slot:icon>--}}
+{{--            <x-icon name="search" class="size-4" />--}}
+{{--        </x-slot:icon>--}}
+{{--        Blueprint Search--}}
+{{--    </x-app.sidemenu-item>--}}
 
     <x-app.sidemenu-item
         :route="'web.locations.index'"

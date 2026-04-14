@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Resources;
 
+use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
 
 trait HasDepositFormatting
@@ -210,6 +211,49 @@ trait HasDepositFormatting
         ];
     }
 
+    protected static function extractHarvestableSetup(mixed $data): ?array
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        $setup = $data['harvestable_setup'] ?? null;
+
+        if ($setup === null) {
+            return null;
+        }
+
+        $respawnSeconds = isset($setup['RespawnInSlotTime']) && is_numeric($setup['RespawnInSlotTime'])
+            ? (int) $setup['RespawnInSlotTime'] : null;
+        $despawnSeconds = isset($setup['DespawnTimeSeconds']) && is_numeric($setup['DespawnTimeSeconds'])
+            ? (int) $setup['DespawnTimeSeconds'] : null;
+        $waitSeconds = isset($setup['AdditionalWaitForNearbyPlayersSeconds']) && is_numeric($setup['AdditionalWaitForNearbyPlayersSeconds'])
+            ? (int) $setup['AdditionalWaitForNearbyPlayersSeconds'] : null;
+
+        return [
+            'respawn_seconds' => $respawnSeconds,
+            'respawn_formatted' => $respawnSeconds !== null ? self::formatDuration($respawnSeconds) : null,
+            'despawn_seconds' => $despawnSeconds,
+            'despawn_formatted' => $despawnSeconds !== null ? self::formatDuration($despawnSeconds) : null,
+            'relative_probability' => isset($setup['RelativeProbability']) && is_numeric($setup['RelativeProbability'])
+                ? (float) $setup['RelativeProbability'] : null,
+            'relative_probability_percent' => isset($setup['RelativeProbability']) && is_numeric($setup['RelativeProbability'])
+                ? self::formatPercent((float) $setup['RelativeProbability'], 0) : null,
+            'respawn_multiplier' => isset($setup['RespawnTimeMultiplier']) && is_numeric($setup['RespawnTimeMultiplier'])
+                ? (float) $setup['RespawnTimeMultiplier'] : null,
+            'additional_wait_seconds' => $waitSeconds,
+            'additional_wait_formatted' => $waitSeconds !== null ? self::formatDuration($waitSeconds) : null,
+        ];
+    }
+
+    protected static function formatDuration(int $seconds): string
+    {
+        return CarbonInterval::seconds($seconds)
+            ->locale('en')
+            ->cascade()
+            ->forHumans(short: true);
+    }
+
     protected static function buildDepositBase(Collection $depositPairs, mixed $resourceData, ?int $commodityId): array
     {
         $representative = $depositPairs->first()['resourceLocation'];
@@ -220,6 +264,13 @@ trait HasDepositFormatting
         $relProbMin = $depositPairs->min(static fn (array $pair): float => (float) $pair['resourceLocation']->relative_probability);
         $relProbMax = $depositPairs->max(static fn (array $pair): float => (float) $pair['resourceLocation']->relative_probability);
 
+        $providerNames = $depositPairs
+            ->map(static fn (array $pair): ?string => $pair['resourceLocation']->provider?->provider_name)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
         return [
             'key' => $resourceData->key,
             'resource_uuid' => $resourceData->resource->uuid,
@@ -227,6 +278,8 @@ trait HasDepositFormatting
             'signature' => $resourceData->signature,
             'area_exceptions' => self::formatAreaExceptions($representative->provider?->areas, $representative->group_name, $resourceData->resource->uuid),
             'clustering' => self::extractClustering($representative->data),
+            'harvestable_setup' => self::extractHarvestableSetup($representative->data),
+            'provider_names' => $providerNames,
             'materials' => self::buildMaterials($depositPairs, $resourceData, $commodityId),
             'quality_min' => $depQMin,
             'quality_max' => $depQMax,

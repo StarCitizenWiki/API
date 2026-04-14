@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Starmap;
 
+use App\Enums\Game\ResourceKind;
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\StarmapLocationData;
 use App\Support\Resources\HasDepositFormatting;
@@ -565,9 +566,12 @@ class StarmapLocationResource extends AbstractBaseResource
         $groupProbMin = $groupPairs->min(fn (array $pair): float => (float) $pair['resourceLocation']->group_probability);
         $groupProbMax = $groupPairs->max(fn (array $pair): float => (float) $pair['resourceLocation']->group_probability);
 
+        $isMineable = $first['resourceLocation']->resource_kind === ResourceKind::Mineable;
+
         $resources = $groupPairs
-            ->groupBy(fn (array $pair): string => $pair['resourceLocation']->resourceData->key
-                .'@'.($pair['resourceLocation']->resource_provider_id ?? 'none'))
+            ->groupBy(fn (array $pair): string => $isMineable
+                ? $pair['resourceLocation']->resourceData->key.'@'.($pair['resourceLocation']->resource_provider_id ?? 'none')
+                : (string) $pair['resourceLocation']->resourceData->id)
             ->map(fn (Collection $depositPairs): array => $this->buildDepositResource($depositPairs, $request))
             ->sortBy('name')
             ->values()
@@ -620,6 +624,8 @@ class StarmapLocationResource extends AbstractBaseResource
             'signature' => $depositBase['signature'],
             'area_exceptions' => $depositBase['area_exceptions'],
             'clustering' => $depositBase['clustering'],
+            'harvestable_setup' => $depositBase['harvestable_setup'],
+            'provider_names' => $depositBase['provider_names'],
             'materials' => $depositBase['materials'],
             'quality_min' => $depositBase['quality_min'],
             'quality_max' => $depositBase['quality_max'],

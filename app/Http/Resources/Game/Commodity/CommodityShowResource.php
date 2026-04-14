@@ -323,8 +323,9 @@ class CommodityShowResource extends CommodityIndexResource
                 $firstResourceLocation = $pairs->first()['resourceLocation'];
 
                 $depositGroups = $pairs
-                    ->groupBy(static fn (array $pair): string => $pair['resourceLocation']->resourceData->key
-                        .'@'.($pair['resourceLocation']->resource_provider_id ?? 'none'))
+                    ->groupBy(static fn (array $pair): string => $pair['resourceLocation']->resource_kind === ResourceKind::Mineable
+                        ? $pair['resourceLocation']->resourceData->key.'@'.($pair['resourceLocation']->resource_provider_id ?? 'none')
+                        : (string) $pair['resourceLocation']->resourceData->id)
                     ->map(function (Collection $depositPairs) use ($currentCommodityId): array {
                         $representative = $depositPairs->first()['resourceLocation'];
                         $resourceData = $representative->resourceData;
