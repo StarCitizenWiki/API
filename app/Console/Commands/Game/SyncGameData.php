@@ -35,7 +35,8 @@ class SyncGameData extends Command
                             {--skip-starmap : Skip importing starmap data}
                             {--skip-resources : Skip importing resource data}
                             {--skip-compute-item-base-ids : Skip computing item base ids}
-                            {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}';
+                            {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
+                            {--skip-factions : Skip importing faction data}';
 
     /**
      * The console command name aliases.
@@ -66,6 +67,7 @@ class SyncGameData extends Command
         $skipResources = (bool) $this->option('skip-resources');
         $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
+        $skipFactions = (bool) $this->option('skip-factions');
         $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources);
 
         $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
@@ -90,6 +92,10 @@ class SyncGameData extends Command
         ]);
 
         if (Artisan::call('game:import-tags') !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
+        if (! $skipFactions && Artisan::call('game:import-factions') !== self::SUCCESS) {
             return self::FAILURE;
         }
 
