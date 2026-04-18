@@ -11,6 +11,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::create('game_missions', static function (Blueprint $table): void {
+            $table->id();
+            $table->uuid()->unique();
+            $table->timestamps();
+        });
+
         Schema::create('game_mission_data', static function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('mission_id');
@@ -58,14 +64,66 @@ return new class extends Migration
                 'CREATE INDEX IF NOT EXISTS game_mission_data_star_systems_gin_index ON game_mission_data USING GIN (star_systems)'
             );
         }
+
+        Schema::create('game_mission_data_starmap_location', static function (Blueprint $table): void {
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('starmap_location_data_id')->constrained('game_starmap_location_data')->cascadeOnDelete();
+
+            $table->primary(['mission_data_id', 'starmap_location_data_id']);
+        });
+
+        Schema::create('game_mission_data_blueprint', static function (Blueprint $table): void {
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('blueprint_data_id')->constrained('game_blueprint_data')->cascadeOnDelete();
+            $table->float('chance')->nullable();
+            $table->uuid('pool_uuid')->nullable();
+            $table->foreignId('item_data_id')->nullable()->constrained('game_item_data')->nullOnDelete();
+
+            $table->primary(['mission_data_id', 'blueprint_data_id', 'item_data_id']);
+        });
+
+        Schema::create('game_mission_data_mission_chain', static function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('linked_mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->string('chain_type');
+            $table->unsignedInteger('group_index')->default(0);
+            $table->uuid('tag_uuid')->nullable();
+            $table->string('tag_name')->nullable();
+            $table->timestamps();
+
+            $table->index(['mission_data_id', 'chain_type']);
+            $table->index(['linked_mission_data_id', 'chain_type']);
+        });
+
+        Schema::create('game_mission_data_commodity', static function (Blueprint $table): void {
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('commodity_id')->constrained('game_commodities')->cascadeOnDelete();
+
+            $table->primary(['mission_data_id', 'commodity_id']);
+        });
+
+        Schema::create('game_mission_data_item', static function (Blueprint $table): void {
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('item_data_id')->constrained('game_item_data')->cascadeOnDelete();
+
+            $table->primary(['mission_data_id', 'item_data_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('game_mission_data_item');
+        Schema::dropIfExists('game_mission_data_commodity');
+        Schema::dropIfExists('game_mission_data_mission_chain');
+        Schema::dropIfExists('game_mission_data_blueprint');
+        Schema::dropIfExists('game_mission_data_starmap_location');
+
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('DROP INDEX IF EXISTS game_mission_data_star_systems_gin_index');
         }
 
         Schema::dropIfExists('game_mission_data');
+        Schema::dropIfExists('game_missions');
     }
 };

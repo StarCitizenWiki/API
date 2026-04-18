@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Game;
+namespace App\Models\Game\Mission;
 
+use App\Models\Game\GameVersion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

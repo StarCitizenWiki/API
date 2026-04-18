@@ -175,6 +175,16 @@ class ItemData extends Model
         );
     }
 
+    public function missions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MissionData::class,
+            'game_mission_data_item',
+            'item_data_id',
+            'mission_data_id',
+        );
+    }
+
     public function scopeForCategory(Builder $query, string $category): Builder
     {
         return match ($category) {

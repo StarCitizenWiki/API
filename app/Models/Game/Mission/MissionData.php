@@ -2,14 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Game;
+namespace App\Models\Game\Mission;
 
+use App\Models\Game\BlueprintData;
+use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\Faction;
+use App\Models\Game\GameVersion;
+use App\Models\Game\ItemData;
+use App\Models\Game\StarmapLocationData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MissionData extends Model
 {
@@ -86,18 +91,14 @@ class MissionData extends Model
 
     public function starmapLocations(): BelongsToMany
     {
-        return $this->belongsToMany(StarmapLocationData::class, 'game_mission_data_starmap_location', 'mission_data_id', 'starmap_location_data_id')
-            ->withPivot(['source', 'pool_key', 'pool_purpose'])
-            ->using(MissionStarmapLocation::class)
-            ->withTimestamps();
+        return $this->belongsToMany(StarmapLocationData::class, 'game_mission_data_starmap_location', 'mission_data_id', 'starmap_location_data_id');
     }
 
     public function blueprints(): BelongsToMany
     {
         return $this->belongsToMany(BlueprintData::class, 'game_mission_data_blueprint', 'mission_data_id', 'blueprint_data_id')
-            ->withPivot(['chance', 'pool_uuid', 'item_uuid', 'item_name'])
-            ->using(MissionBlueprint::class)
-            ->withTimestamps();
+            ->withPivot(['chance', 'pool_uuid', 'item_data_id'])
+            ->using(MissionBlueprint::class);
     }
 
     public function unlocks(): BelongsToMany
@@ -136,9 +137,14 @@ class MissionData extends Model
             ->withTimestamps();
     }
 
-    public function haulingOrders(): HasMany
+    public function commodities(): BelongsToMany
     {
-        return $this->hasMany(MissionHaulingOrder::class);
+        return $this->belongsToMany(Commodity::class, 'game_mission_data_commodity', 'mission_data_id', 'commodity_id');
+    }
+
+    public function items(): BelongsToMany
+    {
+        return $this->belongsToMany(ItemData::class, 'game_mission_data_item', 'mission_data_id', 'item_data_id');
     }
 
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder

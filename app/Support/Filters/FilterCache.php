@@ -27,6 +27,8 @@ final class FilterCache
 
     public const NAMESPACE_BLUEPRINTS = 'blueprints';
 
+    public const NAMESPACE_MISSIONS = 'missions';
+
     public static function rememberForever(string $namespace, string $key, Closure $resolver): mixed
     {
         self::trackKey($namespace, $key);

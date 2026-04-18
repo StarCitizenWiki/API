@@ -6,6 +6,7 @@ namespace App\Models\Game\Commodity;
 
 use App\Models\Game\BlueprintData;
 use App\Models\Game\ItemData;
+use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceData;
 use Database\Factories\Game\Commodity\CommodityFactory;
@@ -113,6 +114,16 @@ class Commodity extends Model
             'game_item_data_commodity',
             'commodity_id',
             'item_data_id',
+        );
+    }
+
+    public function missions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MissionData::class,
+            'game_mission_data_commodity',
+            'commodity_id',
+            'mission_data_id',
         );
     }
 }

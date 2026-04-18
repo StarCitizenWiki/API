@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Game;
+namespace App\Models\Game\Mission;
 
+use App\Models\Game\BlueprintData;
+use App\Models\Game\ItemData;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -16,21 +18,25 @@ class MissionBlueprint extends Pivot
         'blueprint_data_id',
         'chance',
         'pool_uuid',
-        'item_uuid',
-        'item_name',
+        'item_data_id',
     ];
 
     protected $casts = [
         'chance' => 'float',
     ];
 
-    public function missionData(): BelongsTo
+    public function mission(): BelongsTo
     {
         return $this->belongsTo(MissionData::class);
     }
 
-    public function blueprintData(): BelongsTo
+    public function blueprint(): BelongsTo
     {
         return $this->belongsTo(BlueprintData::class);
+    }
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(ItemData::class);
     }
 }
