@@ -16,8 +16,7 @@ class FactionReputationRef extends Model
 
     protected $fillable = [
         'faction_id',
-        'hostility_standing_id',
-        'allied_standing_id',
+        'faction_scope_id',
     ];
 
     public function faction(): BelongsTo
@@ -25,13 +24,8 @@ class FactionReputationRef extends Model
         return $this->belongsTo(Faction::class);
     }
 
-    public function hostilityStanding(): BelongsTo
+    public function scope(): BelongsTo
     {
-        return $this->belongsTo(FactionStanding::class, 'hostility_standing_id');
-    }
-
-    public function alliedStanding(): BelongsTo
-    {
-        return $this->belongsTo(FactionStanding::class, 'allied_standing_id');
+        return $this->belongsTo(FactionScope::class, 'faction_scope_id');
     }
 }

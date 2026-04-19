@@ -62,8 +62,7 @@ return new class extends Migration
         Schema::create('game_faction_reputation_refs', static function (Blueprint $table) {
             $table->id();
             $table->foreignId('faction_id')->unique()->constrained('game_factions')->cascadeOnDelete();
-            $table->foreignId('hostility_standing_id')->nullable()->constrained('game_faction_standings')->nullOnDelete();
-            $table->foreignId('allied_standing_id')->nullable()->constrained('game_faction_standings')->nullOnDelete();
+            $table->foreignId('faction_scope_id')->nullable()->constrained('game_faction_scopes')->nullOnDelete();
             $table->timestamps();
         });
     }

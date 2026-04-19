@@ -6,6 +6,7 @@ namespace Database\Factories\Game;
 
 use App\Models\Game\Faction;
 use App\Models\Game\FactionReputationRef;
+use App\Models\Game\FactionScope;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,14 +17,13 @@ class FactionReputationRefFactory extends Factory
     protected $model = FactionReputationRef::class;
 
     /**
-     * Define the model's default state.
-     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
             'faction_id' => Faction::factory(),
+            'faction_scope_id' => FactionScope::factory(),
         ];
     }
 }

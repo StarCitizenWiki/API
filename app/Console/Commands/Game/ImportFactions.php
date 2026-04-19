@@ -155,22 +155,18 @@ class ImportFactions extends Command
             $this->buildFactionAttributes($data, $name, true, $properties, $reputation),
         );
 
-        $hostilityStandingUuid = $reputation['Hostility']['StandingUUID'] ?? null;
-        $alliedStandingUuid = $reputation['Allied']['StandingUUID'] ?? null;
+        $factionScopeUuid = $hostilityScopeUuid
+            ?? $reputation['Allied']['ScopeUUID']
+            ?? null;
 
-        $hostilityStanding = $hostilityStandingUuid !== null
-            ? FactionStanding::query()->where('uuid', $hostilityStandingUuid)->first()
-            : null;
-
-        $alliedStanding = $alliedStandingUuid !== null
-            ? FactionStanding::query()->where('uuid', $alliedStandingUuid)->first()
+        $factionScope = $factionScopeUuid !== null
+            ? FactionScope::query()->where('uuid', $factionScopeUuid)->first()
             : null;
 
         FactionReputationRef::query()->updateOrCreate(
             ['faction_id' => $faction->id],
             [
-                'hostility_standing_id' => $hostilityStanding?->id,
-                'allied_standing_id' => $alliedStanding?->id,
+                'faction_scope_id' => $factionScope?->id,
             ],
         );
     }
