@@ -41,12 +41,7 @@ it('builds grouped blueprint detail view data', function (): void {
                 'blueprint' => $blueprintUuid,
                 'version' => '4.0.0-PTU',
             ]),
-            'availability' => [
-                'default' => false,
-                'reward_pools' => [
-                    ['key' => 'BP_MISSIONREWARD_ALPHA'],
-                ],
-            ],
+            'is_available_by_default' => false,
             'output' => [
                 'uuid' => $outputItemUuid,
                 'type' => 'Armor',
@@ -177,9 +172,6 @@ it('builds grouped blueprint detail view data', function (): void {
             'item' => $outputItemUuid,
             'version' => '4.0.0-PTU',
         ]))
-        ->and($page['unlockSources'])->toHaveCount(1)
-        ->and($page['unlockSources'][0]['type'])->toBe('Mission reward')
-        ->and($page['unlockSources'][0]['key'])->toBe('BP_MISSIONREWARD_ALPHA')
         ->and($page['hasSearchFilters'])->toBeFalse()
         ->and($page['renderSearchResultCount'])->toBe(1)
         ->and($initialResult['uuid'])->toBe($blueprintUuid)
@@ -362,4 +354,44 @@ it('escapes embedded client payload json for script tags', function (): void {
     expect($page['clientPayload'])->not->toContain('</script>')
         ->and($clientPayload['search']['currentBlueprintUuid'])->toBe($blueprintUuid)
         ->and($clientPayload['search']['initialResults'][0]['output_name'])->toBe($unsafeBlueprintName);
+});
+
+it('passes web_url through unlocking missions into grouped view data', function (): void {
+    app('request')->query->set('version', '4.0.0-PTU');
+
+    $missionUuid = fake()->uuid();
+
+    $page = app(BlueprintShowViewData::class)->build(
+        mode: 'detail',
+        blueprint: [
+            'uuid' => fake()->uuid(),
+            'output_name' => 'Test Blueprint',
+            'output' => [
+                'name' => 'Test Blueprint',
+                'class' => 'test_output',
+            ],
+            'requirement_groups' => [],
+            'unlocking_missions' => [
+                [
+                    'title' => 'Eliminate Threat',
+                    'debug_name' => 'elim_threat',
+                    'mission_type' => 'Bounty Hunter',
+                    'chance' => 0.5,
+                    'web_url' => route('web.missions.show', ['mission' => $missionUuid]),
+                ],
+            ],
+        ],
+        search: [
+            'filters' => [],
+            'results' => [],
+            'result_count' => 0,
+        ],
+        pageTitle: 'Test Blueprint',
+    );
+
+    expect($page['unlockingMissions'])->toHaveCount(1)
+        ->and($page['unlockingMissions'][0]['label'])->toBe('50% chance')
+        ->and($page['unlockingMissions'][0]['missions'])->toHaveCount(1)
+        ->and($page['unlockingMissions'][0]['missions'][0]['title'])->toBe('Eliminate Threat')
+        ->and($page['unlockingMissions'][0]['missions'][0]['web_url'])->toBe(route('web.missions.show', ['mission' => $missionUuid]));
 });

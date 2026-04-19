@@ -46,13 +46,8 @@ it('renders the blueprint show view with normalized api data', function (): void
             'output_name' => 'Detailed Output',
             'output_class' => 'detailed_output',
             'craft_time_seconds' => 240,
+            'is_available_by_default' => false,
             'data' => [
-                'availability' => [
-                    'default' => false,
-                    'reward_pools' => [
-                        ['key' => 'BP_MISSIONREWARD_ALPHA'],
-                    ],
-                ],
                 'output' => [
                     'uuid' => $outputItemUuid,
                     'name' => 'Detailed Output',
@@ -135,7 +130,6 @@ it('renders the blueprint show view with normalized api data', function (): void
         ->assertSeeText('Frame')
         ->assertSeeText('Reinforced Frame')
         ->assertSeeText('Lindinium')
-        ->assertSeeText('BP_MISSIONREWARD_ALPHA')
         ->assertSee(route('web.items.show', ['item' => $requiredItemUuid]), false);
 });
 

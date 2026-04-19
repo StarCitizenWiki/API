@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Blueprints;
 
 use App\Support\Formatting\FormatDuration;
+use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Support\Str;
 
 final class BlueprintShowViewData
@@ -50,18 +51,19 @@ final class BlueprintShowViewData
         $summaryProperties = is_array(data_get($normalizedBlueprint, 'summary_properties'))
             ? data_get($normalizedBlueprint, 'summary_properties')
             : [];
-        $rewardPools = is_array(data_get($normalizedBlueprint, 'availability.reward_pools'))
-            ? data_get($normalizedBlueprint, 'availability.reward_pools')
-            : [];
         $isAvailableByDefault = (bool) data_get(
             $normalizedBlueprint,
-            'availability.default',
-            data_get($normalizedBlueprint, 'is_available_by_default', false),
+            'is_available_by_default',
+            false,
         );
         $outputItemWebUrl = $this->normalizeString(data_get($normalizedBlueprint, 'output.item_web_url'))
             ?? $this->normalizeString(data_get($normalizedBlueprint, 'output_item_web_url'));
         $apiLink = $this->normalizeString(data_get($normalizedBlueprint, 'link'));
-        $unlockSources = $this->buildUnlockSources($rewardPools);
+        $unlockingMissions = $this->buildUnlockingMissions(
+            is_array(data_get($normalizedBlueprint, 'unlocking_missions'))
+                ? data_get($normalizedBlueprint, 'unlocking_missions')
+                : [],
+        );
         $dismantle = is_array(data_get($normalizedBlueprint, 'dismantle'))
             ? data_get($normalizedBlueprint, 'dismantle')
             : [];
@@ -70,7 +72,7 @@ final class BlueprintShowViewData
         $dismantleEfficiency = is_numeric(data_get($dismantle, 'efficiency'))
             ? data_get($dismantle, 'efficiency') + 0
             : null;
-        $dismantleReturns = is_array(data_get($dismantle, 'returns'))
+        $dismantleReturns = is_array(data_get($normalizedBlueprint, 'dismantle_returns'))
             ? array_values(array_filter(
                 array_map(static function (mixed $return): ?array {
                     if (! is_array($return)) {
@@ -83,7 +85,7 @@ final class BlueprintShowViewData
                         'quantity_scu' => is_numeric(data_get($return, 'quantity_scu')) ? data_get($return, 'quantity_scu') + 0 : null,
                         'web_url' => is_string(data_get($return, 'web_url')) ? data_get($return, 'web_url') : null,
                     ];
-                }, data_get($dismantle, 'returns')),
+                }, data_get($normalizedBlueprint, 'dismantle_returns')),
                 static fn (?array $return): bool => $return !== null,
             ))
             : [];
@@ -173,11 +175,10 @@ final class BlueprintShowViewData
             'outputGrade' => $outputGrade,
             'craftTimeLabel' => $craftTimeLabel,
             'requirementGroups' => $requirementGroups,
-            'rewardPools' => $rewardPools,
             'isAvailableByDefault' => $isAvailableByDefault,
             'outputItemWebUrl' => $outputItemWebUrl,
             'apiLink' => $apiLink,
-            'unlockSources' => $unlockSources,
+            'unlockingMissions' => $unlockingMissions,
             'hasDismantleData' => $hasDismantleData,
             'dismantleTimeLabel' => $dismantleTimeLabel,
             'dismantleEfficiency' => $dismantleEfficiency,
@@ -204,49 +205,92 @@ final class BlueprintShowViewData
     }
 
     /**
-     * @param  array<int, mixed>  $rewardPools
-     * @return array<int, array{label: string, type: string, key: ?string, uuid: ?string}>
+     * @param  array<int, mixed>  $missions
+     * @return array<int, array{title: ?string, debug_name: ?string, mission_type: ?string, chance: int|float|null}>
      */
-    private function buildUnlockSources(array $rewardPools): array
+    private function buildUnlockingMissions(array $missions): array
     {
-        return collect($rewardPools)
-            ->map(function (mixed $rewardPool): ?array {
-                if (! is_array($rewardPool)) {
-                    return null;
-                }
+        $flat = array_values(array_filter(array_map(function (mixed $mission): ?array {
+            if (! is_array($mission)) {
+                return null;
+            }
 
-                $key = $this->normalizeString(data_get($rewardPool, 'key'));
-                $uuid = $this->normalizeString(data_get($rewardPool, 'uuid'));
+            $title = $this->normalizeString(data_get($mission, 'title'));
+            $debugName = $this->normalizeString(data_get($mission, 'debug_name'));
 
-                if ($key === null && $uuid === null) {
-                    return null;
-                }
+            if ($title === null && $debugName === null) {
+                return null;
+            }
 
-                $labelSource = $key ?? $uuid ?? 'Unlock source';
-                $label = Str::headline(str_replace([
-                    'BP_MISSIONREWARD_',
-                    'BP_REWARD_',
-                    'MISSIONREWARD_',
-                    'REWARD_',
-                    'BP_',
-                ], '', $labelSource));
+            return [
+                'title' => FormatMissionTitle::format($title, $debugName),
+                'debug_name' => $debugName,
+                'mission_type' => $this->normalizeString(data_get($mission, 'mission_type')),
+                'chance' => is_numeric(data_get($mission, 'chance')) ? data_get($mission, 'chance') + 0 : null,
+                'web_url' => $this->normalizeString(data_get($mission, 'web_url')),
+            ];
+        }, $missions)));
 
-                return [
-                    'label' => $label !== '' ? $label : 'Unlock source',
-                    'type' => $key !== null && Str::startsWith($key, 'BP_MISSIONREWARD_')
-                        ? 'Mission reward'
-                        : 'Unlock source',
-                    'key' => $key,
-                    'uuid' => $uuid,
+        return $this->groupMissionsByChance($flat);
+    }
+
+    private function groupMissionsByChance(array $missions): array
+    {
+        if ($missions === []) {
+            return [];
+        }
+
+        usort($missions, static function (array $a, array $b): int {
+            $chanceA = $a['chance'] ?? 0;
+            $chanceB = $b['chance'] ?? 0;
+
+            if ($chanceB !== $chanceA) {
+                return $chanceB <=> $chanceA;
+            }
+
+            return strcasecmp($a['title'] ?? '', $b['title'] ?? '');
+        });
+
+        $groups = [];
+
+        foreach ($missions as $mission) {
+            $chance = $mission['chance'] ?? null;
+            $chanceKey = $chance !== null ? (string) $chance : '0';
+
+            if (! isset($groups[$chanceKey])) {
+                $groups[$chanceKey] = [
+                    'label' => $chance === 1.0 ? 'Guaranteed' : ($chance !== null ? (($chance * 100).'% chance') : 'Unknown chance'),
+                    'chance' => $chance,
+                    'missions' => [],
                 ];
-            })
-            ->filter()
-            ->values()
-            ->all();
+            }
+
+            $title = $mission['title'] ?? 'Unknown mission';
+            $dedupKey = $title;
+
+            if (isset($groups[$chanceKey]['dedup'][$dedupKey])) {
+                $groups[$chanceKey]['missions'][$groups[$chanceKey]['dedup'][$dedupKey]]['count'] += 1;
+
+                continue;
+            }
+
+            $groups[$chanceKey]['dedup'][$dedupKey] = count($groups[$chanceKey]['missions']);
+            $groups[$chanceKey]['missions'][] = [
+                'title' => $title,
+                'mission_type' => $mission['mission_type'] ?? null,
+                'count' => 1,
+                'web_url' => $mission['web_url'] ?? null,
+            ];
+        }
+
+        return array_values(array_map(static function (array $group): array {
+            unset($group['dedup']);
+
+            return $group;
+        }, $groups));
     }
 
     /**
-     * @param  array<int, mixed>  $searchResults
      * @param  array<string, mixed>  $blueprint
      * @return array<int, mixed>
      */
@@ -507,6 +551,11 @@ final class BlueprintShowViewData
             if ($kind === 'resource' && is_string($inputUuid) && Str::isUuid($inputUuid)) {
                 $inputWebUrl = route('web.commodities.show', array_filter([
                     'identifier' => $inputUuid,
+                    'version' => $resolvedVersionCode,
+                ]));
+            } elseif ($kind === 'item' && is_string($inputUuid) && Str::isUuid($inputUuid)) {
+                $inputWebUrl = route('web.items.show', array_filter([
+                    'item' => $inputUuid,
                     'version' => $resolvedVersionCode,
                 ]));
             }

@@ -170,18 +170,18 @@
                 if (isNeutral(value) || modifier?.better_when === "neutral") {
                     return {
                         text: "text-base-content/60",
-                        card: "rounded-box border border-base-300 bg-base-100 px-3 py-3",
+                        card: "rounded-box border border-base-300 bg-base-100 px-2.5 py-2",
                     };
                 }
 
                 return isImprovement(modifier, value)
                     ? {
                         text: "text-success",
-                        card: "rounded-box border border-success/25 bg-success/10 px-3 py-3",
+                        card: "rounded-box border border-success/25 bg-success/10 px-2.5 py-2",
                     }
                     : {
                         text: "text-error",
-                        card: "rounded-box border border-error/25 bg-error/10 px-3 py-3",
+                        card: "rounded-box border border-error/25 bg-error/10 px-2.5 py-2",
                     };
             };
 
@@ -801,7 +801,7 @@
 
                         view.reset.disabled = isDefaultQuality;
                         view.reset.className = isDefaultQuality
-                            ? "hidden btn btn-ghost btn-xs text-base-content/40 transition-colors"
+                            ? "invisible btn btn-ghost btn-xs text-base-content/40 transition-colors"
                             : "btn btn-outline btn-primary btn-xs border-primary/40 bg-base-100 text-primary transition-colors hover:bg-primary/10";
                     }
 
@@ -814,12 +814,12 @@
 
                         if (!isSelected) {
                             if (modifierView.card instanceof HTMLElement) {
-                                modifierView.card.className = "rounded-box border border-dashed border-base-300 bg-base-100 px-3 py-3 opacity-60 transition-colors";
+                                modifierView.card.className = "rounded-box border border-dashed border-base-300 bg-base-100 px-2.5 py-2 opacity-60 transition-colors";
                             }
 
                             if (modifierView.change instanceof HTMLElement) {
                                 modifierView.change.textContent = "Excluded";
-                                modifierView.change.className = "text-sm font-semibold tabular-nums text-base-content/45";
+                                modifierView.change.className = "text-xs font-semibold tabular-nums text-base-content/45";
                             }
 
                             return;
@@ -837,7 +837,7 @@
 
                         if (modifierView.change instanceof HTMLElement) {
                             modifierView.change.textContent = formatSemanticChange(modifier, relativeValue);
-                            modifierView.change.className = `text-sm font-semibold tabular-nums ${tone.text}`;
+                            modifierView.change.className = `text-xs font-semibold tabular-nums ${tone.text}`;
                         }
                     });
                 };
@@ -931,7 +931,7 @@
 
                         if (changeElement instanceof HTMLElement) {
                             changeElement.textContent = formatSemanticChange(summaryProperty, relativeValue);
-                            changeElement.className = `text-sm font-semibold tabular-nums ${tone.text}`;
+                            changeElement.className = `text-xs font-semibold tabular-nums ${tone.text}`;
                         }
 
                         if (!summaryIsNeutral) {
@@ -1265,73 +1265,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    @if (! $isAvailableByDefault && $unlockSources !== [])
-                                        <div class="rounded-box border border-base-300 bg-base-100 px-4 py-4">
-                                            <div class="text-sm font-semibold text-base-content">Unlock source</div>
-                                            <div class="mt-3 space-y-2">
-                                                @foreach ($unlockSources as $unlockSource)
-                                                    <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-3">
-                                                        <div class="flex flex-wrap items-start justify-between gap-2">
-                                                            <div>
-                                                                <div class="text-sm font-medium">{{ $unlockSource['label'] }}</div>
-                                                                <div class="mt-1 text-xs text-base-content/70">{{ $unlockSource['type'] }}</div>
-                                                            </div>
-
-                                                            @if ($unlockSource['key'])
-                                                                <div class="text-xs font-mono text-base-content/55">{{ $unlockSource['key'] }}</div>
-                                                            @elseif ($unlockSource['uuid'])
-                                                                <div class="text-xs font-mono text-base-content/55">{{ $unlockSource['uuid'] }}</div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    @if ($hasDismantleData)
-                                        <div class="rounded-box border border-base-300 bg-base-100 px-4 py-4">
-                                            <div class="text-sm font-semibold text-base-content">Dismantle</div>
-                                            <div class="mt-3 space-y-3">
-                                                @if ($dismantleTimeLabel || $dismantleEfficiency !== null)
-                                                    <div class="grid gap-3 sm:grid-cols-2">
-                                                        @if ($dismantleTimeLabel)
-                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-2">
-                                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Time</div>
-                                                                <div class="mt-1 text-sm font-medium">{{ $dismantleTimeLabel }}</div>
-                                                            </div>
-                                                        @endif
-                                                        @if ($dismantleEfficiency !== null)
-                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-2">
-                                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Efficiency</div>
-                                                                <div class="mt-1 text-sm font-medium">{{ $dismantleEfficiency }}</div>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @endif
-
-                                                @if ($dismantleReturns !== [])
-                                                    <div class="space-y-2">
-                                                        @foreach ($dismantleReturns as $dismantleReturn)
-                                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-3 py-3">
-                                                                <div class="flex flex-wrap items-center justify-between gap-2">
-                                                                    @if (data_get($dismantleReturn, 'web_url'))
-                                                                        <a href="{{ data_get($dismantleReturn, 'web_url') }}" class="text-sm font-medium link link-hover">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</a>
-                                                                    @else
-                                                                        <div class="text-sm font-medium">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</div>
-                                                                    @endif
-                                                                    @if (data_get($dismantleReturn, 'quantity_scu') !== null)
-                                                                        <div class="text-xs text-base-content/70">{{ data_get($dismantleReturn, 'quantity_scu') }} SCU</div>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
                                 </div>
 
                                 <h4 class="text-sm font-semibold">Output changes</h4>
@@ -1423,6 +1356,89 @@
                 </div>
             </div>
 
+            @if ($unlockingMissions !== [] || $hasDismantleData)
+                <div class="grid gap-6 lg:grid-cols-2">
+                    @if ($unlockingMissions !== [])
+                        <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card-body gap-4">
+                                <h2 class="text-base font-semibold tracking-tight">Unlocking missions</h2>
+
+                                <div class="space-y-3">
+                                    @foreach ($unlockingMissions as $group)
+                                        <div>
+                                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-base-content/50">{{ $group['label'] }}</div>
+                                            <div class="grid grid-cols-1 gap-px overflow-hidden rounded-box border border-base-300 bg-base-300 sm:grid-cols-2">
+                                                @foreach ($group['missions'] as $mission)
+                                                    <div class="flex flex-col justify-center bg-base-100 px-3 py-2">
+                                                        <div class="flex flex-wrap items-center gap-1.5">
+                                                            @if ($mission['web_url'] ?? null)
+                                                                <a href="{{ $mission['web_url'] }}" class="text-sm font-medium text-base-content/90 link link-hover">{{ $mission['title'] ?? 'Unknown mission' }}</a>
+                                                            @else
+                                                                <span class="text-sm font-medium text-base-content/90">{{ $mission['title'] ?? 'Unknown mission' }}</span>
+                                                            @endif
+                                                            @if (($mission['count'] ?? 1) > 1)
+                                                                <span class="badge badge-ghost badge-sm">&times;{{ $mission['count'] }}</span>
+                                                            @endif
+                                                        </div>
+                                                        @if ($mission['mission_type'])
+                                                            <span class="text-xs text-base-content/50">{{ $mission['mission_type'] }}</span>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($hasDismantleData)
+                        <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card-body gap-3">
+                                <h2 class="text-base font-semibold tracking-tight">Dismantle</h2>
+
+                                @if ($dismantleTimeLabel || $dismantleEfficiency !== null)
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        @if ($dismantleTimeLabel)
+                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
+                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Time</div>
+                                                <div class="mt-1 text-sm font-medium">{{ $dismantleTimeLabel }}</div>
+                                            </div>
+                                        @endif
+                                        @if ($dismantleEfficiency !== null)
+                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
+                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Efficiency</div>
+                                                <div class="mt-1 text-sm font-medium">{{ $dismantleEfficiency }}</div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if ($dismantleReturns !== [])
+                                    <div class="space-y-2">
+                                        @foreach ($dismantleReturns as $dismantleReturn)
+                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
+                                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                                    @if (data_get($dismantleReturn, 'web_url'))
+                                                        <a href="{{ data_get($dismantleReturn, 'web_url') }}" class="text-sm font-medium link link-hover">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</a>
+                                                    @else
+                                                        <div class="text-sm font-medium">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</div>
+                                                    @endif
+                                                    @if (data_get($dismantleReturn, 'quantity_scu') !== null)
+                                                        <div class="text-xs text-base-content/70">{{ data_get($dismantleReturn, 'quantity_scu') }} SCU</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
                 <summary class="collapse-title min-h-11 py-3 font-semibold">Technical details</summary>
                 <div class="collapse-content pt-0">
@@ -1452,23 +1468,13 @@
                                     </div>
                                 </dl>
 
-                                @if (! $isAvailableByDefault && $unlockSources === [])
+                                @if (! $isAvailableByDefault && $unlockingMissions === [])
                                     <div class="space-y-2">
                                         <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Where to find blueprint</div>
 
                                         <p class="text-sm text-base-content/70">
                                             Unlock required, but no source location was returned for this blueprint.
                                         </p>
-                                    </div>
-                                @elseif ($rewardPools !== [])
-                                    <div class="space-y-2">
-                                        <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Reward pools</div>
-
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach ($rewardPools as $rewardPool)
-                                                <span class="badge badge-outline badge-sm">{{ data_get($rewardPool, 'key', 'Unknown reward pool') }}</span>
-                                            @endforeach
-                                        </div>
                                     </div>
                                 @endif
                             </div>
