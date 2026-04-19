@@ -137,6 +137,10 @@
             'value' => (string) data_get($location, 'child_count', 0),
         ],
         [
+            'label' => 'Missions',
+            'value' => (string) data_get($location, 'mission_count', 0),
+        ],
+        [
             'label' => 'Respawn',
             'value' => data_get($location, 'respawn_location_type', '-'),
         ],
@@ -341,6 +345,23 @@
 
                     <x-starmap.locations.resources-card :resources="$locationResources" />
                     <x-starmap.locations.area-boosts-card :areas="data_get($location, 'area_boosts', [])" />
+                </section>
+            @endif
+
+            @php
+                $locationMissions = data_get($location, 'missions', []);
+                $missionGroupCount = is_array($locationMissions) ? count($locationMissions) : 0;
+            @endphp
+
+            @if ($missionGroupCount > 0)
+                <section class="space-y-4" data-testid="starmap-location-missions-section">
+                    <h2 class="text-lg font-semibold tracking-tight">Missions</h2>
+
+                    <x-starmap.locations.missions-card
+                        :missions="$locationMissions"
+                        :location-uuid="data_get($location, 'uuid')"
+                        :total-mission-count="(int) data_get($location, 'mission_count', 0)"
+                    />
                 </section>
             @endif
 

@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Starmap;
 
 use App\Enums\Game\ResourceKind;
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Mission\MissionSummaryResource;
 use App\Models\Game\StarmapLocationData;
 use App\Support\Resources\HasDepositFormatting;
 use Illuminate\Http\Request;
@@ -152,6 +153,20 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'game_starmap_location_mission_group',
+    title: 'Game Starmap Location Mission Group',
+    description: 'Missions associated with a starmap location, grouped by purpose.',
+    properties: [
+        new OA\Property(property: 'purpose', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'missions',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/mission_summary')
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'game_starmap_location',
     title: 'Game Starmap Location',
     description: 'Versioned starmap location data imported from game starmap data.',
@@ -163,6 +178,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'respawn_location_type', type: 'string', nullable: true),
         new OA\Property(property: 'child_count', type: 'integer'),
         new OA\Property(property: 'has_resources', type: 'boolean', nullable: true),
+        new OA\Property(property: 'mission_count', type: 'integer'),
         new OA\Property(property: 'is_scannable', type: 'boolean'),
         new OA\Property(property: 'hide_in_starmap', type: 'boolean'),
         new OA\Property(property: 'hide_in_world', type: 'boolean'),
@@ -204,6 +220,12 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/starmap_location_mining_type_group')
         ),
+        new OA\Property(
+            property: 'missions',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/game_starmap_location_mission_group'),
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -216,6 +238,7 @@ class StarmapLocationResource extends AbstractBaseResource
         return [
             'children',
             'resources',
+            'missions',
         ];
     }
 
@@ -236,6 +259,7 @@ class StarmapLocationResource extends AbstractBaseResource
             'has_resources' => array_key_exists('has_resources', $locationData->getAttributes())
                 ? (bool) ($locationData->getAttributes()['has_resources'])
                 : null,
+            'mission_count' => (int) ($locationData->mission_count ?? 0),
             'is_scannable' => (bool) $locationData->is_scannable,
             'hide_in_starmap' => (bool) Arr::get($payload, 'HideInStarmap', false),
             'hide_in_world' => (bool) Arr::get($payload, 'HideInWorld', false),
@@ -269,6 +293,7 @@ class StarmapLocationResource extends AbstractBaseResource
                 $locationData->resourceLocations->first()?->provider?->areas
             )),
             'resources' => $this->whenLoaded('resourceLocations', fn (): array => $this->buildResources($locationData, $request)),
+            'missions' => $this->whenLoaded('missions', fn (): array => $this->buildMissions($locationData, $request)),
         ];
     }
 
@@ -634,5 +659,18 @@ class StarmapLocationResource extends AbstractBaseResource
             'relative_probability_min_percent' => $depositBase['relative_probability_min_percent'],
             'relative_probability_max_percent' => $depositBase['relative_probability_max_percent'],
         ];
+    }
+
+    private function buildMissions(StarmapLocationData $locationData, Request $request): array
+    {
+        return $locationData->missions
+            ->groupBy(fn ($mission): string => $mission->pivot->purpose ?? 'Unknown')
+            ->map(fn (Collection $group, string $purpose): array => [
+                'purpose' => $purpose,
+                'missions' => MissionSummaryResource::collection($group)->resolve($request),
+            ])
+            ->sortBy('purpose', SORT_STRING | SORT_FLAG_CASE)
+            ->values()
+            ->all();
     }
 }

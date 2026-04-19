@@ -46,7 +46,7 @@ class StarmapLocationController extends Controller
     public function show(Request $request, string $identifier): View
     {
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'children,resources');
+        $apiRequest->query->set('include', 'children,resources,missions');
 
         $payload = $this->apiJsonRequest->request(
             route('locations.show', ['identifier' => $identifier], false),

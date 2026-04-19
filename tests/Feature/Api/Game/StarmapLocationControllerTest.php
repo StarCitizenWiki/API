@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\EntityTag;
+use App\Models\Game\Faction;
 use App\Models\Game\GameVersion;
+use App\Models\Game\Mission\Mission;
+use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceData;
@@ -1640,4 +1643,157 @@ it('separates deposits with different keys within same mining type', function ()
 
     $names = collect($groupResources)->pluck('name')->sort()->values()->all();
     expect($names)->toBe(['Gold', 'Iron']);
+});
+
+it('includes mission_count on starmap location index responses', function (): void {
+    $locationWithMissions = StarmapLocation::factory()->create();
+    $locationWithoutMissions = StarmapLocation::factory()->create();
+
+    $dataWithMissions = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
+    ], $locationWithMissions);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Port Olisar',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['Type' => ['Classification' => 'Manmade']],
+    ], $locationWithoutMissions);
+
+    $mission = Mission::factory()->create();
+    $missionData = MissionData::factory()
+        ->for($mission, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'title' => 'Test Mission',
+            'mission_type' => 'Bounty Hunter',
+            'illegal' => true,
+        ]);
+
+    $dataWithMissions->missions()->attach($missionData->id, ['purpose' => 'Availability']);
+
+    $this->getJson('/api/locations')
+        ->assertSuccessful()
+        ->assertJsonPath('data.0.mission_count', fn (mixed $count): bool => is_int($count))
+        ->assertJsonPath('data.1.mission_count', fn (mixed $count): bool => is_int($count));
+
+    $foundWith = false;
+    $foundWithout = false;
+
+    foreach ($this->getJson('/api/locations')->json('data') as $location) {
+        if ($location['uuid'] === $locationWithMissions->uuid) {
+            expect($location['mission_count'])->toBe(1);
+            $foundWith = true;
+        }
+        if ($location['uuid'] === $locationWithoutMissions->uuid) {
+            expect($location['mission_count'])->toBe(0);
+            $foundWithout = true;
+        }
+    }
+
+    expect($foundWith)->toBeTrue()
+        ->and($foundWithout)->toBeTrue();
+});
+
+it('shows missions grouped by purpose on show response when requested via include', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+
+    $locationData = createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
+    ], $starmapLocation);
+
+    $faction = Faction::factory()->create([
+        'name' => 'Nine Tails',
+    ]);
+
+    $missionOne = Mission::factory()->create();
+    $missionDataOne = MissionData::factory()
+        ->for($missionOne, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->for($faction, 'faction')
+        ->create([
+            'title' => 'Bounty Hunt Target',
+            'mission_type' => 'Bounty Hunter',
+            'illegal' => false,
+            'has_combat' => true,
+            'reward_min' => 5000,
+            'reward_max' => 10000,
+            'reward_currency' => 'aUEC',
+        ]);
+
+    $missionTwo = Mission::factory()->create();
+    $missionDataTwo = MissionData::factory()
+        ->for($missionTwo, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'title' => 'Deliver Package',
+            'mission_type' => 'Delivery',
+            'illegal' => false,
+            'has_combat' => false,
+            'reward_min' => 1000,
+            'reward_max' => 3000,
+            'reward_currency' => 'aUEC',
+        ]);
+
+    $locationData->missions()->attach($missionDataOne->id, ['purpose' => 'Availability']);
+    $locationData->missions()->attach($missionDataTwo->id, ['purpose' => 'Completion']);
+
+    $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=missions');
+
+    $response->assertSuccessful()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->where('data.mission_count', 2)
+            ->has('data.missions', 2)
+            ->has('data.missions.0', fn (AssertableJson $group) => $group
+                ->where('purpose', 'Availability')
+                ->has('missions', 1)
+                ->has('missions.0', fn (AssertableJson $mission) => $mission
+                    ->where('uuid', $missionOne->uuid)
+                    ->where('title', 'Bounty Hunt Target')
+                    ->where('mission_type', 'Bounty Hunter')
+                    ->where('illegal', false)
+                    ->where('has_combat', true)
+                    ->where('faction.name', 'Nine Tails')
+                    ->where('faction.uuid', $faction->uuid)
+                    ->where('link', route('missions.show', ['mission' => $missionOne->uuid]))
+                    ->where('web_url', route('web.missions.show', ['mission' => $missionOne->uuid]))
+                    ->etc()
+                )
+                ->etc()
+            )
+            ->has('data.missions.1', fn (AssertableJson $group) => $group
+                ->where('purpose', 'Completion')
+                ->has('missions', 1)
+                ->has('missions.0', fn (AssertableJson $mission) => $mission
+                    ->where('uuid', $missionTwo->uuid)
+                    ->where('title', 'Deliver Package')
+                    ->where('mission_type', 'Delivery')
+                    ->etc()
+                )
+                ->etc()
+            )
+            ->etc()
+        );
+});
+
+it('does not include missions on show response when include is not requested', function (): void {
+    $starmapLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Area18',
+        'system' => 'Stanton',
+        'type_name' => 'LandingZone',
+        'data' => ['Type' => ['Classification' => 'Landing Zone']],
+    ], $starmapLocation);
+
+    $this->getJson('/api/locations/'.$starmapLocation->uuid)
+        ->assertSuccessful()
+        ->assertJsonMissingPath('data.missions')
+        ->assertJsonPath('data.mission_count', 0);
 });
