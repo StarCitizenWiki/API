@@ -12,12 +12,16 @@ use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MissionData extends Model
 {
+    use HasFactory;
+
     protected $table = 'game_mission_data';
 
     protected $perPage = 50;
@@ -50,6 +54,12 @@ class MissionData extends Model
         'reward_max',
         'reward_currency',
         'star_systems',
+        'has_combat',
+        'has_defend_objective',
+        'enemy_count_min',
+        'enemy_count_max',
+        'reward_scope',
+        'blueprint_drop_chance',
         'data',
     ];
 
@@ -70,7 +80,12 @@ class MissionData extends Model
         'time_to_complete_minutes' => 'float',
         'reward_min' => 'integer',
         'reward_max' => 'integer',
+        'has_combat' => 'boolean',
+        'has_defend_objective' => 'boolean',
+        'enemy_count_min' => 'integer',
+        'enemy_count_max' => 'integer',
         'star_systems' => 'array',
+        'blueprint_drop_chance' => 'float',
         'data' => AsCollection::class,
     ];
 
@@ -91,50 +106,41 @@ class MissionData extends Model
 
     public function starmapLocations(): BelongsToMany
     {
-        return $this->belongsToMany(StarmapLocationData::class, 'game_mission_data_starmap_location', 'mission_data_id', 'starmap_location_data_id');
+        return $this->belongsToMany(StarmapLocationData::class, 'game_mission_data_starmap_location', 'mission_data_id', 'starmap_location_data_id')
+            ->withPivot('purpose');
     }
 
     public function blueprints(): BelongsToMany
     {
         return $this->belongsToMany(BlueprintData::class, 'game_mission_data_blueprint', 'mission_data_id', 'blueprint_data_id')
-            ->withPivot(['chance', 'pool_uuid', 'item_data_id'])
+            ->withPivot(['pool_uuid', 'item_data_id'])
             ->using(MissionBlueprint::class);
     }
 
-    public function unlocks(): BelongsToMany
+    public function prerequisiteGroups(): HasMany
     {
-        return $this->belongsToMany(self::class, 'game_mission_data_mission_chain', 'mission_data_id', 'linked_mission_data_id')
-            ->withPivot(['chain_type', 'group_index', 'tag_uuid', 'tag_name'])
-            ->using(MissionChain::class)
-            ->wherePivot('chain_type', 'unlock')
-            ->withTimestamps();
+        return $this->hasMany(MissionPrerequisiteGroup::class);
     }
 
-    public function prerequisites(): BelongsToMany
+    public function unlockGroups(): HasMany
     {
-        return $this->belongsToMany(self::class, 'game_mission_data_mission_chain', 'mission_data_id', 'linked_mission_data_id')
-            ->withPivot(['chain_type', 'group_index', 'tag_uuid', 'tag_name'])
-            ->using(MissionChain::class)
-            ->wherePivot('chain_type', 'prerequisite')
-            ->withTimestamps();
+        return $this->hasMany(MissionUnlockGroup::class);
     }
 
-    public function unlockedBy(): BelongsToMany
+    public function requiredByMissions(): HasMany
     {
-        return $this->belongsToMany(self::class, 'game_mission_data_mission_chain', 'linked_mission_data_id', 'mission_data_id')
-            ->withPivot(['chain_type', 'group_index', 'tag_uuid', 'tag_name'])
-            ->using(MissionChain::class)
-            ->wherePivot('chain_type', 'unlock')
-            ->withTimestamps();
+        return $this->hasMany(MissionPrerequisiteGroupMission::class, 'linked_mission_data_id');
     }
 
-    public function requiredBy(): BelongsToMany
+    public function unlockedByGroups(): HasMany
     {
-        return $this->belongsToMany(self::class, 'game_mission_data_mission_chain', 'linked_mission_data_id', 'mission_data_id')
-            ->withPivot(['chain_type', 'group_index', 'tag_uuid', 'tag_name'])
-            ->using(MissionChain::class)
-            ->wherePivot('chain_type', 'prerequisite')
-            ->withTimestamps();
+        return $this->hasMany(MissionUnlockGroupMission::class, 'linked_mission_data_id');
+    }
+
+    public function rewardItems(): BelongsToMany
+    {
+        return $this->belongsToMany(ItemData::class, 'game_mission_data_reward_item', 'mission_data_id', 'item_data_id')
+            ->withPivot(['amount', 'send_to_home']);
     }
 
     public function commodities(): BelongsToMany
@@ -158,5 +164,15 @@ class MissionData extends Model
         return $query->whereHas('gameVersion', static function (Builder $builder): void {
             $builder->where('is_default', true);
         });
+    }
+
+    public function scopeExcludeUnreleased(Builder $query, bool $exclude = true): Builder
+    {
+        if ($exclude) {
+            $query->where('not_for_release', false)
+                ->where('work_in_progress', false);
+        }
+
+        return $query;
     }
 }

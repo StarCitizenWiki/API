@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models\Game;
 
 use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\Mission\MissionBlueprint;
+use App\Models\Game\Mission\MissionData;
 use Database\Factories\Game\BlueprintDataFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
@@ -70,6 +72,13 @@ class BlueprintData extends Model
     {
         return $this->belongsToMany(Commodity::class, 'game_blueprint_data_dismantle_returns', 'blueprint_data_id', 'resource_type_id')
             ->withPivot('quantity_scu');
+    }
+
+    public function missions(): BelongsToMany
+    {
+        return $this->belongsToMany(MissionData::class, 'game_mission_data_blueprint', 'blueprint_data_id', 'mission_data_id')
+            ->withPivot(['pool_uuid', 'item_data_id'])
+            ->using(MissionBlueprint::class);
     }
 
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder

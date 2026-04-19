@@ -16,13 +16,11 @@ class MissionBlueprint extends Pivot
     protected $fillable = [
         'mission_data_id',
         'blueprint_data_id',
-        'chance',
         'pool_uuid',
         'item_data_id',
     ];
 
     protected $casts = [
-        'chance' => 'float',
     ];
 
     public function mission(): BelongsTo

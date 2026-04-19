@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Resource\ResourceLocation;
 use Database\Factories\Game\StarmapLocationDataFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -115,6 +116,16 @@ class StarmapLocationData extends Model
             'starmap_location_data_id',
             'resource_location_id',
         );
+    }
+
+    public function missions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MissionData::class,
+            'game_mission_data_starmap_location',
+            'starmap_location_data_id',
+            'mission_data_id',
+        )->withPivot('purpose');
     }
 
     protected function jurisdictionName(): Attribute

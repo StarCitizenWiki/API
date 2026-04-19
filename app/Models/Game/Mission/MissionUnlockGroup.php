@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\Game\Mission;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class MissionChain extends Pivot
+class MissionUnlockGroup extends Model
 {
-    protected $table = 'game_mission_data_mission_chain';
+    protected $table = 'game_mission_data_unlock_groups';
 
     protected $fillable = [
         'mission_data_id',
-        'linked_mission_data_id',
-        'chain_type',
         'group_index',
         'tag_uuid',
         'tag_name',
@@ -29,8 +28,8 @@ class MissionChain extends Pivot
         return $this->belongsTo(MissionData::class);
     }
 
-    public function linkedMissionData(): BelongsTo
+    public function missions(): HasMany
     {
-        return $this->belongsTo(MissionData::class);
+        return $this->hasMany(MissionUnlockGroupMission::class, 'unlock_group_id');
     }
 }

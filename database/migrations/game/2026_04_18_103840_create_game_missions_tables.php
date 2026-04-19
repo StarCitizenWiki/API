@@ -46,6 +46,12 @@ return new class extends Migration
             $table->unsignedInteger('reward_max')->nullable();
             $table->string('reward_currency')->nullable();
             $table->jsonb('star_systems')->nullable();
+            $table->boolean('has_combat')->default(false);
+            $table->boolean('has_defend_objective')->default(false);
+            $table->unsignedInteger('enemy_count_min')->nullable();
+            $table->unsignedInteger('enemy_count_max')->nullable();
+            $table->string('reward_scope')->nullable();
+            $table->float('blueprint_drop_chance')->nullable();
             $table->jsonb('data')->nullable();
             $table->timestamps();
 
@@ -57,6 +63,9 @@ return new class extends Migration
             $table->index(['game_version_id', 'illegal']);
             $table->index(['game_version_id', 'shareable']);
             $table->index(['game_version_id', 'mission_giver']);
+            $table->index(['game_version_id', 'has_combat']);
+            $table->index(['game_version_id', 'has_defend_objective']);
+            $table->index(['game_version_id', 'reward_scope']);
         });
 
         if (DB::connection()->getDriverName() === 'pgsql') {
@@ -68,6 +77,7 @@ return new class extends Migration
         Schema::create('game_mission_data_starmap_location', static function (Blueprint $table): void {
             $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
             $table->foreignId('starmap_location_data_id')->constrained('game_starmap_location_data')->cascadeOnDelete();
+            $table->string('purpose')->nullable();
 
             $table->primary(['mission_data_id', 'starmap_location_data_id']);
         });
@@ -75,25 +85,62 @@ return new class extends Migration
         Schema::create('game_mission_data_blueprint', static function (Blueprint $table): void {
             $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
             $table->foreignId('blueprint_data_id')->constrained('game_blueprint_data')->cascadeOnDelete();
-            $table->float('chance')->nullable();
             $table->uuid('pool_uuid')->nullable();
             $table->foreignId('item_data_id')->nullable()->constrained('game_item_data')->nullOnDelete();
 
             $table->primary(['mission_data_id', 'blueprint_data_id', 'item_data_id']);
         });
 
-        Schema::create('game_mission_data_mission_chain', static function (Blueprint $table): void {
+        Schema::create('game_mission_data_prerequisite_groups', static function (Blueprint $table): void {
             $table->id();
             $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->unsignedInteger('group_index')->default(0);
+            $table->unsignedInteger('required_count')->nullable();
+            $table->timestamps();
+
+            $table->index('mission_data_id');
+        });
+
+        Schema::create('game_mission_data_prerequisite_group_mission', static function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('prerequisite_group_id')->constrained('game_mission_data_prerequisite_groups', 'id', 'mdpgm_pg_fk')->cascadeOnDelete();
             $table->foreignId('linked_mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
-            $table->string('chain_type');
+            $table->timestamps();
+
+            $table->index('prerequisite_group_id');
+            $table->index('linked_mission_data_id');
+        });
+
+        Schema::create('game_mission_data_prerequisite_group_tag', static function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('prerequisite_group_id')->constrained('game_mission_data_prerequisite_groups', 'id', 'mdpgt_pg_fk')->cascadeOnDelete();
+            $table->string('type');
+            $table->uuid('tag_uuid')->nullable();
+            $table->string('tag_name')->nullable();
+            $table->timestamps();
+
+            $table->index('prerequisite_group_id');
+        });
+
+        Schema::create('game_mission_data_unlock_groups', static function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
             $table->unsignedInteger('group_index')->default(0);
             $table->uuid('tag_uuid')->nullable();
             $table->string('tag_name')->nullable();
             $table->timestamps();
 
-            $table->index(['mission_data_id', 'chain_type']);
-            $table->index(['linked_mission_data_id', 'chain_type']);
+            $table->index('mission_data_id');
+        });
+
+        Schema::create('game_mission_data_unlock_group_mission', static function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('unlock_group_id')->constrained('game_mission_data_unlock_groups', 'id', 'mdugm_ug_fk')->cascadeOnDelete();
+            $table->foreignId('linked_mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->index('unlock_group_id');
+            $table->index('linked_mission_data_id');
         });
 
         Schema::create('game_mission_data_commodity', static function (Blueprint $table): void {
@@ -109,13 +156,27 @@ return new class extends Migration
 
             $table->primary(['mission_data_id', 'item_data_id']);
         });
+
+        Schema::create('game_mission_data_reward_item', static function (Blueprint $table): void {
+            $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
+            $table->foreignId('item_data_id')->constrained('game_item_data')->cascadeOnDelete();
+            $table->unsignedInteger('amount')->nullable();
+            $table->boolean('send_to_home')->nullable();
+
+            $table->primary(['mission_data_id', 'item_data_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('game_mission_data_reward_item');
         Schema::dropIfExists('game_mission_data_item');
         Schema::dropIfExists('game_mission_data_commodity');
-        Schema::dropIfExists('game_mission_data_mission_chain');
+        Schema::dropIfExists('game_mission_data_unlock_group_mission');
+        Schema::dropIfExists('game_mission_data_unlock_groups');
+        Schema::dropIfExists('game_mission_data_prerequisite_group_tag');
+        Schema::dropIfExists('game_mission_data_prerequisite_group_mission');
+        Schema::dropIfExists('game_mission_data_prerequisite_groups');
         Schema::dropIfExists('game_mission_data_blueprint');
         Schema::dropIfExists('game_mission_data_starmap_location');
 
