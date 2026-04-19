@@ -124,6 +124,16 @@
     </x-app.sidemenu-item>
 
     <x-app.sidemenu-item
+        :route="'web.missions.index'"
+        route-is="web.missions.*"
+    >
+        <x-slot:icon>
+            <x-icon name="flag" class="size-4" />
+        </x-slot:icon>
+        Missions
+    </x-app.sidemenu-item>
+
+    <x-app.sidemenu-item
         :route="'web.items.index'"
         test-id="items-menu-all-items"
         :active-when-filters-empty="true"

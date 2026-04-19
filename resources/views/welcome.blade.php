@@ -41,7 +41,7 @@
                 <div class="card border border-base-300 bg-base-100 shadow">
                     <div class="card-body gap-4">
                         <h3 class="card-title text-base">Universe <span class="badge badge-primary badge-sm ml-auto">In-Game Data</span></h3>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="grid grid-cols-2 gap-x-2">
                             <ul class="menu">
                                 <li>
                                     <h2 class="menu-title">Vehicles</h2>
@@ -60,6 +60,8 @@
                                         <li><a href="{{ route('web.items.index', ['filter' => ['category' => 'weapon-attachments']]) }}">Weapon Attachments</a></li>
                                     </ul>
                                 </li>
+                            </ul>
+                            <ul class="menu">
                                 <li>
                                     <h2 class="menu-title">Locations</h2>
                                     <ul>
@@ -70,6 +72,12 @@
                                     <h2 class="menu-title">Commodities</h2>
                                     <ul>
                                         <li><a href="{{ route('web.commodities.index') }}">Commodities</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <h2 class="menu-title">Missions</h2>
+                                    <ul>
+                                        <li><a href="{{ route('web.missions.index') }}">Missions</a></li>
                                     </ul>
                                 </li>
                             </ul>

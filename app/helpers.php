@@ -262,3 +262,16 @@ function fmt_range(?float $min, ?float $max, string $unit, int $decimals = 0, bo
 
     return '—';
 }
+
+function fmt_container_size(?float $value): string
+{
+    if ($value === null) {
+        return '—';
+    }
+
+    if ($value < 0) {
+        return 'Unlimited';
+    }
+
+    return (string) (int) $value;
+}

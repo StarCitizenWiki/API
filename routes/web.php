@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
 use App\Http\Controllers\Web\Game\CommodityController;
 use App\Http\Controllers\Web\Game\ItemController;
+use App\Http\Controllers\Web\Game\MissionController;
 use App\Http\Controllers\Web\Game\StarmapLocationController;
 use App\Http\Controllers\Web\Game\VehicleController;
 use App\Http\Controllers\Web\Rsi\CommLinkController;
@@ -61,6 +62,9 @@ Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')-
 
 Route::get('/commodities', [CommodityController::class, 'index'])->name('web.commodities.index');
 Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->whereUuid('identifier')->name('web.commodities.show');
+
+Route::get('/missions', [MissionController::class, 'index'])->name('web.missions.index');
+Route::get('/missions/{mission}', [MissionController::class, 'show'])->whereUuid('mission')->name('web.missions.show');
 
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');
