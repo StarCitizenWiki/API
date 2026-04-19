@@ -24,7 +24,7 @@ class FactionReputationRef extends Model
         return $this->belongsTo(Faction::class);
     }
 
-    public function scope(): BelongsTo
+    public function factionScope(): BelongsTo
     {
         return $this->belongsTo(FactionScope::class, 'faction_scope_id');
     }

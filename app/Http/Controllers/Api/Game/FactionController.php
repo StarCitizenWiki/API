@@ -97,7 +97,7 @@ class FactionController extends Controller
             ->where('uuid', $faction)
             ->where('hide_in_delphi_app', false)
             ->with([
-                'reputationRef.scope.standings',
+                'reputationRef.factionScope.standings',
             ])
             ->first();
 

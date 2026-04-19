@@ -116,7 +116,7 @@ class FactionResource extends AbstractBaseResource
             return null;
         }
 
-        $scope = $ref->scope;
+        $scope = $ref->factionScope;
 
         if ($scope === null) {
             return null;

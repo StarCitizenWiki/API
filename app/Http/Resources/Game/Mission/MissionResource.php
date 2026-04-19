@@ -417,18 +417,6 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
-    schema: 'mission_starmap_location',
-    title: 'Mission Starmap Location',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'system', type: 'string', nullable: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
     schema: 'mission_prerequisite_group',
     title: 'Mission Prerequisite Group',
     properties: [
@@ -1307,7 +1295,7 @@ class MissionResource extends AbstractBaseResource
             return null;
         }
 
-        $scope = $ref->scope;
+        $scope = $ref->factionScope;
 
         if ($scope === null) {
             return null;
