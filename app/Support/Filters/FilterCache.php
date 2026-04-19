@@ -133,6 +133,11 @@ final class FilterCache
         return sprintf('filters:blueprints:%s', self::normalizeVersion($versionCode));
     }
 
+    public static function missionsKey(?string $versionCode): string
+    {
+        return sprintf('filters:missions:%s', self::normalizeVersion($versionCode));
+    }
+
     private static function normalizeVersion(?string $versionCode): string
     {
         return $versionCode === null || $versionCode === '' ? 'default' : strtolower($versionCode);

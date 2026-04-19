@@ -14,6 +14,7 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Filters\MissionScopeMapping;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -70,6 +71,7 @@ class ImportMissionData implements ShouldQueue
         $this->syncBlueprints($missionData, $payload);
         $this->syncCommodities($missionData, $payload);
         $this->syncItems($missionData, $payload);
+        $this->syncRewardItems($missionData, $payload);
     }
 
     private function readPayload(): array
@@ -103,6 +105,10 @@ class ImportMissionData implements ShouldQueue
         $calculatedReward = $payload['CalculatedReward'] ?? null;
         $crimeStat = $payload['CrimeStat'] ?? [];
 
+        $missionType = $this->trimOrNull(Arr::get($payload, 'MissionType.Name'));
+        $generatorClass = $this->trimOrNull(Arr::get($payload, 'GeneratorClass'));
+        $debugName = $this->trimOrNull(Arr::get($payload, 'DebugName'));
+
         $rewardMin = null;
         $rewardMax = null;
         $rewardCurrency = null;
@@ -114,15 +120,56 @@ class ImportMissionData implements ShouldQueue
             $rewardCurrency = is_string($currency) && trim($currency) !== '' ? trim($currency) : null;
         }
 
+        $combatSummary = $payload['CombatSummary'] ?? null;
+        $combat = $payload['Combat'] ?? [];
+
+        $hasCombat = false;
+        $enemyCountMin = null;
+        $enemyCountMax = null;
+
+        if (is_array($combatSummary) && isset($combatSummary['Total'])) {
+            $total = $combatSummary['Total'];
+            $min = is_numeric($total['Min'] ?? null) ? (int) $total['Min'] : 0;
+            $max = is_numeric($total['Max'] ?? null) ? (int) $total['Max'] : 0;
+
+            if ($min > 0 || $max > 0) {
+                $hasCombat = true;
+                $enemyCountMin = $min;
+                $enemyCountMax = $max;
+            }
+        }
+
+        if (! $hasCombat && is_array($combat)) {
+            foreach ($combat as $entry) {
+                if (is_array($entry) && ($entry['Role'] ?? null) === 'enemy') {
+                    $hasCombat = true;
+
+                    break;
+                }
+            }
+        }
+
+        $hasDefendObjective = false;
+
+        if (is_array($combat)) {
+            foreach ($combat as $entry) {
+                if (is_array($entry) && ($entry['Role'] ?? null) === 'defend_target') {
+                    $hasDefendObjective = true;
+
+                    break;
+                }
+            }
+        }
+
         return [
-            'debug_name' => $this->trimOrNull(Arr::get($payload, 'DebugName')),
-            'mission_type' => $this->trimOrNull(Arr::get($payload, 'MissionType.Name')),
+            'debug_name' => $debugName,
+            'mission_type' => $missionType,
             'mission_type_uuid' => $this->trimOrNull(Arr::get($payload, 'MissionType.UUID')),
             'mission_giver' => $this->trimOrNull(Arr::get($payload, 'MissionGiver')),
             'title' => $this->trimOrNull(Arr::get($payload, 'Title')),
             'description' => $this->trimOrNull(Arr::get($payload, 'Description')),
             'faction_id' => $factionId,
-            'generator_class' => $this->trimOrNull(Arr::get($payload, 'GeneratorClass')),
+            'generator_class' => $generatorClass,
             'entry_type' => $this->trimOrNull(Arr::get($payload, 'entry_type')),
             'handler_type' => $this->trimOrNull(Arr::get($payload, 'Type')),
             'illegal' => (bool) ($payload['Illegal'] ?? false),
@@ -140,6 +187,15 @@ class ImportMissionData implements ShouldQueue
             'reward_max' => $rewardMax,
             'reward_currency' => $rewardCurrency,
             'star_systems' => $this->deriveStarSystems($payload),
+            'has_combat' => $hasCombat,
+            'has_defend_objective' => $hasDefendObjective,
+            'enemy_count_min' => $enemyCountMin,
+            'enemy_count_max' => $enemyCountMax,
+            'reward_scope' => MissionScopeMapping::scopeForRow((object) [
+                'mission_type' => $missionType,
+                'generator_class' => $generatorClass,
+                'debug_name' => $debugName,
+            ]),
             'data' => $payload,
         ];
     }
@@ -194,6 +250,24 @@ class ImportMissionData implements ShouldQueue
     {
         $syncData = [];
 
+        foreach ($payload['LocationPools'] ?? [] as $pool) {
+            if (! is_array($pool)) {
+                continue;
+            }
+
+            $purpose = $this->trimOrNull($pool['Purpose'] ?? null);
+
+            foreach ($pool['ResolvedLocations'] ?? [] as $location) {
+                $locationDataId = $this->resolveStarmapLocationDataId($location['UUID'] ?? null);
+
+                if ($locationDataId === null) {
+                    continue;
+                }
+
+                $syncData[$locationDataId] = ['purpose' => $purpose];
+            }
+        }
+
         foreach ($payload['AvailabilityLocations'] ?? [] as $availabilityLocation) {
             if (! is_array($availabilityLocation)) {
                 continue;
@@ -206,7 +280,7 @@ class ImportMissionData implements ShouldQueue
                     continue;
                 }
 
-                $syncData[$locationDataId] = [];
+                $syncData[$locationDataId] = ['purpose' => 'availability'];
             }
         }
 
@@ -239,6 +313,8 @@ class ImportMissionData implements ShouldQueue
 
         if (! is_array($blueprintPayload)) {
             $missionData->blueprints()->sync([]);
+            $missionData->blueprint_drop_chance = null;
+            $missionData->save();
 
             return;
         }
@@ -246,6 +322,10 @@ class ImportMissionData implements ShouldQueue
         $chance = isset($blueprintPayload['Chance']) && is_numeric($blueprintPayload['Chance'])
             ? (float) $blueprintPayload['Chance']
             : null;
+
+        $missionData->blueprint_drop_chance = $chance;
+        $missionData->save();
+
         $poolUuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
 
         $itemUuids = [];
@@ -303,7 +383,6 @@ class ImportMissionData implements ShouldQueue
 
             $pivots[$blueprintDataId.':'.($itemDataId ?? '')] = [
                 'blueprint_data_id' => $blueprintDataId,
-                'chance' => $chance,
                 'pool_uuid' => $poolUuid,
                 'item_data_id' => $itemDataId,
             ];
@@ -422,6 +501,12 @@ class ImportMissionData implements ShouldQueue
                                     $itemUuids[] = $uuid;
                                 }
                             }
+                        } elseif ($optionKind === 'MissionItem') {
+                            $uuid = $this->trimOrNull($option['UUID'] ?? $option['ItemUUID'] ?? null);
+
+                            if ($uuid !== null) {
+                                $itemUuids[] = $uuid;
+                            }
                         }
                     }
                 }
@@ -432,6 +517,12 @@ class ImportMissionData implements ShouldQueue
                     if ($uuid !== null) {
                         $itemUuids[] = $uuid;
                     }
+                }
+            } elseif ($kind === 'MissionItem') {
+                $uuid = $this->trimOrNull($order['UUID'] ?? $order['ItemUUID'] ?? null);
+
+                if ($uuid !== null) {
+                    $itemUuids[] = $uuid;
                 }
             }
         }
@@ -455,6 +546,81 @@ class ImportMissionData implements ShouldQueue
             ->all();
 
         $missionData->items()->sync($itemDataIds);
+    }
+
+    private function syncRewardItems(MissionData $missionData, array $payload): void
+    {
+        $items = $payload['Items'] ?? null;
+
+        if (! is_array($items) || $items === []) {
+            $missionData->rewardItems()->sync([]);
+
+            return;
+        }
+
+        $itemUuids = [];
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $uuid = $this->trimOrNull($item['UUID'] ?? null);
+
+            if ($uuid !== null) {
+                $itemUuids[] = $uuid;
+            }
+        }
+
+        $itemUuids = array_values(array_unique($itemUuids));
+
+        if ($itemUuids === []) {
+            $missionData->rewardItems()->sync([]);
+
+            return;
+        }
+
+        $itemIds = Item::query()
+            ->whereIn('uuid', $itemUuids)
+            ->pluck('id', 'uuid');
+
+        $itemDataIds = ItemData::query()
+            ->whereIn('item_id', $itemIds->values())
+            ->where('game_version_id', $this->gameVersionId)
+            ->pluck('id', 'item_id');
+
+        $syncData = [];
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $uuid = $this->trimOrNull($item['UUID'] ?? null);
+
+            if ($uuid === null) {
+                continue;
+            }
+
+            $itemId = $itemIds->get($uuid);
+
+            if ($itemId === null) {
+                continue;
+            }
+
+            $itemDataId = $itemDataIds->get($itemId);
+
+            if ($itemDataId === null) {
+                continue;
+            }
+
+            $syncData[$itemDataId] = [
+                'amount' => is_numeric($item['Amount'] ?? null) ? (int) $item['Amount'] : null,
+                'send_to_home' => isset($item['SendToHome']) ? filter_var($item['SendToHome'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+            ];
+        }
+
+        $missionData->rewardItems()->sync($syncData);
     }
 
     private function trimOrNull(mixed $value): ?string
