@@ -140,6 +140,10 @@ Route::group(
             Route::get('blueprints/filters', [BlueprintController::class, 'filters'])->name('blueprints.filters');
             Route::get('blueprints/{blueprint}', [BlueprintController::class, 'show'])->name('blueprints.show');
 
+            // Factions
+            Route::get('factions', [FactionController::class, 'index'])->name('factions.index');
+            Route::get('factions/{faction}', [FactionController::class, 'show'])->whereUuid('faction')->name('factions.show');
+
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
             Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');
             Route::post('vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
