@@ -206,7 +206,7 @@ final class BlueprintShowViewData
 
     /**
      * @param  array<int, mixed>  $missions
-     * @return array<int, array{title: ?string, debug_name: ?string, mission_type: ?string, chance: int|float|null}>
+     * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, chance: int|float|null}>
      */
     private function buildUnlockingMissions(array $missions): array
     {
@@ -225,7 +225,7 @@ final class BlueprintShowViewData
             return [
                 'title' => FormatMissionTitle::format($title, $debugName),
                 'debug_name' => $debugName,
-                'mission_type' => $this->normalizeString(data_get($mission, 'mission_type')),
+                'reward_scope' => $this->normalizeString(data_get($mission, 'reward_scope')),
                 'chance' => is_numeric(data_get($mission, 'chance')) ? data_get($mission, 'chance') + 0 : null,
                 'web_url' => $this->normalizeString(data_get($mission, 'web_url')),
             ];
@@ -277,7 +277,7 @@ final class BlueprintShowViewData
             $groups[$chanceKey]['dedup'][$dedupKey] = count($groups[$chanceKey]['missions']);
             $groups[$chanceKey]['missions'][] = [
                 'title' => $title,
-                'mission_type' => $mission['mission_type'] ?? null,
+                'reward_scope' => $mission['reward_scope'] ?? null,
                 'count' => 1,
                 'web_url' => $mission['web_url'] ?? null,
             ];

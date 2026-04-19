@@ -46,19 +46,19 @@ class BlueprintDataFactory extends Factory
                     'Name' => $outputName,
                     'Class' => $outputClass,
                 ],
-                'tiers' => [
+                'Tiers' => [
                     [
-                        'tier_index' => 0,
-                        'craft_time_seconds' => 120,
-                        'requirements' => [
-                            'kind' => 'root',
-                            'children' => [
+                        'TierIndex' => 0,
+                        'CraftTimeSeconds' => 120,
+                        'Requirements' => [
+                            'Kind' => 'root',
+                            'Children' => [
                                 [
-                                    'kind' => 'resource',
-                                    'uuid' => fake()->uuid(),
-                                    'name' => fake()->word(),
-                                    'quantity_scu' => 1.5,
-                                    'min_quality' => 0,
+                                    'Kind' => 'resource',
+                                    'UUID' => fake()->uuid(),
+                                    'Name' => fake()->word(),
+                                    'QuantityScu' => 1.5,
+                                    'MinQuality' => 0,
                                 ],
                             ],
                         ],

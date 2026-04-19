@@ -58,9 +58,7 @@
             @if (data_get($harvestableSetup, 'despawn_formatted'))
                 <span class="badge badge-ghost badge-sm" title="Despawn time">Despawn: {{ $harvestableSetup['despawn_formatted'] }}</span>
             @endif
-            @if (data_get($harvestableSetup, 'relative_probability_percent') !== null)
-                <span class="badge badge-ghost badge-sm" title="Spawn probability">Spawn: {{ $harvestableSetup['relative_probability_percent'] }}%</span>
-            @endif
+
             @if (data_get($harvestableSetup, 'additional_wait_formatted'))
                 <span class="badge badge-ghost badge-sm" title="Additional wait when players are nearby">Wait: {{ $harvestableSetup['additional_wait_formatted'] }}</span>
             @endif

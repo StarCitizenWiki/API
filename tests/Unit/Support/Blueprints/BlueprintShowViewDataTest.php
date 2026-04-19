@@ -375,7 +375,7 @@ it('passes web_url through unlocking missions into grouped view data', function 
                 [
                     'title' => 'Eliminate Threat',
                     'debug_name' => 'elim_threat',
-                    'mission_type' => 'Bounty Hunter',
+                    'reward_scope' => 'Bounty Hunter',
                     'chance' => 0.5,
                     'web_url' => route('web.missions.show', ['mission' => $missionUuid]),
                 ],

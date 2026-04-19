@@ -1015,18 +1015,18 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
                     'Class' => 'fast_build',
                     'Type' => 'WeaponPersonal',
                 ],
-                'tiers' => [
+                'Tiers' => [
                     [
-                        'tier_index' => 0,
-                        'craft_time_seconds' => 60,
-                        'requirements' => [
-                            'kind' => 'root',
-                            'children' => [
+                        'TierIndex' => 0,
+                        'CraftTimeSeconds' => 60,
+                        'Requirements' => [
+                            'Kind' => 'root',
+                            'Children' => [
                                 [
-                                    'kind' => 'resource',
-                                    'uuid' => fake()->uuid(),
-                                    'name' => 'Iron',
-                                    'quantity_scu' => 1,
+                                    'Kind' => 'resource',
+                                    'UUID' => fake()->uuid(),
+                                    'Name' => 'Iron',
+                                    'QuantityScu' => 1,
                                 ],
                             ],
                         ],
@@ -1047,36 +1047,36 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
                     'Class' => 'slow_build',
                     'Type' => 'Utility',
                 ],
-                'tiers' => [
+                'Tiers' => [
                     [
-                        'tier_index' => 0,
-                        'craft_time_seconds' => 240,
-                        'requirements' => [
-                            'kind' => 'root',
-                            'children' => [
+                        'TierIndex' => 0,
+                        'CraftTimeSeconds' => 240,
+                        'Requirements' => [
+                            'Kind' => 'root',
+                            'Children' => [
                                 [
-                                    'kind' => 'group',
-                                    'key' => 'FRAME',
-                                    'name' => 'Frame',
-                                    'required_count' => 1,
-                                    'children' => [
+                                    'Kind' => 'group',
+                                    'Key' => 'FRAME',
+                                    'Name' => 'Frame',
+                                    'RequiredCount' => 1,
+                                    'Children' => [
                                         [
-                                            'kind' => 'resource',
-                                            'uuid' => fake()->uuid(),
-                                            'name' => 'Titanium',
-                                            'quantity_scu' => 1,
+                                            'Kind' => 'resource',
+                                            'UUID' => fake()->uuid(),
+                                            'Name' => 'Titanium',
+                                            'QuantityScu' => 1,
                                         ],
                                         [
-                                            'kind' => 'item',
-                                            'uuid' => fake()->uuid(),
-                                            'name' => 'Fastener',
-                                            'quantity' => 2,
+                                            'Kind' => 'item',
+                                            'UUID' => fake()->uuid(),
+                                            'Name' => 'Fastener',
+                                            'Quantity' => 2,
                                         ],
                                         [
-                                            'kind' => 'resource',
-                                            'uuid' => fake()->uuid(),
-                                            'name' => 'Copper',
-                                            'quantity_scu' => 1,
+                                            'Kind' => 'resource',
+                                            'UUID' => fake()->uuid(),
+                                            'Name' => 'Copper',
+                                            'QuantityScu' => 1,
                                         ],
                                     ],
                                 ],
@@ -1121,7 +1121,7 @@ it('includes web_url for unlocking missions on blueprint detail', function (): v
         ->for($this->defaultVersion, 'gameVersion')
         ->create([
             'title' => 'Eliminate Pirate Threat',
-            'mission_type' => 'Bounty Hunter',
+            'reward_scope' => 'Bounty Hunter',
             'blueprint_drop_chance' => 0.25,
         ]);
 
@@ -1138,7 +1138,7 @@ it('includes web_url for unlocking missions on blueprint detail', function (): v
         ->assertJsonPath('data.unlocking_missions_count', 1)
         ->assertJsonCount(1, 'data.unlocking_missions')
         ->assertJsonPath('data.unlocking_missions.0.title', 'Eliminate Pirate Threat')
-        ->assertJsonPath('data.unlocking_missions.0.mission_type', 'Bounty Hunter')
+        ->assertJsonPath('data.unlocking_missions.0.reward_scope', 'Bounty Hunter')
         ->assertJsonPath('data.unlocking_missions.0.chance', 0.25)
         ->assertJsonPath('data.unlocking_missions.0.web_url', route('web.missions.show', ['mission' => $mission->uuid]));
 });

@@ -203,7 +203,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'title', type: 'string', nullable: true),
         new OA\Property(property: 'debug_name', type: 'string', nullable: true),
-        new OA\Property(property: 'mission_type', type: 'string', nullable: true),
+        new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
         new OA\Property(property: 'chance', type: 'number', format: 'float', nullable: true),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
@@ -224,7 +224,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_available_by_default', type: 'boolean'),
         new OA\Property(property: 'game_version', type: 'string', nullable: true),
         new OA\Property(property: 'ingredient_count', type: 'integer'),
-        new OA\Property(property: 'unlocking_missions_count', type: 'integer', description: 'Number of missions that can unlock this blueprint.'),
+        new OA\Property(property: 'unlocking_missions_count', description: 'Number of missions that can unlock this blueprint.', type: 'integer'),
         new OA\Property(
             property: 'ingredients',
             type: 'array',
@@ -320,7 +320,7 @@ class BlueprintResource extends AbstractBaseResource
     }
 
     /**
-     * @return array<int, array{title: ?string, debug_name: ?string, mission_type: ?string, chance: int|float|null, web_url: ?string}>
+     * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, chance: int|float|null, web_url: ?string}>
      */
     private function unlockingMissions(): array
     {
@@ -332,7 +332,7 @@ class BlueprintResource extends AbstractBaseResource
                 $this->nullableString($mission->debug_name),
             ),
             'debug_name' => $this->nullableString($mission->debug_name),
-            'mission_type' => $this->nullableString($mission->mission_type),
+            'reward_scope' => $this->nullableString($mission->reward_scope),
             'chance' => $this->nullableNumeric($mission->blueprint_drop_chance ?? null),
             'web_url' => $mission->relationLoaded('mission') && $mission->mission !== null
                 ? $this->urlWithVersion(route('web.missions.show', ['mission' => $mission->mission->uuid]), request())

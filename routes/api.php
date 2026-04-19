@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Game\FactionController;
 use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
+use App\Http\Controllers\Api\Game\MissionController;
 use App\Http\Controllers\Api\Game\StarmapLocationController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;

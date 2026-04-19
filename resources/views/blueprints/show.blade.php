@@ -1380,8 +1380,8 @@
                                                                 <span class="badge badge-ghost badge-sm">&times;{{ $mission['count'] }}</span>
                                                             @endif
                                                         </div>
-                                                        @if ($mission['mission_type'])
-                                                            <span class="text-xs text-base-content/50">{{ $mission['mission_type'] }}</span>
+                                                        @if ($mission['reward_scope'])
+                                                            <span class="text-xs text-base-content/50">{{ $mission['reward_scope'] }}</span>
                                                         @endif
                                                     </div>
                                                 @endforeach

@@ -284,6 +284,96 @@ paths:
                 properties:
                   filters: { properties: { system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+  /api/factions:
+    get:
+      tags:
+        - In-Game
+        - Factions
+      summary: 'List Factions'
+      description: 'Returns paginated factions with optional filtering.'
+      operationId: 9d3af437209fd7d1099972b9b9560aa6
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          name: 'filter[faction_type]'
+          in: query
+          schema:
+            type: string
+            example: Lawful
+        -
+          name: 'filter[has_reputation]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[lawful]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[is_npc]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[hide_in_delphi_app]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[query]'
+          in: query
+          schema:
+            type: string
+        -
+          name: sort
+          in: query
+          description: 'Sort field. Prefix with "-" for descending. Supported: name, faction_type.'
+          schema:
+            type: string
+            example: name
+      responses:
+        '200':
+          description: 'List of factions'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/faction_index'
+  '/api/factions/{faction}':
+    get:
+      tags:
+        - In-Game
+        - Factions
+      summary: 'Get Faction Detail'
+      description: 'Returns full details for a single faction, including reputation ladder when included.'
+      operationId: 2ca088d4d7d160632359299fe6b2b521
+      parameters:
+        -
+          name: faction
+          in: path
+          required: true
+          schema:
+            description: 'Faction UUID'
+            type: string
+            format: uuid
+        -
+          $ref: '#/components/parameters/include'
+      responses:
+        '200':
+          description: 'Faction detail'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/faction'
+        '404':
+          description: 'Faction not found'
   /api/game-versions:
     get:
       tags:
@@ -741,6 +831,270 @@ paths:
                 items:
                   $ref: '#/components/schemas/manufacturer_link'
       deprecated: true
+  /api/missions:
+    get:
+      tags:
+        - In-Game
+        - Missions
+      summary: 'List Game Missions'
+      description: 'Returns paginated missions for the requested or default game version, excluding unreleased and work-in-progress by default.'
+      operationId: 209d50edcdf13365e8eb791b4368dc87
+      parameters:
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: sort
+          in: query
+          description: 'Sort field. Prefix with "-" for descending. Supported: title, mission_giver, rank_index, reward_min, reward_max, time_to_complete_minutes.'
+          schema:
+            type: string
+            example: title
+        -
+          name: 'filter[mission_giver]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[faction]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[star_system]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[illegal]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[shareable]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[once_only]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[available_in_prison]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[has_combat]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[has_defend_objective]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[rank_index]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[has_prerequisites]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[min_enemies]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[max_enemies]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[reward_min]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[reward_max]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[title]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[description]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[query]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[include_unreleased]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[reward_scope]'
+          in: query
+          description: 'Mission category scope. Values: Bounty Hunter, Hauling, Security, Assassination, Mining, Salvage, Investigation, Recovery, Other'
+          schema:
+            type: string
+        -
+          name: 'filter[has_blueprints]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[reputation_scope]'
+          in: query
+          description: 'Reputation reward scope from ReputationGained data. Values: FactionReputation, Hauling, Affinity, Security, Wikelo, ShipCombat_HeadHunters, BountyHunter_BountyHuntersGuild, Assassination, HiredMuscle, BountyHunter'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of missions'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/mission_index'
+  '/api/missions/{mission}':
+    get:
+      tags:
+        - In-Game
+        - Missions
+      summary: 'Get Mission Detail'
+      description: 'Returns full details for a single mission, including chain relationships and associated items.'
+      operationId: b0f6c4b9989a3e84f5042ec0648d15e4
+      parameters:
+        -
+          name: mission
+          in: path
+          required: true
+          schema:
+            description: 'Mission UUID'
+            type: string
+            format: uuid
+        -
+          $ref: '#/components/parameters/version'
+        -
+          $ref: '#/components/parameters/include'
+      responses:
+        '200':
+          description: 'Mission detail'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mission'
+        '404':
+          description: 'Mission not found'
+  /api/missions/filters:
+    get:
+      tags:
+        - In-Game
+        - Missions
+      summary: 'Get Mission Filter Options'
+      description: 'Returns available filter facets for missions, scoped to the requested or default game version. Excludes unreleased and WIP missions by default.'
+      operationId: c1bb2317bbefee1d18ecf19d0999eac0
+      parameters:
+        -
+          $ref: '#/components/parameters/version'
+        -
+          name: 'filter[include_unreleased]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[mission_giver]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[faction]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[star_system]'
+          in: query
+          schema:
+            type: string
+        -
+          name: 'filter[illegal]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[shareable]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[has_combat]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[has_defend_objective]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[rank_index]'
+          in: query
+          schema:
+            type: integer
+        -
+          name: 'filter[has_prerequisites]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[reward_scope]'
+          in: query
+          description: 'Mission category scope. Values: Bounty Hunter, Hauling, Security, Assassination, Mining, Salvage, Investigation, Recovery, Other'
+          schema:
+            type: string
+        -
+          name: 'filter[has_blueprints]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[reputation_scope]'
+          in: query
+          description: 'Reputation reward scope from ReputationGained data'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Filter facets for missions'
+          content:
+            application/json:
+              schema:
+                properties:
+                  filters: { properties: { mission_giver: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, star_system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, faction: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_combat: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_defend_objective: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, rank_index: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, illegal: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, shareable: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_prerequisites: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, reward_scope: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_blueprints: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, reputation_scope: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                type: object
   /api/locations:
     get:
       tags:
@@ -2433,29 +2787,6 @@ components:
           format: uri
           nullable: true
       type: object
-    blueprint_reward_pool:
-      title: 'Blueprint Reward Pool'
-      description: 'Reward pool that can grant access to a blueprint.'
-      properties:
-        key:
-          type: string
-          nullable: true
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-      type: object
-    blueprint_availability:
-      title: 'Blueprint Availability'
-      description: 'Availability metadata for a blueprint.'
-      properties:
-        default:
-          type: boolean
-        reward_pools:
-          type: array
-          items:
-            $ref: '#/components/schemas/blueprint_reward_pool'
-      type: object
     blueprint_modifier_quality_range:
       title: 'Blueprint Modifier Quality Range'
       properties:
@@ -2682,45 +3013,9 @@ components:
           format: uri
           nullable: true
       type: object
-    blueprint_resource_summary:
-      title: 'Blueprint Resource Summary'
-      description: 'Combined unique resource entry from inputs and dismantle returns.'
-      properties:
-        name:
-          type: string
-          nullable: true
-        resource_type_uuid:
-          type: string
-          format: uuid
-          nullable: true
-      type: object
     blueprint_dismantle_return_summary:
       title: 'Blueprint Dismantle Return Summary'
       description: 'Lightweight dismantle return entry used by blueprint list responses.'
-      properties:
-        name:
-          type: string
-          nullable: true
-        resource_type_uuid:
-          type: string
-          format: uuid
-          nullable: true
-        quantity_scu:
-          type: number
-          format: float
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_url:
-          type: string
-          format: uri
-          nullable: true
-      type: object
-    blueprint_dismantle_return:
-      title: 'Blueprint Dismantle Return'
-      description: 'A resource returned when dismantling a blueprint output.'
       properties:
         name:
           type: string
@@ -2756,10 +3051,28 @@ components:
           type: number
           format: float
           nullable: true
-        returns:
-          type: array
-          items:
-            $ref: '#/components/schemas/blueprint_dismantle_return'
+      type: object
+    blueprint_unlocking_mission:
+      title: 'Blueprint Unlocking Mission'
+      description: 'A mission that can unlock this blueprint as a reward.'
+      properties:
+        title:
+          type: string
+          nullable: true
+        debug_name:
+          type: string
+          nullable: true
+        reward_scope:
+          type: string
+          nullable: true
+        chance:
+          type: number
+          format: float
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
       type: object
     blueprint:
       title: Blueprint
@@ -2794,6 +3107,9 @@ components:
           nullable: true
         ingredient_count:
           type: integer
+        unlocking_missions_count:
+          description: 'Number of missions that can unlock this blueprint.'
+          type: integer
         ingredients:
           type: array
           items:
@@ -2802,14 +3118,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/blueprint_dismantle_return_summary'
-        resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/blueprint_resource_summary'
         output:
           $ref: '#/components/schemas/blueprint_output'
-        availability:
-          $ref: '#/components/schemas/blueprint_availability'
         dismantle:
           $ref: '#/components/schemas/blueprint_dismantle'
         requirement_groups:
@@ -2822,6 +3132,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/blueprint_summary_property'
+        unlocking_missions:
+          description: 'Only included on blueprint detail responses.'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_unlocking_mission'
         tiers:
           description: 'Only included on blueprint detail responses.'
           type: array
@@ -3374,6 +3689,123 @@ components:
         relative_probability_max_percent:
           type: number
           nullable: true
+      type: object
+    faction_index:
+      title: 'Faction Summary'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        faction_type:
+          type: string
+          nullable: true
+        lawful:
+          type: boolean
+          nullable: true
+        is_npc:
+          type: boolean
+        has_reputation:
+          type: boolean
+        link:
+          type: string
+          format: uri
+      type: object
+    faction:
+      title: Faction
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        default_reaction:
+          type: string
+        faction_type:
+          type: string
+          nullable: true
+        able_to_arrest:
+          type: boolean
+        polices_lawful_trespass:
+          type: boolean
+        polices_criminality:
+          type: boolean
+        no_legal_rights:
+          type: boolean
+        has_reputation:
+          type: boolean
+        headquarters:
+          type: string
+          nullable: true
+        founded:
+          type: string
+          nullable: true
+        leadership:
+          type: string
+          nullable: true
+        area:
+          type: string
+          nullable: true
+        focus:
+          type: string
+          nullable: true
+        lawful:
+          type: boolean
+          nullable: true
+        sort_order_scope:
+          type: string
+          nullable: true
+        is_npc:
+          type: boolean
+        reputation_ladder:
+          oneOf:
+            -
+              $ref: '#/components/schemas/faction_reputation_ladder'
+          nullable: true
+        link:
+          type: string
+          format: uri
+      type: object
+    faction_reputation_ladder:
+      title: 'Faction Reputation Ladder'
+      properties:
+        scope_name:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+        reputation_ceiling:
+          type: integer
+        initial_reputation:
+          type: integer
+        standings:
+          type: array
+          items:
+            $ref: '#/components/schemas/faction_standing'
+      type: object
+    faction_standing:
+      title: 'Faction Standing'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+        min_reputation:
+          type: integer
+        drift_reputation:
+          type: integer
+        drift_time_hours:
+          type: integer
+        gated:
+          type: boolean
       type: object
     game_version:
       title: 'Game Version'
@@ -10035,6 +10467,971 @@ components:
         uuid:
           type: string
       type: object
+    mission_index:
+      title: 'Mission Summary'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        mission_giver:
+          type: string
+          nullable: true
+        debug_name:
+          type: string
+          nullable: true
+        faction:
+          properties:
+            name:
+              type: string
+              nullable: true
+            uuid:
+              type: string
+              format: uuid
+              nullable: true
+            link:
+              type: string
+              format: uri
+              nullable: true
+          type: object
+          nullable: true
+        rank_index:
+          type: integer
+          nullable: true
+        illegal:
+          type: boolean
+        legality_label:
+          type: string
+        shareable:
+          type: boolean
+        once_only:
+          type: boolean
+        has_combat:
+          type: boolean
+          nullable: true
+        has_defend_objective:
+          type: boolean
+          nullable: true
+        enemy_count_min:
+          type: integer
+          nullable: true
+        enemy_count_max:
+          type: integer
+          nullable: true
+        reward_min:
+          type: integer
+          nullable: true
+        reward_max:
+          type: integer
+          nullable: true
+        reward_currency:
+          type: string
+          nullable: true
+        time_to_complete_minutes:
+          type: number
+          format: float
+          nullable: true
+        star_systems:
+          type: array
+          items:
+            type: string
+          nullable: true
+        has_blueprints:
+          type: boolean
+        blueprint_drop_chance:
+          type: number
+          format: float
+          nullable: true
+        blueprints:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_index_blueprint'
+          nullable: true
+        has_prerequisites:
+          type: boolean
+        has_hauling:
+          type: boolean
+        min_standing_name:
+          type: string
+          nullable: true
+        max_standing_name:
+          type: string
+          nullable: true
+        cost:
+          type: integer
+          nullable: true
+        min_crime_stat:
+          type: integer
+          nullable: true
+        max_crime_stat:
+          type: integer
+          nullable: true
+        available_in_prison:
+          type: boolean
+        reputation_gained:
+          type: array
+          items:
+            properties:
+              faction:
+                type: string
+                nullable: true
+              scope:
+                type: string
+                nullable: true
+              amount:
+                type: integer
+                nullable: true
+            type: object
+          nullable: true
+        max_players_per_instance:
+          type: integer
+          nullable: true
+        max_instances_per_player:
+          type: integer
+          nullable: true
+        cooldown_seconds:
+          type: integer
+          nullable: true
+        cooldown_label:
+          type: string
+          nullable: true
+        reaccept_after_abandoning:
+          type: boolean
+        reaccept_after_failing:
+          type: boolean
+        fail_if_became_criminal:
+          type: boolean
+        hauling_summary:
+          type: array
+          items:
+            properties:
+              name:
+                type: string
+                nullable: true
+              min_amount:
+                type: integer
+                nullable: true
+              max_amount:
+                type: integer
+                nullable: true
+            type: object
+          nullable: true
+        reward_scope:
+          type: string
+          nullable: true
+        reputation_amount:
+          type: integer
+          nullable: true
+        game_version:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+      type: object
+    mission_index_blueprint:
+      title: 'Mission Index Blueprint'
+      properties:
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission:
+      title: Mission
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        mission_type:
+          type: string
+          nullable: true
+        mission_giver:
+          type: string
+          nullable: true
+        faction:
+          properties:
+            name:
+              type: string
+              nullable: true
+            uuid:
+              type: string
+              format: uuid
+              nullable: true
+            faction_type:
+              type: string
+              nullable: true
+            lawful:
+              type: boolean
+              nullable: true
+            is_npc:
+              type: boolean
+            has_reputation:
+              type: boolean
+            headquarters:
+              type: string
+              nullable: true
+            area:
+              type: string
+              nullable: true
+            focus:
+              type: string
+              nullable: true
+            founded:
+              type: string
+              nullable: true
+            leadership:
+              type: string
+              nullable: true
+            link:
+              type: string
+              format: uri
+              nullable: true
+            reputation_ladder:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/mission_faction_reputation_scope'
+              nullable: true
+          type: object
+          nullable: true
+        rank_index:
+          type: integer
+          nullable: true
+        illegal:
+          type: boolean
+        legality_label:
+          type: string
+        shareable:
+          type: boolean
+        once_only:
+          type: boolean
+        available_in_prison:
+          type: boolean
+        has_combat:
+          type: boolean
+          nullable: true
+        has_defend_objective:
+          type: boolean
+          nullable: true
+        enemy_count_min:
+          type: integer
+          nullable: true
+        enemy_count_max:
+          type: integer
+          nullable: true
+        min_crime_stat:
+          type: integer
+          nullable: true
+        max_crime_stat:
+          type: integer
+          nullable: true
+        reward_min:
+          type: integer
+          nullable: true
+        reward_max:
+          type: integer
+          nullable: true
+        reward_currency:
+          type: string
+          nullable: true
+        time_to_complete_minutes:
+          type: number
+          format: float
+          nullable: true
+        star_systems:
+          type: array
+          items:
+            type: string
+          nullable: true
+        cooldown:
+          oneOf:
+            -
+              $ref: '#/components/schemas/mission_cooldown'
+          nullable: true
+        lifetime:
+          oneOf:
+            -
+              $ref: '#/components/schemas/mission_lifetime'
+          nullable: true
+        reaccept_after_failing:
+          type: boolean
+          nullable: true
+        reaccept_after_abandoning:
+          type: boolean
+          nullable: true
+        blueprints:
+          oneOf:
+            -
+              $ref: '#/components/schemas/mission_blueprints'
+          nullable: true
+        reward_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_reward_item'
+          nullable: true
+        combat:
+          oneOf:
+            -
+              $ref: '#/components/schemas/mission_combat'
+          nullable: true
+        completion_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_completion_tag'
+          nullable: true
+        reputation_gained:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_reputation'
+          nullable: true
+        reputation_lost:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_reputation'
+          nullable: true
+        hauling_orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_hauling_order'
+          nullable: true
+        cost:
+          type: integer
+          nullable: true
+        max_players_per_instance:
+          type: integer
+          nullable: true
+        fail_if_became_criminal:
+          type: boolean
+          nullable: true
+        min_standing:
+          properties:
+            name:
+              type: string
+              nullable: true
+            min_reputation:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
+        max_standing:
+          properties:
+            name:
+              type: string
+              nullable: true
+            min_reputation:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
+        mission_tokens:
+          properties:
+            destinations:
+              type: array
+              items:
+                type: string
+          type: object
+          nullable: true
+        deadline:
+          properties:
+            auto_end:
+              type: boolean
+              nullable: true
+            end_reason:
+              type: string
+              nullable: true
+            completion_time_minutes:
+              type: integer
+              nullable: true
+            result_after_timer:
+              type: string
+              nullable: true
+          type: object
+          nullable: true
+        broker_reputation_prerequisites:
+          properties:
+            max_wanted_level:
+              type: integer
+              nullable: true
+            min_wanted_level:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
+        item_counts:
+          properties:
+            max_items:
+              type: integer
+              nullable: true
+            min_items:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
+        entity_spawns:
+          type: array
+          items:
+            properties:
+              tags:
+                type: array
+                items:
+                  type: string
+                nullable: true
+              amount:
+                type: integer
+                nullable: true
+              weight:
+                type: integer
+                nullable: true
+              group_name:
+                type: string
+                nullable: true
+              markup_tags:
+                type: array
+                items:
+                  type: string
+                nullable: true
+              negative_tags:
+                type: array
+                items:
+                  type: string
+                nullable: true
+              merged_tags:
+                type: array
+                items:
+                  type: string
+            type: object
+          nullable: true
+        hidden_in_mobiglas:
+          type: boolean
+          nullable: true
+        notify_on_available:
+          type: boolean
+          nullable: true
+        reward_scope:
+          type: string
+          nullable: true
+        reputation_amount:
+          type: integer
+          nullable: true
+        game_version:
+          type: string
+          nullable: true
+        starmap_locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_starmap_location_group'
+          nullable: true
+        prerequisite_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_prerequisite_group'
+          nullable: true
+        unlock_groups:
+          description: 'Completion tag groups that become available after completing this mission'
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_unlock_group'
+          nullable: true
+        merged_locations:
+          description: 'Starmap locations grouped by logical purpose categories (Destinations, Locations, Availability)'
+          type: object
+          nullable: true
+        has_rewards:
+          type: boolean
+        has_combat_section:
+          type: boolean
+        has_locations:
+          type: boolean
+        has_chain:
+          type: boolean
+        link:
+          type: string
+          format: uri
+      type: object
+    mission_cooldown:
+      title: 'Mission Cooldown'
+      properties:
+        label:
+          type: string
+          nullable: true
+        personal_seconds:
+          type: integer
+        abandoned_seconds:
+          type: integer
+        personal_variation_seconds:
+          type: integer
+        abandoned_variation_seconds:
+          type: integer
+      type: object
+    mission_lifetime:
+      title: 'Mission Lifetime'
+      properties:
+        label:
+          type: string
+          nullable: true
+        respawn_time_seconds:
+          type: integer
+        max_instances:
+          type: integer
+        respawn_time_variation_seconds:
+          type: integer
+        max_instances_per_player:
+          type: integer
+      type: object
+    mission_blueprints:
+      title: 'Mission Blueprints'
+      properties:
+        drop_chance:
+          type: number
+          format: float
+        drop_chance_percent:
+          type: number
+          format: float
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_blueprint_item'
+      type: object
+    mission_blueprint_item:
+      title: 'Mission Blueprint Item'
+      properties:
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        item_link:
+          type: string
+          format: uri
+          nullable: true
+        blueprint_link:
+          type: string
+          format: uri
+          nullable: true
+        web_item_link:
+          type: string
+          format: uri
+          nullable: true
+        web_blueprint_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_reward_item:
+      title: 'Mission Reward Item'
+      properties:
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        amount:
+          type: integer
+          nullable: true
+        send_to_home:
+          type: boolean
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_combat:
+      title: 'Mission Combat'
+      properties:
+        summary:
+          properties:
+            total:
+              properties:
+                min:
+                  type: integer
+                max:
+                  type: integer
+              type: object
+            by_group:
+              type: array
+              items:
+                properties:
+                  group_name: { type: string }
+                  min: { type: integer }
+                  max: { type: integer }
+                type: object
+          type: object
+        spawns:
+          type: array
+          items:
+            properties:
+              role:
+                type: string
+                nullable: true
+              weight:
+                type: integer
+                nullable: true
+              group_name:
+                type: string
+                nullable: true
+              spawn_kind:
+                type: string
+                nullable: true
+              concurrent_amount:
+                type: integer
+                nullable: true
+            type: object
+        aggregated_spawns:
+          description: 'Spawns grouped by role, group_name, and spawn_kind with aggregated concurrent ranges'
+          type: array
+          items:
+            properties:
+              role:
+                type: string
+              group_name:
+                type: string
+                nullable: true
+              spawn_kind:
+                type: string
+                nullable: true
+              concurrent_min:
+                type: integer
+                nullable: true
+              concurrent_max:
+                type: integer
+                nullable: true
+              weight:
+                type: integer
+                nullable: true
+            type: object
+      type: object
+    mission_starmap_location_group:
+      title: 'Mission Starmap Location Group'
+      properties:
+        purpose:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_starmap_location'
+      type: object
+    mission_starmap_location:
+      title: 'Mission Starmap Location'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        system:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_completion_tag:
+      title: 'Mission Completion Tag'
+      properties:
+        name:
+          type: string
+          nullable: true
+        unlocks_missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_completion_tag_mission'
+      type: object
+    mission_completion_tag_mission:
+      title: 'Mission Completion Tag Mission'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_reputation:
+      title: 'Mission Reputation'
+      properties:
+        tier:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+        amount:
+          type: integer
+          nullable: true
+        faction:
+          type: string
+          nullable: true
+        faction_uuid:
+          type: string
+          format: uuid
+          nullable: true
+      type: object
+    mission_hauling_order:
+      title: 'Mission Hauling Order'
+      properties:
+        kind:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_hauling_order_item'
+        max_scu:
+          type: integer
+          nullable: true
+        min_scu:
+          type: integer
+          nullable: true
+        max_amount:
+          type: integer
+          nullable: true
+        min_amount:
+          type: integer
+          nullable: true
+        max_container_size:
+          type: integer
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+        or_options:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/mission_hauling_order'
+          nullable: true
+      type: object
+    mission_hauling_order_item:
+      title: 'Mission Hauling Order Item'
+      properties:
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_prerequisite_group:
+      title: 'Mission Prerequisite Group'
+      properties:
+        required_count:
+          type: integer
+          nullable: true
+        required_tags:
+          type: array
+          items:
+            properties:
+              name:
+                type: string
+                nullable: true
+              uuid:
+                type: string
+                format: uuid
+                nullable: true
+            type: object
+        excluded_tags:
+          type: array
+          items:
+            properties:
+              name:
+                type: string
+                nullable: true
+              uuid:
+                type: string
+                format: uuid
+                nullable: true
+            type: object
+        missions:
+          type: array
+          items:
+            properties:
+              uuid:
+                type: string
+                format: uuid
+                nullable: true
+              title:
+                type: string
+                nullable: true
+              link:
+                type: string
+                format: uri
+                nullable: true
+              web_link:
+                type: string
+                format: uri
+                nullable: true
+            type: object
+      type: object
+    mission_unlock_group:
+      title: 'Mission Unlock Group'
+      description: 'A completion tag group that unlocks missions when this mission is completed.'
+      properties:
+        tag_name:
+          type: string
+          nullable: true
+        tag_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_chain_link'
+      type: object
+    mission_chain_link:
+      title: 'Mission Chain Link'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        mission_type:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_faction_reputation_scope:
+      title: 'Mission Faction Reputation Scope'
+      properties:
+        scope_name:
+          type: string
+          nullable: true
+        standings:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_faction_standing'
+      type: object
+    mission_faction_standing:
+      title: 'Mission Faction Standing'
+      properties:
+        name:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+        min_reputation:
+          type: integer
+      type: object
+    mission_summary:
+      title: 'Mission Summary'
+      description: 'Lightweight mission summary used in location and other nested responses.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        mission_type:
+          type: string
+          nullable: true
+        illegal:
+          type: boolean
+        has_combat:
+          type: boolean
+          nullable: true
+        faction:
+          properties:
+            name:
+              type: string
+              nullable: true
+            uuid:
+              type: string
+              format: uuid
+              nullable: true
+            link:
+              type: string
+              format: uri
+              nullable: true
+          type: object
+          nullable: true
+        link:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+      type: object
     game_starmap_location_linked_summary:
       title: 'Game Starmap Location Linked Summary'
       properties:
@@ -10229,6 +11626,18 @@ components:
           items:
             $ref: '#/components/schemas/starmap_location_resource'
       type: object
+    game_starmap_location_mission_group:
+      title: 'Game Starmap Location Mission Group'
+      description: 'Missions associated with a starmap location, grouped by purpose.'
+      properties:
+        purpose:
+          type: string
+          nullable: true
+        missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_summary'
+      type: object
     game_starmap_location:
       title: 'Game Starmap Location'
       description: 'Versioned starmap location data imported from game starmap data.'
@@ -10252,6 +11661,8 @@ components:
         has_resources:
           type: boolean
           nullable: true
+        mission_count:
+          type: integer
         is_scannable:
           type: boolean
         hide_in_starmap:
@@ -10335,6 +11746,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/starmap_location_mining_type_group'
+        missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/game_starmap_location_mission_group'
+          nullable: true
       type: object
     game_vehicle_cargo_grid:
       title: 'Vehicle Cargo Grid'
@@ -12438,6 +13854,9 @@ tags:
     name: Commodities
     description: Commodities
   -
+    name: Factions
+    description: Factions
+  -
     name: 'Game Version'
     description: 'Game Version'
   -
@@ -12449,6 +13868,9 @@ tags:
   -
     name: Manufacturers
     description: Manufacturers
+  -
+    name: Missions
+    description: Missions
   -
     name: Starmap
     description: Starmap

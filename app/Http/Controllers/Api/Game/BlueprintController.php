@@ -398,6 +398,11 @@ class BlueprintController extends Controller
 
                 $query->orderByRaw($this->ingredientCountSortExpression().' '.$direction.' nulls last');
             }),
+            AllowedSort::callback('unlocking_missions_count', function (Builder $query, bool $descending): void {
+                $direction = $descending ? 'desc' : 'asc';
+
+                $query->orderBy('missions_count', $direction);
+            }),
         ];
     }
 
@@ -409,8 +414,8 @@ class BlueprintController extends Controller
             return <<<'SQL'
 (
     SELECT COUNT(*)
-    FROM json_tree(game_blueprint_data.data, '$.tiers[0].requirements')
-    WHERE json_tree.key = 'kind'
+    FROM json_tree(game_blueprint_data.data, '$.Tiers[0].Requirements')
+    WHERE json_tree.key = 'Kind'
       AND json_tree.value IN ('resource', 'item')
 )
 SQL;
@@ -420,7 +425,7 @@ SQL;
 jsonb_array_length(
     jsonb_path_query_array(
         game_blueprint_data.data,
-        '$.tiers[0].requirements.**.kind ? (@ == "resource" || @ == "item")'
+        '$.Tiers[0].Requirements.**.Kind ? (@ == "resource" || @ == "item")'
     )
 )
 SQL;
