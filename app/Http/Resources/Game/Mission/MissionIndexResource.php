@@ -230,6 +230,13 @@ class MissionIndexResource extends AbstractBaseResource
         ], $reputation);
     }
 
+    private static array $factionNameCache = [];
+
+    public static function setFactionNameCache(array $cache): void
+    {
+        self::$factionNameCache = $cache;
+    }
+
     private function resolveFactionNames(array $entries): array
     {
         $uuids = collect($entries)
@@ -242,6 +249,12 @@ class MissionIndexResource extends AbstractBaseResource
 
         if ($uuids === []) {
             return [];
+        }
+
+        $cached = array_intersect_key(self::$factionNameCache, array_flip($uuids));
+
+        if (count($cached) === count($uuids)) {
+            return $cached;
         }
 
         return Faction::query()->whereIn('uuid', $uuids)->pluck('name', 'uuid')->all();

@@ -249,6 +249,7 @@ class ImportMissionData implements ShouldQueue
     private function syncStarmapLocations(MissionData $missionData, array $payload): void
     {
         $syncData = [];
+        $purposeMap = [];
 
         foreach ($payload['LocationPools'] ?? [] as $pool) {
             if (! is_array($pool)) {
@@ -258,13 +259,11 @@ class ImportMissionData implements ShouldQueue
             $purpose = $this->trimOrNull($pool['Purpose'] ?? null);
 
             foreach ($pool['ResolvedLocations'] ?? [] as $location) {
-                $locationDataId = $this->resolveStarmapLocationDataId($location['UUID'] ?? null);
+                $uuid = $this->trimOrNull($location['UUID'] ?? null);
 
-                if ($locationDataId === null) {
-                    continue;
+                if ($uuid !== null) {
+                    $purposeMap[$uuid] = $purpose;
                 }
-
-                $syncData[$locationDataId] = ['purpose' => $purpose];
             }
         }
 
@@ -274,37 +273,40 @@ class ImportMissionData implements ShouldQueue
             }
 
             foreach ($availabilityLocation['ResolvedLocations'] ?? [] as $location) {
-                $locationDataId = $this->resolveStarmapLocationDataId($location['UUID'] ?? null);
+                $uuid = $this->trimOrNull($location['UUID'] ?? null);
 
-                if ($locationDataId === null) {
-                    continue;
+                if ($uuid !== null) {
+                    $purposeMap[$uuid] = $purposeMap[$uuid] ?? 'availability';
                 }
-
-                $syncData[$locationDataId] = ['purpose' => 'availability'];
             }
         }
 
-        $missionData->starmapLocations()->sync($syncData);
-    }
+        $locationDataLookup = StarmapLocation::query()
+            ->whereIn('uuid', array_keys($purposeMap))
+            ->pluck('id', 'uuid');
 
-    private function resolveStarmapLocationDataId(mixed $uuid): ?int
-    {
-        $uuid = $this->trimOrNull($uuid);
-
-        if ($uuid === null) {
-            return null;
-        }
-
-        $location = StarmapLocation::query()->where('uuid', $uuid)->first();
-
-        if ($location === null) {
-            return null;
-        }
-
-        return StarmapLocationData::query()
-            ->where('starmap_location_id', $location->id)
+        $locationDataIdLookup = StarmapLocationData::query()
+            ->whereIn('starmap_location_id', $locationDataLookup->values())
             ->where('game_version_id', $this->gameVersionId)
-            ->value('id');
+            ->pluck('id', 'starmap_location_id');
+
+        foreach ($purposeMap as $uuid => $purpose) {
+            $locationId = $locationDataLookup->get($uuid);
+
+            if ($locationId === null) {
+                continue;
+            }
+
+            $locationDataId = $locationDataIdLookup->get($locationId);
+
+            if ($locationDataId === null) {
+                continue;
+            }
+
+            $syncData[$locationDataId] = ['purpose' => $purpose];
+        }
+
+        $missionData->starmapLocations()->sync($syncData);
     }
 
     private function syncBlueprints(MissionData $missionData, array $payload): void
@@ -328,11 +330,17 @@ class ImportMissionData implements ShouldQueue
 
         $poolUuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
 
-        $itemUuids = [];
+        $blueprintUuids = [];
 
         foreach ($blueprintPayload['PoolContents'] ?? [] as $content) {
             if (! is_array($content)) {
                 continue;
+            }
+
+            $blueprintUuid = $this->trimOrNull($content['BlueprintUUID'] ?? null);
+
+            if ($blueprintUuid !== null) {
+                $blueprintUuids[] = $blueprintUuid;
             }
 
             $itemUuid = $this->trimOrNull($content['ItemUUID'] ?? null);
@@ -341,6 +349,13 @@ class ImportMissionData implements ShouldQueue
                 $itemUuids[] = $itemUuid;
             }
         }
+
+        $blueprintIdLookup = Blueprint::query()->whereIn('uuid', array_values(array_unique($blueprintUuids)))->pluck('id', 'uuid');
+
+        $blueprintDataLookup = BlueprintData::query()
+            ->whereIn('blueprint_id', $blueprintIdLookup->values())
+            ->where('game_version_id', $this->gameVersionId)
+            ->pluck('id', 'blueprint_id');
 
         $itemIdLookup = Item::query()->whereIn('uuid', $itemUuids)->pluck('id', 'uuid');
 
@@ -362,16 +377,13 @@ class ImportMissionData implements ShouldQueue
                 continue;
             }
 
-            $blueprint = Blueprint::query()->where('uuid', $blueprintUuid)->first();
+            $blueprintId = $blueprintIdLookup->get($blueprintUuid);
 
-            if ($blueprint === null) {
+            if ($blueprintId === null) {
                 continue;
             }
 
-            $blueprintDataId = BlueprintData::query()
-                ->where('blueprint_id', $blueprint->id)
-                ->where('game_version_id', $this->gameVersionId)
-                ->value('id');
+            $blueprintDataId = $blueprintDataLookup->get($blueprintId);
 
             if ($blueprintDataId === null) {
                 continue;

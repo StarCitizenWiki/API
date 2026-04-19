@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Mission\MissionIndexResource;
 use App\Http\Resources\Game\Mission\MissionResource;
+use App\Models\Game\Faction;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Support\Filters\FilterCache;
@@ -93,6 +94,25 @@ class MissionController extends Controller
             ->jsonPaginate()
             ->appends($request->query());
 
+        $factionUuids = $missions->getCollection()
+            ->pluck('data')
+            ->filter()
+            ->map(static fn ($data): ?array => $data->get('ReputationGained'))
+            ->filter()
+            ->flatten(1)
+            ->filter(static fn (mixed $entry): bool => is_array($entry) && str_contains($entry['Faction'] ?? '', 'UNINITIALIZED'))
+            ->map(static fn (array $entry): ?string => $entry['FactionUUID'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($factionUuids !== []) {
+            MissionIndexResource::setFactionNameCache(
+                Faction::query()->whereIn('uuid', $factionUuids)->pluck('name', 'uuid')->all(),
+            );
+        }
+
         return MissionIndexResource::collection($missions);
     }
 
@@ -145,7 +165,7 @@ class MissionController extends Controller
                 'mission',
                 'gameVersion',
                 'faction',
-                'faction.reputationRef.scope.standings',
+                'faction.reputationRef.factionScope.standings',
                 'starmapLocations.location',
                 'blueprints.blueprint',
                 'prerequisiteGroups.missions.linkedMissionData.mission',
