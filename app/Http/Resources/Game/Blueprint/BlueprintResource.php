@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Blueprint;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Support\Formatting\FormatDuration;
+use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -23,30 +24,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'subtype', type: 'string', nullable: true),
         new OA\Property(property: 'grade', type: 'string', nullable: true),
         new OA\Property(property: 'item_web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'blueprint_reward_pool',
-    title: 'Blueprint Reward Pool',
-    description: 'Reward pool that can grant access to a blueprint.',
-    properties: [
-        new OA\Property(property: 'key', type: 'string', nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'blueprint_availability',
-    title: 'Blueprint Availability',
-    description: 'Availability metadata for a blueprint.',
-    properties: [
-        new OA\Property(property: 'default', type: 'boolean'),
-        new OA\Property(
-            property: 'reward_pools',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/blueprint_reward_pool')
-        ),
     ],
     type: 'object'
 )]
@@ -196,32 +173,9 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
-    schema: 'blueprint_resource_summary',
-    title: 'Blueprint Resource Summary',
-    description: 'Combined unique resource entry from inputs and dismantle returns.',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
     schema: 'blueprint_dismantle_return_summary',
     title: 'Blueprint Dismantle Return Summary',
     description: 'Lightweight dismantle return entry used by blueprint list responses.',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'blueprint_dismantle_return',
-    title: 'Blueprint Dismantle Return',
-    description: 'A resource returned when dismantling a blueprint output.',
     properties: [
         new OA\Property(property: 'name', type: 'string', nullable: true),
         new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
@@ -239,11 +193,19 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'time_seconds', type: 'integer', nullable: true),
         new OA\Property(property: 'time_label', type: 'string', nullable: true),
         new OA\Property(property: 'efficiency', type: 'number', format: 'float', nullable: true),
-        new OA\Property(
-            property: 'returns',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/blueprint_dismantle_return')
-        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_unlocking_mission',
+    title: 'Blueprint Unlocking Mission',
+    description: 'A mission that can unlock this blueprint as a reward.',
+    properties: [
+        new OA\Property(property: 'title', type: 'string', nullable: true),
+        new OA\Property(property: 'debug_name', type: 'string', nullable: true),
+        new OA\Property(property: 'mission_type', type: 'string', nullable: true),
+        new OA\Property(property: 'chance', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -262,6 +224,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_available_by_default', type: 'boolean'),
         new OA\Property(property: 'game_version', type: 'string', nullable: true),
         new OA\Property(property: 'ingredient_count', type: 'integer'),
+        new OA\Property(property: 'unlocking_missions_count', type: 'integer', description: 'Number of missions that can unlock this blueprint.'),
         new OA\Property(
             property: 'ingredients',
             type: 'array',
@@ -272,17 +235,7 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_dismantle_return_summary')
         ),
-        new OA\Property(
-            property: 'resources',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/blueprint_resource_summary')
-        ),
         new OA\Property(property: 'output', ref: '#/components/schemas/blueprint_output'),
-        new OA\Property(
-            property: 'availability',
-            ref: '#/components/schemas/blueprint_availability',
-            description: 'Only included on blueprint detail responses.'
-        ),
         new OA\Property(
             property: 'dismantle',
             ref: '#/components/schemas/blueprint_dismantle',
@@ -299,6 +252,12 @@ use OpenApi\Attributes as OA;
             description: 'Only included on blueprint detail responses.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_summary_property')
+        ),
+        new OA\Property(
+            property: 'unlocking_missions',
+            description: 'Only included on blueprint detail responses.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_unlocking_mission')
         ),
         new OA\Property(
             property: 'tiers',
@@ -332,17 +291,17 @@ class BlueprintResource extends AbstractBaseResource
             'is_available_by_default' => $this->is_available_by_default,
             'game_version' => $this->gameVersion?->code,
             'ingredient_count' => $this->ingredientCount($payload),
+            'unlocking_missions_count' => (int) ($this->resource->missions_count ?? 0),
             'ingredients' => $this->ingredients($payload, $request),
             'dismantle_returns' => $this->dismantleReturnsList($request),
-            'resources' => $this->resourcesList($payload, $request),
             'output' => $this->outputPayload($request, $payload),
             'web_url' => $this->webUrl($request),
             'output_item_web_url' => $this->whenNotNull($this->outputItemWebUrl($request)),
             $this->mergeWhen($this->shouldIncludeDetailFields($request), [
-                'availability' => $this->availabilityPayload($payload),
-                'dismantle' => $this->dismantlePayload($payload, $request),
+                'dismantle' => $this->dismantlePayload($payload),
                 'requirement_groups' => $this->requirementGroups($payload),
                 'summary_properties' => $this->summaryProperties($payload),
+                'unlocking_missions' => $this->unlockingMissions(),
             ]),
             'tiers' => $this->when(
                 $this->shouldIncludeDetailFields($request),
@@ -358,6 +317,27 @@ class BlueprintResource extends AbstractBaseResource
     private function shouldIncludeDetailFields(Request $request): bool
     {
         return $request->routeIs('blueprints.show');
+    }
+
+    /**
+     * @return array<int, array{title: ?string, debug_name: ?string, mission_type: ?string, chance: int|float|null, web_url: ?string}>
+     */
+    private function unlockingMissions(): array
+    {
+        $missions = $this->loadedRelation('missions');
+
+        return $missions->map(fn ($mission): array => [
+            'title' => FormatMissionTitle::format(
+                $this->nullableString($mission->title),
+                $this->nullableString($mission->debug_name),
+            ),
+            'debug_name' => $this->nullableString($mission->debug_name),
+            'mission_type' => $this->nullableString($mission->mission_type),
+            'chance' => $this->nullableNumeric($mission->blueprint_drop_chance ?? null),
+            'web_url' => $mission->relationLoaded('mission') && $mission->mission !== null
+                ? $this->urlWithVersion(route('web.missions.show', ['mission' => $mission->mission->uuid]), request())
+                : null,
+        ])->sortBy('title', SORT_STRING | SORT_FLAG_CASE)->values()->all();
     }
 
     /**
@@ -422,18 +402,18 @@ class BlueprintResource extends AbstractBaseResource
      */
     private function outputPayload(Request $request, array $payload): array
     {
-        $output = data_get($payload, 'output');
+        $output = data_get($payload, 'Output') ?? data_get($payload, 'output');
         $output = is_array($output) ? $output : [];
 
-        $uuid = $this->stringValue($output['uuid'] ?? null) ?? $this->stringValue($this->output_item_uuid);
+        $uuid = $this->arrayNullableString($output, 'UUID') ?? $this->arrayNullableString($output, 'uuid') ?? $this->nullableString($this->output_item_uuid);
 
         return [
             'uuid' => $uuid,
-            'name' => $this->stringValue($output['name'] ?? null) ?? $this->stringValue($this->output_name),
-            'class' => $this->stringValue($output['class'] ?? null) ?? $this->stringValue($this->output_class),
-            'type' => $this->stringValue($output['type'] ?? null),
-            'subtype' => $this->stringValue($output['subtype'] ?? null),
-            'grade' => $this->stringValue($output['grade'] ?? null),
+            'name' => $this->arrayNullableString($output, 'Name') ?? $this->arrayNullableString($output, 'name') ?? $this->nullableString($this->output_name),
+            'class' => $this->arrayNullableString($output, 'Class') ?? $this->arrayNullableString($output, 'class') ?? $this->nullableString($this->output_class),
+            'type' => $this->arrayNullableString($output, 'Type') ?? $this->arrayNullableString($output, 'type'),
+            'subtype' => $this->arrayNullableString($output, 'Subtype') ?? $this->arrayNullableString($output, 'subtype'),
+            'grade' => $this->arrayNullableString($output, 'Grade') ?? $this->arrayNullableString($output, 'grade'),
             'item_web_url' => $uuid !== null && Str::isUuid($uuid)
                 ? $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request)
                 : null,
@@ -444,68 +424,17 @@ class BlueprintResource extends AbstractBaseResource
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
-    private function availabilityPayload(array $payload): array
-    {
-        $availability = data_get($payload, 'availability');
-        $availability = is_array($availability) ? $availability : [];
-
-        $rewardPools = data_get($availability, 'reward_pools', []);
-        $rewardPools = is_array($rewardPools) ? $rewardPools : [];
-
-        $rewardPoolKey = $this->stringValue($availability['reward_pool'] ?? null);
-
-        if ($rewardPools === [] && $rewardPoolKey !== null) {
-            $rewardPools = [
-                ['key' => $rewardPoolKey],
-            ];
-        }
-
-        return [
-            'default' => (bool) ($availability['default'] ?? $this->is_available_by_default),
-            'reward_pools' => array_values(array_filter(array_map(
-                fn (mixed $rewardPool): ?array => is_array($rewardPool)
-                    ? array_filter([
-                        'key' => $this->stringValue($rewardPool['key'] ?? null),
-                        'uuid' => $this->stringValue($rewardPool['uuid'] ?? null),
-                    ], static fn (mixed $value): bool => $value !== null)
-                    : null,
-                $rewardPools,
-            ))),
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     * @return array<string, mixed>
-     */
-    private function dismantlePayload(array $payload, Request $request): array
+    private function dismantlePayload(array $payload): array
     {
         $dismantle = data_get($payload, 'dismantle');
         $dismantle = is_array($dismantle) ? $dismantle : [];
 
-        $timeSeconds = $this->integerValue($dismantle['time_seconds'] ?? null);
-
-        $returns = $this->resource->relationLoaded('dismantleReturns')
-            ? $this->resource->dismantleReturns
-            : collect();
+        $timeSeconds = $this->arrayNullableInt($dismantle, 'time_seconds');
 
         return [
             'time_seconds' => $timeSeconds,
             'time_label' => FormatDuration::fromSeconds($timeSeconds),
-            'efficiency' => $this->numericValue($dismantle['efficiency'] ?? null),
-            'returns' => $returns->map(fn ($commodity): array => [
-                'name' => $this->stringValue($commodity->name),
-                'resource_type_uuid' => $this->stringValue($commodity->uuid),
-                'quantity_scu' => $this->numericValue($commodity->pivot->quantity_scu ?? null),
-                'link' => $this->urlWithVersion(
-                    route('commodities.show', ['commodity' => $commodity->uuid]),
-                    $request,
-                ),
-                'web_url' => $this->urlWithVersion(
-                    route('web.commodities.show', ['identifier' => $commodity->uuid]),
-                    $request,
-                ),
-            ])->values()->all(),
+            'efficiency' => $this->nullableNumeric($dismantle['efficiency'] ?? null),
         ];
     }
 
@@ -514,59 +443,34 @@ class BlueprintResource extends AbstractBaseResource
      */
     private function dismantleReturnsList(Request $request): array
     {
-        $returns = $this->resource->relationLoaded('dismantleReturns')
-            ? $this->resource->dismantleReturns
-            : collect();
+        return $this->loadedRelation('dismantleReturns')
+            ->map(fn ($commodity): array => $this->mapDismantleReturn($commodity, $request))
+            ->values()
+            ->all();
+    }
 
-        return $returns->map(fn ($commodity): array => [
-            'name' => $this->stringValue($commodity->name),
-            'resource_type_uuid' => $this->stringValue($commodity->uuid),
-            'quantity_scu' => $this->numericValue($commodity->pivot->quantity_scu ?? null),
+    private function mapDismantleReturn(mixed $commodity, Request $request): array
+    {
+        return [
+            'name' => $this->nullableString($commodity->name),
+            'resource_type_uuid' => $this->nullableString($commodity->uuid),
+            'quantity_scu' => $this->nullableNumeric($commodity->pivot->quantity_scu ?? null),
+            ...$this->commodityLinks($commodity->uuid, $request),
+        ];
+    }
+
+    private function commodityLinks(string $uuid, Request $request): array
+    {
+        return [
             'link' => $this->urlWithVersion(
-                route('commodities.show', ['commodity' => $commodity->uuid]),
+                route('commodities.show', ['commodity' => $uuid]),
                 $request,
             ),
             'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $commodity->uuid]),
+                route('web.commodities.show', ['identifier' => $uuid]),
                 $request,
             ),
-        ])->values()->all();
-    }
-
-    /**
-     * @return array<int, array{name: ?string, resource_type_uuid: ?string}>
-     */
-    private function resourcesList(array $payload, Request $request): array
-    {
-        $merged = [];
-
-        foreach ($this->ingredients($payload, $request) as $ingredient) {
-            $uuid = $ingredient['resource_type_uuid'] ?? null;
-            $key = $uuid ?? $ingredient['name'];
-
-            if ($key !== null && ! isset($merged[$key])) {
-                $merged[$key] = [
-                    'name' => $ingredient['name'],
-                    'resource_type_uuid' => $uuid,
-                ];
-            }
-        }
-
-        if ($this->resource->relationLoaded('dismantleReturns')) {
-            foreach ($this->resource->dismantleReturns as $commodity) {
-                $uuid = $this->stringValue($commodity->uuid);
-                $key = $uuid ?? $commodity->name;
-
-                if ($key !== null && ! isset($merged[$key])) {
-                    $merged[$key] = [
-                        'name' => $this->stringValue($commodity->name),
-                        'resource_type_uuid' => $uuid,
-                    ];
-                }
-            }
-        }
-
-        return array_values($merged);
+        ];
     }
 
     private function ingredientCount(array $payload): int
@@ -603,15 +507,13 @@ class BlueprintResource extends AbstractBaseResource
             );
         }
 
-        $loadedIngredients = $this->resource->relationLoaded('ingredients')
-            ? $this->resource->ingredients->keyBy('uuid')
-            : collect();
+        $loadedIngredients = $this->loadedRelation('ingredients')->keyBy('uuid');
 
         $ingredientResourceTypeUuids = $this->ingredients->pluck('uuid')->all();
 
         if (is_array($ingredientResourceTypeUuids)) {
             foreach ($ingredientResourceTypeUuids as $ingredientResourceTypeUuid) {
-                $resourceTypeUuid = $this->stringValue($ingredientResourceTypeUuid);
+                $resourceTypeUuid = $this->nullableString($ingredientResourceTypeUuid);
 
                 if ($resourceTypeUuid === null || array_key_exists($resourceTypeUuid, $ingredients)) {
                     continue;
@@ -620,7 +522,7 @@ class BlueprintResource extends AbstractBaseResource
                 $commodity = $loadedIngredients->get($resourceTypeUuid);
 
                 $ingredients[$resourceTypeUuid] = [
-                    'name' => $commodity ? $this->stringValue($commodity->name) : null,
+                    'name' => $commodity ? $this->nullableString($commodity->name) : null,
                     'resource_type_uuid' => $resourceTypeUuid,
                     'quantity_scu' => null,
                     'link' => null,
@@ -633,7 +535,7 @@ class BlueprintResource extends AbstractBaseResource
             if ($ingredient['name'] === null && $ingredient['resource_type_uuid'] !== null) {
                 $commodity = $loadedIngredients->get($ingredient['resource_type_uuid']);
                 if ($commodity !== null) {
-                    $ingredients[$key]['name'] = $this->stringValue($commodity->name);
+                    $ingredients[$key]['name'] = $this->nullableString($commodity->name);
                 }
             }
         }
@@ -642,14 +544,7 @@ class BlueprintResource extends AbstractBaseResource
             $uuid = $ingredient['resource_type_uuid'];
 
             if ($uuid !== null && Str::isUuid($uuid)) {
-                $ingredient['link'] = $this->urlWithVersion(
-                    route('commodities.show', ['commodity' => $uuid]),
-                    $request,
-                );
-                $ingredient['web_url'] = $this->urlWithVersion(
-                    route('web.commodities.show', ['identifier' => $uuid]),
-                    $request,
-                );
+                $ingredient = [...$ingredient, ...$this->commodityLinks($uuid, $request)];
             }
 
             return $ingredient;
@@ -698,7 +593,7 @@ class BlueprintResource extends AbstractBaseResource
 
     private function outputItemWebUrl(Request $request): ?string
     {
-        $outputItemUuid = $this->stringValue($this->output_item_uuid);
+        $outputItemUuid = $this->nullableString($this->output_item_uuid);
 
         if ($outputItemUuid === null || ! Str::isUuid($outputItemUuid)) {
             return null;
@@ -724,14 +619,14 @@ class BlueprintResource extends AbstractBaseResource
      */
     private function normalizeRequirementGroup(array $node): array
     {
-        $kind = $this->stringValue($node['kind'] ?? null);
+        $kind = $this->arrayNullableString($node, 'kind');
 
         if ($kind !== 'group') {
             $child = $this->normalizeRequirementChild($node);
 
             return [
-                'key' => $this->stringValue($node['key'] ?? null),
-                'name' => $this->stringValue($node['name'] ?? null) ?? $child['name'],
+                'key' => $this->arrayNullableString($node, 'key'),
+                'name' => $this->arrayNullableString($node, 'name') ?? $child['name'],
                 'kind' => 'group',
                 'required_count' => 1,
                 'modifiers' => $child['modifiers'],
@@ -750,10 +645,10 @@ class BlueprintResource extends AbstractBaseResource
         }
 
         return [
-            'key' => $this->stringValue($node['key'] ?? null),
-            'name' => $this->stringValue($node['name'] ?? null),
+            'key' => $this->arrayNullableString($node, 'key'),
+            'name' => $this->arrayNullableString($node, 'name'),
             'kind' => 'group',
-            'required_count' => $this->integerValue($node['required_count'] ?? null),
+            'required_count' => $this->arrayNullableInt($node, 'required_count'),
             'modifiers' => $this->normalizeModifiers($node['modifiers'] ?? []),
             'children' => $children,
         ];
@@ -766,14 +661,14 @@ class BlueprintResource extends AbstractBaseResource
     private function normalizeRequirementChild(array $node): array
     {
         $normalized = [
-            'key' => $this->stringValue($node['key'] ?? null),
-            'kind' => $this->stringValue($node['kind'] ?? null),
-            'uuid' => $this->stringValue($node['uuid'] ?? null),
-            'name' => $this->stringValue($node['name'] ?? null),
-            'required_count' => $this->integerValue($node['required_count'] ?? null),
-            'quantity' => $this->numericValue($node['quantity'] ?? null),
-            'quantity_scu' => $this->numericValue($node['quantity_scu'] ?? null),
-            'min_quality' => $this->integerValue($node['min_quality'] ?? null),
+            'key' => $this->arrayNullableString($node, 'key'),
+            'kind' => $this->arrayNullableString($node, 'kind'),
+            'uuid' => $this->arrayNullableString($node, 'uuid'),
+            'name' => $this->arrayNullableString($node, 'name'),
+            'required_count' => $this->arrayNullableInt($node, 'required_count'),
+            'quantity' => $this->nullableNumeric($node['quantity'] ?? null),
+            'quantity_scu' => $this->nullableNumeric($node['quantity_scu'] ?? null),
+            'min_quality' => $this->arrayNullableInt($node, 'min_quality'),
             'modifiers' => $this->normalizeModifiers($node['modifiers'] ?? []),
         ];
 
@@ -845,9 +740,9 @@ class BlueprintResource extends AbstractBaseResource
                 continue;
             }
 
-            $name = $this->stringValue($child['name'] ?? $child['key'] ?? null);
+            $name = $this->nullableString($child['name'] ?? $child['key'] ?? null);
             $resourceTypeUuid = ($child['kind'] ?? null) === 'resource'
-                ? $this->stringValue($child['uuid'] ?? null)
+                ? $this->nullableString($child['uuid'] ?? null)
                 : null;
             $ingredientKey = $resourceTypeUuid ?? $name;
 
@@ -855,7 +750,7 @@ class BlueprintResource extends AbstractBaseResource
                 continue;
             }
 
-            $quantityScu = $this->numericValue($child['quantity_scu'] ?? null);
+            $quantityScu = $this->nullableNumeric($child['quantity_scu'] ?? null);
 
             if (isset($ingredients[$ingredientKey]) && $quantityScu !== null) {
                 $existing = $ingredients[$ingredientKey]['quantity_scu'];
@@ -894,7 +789,7 @@ class BlueprintResource extends AbstractBaseResource
                 continue;
             }
 
-            $propertyKey = $this->stringValue($modifier['property_key'] ?? $modifier['key'] ?? null);
+            $propertyKey = $this->nullableString($modifier['property_key'] ?? $modifier['key'] ?? null);
 
             if ($propertyKey === null) {
                 continue;
@@ -902,16 +797,16 @@ class BlueprintResource extends AbstractBaseResource
 
             $normalized[] = [
                 'property_key' => $propertyKey,
-                'property_uuid' => $this->stringValue($modifier['property_uuid'] ?? null),
+                'property_uuid' => $this->arrayNullableString($modifier, 'property_uuid'),
                 'label' => $this->modifierLabel($propertyKey),
                 'better_when' => $this->modifierBetterWhen($modifier),
                 'quality_range' => [
-                    'min' => $this->numericValue(data_get($modifier, 'quality_range.min')),
-                    'max' => $this->numericValue(data_get($modifier, 'quality_range.max')),
+                    'min' => $this->nullableNumeric(data_get($modifier, 'quality_range.min')),
+                    'max' => $this->nullableNumeric(data_get($modifier, 'quality_range.max')),
                 ],
                 'modifier_range' => [
-                    'at_min_quality' => $this->numericValue(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null),
-                    'at_max_quality' => $this->numericValue(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null),
+                    'at_min_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null),
+                    'at_max_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null),
                 ],
             ];
         }
@@ -977,20 +872,27 @@ class BlueprintResource extends AbstractBaseResource
      */
     private function modifierBetterWhen(array $modifier): string
     {
-        $explicitDirection = $this->stringValue($modifier['better_when'] ?? null);
+        $explicitDirection = $this->arrayNullableString($modifier, 'better_when');
 
         if ($explicitDirection !== null) {
             return $explicitDirection;
         }
 
-        $atMinQuality = $this->numericValue(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null);
-        $atMaxQuality = $this->numericValue(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null);
+        $atMinQuality = $this->nullableNumeric(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null);
+        $atMaxQuality = $this->nullableNumeric(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null);
 
         if ($atMinQuality === null || $atMaxQuality === null || $atMinQuality === $atMaxQuality) {
             return 'neutral';
         }
 
         return $atMaxQuality > $atMinQuality ? 'higher' : 'lower';
+    }
+
+    private function loadedRelation(string $relation): Collection
+    {
+        return $this->resource->relationLoaded($relation)
+            ? $this->resource->$relation
+            : collect();
     }
 
     private function modifierLabel(string $propertyKey): string
@@ -1002,36 +904,5 @@ class BlueprintResource extends AbstractBaseResource
         );
 
         return Str::headline(str_replace(['.', '_', '-'], ' ', $normalizedPropertyKey));
-    }
-
-    private function stringValue(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
-    }
-
-    private function integerValue(mixed $value): ?int
-    {
-        return is_numeric($value) ? (int) $value : null;
-    }
-
-    private function numericValue(mixed $value): int|float|null
-    {
-        if (! is_numeric($value)) {
-            return null;
-        }
-
-        $numericValue = $value + 0;
-
-        if (is_float($numericValue) && floor($numericValue) === $numericValue) {
-            return (int) $numericValue;
-        }
-
-        return $numericValue;
     }
 }

@@ -20,8 +20,9 @@ final class BlueprintTableConfig
             'title' => 'Blueprints',
             'pageSize' => 25,
             'headerFilterOptionsMap' => [
+                'output.type' => 'output.type',
                 'is_available_by_default' => 'default',
-                'resources' => 'resource.uuid',
+                'ingredients' => 'ingredient.uuid',
             ],
             'columns' => [
                 [
@@ -40,14 +41,8 @@ final class BlueprintTableConfig
                 [
                     'title' => 'Type',
                     'field' => 'output.type',
-                    'headerFilter' => 'input',
+                    'headerFilter' => 'list',
                     'minWidth' => 170,
-                ],
-                [
-                    'title' => 'Class',
-                    'field' => 'output.class',
-                    'headerFilter' => 'input',
-                    'minWidth' => 220,
                 ],
                 [
                     'title' => 'Craft Time (s)',
@@ -68,8 +63,17 @@ final class BlueprintTableConfig
                     'width' => 130,
                 ],
                 [
+                    'title' => 'Missions',
+                    'field' => 'unlocking_missions_count',
+                    'sortField' => 'unlocking_missions_count',
+                    'headerSort' => true,
+                    'sorter' => 'number',
+                    'hozAlign' => 'right',
+                    'width' => 120,
+                ],
+                [
                     'title' => 'Inputs / Dismantle',
-                    'field' => 'resources',
+                    'field' => 'ingredients',
                     'formatter' => 'labelList',
                     'formatterParams' => [
                         'labelField' => 'name',

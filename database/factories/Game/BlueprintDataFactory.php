@@ -40,11 +40,11 @@ class BlueprintDataFactory extends Factory
             'is_available_by_default' => fake()->boolean(),
             'ingredient_resource_type_uuids' => [],
             'data' => [
-                'uuid' => fake()->uuid(),
-                'output' => [
-                    'uuid' => $outputItemUuid,
-                    'name' => $outputName,
-                    'class' => $outputClass,
+                'UUID' => fake()->uuid(),
+                'Output' => [
+                    'UUID' => $outputItemUuid,
+                    'Name' => $outputName,
+                    'Class' => $outputClass,
                 ],
                 'tiers' => [
                     [

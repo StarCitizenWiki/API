@@ -25,6 +25,7 @@ it('returns all expected facet keys', function (): void {
     $response->assertSuccessful()
         ->assertJsonStructure([
             'filters' => [
+                'output.type',
                 'ingredient.uuid',
                 'resource.uuid',
             ],
@@ -94,4 +95,68 @@ it('returns combined resource.uuid facets with union counts', function (): void 
     expect($ironFacet)->not->toBeNull()
         ->and($ironFacet['label'])->toBe('Iron')
         ->and($ironFacet['count'])->toBe(1);
+});
+
+it('returns output.type facets with counts', function (): void {
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'data' => [
+                'Output' => [
+                    'UUID' => fake()->uuid(),
+                    'Name' => fake()->word(),
+                    'Class' => fake()->word(),
+                    'Type' => 'WeaponPersonal',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'data' => [
+                'Output' => [
+                    'UUID' => fake()->uuid(),
+                    'Name' => fake()->word(),
+                    'Class' => fake()->word(),
+                    'Type' => 'WeaponPersonal',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'data' => [
+                'Output' => [
+                    'UUID' => fake()->uuid(),
+                    'Name' => fake()->word(),
+                    'Class' => fake()->word(),
+                    'Type' => 'Char_Armor_Torso',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/blueprints/filters');
+
+    $response->assertSuccessful();
+
+    $typeFacets = $response->json('filters')['output.type'] ?? [];
+    expect($typeFacets)->toHaveCount(2);
+
+    $weaponFacet = collect($typeFacets)->first(fn (array $f): bool => $f['value'] === 'WeaponPersonal');
+    expect($weaponFacet)->not->toBeNull()
+        ->and($weaponFacet['label'])->toBe('WeaponPersonal')
+        ->and($weaponFacet['count'])->toBe(2);
+
+    $armorFacet = collect($typeFacets)->first(fn (array $f): bool => $f['value'] === 'Char_Armor_Torso');
+    expect($armorFacet)->not->toBeNull()
+        ->and($armorFacet['label'])->toBe('Char_Armor_Torso')
+        ->and($armorFacet['count'])->toBe(1);
 });

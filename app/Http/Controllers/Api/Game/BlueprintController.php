@@ -85,6 +85,7 @@ class BlueprintController extends Controller
     {
         $blueprints = $this->buildIndexQuery($request)
             ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients'])
+            ->withCount('missions')
             ->defaultSort('key')
             ->jsonPaginate()
             ->appends($request->query());
@@ -126,7 +127,8 @@ class BlueprintController extends Controller
         $blueprintData = BlueprintData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->where('blueprint_id', $blueprint->id)
-            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients'])
+            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients', 'missions.mission'])
+            ->withCount('missions')
             ->first();
 
         if ($blueprintData === null) {
@@ -177,6 +179,20 @@ class BlueprintController extends Controller
 
         $resolver = function () use ($request, $versionCode): array {
             $out = [];
+
+            $typeExpr = $this->jsonExpression('Output.Type');
+
+            $typeRows = QueryBuilder::for(BlueprintData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->select([
+                    DB::raw("{$typeExpr} as value"),
+                    DB::raw('count(*) as count'),
+                ])
+                ->groupByRaw($typeExpr)
+                ->orderByRaw($typeExpr)
+                ->get();
+
+            $out['output.type'] = FilterValues::fromRows($typeRows);
 
             $ingredientRows = QueryBuilder::for(BlueprintData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
@@ -291,7 +307,7 @@ class BlueprintController extends Controller
                 $query->forOutputClass($value);
             }),
             AllowedFilter::callback('output.type', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'output.type', $value, 'text');
+                $this->applyJsonFilter($query, 'Output.Type', $value, 'text');
             }),
             AllowedFilter::callback('default', static function (Builder $query, mixed $value): void {
                 $normalized = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);

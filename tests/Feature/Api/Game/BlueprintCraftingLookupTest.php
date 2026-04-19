@@ -8,6 +8,8 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use App\Models\Game\Mission\Mission;
+use App\Models\Game\Mission\MissionData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -345,13 +347,13 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
                         ],
                     ],
                 ],
-                'output' => [
-                    'uuid' => $outputItemUuid,
-                    'name' => 'Detailed Output',
-                    'class' => 'detailed_output',
-                    'type' => 'WeaponPersonal',
-                    'subtype' => 'Medium',
-                    'grade' => '1',
+                'Output' => [
+                    'UUID' => $outputItemUuid,
+                    'Name' => 'Detailed Output',
+                    'Class' => 'detailed_output',
+                    'Type' => 'WeaponPersonal',
+                    'Subtype' => 'Medium',
+                    'Grade' => '1',
                 ],
                 'tiers' => [
                     [
@@ -408,8 +410,6 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
         ->assertJsonPath('data.output.item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
         ->assertJsonPath('data.web_url', url('/blueprints/'.$blueprint->uuid))
         ->assertJsonPath('data.output_item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
-        ->assertJsonPath('data.availability.default', false)
-        ->assertJsonPath('data.availability.reward_pools.0.key', 'BP_MISSIONREWARD_ALPHA')
         ->assertJsonPath('data.ingredients.0.name', 'Reinforced Frame')
         ->assertJsonPath('data.ingredients.0.resource_type_uuid', null)
         ->assertJsonPath('data.ingredients.1.name', 'Lindinium')
@@ -960,10 +960,10 @@ it('filters blueprints by output type and default availability', function (): vo
             'key' => 'BP_FILTER_MATCH',
             'is_available_by_default' => true,
             'data' => [
-                'output' => [
-                    'name' => 'FS-9 LMG',
-                    'class' => 'behr_lmg_ballistic_01',
-                    'type' => 'WeaponPersonal',
+                'Output' => [
+                    'Name' => 'FS-9 LMG',
+                    'Class' => 'behr_lmg_ballistic_01',
+                    'Type' => 'WeaponPersonal',
                 ],
                 'tiers' => [],
             ],
@@ -976,10 +976,10 @@ it('filters blueprints by output type and default availability', function (): vo
             'key' => 'BP_FILTER_OTHER',
             'is_available_by_default' => false,
             'data' => [
-                'output' => [
-                    'name' => 'Greycat Tool',
-                    'class' => 'greycat_tool',
-                    'type' => 'Utility',
+                'Output' => [
+                    'Name' => 'Greycat Tool',
+                    'Class' => 'greycat_tool',
+                    'Type' => 'Utility',
                 ],
                 'tiers' => [],
             ],
@@ -1010,10 +1010,10 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
             'key' => 'BP_SORT_FAST',
             'craft_time_seconds' => 60,
             'data' => [
-                'output' => [
-                    'name' => 'Fast Build',
-                    'class' => 'fast_build',
-                    'type' => 'WeaponPersonal',
+                'Output' => [
+                    'Name' => 'Fast Build',
+                    'Class' => 'fast_build',
+                    'Type' => 'WeaponPersonal',
                 ],
                 'tiers' => [
                     [
@@ -1042,10 +1042,10 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
             'key' => 'BP_SORT_SLOW',
             'craft_time_seconds' => 240,
             'data' => [
-                'output' => [
-                    'name' => 'Slow Build',
-                    'class' => 'slow_build',
-                    'type' => 'Utility',
+                'Output' => [
+                    'Name' => 'Slow Build',
+                    'Class' => 'slow_build',
+                    'Type' => 'Utility',
                 ],
                 'tiers' => [
                     [
@@ -1099,4 +1099,46 @@ it('sorts blueprints by craft time and ingredient count', function (): void {
         ->assertJsonPath('data.0.ingredient_count', 3)
         ->assertJsonPath('data.1.uuid', $fewIngredientsBlueprint->uuid)
         ->assertJsonPath('data.1.ingredient_count', 1);
+});
+
+it('includes web_url for unlocking missions on blueprint detail', function (): void {
+    $blueprint = Blueprint::factory()->create();
+    $mission = Mission::factory()->create();
+
+    $outputItem = Item::factory()->create();
+    ItemData::factory()->for($outputItem, 'item')->for($this->defaultVersion, 'gameVersion')->create();
+
+    $blueprintData = BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_item_uuid' => $outputItem->uuid,
+            'data' => ['tiers' => []],
+        ]);
+
+    $missionData = MissionData::factory()
+        ->for($mission, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'title' => 'Eliminate Pirate Threat',
+            'mission_type' => 'Bounty Hunter',
+            'blueprint_drop_chance' => 0.25,
+        ]);
+
+    $itemData = ItemData::factory()->for($this->defaultVersion, 'gameVersion')->create();
+
+    $blueprintData->missions()->attach($missionData->id, [
+        'pool_uuid' => fake()->uuid(),
+        'item_data_id' => $itemData->id,
+    ]);
+
+    $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.unlocking_missions_count', 1)
+        ->assertJsonCount(1, 'data.unlocking_missions')
+        ->assertJsonPath('data.unlocking_missions.0.title', 'Eliminate Pirate Threat')
+        ->assertJsonPath('data.unlocking_missions.0.mission_type', 'Bounty Hunter')
+        ->assertJsonPath('data.unlocking_missions.0.chance', 0.25)
+        ->assertJsonPath('data.unlocking_missions.0.web_url', route('web.missions.show', ['mission' => $mission->uuid]));
 });

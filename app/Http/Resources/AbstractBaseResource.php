@@ -102,4 +102,35 @@ abstract class AbstractBaseResource extends JsonResource
 
         return is_numeric($value) ? (float) $value : null;
     }
+
+    protected function nullableString(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
+    }
+
+    protected function nullableInt(mixed $value): ?int
+    {
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    protected function nullableNumeric(mixed $value): int|float|null
+    {
+        if (! is_numeric($value)) {
+            return null;
+        }
+
+        $numericValue = $value + 0;
+
+        if (is_float($numericValue) && floor($numericValue) === $numericValue) {
+            return (int) $numericValue;
+        }
+
+        return $numericValue;
+    }
 }
