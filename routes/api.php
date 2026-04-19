@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Game\BlueprintController;
 use App\Http\Controllers\Api\Game\Commodity\CommodityController;
+use App\Http\Controllers\Api\Game\FactionController;
 use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
@@ -143,6 +144,11 @@ Route::group(
             // Factions
             Route::get('factions', [FactionController::class, 'index'])->name('factions.index');
             Route::get('factions/{faction}', [FactionController::class, 'show'])->whereUuid('faction')->name('factions.show');
+
+            // Missions
+            Route::get('missions', [MissionController::class, 'index'])->name('missions.index');
+            Route::get('missions/filters', [MissionController::class, 'filters'])->name('missions.filters');
+            Route::get('missions/{mission}', [MissionController::class, 'show'])->whereUuid('mission')->name('missions.show');
 
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
             Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');
