@@ -9,6 +9,7 @@ use App\Models\Game\FactionReputationRef;
 use App\Models\Game\FactionScope;
 use App\Models\Game\FactionStanding;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -61,9 +62,9 @@ class ImportFactions extends Command
             $hasReputation = isset($data['Reputation']) && is_array($data['Reputation']);
 
             if ($hasReputation) {
-                $this->importReputationFaction($data, $name);
+                DB::transaction(fn () => $this->importReputationFaction($data, $name));
             } else {
-                $this->importSimpleFaction($data, $name);
+                DB::transaction(fn () => $this->importSimpleFaction($data, $name));
             }
 
             $imported++;

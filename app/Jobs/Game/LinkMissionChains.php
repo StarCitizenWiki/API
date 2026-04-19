@@ -18,6 +18,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class LinkMissionChains implements ShouldQueue
 {
@@ -69,109 +70,111 @@ class LinkMissionChains implements ShouldQueue
             ->pluck('id')
             ->all();
 
-        if ($missionDataIds !== []) {
-            $prerequisiteGroupIds = MissionPrerequisiteGroup::query()
+        DB::transaction(function () use ($missionDataIds, $prerequisiteGroupRows, $prerequisiteGroupMissionRows, $prerequisiteGroupTagRows, $unlockGroupRows, $unlockGroupMissionRows): void {
+            if ($missionDataIds !== []) {
+                $prerequisiteGroupIds = MissionPrerequisiteGroup::query()
+                    ->whereIn('mission_data_id', $missionDataIds)
+                    ->pluck('id')
+                    ->all();
+
+                if ($prerequisiteGroupIds !== []) {
+                    MissionPrerequisiteGroupTag::query()->whereIn('prerequisite_group_id', $prerequisiteGroupIds)->delete();
+                    MissionPrerequisiteGroupMission::query()->whereIn('prerequisite_group_id', $prerequisiteGroupIds)->delete();
+                }
+
+                MissionPrerequisiteGroup::query()->whereIn('mission_data_id', $missionDataIds)->delete();
+
+                $unlockGroupIds = MissionUnlockGroup::query()
+                    ->whereIn('mission_data_id', $missionDataIds)
+                    ->pluck('id')
+                    ->all();
+
+                if ($unlockGroupIds !== []) {
+                    MissionUnlockGroupMission::query()->whereIn('unlock_group_id', $unlockGroupIds)->delete();
+                }
+
+                MissionUnlockGroup::query()->whereIn('mission_data_id', $missionDataIds)->delete();
+            }
+
+            foreach (array_chunk($prerequisiteGroupRows, 500) as $chunk) {
+                MissionPrerequisiteGroup::query()->insert($chunk);
+            }
+
+            $createdPrerequisiteGroups = MissionPrerequisiteGroup::query()
                 ->whereIn('mission_data_id', $missionDataIds)
-                ->pluck('id')
-                ->all();
+                ->get(['id', 'mission_data_id', 'group_index']);
 
-            if ($prerequisiteGroupIds !== []) {
-                MissionPrerequisiteGroupTag::query()->whereIn('prerequisite_group_id', $prerequisiteGroupIds)->delete();
-                MissionPrerequisiteGroupMission::query()->whereIn('prerequisite_group_id', $prerequisiteGroupIds)->delete();
+            $prereqGroupLookup = [];
+            foreach ($createdPrerequisiteGroups as $group) {
+                $prereqGroupLookup[$group->mission_data_id.':'.$group->group_index] = $group->id;
             }
 
-            MissionPrerequisiteGroup::query()->whereIn('mission_data_id', $missionDataIds)->delete();
+            $resolvedPrereqMissionRows = [];
+            foreach ($prerequisiteGroupMissionRows as $row) {
+                $key = $row['mission_data_id'].':'.$row['group_index'];
+                $groupId = $prereqGroupLookup[$key] ?? null;
 
-            $unlockGroupIds = MissionUnlockGroup::query()
+                if ($groupId !== null) {
+                    $resolvedPrereqMissionRows[] = [
+                        'prerequisite_group_id' => $groupId,
+                        'linked_mission_data_id' => $row['linked_mission_data_id'],
+                    ];
+                }
+            }
+
+            $resolvedPrereqTagRows = [];
+            foreach ($prerequisiteGroupTagRows as $row) {
+                $key = $row['mission_data_id'].':'.$row['group_index'];
+                $groupId = $prereqGroupLookup[$key] ?? null;
+
+                if ($groupId !== null) {
+                    $resolvedPrereqTagRows[] = [
+                        'prerequisite_group_id' => $groupId,
+                        'type' => $row['type'],
+                        'tag_uuid' => $row['tag_uuid'],
+                        'tag_name' => $row['tag_name'],
+                    ];
+                }
+            }
+
+            foreach (array_chunk($resolvedPrereqMissionRows, 500) as $chunk) {
+                MissionPrerequisiteGroupMission::query()->insert($chunk);
+            }
+
+            foreach (array_chunk($resolvedPrereqTagRows, 500) as $chunk) {
+                MissionPrerequisiteGroupTag::query()->insert($chunk);
+            }
+
+            foreach (array_chunk($unlockGroupRows, 500) as $chunk) {
+                MissionUnlockGroup::query()->insert($chunk);
+            }
+
+            $createdUnlockGroups = MissionUnlockGroup::query()
                 ->whereIn('mission_data_id', $missionDataIds)
-                ->pluck('id')
-                ->all();
+                ->get(['id', 'mission_data_id', 'group_index']);
 
-            if ($unlockGroupIds !== []) {
-                MissionUnlockGroupMission::query()->whereIn('unlock_group_id', $unlockGroupIds)->delete();
+            $unlockGroupLookup = [];
+            foreach ($createdUnlockGroups as $group) {
+                $unlockGroupLookup[$group->mission_data_id.':'.$group->group_index] = $group->id;
             }
 
-            MissionUnlockGroup::query()->whereIn('mission_data_id', $missionDataIds)->delete();
-        }
+            $resolvedUnlockMissionRows = [];
+            foreach ($unlockGroupMissionRows as $row) {
+                $key = $row['mission_data_id'].':'.$row['group_index'];
+                $groupId = $unlockGroupLookup[$key] ?? null;
 
-        foreach (array_chunk($prerequisiteGroupRows, 500) as $chunk) {
-            MissionPrerequisiteGroup::query()->insert($chunk);
-        }
-
-        $createdPrerequisiteGroups = MissionPrerequisiteGroup::query()
-            ->whereIn('mission_data_id', $missionDataIds)
-            ->get(['id', 'mission_data_id', 'group_index']);
-
-        $prereqGroupLookup = [];
-        foreach ($createdPrerequisiteGroups as $group) {
-            $prereqGroupLookup[$group->mission_data_id.':'.$group->group_index] = $group->id;
-        }
-
-        $resolvedPrereqMissionRows = [];
-        foreach ($prerequisiteGroupMissionRows as $row) {
-            $key = $row['mission_data_id'].':'.$row['group_index'];
-            $groupId = $prereqGroupLookup[$key] ?? null;
-
-            if ($groupId !== null) {
-                $resolvedPrereqMissionRows[] = [
-                    'prerequisite_group_id' => $groupId,
-                    'linked_mission_data_id' => $row['linked_mission_data_id'],
-                ];
+                if ($groupId !== null) {
+                    $resolvedUnlockMissionRows[] = [
+                        'unlock_group_id' => $groupId,
+                        'linked_mission_data_id' => $row['linked_mission_data_id'],
+                    ];
+                }
             }
-        }
 
-        $resolvedPrereqTagRows = [];
-        foreach ($prerequisiteGroupTagRows as $row) {
-            $key = $row['mission_data_id'].':'.$row['group_index'];
-            $groupId = $prereqGroupLookup[$key] ?? null;
-
-            if ($groupId !== null) {
-                $resolvedPrereqTagRows[] = [
-                    'prerequisite_group_id' => $groupId,
-                    'type' => $row['type'],
-                    'tag_uuid' => $row['tag_uuid'],
-                    'tag_name' => $row['tag_name'],
-                ];
+            foreach (array_chunk($resolvedUnlockMissionRows, 500) as $chunk) {
+                MissionUnlockGroupMission::query()->insert($chunk);
             }
-        }
-
-        foreach (array_chunk($resolvedPrereqMissionRows, 500) as $chunk) {
-            MissionPrerequisiteGroupMission::query()->insert($chunk);
-        }
-
-        foreach (array_chunk($resolvedPrereqTagRows, 500) as $chunk) {
-            MissionPrerequisiteGroupTag::query()->insert($chunk);
-        }
-
-        foreach (array_chunk($unlockGroupRows, 500) as $chunk) {
-            MissionUnlockGroup::query()->insert($chunk);
-        }
-
-        $createdUnlockGroups = MissionUnlockGroup::query()
-            ->whereIn('mission_data_id', $missionDataIds)
-            ->get(['id', 'mission_data_id', 'group_index']);
-
-        $unlockGroupLookup = [];
-        foreach ($createdUnlockGroups as $group) {
-            $unlockGroupLookup[$group->mission_data_id.':'.$group->group_index] = $group->id;
-        }
-
-        $resolvedUnlockMissionRows = [];
-        foreach ($unlockGroupMissionRows as $row) {
-            $key = $row['mission_data_id'].':'.$row['group_index'];
-            $groupId = $unlockGroupLookup[$key] ?? null;
-
-            if ($groupId !== null) {
-                $resolvedUnlockMissionRows[] = [
-                    'unlock_group_id' => $groupId,
-                    'linked_mission_data_id' => $row['linked_mission_data_id'],
-                ];
-            }
-        }
-
-        foreach (array_chunk($resolvedUnlockMissionRows, 500) as $chunk) {
-            MissionUnlockGroupMission::query()->insert($chunk);
-        }
+        });
 
         FilterCache::bust(FilterCache::NAMESPACE_MISSIONS);
     }
