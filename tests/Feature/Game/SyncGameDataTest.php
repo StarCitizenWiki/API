@@ -168,6 +168,7 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
 
     $this->artisan('game:sync-data', [
         '--game-version' => $version->code,
+        '--skip-items' => true,
         '--skip-vehicles' => true,
         '--skip-resources' => true,
         '--skip-compute-item-base-ids' => true,
