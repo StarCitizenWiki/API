@@ -48,75 +48,139 @@ class ImportStarmapData implements ShouldQueue
             return;
         }
 
-        DB::transaction(function () use ($entries): void {
-            $firstPass = [];
-            $slugMap = [];
+        $entityTagMap = EntityTag::query()->pluck('id', 'uuid')->toArray();
 
-            foreach ($entries as $entry) {
-                if (! is_array($entry)) {
+        $validEntries = [];
+        foreach ($entries as $entry) {
+            if (is_array($entry) && ($entry['UUID'] ?? null) !== null) {
+                $validEntries[(string) $entry['UUID']] = $entry;
+            }
+        }
+
+        if ($validEntries === []) {
+            return;
+        }
+
+        $uuids = array_keys($validEntries);
+
+        StarmapLocation::upsert(
+            array_map(fn (string $uuid): array => ['uuid' => $uuid], $uuids),
+            ['uuid'],
+            ['uuid'],
+        );
+
+        $locationIdMap = StarmapLocation::query()
+            ->whereIn('uuid', $uuids)
+            ->pluck('id', 'uuid')
+            ->toArray();
+
+        $usedSlugs = StarmapLocationData::query()
+            ->where('game_version_id', $this->gameVersionId)
+            ->pluck('slug')
+            ->toArray();
+
+        $locationDataRows = [];
+        $amenityEntries = [];
+        $entryAmenityUuids = [];
+
+        foreach ($validEntries as $uuid => $entry) {
+            $name = $this->extractName($entry);
+            $slug = $this->generateUniqueSlugInMemory(Str::slug($name), $usedSlugs);
+            $usedSlugs[] = $slug;
+
+            $hierarchyTagUuid = Arr::get($entry, 'LocationHierarchyTag.UUID');
+
+            $locationDataRows[$uuid] = [
+                'starmap_location_id' => $locationIdMap[$uuid],
+                'game_version_id' => $this->gameVersionId,
+                'parent_data_id' => null,
+                'star_data_id' => null,
+                'location_hierarchy_entity_tag_id' => $hierarchyTagUuid !== null ? ($entityTagMap[$hierarchyTagUuid] ?? null) : null,
+                'name' => $name,
+                'description' => $this->normalizeNullableString($entry['Description'] ?? null),
+                'type_name' => $this->extractTypeName($entry),
+                'system' => null,
+                'size' => is_numeric($entry['Size'] ?? null) ? (float) $entry['Size'] : null,
+                'is_scannable' => (bool) ($entry['IsScannable'] ?? false),
+                'block_travel' => (bool) ($entry['BlockTravel'] ?? false),
+                'data' => json_encode($entry, JSON_THROW_ON_ERROR),
+                'slug' => $slug,
+            ];
+
+            foreach ($entry['Amenities'] ?? [] as $amenity) {
+                if (! is_array($amenity)) {
                     continue;
                 }
 
-                $uuid = $entry['UUID'] ?? null;
+                $aUuid = trim($amenity['UUID'] ?? '');
 
-                if ($uuid === null) {
+                if ($aUuid === '') {
                     continue;
                 }
 
-                $location = StarmapLocation::query()->firstOrCreate(
-                    ['uuid' => $uuid],
-                    ['uuid' => $uuid]
+                $amenityEntries[$aUuid] = [
+                    'name' => $this->normalizeNullableString($amenity['Name'] ?? null) ?? $aUuid,
+                    'display_name' => $this->normalizeNullableString($amenity['DisplayName'] ?? null),
+                ];
+                $entryAmenityUuids[$uuid][] = $aUuid;
+            }
+        }
+
+        $upsertColumns = [
+            'starmap_location_id', 'game_version_id', 'parent_data_id', 'star_data_id',
+            'location_hierarchy_entity_tag_id', 'name', 'description', 'type_name',
+            'system', 'size', 'is_scannable', 'block_travel', 'data', 'slug',
+        ];
+
+        DB::transaction(function () use ($locationDataRows, $validEntries, $uuids, $locationIdMap, $amenityEntries, $entryAmenityUuids, $upsertColumns): void {
+            StarmapLocationData::upsert(
+                array_values($locationDataRows),
+                ['starmap_location_id', 'game_version_id'],
+                array_values(array_diff($upsertColumns, ['starmap_location_id', 'game_version_id'])),
+            );
+
+            $locationDataIdMap = StarmapLocationData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->whereIn('starmap_location_id', array_values($locationIdMap))
+                ->pluck('id', 'starmap_location_id')
+                ->toArray();
+
+            $solarSystemLookup = $this->buildSolarSystemLookup($validEntries);
+            $resolvedHierarchy = [];
+
+            foreach ($uuids as $uuid) {
+                $this->resolveHierarchyData(
+                    $uuid,
+                    $validEntries,
+                    $resolvedHierarchy,
+                    $solarSystemLookup,
+                    $locationIdMap,
+                    $locationDataIdMap,
                 );
+            }
 
-                $name = $this->extractName($entry);
-                $slug = $this->generateUniqueSlug(Str::slug($name), $slugMap);
-                $slugMap[$uuid] = $slug;
-
-                $locationData = StarmapLocationData::query()->updateOrCreate(
-                    [
-                        'starmap_location_id' => $location->id,
-                        'game_version_id' => $this->gameVersionId,
-                    ],
-                    array_merge(
-                        $this->mapLocationData($entry),
-                        ['slug' => $slug]
-                    )
-                );
-
-                $locationData->amenities()->sync($this->syncAmenities($entry));
-
-                $firstPass[$uuid] = [
-                    'location' => $location,
-                    'location_data' => $locationData,
-                    'entry' => $entry,
+            $hierarchyRows = [];
+            foreach ($uuids as $uuid) {
+                $h = $resolvedHierarchy[$uuid];
+                $hierarchyRows[] = [
+                    'starmap_location_id' => $locationIdMap[$uuid],
+                    'game_version_id' => $this->gameVersionId,
+                    'parent_data_id' => $h['parent_data_id'],
+                    'star_data_id' => $h['star_data_id'],
+                    'system' => $h['system'],
                 ];
             }
 
-            $this->resolveHierarchy($firstPass);
+            StarmapLocationData::upsert(
+                $hierarchyRows,
+                ['starmap_location_id', 'game_version_id'],
+                ['parent_data_id', 'star_data_id', 'system'],
+            );
+
+            $this->syncAmenitiesBulk($amenityEntries, $entryAmenityUuids, $locationIdMap, $locationDataIdMap);
         });
 
         FilterCache::bust(FilterCache::NAMESPACE_STARMAP_LOCATIONS);
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     * @return array<string, mixed>
-     */
-    private function mapLocationData(array $entry): array
-    {
-        return [
-            'parent_data_id' => null,
-            'star_data_id' => null,
-            'location_hierarchy_entity_tag_id' => EntityTag::query()->where('uuid', Arr::get($entry, 'LocationHierarchyTag.UUID'))->first()?->id,
-            'name' => $this->extractName($entry),
-            'description' => $this->normalizeNullableString($entry['Description'] ?? null),
-            'type_name' => $this->extractTypeName($entry),
-            'system' => null,
-            'size' => is_numeric($entry['Size'] ?? null) ? (float) $entry['Size'] : null,
-            'is_scannable' => (bool) ($entry['IsScannable'] ?? false),
-            'block_travel' => (bool) ($entry['BlockTravel'] ?? false),
-            'data' => $entry,
-        ];
     }
 
     private function extractName(array $entry): string
@@ -134,41 +198,26 @@ class ImportStarmapData implements ShouldQueue
     }
 
     /**
-     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
-     */
-    private function resolveHierarchy(array $firstPass): void
-    {
-        $solarSystemLookup = $this->buildSolarSystemLookup($firstPass);
-        $resolvedHierarchy = [];
-
-        foreach (array_keys($firstPass) as $uuid) {
-            $hierarchy = $this->resolveHierarchyData($uuid, $firstPass, $resolvedHierarchy, $solarSystemLookup);
-
-            $firstPass[$uuid]['location_data']->update([
-                'parent_data_id' => $hierarchy['parent_data_id'],
-                'star_data_id' => $hierarchy['star_data_id'],
-                'system' => $hierarchy['system'],
-            ]);
-        }
-    }
-
-    /**
-     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
+     * @param  array<string, array<string, mixed>>  $entries
      * @param  array<string, array{parent_data_id: int|null, star_data_id: int|null, system: string|null}>  $resolvedHierarchy
      * @param  array<string, string>  $solarSystemLookup
+     * @param  array<string, int>  $locationIdMap
+     * @param  array<int, int>  $locationDataIdMap
      * @return array{parent_data_id: int|null, star_data_id: int|null, system: string|null}
      */
     private function resolveHierarchyData(
         string $uuid,
-        array $firstPass,
+        array &$entries,
         array &$resolvedHierarchy,
-        array $solarSystemLookup,
+        array &$solarSystemLookup,
+        array $locationIdMap,
+        array $locationDataIdMap,
     ): array {
         if (array_key_exists($uuid, $resolvedHierarchy)) {
             return $resolvedHierarchy[$uuid];
         }
 
-        $current = $firstPass[$uuid]['entry'] ?? null;
+        $current = $entries[$uuid] ?? null;
 
         if ($current === null) {
             return $resolvedHierarchy[$uuid] = [
@@ -190,8 +239,11 @@ class ImportStarmapData implements ShouldQueue
             ];
         }
 
+        $currentLocationId = $locationIdMap[$uuid] ?? null;
+        $currentDataId = $currentLocationId !== null ? ($locationDataIdMap[$currentLocationId] ?? null) : null;
+
         if ($parentUuid !== null) {
-            if (! isset($firstPass[$parentUuid])) {
+            if (! isset($entries[$parentUuid])) {
                 return $resolvedHierarchy[$uuid] = [
                     'parent_data_id' => null,
                     'star_data_id' => null,
@@ -199,12 +251,16 @@ class ImportStarmapData implements ShouldQueue
                 ];
             }
 
-            $parentHierarchy = $this->resolveHierarchyData($parentUuid, $firstPass, $resolvedHierarchy, $solarSystemLookup);
+            $parentHierarchy = $this->resolveHierarchyData(
+                $parentUuid, $entries, $resolvedHierarchy, $solarSystemLookup, $locationIdMap, $locationDataIdMap,
+            );
+
+            $parentLocationId = $locationIdMap[$parentUuid] ?? null;
 
             return $resolvedHierarchy[$uuid] = [
-                'parent_data_id' => $firstPass[$parentUuid]['location_data']->id,
+                'parent_data_id' => $parentLocationId !== null ? ($locationDataIdMap[$parentLocationId] ?? null) : null,
                 'star_data_id' => $currentType === 'Star'
-                    ? $firstPass[$uuid]['location_data']->id
+                    ? $currentDataId
                     : $parentHierarchy['star_data_id'],
                 'system' => $parentHierarchy['system'],
             ];
@@ -218,26 +274,26 @@ class ImportStarmapData implements ShouldQueue
             ];
         }
 
-        $system = $this->resolveSystemNameForStar($current, $firstPass, $solarSystemLookup);
+        $system = $this->resolveSystemNameForStar($current, $entries, $solarSystemLookup);
 
         return $resolvedHierarchy[$uuid] = [
             'parent_data_id' => null,
-            'star_data_id' => $firstPass[$uuid]['location_data']->id,
+            'star_data_id' => $currentDataId,
             'system' => $system,
         ];
     }
 
     /**
      * @param  array<string, mixed>  $entry
-     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
+     * @param  array<string, array<string, mixed>>  $entries
      * @param  array<string, string>  $solarSystemLookup
      */
-    private function resolveSystemNameForStar(array $entry, array $firstPass, array $solarSystemLookup): ?string
+    private function resolveSystemNameForStar(array $entry, array &$entries, array &$solarSystemLookup): ?string
     {
         $solarSystemUuid = $this->resolveSolarSystemUuidForStar($entry, $solarSystemLookup);
 
         if ($solarSystemUuid !== null) {
-            $solarSystem = $firstPass[$solarSystemUuid]['entry'] ?? null;
+            $solarSystem = $entries[$solarSystemUuid] ?? null;
 
             if (is_array($solarSystem)) {
                 return $this->extractName($solarSystem);
@@ -251,7 +307,7 @@ class ImportStarmapData implements ShouldQueue
      * @param  array<string, mixed>  $entry
      * @param  array<string, string>  $solarSystemLookup
      */
-    private function resolveSolarSystemUuidForStar(array $entry, array $solarSystemLookup): ?string
+    private function resolveSolarSystemUuidForStar(array $entry, array &$solarSystemLookup): ?string
     {
         $normalizedStarName = $this->normalizeSystemLookupKey($this->extractName($entry));
 
@@ -263,19 +319,19 @@ class ImportStarmapData implements ShouldQueue
     }
 
     /**
-     * @param  array<string, array{location: StarmapLocation, location_data: StarmapLocationData, entry: array<string, mixed>}>  $firstPass
+     * @param  array<string, array<string, mixed>>  $entries
      * @return array<string, string>
      */
-    private function buildSolarSystemLookup(array $firstPass): array
+    private function buildSolarSystemLookup(array &$entries): array
     {
         $lookup = [];
 
-        foreach ($firstPass as $uuid => $imported) {
-            if ($this->extractTypeName($imported['entry']) !== 'SolarSystem') {
+        foreach ($entries as $uuid => $entry) {
+            if ($this->extractTypeName($entry) !== 'SolarSystem') {
                 continue;
             }
 
-            $normalizedSystemName = $this->normalizeSystemLookupKey($this->extractName($imported['entry']));
+            $normalizedSystemName = $this->normalizeSystemLookupKey($this->extractName($entry));
 
             if ($normalizedSystemName !== null) {
                 $lookup[$normalizedSystemName] = $uuid;
@@ -302,32 +358,76 @@ class ImportStarmapData implements ShouldQueue
     }
 
     /**
-     * @return array<int, int>
+     * @param  array<string, array{name: string, display_name: string|null}>  $amenityEntries
+     * @param  array<string, list<string>>  $entryAmenityUuids
+     * @param  array<string, int>  $locationIdMap
+     * @param  array<int, int>  $locationDataIdMap
      */
-    private function syncAmenities(array $entry): array
-    {
-        return collect($entry['Amenities'] ?? [])
-            ->filter(fn (mixed $amenity): bool => is_array($amenity))
-            ->map(function (array $amenity): ?int {
-                $uuid = trim($amenity['UUID'] ?? '');
+    private function syncAmenitiesBulk(
+        array $amenityEntries,
+        array $entryAmenityUuids,
+        array $locationIdMap,
+        array $locationDataIdMap,
+    ): void {
+        if ($amenityEntries === []) {
+            return;
+        }
 
-                if (empty($uuid)) {
-                    return null;
+        $amenityRows = [];
+        foreach ($amenityEntries as $aUuid => $aData) {
+            $amenityRows[] = [
+                'uuid' => $aUuid,
+                'name' => $aData['name'],
+                'display_name' => $aData['display_name'],
+            ];
+        }
+
+        StarmapAmenity::upsert(
+            $amenityRows,
+            ['uuid'],
+            ['name', 'display_name'],
+        );
+
+        $amenityIdMap = StarmapAmenity::query()
+            ->whereIn('uuid', array_keys($amenityEntries))
+            ->pluck('id', 'uuid')
+            ->toArray();
+
+        $locationDataIds = array_values($locationDataIdMap);
+
+        if ($locationDataIds !== []) {
+            DB::table('game_starmap_location_data_amenity')
+                ->whereIn('location_data_id', $locationDataIds)
+                ->delete();
+        }
+
+        $pivotRows = [];
+        foreach ($entryAmenityUuids as $locationUuid => $aUuids) {
+            $locationDataId = $locationDataIdMap[$locationIdMap[$locationUuid]] ?? null;
+
+            if ($locationDataId === null) {
+                continue;
+            }
+
+            foreach ($aUuids as $aUuid) {
+                $amenityId = $amenityIdMap[$aUuid] ?? null;
+
+                if ($amenityId === null) {
+                    continue;
                 }
 
-                $starmapAmenity = StarmapAmenity::query()->updateOrCreate(
-                    ['uuid' => $uuid],
-                    [
-                        'name' => $this->normalizeNullableString($amenity['Name'] ?? null) ?? $uuid,
-                        'display_name' => $this->normalizeNullableString($amenity['DisplayName'] ?? null),
-                    ]
-                );
+                $pivotRows[] = [
+                    'location_data_id' => $locationDataId,
+                    'amenity_id' => $amenityId,
+                ];
+            }
+        }
 
-                return $starmapAmenity->id;
-            })
-            ->filter(fn (?int $id): bool => $id !== null)
-            ->values()
-            ->all();
+        if ($pivotRows !== []) {
+            foreach (array_chunk($pivotRows, 500) as $chunk) {
+                DB::table('game_starmap_location_data_amenity')->insert($chunk);
+            }
+        }
     }
 
     private function normalizeNullableString(mixed $value): ?string
@@ -346,18 +446,14 @@ class ImportStarmapData implements ShouldQueue
     }
 
     /**
-     * Generate a unique slug for starmap location data.
-     * Checks the database and local batch map, appending a counter if the slug already exists.
-     *
-     * @param  string  $baseSlug  The base slug to start with
-     * @param  array<string, string>  $slugMap  Local map of already generated slugs in this batch
+     * @param  list<string|null>  $usedSlugs
      */
-    private function generateUniqueSlug(string $baseSlug, array $slugMap): string
+    private function generateUniqueSlugInMemory(string $baseSlug, array &$usedSlugs): string
     {
         $slug = $baseSlug;
         $counter = 2;
 
-        while (in_array($slug, $slugMap, true) || StarmapLocationData::query()->where('slug', $slug)->exists()) {
+        while (in_array($slug, $usedSlugs, true)) {
             $slug = $baseSlug.'-'.$counter;
             $counter++;
         }

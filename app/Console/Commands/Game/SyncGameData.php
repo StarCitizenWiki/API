@@ -36,7 +36,8 @@ class SyncGameData extends Command
                             {--skip-resources : Skip importing resource data}
                             {--skip-compute-item-base-ids : Skip computing item base ids}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
-                            {--skip-factions : Skip importing faction data}';
+                            {--skip-factions : Skip importing faction data}
+                            {--skip-missions : Skip importing mission data}';
 
     /**
      * The console command name aliases.
@@ -68,7 +69,8 @@ class SyncGameData extends Command
         $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
         $skipFactions = (bool) $this->option('skip-factions');
-        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources);
+        $skipMissions = (bool) $this->option('skip-missions');
+        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources, $skipMissions);
 
         $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
 
@@ -109,12 +111,6 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
-        if ($gameVersion !== null && Artisan::call('game:import-blueprints', [
-            'version' => $gameVersion->code,
-        ]) !== self::SUCCESS) {
-            return self::FAILURE;
-        }
-
         if (! $skipItems) {
             $this->dispatchItemImports($gameVersion, $skipComputeBaseIds);
         }
@@ -123,12 +119,24 @@ class SyncGameData extends Command
             $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds);
         }
 
+        if ($gameVersion !== null && Artisan::call('game:import-blueprints', [
+            'version' => $gameVersion->code,
+        ]) !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
+        if (! $skipMissions && Artisan::call('game:import-missions', [
+            'version' => $gameVersion->code,
+        ]) !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
         return self::SUCCESS;
     }
 
-    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap, bool $skipResources): bool
+    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap, bool $skipResources, bool $skipMissions): bool
     {
-        if (! $skipItems || ! $skipVehicles || ! $skipStarmap || ! $skipResources) {
+        if (! $skipItems || ! $skipVehicles || ! $skipStarmap || ! $skipResources || ! $skipMissions) {
             return true;
         }
 

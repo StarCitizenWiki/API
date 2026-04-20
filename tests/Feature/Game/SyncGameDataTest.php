@@ -141,6 +141,7 @@ it('syncs non-versioned data without requiring a game version when item and vehi
         '--skip-vehicles' => true,
         '--skip-starmap' => true,
         '--skip-resources' => true,
+        '--skip-missions' => true,
         '--skip-compute-item-base-ids' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
@@ -179,4 +180,52 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
     Bus::assertNotDispatched(ImportItemData::class);
     Bus::assertNotDispatched(ImportVehicleData::class);
     Bus::assertNotDispatched(ComputeItemBaseIdsJob::class);
+});
+
+it('imports missions when game version is provided', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.1.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    Storage::disk('scunpacked')->put('contracts/test_mission.json', json_encode([
+        'UUID' => fake()->uuid(),
+        'Key' => 'TestMission',
+    ], JSON_THROW_ON_ERROR));
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:sync-data', [
+        '--game-version' => $version->code,
+        '--skip-items' => true,
+        '--skip-vehicles' => true,
+        '--skip-starmap' => true,
+        '--skip-resources' => true,
+        '--skip-compute-item-base-ids' => true,
+        '--skip-backfill-shipmatrix-ids' => true,
+    ])->assertExitCode(Command::SUCCESS);
+});
+
+it('skips missions when --skip-missions is passed', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.1.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:sync-data', [
+        '--game-version' => $version->code,
+        '--skip-items' => true,
+        '--skip-vehicles' => true,
+        '--skip-starmap' => true,
+        '--skip-resources' => true,
+        '--skip-missions' => true,
+        '--skip-compute-item-base-ids' => true,
+        '--skip-backfill-shipmatrix-ids' => true,
+    ])->assertExitCode(Command::SUCCESS);
 });
