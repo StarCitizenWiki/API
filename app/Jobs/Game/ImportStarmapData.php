@@ -165,6 +165,9 @@ class ImportStarmapData implements ShouldQueue
                 $hierarchyRows[] = [
                     'starmap_location_id' => $locationIdMap[$uuid],
                     'game_version_id' => $this->gameVersionId,
+                    'name' => $locationDataRows[$uuid]['name'],
+                    'type_name' => $locationDataRows[$uuid]['type_name'],
+                    'data' => $locationDataRows[$uuid]['data'],
                     'parent_data_id' => $h['parent_data_id'],
                     'star_data_id' => $h['star_data_id'],
                     'system' => $h['system'],
