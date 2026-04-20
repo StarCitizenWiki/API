@@ -316,6 +316,7 @@ class ImportMissionData implements ShouldQueue
         if (! is_array($blueprintPayload)) {
             $missionData->blueprints()->sync([]);
             $missionData->blueprint_drop_chance = null;
+            $missionData->blueprint_pool_uuid = null;
             $missionData->save();
 
             return;
@@ -326,6 +327,7 @@ class ImportMissionData implements ShouldQueue
             : null;
 
         $missionData->blueprint_drop_chance = $chance;
+        $missionData->blueprint_pool_uuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
         $missionData->save();
 
         $poolUuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);

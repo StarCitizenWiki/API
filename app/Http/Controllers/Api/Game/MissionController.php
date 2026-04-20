@@ -87,7 +87,10 @@ class MissionController extends Controller
             FILTER_VALIDATE_BOOLEAN,
         );
 
-        $missions = $this->buildIndexQuery($request, $includeUnreleased)
+        $hasActiveFiltersOrSorts = $request->filled('filter') || $request->filled('sort');
+        $grouped = ! $hasActiveFiltersOrSorts;
+
+        $missions = $this->buildIndexQuery($request, $includeUnreleased, $grouped)
             ->with(['mission', 'gameVersion', 'faction', 'blueprints.blueprint'])
             ->withCount('prerequisiteGroups')
             ->defaultSort('title')
@@ -199,9 +202,9 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[has_defend_objective]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[rank_index]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[has_prerequisites]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[reward_scope]', in: 'query', description: 'Mission category scope. Values: Bounty Hunter, Hauling, Security, Assassination, Mining, Salvage, Investigation, Recovery, Other', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[reward_scope]', description: 'Mission category scope. Values: Bounty Hunter, Hauling, Security, Assassination, Mining, Salvage, Investigation, Recovery, Other', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[has_blueprints]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[reputation_scope]', in: 'query', description: 'Reputation reward scope from ReputationGained data', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[reputation_scope]', description: 'Reputation reward scope from ReputationGained data', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -431,11 +434,12 @@ class MissionController extends Controller
         ]);
     }
 
-    private function buildIndexQuery(Request $request, bool $includeUnreleased = false): QueryBuilder
+    private function buildIndexQuery(Request $request, bool $includeUnreleased = false, bool $grouped = true): QueryBuilder
     {
         return QueryBuilder::for(MissionData::class, $request)
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->excludeUnreleased(! $includeUnreleased)
+            ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id)->withGroupedAggregates())
             ->allowedFilters(...$this->allowedFilters($includeUnreleased))
             ->allowedSorts(...$this->allowedSorts());
     }

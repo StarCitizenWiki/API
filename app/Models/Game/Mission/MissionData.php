@@ -17,10 +17,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class MissionData extends Model
 {
     use HasFactory;
+
+    private const array GROUP_COLUMNS = [
+        'game_version_id',
+        'title',
+        'generator_class',
+        'mission_giver',
+        'faction_id',
+        'illegal',
+        'blueprint_pool_uuid',
+    ];
 
     protected $table = 'game_mission_data';
 
@@ -60,6 +71,7 @@ class MissionData extends Model
         'enemy_count_max',
         'reward_scope',
         'blueprint_drop_chance',
+        'blueprint_pool_uuid',
         'data',
     ];
 
@@ -86,6 +98,7 @@ class MissionData extends Model
         'enemy_count_max' => 'integer',
         'star_systems' => 'array',
         'blueprint_drop_chance' => 'float',
+        'blueprint_pool_uuid' => 'string',
         'data' => AsCollection::class,
     ];
 
@@ -174,5 +187,56 @@ class MissionData extends Model
         }
 
         return $query;
+    }
+
+    public function scopeGroupByTitle(Builder $query, int $gameVersionId): Builder
+    {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($gameVersionId) {
+            $q->whereIn('game_mission_data.id', function ($sub) use ($gameVersionId) {
+                $sub->selectRaw('MIN(id)')
+                    ->from('game_mission_data')
+                    ->where('game_version_id', $gameVersionId)
+                    ->whereNotNull('title')
+                    ->where('title', '!=', '')
+                    ->groupBy(...self::GROUP_COLUMNS);
+            })->orWhere(function (Builder $q) {
+                $q->whereNull('game_mission_data.title')->orWhere('game_mission_data.title', '');
+            });
+        });
+    }
+
+    public function scopeWithGroupedAggregates(Builder $query): Builder
+    {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return $query;
+        }
+
+        $aggregates = DB::table('game_mission_data')
+            ->select([
+                DB::raw('MIN(id) as representative_id'),
+                DB::raw('COUNT(*) - 1 as variant_count'),
+            ])
+            ->groupBy(...self::GROUP_COLUMNS);
+
+        $match = $this->groupMatchExpression();
+
+        return $query
+            ->leftJoinSub($aggregates, 'mission_group', 'mission_group.representative_id', '=', 'game_mission_data.id')
+            ->addSelect([
+                DB::raw('game_mission_data.*'),
+                'mission_group.variant_count',
+                DB::raw("(SELECT to_jsonb(array_agg(DISTINCT sys)) FROM (SELECT jsonb_array_elements_text(gmd2.star_systems) AS sys FROM game_mission_data gmd2 WHERE {$match}) sub WHERE sys IS NOT NULL) as grouped_star_systems"),
+            ]);
+    }
+
+    private function groupMatchExpression(string $alias = 'gmd2'): string
+    {
+        return collect(self::GROUP_COLUMNS)
+            ->map(fn (string $col) => "{$alias}.{$col} IS NOT DISTINCT FROM game_mission_data.{$col}")
+            ->implode(PHP_EOL.'                AND ');
     }
 }

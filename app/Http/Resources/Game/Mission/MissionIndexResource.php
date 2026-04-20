@@ -44,6 +44,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'reward_currency', type: 'string', nullable: true),
         new OA\Property(property: 'time_to_complete_minutes', type: 'number', format: 'float', nullable: true),
         new OA\Property(property: 'star_systems', type: 'array', items: new OA\Items(type: 'string'), nullable: true),
+        new OA\Property(property: 'variant_count', type: 'integer', nullable: true),
         new OA\Property(property: 'has_blueprints', type: 'boolean'),
         new OA\Property(property: 'blueprint_drop_chance', type: 'number', format: 'float', nullable: true),
         new OA\Property(
@@ -128,6 +129,14 @@ class MissionIndexResource extends AbstractBaseResource
         $lifetime = $data?->get('Lifetime');
         $cooldown = $data?->get('Cooldown');
 
+        if (isset($this->resource->grouped_star_systems)) {
+            try {
+                $this->resource->grouped_star_systems = json_decode($this->resource->grouped_star_systems, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\Exception) {
+
+            }
+        }
+
         return [
             'uuid' => $mission?->uuid,
             'title' => FormatMissionTitle::format($this->resource->title, $this->resource->debug_name),
@@ -155,7 +164,8 @@ class MissionIndexResource extends AbstractBaseResource
             'reward_max' => $this->resource->reward_max,
             'reward_currency' => $this->resource->reward_currency,
             'time_to_complete_minutes' => $this->resource->time_to_complete_minutes,
-            'star_systems' => $this->resource->star_systems,
+            'star_systems' => $this->resource->grouped_star_systems ?? $this->resource->star_systems,
+            'variant_count' => $this->whenNotNull($this->resource->variant_count),
             'has_blueprints' => $this->resource->blueprints->isNotEmpty(),
             'blueprint_drop_chance' => $this->resource->blueprint_drop_chance,
             'blueprints' => $this->when(
