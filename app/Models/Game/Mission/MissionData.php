@@ -230,6 +230,12 @@ class MissionData extends Model
                 DB::raw('game_mission_data.*'),
                 'mission_group.variant_count',
                 DB::raw("(SELECT to_jsonb(array_agg(DISTINCT sys)) FROM (SELECT jsonb_array_elements_text(gmd2.star_systems) AS sys FROM game_mission_data gmd2 WHERE {$match}) sub WHERE sys IS NOT NULL) as grouped_star_systems"),
+                DB::raw("(SELECT to_jsonb(array_agg(DISTINCT m.uuid))
+                    FROM game_mission_data gmd2
+                    JOIN game_missions m ON m.id = gmd2.mission_id
+                    WHERE {$match}
+                      AND gmd2.id != game_mission_data.id
+                ) as variant_uuids"),
             ]);
     }
 

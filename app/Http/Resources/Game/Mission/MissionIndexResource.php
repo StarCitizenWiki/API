@@ -8,6 +8,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
 use App\Support\Formatting\FormatMissionTitle;
 use Carbon\CarbonInterval;
+use Exception;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -45,6 +46,18 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'time_to_complete_minutes', type: 'number', format: 'float', nullable: true),
         new OA\Property(property: 'star_systems', type: 'array', items: new OA\Items(type: 'string'), nullable: true),
         new OA\Property(property: 'variant_count', type: 'integer', nullable: true),
+        new OA\Property(
+            property: 'variants',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
+                    new OA\Property(property: 'title', type: 'string', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
         new OA\Property(property: 'has_blueprints', type: 'boolean'),
         new OA\Property(property: 'blueprint_drop_chance', type: 'number', format: 'float', nullable: true),
         new OA\Property(
@@ -132,8 +145,23 @@ class MissionIndexResource extends AbstractBaseResource
         if (isset($this->resource->grouped_star_systems)) {
             try {
                 $this->resource->grouped_star_systems = json_decode($this->resource->grouped_star_systems, true, 512, JSON_THROW_ON_ERROR);
-            } catch (\Exception) {
+            } catch (Exception) {
 
+            }
+        }
+
+        if (isset($this->resource->variant_uuids)) {
+            try {
+                $variants = json_decode($this->resource->variant_uuids, true, 512, JSON_THROW_ON_ERROR);
+                $this->resource->variant_uuids = collect($variants)->map(fn (string $uuid): array => [
+                    'uuid' => $uuid,
+                    'link' => $this->urlWithVersion(
+                        route('missions.show', ['mission' => $uuid]),
+                        $request,
+                    ),
+                ])->values()->all();
+            } catch (Exception) {
+                $this->resource->variant_uuids = null;
             }
         }
 
@@ -166,6 +194,7 @@ class MissionIndexResource extends AbstractBaseResource
             'time_to_complete_minutes' => $this->resource->time_to_complete_minutes,
             'star_systems' => $this->resource->grouped_star_systems ?? $this->resource->star_systems,
             'variant_count' => $this->whenNotNull($this->resource->variant_count),
+            'variants' => $this->whenNotNull($this->resource->variant_uuids),
             'has_blueprints' => $this->resource->blueprints->isNotEmpty(),
             'blueprint_drop_chance' => $this->resource->blueprint_drop_chance,
             'blueprints' => $this->when(
