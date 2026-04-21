@@ -107,7 +107,7 @@
         </div>
 
         @if ($description)
-            <div class="max-w-2xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base">
+            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base">
                 {!! nl2br(e((string) $description)) !!}
             </div>
         @endif

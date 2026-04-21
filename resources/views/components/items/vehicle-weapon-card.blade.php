@@ -63,342 +63,334 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="sword" class="size-4 text-primary" />
-            <span>Vehicle Weapon</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Vehicle Weapon</h2>
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class</dt>
-                <dd class="text-sm font-medium">{{ $class ?? '-' }} {{ $type ?? '-' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Class</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $class ?? '-' }} {{ $type ?? '-' }}</dd>
             </div>
             @if ($capacity !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</dt>
-                    <dd class="text-sm font-medium">{{ $capacity === 0 ? 'Infinite' : fmt_value_with_unit($capacity, 'rounds', 0) }}</dd>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</dt>
+                    <dd class="text-sm font-semibold text-base-content">{{ $capacity === 0 ? 'Infinite' : fmt_value_with_unit($capacity, 'rounds', 0) }}</dd>
                 </div>
             @endif
             @if ($range !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Range</dt>
-                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Range</dt>
+                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
                 </div>
             @endif
             @if ($rpm !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">RPM</dt>
-                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpm, 'RPM', 0) }}</dd>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">RPM</dt>
+                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpm, 'RPM', 0) }}</dd>
                 </div>
             @endif
         </dl>
 
         @if ($hasDamage)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group" open>
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Damage Stats
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
 {{--                        @if ($sustained60s !== null)--}}
 {{--                            <div class="space-y-1">--}}
-{{--                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Sustained 60s</dt>--}}
-{{--                                <dd class="text-sm font-medium">{{ fmt_compact($sustained60s, 2) }}</dd>--}}
+{{--                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Sustained 60s</dt>--}}
+{{--                                <dd class="text-sm font-semibold text-base-content">{{ fmt_compact($sustained60s, 2) }}</dd>--}}
 {{--                            </div>--}}
 {{--                        @endif--}}
                         @if ($alphaTotal !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Alpha</dt>
-                                <dd class="text-sm font-medium text-info">{{ fmt_compact($alphaTotal, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Alpha</dt>
+                                <dd class="text-sm font-semibold text-base-content text-info">{{ fmt_compact($alphaTotal, 0) }}</dd>
                             </div>
                         @endif
                         @if ($burst !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Burst</dt>
-                                <dd class="text-sm font-medium">{{ fmt_compact($burst, 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Burst</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_compact($burst, 2) }}</dd>
                             </div>
                         @endif
                         @if ($maximum !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Maximum</dt>
-                                <dd class="text-sm font-medium" title="{{ $maximum }}">{{ $maximum === 'Infinite' ? $maximum : fmt_compact($maximum) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Maximum</dt>
+                                <dd class="text-sm font-semibold text-base-content" title="{{ $maximum }}">{{ $maximum === 'Infinite' ? $maximum : fmt_compact($maximum) }}</dd>
                             </div>
                         @endif
                     </dl>
 
                     @if ($nonZeroDps !== [])
                         <div class="divider"></div>
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">DPS Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2">DPS Breakdown</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($nonZeroDps, 'physical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'physical'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'physical'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'energy'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'energy'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'energy'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'distortion'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'distortion'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'distortion'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'thermal'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'thermal'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'thermal'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'biochemical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'biochemical'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'biochemical'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'stun'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroDps, 'stun'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDps, 'stun'), 0) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
 
                     @if (!empty($nonZeroAlpha))
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2 mt-4">Alpha Breakdown</h4>
-                        <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2 mt-4">Alpha Breakdown</h4>
+                        <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($nonZeroAlpha, 'physical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'physical'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'physical'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'energy'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'energy'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'energy'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'distortion'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'distortion'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'distortion'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'thermal'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'thermal'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'thermal'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'biochemical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'biochemical'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'biochemical'), 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'stun'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_or_dash(data_get($nonZeroAlpha, 'stun'), 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroAlpha, 'stun'), 0) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
-                </div>
             </details>
         @endif
 
         @if ($hasSpread)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Spread
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($spread, 'minimum'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Min/Max</dt>
-                                <dd class="text-sm font-medium">{{ fmt_range(data_get($spread, 'minimum'), data_get($spread, 'maximum'), 'deg', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Min/Max</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_range(data_get($spread, 'minimum'), data_get($spread, 'maximum'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'first_attack'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">First Attack</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'first_attack'), 'deg', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">First Attack</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'first_attack'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'per_attack'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Per Attack</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'per_attack'), 'deg', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Attack</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'per_attack'), 'deg', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($spread, 'decay'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Decay</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'decay'), 'deg/s', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'decay'), 'deg/s', 0) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasBarrelSpin)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Barrel Spin Time
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($barrelUp !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Up</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($barrelUp, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Up</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($barrelUp, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($barrelDown !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Down</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($barrelDown, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Down</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($barrelDown, 's', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasHeat)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Heat
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($heatOverheatMaxShots !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Max Shots</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatOverheatMaxShots, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overheat Max Shots</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($heatOverheatMaxShots, 0) }}</dd>
                             </div>
                         @endif
                         @if ($heatOverheatMaxTime !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Max Time</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatOverheatMaxTime, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overheat Max Time</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($heatOverheatMaxTime, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($heatPerShot !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Per Shot</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatPerShot, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Shot</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($heatPerShot, 0) }}</dd>
                             </div>
                         @endif
                         @if ($heatCoolingDelay !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Delay</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatCoolingDelay, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooling Delay</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($heatCoolingDelay, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($heatCoolingPerSecond !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooling Per Second</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($heatCoolingPerSecond, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooling Per Second</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($heatCoolingPerSecond, 0) }}</dd>
                             </div>
                         @endif
 
                         @if ($heatOverheatCooldown !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overheat Cooldown</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($heatOverheatCooldown, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overheat Cooldown</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($heatOverheatCooldown, 's', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasCapacitor)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group" open>
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Capacitor
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($capMaxAmmoLoad !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Ammo Load</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($capMaxAmmoLoad, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Ammo Load</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($capMaxAmmoLoad, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capRegenPerSecond !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Regen Per Second</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($capRegenPerSecond, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Per Second</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($capRegenPerSecond, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capCooldown !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($capCooldown, 's', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooldown</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($capCooldown, 's', 2) }}</dd>
                             </div>
                         @endif
                         @if ($capRequestedAmmoLoad !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Requested Ammo Load</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($capRequestedAmmoLoad, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Requested Ammo Load</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($capRequestedAmmoLoad, 0) }}</dd>
                             </div>
                         @endif
                         @if ($capCostsPerShot !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Costs Per Shot</dt>
-                                <dd class="text-sm font-medium">{{ fmt_or_dash($capCostsPerShot, 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Costs Per Shot</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($capCostsPerShot, 0) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasCharge || $hasChargeModifier)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Charge
                 </summary>
-                <div class="collapse-content">
                     <div class="space-y-4">
                         @if ($hasCharge)
                             <div>
-                                <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Timings</h4>
-                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
+                                <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2">Charge Timings</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                                     @if ($chargeTime !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Time</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeTime, 's', 2) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Time</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($chargeTime, 's', 2) }}</dd>
                                         </div>
                                     @endif
                                     @if ($chargeOverchargeTime !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharge Time</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeOverchargeTime, 's', 2) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overcharge Time</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($chargeOverchargeTime, 's', 2) }}</dd>
                                         </div>
                                     @endif
                                     @if ($chargeOverchargedTime !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Overcharged Time</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeOverchargedTime, 's', 2) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overcharged Time</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($chargeOverchargedTime, 's', 2) }}</dd>
                                         </div>
                                     @endif
                                     @if ($chargeCooldownTime !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Time</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_value_with_unit($chargeCooldownTime, 's', 2) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooldown Time</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($chargeCooldownTime, 's', 2) }}</dd>
                                         </div>
                                     @endif
                                 </dl>
@@ -407,31 +399,30 @@
 
                         @if ($hasChargeModifier)
                             <div>
-                                <h4 class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">Charge Modifiers</h4>
-                                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-2">
+                                <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2">Charge Modifiers</h4>
+                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                                     @if ($chargeModDamage !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModDamage, 0) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($chargeModDamage, 0) }}</dd>
                                         </div>
                                     @endif
                                     @if ($chargeModFireRate !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fire Rate</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModFireRate, 0) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fire Rate</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($chargeModFireRate, 0) }}</dd>
                                         </div>
                                     @endif
                                     @if ($chargeModAmmoSpeed !== null)
                                         <div class="space-y-1">
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ammo Speed</dt>
-                                            <dd class="text-sm font-medium">{{ fmt_or_dash($chargeModAmmoSpeed, 0) }}</dd>
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ammo Speed</dt>
+                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($chargeModAmmoSpeed, 0) }}</dd>
                                         </div>
                                     @endif
                                 </dl>
                             </div>
                         @endif
                     </div>
-                </div>
             </details>
         @endif
     </div>

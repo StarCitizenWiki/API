@@ -60,7 +60,7 @@
                         <dl class="space-y-2">
                             @foreach ($capacityMetrics as $metric)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
                                     <dd class="text-right text-sm font-medium text-base-content">
                                         {{ fmt_value_with_unit($metric['value'], $metric['unit'], $metric['precision']) }}
                                     </dd>
@@ -76,7 +76,7 @@
                         <dl class="space-y-2">
                             @foreach ($travelMetrics as $metric)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
                                     <dd class="text-right text-sm font-medium text-base-content">
                                         {{ $metric['formatter']($metric['value']) }}
                                     </dd>

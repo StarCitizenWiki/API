@@ -29,8 +29,8 @@
     $methods = data_get($resource, 'methods', []);
 @endphp
 
-<section class="card h-full border border-base-300 bg-base-100 shadow xl:col-span-5" data-testid="resource-quick-facts">
-    <div class="card-body gap-5 p-5 sm:p-6">
+<section {{ $attributes->merge(['class' => 'card h-full border border-base-300 bg-base-100 shadow xl:col-span-5', 'data-testid' => 'resource-quick-facts']) }}>
+    <div class="card-body gap-4 p-5 sm:p-6">
         <div class="grid gap-4 md:grid-cols-2">
             <div class="space-y-5">
                 <section class="min-w-0 space-y-3">

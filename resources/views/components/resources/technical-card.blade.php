@@ -13,11 +13,11 @@
         <dl class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 tabular-nums">
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">UUID</dt>
-                <dd class="text-sm font-medium break-all">{{ $uuid ?? '-' }}</dd>
+                <dd class="text-right text-sm font-medium break-all">{{ $uuid ?? '-' }}</dd>
             </div>
             <div class="space-y-1">
                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">API Link</dt>
-                <dd class="text-sm font-medium break-all">
+                <dd class="text-right text-sm font-medium break-all">
                     @if ($apiLink)
                         <a href="{{ $apiLink }}" class="link link-primary">{{ $apiLink }}</a>
                     @else

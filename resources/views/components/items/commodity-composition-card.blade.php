@@ -11,7 +11,6 @@
 <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex items-center gap-2">
-            <x-icon name="gem" class="size-4 text-primary" />
             <h2 class="card-title text-base">Default Composition</h2>
             @if ($entryCount > 0)
                 <span class="badge badge-ghost text-xs">{{ $entryCount }}</span>

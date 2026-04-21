@@ -18,32 +18,29 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title flex items-center gap-2">
-            <x-icon name="zap" class="size-4 text-primary" />
-            <span>EMP Generator</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">EMP Generator</h2>
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">EMP Radius</dt>
-                <dd class="text-sm font-medium">{{ $empRadiusFormatted }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">EMP Radius</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $empRadiusFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Charge Duration</dt>
-                <dd class="text-sm font-medium">{{ $chargeDurationFormatted }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Charge Duration</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $chargeDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Unleash Duration</dt>
-                <dd class="text-sm font-medium">{{ $unleashDurationFormatted }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Unleash Duration</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $unleashDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Cooldown Duration</dt>
-                <dd class="text-sm font-medium">{{ $cooldownDurationFormatted }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooldown Duration</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $cooldownDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion Damage</dt>
-                <dd class="text-sm font-medium">{{ $distortionDamageFormatted }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion Damage</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $distortionDamageFormatted }}</dd>
             </div>
         </dl>
     </div>

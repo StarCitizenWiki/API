@@ -3,7 +3,10 @@
 ])
 
 @php
-    $pricesList = is_array($prices) ? $prices : [];
+    $pricesList = collect(is_array($prices) ? $prices : [])
+        ->sortByDesc('date_updated')
+        ->values()
+        ->all();
     $pricesCount = count($pricesList);
 @endphp
 
@@ -26,6 +29,7 @@
                     <caption class="sr-only">UEX prices for this item</caption>
                     <thead>
                         <tr>
+                            <th scope="col">System</th>
                             <th scope="col">Terminal</th>
                             <th scope="col">Buy Price</th>
                             <th scope="col">Sell Price</th>
@@ -35,7 +39,16 @@
                     <tbody>
                         @foreach ($pricesList as $price)
                             <tr>
-                                <td class="whitespace-nowrap">{{ data_get($price, 'terminal_name', '-') }}</td>
+                                <td class="whitespace-nowrap text-xs text-base-content/70">
+                                    {{ data_get($price, 'starmap_location.star_system_name', '-') }}
+                                </td>
+                                <td class="whitespace-nowrap">
+                                    @if ($webUrl = data_get($price, 'web_url'))
+                                        <a href="{{ $webUrl }}" class="link link-hover">{{ data_get($price, 'terminal_name', '-') }}</a>
+                                    @else
+                                        {{ data_get($price, 'terminal_name', '-') }}
+                                    @endif
+                                </td>
                                 <td>
                                     {{ data_get($price, 'price_buy') !== null ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
                                 </td>

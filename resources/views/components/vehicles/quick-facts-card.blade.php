@@ -101,7 +101,7 @@
 @endphp
 
 @if ($quickFacts !== [])
-    <section {{ $attributes->merge(['class' => 'card h-full bg-base-100 shadow']) }}>
+    <section {{ $attributes->merge(['class' => 'card h-full border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div class="grid h-full gap-6 xl:grid-cols-2 xl:gap-8 2xl:grid-cols-3">
                 @foreach ($factColumns as $column)

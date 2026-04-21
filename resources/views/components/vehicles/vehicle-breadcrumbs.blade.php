@@ -25,8 +25,8 @@
     }
 @endphp
 
-<div class="breadcrumbs text-sm text-base-content/70" data-testid="vehicle-breadcrumbs">
-    <ul>
+<div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto" data-testid="vehicle-breadcrumbs">
+    <ul class="w">
         @foreach ($breadcrumbs as $breadcrumb)
             <li>
                 @if (! empty($breadcrumb['url']))

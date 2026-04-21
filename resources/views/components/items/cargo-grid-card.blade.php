@@ -15,29 +15,26 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="box" class="size-4 text-primary" />
-            <span>Cargo Grid</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Cargo Grid</h2>
 
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($scuConverted !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</dt>
-                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($scuConverted, 'SCU', 1) }}</dd>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</dt>
+                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($scuConverted, 'SCU', 1) }}</dd>
                 </div>
             @endif
             @if ($hasDimensions)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Dimensions</dt>
-                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($width, 'm', 1) }} × {{ fmt_value_with_unit($height, 'm', 1) }} × {{ fmt_value_with_unit($length, 'm', 1) }}</dd>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Dimensions</dt>
+                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($width, 'm', 1) }} × {{ fmt_value_with_unit($height, 'm', 1) }} × {{ fmt_value_with_unit($length, 'm', 1) }}</dd>
                 </div>
             @endif
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Type</dt>
-                <dd class="text-sm font-medium">
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Type</dt>
+                <dd class="text-sm font-semibold text-base-content">
                     {{ $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-')) }}
                 </dd>
             </div>

@@ -46,28 +46,25 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="user-shield" class="size-4 text-primary" />
-            <span>Suit Armor</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Suit Armor</h2>
 
         @if ($slot !== null)
             <div class="space-y-1 col-span-2">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Slot</dt>
-                <dd class="text-sm font-medium">{{ $slot }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Slot</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $slot }}</dd>
             </div>
         @endif
 
-        <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-            <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+        <details class="group" open>
+            <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                 Damage
             </summary>
-            <div class="collapse-content">
-                <dl class="grid gap-3 grid-cols-2 sm:grid-cols-3">
+                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                     @if ($drPhysicalChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
                             <dd class="text-sm font-medium {{ color_class($drPhysicalChange) }}">
                                 {{ fmt_value_with_unit($drPhysicalChange * 100, '%', 1) }}
                             </dd>
@@ -76,7 +73,7 @@
 
                     @if ($drEnergyChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Energy</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
                             <dd class="text-sm font-medium {{ color_class($drEnergyChange) }}">
                                 {{ fmt_value_with_unit($drEnergyChange * 100, '%', 1) }}
 
@@ -86,7 +83,7 @@
 
                     @if ($drDistortionChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Distortion</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
                             <dd class="text-sm font-medium {{ color_class($drDistortionChange) }}">
                                 {{ fmt_value_with_unit($drDistortionChange * 100, '%', 1) }}
                             </dd>
@@ -95,7 +92,7 @@
 
                     @if ($drThermalChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Thermal</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
                             <dd class="text-sm font-medium {{ color_class($drThermalChange) }}">
                                 {{ fmt_value_with_unit($drThermalChange * 100, '%', 1) }}
                             </dd>
@@ -104,7 +101,7 @@
 
                     @if ($drBiochemicalChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Biochemical</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
                             <dd class="text-sm font-medium {{ color_class($drBiochemicalChange) }}">
                                 {{ fmt_value_with_unit($drBiochemicalChange * 100, '%', 1) }}
                             </dd>
@@ -113,31 +110,31 @@
 
                     @if ($drStunChange !== null)
                         <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Stun</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
                             <dd class="text-sm font-medium {{ color_class($drStunChange) }}">
                                 {{ fmt_value_with_unit($drStunChange * 100, '%', 1) }}
                             </dd>
                         </div>
                     @endif
                 </dl>
-            </div>
         </details>
 
         @if ($hasSignature)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">Signature</summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+            <details class="group" open>
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
+                    Signature
+                </summary>
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @foreach ($signature as $key => $value)
                             @if ($value !== null)
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $key }}</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($value, '', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">{{ $key }}</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($value, '', 2) }}</dd>
                                 </div>
                             @endif
                         @endforeach
                     </dl>
-                </div>
             </details>
         @endif
     </div>

@@ -5,12 +5,12 @@
 @endphp
 
 @if (is_array($cargoGrids) && $cargoGrids !== [])
-    <section class="card bg-base-100 shadow">
+    <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
-            <div class="flex items-center gap-2">
-                <h3 class="card-title text-base">Cargo Grids</h3>
+            <h2 class="card-title text-base">
+                Cargo Grids
                 <span class="badge badge-ghost text-xs">{{ count($cargoGrids) }}</span>
-            </div>
+            </h2>
 
             <div class="overflow-x-auto">
                 <table class="table table-sm">

@@ -14,23 +14,23 @@
     <div class="collapse-content">
         <dl class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 tabular-nums">
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">UUID</dt>
-                <dd class="text-sm font-medium">{{ $uuid ?? '-' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">UUID</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $uuid ?? '-' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Classification</dt>
-                <dd class="text-sm font-medium">{{ $classification ?? '-' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Classification</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $classification ?? '-' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class Name</dt>
-                <dd class="text-sm font-medium">{{ $className ?? '-' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Class Name</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $className ?? '-' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Game Version</dt>
-                <dd class="text-sm font-medium">{{ $version ?? '-' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Game Version</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $version ?? '-' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">API Link</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">API Link</dt>
                 <dd class="text-sm font-medium break-all">
                     @if ($apiLink)
                         <a href="{{ $apiLink }}" class="link link-primary">{{ $apiLink }}</a>
@@ -40,8 +40,8 @@
                 </dd>
             </div>
             <div class="space-y-1 sm:col-span-2">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Entity Tag Map</dt>
-                <dd class="text-sm font-medium">
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Entity Tag Map</dt>
+                <dd class="text-sm font-semibold text-base-content">
                     @if (is_array($entityTagMap) && $entityTagMap !== [])
                         <div class="flex flex-wrap gap-2">
                             @foreach ($entityTagMap as $tag)

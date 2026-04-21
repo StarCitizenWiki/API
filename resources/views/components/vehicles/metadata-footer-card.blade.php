@@ -22,31 +22,31 @@
                     @if ($uuid)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">UUID</dt>
-                            <dd class="text-sm font-medium">{{ $uuid }}</dd>
+                            <dd class="text-right text-sm font-medium">{{ $uuid }}</dd>
                         </div>
                     @endif
                     @if ($classification)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Classification</dt>
-                            <dd class="text-sm font-medium">{{ $classification }}</dd>
+                            <dd class="text-right text-sm font-medium">{{ $classification }}</dd>
                         </div>
                     @endif
                     @if ($className)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Class Name</dt>
-                            <dd class="text-sm font-medium">{{ $className }}</dd>
+                            <dd class="text-right text-sm font-medium">{{ $className }}</dd>
                         </div>
                     @endif
                     @if ($version)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Game Version</dt>
-                            <dd class="text-sm font-medium">{{ $version }}</dd>
+                            <dd class="text-right text-sm font-medium">{{ $version }}</dd>
                         </div>
                     @endif
                     @if ($apiLink)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">API Link</dt>
-                            <dd class="text-sm font-medium">
+                            <dd class="text-right text-sm font-medium">
                                 <a href="{{ $apiLink }}" class="link link-primary">{{ $apiLink }}</a>
                             </dd>
                         </div>
@@ -54,7 +54,7 @@
                     @if ($webUrl)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Web URL</dt>
-                            <dd class="text-sm font-medium">
+                            <dd class="text-right text-sm font-medium">
                                 <a href="{{ $webUrl }}" class="link link-primary">{{ $webUrl }}</a>
                             </dd>
                         </div>

@@ -49,9 +49,9 @@
 @endphp
 
 @if ($sections !== [])
-    <section class="card bg-base-100 shadow">
+    <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
-            <h3 class="card-title text-base">Dimensions & Mass</h3>
+            <h2 class="card-title text-base">Dimensions & Mass</h2>
 
             <div class="grid gap-12 lg:grid-cols-3">
                 @foreach ($sections as $section)

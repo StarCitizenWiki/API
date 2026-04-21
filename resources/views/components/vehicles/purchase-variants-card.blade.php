@@ -54,7 +54,7 @@
 @endphp
 
 @if ($sections !== [] || $hasLoaners || $hasSkus)
-    <section data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'card bg-base-100 shadow']) }}>
+    <section data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div @class([
                 'grid gap-8 xl:grid-cols-2 xl:gap-10' => $sections !== [] && ($hasLoaners || $hasSkus),

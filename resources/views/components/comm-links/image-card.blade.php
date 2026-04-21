@@ -52,7 +52,7 @@
 @endphp
 
 
-<div class="card border border-base-200 bg-base-100 shadow-sm" data-testid="{{ $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card' }}">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card']) }}>
     <div class="relative">
         @if ($previewTag)
             <span class="badge badge-neutral absolute left-3 top-3 z-10">
@@ -99,7 +99,7 @@
         @endif
     </div>
 
-    <div class="card-body gap-3">
+    <div class="card-body gap-4">
         <div class="flex items-start justify-between gap-3">
             <div>
                 <div class="text-sm font-semibold">{{ $name ?? 'Image' }}</div>
@@ -144,7 +144,7 @@
                 <div class="text-xs text-base-content/70">Used in Comm-Links</div>
                 <span class="badge badge-neutral badge-xs">{{ count($commLinks) }}</span>
             </div>
-            <div class="collapse collapse-arrow border border-base-200 bg-base-100">
+            <div class="collapse collapse-arrow border border-base-300 bg-base-100">
                 <input type="checkbox" />
                 <div class="collapse-title text-xs font-semibold">
                     Show all {{ count($commLinks) }} Comm-Links

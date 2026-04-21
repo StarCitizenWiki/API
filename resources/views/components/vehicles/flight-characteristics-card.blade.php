@@ -67,7 +67,7 @@
                         <dl class="space-y-2">
                             @foreach ($boostMetrics as $metric)
                                 <div class="flex items-start justify-between gap-3">
-                                    <dt class="min-w-0 text-xs text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
                                     <dd class="shrink-0 text-right text-sm font-medium text-base-content">
                                         {{ fmt_value_with_unit($metric['value'], $metric['unit'] ?? 's', $metric['precision']) }}
 
@@ -89,7 +89,7 @@
                         <dl class="space-y-2">
                             @foreach ($agilityMetrics as $metric)
                                 <div class="flex items-start justify-between gap-3">
-                                    <dt class="min-w-0 text-xs text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
                                     <dd class="shrink-0 text-right text-sm font-medium text-base-content">
                                         @if ($metric['value'] !== null || $metric['boosted'] !== null)
                                             <span class="inline-flex flex-nowrap items-baseline justify-end gap-1 whitespace-nowrap">

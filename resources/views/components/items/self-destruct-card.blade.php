@@ -12,27 +12,24 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="octagon-alert" class="size-4 text-primary" />
-            <span>Self Destruct</span>
-        </h2>
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Self Destruct</h2>
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Damage</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($damage, '', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($damage, '', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Countdown</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($countdown, 's', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Countdown</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($countdown, 's', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Radius</dt>
-                <dd class="text-sm font-medium">{{ fmt_range($minRadius, $radius, 'm', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Radius</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_range($minRadius, $radius, 'm', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Physical Impact Radius</dt>
-                <dd class="text-sm font-medium">{{ fmt_range($minPhysRadius, $physRadius, 'm', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical Impact Radius</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_range($minPhysRadius, $physRadius, 'm', 0) }}</dd>
             </div>
         </dl>
     </div>

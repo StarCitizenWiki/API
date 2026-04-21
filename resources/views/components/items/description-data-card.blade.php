@@ -11,7 +11,7 @@
                 @foreach ($descriptionData as $datum)
                     <div class="card border border-base-300 bg-base-100 shadow-sm">
                         <div class="card-body gap-2 p-3">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                 {{ $datum['name'] ?? '-' }}
                             </div>
                             <div class="text-sm font-medium wrap-break-word">

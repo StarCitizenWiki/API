@@ -35,7 +35,7 @@
             <div class="grid grid-cols-1 gap-3 sm:gap-4">
                 @foreach ($translationEntries as $entry)
                     <div class="card border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body gap-3 p-4">
+                        <div class="card-body gap-4 p-4">
                             <span class="badge badge-outline text-xs">{{ $entry['label'] }}</span>
 
                             @if ($entry['text'])

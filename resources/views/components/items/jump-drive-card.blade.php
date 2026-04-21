@@ -33,40 +33,37 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="egg-fried" class="size-4 text-primary" />
-            <span>Jump Drive</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Jump Drive</h2>
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($fuelUsageEfficiencyMultiplier !== null)
                 <div class="space-y-1 col-span-2">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Usage Efficiency</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fuel Usage Efficiency</dt>
                     <dd class="text-sm font-medium">{{ fmt_value_with_unit($fuelUsageEfficiencyMultiplier, 'x', 2) }}</dd>
                 </div>
             @endif
             @if ($alignmentRate !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Alignment Rate</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Alignment Rate</dt>
                     <dd class="text-sm font-medium">{{ fmt_value_with_unit($alignmentRate, '', 2) }}</dd>
                 </div>
             @endif
             @if ($alignmentDecayRate !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Alignment Decay Rate</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Alignment Decay Rate</dt>
                     <dd class="text-sm font-medium">{{ fmt_value_with_unit($alignmentDecayRate, '', 2) }}</dd>
                 </div>
             @endif
             @if ($tuningRate !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Tuning Rate</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Tuning Rate</dt>
                     <dd class="text-sm font-medium">{{ fmt_value_with_unit($tuningRate, '', 2) }}</dd>
                 </div>
             @endif
             @if ($tuningDecayRate !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Tuning Decay Rate</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Tuning Decay Rate</dt>
                     <dd class="text-sm font-medium">{{ fmt_value_with_unit($tuningDecayRate, '', 2) }}</dd>
                 </div>
             @endif
@@ -74,15 +71,15 @@
         </dl>
 
         @if ($hasTravelTime || $hasThermalDraw)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group" open>
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Jump Mechanics
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($hasTravelTime)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Travel Time (10GM)</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Travel Time (10GM)</dt>
                                 <dd class="text-sm font-medium">
                                     @if ($travelTimeFormatted)
                                         {{ $travelTimeFormatted }}
@@ -96,57 +93,56 @@
                         @endif
                         @if ($thermalPreRampUp !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Pre Ramp Up</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Pre Ramp Up</dt>
                                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($thermalPreRampUp, 'heat units/s', 2) }}</dd>
                             </div>
                         @endif
                         @if ($thermalRampUp !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ramp Up</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ramp Up</dt>
                                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($thermalRampUp, 'heat units/s', 2) }}</dd>
                             </div>
                         @endif
                         @if ($thermalInFlight !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">In Flight</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">In Flight</dt>
                                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($thermalInFlight, 'heat units/s', 2) }}</dd>
                             </div>
                         @endif
                         @if ($thermalRampDown !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Ramp Down</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ramp Down</dt>
                                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($thermalRampDown, 'heat units/s', 2) }}</dd>
                             </div>
                         @endif
                         @if ($thermalPostRampDown !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Post Ramp Down</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Post Ramp Down</dt>
                                 <dd class="text-sm font-medium">{{ fmt_value_with_unit($thermalPostRampDown, 'heat units/s', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasStandardJump || $hasSplineJump || $hasModes)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Jump Profiles
                 </summary>
-                <div class="collapse-content">
                     @if ($hasStandardJump)
-                        <h4 class="text-xs font-semibold mb-2 uppercase tracking-wide text-base-content/60">Standard Jump Profile</h4>
+                        <h4 class="text-xs font-medium mb-2 uppercase tracking-wide text-base-content/45">Standard Jump Profile</h4>
                         @include('components.items.quantum-drive-jump-profile', ['profile' => $standardJump])
                     @endif
 
                     @if ($hasSplineJump)
-                        <h4 class="text-xs font-semibold mb-2 mt-4 uppercase tracking-wide text-base-content/60">Spline Jump Profile</h4>
+                        <h4 class="text-xs font-medium mb-2 mt-4 uppercase tracking-wide text-base-content/45">Spline Jump Profile</h4>
                         @include('components.items.quantum-drive-jump-profile', ['profile' => $splineJump])
                     @endif
 
                     @if ($hasModes)
-                        <h4 class="text-xs font-semibold mb-2 mt-4 uppercase tracking-wide text-base-content/60">Jump Modes</h4>
+                        <h4 class="text-xs font-medium mb-2 mt-4 uppercase tracking-wide text-base-content/45">Jump Modes</h4>
                         @foreach ($modes as $mode)
                             @php
                                 $hasModeData = is_array($mode) && collect($mode)->filter(fn($v) => $v !== null)->isNotEmpty();
@@ -163,7 +159,6 @@
                             @endif
                         @endforeach
                     @endif
-                </div>
             </details>
         @endif
     </div>

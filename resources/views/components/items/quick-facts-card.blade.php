@@ -158,11 +158,11 @@
 
                             <dl class="space-y-2">
                                 @foreach ($section['rows'] as $row)
-                                    <div class="grid grid-cols-2 items-start gap-x-3">
+                                    <div class="space-y-1">
                                         <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                             {{ $row['label'] }}
                                         </dt>
-                                        <dd class="text-right text-sm font-semibold text-base-content">
+                                        <dd class="text-sm font-semibold text-base-content">
                                             @if (($row['type'] ?? null) === 'commodity_links')
                                                 <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
                                                     @foreach ($row['value'] as $i => $commodity)

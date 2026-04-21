@@ -43,46 +43,43 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title text-base flex items-center gap-2">
-            <x-icon name="atom" class="size-4 text-primary" />
-            <span>Quantum Drive</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Quantum Drive</h2>
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 {{--            <div class="space-y-1">--}}
-{{--                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Jump Range</dt>--}}
-{{--                <dd class="text-sm font-medium">{{ fmt_value_with_unit($jumpRange, 'm', 0, compact: true) }}</dd>--}}
+{{--                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Jump Range</dt>--}}
+{{--                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($jumpRange, 'm', 0, compact: true) }}</dd>--}}
 {{--            </div>--}}
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Disconnect Range</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($disconnectRange / 1000, 'km', 0, compact: true) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Disconnect Range</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($disconnectRange / 1000, 'km', 0, compact: true) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Consumption</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($fuelConsumption, 'SCU/GM', 8, compact: true) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fuel Consumption</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($fuelConsumption, 'SCU/GM', 8, compact: true) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Quantum Fuel Requirement</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($quantumFuelRequirement, 'SCU', 8, compact: true) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum Fuel Requirement</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($quantumFuelRequirement, 'SCU', 8, compact: true) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Rate</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($fuelRate, '', 8, compact: true) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fuel Rate</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($fuelRate, '', 8, compact: true) }}</dd>
             </div>
         </dl>
 
         @if ($hasSecondaryData)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100" open>
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group" open>
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Performance Details
                 </summary>
-                <div class="collapse-content">
-                    <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($travelTimeSeconds !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Travel Time (10GM)</dt>
-                                <dd class="text-sm font-medium">
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Travel Time (10GM)</dt>
+                                <dd class="text-sm font-semibold text-base-content">
                                     @if ($travelTimeFormatted)
                                         {{ $travelTimeFormatted }}
                                     @else
@@ -93,21 +90,20 @@
                         @endif
                         @if ($fuelEfficiency !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Fuel Efficiency</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($fuelEfficiency, 'GM/SCU', 2) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fuel Efficiency</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($fuelEfficiency, 'GM/SCU', 2) }}</dd>
                             </div>
                         @endif
                     </dl>
-                </div>
             </details>
         @endif
 
         @if ($hasTertiaryData)
-            <details class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
+            <details class="group">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Jump Profiles
                 </summary>
-                <div class="collapse-content">
                     @if ($modes !== [])
                         @foreach ($modes as $mode)
                             @php
@@ -116,7 +112,7 @@
                             @if ($hasModeData)
                                 <div class="mb-4">
                                     @if (data_get($mode, 'type'))
-                                        <h4 class="text-xs font-semibold mb-2 mt-4 uppercase tracking-wide text-base-content/60">
+                                        <h4 class="text-xs font-medium mb-2 mt-4 uppercase tracking-wide text-base-content/45">
                                             {{ \Illuminate\Support\Str::headline(data_get($mode, 'type')) }}
                                         </h4>
                                     @endif
@@ -125,7 +121,6 @@
                             @endif
                         @endforeach
                     @endif
-                </div>
             </details>
         @endif
     </div>

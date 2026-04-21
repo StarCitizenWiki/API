@@ -66,7 +66,7 @@
 
 @if ($hasSummaryPanels)
     <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
-        <div class="card-body gap-5">
+        <div class="card-body gap-4">
             <h2 class="card-title text-base">Resource Network</h2>
 
             <div class="grid gap-12 lg:grid-cols-3">
@@ -82,7 +82,7 @@
                             <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
                             @foreach ($signatureSummaryRows as $row)
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                     {{ $row['label'] }}
                                 </dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
@@ -117,7 +117,7 @@
                                 <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
                                 @foreach ($coolingSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">
@@ -157,7 +157,7 @@
                                 <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
                                 @foreach ($powerSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/55">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">

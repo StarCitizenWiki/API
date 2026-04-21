@@ -10,28 +10,25 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
-    <div class="card-body gap-3">
-        <h2 class="card-title flex items-center gap-2">
-            <x-icon name="shield-user" class="size-4 text-primary" />
-            <span>Shield Controller</span>
-        </h2>
+    <div class="card-body gap-4">
+        <h2 class="card-title text-base">Shield Controller</h2>
 
-        <dl class="grid gap-4 grid-cols-2 sm:grid-cols-2 ">
+        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Face Type</dt>
-                <dd class="text-sm font-medium">{{ $faceType ?? '—' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Face Type</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $faceType ?? '—' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Reconfiguration Cooldown</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($reconfigurationCooldown, 's', 1) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Reconfiguration Cooldown</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($reconfigurationCooldown, 's', 1) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Max Reallocation</dt>
-                <dd class="text-sm font-medium">{{ fmt_or_dash($maxReallocation, 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Reallocation</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($maxReallocation, 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Electrical Charge Dmg</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($maxElectricalChargeDamageRate, '/s', 1) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Electrical Charge Dmg</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($maxElectricalChargeDamageRate, '/s', 1) }}</dd>
             </div>
         </dl>
     </div>
