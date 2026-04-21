@@ -19,14 +19,15 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    $starmapLocation = StarmapLocation::factory()->create(['uuid' => 'loc-veh-enrich-1']);
+    $locationUuid = 'a1a1a1a1-2222-4333-8444-555566667781';
+    $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
     $starmapLocationData = StarmapLocationData::factory()->create([
         'starmap_location_id' => $starmapLocation->id,
         'game_version_id' => $version->id,
         'name' => 'Area18',
     ]);
 
-    $vehicleUuid = 'veh-uuid-enrich-1';
+    $vehicleUuid = '11111111-2222-4333-8444-555566667780';
     $vehicle = Vehicle::factory()->create(['uuid' => $vehicleUuid]);
     $vehicleData = VehicleData::factory()->create([
         'vehicle_id' => $vehicle->id,
@@ -103,7 +104,7 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
             'terminal_id' => 107,
             'terminal_code' => 'NTA18',
             'terminal_name' => 'New Terminal - Area18',
-            'starmap_location_uuid' => 'loc-veh-enrich-1',
+            'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 2000000,
             'date_updated' => '2023-11-14T22:13:20+00:00',
@@ -183,7 +184,7 @@ it('skips vehicles without existing prices', function (): void {
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    $vehicle = Vehicle::factory()->create(['uuid' => 'no-prices-uuid']);
+    $vehicle = Vehicle::factory()->create(['uuid' => 'a1a1a1a1-2222-4333-8444-555566667782']);
     VehicleData::factory()->create([
         'vehicle_id' => $vehicle->id,
         'game_version_id' => $version->id,
@@ -195,7 +196,7 @@ it('skips vehicles without existing prices', function (): void {
         'api.uexcorp.uk/*' => Http::response(['data' => []]),
     ]);
 
-    $job = new EnrichVehiclePrices($version->id, ['no-prices-uuid']);
+    $job = new EnrichVehiclePrices($version->id, ['a1a1a1a1-2222-4333-8444-555566667782']);
     $job->handle();
 
     Log::shouldHaveReceived('info')->with('UEX vehicle prices enrichment chunk completed', [

@@ -26,7 +26,8 @@ it('imports vehicle purchase and rental prices', function (): void {
         'game_version_id' => $version->id,
     ]);
 
-    $starmapLocation = StarmapLocation::factory()->create(['uuid' => 'loc-uuid-v1']);
+    $locationUuid = 'a3a3a3a3-2222-4333-8444-555566667781';
+    $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
     $starmapLocationData = StarmapLocationData::factory()->create([
         'starmap_location_id' => $starmapLocation->id,
         'game_version_id' => $version->id,
@@ -108,7 +109,7 @@ it('imports vehicle purchase and rental prices', function (): void {
             'terminal_id' => 50,
             'terminal_code' => 'VT50',
             'terminal_name' => 'Vehicle Terminal',
-            'starmap_location_uuid' => 'loc-uuid-v1',
+            'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 5000000,
             'date_updated' => '2023-11-14T22:13:20+00:00',
@@ -119,7 +120,7 @@ it('imports vehicle purchase and rental prices', function (): void {
             'terminal_id' => 50,
             'terminal_code' => 'VT50',
             'terminal_name' => 'Vehicle Terminal',
-            'starmap_location_uuid' => 'loc-uuid-v1',
+            'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_rent' => 50000,
             'date_updated' => '2023-11-14T22:15:00+00:00',
@@ -269,7 +270,7 @@ it('skips vehicles without VehicleData for the game version', function (): void 
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    $vehicleUuid = 'skip-uuid-1234';
+    $vehicleUuid = 'a3a3a3a3-2222-4333-8444-555566667782';
     Vehicle::factory()->create(['uuid' => $vehicleUuid]);
 
     Http::fake(function ($request) use ($vehicleUuid) {

@@ -111,7 +111,7 @@ it('groups unlock missions by title', function (): void {
     $group = MissionUnlockGroup::create([
         'mission_data_id' => $mainData->id,
         'group_index' => 0,
-        'tag_uuid' => 'some-uuid',
+        'tag_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001',
         'tag_name' => 'unlock_tag',
     ]);
 

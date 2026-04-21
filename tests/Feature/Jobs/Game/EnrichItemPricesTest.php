@@ -20,7 +20,8 @@ it('enriches item prices from per-item API', function (): void {
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    $starmapLocation = StarmapLocation::factory()->create(['uuid' => 'loc-uuid-enrich-1']);
+    $locationUuid = 'b1e1e1e1-2222-4333-8444-555566667781';
+    $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
     $starmapLocationData = StarmapLocationData::factory()->create([
         'starmap_location_id' => $starmapLocation->id,
         'game_version_id' => $version->id,
@@ -35,7 +36,7 @@ it('enriches item prices from per-item API', function (): void {
             [
                 'terminal_code' => null,
                 'terminal_name' => 'CenterMass - Area18',
-                'starmap_location_uuid' => 'loc-uuid-enrich-1',
+                'starmap_location_uuid' => $locationUuid,
                 'starmap_location_data_id' => $starmapLocationData->id,
                 'price_buy' => 10000,
                 'price_sell' => 0,
@@ -91,7 +92,7 @@ it('enriches item prices from per-item API', function (): void {
             'terminal_id' => 107,
             'terminal_code' => 'CMA18',
             'terminal_name' => 'CenterMass - IO North Tower - Area 18',
-            'starmap_location_uuid' => 'loc-uuid-enrich-1',
+            'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 15461,
             'price_sell' => 0,
@@ -171,9 +172,9 @@ it('processes multiple UUIDs in a single chunk', function (): void {
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    StarmapLocation::factory()->create(['uuid' => 'multi-loc-1']);
+    StarmapLocation::factory()->create(['uuid' => 'b1e1e1e1-2222-4333-8444-555566667782']);
     StarmapLocationData::factory()->create([
-        'starmap_location_id' => StarmapLocation::factory()->create(['uuid' => 'multi-loc-2'])->id,
+        'starmap_location_id' => StarmapLocation::factory()->create(['uuid' => 'b1e1e1e1-2222-4333-8444-555566667783'])->id,
         'game_version_id' => $version->id,
         'name' => 'Multi Terminal',
     ]);
@@ -268,7 +269,7 @@ it('uses reverse UUID override for per-item API calls', function (): void {
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    StarmapLocation::factory()->create(['uuid' => 'override-loc-1']);
+    StarmapLocation::factory()->create(['uuid' => 'b1e1e1e1-2222-4333-8444-555566667784']);
     StarmapLocationData::factory()->create([
         'starmap_location_id' => StarmapLocation::factory()->create()->id,
         'game_version_id' => $version->id,

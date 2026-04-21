@@ -120,7 +120,7 @@ it('updates only the specified game version', function (): void {
         'game_version_id' => $otherVersion->id,
     ]);
 
-    StarmapLocation::factory()->create(['uuid' => 'loc-uuid-1']);
+    StarmapLocation::factory()->create(['uuid' => 'c1c1c1c1-2222-4333-8444-555566667781']);
     StarmapLocationData::factory()->create([
         'starmap_location_id' => StarmapLocation::factory()->create()->id,
         'game_version_id' => $targetVersion->id,
