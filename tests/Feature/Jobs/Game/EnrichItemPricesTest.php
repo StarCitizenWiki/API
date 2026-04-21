@@ -88,6 +88,7 @@ it('enriches item prices from per-item API', function (): void {
     expect($itemData->uex_prices)->toBeArray()
         ->and($itemData->uex_prices)->toHaveCount(1)
         ->and($itemData->uex_prices[0])->toMatchArray([
+            'terminal_id' => 107,
             'terminal_code' => 'CMA18',
             'terminal_name' => 'CenterMass - IO North Tower - Area 18',
             'starmap_location_uuid' => 'loc-uuid-enrich-1',
@@ -153,8 +154,7 @@ it('handles API failures gracefully', function (): void {
     ]);
 
     Http::fake([
-        'api.uexcorp.space/*' => Http::response(status: 500),
-        'api.uexcorp.uk/*' => Http::response(['data' => []]),
+        'api.uexcorp.uk/*' => Http::response(status: 500),
     ]);
 
     $job = new EnrichItemPrices($version->id, [$item->uuid]);
