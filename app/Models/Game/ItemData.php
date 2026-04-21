@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Enums\Game\CraftingBlueprintMode;
 use App\Models\Game\Commodity\Commodity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
@@ -21,6 +22,8 @@ class ItemData extends Model
     private ?Collection $resolvedCraftingBlueprints = null;
 
     private bool $hasResolvedCraftingBlueprints = false;
+
+    private CraftingBlueprintMode $craftingBlueprintMode = CraftingBlueprintMode::None;
 
     protected $table = 'game_item_data';
 
@@ -380,6 +383,22 @@ class ItemData extends Model
      */
     public static function hydrateCraftingBlueprints(Collection $itemDataCollection): void
     {
+        static::hydrateCraftingBlueprintsBase($itemDataCollection, false);
+    }
+
+    /**
+     * @param  Collection<int, self>  $itemDataCollection
+     */
+    public static function hydrateFullCraftingBlueprints(Collection $itemDataCollection): void
+    {
+        static::hydrateCraftingBlueprintsBase($itemDataCollection, true);
+    }
+
+    /**
+     * @param  Collection<int, self>  $itemDataCollection
+     */
+    private static function hydrateCraftingBlueprintsBase(Collection $itemDataCollection, bool $full): void
+    {
         $itemsWithUuid = $itemDataCollection
             ->filter(
                 fn (self $itemData): bool => $itemData->relationLoaded('item')
@@ -405,23 +424,27 @@ class ItemData extends Model
             ->values()
             ->all();
 
-        $craftingBlueprints = BlueprintData::query()
-            ->select([
-                'id',
-                'blueprint_id',
-                'game_version_id',
-                'output_item_uuid',
-                'output_name',
-                'key',
-            ])
-            ->with('blueprint:id,uuid')
+        $query = BlueprintData::query()
+            ->when(
+                $full,
+                fn ($q) => $q->with(['blueprint', 'gameVersion', 'ingredients', 'dismantleReturns']),
+                fn ($q) => $q->select([
+                    'id',
+                    'blueprint_id',
+                    'game_version_id',
+                    'output_item_uuid',
+                    'output_name',
+                    'key',
+                ])->with('blueprint:id,uuid'),
+            )
             ->whereIn('output_item_uuid', $itemUuids)
             ->whereIn('game_version_id', $gameVersionIds)
             ->orderByDesc('is_available_by_default')
             ->orderBy('output_name')
             ->orderBy('key')
-            ->orderBy('blueprint_id')
-            ->get()
+            ->orderBy('blueprint_id');
+
+        $craftingBlueprints = $query->get()
             ->groupBy(
                 fn (BlueprintData $blueprintData): string => sprintf(
                     '%s:%s',
@@ -430,15 +453,23 @@ class ItemData extends Model
                 )
             );
 
-        $itemsWithUuid->each(function (self $itemData) use ($craftingBlueprints): void {
-            $itemData->setRelation(
-                'craftingBlueprints',
-                $craftingBlueprints->get(
-                    sprintf('%s:%s', $itemData->game_version_id, $itemData->item->uuid),
-                    collect()
-                )
+        $itemsWithUuid->each(function (self $itemData) use ($craftingBlueprints, $full): void {
+            $blueprints = $craftingBlueprints->get(
+                sprintf('%s:%s', $itemData->game_version_id, $itemData->item->uuid),
+                collect()
             );
+
+            $itemData->setRelation('craftingBlueprints', $blueprints);
+
+            $itemData->craftingBlueprintMode = $full
+                ? CraftingBlueprintMode::Full
+                : CraftingBlueprintMode::Stub;
         });
+    }
+
+    public function getCraftingBlueprintMode(): CraftingBlueprintMode
+    {
+        return $this->craftingBlueprintMode;
     }
 
     /**

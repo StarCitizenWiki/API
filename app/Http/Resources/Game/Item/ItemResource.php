@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Item;
 
+use App\Enums\Game\CraftingBlueprintMode;
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Blueprint\BlueprintResource;
+use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
@@ -49,6 +52,7 @@ use App\Http\Resources\Game\ItemSpecification\WeaponAttachmentResource;
 use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\TranslationResolver;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Services\RelatedItemsBuilder;
@@ -100,9 +104,14 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_craftable', type: 'boolean'),
         new OA\Property(
             property: 'blueprint',
-            description: 'Crafting blueprints that produce this item. Only returned when the item is craftable.',
+            description: 'Crafting blueprints that produce this item. Only returned when the item is craftable. Use include=blueprints to get full blueprint data instead of links.',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/item_blueprint_link'),
+            items: new OA\Items(
+                oneOf: [
+                    new OA\Items(ref: '#/components/schemas/item_blueprint_link'),
+                    new OA\Items(ref: '#/components/schemas/blueprint'),
+                ]
+            ),
             nullable: true
         ),
 
@@ -313,11 +322,28 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(
                 properties: [
-                    new OA\Property(property: 'terminal_id', type: 'integer'),
+                    new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                    new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
                     new OA\Property(property: 'terminal_name', type: 'string'),
+                    new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
                     new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
                     new OA\Property(property: 'price_sell', type: 'number', format: 'double'),
                     new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
+                    new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
+                    new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
+                    new OA\Property(
+                        property: 'starmap_location',
+                        description: 'Expanded starmap location data',
+                        properties: [
+                            new OA\Property(property: 'name', type: 'string'),
+                            new OA\Property(property: 'slug', type: 'string', nullable: true),
+                            new OA\Property(property: 'type_name', type: 'string', nullable: true),
+                            new OA\Property(property: 'parent_name', type: 'string', nullable: true),
+                            new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
+                        ],
+                        type: 'object',
+                        nullable: true
+                    ),
                 ],
                 type: 'object'
             ),
@@ -403,6 +429,7 @@ use OpenApi\Attributes as OA;
 )]
 class ItemResource extends AbstractBaseResource
 {
+    use ExpandsUexPrices;
     use ExtractsJsonData;
     use ResolvesGameVersion;
 
@@ -450,7 +477,9 @@ class ItemResource extends AbstractBaseResource
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
             $this->mergeWhen($itemData->is_craftable, [
-                'blueprint' => $this->buildBlueprintPayload($itemData, $request),
+                'blueprint' => $itemData->getCraftingBlueprintMode() === CraftingBlueprintMode::Full
+                    ? $this->buildFullBlueprintPayload($itemData, $request)
+                    : $this->buildBlueprintPayload($itemData, $request),
             ]),
             $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
                 'grade' => $this->formatGrade($itemData),
@@ -521,7 +550,7 @@ class ItemResource extends AbstractBaseResource
             ]),
 
             'shops' => [],
-            'uex_prices' => (array) $itemData->uex_prices,
+            'uex_prices' => $this->expandUexPrices($itemData),
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
                 'base_variant' => new ItemLinkResource($itemData->baseVariant),
             ]),
@@ -573,6 +602,17 @@ class ItemResource extends AbstractBaseResource
                 ),
             ])
             ->values()
+            ->all();
+    }
+
+    private function buildFullBlueprintPayload(ItemData $itemData, Request $request): array
+    {
+        $craftingBlueprints = $itemData->relationLoaded('craftingBlueprints')
+            ? $itemData->getRelation('craftingBlueprints')
+            : collect();
+
+        return $craftingBlueprints
+            ->map(fn (BlueprintData $blueprintData): array => (new BlueprintResource($blueprintData))->resolve())
             ->all();
     }
 
@@ -1050,5 +1090,10 @@ class ItemResource extends AbstractBaseResource
             4 => 'D',
             default => $itemData->grade,
         };
+    }
+
+    private function expandUexPrices(ItemData $itemData): array
+    {
+        return $this->expandPrices((array) ($itemData->uex_prices ?? []));
     }
 }

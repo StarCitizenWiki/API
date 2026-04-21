@@ -642,3 +642,126 @@ it('omits commodity data when commodity is not in pivot table', function (): voi
 
     expect($response->json('data.resource_container.default_composition.0'))->not->toHaveKey('commodity');
 });
+
+it('returns full blueprint data when include=blueprints is requested on show route', function (): void {
+    $item = Item::factory()->create();
+    $commodity = Commodity::factory()->create(['name' => 'Quantainium', 'uuid' => fake()->uuid()]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Crafted Widget',
+            'type' => 'Widget',
+            'class_name' => 'crafted_widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->withIngredients($commodity)
+        ->create([
+            'key' => 'BP_CRAFTED_WIDGET',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Crafted Widget',
+            'output_class' => 'crafted_widget',
+            'craft_time_seconds' => 120,
+            'is_available_by_default' => true,
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Crafted Widget',
+                    'class' => 'crafted_widget',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?include=blueprints");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonPath('data.blueprint.0.uuid', $blueprint->uuid)
+        ->assertJsonPath('data.blueprint.0.key', 'BP_CRAFTED_WIDGET')
+        ->assertJsonPath('data.blueprint.0.output_name', 'Crafted Widget')
+        ->assertJsonPath('data.blueprint.0.craft_time_seconds', 120)
+        ->assertJsonPath('data.blueprint.0.is_available_by_default', true);
+
+    expect($response->json('data.blueprint.0'))->toHaveKey('ingredients');
+    expect($response->json('data.blueprint.0'))->toHaveKey('dismantle_returns');
+    expect($response->json('data.blueprint.0'))->toHaveKey('output');
+    expect($response->json('data.blueprint.0'))->toHaveKey('link');
+    expect($response->json('data.blueprint.0'))->not->toHaveKey('dismantle');
+    expect($response->json('data.blueprint.0'))->not->toHaveKey('requirement_groups');
+});
+
+it('returns link-only blueprint data without include=blueprints', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Crafted Widget',
+            'type' => 'Widget',
+            'class_name' => 'crafted_widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_CRAFTED_WIDGET',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Crafted Widget',
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Crafted Widget',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonCount(1, 'data.blueprint')
+        ->assertJsonPath('data.blueprint.0.uuid', $blueprint->uuid)
+        ->assertJsonPath('data.blueprint.0.name', 'Crafted Widget')
+        ->assertJsonPath('data.blueprint.0.link', route('blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    expect($response->json('data.blueprint.0'))->not->toHaveKey('key');
+    expect($response->json('data.blueprint.0'))->not->toHaveKey('ingredients');
+});
+
+it('lists blueprint as a valid include', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Item',
+            'type' => 'Widget',
+            'class_name' => 'test_item',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?include=blueprints");
+
+    $response->assertSuccessful();
+});

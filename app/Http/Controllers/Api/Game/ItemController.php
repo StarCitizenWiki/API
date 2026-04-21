@@ -62,6 +62,7 @@ class ItemController extends Controller
                 AllowedInclude::custom('related_items', $includeRelatedItems
                     ? new CustomEagerLoadInclude(['variants', 'baseVariant'])
                     : new CustomEagerLoadInclude),
+                AllowedInclude::custom('blueprints', new CustomEagerLoadInclude),
             ]
         );
 
@@ -298,7 +299,15 @@ class ItemController extends Controller
                 throw new ModelNotFoundException;
             }
 
-            ItemData::hydrateCraftingBlueprints(collect([$itemData]));
+            $includeBlueprint = collect(explode(',', (string) $request->input('include', '')))
+                ->map(fn (string $value): string => trim($value))
+                ->contains('blueprints');
+
+            if ($includeBlueprint) {
+                ItemData::hydrateFullCraftingBlueprints(collect([$itemData]));
+            } else {
+                ItemData::hydrateCraftingBlueprints(collect([$itemData]));
+            }
 
             $item = $itemData->item;
             $item->setRelation('data', collect([$itemData]));
