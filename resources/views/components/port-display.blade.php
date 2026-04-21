@@ -18,7 +18,7 @@
     $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
     $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
     $isLocked = is_bool($editable) ? !$editable : (data_get($port, 'editable') === true ? false : true);
-    $equippedCardClasses = 'card-compact';
+    $equippedCardClasses = '!border-0 !shadow-none bg-base-200 rounded-lg [&_.card-body]:gap-2 [&_.card-body]:p-3 [&_.card-title]:text-sm';
 
     // Extract equipped item stats for summary display
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
@@ -100,7 +100,7 @@
     <details
         id="{{ $portIdentifier }}"
         data-testid="port-display-details"
-        class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-sm"
+        class="collapse collapse-arrow border border-base-300 bg-base-100 {{ $depth === 0 ? 'shadow-sm' : '' }}"
     >
         <summary
             data-testid="port-display-summary"

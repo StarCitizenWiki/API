@@ -32,8 +32,6 @@ class EnrichItemPrices implements ShouldQueue
 
     public int $timeout = 600;
 
-    private const string API_URL = 'https://api.uexcorp.space/2.0/items_prices';
-
     private const int THROTTLE_MICROSECONDS = 200_000;
 
     /**
@@ -111,7 +109,9 @@ class EnrichItemPrices implements ShouldQueue
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
     ): bool {
-        $response = Http::timeout(30)->get(self::API_URL, ['uuid' => $uuid]);
+        $apiUrl = config('uexcorp.api_url');
+
+        $response = Http::timeout(30)->get("{$apiUrl}/items_prices", ['uuid' => $uuid]);
 
         if (! $response->successful()) {
             Log::warning('UEX per-item price API failed', [
@@ -135,6 +135,7 @@ class EnrichItemPrices implements ShouldQueue
                 $locationUuid = $locationMapping->get($terminalId);
 
                 return [
+                    'terminal_id' => $terminalId,
                     'terminal_code' => $p['terminal_code'] ?? $mapper->getTerminalCode($terminalId),
                     'terminal_name' => $p['terminal_name'],
                     'starmap_location_uuid' => $locationUuid,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Item\ItemInventoryResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
@@ -493,6 +494,75 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/vehicle_component'),
             nullable: true
         ),
+        new OA\Property(
+            property: 'uex_prices',
+            description: 'Vehicle purchase and rental prices from UEX Corp API.',
+            properties: [
+                new OA\Property(
+                    property: 'purchase',
+                    description: 'Purchase prices from UEX Corp.',
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                            new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
+                            new OA\Property(property: 'terminal_name', type: 'string'),
+                            new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
+                            new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
+                            new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
+                            new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
+                            new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
+                            new OA\Property(
+                                property: 'starmap_location',
+                                description: 'Expanded starmap location data',
+                                properties: [
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'slug', type: 'string', nullable: true),
+                                    new OA\Property(property: 'type_name', type: 'string', nullable: true),
+                                    new OA\Property(property: 'parent_name', type: 'string', nullable: true),
+                                    new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
+                                ],
+                                type: 'object',
+                                nullable: true
+                            ),
+                        ],
+                        type: 'object'
+                    )
+                ),
+                new OA\Property(
+                    property: 'rental',
+                    description: 'Rental prices from UEX Corp.',
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                            new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
+                            new OA\Property(property: 'terminal_name', type: 'string'),
+                            new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
+                            new OA\Property(property: 'price_rent', type: 'number', format: 'double'),
+                            new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
+                            new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
+                            new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
+                            new OA\Property(
+                                property: 'starmap_location',
+                                description: 'Expanded starmap location data',
+                                properties: [
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'slug', type: 'string', nullable: true),
+                                    new OA\Property(property: 'type_name', type: 'string', nullable: true),
+                                    new OA\Property(property: 'parent_name', type: 'string', nullable: true),
+                                    new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
+                                ],
+                                type: 'object',
+                                nullable: true
+                            ),
+                        ],
+                        type: 'object'
+                    )
+                ),
+            ],
+            type: 'object'
+        ),
         new OA\Property(property: 'updated_at', type: 'string'),
         new OA\Property(property: 'version', type: 'string', example: '4.4.0-LIVE.12340123'),
     ],
@@ -502,6 +572,7 @@ class VehicleResource extends AbstractBaseResource
 {
     use CalculatesCargoGridSizeLimits;
     use ComputesWeaponSnapshot;
+    use ExpandsUexPrices;
     use ExtractsJsonData;
 
     public static function validIncludes(): array
@@ -791,6 +862,11 @@ class VehicleResource extends AbstractBaseResource
             'pledge_url' => $vehicleData->relationLoaded('shipMatrixVehicle')
                 ? $vehicleData->shipMatrixVehicle?->pledge_url
                 : null,
+
+            'uex_prices' => [
+                'purchase' => $this->expandVehiclePrices($vehicleData, 'uex_purchase_prices', 'price_buy'),
+                'rental' => $this->expandVehiclePrices($vehicleData, 'uex_rental_prices', 'price_rent'),
+            ],
 
             'updated_at' => $vehicleData->updated_at,
             'version' => $vehicleData->relationLoaded('gameVersion')
@@ -1186,5 +1262,10 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return VehicleSkuResource::collection($shipMatrixVehicle->skus)->resolve();
+    }
+
+    private function expandVehiclePrices(VehicleData $vehicleData, string $column, string $priceField): array
+    {
+        return $this->expandPrices((array) ($vehicleData->$column ?? []));
     }
 }

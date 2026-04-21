@@ -1,13 +1,14 @@
+@php use Illuminate\Support\Carbon; @endphp
 @props([
     'prices',
 ])
 
 @php
-    $pricesList = collect(is_array($prices) ? $prices : [])
-        ->sortByDesc('date_updated')
-        ->values()
+    $grouped = collect(is_array($prices) ? $prices : [])
+        ->sortBy([['starmap_location.star_system_name', 'asc'], ['date_updated', 'desc']])
+        ->groupBy(fn (array $item): string => data_get($item, 'starmap_location.star_system_name') ?? 'Unknown')
         ->all();
-    $pricesCount = count($pricesList);
+    $pricesCount = array_sum(array_map('count', $grouped));
 @endphp
 
 <details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
@@ -19,56 +20,59 @@
             @endif
         </span>
     </summary>
-    <div class="collapse-content">
-        @if ($pricesList === [])
+    <div class="collapse-content max-h-96 overflow-y-auto">
+        @if ($grouped === [])
             <div class="text-sm text-base-content/70">No prices available.</div>
         @else
-
-            <div class="overflow-x-auto ">
-                <table class="table table-sm">
-                    <caption class="sr-only">UEX prices for this item</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">System</th>
-                            <th scope="col">Terminal</th>
-                            <th scope="col">Buy Price</th>
-                            <th scope="col">Sell Price</th>
-                            <th scope="col">Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($pricesList as $price)
-                            <tr>
-                                <td class="whitespace-nowrap text-xs text-base-content/70">
-                                    {{ data_get($price, 'starmap_location.star_system_name', '-') }}
-                                </td>
-                                <td class="whitespace-nowrap">
-                                    @if ($webUrl = data_get($price, 'web_url'))
-                                        <a href="{{ $webUrl }}" class="link link-hover">{{ data_get($price, 'terminal_name', '-') }}</a>
-                                    @else
-                                        {{ data_get($price, 'terminal_name', '-') }}
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ data_get($price, 'price_buy') !== null ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
-                                </td>
-                                <td>
-                                    {{ data_get($price, 'price_sell') !== null ? number_format((float) data_get($price, 'price_sell')) . ' aUEC' : '—' }}
-                                </td>
-                                <td>
-                                    @if ($dateUpdated = data_get($price, 'date_updated'))
-                                        @php
-                                            $carbon = \Illuminate\Support\Carbon::make($dateUpdated);
-                                        @endphp
-                                        {{ $carbon ? $carbon->diffForHumans() : '—' }}
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="space-y-4">
+                @foreach ($grouped as $systemName => $systemPrices)
+                    <section>
+                        <div class="text-sm font-semibold text-base-content/65">{{ $systemName }}</div>
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm">
+                                <caption class="sr-only">UEX prices for this item in {{ $systemName }}</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Location</th>
+                                        <th scope="col">Terminal</th>
+                                        <th scope="col">Buy Price</th>
+                                        <th scope="col">Sell Price</th>
+                                        <th scope="col">Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($systemPrices as $price)
+                                        <tr>
+                                            <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                {{ data_get($price, 'starmap_location.parent_name', '—') }}
+                                            </td>
+                                            <td class="whitespace-nowrap">
+                                                @if ($webUrl = data_get($price, 'web_url'))
+                                                    <a href="{{ $webUrl }}" class="link link-hover link-primary">{{ data_get($price, 'terminal_name', '-') }}</a>
+                                                @else
+                                                    {{ data_get($price, 'terminal_name', '-') }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ data_get($price, 'price_buy') > 0 ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
+                                            </td>
+                                            <td>
+                                                {{ data_get($price, 'price_sell') > 0 ? number_format((float) data_get($price, 'price_sell')) . ' aUEC' : '—' }}
+                                            </td>
+                                            <td>
+                                                @if ($dateUpdated = data_get($price, 'date_updated'))
+                                                    {{ Carbon::make($dateUpdated)?->diffForHumans() ?? '—' }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                @endforeach
             </div>
         @endif
     </div>

@@ -19,6 +19,17 @@
     $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
     $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
 
+    $attachmentSubType = match ($portIdentifier) {
+        'barrel_attach' => 'Barrel',
+        'optics_attach' => 'IronSight',
+        'underbarrel_attach' => 'BottomAttachment',
+        default => null,
+    };
+    $portSizeMin = data_get($port, 'sizes.min');
+    $portSizeMax = data_get($port, 'sizes.max');
+    $attachmentFilterUrl = $attachmentSubType !== null && !$hasNamedEquippedItem && $portSizeMin !== null && $portSizeMax !== null
+        ? route('web.items.index', ['filter' => ['category' => 'weapon-attachments', 'sub_type' => $attachmentSubType, 'size' => implode(',', range($portSizeMin, $portSizeMax))]])
+        : null;
 
     if ($showQuickStats) {
         $itemSize = data_get($equippedItem, 'size');
@@ -47,6 +58,11 @@
                     <x-icon name="lock" class="size-3"/>
                 @endif
                 {{ $displayPortLabel ?? 'Port' }}
+                @if ($attachmentFilterUrl)
+                    <a href="{{ $attachmentFilterUrl }}" class="badge badge-sm badge-outline badge-primary link no-underline">
+                        Browse Attachments
+                    </a>
+                @endif
             </span>
 
             <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">

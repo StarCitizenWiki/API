@@ -115,6 +115,9 @@
         $hasRelatedItemsCard = $relatedItemsCount > 0;
         $hasCompositionCard = is_array($defaultComposition) && $defaultComposition !== [];
         $hasSpecificationSection = $portsCount > 0 || $fpsSpecsAvailable || $vehicleSpecsAvailable;
+        $blueprints = data_get($item, 'is_craftable') ? data_get($item, 'blueprint', []) : [];
+        $hasBlueprintCards = is_array($blueprints) && $blueprints !== [];
+        $hasUexOrBlueprints = $uexPricesCount > 0 || $hasBlueprintCards;
     @endphp
 
     <div class="flex flex-col gap-4">
@@ -166,15 +169,27 @@
                     </div>
                 @endif
 
+                @if ($hasUexOrBlueprints)
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        @if ($uexPricesCount > 0)
+                            <x-items.uex-prices-card :prices="$uexPrices" />
+                        @endif
+
+                        @if ($hasBlueprintCards)
+                            <div class="flex flex-col gap-4">
+                                @foreach ($blueprints as $bp)
+                                    <x-items.blueprint-card :blueprint="$bp" />
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 @if ($hasDescriptionCard)
                     <x-items.description-card
                         :translations="$translations"
                         class="w-full"
                     />
-                @endif
-
-                @if ($uexPricesCount > 0)
-                    <x-items.uex-prices-card :prices="$uexPrices" class="w-full" />
                 @endif
 
                 @if ($hasCompositionCard)

@@ -22,6 +22,10 @@
     $shipMatrixSkus = data_get($vehicle, 'skus', []);
     $hasPurchaseData = $shipMatrixName || $shipMatrixMsrp || $shipMatrixPledgeUrl || $shipMatrixLoaner || $shipMatrixFoci || $shipMatrixSkus;
     $hasOwnershipData = $hasInsuranceData || $hasPurchaseData;
+
+    $uexPurchasePrices = data_get($vehicle, 'uex_prices.purchase', []);
+    $uexRentalPrices = data_get($vehicle, 'uex_prices.rental', []);
+    $hasUexPrices = (is_array($uexPurchasePrices) && $uexPurchasePrices !== []) || (is_array($uexRentalPrices) && $uexRentalPrices !== []);
 @endphp
 
 @section('title')
@@ -106,7 +110,10 @@
                 @if ($hasOwnershipData)
                     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                         <x-vehicles.purchase-variants-card :vehicle="$vehicle" />
+                        <x-vehicles.uex-prices-card :purchasePrices="$uexPurchasePrices" :rentalPrices="$uexRentalPrices" />
                     </div>
+                @elseif ($hasUexPrices)
+                    <x-vehicles.uex-prices-card :purchasePrices="$uexPurchasePrices" :rentalPrices="$uexRentalPrices" />
                 @endif
             </section>
 
