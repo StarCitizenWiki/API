@@ -6,6 +6,10 @@ namespace App\Jobs\Game;
 
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use App\Models\Game\StarmapLocationData;
+use App\Models\Game\Vehicle;
+use App\Models\Game\VehicleData;
+use App\Support\UEXcorp\TerminalLocationMapper;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,6 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -63,12 +68,26 @@ class ImportItemPrices implements ShouldQueue
             return;
         }
 
-        $this->processPrices($data);
+        $mapper = new TerminalLocationMapper($this->gameVersionId);
+        $this->processPrices($data, $mapper);
+        $this->processVehiclePrices($mapper);
     }
 
-    private function processPrices(array $apiData): void
+    private function processPrices(array $apiData, TerminalLocationMapper $mapper): void
     {
         $grouped = collect($apiData)->groupBy('item_uuid');
+
+        $itemUuidOverrides = collect(config('uexcorp.item_uuid_overrides', []));
+
+        if ($itemUuidOverrides->isNotEmpty()) {
+            $remapped = collect();
+            foreach ($grouped as $uuid => $prices) {
+                $targetUuid = $itemUuidOverrides->get($uuid, $uuid);
+                $existing = $remapped->get($targetUuid, collect());
+                $remapped->put($targetUuid, $existing->merge($prices));
+            }
+            $grouped = $remapped;
+        }
 
         $uuids = $grouped->keys()->filter()->unique()->toArray();
 
@@ -96,6 +115,13 @@ class ImportItemPrices implements ShouldQueue
             ->get()
             ->keyBy('item_id');
 
+        $locationMapping = $mapper->getMapping();
+
+        $locationDataLookup = StarmapLocationData::query()
+            ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
+            ->where('game_starmap_location_data.game_version_id', $this->gameVersionId)
+            ->pluck('game_starmap_location_data.id', 'game_starmap_locations.uuid');
+
         $updatedCount = 0;
 
         foreach ($grouped as $uuid => $prices) {
@@ -117,14 +143,24 @@ class ImportItemPrices implements ShouldQueue
             }
 
             $pricesData = collect($prices)
-                ->map(fn (array $p): array => [
-                    'terminal_id' => $p['id_terminal'],
-                    'terminal_name' => $p['terminal_name'],
-                    'price_buy' => $p['price_buy'],
-                    'price_sell' => $p['price_sell'],
-                    'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
-                ])
-                ->unique('terminal_id')
+                ->unique('id_terminal')
+                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup): array {
+                    $terminalId = (int) $p['id_terminal'];
+                    $locationUuid = $locationMapping->get($terminalId);
+
+                    return [
+                        'terminal_id' => $terminalId,
+                        'terminal_code' => $mapper->getTerminalCode($terminalId),
+                        'terminal_name' => $p['terminal_name'],
+                        'starmap_location_uuid' => $locationUuid,
+                        'starmap_location_data_id' => $locationUuid !== null
+                            ? $locationDataLookup->get($locationUuid)
+                            : null,
+                        'price_buy' => $p['price_buy'],
+                        'price_sell' => $p['price_sell'],
+                        'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                    ];
+                })
                 ->values()
                 ->toArray();
 
@@ -138,6 +174,186 @@ class ImportItemPrices implements ShouldQueue
             'count' => $updatedCount,
             'game_version_id' => $this->gameVersionId,
         ]);
+    }
+
+    private function processVehiclePrices(TerminalLocationMapper $mapper): void
+    {
+        $apiUrl = config('uexcorp.api_url');
+
+        $vehiclesResponse = Http::timeout(60)->get("{$apiUrl}/vehicles");
+
+        if (! $vehiclesResponse->successful()) {
+            Log::error('UEX vehicles API request failed', [
+                'status' => $vehiclesResponse->status(),
+                'game_version_id' => $this->gameVersionId,
+            ]);
+
+            return;
+        }
+
+        $vehiclesList = collect($vehiclesResponse->json('data', []));
+
+        if ($vehiclesList->isEmpty()) {
+            Log::warning('UEX vehicles API returned empty data');
+
+            return;
+        }
+
+        $uuidOverrides = collect(config('uexcorp.vehicle_uuid_overrides', []));
+        $nameOverrides = collect(config('uexcorp.vehicle_name_to_uuid_overrides', []));
+
+        $idVehicleToUuid = $this->buildVehicleIdMapping($vehiclesList, $uuidOverrides, $nameOverrides);
+
+        $purchasePrices = $this->fetchBulkPrices("{$apiUrl}/vehicles_purchases_prices_all", 'purchase');
+        $rentalPrices = $this->fetchBulkPrices("{$apiUrl}/vehicles_rentals_prices_all", 'rental');
+
+        $locationMapping = $mapper->getMapping();
+
+        $locationDataLookup = StarmapLocationData::query()
+            ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
+            ->where('game_starmap_location_data.game_version_id', $this->gameVersionId)
+            ->pluck('game_starmap_location_data.id', 'game_starmap_locations.uuid');
+
+        $vehicleUuids = $idVehicleToUuid->values()->unique()->filter()->values()->toArray();
+
+        $vehicleIds = Vehicle::query()
+            ->whereIn('uuid', $vehicleUuids)
+            ->pluck('id', 'uuid');
+
+        $vehicleDataCollection = VehicleData::query()
+            ->where('game_version_id', $this->gameVersionId)
+            ->whereIn('vehicle_id', $vehicleIds->values())
+            ->get()
+            ->keyBy('vehicle_id');
+
+        $vehicleIdToVehicleDataId = collect();
+        foreach ($vehicleIds as $uuid => $vehicleId) {
+            $vehicleData = $vehicleDataCollection->get($vehicleId);
+            if ($vehicleData !== null) {
+                $vehicleIdToVehicleDataId->put($uuid, $vehicleData);
+            }
+        }
+
+        $purchaseGrouped = $purchasePrices->groupBy('id_vehicle');
+        $rentalGrouped = $rentalPrices->groupBy('id_vehicle');
+
+        $updatedCount = 0;
+
+        foreach ($idVehicleToUuid as $idVehicle => $wikiUuid) {
+            if ($wikiUuid === null) {
+                continue;
+            }
+
+            $vehicleData = $vehicleIdToVehicleDataId->get($wikiUuid);
+
+            if ($vehicleData === null) {
+                continue;
+            }
+
+            $purchases = $purchaseGrouped->get($idVehicle, collect());
+            $rentals = $rentalGrouped->get($idVehicle, collect());
+
+            $vehicleData->uex_purchase_prices = $this->mapVehiclePrices($purchases, $locationMapping, $mapper, $locationDataLookup, 'price_buy');
+            $vehicleData->uex_rental_prices = $this->mapVehiclePrices($rentals, $locationMapping, $mapper, $locationDataLookup, 'price_rent');
+            $vehicleData->save();
+
+            $updatedCount++;
+        }
+
+        Log::info('UEX vehicle prices imported', [
+            'count' => $updatedCount,
+            'game_version_id' => $this->gameVersionId,
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $vehiclesList
+     * @param  Collection<string, string>  $uuidOverrides
+     * @param  Collection<string, string>  $nameOverrides
+     * @return Collection<int, string> id_vehicle => wiki_uuid
+     */
+    private function buildVehicleIdMapping(Collection $vehiclesList, Collection $uuidOverrides, Collection $nameOverrides): Collection
+    {
+        $mapping = collect();
+
+        foreach ($vehiclesList as $vehicle) {
+            if (! is_array($vehicle) || ! array_key_exists('id', $vehicle)) {
+                continue;
+            }
+
+            $idVehicle = (int) $vehicle['id'];
+            $uexUuid = $vehicle['uuid'] ?? null;
+            $vehicleName = $vehicle['name'] ?? null;
+
+            if ($nameOverrides->has($vehicleName)) {
+                $mapping->put($idVehicle, $nameOverrides->get($vehicleName));
+
+                continue;
+            }
+
+            if ($uexUuid === null || $uexUuid === '') {
+                $mapping->put($idVehicle, null);
+
+                continue;
+            }
+
+            $mapping->put($idVehicle, $uuidOverrides->get($uexUuid, $uexUuid));
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function fetchBulkPrices(string $url, string $type): Collection
+    {
+        $response = Http::timeout(60)->get($url);
+
+        if (! $response->successful()) {
+            Log::error("UEX vehicle {$type} prices API failed", [
+                'status' => $response->status(),
+                'game_version_id' => $this->gameVersionId,
+            ]);
+
+            return collect();
+        }
+
+        return collect($response->json('data', []));
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $prices
+     * @param  Collection<int, string>  $locationMapping
+     * @param  Collection<int, int|null>  $locationDataLookup
+     */
+    private function mapVehiclePrices(
+        Collection $prices,
+        Collection $locationMapping,
+        TerminalLocationMapper $mapper,
+        Collection $locationDataLookup,
+        string $priceField,
+    ): array {
+        return $prices
+            ->unique('id_terminal')
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField): array {
+                $terminalId = (int) $p['id_terminal'];
+                $locationUuid = $locationMapping->get($terminalId);
+
+                return [
+                    'terminal_id' => $terminalId,
+                    'terminal_code' => $mapper->getTerminalCode($terminalId),
+                    'terminal_name' => $p['terminal_name'],
+                    'starmap_location_uuid' => $locationUuid,
+                    'starmap_location_data_id' => $locationUuid !== null
+                        ? $locationDataLookup->get($locationUuid)
+                        : null,
+                    $priceField => $p[$priceField],
+                    'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     public function failed(Throwable $exception): void

@@ -36,6 +36,9 @@ class VehicleData extends Model
         'size',
 
         'data',
+
+        'uex_purchase_prices',
+        'uex_rental_prices',
     ];
 
     protected $casts = [
@@ -51,6 +54,9 @@ class VehicleData extends Model
         'size' => 'integer',
 
         'data' => AsCollection::class,
+
+        'uex_purchase_prices' => 'array',
+        'uex_rental_prices' => 'array',
     ];
 
     public function vehicle(): BelongsTo

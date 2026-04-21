@@ -1,0 +1,342 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Jobs\Game\EnrichItemPrices;
+use App\Models\Game\GameVersion;
+use App\Models\Game\Item;
+use App\Models\Game\ItemData;
+use App\Models\Game\StarmapLocation;
+use App\Models\Game\StarmapLocationData;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+uses(RefreshDatabase::class);
+
+it('enriches item prices from per-item API', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    $starmapLocation = StarmapLocation::factory()->create(['uuid' => 'loc-uuid-enrich-1']);
+    $starmapLocationData = StarmapLocationData::factory()->create([
+        'starmap_location_id' => $starmapLocation->id,
+        'game_version_id' => $version->id,
+        'name' => 'Area18',
+    ]);
+
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_code' => null,
+                'terminal_name' => 'CenterMass - Area18',
+                'starmap_location_uuid' => 'loc-uuid-enrich-1',
+                'starmap_location_data_id' => $starmapLocationData->id,
+                'price_buy' => 10000,
+                'price_sell' => 0,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 107,
+                        'terminal_name' => 'CenterMass - IO North Tower - Area 18',
+                        'terminal_code' => 'CMA18',
+                        'price_buy' => 15461,
+                        'price_sell' => 0,
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 107,
+                        'displayname' => 'Area18',
+                        'name' => 'CenterMass - Area 18',
+                        'code' => 'CMA18',
+                        'star_system_name' => 'Stanton',
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    Bus::fake();
+
+    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job->handle();
+
+    $itemData->refresh();
+
+    expect($itemData->uex_prices)->toBeArray()
+        ->and($itemData->uex_prices)->toHaveCount(1)
+        ->and($itemData->uex_prices[0])->toMatchArray([
+            'terminal_code' => 'CMA18',
+            'terminal_name' => 'CenterMass - IO North Tower - Area 18',
+            'starmap_location_uuid' => 'loc-uuid-enrich-1',
+            'starmap_location_data_id' => $starmapLocationData->id,
+            'price_buy' => 15461,
+            'price_sell' => 0,
+            'date_updated' => '2023-11-14T22:13:20+00:00',
+        ]);
+
+    Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
+        'count' => 1,
+        'chunk_size' => 1,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('skips items without existing prices', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    $item = Item::factory()->create();
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => null,
+    ]);
+
+    Http::fake([
+        'api.uexcorp.uk/*' => Http::response(['data' => []]),
+    ]);
+
+    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job->handle();
+
+    Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
+        'count' => 0,
+        'chunk_size' => 1,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('handles API failures gracefully', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    $item = Item::factory()->create();
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_code' => 'OLD',
+                'terminal_name' => 'Old Terminal',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 500,
+                'price_sell' => 250,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake([
+        'api.uexcorp.space/*' => Http::response(status: 500),
+        'api.uexcorp.uk/*' => Http::response(['data' => []]),
+    ]);
+
+    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job->handle();
+
+    Log::shouldHaveReceived('warning')->with('UEX per-item price API failed', [
+        'uuid' => $item->uuid,
+        'status' => 500,
+    ]);
+});
+
+it('processes multiple UUIDs in a single chunk', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    StarmapLocation::factory()->create(['uuid' => 'multi-loc-1']);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => StarmapLocation::factory()->create(['uuid' => 'multi-loc-2'])->id,
+        'game_version_id' => $version->id,
+        'name' => 'Multi Terminal',
+    ]);
+
+    $item1 = Item::factory()->create();
+    $item2 = Item::factory()->create();
+
+    ItemData::factory()->create([
+        'item_id' => $item1->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T1', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 100, 'price_sell' => 50, 'date_updated' => '2024-01-01T00:00:00+00:00']],
+    ]);
+
+    ItemData::factory()->create([
+        'item_id' => $item2->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T2', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 200, 'price_sell' => 100, 'date_updated' => '2024-01-01T00:00:00+00:00']],
+    ]);
+
+    $callCount = 0;
+
+    Http::fake(function ($request) use (&$callCount, $item1, $item2) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            $callCount++;
+
+            $uuid = $request['uuid'] ?? '';
+
+            $data = [];
+            if ($uuid === $item1->uuid) {
+                $data = [[
+                    'id' => 1,
+                    'id_terminal' => 10,
+                    'terminal_name' => 'Terminal A',
+                    'terminal_code' => 'TA',
+                    'price_buy' => 111,
+                    'price_sell' => 11,
+                    'date_modified' => 1700000000,
+                ]];
+            } elseif ($uuid === $item2->uuid) {
+                $data = [[
+                    'id' => 2,
+                    'id_terminal' => 20,
+                    'terminal_name' => 'Terminal B',
+                    'terminal_code' => 'TB',
+                    'price_buy' => 222,
+                    'price_sell' => 22,
+                    'date_modified' => 1700000100,
+                ]];
+            }
+
+            return Http::response(['data' => $data]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 10,
+                        'displayname' => 'Multi Terminal',
+                        'name' => 'Terminal A',
+                        'code' => 'TA',
+                        'star_system_name' => 'Stanton',
+                    ],
+                    [
+                        'id' => 20,
+                        'displayname' => 'Multi Terminal',
+                        'name' => 'Terminal B',
+                        'code' => 'TB',
+                        'star_system_name' => 'Stanton',
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $job = new EnrichItemPrices($version->id, [$item1->uuid, $item2->uuid]);
+    $job->handle();
+
+    expect($callCount)->toBe(2);
+
+    Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
+        'count' => 2,
+        'chunk_size' => 2,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('uses reverse UUID override for per-item API calls', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    StarmapLocation::factory()->create(['uuid' => 'override-loc-1']);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => StarmapLocation::factory()->create()->id,
+        'game_version_id' => $version->id,
+        'name' => 'Override Terminal',
+    ]);
+
+    $wikiItem = Item::factory()->create(['uuid' => '02d4cd2e-fa98-4086-aee1-6b2dfce8ea27']);
+    $wikiItemData = ItemData::factory()->create([
+        'item_id' => $wikiItem->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_code' => null,
+                'terminal_name' => 'Old Terminal',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 100,
+                'price_sell' => 50,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    $requestedUuid = null;
+
+    Http::fake(function ($request) use (&$requestedUuid) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            $requestedUuid = $request['uuid'];
+
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 50,
+                        'terminal_name' => 'Enriched Terminal',
+                        'terminal_code' => 'ENR',
+                        'price_buy' => 45000,
+                        'price_sell' => 22000,
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    config(['uexcorp.item_uuid_overrides' => [
+        '5d6c1c28-1589-4c72-8cc3-ff90f998dca3' => '02d4cd2e-fa98-4086-aee1-6b2dfce8ea27',
+    ]]);
+
+    $job = new EnrichItemPrices($version->id, ['02d4cd2e-fa98-4086-aee1-6b2dfce8ea27']);
+    $job->handle();
+
+    expect($requestedUuid)->toBe('5d6c1c28-1589-4c72-8cc3-ff90f998dca3');
+
+    $wikiItemData->refresh();
+
+    expect($wikiItemData->uex_prices)->toBeArray()
+        ->and($wikiItemData->uex_prices)->toHaveCount(1)
+        ->and($wikiItemData->uex_prices[0])->toMatchArray([
+            'terminal_code' => 'ENR',
+            'terminal_name' => 'Enriched Terminal',
+            'price_buy' => 45000,
+            'price_sell' => 22000,
+        ]);
+});
