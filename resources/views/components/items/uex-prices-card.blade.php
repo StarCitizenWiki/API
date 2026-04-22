@@ -37,6 +37,7 @@
                                         <th scope="col">Terminal</th>
                                         <th scope="col">Buy Price</th>
                                         <th scope="col">Sell Price</th>
+                                        <th scope="col">Version</th>
                                         <th scope="col">Updated</th>
                                     </tr>
                                 </thead>
@@ -58,6 +59,9 @@
                                             </td>
                                             <td>
                                                 {{ data_get($price, 'price_sell') > 0 ? number_format((float) data_get($price, 'price_sell')) . ' aUEC' : '—' }}
+                                            </td>
+                                            <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                {{ data_get($price, 'game_version', '—') }}
                                             </td>
                                             <td>
                                                 @if ($dateUpdated = data_get($price, 'date_updated'))

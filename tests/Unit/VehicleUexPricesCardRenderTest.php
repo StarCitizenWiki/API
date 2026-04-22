@@ -18,6 +18,7 @@ it('renders purchase prices grouped by system', function (): void {
                 'terminal_name' => 'Lorville Hangars',
                 'web_url' => '/vehicles/test',
                 'price_buy' => 1520000,
+                'game_version' => '4.7.1',
                 'starmap_location' => [
                     'star_system_name' => 'Stanton',
                     'parent_name' => 'Hurston',
@@ -30,6 +31,7 @@ it('renders purchase prices grouped by system', function (): void {
     $view->assertSeeText('Purchase Prices')
         ->assertSeeText('Lorville Hangars')
         ->assertSeeText('1,520,000 aUEC')
+        ->assertSeeText('4.7.1')
         ->assertSeeText('Stanton')
         ->assertSeeText('Hurston')
         ->assertDontSee('Rental Prices');
@@ -48,6 +50,7 @@ it('renders rental prices grouped by system', function (): void {
                 'terminal_name' => 'Area18 Admin',
                 'web_url' => null,
                 'price_rent' => 45000,
+                'game_version' => '4.7.1',
                 'starmap_location' => [
                     'star_system_name' => null,
                     'parent_name' => 'ArcCorp',
@@ -60,6 +63,7 @@ it('renders rental prices grouped by system', function (): void {
     $view->assertSeeText('Rental Prices')
         ->assertSeeText('Area18 Admin')
         ->assertSeeText('45,000 aUEC')
+        ->assertSeeText('4.7.1')
         ->assertSeeText('ArcCorp')
         ->assertDontSee('Purchase Prices');
 });
@@ -164,4 +168,19 @@ it('groups multiple systems into separate tables', function (): void {
     expect($tables->count())->toBe(2);
 
     $view->assertSeeTextInOrder(['Pyro', 'Orison', 'Stanton', 'Lorville']);
+});
+
+it('shows em-dash for missing game_version', function (): void {
+    $view = $this->blade('<x-vehicles.uex-prices-card :purchasePrices="$purchase" :rentalPrices="[]" />', [
+        'purchase' => [
+            [
+                'terminal_name' => 'No Version Terminal',
+                'price_buy' => 500,
+                'starmap_location' => ['star_system_name' => 'Stanton'],
+                'date_updated' => '2026-04-20T12:00:00Z',
+            ],
+        ],
+    ]);
+
+    $view->assertSeeText('No Version Terminal');
 });

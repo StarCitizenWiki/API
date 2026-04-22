@@ -112,6 +112,7 @@ it('imports vehicle purchase and rental prices', function (): void {
             'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 5000000,
+            'game_version' => $version->code,
             'date_updated' => '2023-11-14T22:13:20+00:00',
         ])
         ->and($vehicleData->uex_rental_prices)->toBeArray()
@@ -123,6 +124,7 @@ it('imports vehicle purchase and rental prices', function (): void {
             'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_rent' => 50000,
+            'game_version' => $version->code,
             'date_updated' => '2023-11-14T22:15:00+00:00',
         ]);
 

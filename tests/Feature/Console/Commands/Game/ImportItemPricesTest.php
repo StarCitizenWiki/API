@@ -60,7 +60,7 @@ it('dispatches item enrichment batch for items with prices', function (): void {
 
     Bus::fake();
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 50);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 50, null);
 
     Bus::assertBatchCount(1);
 
@@ -83,7 +83,7 @@ it('dispatches vehicle enrichment batch for vehicles with prices', function (): 
     Bus::fake();
     Http::fake(['api.uexcorp.uk/*' => Http::response(['data' => []])]);
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 50);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 50, null);
 
     Bus::assertBatchCount(1);
 
@@ -107,7 +107,7 @@ it('chunks item enrichment jobs correctly', function (): void {
 
     Bus::fake();
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 2);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 2, null);
 
     Bus::assertBatchCount(1);
 
@@ -129,7 +129,7 @@ it('chunks vehicle enrichment jobs correctly', function (): void {
     Bus::fake();
     Http::fake(['api.uexcorp.uk/*' => Http::response(['data' => []])]);
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 2);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 2, null);
 
     Bus::assertBatchCount(1);
 
@@ -156,7 +156,7 @@ it('dispatches both item and vehicle enrichment batches', function (): void {
     Bus::fake();
     Http::fake(['api.uexcorp.uk/*' => Http::response(['data' => []])]);
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 50);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 50, null);
 
     Bus::assertBatchCount(2);
 });
@@ -166,7 +166,7 @@ it('skips enrichment when no prices exist', function (): void {
 
     Bus::fake();
 
-    ImportItemPrices::dispatchEnrichmentBatches($version, 50);
+    ImportItemPrices::dispatchEnrichmentBatches($version, 50, null);
 
     Bus::assertNothingBatched();
 });

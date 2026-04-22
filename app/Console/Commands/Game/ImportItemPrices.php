@@ -32,13 +32,20 @@ class ImportItemPrices extends Command
             return self::FAILURE;
         }
 
+        $previousVersion = $gameVersion->findPreviousMinorVersion();
+        $previousVersionCode = $previousVersion?->code;
+
         $chunkSize = (int) $this->option('chunk');
 
         $this->info("Dispatching price import for version {$gameVersion->code}...");
 
+        if ($previousVersion !== null) {
+            $this->info("Including previous version {$previousVersion->code} for enrichment.");
+        }
+
         Bus::batch([new ImportItemPricesJob($gameVersion->id)])
-            ->then(function () use ($gameVersion, $chunkSize): void {
-                self::dispatchEnrichmentBatches($gameVersion, $chunkSize);
+            ->then(function () use ($gameVersion, $chunkSize, $previousVersionCode): void {
+                self::dispatchEnrichmentBatches($gameVersion, $chunkSize, $previousVersionCode);
             })
             ->dispatch();
 
@@ -47,13 +54,13 @@ class ImportItemPrices extends Command
         return self::SUCCESS;
     }
 
-    public static function dispatchEnrichmentBatches(GameVersion $gameVersion, int $chunkSize): void
+    public static function dispatchEnrichmentBatches(GameVersion $gameVersion, int $chunkSize, ?string $previousVersionCode = null): void
     {
-        self::dispatchItemEnrichment($gameVersion, $chunkSize);
-        self::dispatchVehicleEnrichment($gameVersion, $chunkSize);
+        self::dispatchItemEnrichment($gameVersion, $chunkSize, $previousVersionCode);
+        self::dispatchVehicleEnrichment($gameVersion, $chunkSize, $previousVersionCode);
     }
 
-    private static function dispatchItemEnrichment(GameVersion $gameVersion, int $chunkSize): void
+    private static function dispatchItemEnrichment(GameVersion $gameVersion, int $chunkSize, ?string $previousVersionCode): void
     {
         $itemUuids = ItemData::query()
             ->where('game_version_id', $gameVersion->id)
@@ -71,13 +78,13 @@ class ImportItemPrices extends Command
         $chunks = collect($itemUuids)->chunk($chunkSize);
 
         $jobs = $chunks->map(
-            fn ($chunk): EnrichItemPricesJob => new EnrichItemPricesJob($gameVersion->id, $chunk->values()->toArray()),
+            fn ($chunk): EnrichItemPricesJob => new EnrichItemPricesJob($gameVersion->id, $chunk->values()->toArray(), $previousVersionCode),
         )->all();
 
         Bus::batch($jobs)->allowFailures()->dispatch();
     }
 
-    private static function dispatchVehicleEnrichment(GameVersion $gameVersion, int $chunkSize): void
+    private static function dispatchVehicleEnrichment(GameVersion $gameVersion, int $chunkSize, ?string $previousVersionCode): void
     {
         $vehicleUuids = VehicleData::query()
             ->where('game_version_id', $gameVersion->id)
@@ -97,7 +104,7 @@ class ImportItemPrices extends Command
         $chunks = collect($vehicleUuids)->chunk($chunkSize);
 
         $jobs = $chunks->map(
-            fn ($chunk): EnrichVehiclePricesJob => new EnrichVehiclePricesJob($gameVersion->id, $chunk->values()->toArray(), $wikiToUexMap),
+            fn ($chunk): EnrichVehiclePricesJob => new EnrichVehiclePricesJob($gameVersion->id, $chunk->values()->toArray(), $wikiToUexMap, $previousVersionCode),
         )->all();
 
         Bus::batch($jobs)->allowFailures()->dispatch();

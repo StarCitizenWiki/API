@@ -94,6 +94,7 @@ it('imports prices for existing items only', function (): void {
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 100,
             'price_sell' => 50,
+            'game_version' => $version->code,
             'date_updated' => '2023-11-14T22:13:20+00:00',
         ])
         ->and($unknownItemData->refresh()->uex_prices)->toBeNull();
@@ -146,6 +147,7 @@ it('updates only the specified game version', function (): void {
     $job->handle();
 
     expect($targetItemData->refresh()->uex_prices)->toBeArray()->toHaveCount(1)
+        ->and($targetItemData->refresh()->uex_prices[0]['game_version'])->toBe('4.0.0')
         ->and($otherItemData->refresh()->uex_prices)->toBeNull();
 
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
@@ -195,6 +197,7 @@ it('applies item UUID overrides from config', function (): void {
             'terminal_name' => 'Test Terminal',
             'price_buy' => 45000,
             'price_sell' => 22000,
+            'game_version' => $version->code,
         ]);
 
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
@@ -344,7 +347,9 @@ it('deduplicates prices by terminal_id', function (): void {
     expect($itemData->refresh()->uex_prices)->toBeArray()
         ->and($itemData->uex_prices)->toHaveCount(2)
         ->and($itemData->uex_prices[0]['terminal_code'])->toBeNull()
-        ->and($itemData->uex_prices[1]['terminal_code'])->toBeNull();
+        ->and($itemData->uex_prices[0]['game_version'])->toBe($version->code)
+        ->and($itemData->uex_prices[1]['terminal_code'])->toBeNull()
+        ->and($itemData->uex_prices[1]['game_version'])->toBe($version->code);
 
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 1,

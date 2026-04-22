@@ -42,6 +42,7 @@
                                                 <th scope="col">Location</th>
                                                 <th scope="col">Terminal</th>
                                                 <th scope="col">Price</th>
+                                                <th scope="col">Version</th>
                                                 <th scope="col">Updated</th>
                                             </tr>
                                             </thead>
@@ -61,6 +62,9 @@
                                                     </td>
                                                     <td>
                                                         {{ data_get($price, 'price_buy') > 0 ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
+                                                    </td>
+                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                        {{ data_get($price, 'game_version', '—') }}
                                                     </td>
                                                     <td>
                                                         @if ($dateUpdated = data_get($price, 'date_updated'))
@@ -99,6 +103,7 @@
                                                 <th scope="col">Location</th>
                                                 <th scope="col">Terminal</th>
                                                 <th scope="col">Price</th>
+                                                <th scope="col">Version</th>
                                                 <th scope="col">Updated</th>
                                             </tr>
                                             </thead>
@@ -118,6 +123,9 @@
                                                     </td>
                                                     <td>
                                                         {{ data_get($price, 'price_rent') > 0 ? number_format((float) data_get($price, 'price_rent')) . ' aUEC' : '—' }}
+                                                    </td>
+                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                        {{ data_get($price, 'game_version', '—') }}
                                                     </td>
                                                     <td>
                                                         @if ($dateUpdated = data_get($price, 'date_updated'))

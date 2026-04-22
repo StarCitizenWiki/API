@@ -18,7 +18,7 @@ uses(RefreshDatabase::class);
 it('enriches item prices from per-item API', function (): void {
     Log::spy();
 
-    $version = GameVersion::factory()->create(['is_default' => true]);
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
 
     $locationUuid = 'b1e1e1e1-2222-4333-8444-555566667781';
     $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
@@ -40,6 +40,7 @@ it('enriches item prices from per-item API', function (): void {
                 'starmap_location_data_id' => $starmapLocationData->id,
                 'price_buy' => 10000,
                 'price_sell' => 0,
+                'game_version' => '4.7.1',
                 'date_updated' => '2024-01-01T00:00:00+00:00',
             ],
         ],
@@ -56,6 +57,7 @@ it('enriches item prices from per-item API', function (): void {
                         'terminal_code' => 'CMA18',
                         'price_buy' => 15461,
                         'price_sell' => 0,
+                        'game_version' => '4.7.1',
                         'date_modified' => 1700000000,
                     ],
                 ],
@@ -96,6 +98,7 @@ it('enriches item prices from per-item API', function (): void {
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 15461,
             'price_sell' => 0,
+            'game_version' => '4.7.1',
             'date_updated' => '2023-11-14T22:13:20+00:00',
         ]);
 
@@ -170,7 +173,7 @@ it('handles API failures gracefully', function (): void {
 it('processes multiple UUIDs in a single chunk', function (): void {
     Log::spy();
 
-    $version = GameVersion::factory()->create(['is_default' => true]);
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
 
     StarmapLocation::factory()->create(['uuid' => 'b1e1e1e1-2222-4333-8444-555566667782']);
     StarmapLocationData::factory()->create([
@@ -185,13 +188,13 @@ it('processes multiple UUIDs in a single chunk', function (): void {
     ItemData::factory()->create([
         'item_id' => $item1->id,
         'game_version_id' => $version->id,
-        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T1', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 100, 'price_sell' => 50, 'date_updated' => '2024-01-01T00:00:00+00:00']],
+        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T1', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 100, 'price_sell' => 50, 'game_version' => '4.7.1', 'date_updated' => '2024-01-01T00:00:00+00:00']],
     ]);
 
     ItemData::factory()->create([
         'item_id' => $item2->id,
         'game_version_id' => $version->id,
-        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T2', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 200, 'price_sell' => 100, 'date_updated' => '2024-01-01T00:00:00+00:00']],
+        'uex_prices' => [['terminal_code' => null, 'terminal_name' => 'T2', 'starmap_location_uuid' => null, 'starmap_location_data_id' => null, 'price_buy' => 200, 'price_sell' => 100, 'game_version' => '4.7.1', 'date_updated' => '2024-01-01T00:00:00+00:00']],
     ]);
 
     $callCount = 0;
@@ -211,6 +214,7 @@ it('processes multiple UUIDs in a single chunk', function (): void {
                     'terminal_code' => 'TA',
                     'price_buy' => 111,
                     'price_sell' => 11,
+                    'game_version' => '4.7.1',
                     'date_modified' => 1700000000,
                 ]];
             } elseif ($uuid === $item2->uuid) {
@@ -221,6 +225,7 @@ it('processes multiple UUIDs in a single chunk', function (): void {
                     'terminal_code' => 'TB',
                     'price_buy' => 222,
                     'price_sell' => 22,
+                    'game_version' => '4.7.1',
                     'date_modified' => 1700000100,
                 ]];
             }
@@ -267,7 +272,7 @@ it('processes multiple UUIDs in a single chunk', function (): void {
 it('uses reverse UUID override for per-item API calls', function (): void {
     Log::spy();
 
-    $version = GameVersion::factory()->create(['is_default' => true]);
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
 
     StarmapLocation::factory()->create(['uuid' => 'b1e1e1e1-2222-4333-8444-555566667784']);
     StarmapLocationData::factory()->create([
@@ -288,6 +293,7 @@ it('uses reverse UUID override for per-item API calls', function (): void {
                 'starmap_location_data_id' => null,
                 'price_buy' => 100,
                 'price_sell' => 50,
+                'game_version' => '4.7.1',
                 'date_updated' => '2024-01-01T00:00:00+00:00',
             ],
         ],
@@ -308,6 +314,7 @@ it('uses reverse UUID override for per-item API calls', function (): void {
                         'terminal_code' => 'ENR',
                         'price_buy' => 45000,
                         'price_sell' => 22000,
+                        'game_version' => '4.7.1',
                         'date_modified' => 1700000000,
                     ],
                 ],
@@ -339,5 +346,6 @@ it('uses reverse UUID override for per-item API calls', function (): void {
             'terminal_name' => 'Enriched Terminal',
             'price_buy' => 45000,
             'price_sell' => 22000,
+            'game_version' => '4.7.1',
         ]);
 });

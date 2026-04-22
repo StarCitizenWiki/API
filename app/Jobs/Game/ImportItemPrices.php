@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocationData;
@@ -42,6 +43,14 @@ class ImportItemPrices implements ShouldQueue
 
     public function handle(): void
     {
+        $gameVersion = GameVersion::find($this->gameVersionId);
+
+        if ($gameVersion === null) {
+            Log::error('Game version not found', ['game_version_id' => $this->gameVersionId]);
+
+            return;
+        }
+
         $response = Http::timeout(60)->get(self::API_URL);
 
         if (! $response->successful()) {
@@ -69,11 +78,11 @@ class ImportItemPrices implements ShouldQueue
         }
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
-        $this->processPrices($data, $mapper);
-        $this->processVehiclePrices($mapper);
+        $this->processPrices($data, $mapper, $gameVersion->code);
+        $this->processVehiclePrices($mapper, $gameVersion->code);
     }
 
-    private function processPrices(array $apiData, TerminalLocationMapper $mapper): void
+    private function processPrices(array $apiData, TerminalLocationMapper $mapper, string $gameVersionCode): void
     {
         $grouped = collect($apiData)->groupBy('item_uuid');
 
@@ -144,7 +153,7 @@ class ImportItemPrices implements ShouldQueue
 
             $pricesData = collect($prices)
                 ->unique('id_terminal')
-                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup): array {
+                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode): array {
                     $terminalId = (int) $p['id_terminal'];
                     $locationUuid = $locationMapping->get($terminalId);
 
@@ -158,6 +167,7 @@ class ImportItemPrices implements ShouldQueue
                             : null,
                         'price_buy' => $p['price_buy'],
                         'price_sell' => $p['price_sell'],
+                        'game_version' => $gameVersionCode,
                         'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
                     ];
                 })
@@ -176,7 +186,7 @@ class ImportItemPrices implements ShouldQueue
         ]);
     }
 
-    private function processVehiclePrices(TerminalLocationMapper $mapper): void
+    private function processVehiclePrices(TerminalLocationMapper $mapper, string $gameVersionCode): void
     {
         $apiUrl = config('uexcorp.api_url');
 
@@ -253,8 +263,8 @@ class ImportItemPrices implements ShouldQueue
             $purchases = $purchaseGrouped->get($idVehicle, collect());
             $rentals = $rentalGrouped->get($idVehicle, collect());
 
-            $vehicleData->uex_purchase_prices = $this->mapVehiclePrices($purchases, $locationMapping, $mapper, $locationDataLookup, 'price_buy');
-            $vehicleData->uex_rental_prices = $this->mapVehiclePrices($rentals, $locationMapping, $mapper, $locationDataLookup, 'price_rent');
+            $vehicleData->uex_purchase_prices = $this->mapVehiclePrices($purchases, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $gameVersionCode);
+            $vehicleData->uex_rental_prices = $this->mapVehiclePrices($rentals, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $gameVersionCode);
             $vehicleData->save();
 
             $updatedCount++;
@@ -333,10 +343,11 @@ class ImportItemPrices implements ShouldQueue
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         string $priceField,
+        string $gameVersionCode,
     ): array {
         return $prices
             ->unique('id_terminal')
-            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField): array {
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField, $gameVersionCode): array {
                 $terminalId = (int) $p['id_terminal'];
                 $locationUuid = $locationMapping->get($terminalId);
 
@@ -349,6 +360,7 @@ class ImportItemPrices implements ShouldQueue
                         ? $locationDataLookup->get($locationUuid)
                         : null,
                     $priceField => $p[$priceField],
+                    'game_version' => $gameVersionCode,
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
                 ];
             })

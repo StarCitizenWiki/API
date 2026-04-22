@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocationData;
@@ -40,6 +41,7 @@ class EnrichItemPrices implements ShouldQueue
     public function __construct(
         private readonly int $gameVersionId,
         private readonly array $itemUuids,
+        private readonly ?string $previousVersionCode = null,
     ) {}
 
     public function handle(): void
@@ -47,6 +49,14 @@ class EnrichItemPrices implements ShouldQueue
         if ($this->batch()?->cancelled()) {
             return;
         }
+
+        $gameVersion = GameVersion::find($this->gameVersionId);
+
+        if ($gameVersion === null) {
+            return;
+        }
+
+        $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
 
         $items = Item::query()
             ->whereIn('uuid', $this->itemUuids)
@@ -86,7 +96,7 @@ class EnrichItemPrices implements ShouldQueue
 
             $apiUuid = $reverseOverrides->get($uuid, $uuid);
 
-            $enriched = $this->enrichItem($apiUuid, $itemData, $locationMapping, $mapper, $locationDataLookup);
+            $enriched = $this->enrichItem($apiUuid, $itemData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -102,12 +112,41 @@ class EnrichItemPrices implements ShouldQueue
         ]);
     }
 
+    /**
+     * @return array<string, string> apiVersionPrefix => dbVersionCode
+     */
+    private function buildVersionPrefixMap(string $currentVersionCode): array
+    {
+        $map = [];
+
+        $map[$this->extractMajorMinor($currentVersionCode)] = $currentVersionCode;
+
+        if ($this->previousVersionCode !== null) {
+            $map[$this->extractMajorMinor($this->previousVersionCode)] = $this->previousVersionCode;
+        }
+
+        return $map;
+    }
+
+    private function extractMajorMinor(string $version): string
+    {
+        if (preg_match('/^(\d+\.\d+)/', $version, $matches)) {
+            return $matches[1];
+        }
+
+        return $version;
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
     private function enrichItem(
         string $uuid,
         ItemData $itemData,
         Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
+        array $versionPrefixMap,
     ): bool {
         $apiUrl = config('uexcorp.api_url');
 
@@ -129,8 +168,9 @@ class EnrichItemPrices implements ShouldQueue
         }
 
         $enrichedPrices = collect($apiPrices)
+            ->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap))
             ->unique('id_terminal')
-            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup): array {
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $versionPrefixMap): array {
                 $terminalId = (int) $p['id_terminal'];
                 $locationUuid = $locationMapping->get($terminalId);
 
@@ -144,6 +184,7 @@ class EnrichItemPrices implements ShouldQueue
                         : null,
                     'price_buy' => $p['price_buy'],
                     'price_sell' => $p['price_sell'],
+                    'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
                 ];
             })
@@ -154,6 +195,30 @@ class EnrichItemPrices implements ShouldQueue
         $itemData->save();
 
         return true;
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
+    private function matchesKnownVersion(?string $apiVersion, array $versionPrefixMap): bool
+    {
+        if ($apiVersion === null) {
+            return false;
+        }
+
+        return array_any($versionPrefixMap, fn($_, $prefix) => str_starts_with($apiVersion, $prefix));
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
+    private function resolveDbVersionCode(?string $apiVersion, array $versionPrefixMap): ?string
+    {
+        if ($apiVersion === null) {
+            return null;
+        }
+
+        return array_find($versionPrefixMap, fn($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
     }
 
     public function failed(Throwable $exception): void

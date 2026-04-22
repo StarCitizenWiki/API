@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
@@ -42,6 +43,7 @@ class EnrichVehiclePrices implements ShouldQueue
         private readonly int $gameVersionId,
         private readonly array $vehicleUuids,
         private readonly array $wikiToUexMap = [],
+        private readonly ?string $previousVersionCode = null,
     ) {}
 
     public function handle(): void
@@ -49,6 +51,14 @@ class EnrichVehiclePrices implements ShouldQueue
         if ($this->batch()?->cancelled()) {
             return;
         }
+
+        $gameVersion = GameVersion::find($this->gameVersionId);
+
+        if ($gameVersion === null) {
+            return;
+        }
+
+        $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
 
         $reverseMap = collect($this->wikiToUexMap);
 
@@ -89,7 +99,7 @@ class EnrichVehiclePrices implements ShouldQueue
 
             $uexUuid = $reverseMap->get($wikiUuid, $wikiUuid);
 
-            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $vehicleData, $locationMapping, $mapper, $locationDataLookup);
+            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -105,6 +115,34 @@ class EnrichVehiclePrices implements ShouldQueue
         ]);
     }
 
+    /**
+     * @return array<string, string> apiVersionPrefix => dbVersionCode
+     */
+    private function buildVersionPrefixMap(string $currentVersionCode): array
+    {
+        $map = [];
+
+        $map[$this->extractMajorMinor($currentVersionCode)] = $currentVersionCode;
+
+        if ($this->previousVersionCode !== null) {
+            $map[$this->extractMajorMinor($this->previousVersionCode)] = $this->previousVersionCode;
+        }
+
+        return $map;
+    }
+
+    private function extractMajorMinor(string $version): string
+    {
+        if (preg_match('/^(\d+\.\d+)/', $version, $matches)) {
+            return $matches[1];
+        }
+
+        return $version;
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
     private function enrichVehicle(
         string $apiUrl,
         string $uexUuid,
@@ -112,6 +150,7 @@ class EnrichVehiclePrices implements ShouldQueue
         Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
+        array $versionPrefixMap,
     ): bool {
         $purchaseResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_purchases_prices", ['uuid' => $uexUuid]);
         $rentalResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_rentals_prices", ['uuid' => $uexUuid]);
@@ -124,11 +163,11 @@ class EnrichVehiclePrices implements ShouldQueue
         }
 
         if (is_array($purchaseData) && $purchaseData !== []) {
-            $vehicleData->uex_purchase_prices = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy');
+            $vehicleData->uex_purchase_prices = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
         }
 
         if (is_array($rentalData) && $rentalData !== []) {
-            $vehicleData->uex_rental_prices = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent');
+            $vehicleData->uex_rental_prices = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
         }
 
         $vehicleData->save();
@@ -139,6 +178,7 @@ class EnrichVehiclePrices implements ShouldQueue
     /**
      * @param  Collection<int, string>  $locationMapping
      * @param  Collection<int, int|null>  $locationDataLookup
+     * @param  array<string, string>  $versionPrefixMap
      */
     private function mapEnrichedPrices(
         array $apiPrices,
@@ -146,10 +186,12 @@ class EnrichVehiclePrices implements ShouldQueue
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         string $priceField,
+        array $versionPrefixMap,
     ): array {
         return collect($apiPrices)
+            ->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap))
             ->unique('id_terminal')
-            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField): array {
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField, $versionPrefixMap): array {
                 $terminalId = (int) $p['id_terminal'];
                 $locationUuid = $locationMapping->get($terminalId);
 
@@ -162,11 +204,36 @@ class EnrichVehiclePrices implements ShouldQueue
                         ? $locationDataLookup->get($locationUuid)
                         : null,
                     $priceField => $p[$priceField],
+                    'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
                 ];
             })
             ->values()
             ->toArray();
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
+    private function matchesKnownVersion(?string $apiVersion, array $versionPrefixMap): bool
+    {
+        if ($apiVersion === null) {
+            return false;
+        }
+
+        return array_any($versionPrefixMap, fn($_, $prefix) => str_starts_with($apiVersion, $prefix));
+    }
+
+    /**
+     * @param  array<string, string>  $versionPrefixMap
+     */
+    private function resolveDbVersionCode(?string $apiVersion, array $versionPrefixMap): ?string
+    {
+        if ($apiVersion === null) {
+            return null;
+        }
+
+        return array_find($versionPrefixMap, fn($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
     }
 
     public function failed(Throwable $exception): void

@@ -39,4 +39,26 @@ class GameVersion extends Model
     {
         return static::requestedOrDefault($code)->firstOrFail();
     }
+
+    public function findPreviousMinorVersion(): ?self
+    {
+        if (! preg_match('/^(\d+)\.(\d+)/', $this->code, $matches)) {
+            return null;
+        }
+
+        $major = (int) $matches[1];
+        $previousMinor = ((int) $matches[2]) - 1;
+
+        if ($previousMinor < 0) {
+            return null;
+        }
+
+        $prefix = "{$major}.{$previousMinor}";
+
+        return static::query()
+            ->where('code', 'LIKE', "{$prefix}.%")
+            ->where('code', '!=', $this->code)
+            ->orderByDesc('released_at')
+            ->first();
+    }
 }

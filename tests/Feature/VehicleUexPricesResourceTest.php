@@ -88,6 +88,7 @@ it('expands vehicle purchase prices with location data', function (): void {
                     'starmap_location_uuid' => $location->uuid,
                     'starmap_location_data_id' => $terminalLocationData->id,
                     'price_buy' => 1520000.0,
+                    'game_version' => '4.4.0-TEST',
                     'date_updated' => '2026-04-20T12:00:00Z',
                 ],
             ],
@@ -105,6 +106,7 @@ it('expands vehicle purchase prices with location data', function (): void {
     expect($price['terminal_code'])->toBe('LOR_HAB')
         ->and($price['terminal_name'])->toBe('Lorville Hangars')
         ->and($price['price_buy'])->toBe(1520000)
+        ->and($price['game_version'])->toBe('4.4.0-TEST')
         ->and($price)->not->toHaveKey('starmap_location_data_id')
         ->and($price['starmap_location']['name'])->toBe('Lorville')
         ->and($price['starmap_location']['slug'])->toBe('lorville')
@@ -131,6 +133,7 @@ it('expands vehicle rental prices with price_rent field', function (): void {
                     'starmap_location_uuid' => null,
                     'starmap_location_data_id' => null,
                     'price_rent' => 45000.0,
+                    'game_version' => '4.4.0-TEST',
                     'date_updated' => '2026-04-19T08:00:00Z',
                 ],
             ],
@@ -143,6 +146,7 @@ it('expands vehicle rental prices with price_rent field', function (): void {
     $rental = $response->json('data.uex_prices.rental');
     expect($rental)->toHaveCount(1);
     expect($rental[0]['price_rent'])->toBe(45000)
+        ->and($rental[0]['game_version'])->toBe('4.4.0-TEST')
         ->and($rental[0]['starmap_location'])->toBeNull()
         ->and($rental[0]['link'])->toBeNull()
         ->and($rental[0]['web_url'])->toBeNull();

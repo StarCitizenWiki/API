@@ -504,11 +504,12 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(
                         properties: [
-                            new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                            new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
                             new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
                             new OA\Property(property: 'terminal_name', type: 'string'),
                             new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
                             new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
+                            new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                             new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
                             new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
                             new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
@@ -535,11 +536,12 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(
                         properties: [
-                            new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                            new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
                             new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
                             new OA\Property(property: 'terminal_name', type: 'string'),
                             new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
                             new OA\Property(property: 'price_rent', type: 'number', format: 'double'),
+                            new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                             new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
                             new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
                             new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),

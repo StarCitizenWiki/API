@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
 it('enriches vehicle prices from per-vehicle API', function (): void {
     Log::spy();
 
-    $version = GameVersion::factory()->create(['is_default' => true]);
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
 
     $locationUuid = 'a1a1a1a1-2222-4333-8444-555566667781';
     $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
@@ -40,6 +40,7 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
                 'starmap_location_uuid' => null,
                 'starmap_location_data_id' => null,
                 'price_buy' => 1000000,
+                'game_version' => '4.7.1',
                 'date_updated' => '2024-01-01T00:00:00+00:00',
             ],
         ],
@@ -55,6 +56,7 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
                         'terminal_name' => 'New Terminal - Area18',
                         'terminal_code' => 'NTA18',
                         'price_buy' => 2000000,
+                        'game_version' => '4.7.1',
                         'date_modified' => 1700000000,
                     ],
                 ],
@@ -70,6 +72,7 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
                         'terminal_name' => 'New Terminal - Area18',
                         'terminal_code' => 'NTA18',
                         'price_rent' => 20000,
+                        'game_version' => '4.7.1',
                         'date_modified' => 1700000100,
                     ],
                 ],
@@ -107,11 +110,13 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
             'starmap_location_uuid' => $locationUuid,
             'starmap_location_data_id' => $starmapLocationData->id,
             'price_buy' => 2000000,
+            'game_version' => '4.7.1',
             'date_updated' => '2023-11-14T22:13:20+00:00',
         ])
         ->and($vehicleData->uex_rental_prices)->toBeArray()
         ->and($vehicleData->uex_rental_prices)->toHaveCount(1)
-        ->and($vehicleData->uex_rental_prices[0]['price_rent'])->toBe(20000);
+        ->and($vehicleData->uex_rental_prices[0]['price_rent'])->toBe(20000)
+        ->and($vehicleData->uex_rental_prices[0]['game_version'])->toBe('4.7.1');
 
     Log::shouldHaveReceived('info')->with('UEX vehicle prices enrichment chunk completed', [
         'count' => 1,
@@ -123,7 +128,7 @@ it('enriches vehicle prices from per-vehicle API', function (): void {
 it('uses reverse UUID override for mismatched vehicles', function (): void {
     Log::spy();
 
-    $version = GameVersion::factory()->create(['is_default' => true]);
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
 
     $wikiUuid = 'd8987dc2-340d-4312-8d4f-aee7e7fac823';
     $uexUuid = '42b72b92-7880-446d-8770-b158e4b0fd10';
@@ -133,7 +138,7 @@ it('uses reverse UUID override for mismatched vehicles', function (): void {
         'vehicle_id' => $vehicle->id,
         'game_version_id' => $version->id,
         'uex_purchase_prices' => [
-            ['terminal_code' => null, 'terminal_name' => 'T', 'price_buy' => 100, 'date_updated' => '2024-01-01T00:00:00+00:00'],
+            ['terminal_code' => null, 'terminal_name' => 'T', 'price_buy' => 100, 'game_version' => '4.7.1', 'date_updated' => '2024-01-01T00:00:00+00:00'],
         ],
     ]);
 
@@ -154,6 +159,7 @@ it('uses reverse UUID override for mismatched vehicles', function (): void {
                         'terminal_name' => 'T',
                         'terminal_code' => 'T1',
                         'price_buy' => 200,
+                        'game_version' => '4.7.1',
                         'date_modified' => 1700000000,
                     ],
                 ],
