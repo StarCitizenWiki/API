@@ -28,11 +28,11 @@ trait ExpandsUexPrices
                 unset($price['starmap_location_data_id']);
 
                 $price['link'] = $locationUuid !== null
-                    ? route('locations.show', ['identifier' => $locationUuid], false)
+                    ? route('locations.show', ['identifier' => $locationUuid])
                     : null;
 
                 $price['web_url'] = $locationUuid !== null
-                    ? route('web.locations.show', ['identifier' => $locationUuid], false)
+                    ? route('web.locations.show', ['identifier' => $locationUuid])
                     : null;
 
                 if ($locationData !== null) {
