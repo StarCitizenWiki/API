@@ -58,7 +58,7 @@
                         <h4>{{$categoryLabel}}</h4>
                         @php $categoryIndex = 0; @endphp
                         @foreach ($portEntries[$categoryLabel] ?? [] as $port)
-                            <x-port-display :port="$port" :editable="data_get($port, 'editable', false)" :power-pools="$powerPools" :category-index="$categoryIndex"/>
+                            <x-port-display :port="$port" :editable="data_get($port, 'editable', false)" :power-pools="$powerPools" :category-index="$categoryIndex" :vehicle-name="data_get($vehicle, 'name')"/>
                             @php $categoryIndex++; @endphp
                         @endforeach
                     </div>

@@ -27,9 +27,7 @@
     };
     $portSizeMin = data_get($port, 'sizes.min');
     $portSizeMax = data_get($port, 'sizes.max');
-    $attachmentFilterUrl = $attachmentSubType !== null && !$hasNamedEquippedItem && $portSizeMin !== null && $portSizeMax !== null
-        ? route('web.items.index', ['filter' => ['category' => 'weapon-attachments', 'sub_type' => $attachmentSubType, 'size' => implode(',', range($portSizeMin, $portSizeMax))]])
-        : null;
+    $showAttachmentBrowse = $attachmentSubType !== null && !$hasNamedEquippedItem && $portSizeMin !== null && $portSizeMax !== null;
 
     if ($showQuickStats) {
         $itemSize = data_get($equippedItem, 'size');
@@ -58,10 +56,14 @@
                     <x-icon name="lock" class="size-3"/>
                 @endif
                 {{ $displayPortLabel ?? 'Port' }}
-                @if ($attachmentFilterUrl)
-                    <a href="{{ $attachmentFilterUrl }}" class="badge badge-sm badge-outline badge-primary link no-underline">
-                        Browse Attachments
-                    </a>
+                @if ($showAttachmentBrowse)
+                    <x-port-browse-badge
+                        category="weapon-attachments"
+                        :sub-type="$attachmentSubType"
+                        :size-min="$portSizeMin"
+                        :size-max="$portSizeMax"
+                        label="Browse Attachments"
+                    />
                 @endif
             </span>
 

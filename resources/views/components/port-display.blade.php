@@ -5,6 +5,7 @@
     'editable' => null,
     'powerPools' => [],
     'categoryIndex' => 0,
+    'vehicleName' => null,
 ])
 
 @php
@@ -18,6 +19,9 @@
     $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
     $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
     $isLocked = is_bool($editable) ? !$editable : (data_get($port, 'editable') === true ? false : true);
+    $portSizeMin = data_get($port, 'sizes.min');
+    $portSizeMax = data_get($port, 'sizes.max');
+    $portType = data_get($port, 'type');
     $equippedCardClasses = '!border-0 !shadow-none bg-base-200 rounded-lg [&_.card-body]:gap-2 [&_.card-body]:p-3 [&_.card-title]:text-sm';
 
     // Extract equipped item stats for summary display
@@ -129,16 +133,32 @@
                     <span class="badge badge-ghost badge-sm">{{ $sizeRangeLabel }}</span>
                 @endif
                 @if ($portTypeLabel !== '')
-                    <span class="badge badge-ghost badge-sm max-w-[12rem] truncate" title="{{ $portTypeLabel }}">
-                        {{ $portTypeLabel }}
-                    </span>
+                    @if (! $isLocked && $portType)
+                        @php
+                            $browseFilters = array_filter([
+                                'type' => $portType,
+                                'name' => $portType === 'FlightController' ? $vehicleName : null,
+                            ]);
+                            if ($portSizeMin !== null && $portSizeMax !== null) {
+                                $browseFilters['size'] = implode(',', range($portSizeMin, $portSizeMax));
+                            }
+                        @endphp
+                        <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="badge badge-ghost badge-sm max-w-48 truncate no-underline hover:badge-primary" title="Browse {{ $portTypeLabel }}">
+                            {{ $portTypeLabel }}
+                            <x-icon name="external-link" class="size-3 opacity-60"/>
+                        </a>
+                    @else
+                        <span class="badge badge-ghost badge-sm max-w-48 truncate" title="{{ $portTypeLabel }}">
+                            {{ $portTypeLabel }}
+                        </span>
+                    @endif
                 @endif
             </span>
 
             @if ($showQuickStats)
                 <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
                     @if ($hasNamedEquippedItem)
-                        <span class="max-w-[14rem] truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                        <span class="max-w-56 truncate text-base-content/70" title="{{ $equippedDisplayName }}">
                             {{ $equippedDisplayName }}
                         </span>
                     @endif
@@ -412,7 +432,7 @@
 
             @if (! empty(data_get($port, 'ports')))
                 @foreach (data_get($port, 'ports') as $childPort)
-                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)"/>
+                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName"/>
                 @endforeach
             @endif
         </div>
