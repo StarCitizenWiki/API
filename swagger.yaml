@@ -2996,11 +2996,25 @@ components:
         name:
           type: string
           nullable: true
+        kind:
+          type: string
+          enum:
+            - resource
+            - item
+          nullable: true
         resource_type_uuid:
           type: string
           format: uuid
           nullable: true
+        item_uuid:
+          type: string
+          format: uuid
+          nullable: true
         quantity_scu:
+          type: number
+          format: float
+          nullable: true
+        quantity:
           type: number
           format: float
           nullable: true
@@ -4169,6 +4183,10 @@ components:
               nullable: true
             is_base_variant:
               type: boolean
+            variant_name:
+              description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"'
+              type: string
+              nullable: true
             manufacturer:
               $ref: '#/components/schemas/manufacturer_link'
             link:
@@ -4363,10 +4381,14 @@ components:
         is_craftable:
           type: boolean
         blueprint:
-          description: 'Crafting blueprints that produce this item. Only returned when the item is craftable.'
+          description: 'Crafting blueprints that produce this item. Only returned when the item is craftable. Use include=blueprints to get full blueprint data instead of links.'
           type: array
           items:
-            $ref: '#/components/schemas/item_blueprint_link'
+            oneOf:
+              -
+                $ref: '#/components/schemas/item_blueprint_link'
+              -
+                $ref: '#/components/schemas/blueprint'
           nullable: true
         grade:
           description: 'Only returned for Ship.* items (derived formatting for ship grades).'
@@ -4791,18 +4813,47 @@ components:
           items:
             properties:
               terminal_id:
+                description: 'UEX terminal ID'
                 type: integer
+              terminal_code:
+                type: string
+                nullable: true
               terminal_name:
                 type: string
+              starmap_location_uuid:
+                type: string
+                nullable: true
               price_buy:
                 type: number
                 format: double
               price_sell:
                 type: number
                 format: double
+              game_version:
+                description: 'Game version this price applies to, e.g. 4.7.1'
+                type: string
+                nullable: true
               date_updated:
                 type: string
                 format: date-time
+              link:
+                description: 'API URL for the starmap location'
+                type: string
+                nullable: true
+              web_url:
+                description: 'Web URL for the starmap location'
+                type: string
+                nullable: true
+              starmap_location:
+                description: 'Expanded starmap location data'
+                properties:
+                  name: { type: string }
+                  slug: { type: string, nullable: true }
+                  type_name: { type: string, nullable: true }
+                  parent_name: { type: string, nullable: true }
+                  star_system_name: { type: string, nullable: true }
+                type: object
+                nullable: true
             type: object
           nullable: true
         web_url:
@@ -4834,33 +4885,59 @@ components:
       type: object
     item_related_link:
       title: 'Related Item Link'
-      description: 'Minimal link information for a related item'
+      description: 'Link information for a related item with full classification'
       properties:
         uuid:
           type: string
         name:
           type: string
+        class_name:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        sub_type:
+          type: string
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+        is_base_variant:
+          type: boolean
         variant_name:
+          type: string
+          nullable: true
+        manufacturer:
+          description: 'Manufacturer information with link'
+          properties:
+            code:
+              type: string
+              nullable: true
+            name:
+              type: string
+              nullable: true
+            link:
+              type: string
+          type: object
+          nullable: true
+        version:
           type: string
           nullable: true
         link:
           type: string
+        web_url:
+          type: string
+        size:
+          type: integer
+          nullable: true
       type: object
     item_related_link_ext:
       title: 'Related Item Link (Extended)'
-      description: 'Related item link with basic classification'
+      description: 'Related item link with classification (set items)'
       allOf:
         -
           $ref: '#/components/schemas/item_related_link'
-        -
-          properties:
-            type:
-              type: string
-              nullable: true
-            sub_type:
-              type: string
-              nullable: true
-          type: object
     item_related_items:
       title: 'Related Items'
       description: 'Aggregated related information for base/variants and set items'
@@ -10541,6 +10618,21 @@ components:
           items:
             type: string
           nullable: true
+        variant_count:
+          type: integer
+          nullable: true
+        variants:
+          type: array
+          items:
+            properties:
+              uuid:
+                type: string
+                format: uuid
+              title:
+                type: string
+                nullable: true
+            type: object
+          nullable: true
         has_blueprints:
           type: boolean
         blueprint_drop_chance:
@@ -11315,23 +11407,7 @@ components:
         missions:
           type: array
           items:
-            properties:
-              uuid:
-                type: string
-                format: uuid
-                nullable: true
-              title:
-                type: string
-                nullable: true
-              link:
-                type: string
-                format: uri
-                nullable: true
-              web_link:
-                type: string
-                format: uri
-                nullable: true
-            type: object
+            $ref: '#/components/schemas/mission_chain_link'
       type: object
     mission_unlock_group:
       title: 'Mission Unlock Group'
@@ -11355,11 +11431,39 @@ components:
         uuid:
           type: string
           format: uuid
+          nullable: true
         title:
           type: string
           nullable: true
         mission_type:
           type: string
+          nullable: true
+        variant_count:
+          description: 'Number of mission variants with the same title. Only present when greater than 1.'
+          type: integer
+          nullable: true
+        variants:
+          description: 'Additional mission variants sharing the same title. Only present when variant_count > 1.'
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_chain_variant'
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_chain_variant:
+      title: 'Mission Chain Variant'
+      description: 'A variant of a mission chain link, sharing the same title but a different UUID.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
           nullable: true
         link:
           type: string
@@ -13083,6 +13187,42 @@ components:
           items:
             $ref: '#/components/schemas/vehicle_component'
           nullable: true
+        uex_prices:
+          description: 'Vehicle purchase and rental prices from UEX Corp API.'
+          properties:
+            purchase:
+              description: 'Purchase prices from UEX Corp.'
+              type: array
+              items:
+                properties:
+                  terminal_id: { description: 'UEX terminal ID', type: integer }
+                  terminal_code: { type: string, nullable: true }
+                  terminal_name: { type: string }
+                  starmap_location_uuid: { type: string, nullable: true }
+                  price_buy: { type: number, format: double }
+                  game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
+                  date_updated: { type: string, format: date-time }
+                  link: { description: 'API URL for the starmap location', type: string, nullable: true }
+                  web_url: { description: 'Web URL for the starmap location', type: string, nullable: true }
+                  starmap_location: { description: 'Expanded starmap location data', properties: { name: { type: string }, slug: { type: string, nullable: true }, type_name: { type: string, nullable: true }, parent_name: { type: string, nullable: true }, star_system_name: { type: string, nullable: true } }, type: object, nullable: true }
+                type: object
+            rental:
+              description: 'Rental prices from UEX Corp.'
+              type: array
+              items:
+                properties:
+                  terminal_id: { description: 'UEX terminal ID', type: integer }
+                  terminal_code: { type: string, nullable: true }
+                  terminal_name: { type: string }
+                  starmap_location_uuid: { type: string, nullable: true }
+                  price_rent: { type: number, format: double }
+                  game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
+                  date_updated: { type: string, format: date-time }
+                  link: { description: 'API URL for the starmap location', type: string, nullable: true }
+                  web_url: { description: 'Web URL for the starmap location', type: string, nullable: true }
+                  starmap_location: { description: 'Expanded starmap location data', properties: { name: { type: string }, slug: { type: string, nullable: true }, type_name: { type: string, nullable: true }, parent_name: { type: string, nullable: true }, star_system_name: { type: string, nullable: true } }, type: object, nullable: true }
+                type: object
+          type: object
         updated_at:
           type: string
         version:
