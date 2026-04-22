@@ -59,6 +59,9 @@ class ItemController extends Controller
             [
                 AllowedInclude::custom('shops', new CustomEagerLoadInclude),
                 AllowedInclude::custom('shops.items', new CustomEagerLoadInclude),
+                AllowedInclude::custom('variants', new CustomEagerLoadInclude([
+                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant',
+                ])),
                 AllowedInclude::custom('related_items', $includeRelatedItems
                     ? new CustomEagerLoadInclude(['variants', 'baseVariant'])
                     : new CustomEagerLoadInclude),
@@ -272,7 +275,7 @@ class ItemController extends Controller
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->allowedIncludes(...$this->allowedIncludes(includeRelatedItems: true))
-                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant', 'manufacturer', 'descriptionData', 'commodities']);
+                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant.item', 'baseVariant.manufacturer', 'baseVariant.gameVersion', 'manufacturer', 'descriptionData', 'commodities']);
 
             $itemData = null;
 

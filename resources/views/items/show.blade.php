@@ -43,15 +43,10 @@
         $rawItemJson = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $ports = data_get($item, 'ports', []);
-        $variants = data_get($item, 'variants', []);
         $baseVariant = data_get($item, 'related_items.base_item');
-        $relatedVariants = data_get($item, 'related_items.variant_items', []);
+        $variants = data_get($item, 'related_items.variant_items', []);
         $setItems = data_get($item, 'related_items.set_items');
         $setName = data_get($item, 'related_items.set_name');
-
-        if (! is_array($variants) || $variants === []) {
-            $variants = is_array($relatedVariants) ? $relatedVariants : [];
-        }
 
         $uexPrices = data_get($item, 'uex_prices', []);
         $descriptionData = data_get($item, 'description_data', []);

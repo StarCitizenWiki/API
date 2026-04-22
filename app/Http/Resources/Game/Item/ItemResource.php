@@ -108,8 +108,8 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(
                 oneOf: [
-                    new OA\Items(ref: '#/components/schemas/item_blueprint_link'),
-                    new OA\Items(ref: '#/components/schemas/blueprint'),
+                    new OA\Schema(ref: '#/components/schemas/item_blueprint_link'),
+                    new OA\Schema(ref: '#/components/schemas/blueprint'),
                 ]
             ),
             nullable: true
@@ -322,12 +322,13 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(
                 properties: [
-                    new OA\Property(property: 'terminal_id', type: 'integer', description: 'UEX terminal ID'),
+                    new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
                     new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
                     new OA\Property(property: 'terminal_name', type: 'string'),
                     new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
                     new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
                     new OA\Property(property: 'price_sell', type: 'number', format: 'double'),
+                    new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                     new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
                     new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
                     new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
@@ -381,28 +382,40 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'item_related_link',
     title: 'Related Item Link',
-    description: 'Minimal link information for a related item',
+    description: 'Link information for a related item with full classification',
     properties: [
         new OA\Property(property: 'uuid', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'class_name', type: 'string', nullable: true),
+        new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+        new OA\Property(property: 'classification', type: 'string', nullable: true),
+        new OA\Property(property: 'is_base_variant', type: 'boolean'),
         new OA\Property(property: 'variant_name', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'manufacturer',
+            description: 'Manufacturer information with link',
+            properties: [
+                new OA\Property(property: 'code', type: 'string', nullable: true),
+                new OA\Property(property: 'name', type: 'string', nullable: true),
+                new OA\Property(property: 'link', type: 'string'),
+            ],
+            type: 'object',
+            nullable: true,
+        ),
+        new OA\Property(property: 'version', type: 'string', nullable: true),
         new OA\Property(property: 'link', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
+        new OA\Property(property: 'size', type: 'integer', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'item_related_link_ext',
     title: 'Related Item Link (Extended)',
-    description: 'Related item link with basic classification',
+    description: 'Related item link with classification (set items)',
     allOf: [
         new OA\Schema(ref: '#/components/schemas/item_related_link'),
-        new OA\Schema(
-            properties: [
-                new OA\Property(property: 'type', type: 'string', nullable: true),
-                new OA\Property(property: 'sub_type', type: 'string', nullable: true),
-            ],
-            type: 'object'
-        ),
     ],
 )]
 #[OA\Schema(
@@ -435,9 +448,7 @@ class ItemResource extends AbstractBaseResource
 
     public static function validIncludes(): array
     {
-        return [
-            'variants',
-        ];
+        return [];
     }
 
     public function toArray(Request $request): array

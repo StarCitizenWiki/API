@@ -7,6 +7,7 @@ namespace App\Http\Resources\Game\Item;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Models\Game\ItemData;
+use App\Services\RelatedItemsBuilder;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -25,6 +26,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'sub_type', type: 'string', nullable: true),
                 new OA\Property(property: 'classification', type: 'string', example: 'FPS.Clothing.Torso', nullable: true),
                 new OA\Property(property: 'is_base_variant', type: 'boolean'),
+                new OA\Property(property: 'variant_name', description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"', type: 'string', nullable: true),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'link', type: 'string'),
                 new OA\Property(property: 'size', type: 'integer', nullable: true),
@@ -57,6 +59,9 @@ class ItemLinkResource extends AbstractBaseResource
             'sub_type' => $itemData->sub_type,
             'classification' => $itemData->classification,
             'is_base_variant' => $itemData->base_id === null,
+            'variant_name' => $itemData->relationLoaded('baseVariant')
+                ? RelatedItemsBuilder::extractVariantName($itemData->name, $itemData->baseVariant?->name)
+                : null,
             'manufacturer' => $itemData->relationLoaded('manufacturer')
                 ? new ManufacturerLinkResource($itemData->manufacturer)
                 : null,
