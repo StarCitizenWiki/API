@@ -69,6 +69,16 @@
         }
     }
 
+    $matchedBlueprints = [];
+    $blueprintEntries = data_get($item, 'is_craftable') ? data_get($item, 'blueprint', []) : [];
+    foreach (is_array($blueprintEntries) ? $blueprintEntries : [] as $bpEntry) {
+        $bpName = data_get($bpEntry, 'output_name');
+        $bpUrl = data_get($bpEntry, 'web_url') ?? data_get($bpEntry, 'link');
+        if (is_string($bpName) && $bpName !== '' && is_string($bpUrl) && $bpUrl !== '') {
+            $matchedBlueprints[] = ['name' => $bpName, 'url' => $bpUrl];
+        }
+    }
+
     $columns = [
         [
             [
@@ -99,6 +109,11 @@
                         'label' => 'Commodities',
                         'value' => $matchedCommodities,
                         'type' => 'commodity_links',
+                    ]] : []),
+                    ...($matchedBlueprints !== [] ? [[
+                        'label' => 'Blueprints',
+                        'value' => $matchedBlueprints,
+                        'type' => 'blueprint_links',
                     ]] : []),
                 ],
             ],
@@ -158,11 +173,11 @@
 
                             <dl class="space-y-2">
                                 @foreach ($section['rows'] as $row)
-                                    <div class="space-y-1">
+                                    <div class="grid grid-cols-2 items-start gap-x-3">
                                         <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
                                             {{ $row['label'] }}
                                         </dt>
-                                        <dd class="text-sm font-semibold text-base-content">
+                                        <dd class="text-right text-sm font-semibold text-base-content">
                                             @if (($row['type'] ?? null) === 'commodity_links')
                                                 <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
                                                     @foreach ($row['value'] as $i => $commodity)
@@ -170,6 +185,15 @@
                                                             href="{{ $commodity['url'] }}"
                                                             class="link link-hover link-primary"
                                                         >{{ $commodity['name'] }}</a>@if (!$loop->last),@endif
+                                                    @endforeach
+                                                </span>
+                                            @elseif (($row['type'] ?? null) === 'blueprint_links')
+                                                <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
+                                                    @foreach ($row['value'] as $i => $blueprint)
+                                                        <a
+                                                            href="{{ $blueprint['url'] }}"
+                                                            class="link link-hover link-primary"
+                                                        >{{ $blueprint['name'] }}</a>@if (!$loop->last),@endif
                                                     @endforeach
                                                 </span>
                                             @elseif (! empty($row['url']))

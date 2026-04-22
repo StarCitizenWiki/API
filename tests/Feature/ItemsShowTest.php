@@ -1011,3 +1011,103 @@ it('does not show true dimensions when no override exists', function (): void {
         ->and($quickFacts->text())->toContain('3 × 1 × 2m')
         ->and($quickFacts->filter('span[title]')->count())->toBe(0);
 });
+
+it('shows blueprint links in quick-facts card when item is craftable', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'CraftCorp',
+        'code' => 'CRC',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Craftable Item'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Craftable Item',
+            'class_name' => 'craftable_item',
+            'classification' => 'WeaponPersonal',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Rifle',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($version, 'gameVersion')
+        ->create([
+            'key' => 'BP_CRAFTABLE_ITEM',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Craftable Item Blueprint',
+            'data' => [
+                'output' => [
+                    'uuid' => $item->uuid,
+                    'name' => 'Craftable Item',
+                    'class' => 'bp_craftable_item',
+                ],
+                'tiers' => [],
+            ],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        ->and($quickFacts->text())->toContain('Blueprints')
+        ->and($quickFacts->text())->toContain('Craftable Item Blueprint');
+});
+
+it('does not show blueprints row in quick-facts card when item is not craftable', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'SimpleCorp',
+        'code' => 'SMP',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Non Craftable Item'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Non Craftable Item',
+            'class_name' => 'non_craftable_item',
+            'classification' => 'WeaponPersonal',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Rifle',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        ->and($quickFacts->text())->not->toContain('Blueprints');
+});

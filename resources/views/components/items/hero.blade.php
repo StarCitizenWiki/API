@@ -47,10 +47,6 @@
         $description = null;
     }
 
-    if ($description !== null) {
-        $description = Str::limit($description, 420);
-    }
-
     $gradeLetter = match ($grade) {
         1 => 'A',
         2 => 'B',
@@ -197,7 +193,7 @@
         @endif
 
         @if ($description)
-            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base" data-testid="item-hero-description">
+            <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base" data-testid="item-hero-description">
                 {!! nl2br(e($description)) !!}
             </div>
         @endif
