@@ -165,8 +165,11 @@ use OpenApi\Attributes as OA;
     description: 'Condensed ingredient summary used by blueprint list and detail responses.',
     properties: [
         new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'kind', type: 'string', enum: ['resource', 'item'], nullable: true),
         new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'item_uuid', type: 'string', format: 'uuid', nullable: true),
         new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'quantity', type: 'number', format: 'float', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
@@ -473,6 +476,20 @@ class BlueprintResource extends AbstractBaseResource
         ];
     }
 
+    private function itemLinks(string $uuid, Request $request): array
+    {
+        return [
+            'link' => $this->urlWithVersion(
+                route('items.show', ['identifier' => $uuid]),
+                $request,
+            ),
+            'web_url' => $this->urlWithVersion(
+                route('web.items.show', ['item' => $uuid]),
+                $request,
+            ),
+        ];
+    }
+
     private function ingredientCount(array $payload): int
     {
         $ingredientCount = 0;
@@ -541,10 +558,20 @@ class BlueprintResource extends AbstractBaseResource
         }
 
         return array_values(array_map(function (array $ingredient) use ($request): array {
-            $uuid = $ingredient['resource_type_uuid'];
+            $kind = $ingredient['kind'] ?? null;
 
-            if ($uuid !== null && Str::isUuid($uuid)) {
-                $ingredient = [...$ingredient, ...$this->commodityLinks($uuid, $request)];
+            if ($kind === 'item') {
+                $uuid = $ingredient['item_uuid'] ?? null;
+
+                if ($uuid !== null && Str::isUuid($uuid)) {
+                    $ingredient = [...$ingredient, ...$this->itemLinks($uuid, $request)];
+                }
+            } else {
+                $uuid = $ingredient['resource_type_uuid'];
+
+                if ($uuid !== null && Str::isUuid($uuid)) {
+                    $ingredient = [...$ingredient, ...$this->commodityLinks($uuid, $request)];
+                }
             }
 
             return $ingredient;
@@ -721,7 +748,7 @@ class BlueprintResource extends AbstractBaseResource
 
     /**
      * @param  array<int, array<string, mixed>>  $children
-     * @param  array<string, array{name: ?string, resource_type_uuid: ?string, quantity_scu: int|float|null, link: ?string, web_url: ?string}>  $ingredients
+     * @param  array<string, array{name: ?string, kind: ?string, resource_type_uuid: ?string, item_uuid: ?string, quantity_scu: int|float|null, quantity: int|float|null, link: ?string, web_url: ?string}>  $ingredients
      */
     private function collectIngredients(array $children, array &$ingredients): void
     {
@@ -741,16 +768,19 @@ class BlueprintResource extends AbstractBaseResource
             }
 
             $name = $this->nullableString($child['name'] ?? $child['key'] ?? null);
-            $resourceTypeUuid = ($child['kind'] ?? null) === 'resource'
-                ? $this->nullableString($child['uuid'] ?? null)
-                : null;
-            $ingredientKey = $resourceTypeUuid ?? $name;
+            $kind = $this->nullableString($child['kind'] ?? null);
+            $uuid = $this->nullableString($child['uuid'] ?? null);
+            $ingredientKey = $uuid ?? $name;
 
             if ($ingredientKey === null) {
                 continue;
             }
 
-            $quantityScu = $this->nullableNumeric($child['quantity_scu'] ?? null);
+            $isResource = $kind === 'resource';
+            $isItem = $kind === 'item';
+
+            $quantityScu = $isResource ? $this->nullableNumeric($child['quantity_scu'] ?? null) : null;
+            $quantity = $isItem ? $this->nullableNumeric($child['quantity'] ?? null) : null;
 
             if (isset($ingredients[$ingredientKey]) && $quantityScu !== null) {
                 $existing = $ingredients[$ingredientKey]['quantity_scu'];
@@ -759,16 +789,30 @@ class BlueprintResource extends AbstractBaseResource
                 }
             }
 
+            if (isset($ingredients[$ingredientKey]) && $quantity !== null) {
+                $existing = $ingredients[$ingredientKey]['quantity'];
+                if ($existing !== null) {
+                    $quantity = $existing + $quantity;
+                }
+            }
+
             $ingredients[$ingredientKey] ??= [
                 'name' => $name,
-                'resource_type_uuid' => $resourceTypeUuid,
+                'kind' => $kind,
+                'resource_type_uuid' => $isResource ? $uuid : null,
+                'item_uuid' => $isItem ? $uuid : null,
                 'quantity_scu' => null,
+                'quantity' => null,
                 'link' => null,
                 'web_url' => null,
             ];
 
             if ($quantityScu !== null) {
                 $ingredients[$ingredientKey]['quantity_scu'] = $quantityScu;
+            }
+
+            if ($quantity !== null) {
+                $ingredients[$ingredientKey]['quantity'] = $quantity;
             }
         }
     }

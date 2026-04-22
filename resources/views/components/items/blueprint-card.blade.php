@@ -49,7 +49,8 @@
                             @foreach ($ingredients as $ingredient)
                                 @php
                                     $ingredientName = data_get($ingredient, 'name') ?? 'Unknown';
-                                    $ingredientQuantity = data_get($ingredient, 'quantity_scu');
+                                    $ingredientQuantityScu = data_get($ingredient, 'quantity_scu');
+                                    $ingredientQuantity = data_get($ingredient, 'quantity');
                                     $ingredientWebUrl = data_get($ingredient, 'web_url');
                                 @endphp
 
@@ -63,7 +64,9 @@
                                     </td>
                                     <td class="text-right text-base-content/70">
                                         @if ($ingredientQuantity !== null && $ingredientQuantity > 0)
-                                            {{ $ingredientQuantity }} SCU
+                                            {{ $ingredientQuantity }}×
+                                        @elseif ($ingredientQuantityScu !== null && $ingredientQuantityScu > 0)
+                                            {{ $ingredientQuantityScu }} SCU
                                         @else
                                             —
                                         @endif

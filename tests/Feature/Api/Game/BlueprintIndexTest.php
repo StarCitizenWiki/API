@@ -130,3 +130,54 @@ it('includes ingredient and dismantle return links on index', function (): void 
         ->assertJsonPath('data.0.dismantle_returns.0.link', route('commodities.show', ['commodity' => $iron->uuid]))
         ->assertJsonPath('data.0.dismantle_returns.0.web_url', route('web.commodities.show', ['identifier' => $iron->uuid]));
 });
+
+it('includes item-kind ingredients with links and quantity on index', function (): void {
+    $hadaniteUuid = fake()->uuid();
+    $lindinium = Commodity::factory()->create([
+        'uuid' => $lindiniumUuid = fake()->uuid(),
+        'name' => 'Lindinium',
+    ]);
+
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->withIngredients($lindinium)
+        ->create([
+            'output_name' => 'Item Ingredient Widget',
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [
+                                ['kind' => 'resource', 'uuid' => $lindiniumUuid, 'name' => 'Lindinium', 'quantity_scu' => 0.06],
+                                ['kind' => 'item', 'uuid' => $hadaniteUuid, 'name' => 'Hadanite', 'quantity' => 1],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/blueprints');
+
+    $response->assertSuccessful();
+
+    $ingredients = $response->json('data.0.ingredients');
+
+    $resourceIngredient = collect($ingredients)->first(fn (array $i): bool => ($i['kind'] ?? null) === 'resource');
+    $itemIngredient = collect($ingredients)->first(fn (array $i): bool => ($i['kind'] ?? null) === 'item');
+
+    expect($resourceIngredient)
+        ->toHaveKey('resource_type_uuid', $lindiniumUuid)
+        ->toHaveKey('quantity_scu', 0.06)
+        ->and($resourceIngredient['link'])->toBe(route('commodities.show', ['commodity' => $lindiniumUuid]))
+        ->and($resourceIngredient['web_url'])->toBe(route('web.commodities.show', ['identifier' => $lindiniumUuid]));
+
+    expect($itemIngredient)
+        ->toHaveKey('kind', 'item')
+        ->toHaveKey('item_uuid', $hadaniteUuid)
+        ->toHaveKey('quantity', 1)
+        ->and($itemIngredient['link'])->toBe(route('items.show', ['identifier' => $hadaniteUuid]))
+        ->and($itemIngredient['web_url'])->toBe(route('web.items.show', ['item' => $hadaniteUuid]));
+});
