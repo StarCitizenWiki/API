@@ -40,6 +40,24 @@ class GameVersion extends Model
         return static::requestedOrDefault($code)->firstOrFail();
     }
 
+    public function findPreviousVersion(): ?self
+    {
+        return $this->findPreviousPatchVersion() ?? $this->findPreviousMinorVersion();
+    }
+
+    public function findPreviousPatchVersion(): ?self
+    {
+        if (! preg_match('/^(\d+\.\d+\.\d+)/', $this->code, $matches)) {
+            return null;
+        }
+
+        return static::query()
+            ->where('code', 'LIKE', "{$matches[1]}%")
+            ->where('code', '!=', $this->code)
+            ->orderByDesc('released_at')
+            ->first();
+    }
+
     public function findPreviousMinorVersion(): ?self
     {
         if (! preg_match('/^(\d+)\.(\d+)/', $this->code, $matches)) {
