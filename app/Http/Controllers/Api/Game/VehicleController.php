@@ -249,6 +249,11 @@ class VehicleController extends Controller
                         $hasConstraint = true;
                     }
 
+                    if (! $isUuid) {
+                        $q->orWhereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier));
+                        $hasConstraint = true;
+                    }
+
                     foreach ($nameCandidates as $candidate) {
                         $underscored = str_replace(' ', '_', $candidate);
                         $boolean = $hasConstraint ? 'orWhere' : 'where';

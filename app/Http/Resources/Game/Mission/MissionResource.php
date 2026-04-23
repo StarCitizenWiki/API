@@ -641,6 +641,10 @@ class MissionResource extends AbstractBaseResource
                 route('missions.show', ['mission' => $mission?->uuid]),
                 $request,
             ),
+            'web_url' => $this->urlWithVersion(
+                route('web.missions.show', ['mission' => $mission?->slug ?? $mission?->uuid]),
+                $request,
+            ),
         ];
     }
 
@@ -828,7 +832,7 @@ class MissionResource extends AbstractBaseResource
                     ? route('web.items.show', ['item' => $blueprintData->output_item_uuid])
                     : null,
                 'web_blueprint_link' => $blueprintData->blueprint?->uuid !== null
-                    ? route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->uuid])
+                    ? route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->slug ?? $blueprintData->blueprint->uuid])
                     : null,
             ])->values()->all(),
         ];
@@ -854,7 +858,7 @@ class MissionResource extends AbstractBaseResource
                 )
                 : null,
             'web_link' => $itemData->item?->uuid !== null
-                ? route('web.items.show', ['item' => $itemData->item->uuid])
+                ? route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid])
                 : null,
         ])->values()->all();
     }
@@ -1223,7 +1227,7 @@ class MissionResource extends AbstractBaseResource
                     )
                     : null,
                 'web_link' => $linked?->mission?->uuid !== null
-                    ? route('web.missions.show', ['mission' => $linked->mission->uuid])
+                    ? route('web.missions.show', ['mission' => $linked->mission->slug ?? $linked->mission->uuid])
                     : null,
             ];
         })->values()->all();

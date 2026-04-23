@@ -356,3 +356,150 @@ it('skips unknown ingredient resource type uuids and logs a warning', function (
 
     expect($blueprintData->ingredients->pluck('uuid')->all())->toBe([$knownUuid]);
 });
+
+it('generates slugs from output_name during import', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.3-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    Commodity::factory()->create(['uuid' => $resourceUuid = fake()->uuid()]);
+
+    $payload = [[
+        'UUID' => fake()->uuid(),
+        'Key' => 'BP_CRAFT_SLUG_TEST',
+        'Kind' => 'creation',
+        'CategoryUUID' => fake()->uuid(),
+        'Output' => [
+            'UUID' => fake()->uuid(),
+            'Class' => 'slug_output_class',
+            'Type' => 'WeaponPersonal',
+            'Name' => 'My Cool Blueprint',
+        ],
+        'Availability' => ['Default' => true],
+        'Tiers' => [[
+            'TierIndex' => 0,
+            'CraftTimeSeconds' => 10,
+            'Requirements' => [
+                'Kind' => 'root',
+                'Children' => [
+                    ['Kind' => 'resource', 'UUID' => $resourceUuid, 'Name' => 'Res', 'QuantityScu' => 1, 'MinQuality' => 0],
+                ],
+            ],
+        ]],
+        'Dismantle' => ['TimeSeconds' => 5, 'Efficiency' => 0.5, 'Returns' => []],
+    ]];
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-blueprints', ['version' => $version->code])->assertExitCode(Command::SUCCESS);
+
+    $blueprintData = BlueprintData::query()->firstWhere('key', 'BP_CRAFT_SLUG_TEST');
+    $blueprint = $blueprintData->blueprint;
+
+    expect($blueprint->slug)->toBe('my-cool-blueprint');
+});
+
+it('does not overwrite an existing slug on re-import', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.4-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $resourceUuid = fake()->uuid();
+    Commodity::factory()->create(['uuid' => $resourceUuid]);
+
+    $payload = [[
+        'UUID' => $blueprintUuid = fake()->uuid(),
+        'Key' => 'BP_SLUG_STABLE',
+        'Kind' => 'creation',
+        'CategoryUUID' => fake()->uuid(),
+        'Output' => [
+            'UUID' => fake()->uuid(),
+            'Class' => 'original_class',
+            'Type' => 'WeaponPersonal',
+            'Name' => 'Original Name',
+        ],
+        'Availability' => ['Default' => true],
+        'Tiers' => [[
+            'TierIndex' => 0,
+            'CraftTimeSeconds' => 10,
+            'Requirements' => [
+                'Kind' => 'root',
+                'Children' => [
+                    ['Kind' => 'resource', 'UUID' => $resourceUuid, 'Name' => 'Res', 'QuantityScu' => 1, 'MinQuality' => 0],
+                ],
+            ],
+        ]],
+        'Dismantle' => ['TimeSeconds' => 5, 'Efficiency' => 0.5, 'Returns' => []],
+    ]];
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    $this->artisan('game:import-blueprints', ['version' => $version->code])->assertExitCode(Command::SUCCESS);
+
+    $blueprint = Blueprint::query()->firstWhere('uuid', $blueprintUuid);
+    expect($blueprint->slug)->toBe('original-name');
+
+    $payload[0]['Output']['Name'] = 'Updated Name';
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    $this->artisan('game:import-blueprints', ['version' => $version->code])->assertExitCode(Command::SUCCESS);
+
+    $blueprint->refresh();
+    expect($blueprint->slug)->toBe('original-name');
+});
+
+it('falls back to key when output_name is empty for slug generation', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.5-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $resourceUuid = fake()->uuid();
+    Commodity::factory()->create(['uuid' => $resourceUuid]);
+
+    $payload = [[
+        'UUID' => fake()->uuid(),
+        'Key' => 'BP_CRAFT_NO_NAME',
+        'Kind' => 'creation',
+        'CategoryUUID' => fake()->uuid(),
+        'Output' => [
+            'UUID' => fake()->uuid(),
+            'Class' => 'no_name_class',
+            'Type' => 'WeaponPersonal',
+            'Name' => '',
+        ],
+        'Availability' => ['Default' => true],
+        'Tiers' => [[
+            'TierIndex' => 0,
+            'CraftTimeSeconds' => 10,
+            'Requirements' => [
+                'Kind' => 'root',
+                'Children' => [
+                    ['Kind' => 'resource', 'UUID' => $resourceUuid, 'Name' => 'Res', 'QuantityScu' => 1, 'MinQuality' => 0],
+                ],
+            ],
+        ]],
+        'Dismantle' => ['TimeSeconds' => 5, 'Efficiency' => 0.5, 'Returns' => []],
+    ]];
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-blueprints', ['version' => $version->code])->assertExitCode(Command::SUCCESS);
+
+    $blueprintData = BlueprintData::query()->firstWhere('key', 'BP_CRAFT_NO_NAME');
+    $blueprint = $blueprintData->blueprint;
+
+    expect($blueprint->slug)->toBe('bp-craft-no-name');
+});

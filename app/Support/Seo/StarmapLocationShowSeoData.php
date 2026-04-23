@@ -21,21 +21,27 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             ?? $this->normalizeString(data_get($location, 'type_classification'));
         $description = $this->resolveDescription(data_get($location, 'description'));
         $starName = $this->normalizeString(data_get($location, 'star.name'));
+        $starSlug = $this->normalizeString(data_get($location, 'star.slug'));
         $starUuid = $this->normalizeString(data_get($location, 'star.uuid'));
         $parentName = $this->normalizeString(data_get($location, 'parent.name'));
+        $parentSlug = $this->normalizeString(data_get($location, 'parent.slug'));
         $parentUuid = $this->normalizeString(data_get($location, 'parent.uuid'));
         $uuid = $this->normalizeString(data_get($location, 'uuid'));
+        $slug = $this->normalizeString(data_get($location, 'slug'));
         $version = $this->resolveVersionCode($request);
         $canonicalUrl = $this->normalizeString(data_get($location, 'web_url'))
-            ?? $this->fallbackShowUrl($uuid, $version);
+            ?? $this->fallbackShowUrl($slug ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs(
             locationName: $locationName,
-            locationUuid: $uuid,
+            locationIdentifier: $slug ?? $uuid,
             canonicalUrl: $canonicalUrl,
             starName: $starName,
+            starIdentifier: $starSlug ?? $starUuid,
             starUuid: $starUuid,
             parentName: $parentName,
+            parentIdentifier: $parentSlug ?? $parentUuid,
             parentUuid: $parentUuid,
+            locationUuid: $uuid,
             version: $version,
         );
         $metaTitle = $this->joinSegments([$locationName, $typeName, 'Star Citizen Starmap'], ' | ');
@@ -83,12 +89,15 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
      */
     private function buildBreadcrumbs(
         string $locationName,
-        ?string $locationUuid,
+        string $locationIdentifier,
         string $canonicalUrl,
         ?string $starName,
+        ?string $starIdentifier,
         ?string $starUuid,
         ?string $parentName,
+        ?string $parentIdentifier,
         ?string $parentUuid,
+        ?string $locationUuid,
         ?string $version,
     ): array {
         $versionParams = $version !== null ? ['version' => $version] : [];
@@ -98,29 +107,30 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         ]];
 
         $ancestorName = null;
-        $ancestorUuid = null;
+        $ancestorIdentifier = null;
 
-        if ($starName !== null && $starUuid !== null && $starUuid !== $locationUuid) {
+        if ($starName !== null && $starIdentifier !== null && $starUuid !== $locationUuid) {
             $ancestorName = $starName;
-            $ancestorUuid = $starUuid;
+            $ancestorIdentifier = $starIdentifier;
         }
 
-        if ($ancestorName !== null && $ancestorUuid !== null) {
+        if ($ancestorName !== null && $ancestorIdentifier !== null) {
             $breadcrumbs[] = [
                 'label' => $ancestorName,
-                'url' => route('web.locations.show', array_merge(['identifier' => $ancestorUuid], $versionParams)),
+                'url' => route('web.locations.show', array_merge(['identifier' => $ancestorIdentifier], $versionParams)),
             ];
         }
 
         if (
             $parentName !== null
+            && $parentIdentifier !== null
             && $parentUuid !== null
             && $parentUuid !== $locationUuid
-            && $parentUuid !== $ancestorUuid
+            && $parentUuid !== $starUuid
         ) {
             $breadcrumbs[] = [
                 'label' => $parentName,
-                'url' => route('web.locations.show', array_merge(['identifier' => $parentUuid], $versionParams)),
+                'url' => route('web.locations.show', array_merge(['identifier' => $parentIdentifier], $versionParams)),
             ];
         }
 
@@ -202,7 +212,88 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             $schema['additionalProperty'] = $additionalProperty;
         }
 
+        $containedInPlace = $this->buildContainedInPlace($location);
+        if ($containedInPlace !== null) {
+            $schema['containedInPlace'] = $containedInPlace;
+        }
+
+        $amenityFeatures = $this->buildAmenityFeatures(data_get($location, 'amenities', []));
+        if ($amenityFeatures !== []) {
+            $schema['amenityFeature'] = $amenityFeatures;
+        }
+
         return $schema;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buildContainedInPlace(array $location): ?array
+    {
+        $parentName = $this->normalizeString(data_get($location, 'parent.name'));
+        $parentUuid = $this->normalizeString(data_get($location, 'parent.uuid'));
+
+        if ($parentName === null || $parentUuid === null) {
+            return null;
+        }
+
+        $containedIn = [
+            '@type' => 'Place',
+            'name' => $parentName,
+        ];
+
+        $parentTypeName = $this->normalizeString(data_get($location, 'parent.type_name'));
+        if ($parentTypeName !== null) {
+            $containedIn['@type'] = $parentTypeName;
+        }
+
+        $starName = $this->normalizeString(data_get($location, 'star.name'));
+        if ($starName !== null) {
+            $containedIn['containedInPlace'] = [
+                '@type' => 'Place',
+                'name' => $starName,
+            ];
+
+            $system = $this->normalizeString(data_get($location, 'system'));
+            if ($system !== null) {
+                $containedIn['containedInPlace']['containedInPlace'] = [
+                    '@type' => 'Place',
+                    'name' => $system,
+                ];
+            }
+        }
+
+        return $containedIn;
+    }
+
+    /**
+     * @param  array<int, array{name: string, display_name: string|null}>  $amenities
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildAmenityFeatures(array $amenities): array
+    {
+        if ($amenities === []) {
+            return [];
+        }
+
+        $features = [];
+
+        foreach ($amenities as $amenity) {
+            $name = $this->normalizeString(data_get($amenity, 'display_name'))
+                ?? $this->normalizeString(data_get($amenity, 'name'));
+
+            if ($name === null) {
+                continue;
+            }
+
+            $features[] = [
+                '@type' => 'LocationFeatureSpecification',
+                'name' => $name,
+                'value' => true,
+            ];
+        }
+
+        return $features;
     }
 
     protected function fallbackShowUrl(?string $uuid, ?string $version): string

@@ -17,27 +17,9 @@ use App\Http\Controllers\Api\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Api\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Api\StarCitizen\StatController;
 use App\Http\Controllers\Api\StarCitizen\VehicleController as ShipMatrixVehicleController;
-use App\Models\Game\GameVersion;
-use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
-
-Route::bind('location', function (string $value): StarmapLocationData {
-    $version = GameVersion::resolveRequestedOrDefault(request('version'));
-
-    $location = StarmapLocationData::query()
-        ->where('game_version_id', $version->id);
-
-    if (Str::isUuid($value)) {
-        $location->whereRelation('location', 'uuid', $value);
-    } else {
-        $location->where('slug', $value);
-    }
-
-    return $location->firstOrFail();
-});
 
 Route::get('/user', static function (Request $request) {
     return $request->user();
@@ -125,7 +107,7 @@ Route::group(
 
             Route::get('locations', [StarmapLocationController::class, 'index'])->name('locations.index');
             Route::get('locations/filters', [StarmapLocationController::class, 'filters'])->name('locations.filters');
-            Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->whereUuid('identifier')->name('locations.show');
+            Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->name('locations.show');
 
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
@@ -149,7 +131,7 @@ Route::group(
             // Missions
             Route::get('missions', [MissionController::class, 'index'])->name('missions.index');
             Route::get('missions/filters', [MissionController::class, 'filters'])->name('missions.filters');
-            Route::get('missions/{mission}', [MissionController::class, 'show'])->whereUuid('mission')->name('missions.show');
+            Route::get('missions/{mission}', [MissionController::class, 'show'])->name('missions.show');
 
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
             Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');

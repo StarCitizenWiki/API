@@ -408,7 +408,7 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
         ->assertJsonPath('data.output.name', 'Detailed Output')
         ->assertJsonPath('data.output.type', 'WeaponPersonal')
         ->assertJsonPath('data.output.item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
-        ->assertJsonPath('data.web_url', url('/blueprints/'.$blueprint->uuid))
+        ->assertJsonPath('data.web_url', url('/blueprints/'.($blueprint->slug ?? $blueprint->uuid)))
         ->assertJsonPath('data.output_item_web_url', route('web.items.show', ['item' => $outputItemUuid]))
         ->assertJsonPath('data.ingredients.0.name', 'Reinforced Frame')
         ->assertJsonPath('data.ingredients.0.resource_type_uuid', null)
@@ -510,7 +510,7 @@ it('resolves requested or default game versions for blueprint detail', function 
         ->assertJsonCount(1, 'data.requirement_groups')
         ->assertJsonPath('data.output.uuid', $defaultOutputItemUuid)
         ->assertJsonPath('data.tiers.0.requirements.children.0.quantity_scu', 1)
-        ->assertJsonPath('data.web_url', url('/blueprints/'.$blueprint->uuid))
+        ->assertJsonPath('data.web_url', url('/blueprints/'.($blueprint->slug ?? $blueprint->uuid)))
         ->assertJsonPath('data.output_item_web_url', route('web.items.show', ['item' => $defaultOutputItemUuid]))
         ->assertJsonPath('data.link', route('blueprints.show', ['blueprint' => $blueprint->uuid]));
 
@@ -524,7 +524,7 @@ it('resolves requested or default game versions for blueprint detail', function 
         ->assertJsonPath('data.tiers.0.requirements.children.0.quantity_scu', 2)
         ->assertJsonPath(
             'data.web_url',
-            url('/blueprints/'.$blueprint->uuid).'?version='.$this->requestedVersion->code,
+            url('/blueprints/'.($blueprint->slug ?? $blueprint->uuid)).'?version='.$this->requestedVersion->code,
         )
         ->assertJsonPath(
             'data.output_item_web_url',

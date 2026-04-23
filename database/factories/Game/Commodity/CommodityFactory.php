@@ -23,6 +23,7 @@ class CommodityFactory extends Factory
     {
         return [
             'uuid' => fake()->unique()->uuid(),
+            'slug' => fake()->unique()->slug(2),
             'key' => fake()->unique()->bothify('Commodity_####'),
             'name' => fake()->words(2, true),
             'description' => fake()->sentence(),

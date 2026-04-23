@@ -21,6 +21,7 @@ class Item extends Model
 
     protected $fillable = [
         'uuid',
+        'slug',
         'translation',
     ];
 

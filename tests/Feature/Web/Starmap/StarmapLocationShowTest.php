@@ -21,6 +21,23 @@ beforeEach(function (): void {
     ]);
 });
 
+it('resolves location by slug', function (): void {
+    $location = StarmapLocation::factory()->create(['slug' => 'area18']);
+    StarmapLocationData::factory()
+        ->for($location, 'location')
+        ->for($this->version, 'gameVersion')
+        ->create([
+            'name' => 'Area18',
+            'system' => 'Stanton',
+            'type_name' => 'LandingZone',
+            'data' => ['Type' => ['Classification' => 'Landing Zone']],
+        ]);
+
+    $response = $this->get('/locations/area18');
+
+    $response->assertSuccessful();
+});
+
 it('shows mission count in overview stats on location show page', function (): void {
     $location = StarmapLocation::factory()->create();
     StarmapLocationData::factory()
@@ -155,5 +172,5 @@ it('links mission cards to mission show page', function (): void {
     $response = $this->get('/locations/'.$location->uuid);
 
     $response->assertSuccessful();
-    $response->assertSee(route('web.missions.show', ['mission' => $mission->uuid]), false);
+    $response->assertSee(route('web.missions.show', ['mission' => $mission->slug]), false);
 });

@@ -1762,7 +1762,7 @@ it('shows missions grouped by purpose on show response when requested via includ
                     ->where('faction.name', 'Nine Tails')
                     ->where('faction.uuid', $faction->uuid)
                     ->where('link', route('missions.show', ['mission' => $missionOne->uuid]))
-                    ->where('web_url', route('web.missions.show', ['mission' => $missionOne->uuid]))
+                    ->where('web_url', route('web.missions.show', ['mission' => $missionOne->slug]))
                     ->etc()
                 )
                 ->etc()
@@ -1796,4 +1796,76 @@ it('does not include missions on show response when include is not requested', f
         ->assertSuccessful()
         ->assertJsonMissingPath('data.missions')
         ->assertJsonPath('data.mission_count', 0);
+});
+
+it('returns slug-based web_url when slug is available', function (): void {
+    $location = StarmapLocation::factory()->create(['slug' => 'area18']);
+    StarmapLocationData::factory()
+        ->for($location, 'location')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Area18',
+            'system' => 'Stanton',
+            'type_name' => 'LandingZone',
+            'data' => [
+                'Type' => [
+                    'Classification' => 'Landing Zone',
+                ],
+            ],
+        ]);
+
+    $this->getJson('/api/locations/'.$location->uuid)
+        ->assertSuccessful()
+        ->assertJsonPath('data.slug', 'area18')
+        ->assertJsonPath('data.web_url', route('web.locations.show', ['identifier' => 'area18']))
+        ->assertJsonPath('data.link', route('locations.show', ['identifier' => $location->uuid]));
+});
+
+it('resolves a starmap location by slug', function (): void {
+    $location = StarmapLocation::factory()->create(['slug' => 'port-tressler']);
+    StarmapLocationData::factory()
+        ->for($location, 'location')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Port Tressler',
+            'system' => 'Stanton',
+            'type_name' => 'LandingZone',
+            'data' => [
+                'Type' => [
+                    'Classification' => 'Landing Zone',
+                ],
+            ],
+        ]);
+
+    $this->getJson('/api/locations/port-tressler')
+        ->assertSuccessful()
+        ->assertJsonPath('data.slug', 'port-tressler')
+        ->assertJsonPath('data.name', 'Port Tressler');
+});
+
+it('returns uuid-based web_url when slug is null', function (): void {
+    $location = StarmapLocation::factory()->create(['slug' => null]);
+    StarmapLocationData::factory()
+        ->for($location, 'location')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'name' => 'Slugless Station',
+            'system' => 'Stanton',
+            'type_name' => 'Station',
+            'data' => [
+                'Type' => [
+                    'Classification' => 'Manmade',
+                ],
+            ],
+        ]);
+
+    $this->getJson('/api/locations/'.$location->uuid)
+        ->assertSuccessful()
+        ->assertJsonPath('data.slug', null)
+        ->assertJsonPath('data.web_url', route('web.locations.show', ['identifier' => $location->uuid]));
+});
+
+it('returns 404 for non-existent UUID', function (): void {
+    $this->getJson('/api/locations/00000000-0000-0000-0000-000000000000')
+        ->assertNotFound();
 });

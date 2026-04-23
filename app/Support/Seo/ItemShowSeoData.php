@@ -25,7 +25,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
         $size = $this->normalizeScalar(data_get($item, 'size'));
         $version = $this->resolveVersionCode($request);
         $canonicalUrl = $this->normalizeString(data_get($item, 'web_url'))
-            ?? $this->fallbackShowUrl($uuid, $version);
+            ?? $this->fallbackShowUrl($this->normalizeString(data_get($item, 'slug')) ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs($item, $canonicalUrl, $version);
         $isShipComponent = $this->isShipComponent($type, $classification);
         $metaTitle = $this->buildMetaTitle(
@@ -372,14 +372,14 @@ final class ItemShowSeoData extends AbstractShowSeoData
         };
     }
 
-    protected function fallbackShowUrl(?string $uuid, ?string $version): string
+    protected function fallbackShowUrl(?string $identifier, ?string $version): string
     {
-        if ($uuid === null) {
+        if ($identifier === null) {
             return url()->current();
         }
 
         return route('web.items.show', array_filter([
-            'item' => $uuid,
+            'item' => $identifier,
             'version' => $version,
         ]));
     }

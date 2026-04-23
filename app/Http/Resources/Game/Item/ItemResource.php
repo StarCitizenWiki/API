@@ -467,6 +467,7 @@ class ItemResource extends AbstractBaseResource
 
         return [
             'uuid' => $this->item->uuid,
+            'slug' => $this->item->slug,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
             'classification' => $itemData->classification,
@@ -1059,7 +1060,7 @@ class ItemResource extends AbstractBaseResource
 
     private function buildWebUrl(Request $request): string
     {
-        $url = route('web.items.show', ['item' => $this->item->uuid]);
+        $url = route('web.items.show', ['item' => $this->item->slug ?? $this->item->uuid]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {

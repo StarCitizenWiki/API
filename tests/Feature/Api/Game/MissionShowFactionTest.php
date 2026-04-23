@@ -105,3 +105,15 @@ it('shows mission without faction', function (): void {
     $response->assertSuccessful()
         ->assertJsonPath('data.faction', null);
 });
+
+it('resolves a mission by slug', function (): void {
+    $mission = Mission::factory()->create(['slug' => 'bounty-hunt-target']);
+    MissionData::factory()
+        ->forVersion($this->gameVersion)
+        ->forMission($mission)
+        ->create(['faction_id' => null, 'title' => 'Bounty Hunt Target']);
+
+    $this->getJson('/api/missions/bounty-hunt-target')
+        ->assertSuccessful()
+        ->assertJsonPath('data.title', 'Bounty Hunt Target');
+});

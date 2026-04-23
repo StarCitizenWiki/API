@@ -125,7 +125,10 @@ class CommodityIndexResource extends AbstractBaseResource
                 'name' => $this->refined_version_name,
                 'uuid' => $this->refinedVersion->uuid,
                 'web_url' => $this->urlWithVersion(
-                    route('web.commodities.show', ['identifier' => $this->refinedVersion->uuid]),
+                    route(
+                        'web.commodities.show',
+                        ['identifier' => $this->refinedVersion->slug ?? $this->refinedVersion->uuid]
+                    ),
                     $request,
                 ),
                 'link' => $this->urlWithVersion(
@@ -158,7 +161,7 @@ class CommodityIndexResource extends AbstractBaseResource
                 $request,
             ),
             'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $this->uuid]),
+                route('web.commodities.show', ['identifier' => $this->slug ?? $this->uuid]),
                 $request,
             ),
         ];

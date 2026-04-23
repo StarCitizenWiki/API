@@ -517,6 +517,12 @@ class ItemController extends Controller
                     ->first();
             }
 
+            if ($itemData === null && ! $isUuid) {
+                $itemData = $baseQuery()
+                    ->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier))
+                    ->first();
+            }
+
             if ($itemData === null) {
                 $itemData = $baseQuery()
                     ->where(function (Builder $q) use ($identifier, $original) {

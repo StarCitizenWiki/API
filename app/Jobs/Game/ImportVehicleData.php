@@ -18,6 +18,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -65,6 +66,8 @@ class ImportVehicleData implements ShouldQueue
             ],
             $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId)
         );
+
+        $this->updateSlug($vehicle, $payload);
 
         $this->importVehicleItem($payload, $rawPayload, $manufacturerId);
     }
@@ -237,5 +240,21 @@ class ImportVehicleData implements ShouldQueue
         }
 
         return $normalized;
+    }
+
+    private function updateSlug(Vehicle $vehicle, array $payload): void
+    {
+        $className = $payload['ClassName'] ?? null;
+
+        if ($className === null || $className === '') {
+            return;
+        }
+
+        $slug = Str::slug($className);
+
+        if ($vehicle->slug !== $slug) {
+            $vehicle->slug = $slug;
+            $vehicle->save();
+        }
     }
 }

@@ -24,7 +24,7 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         $description = $this->resolveDescription(data_get($vehicle, 'description'));
         $canonicalUrl = $this->normalizeString(data_get($vehicle, 'web_url'))
             ?? $this->fallbackShowUrl(
-                uuid: $this->normalizeString(data_get($vehicle, 'uuid')),
+                identifier: $this->normalizeString(data_get($vehicle, 'slug')) ?? $this->normalizeString(data_get($vehicle, 'uuid')),
                 version: $this->resolveVersionCode($request),
             );
         $breadcrumbs = $this->buildBreadcrumbs(
@@ -243,14 +243,14 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         return $schema;
     }
 
-    protected function fallbackShowUrl(?string $uuid, ?string $version): string
+    protected function fallbackShowUrl(?string $identifier, ?string $version): string
     {
-        if ($uuid === null) {
+        if ($identifier === null) {
             return url()->current();
         }
 
         return route('web.vehicles.show', array_filter([
-            'vehicle' => $uuid,
+            'vehicle' => $identifier,
             'version' => $version,
         ]));
     }

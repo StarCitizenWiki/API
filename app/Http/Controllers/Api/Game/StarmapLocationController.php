@@ -279,7 +279,7 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations/{identifier}',
-        description: 'Retrieve a versioned starmap location by location UUID.',
+        description: 'Retrieve a versioned starmap location by slug or UUID.',
         summary: 'Game Starmap Location Detail',
         tags: ['In-Game', 'Starmap'],
         parameters: [
@@ -288,9 +288,8 @@ class StarmapLocationController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Starmap location UUID',
+                    description: 'Starmap location slug or UUID',
                     type: 'string',
-                    format: 'uuid',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/include'),
@@ -304,7 +303,7 @@ class StarmapLocationController extends Controller
             ),
             new OA\Response(
                 response: 404,
-                description: 'No starmap location with specified UUID found.'
+                description: 'No starmap location with specified identifier found.'
             ),
         ]
     )]
@@ -317,7 +316,8 @@ class StarmapLocationController extends Controller
         $location = QueryBuilder::for(StarmapLocationData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->whereHas('location', static function (Builder $query) use ($identifier): void {
-                $query->where('uuid', $identifier);
+                $query->when(Str::isUuid($identifier), fn (Builder $q) => $q->where('uuid', $identifier))
+                    ->unless(Str::isUuid($identifier), fn (Builder $q) => $q->where('slug', $identifier));
             })
             ->whereNotNull('system')
             ->with($this->detailRelations($gameVersionId))
@@ -345,7 +345,7 @@ class StarmapLocationController extends Controller
             ->first();
 
         if ($location === null) {
-            throw new NotFoundHttpException('No starmap location with specified UUID found.');
+            throw new NotFoundHttpException('No starmap location found for the specified identifier.');
         }
 
         return new StarmapLocationResource($location);

@@ -21,6 +21,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'type_name', type: 'string'),
+        new OA\Property(property: 'slug', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
@@ -172,6 +173,7 @@ use OpenApi\Attributes as OA;
     description: 'Versioned starmap location data imported from game starmap data.',
     properties: [
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'slug', type: 'string', nullable: true),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'description', type: 'string', nullable: true),
         new OA\Property(property: 'size', type: 'number', nullable: true),
@@ -249,6 +251,7 @@ class StarmapLocationResource extends AbstractBaseResource
 
         return [
             'uuid' => $locationData->location?->uuid,
+            'slug' => $locationData->location?->slug,
             'name' => $locationData->name,
             'description' => $locationData->description,
             'size' => $locationData->size,
@@ -345,8 +348,10 @@ class StarmapLocationResource extends AbstractBaseResource
 
     private function buildWebUrl(StarmapLocationData $locationData, Request $request): string
     {
+        $identifier = $locationData->location?->slug ?? $locationData->location?->uuid;
+
         return $this->urlWithVersion(
-            route('web.locations.show', ['identifier' => $locationData->location?->uuid]),
+            route('web.locations.show', ['identifier' => $identifier]),
             $request
         );
     }
@@ -376,7 +381,7 @@ class StarmapLocationResource extends AbstractBaseResource
     }
 
     /**
-     * @return array{uuid: string, name: string, type_name: string}|null
+     * @return array{uuid: string, name: string, type_name: string, slug: string|null}|null
      */
     private function buildLinkedLocationSummary(?StarmapLocationData $locationData): ?array
     {
@@ -388,6 +393,7 @@ class StarmapLocationResource extends AbstractBaseResource
             'uuid' => $locationData->location->uuid,
             'name' => $locationData->name,
             'type_name' => $locationData->type_name,
+            'slug' => $locationData->location->slug,
         ];
     }
 

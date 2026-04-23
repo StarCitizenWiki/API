@@ -20,6 +20,7 @@ class StarmapLocation extends Model
 
     protected $fillable = [
         'uuid',
+        'slug',
     ];
 
     public function data(): HasMany

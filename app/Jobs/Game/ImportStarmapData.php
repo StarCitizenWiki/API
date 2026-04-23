@@ -63,20 +63,31 @@ class ImportStarmapData implements ShouldQueue
 
         $uuids = array_keys($validEntries);
 
+        $usedSlugs = StarmapLocation::query()
+            ->pluck('slug')
+            ->filter()
+            ->toArray();
+
+        $slugMap = [];
+        foreach ($validEntries as $uuid => $entry) {
+            $name = $this->extractName($entry);
+            $slug = $this->generateUniqueSlugInMemory(Str::slug($name), $usedSlugs);
+            $usedSlugs[] = $slug;
+            $slugMap[$uuid] = $slug;
+        }
+
         StarmapLocation::upsert(
-            array_map(fn (string $uuid): array => ['uuid' => $uuid], $uuids),
+            array_map(fn (string $uuid): array => [
+                'uuid' => $uuid,
+                'slug' => $slugMap[$uuid],
+            ], $uuids),
             ['uuid'],
-            ['uuid'],
+            ['slug'],
         );
 
         $locationIdMap = StarmapLocation::query()
             ->whereIn('uuid', $uuids)
             ->pluck('id', 'uuid')
-            ->toArray();
-
-        $usedSlugs = StarmapLocationData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->pluck('slug')
             ->toArray();
 
         $locationDataRows = [];
@@ -85,8 +96,6 @@ class ImportStarmapData implements ShouldQueue
 
         foreach ($validEntries as $uuid => $entry) {
             $name = $this->extractName($entry);
-            $slug = $this->generateUniqueSlugInMemory(Str::slug($name), $usedSlugs);
-            $usedSlugs[] = $slug;
 
             $hierarchyTagUuid = Arr::get($entry, 'LocationHierarchyTag.UUID');
 
@@ -104,7 +113,6 @@ class ImportStarmapData implements ShouldQueue
                 'is_scannable' => (bool) ($entry['IsScannable'] ?? false),
                 'block_travel' => (bool) ($entry['BlockTravel'] ?? false),
                 'data' => json_encode($entry, JSON_THROW_ON_ERROR),
-                'slug' => $slug,
             ];
 
             foreach ($entry['Amenities'] ?? [] as $amenity) {
@@ -122,14 +130,14 @@ class ImportStarmapData implements ShouldQueue
                     'name' => $this->normalizeNullableString($amenity['Name'] ?? null) ?? $aUuid,
                     'display_name' => $this->normalizeNullableString($amenity['DisplayName'] ?? null),
                 ];
-                $entryAmenityUuids[$uuid][] = $aUuid;
+                $entryAmenityUuids[$uuid][$aUuid] = $aUuid;
             }
         }
 
         $upsertColumns = [
             'starmap_location_id', 'game_version_id', 'parent_data_id', 'star_data_id',
             'location_hierarchy_entity_tag_id', 'name', 'description', 'type_name',
-            'system', 'size', 'is_scannable', 'block_travel', 'data', 'slug',
+            'system', 'size', 'is_scannable', 'block_travel', 'data',
         ];
 
         DB::transaction(function () use ($locationDataRows, $validEntries, $uuids, $locationIdMap, $amenityEntries, $entryAmenityUuids, $upsertColumns): void {

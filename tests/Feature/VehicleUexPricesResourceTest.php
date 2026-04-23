@@ -45,7 +45,7 @@ it('returns empty uex_prices when no prices are stored', function (): void {
 });
 
 it('expands vehicle purchase prices with location data', function (): void {
-    $location = StarmapLocation::factory()->create();
+    $location = StarmapLocation::factory()->create(['slug' => 'lorville']);
 
     $starLocation = StarmapLocation::factory()->create();
     $starLocationData = StarmapLocationData::factory()
@@ -70,7 +70,6 @@ it('expands vehicle purchase prices with location data', function (): void {
         ->for($this->gameVersion, 'gameVersion')
         ->create([
             'name' => 'Lorville',
-            'slug' => 'lorville',
             'type_name' => 'Outpost',
             'parent_data_id' => $parentLocationData->id,
             'star_data_id' => $starLocationData->id,

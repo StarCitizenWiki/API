@@ -21,6 +21,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -72,13 +73,17 @@ class ImportItemData implements ShouldQueue
 
         $manufacturerId = $this->resolveManufacturerId($itemPayload, $uuid);
 
+        $name = $this->extractName($itemPayload);
+
         $itemData = ItemData::query()->updateOrCreate(
             [
                 'item_id' => $item->id,
                 'game_version_id' => $this->gameVersionId,
             ],
-            $this->mapItemData($itemPayload, $manufacturerId)
+            $this->mapItemData($itemPayload, $manufacturerId, $name)
         );
+
+        $this->updateSlug($item, $name);
 
         $raw = $payload['Raw'] ?? [];
 
@@ -126,10 +131,8 @@ class ImportItemData implements ShouldQueue
         return $manufacturer->id;
     }
 
-    private function mapItemData(array $itemPayload, int $manufacturerId): array
+    private function mapItemData(array $itemPayload, int $manufacturerId, string $name): array
     {
-        $name = $this->extractName($itemPayload);
-
         unset($itemPayload['name'], $itemPayload['itemName']);
 
         $itemClass = Arr::get($itemPayload, 'stdItem.DescriptionData.Class');
@@ -420,5 +423,37 @@ class ImportItemData implements ShouldQueue
             ->all();
 
         $itemData->commodities()->sync($commodityIds);
+    }
+
+    private function updateSlug(Item $item, string $name): void
+    {
+        $slug = $this->generateUniqueSlug($name, Item::class, $item->id);
+
+        if ($item->slug !== $slug) {
+            $item->slug = $slug;
+            $item->save();
+        }
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     */
+    private function generateUniqueSlug(string $name, string $modelClass, int $excludeId): string
+    {
+        $baseSlug = Str::slug($name);
+
+        if ($baseSlug === '') {
+            return 'item-'.$excludeId;
+        }
+
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while ($modelClass::query()->where('slug', $slug)->where('id', '!=', $excludeId)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

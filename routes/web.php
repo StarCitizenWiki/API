@@ -20,7 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', static function () {
     return view('welcome');
 })->name('home');
 
@@ -54,22 +54,21 @@ Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('web
 Route::get('/blueprints', [BlueprintController::class, 'index'])->name('web.blueprints.index');
 Route::get('/blueprints/search', [BlueprintController::class, 'app'])->name('web.blueprints.search');
 Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
-    ->whereUuid('blueprint')
     ->name('web.blueprints.show');
 
 Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
-Route::get('/items/{item}', [ItemController::class, 'show'])->whereUuid('item')->name('web.items.show');
+Route::get('/items/{item}', [ItemController::class, 'show'])->name('web.items.show');
 
 Route::get('/commodities', [CommodityController::class, 'index'])->name('web.commodities.index');
-Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->whereUuid('identifier')->name('web.commodities.show');
+Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->name('web.commodities.show');
 
 Route::get('/missions', [MissionController::class, 'index'])->name('web.missions.index');
-Route::get('/missions/{mission}', [MissionController::class, 'show'])->whereUuid('mission')->name('web.missions.show');
+Route::get('/missions/{mission}', [MissionController::class, 'show'])
+    ->name('web.missions.show');
 
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');
 Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])
-    ->whereUuid('identifier')
     ->name('web.locations.show');
 
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])

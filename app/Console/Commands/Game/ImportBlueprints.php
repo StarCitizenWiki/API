@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 
 use function Laravel\Prompts\select;
@@ -92,6 +93,16 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
                 $newBlueprints++;
             } else {
                 $existingBlueprints++;
+            }
+
+            $outputName = $this->normalizeString(Arr::get($blueprintPayload, 'Output.Name'));
+
+            if ($blueprint->slug === null) {
+                $blueprint->slug = $this->generateSlug(
+                    $outputName ?? $this->normalizeString($blueprintPayload['Key']),
+                    $blueprint->id,
+                );
+                $blueprint->save();
             }
 
             $blueprintData = BlueprintData::query()->updateOrCreate(
@@ -298,5 +309,24 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
         $value = trim($value);
 
         return $value === '' ? null : $value;
+    }
+
+    private function generateSlug(?string $name, int $excludeId): string
+    {
+        $baseSlug = $name !== null ? Str::slug($name) : '';
+
+        if ($baseSlug === '') {
+            return 'blueprint-'.$excludeId;
+        }
+
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (Blueprint::query()->where('slug', $slug)->where('id', '!=', $excludeId)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

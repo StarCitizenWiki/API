@@ -1520,9 +1520,8 @@ paths:
           in: path
           required: true
           schema:
-            description: 'Mission UUID'
+            description: 'Mission slug or UUID'
             type: string
-            format: uuid
         -
           $ref: '#/components/parameters/version'
         -
@@ -1742,7 +1741,7 @@ paths:
         - In-Game
         - Starmap
       summary: 'Game Starmap Location Detail'
-      description: 'Retrieve a versioned starmap location by location UUID.'
+      description: 'Retrieve a versioned starmap location by slug or UUID.'
       operationId: a94f2428b5133a755b80610db7fa0e90
       parameters:
         -
@@ -1750,9 +1749,8 @@ paths:
           in: path
           required: true
           schema:
-            description: 'Starmap location UUID'
+            description: 'Starmap location slug or UUID'
             type: string
-            format: uuid
         -
           $ref: '#/components/parameters/include'
         -
@@ -1765,7 +1763,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/game_starmap_location'
         '404':
-          description: 'No starmap location with specified UUID found.'
+          description: 'No starmap location with specified identifier found.'
   /api/locations/filters:
     get:
       tags:
@@ -12352,6 +12350,9 @@ components:
           type: string
         type_name:
           type: string
+        slug:
+          type: string
+          nullable: true
       type: object
     game_starmap_location_type:
       title: 'Game Starmap Location Type'
@@ -12555,6 +12556,9 @@ components:
         uuid:
           type: string
           format: uuid
+        slug:
+          type: string
+          nullable: true
         name:
           type: string
         description:

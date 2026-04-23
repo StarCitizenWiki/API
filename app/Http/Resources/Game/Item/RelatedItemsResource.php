@@ -79,7 +79,7 @@ class RelatedItemsResource extends JsonResource
             'manufacturer' => $this->expandManufacturerLink($manufacturer),
             'size' => $itemData->size,
             'link' => route('items.show', ['identifier' => $uuid]),
-            'web_url' => route('web.items.show', ['item' => $uuid]),
+            'web_url' => route('web.items.show', ['item' => $itemData->item->slug ?? $uuid]),
             'version' => $versionCode,
         ];
 
@@ -106,7 +106,7 @@ class RelatedItemsResource extends JsonResource
                 'classification' => $setItemData->classification,
                 'size' => $setItemData->size,
                 'link' => route('items.show', ['identifier' => $setItemData->item->uuid]),
-                'web_url' => route('web.items.show', ['item' => $setItemData->item->uuid]),
+                'web_url' => route('web.items.show', ['item' => $setItemData->item->slug ?? $setItemData->item->uuid]),
             ])
             ->all();
     }

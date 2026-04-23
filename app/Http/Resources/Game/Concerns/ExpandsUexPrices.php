@@ -38,7 +38,7 @@ trait ExpandsUexPrices
                 if ($locationData !== null) {
                     $price['starmap_location'] = [
                         'name' => $locationData->name,
-                        'slug' => $locationData->slug,
+                        'slug' => $locationData->location?->slug,
                         'type_name' => $locationData->type_name,
                         'parent_name' => $locationData->parent?->name,
                         'star_system_name' => $locationData->parent?->star?->name,

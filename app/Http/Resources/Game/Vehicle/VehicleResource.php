@@ -18,7 +18,6 @@ use App\Traits\ComputesWeaponSnapshot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -625,7 +624,7 @@ class VehicleResource extends AbstractBaseResource
             'uuid' => $this->vehicle->uuid,
             'name' => $vehicleData->display_name ?? $vehicleData->name,
             'game_name' => $vehicleData->name,
-            'slug' => Str::slug($vehicleData->display_name ?? $vehicleData->name),
+            'slug' => $this->vehicle->slug,
             'class_name' => $vehicleData->class_name,
 
             'sizes' => [
@@ -1119,7 +1118,7 @@ class VehicleResource extends AbstractBaseResource
 
     private function buildWebUrl(Request $request): string
     {
-        $url = route('web.vehicles.show', ['vehicle' => $this->vehicle->uuid]);
+        $url = route('web.vehicles.show', ['vehicle' => $this->vehicle->slug ?? $this->vehicle->uuid]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {

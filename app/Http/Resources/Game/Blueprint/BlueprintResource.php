@@ -615,7 +615,7 @@ class BlueprintResource extends AbstractBaseResource
 
     private function webUrl(Request $request): string
     {
-        return $this->urlWithVersion(route('web.blueprints.show', ['blueprint' => $this->blueprint->uuid]), $request);
+        return $this->urlWithVersion(route('web.blueprints.show', ['blueprint' => $this->blueprint->slug ?? $this->blueprint->uuid]), $request);
     }
 
     private function outputItemWebUrl(Request $request): ?string

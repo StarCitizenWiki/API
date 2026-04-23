@@ -23,6 +23,7 @@ class BlueprintFactory extends Factory
     {
         return [
             'uuid' => fake()->unique()->uuid(),
+            'slug' => fn () => fake()->unique()->slug(2),
         ];
     }
 }

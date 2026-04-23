@@ -218,7 +218,7 @@ class CommodityShowResource extends CommodityIndexResource
                 'name' => $this->refined_version_name,
                 'uuid' => $this->refinedVersion->uuid,
                 'web_url' => $this->urlWithVersion(
-                    route('web.commodities.show', ['identifier' => $this->refinedVersion->uuid]),
+                    route('web.commodities.show', ['identifier' => $this->refinedVersion->slug ?? $this->refinedVersion->uuid]),
                     $request,
                 ),
                 'link' => $this->urlWithVersion(
@@ -252,7 +252,7 @@ class CommodityShowResource extends CommodityIndexResource
                     'name' => $raw->name,
                     'uuid' => $raw->uuid,
                     'web_url' => $this->urlWithVersion(
-                        route('web.commodities.show', ['identifier' => $raw->uuid]),
+                        route('web.commodities.show', ['identifier' => $raw->slug ?? $raw->uuid]),
                         $request,
                     ),
                     'link' => $this->urlWithVersion(
@@ -268,7 +268,7 @@ class CommodityShowResource extends CommodityIndexResource
                     'output_item_uuid' => $blueprintData->output_item_uuid,
                     'craft_time_label' => FormatDuration::fromSeconds($blueprintData->craft_time_seconds),
                     'web_url' => $this->urlWithVersion(
-                        route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->uuid]),
+                        route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->slug ?? $blueprintData->blueprint->uuid]),
                         $request,
                     ),
                     'link' => $this->urlWithVersion(
@@ -286,7 +286,7 @@ class CommodityShowResource extends CommodityIndexResource
                     'size' => $itemData->size,
                     'web_url' => $itemData->item?->uuid
                         ? $this->urlWithVersion(
-                            route('web.items.show', ['item' => $itemData->item->uuid]),
+                            route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid]),
                             $request,
                         )
                         : null,
@@ -303,7 +303,7 @@ class CommodityShowResource extends CommodityIndexResource
                 $request,
             ),
             'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $this->uuid]),
+                route('web.commodities.show', ['identifier' => $this->slug ?? $this->uuid]),
                 $request,
             ),
         ];

@@ -23,6 +23,7 @@ class ItemFactory extends Factory
     {
         return [
             'uuid' => fake()->unique()->uuid(),
+            'slug' => fake()->unique()->slug(2),
         ];
     }
 }

@@ -228,7 +228,7 @@ class MissionIndexResource extends AbstractBaseResource
                 $request,
             ),
             'web_url' => $this->urlWithVersion(
-                route('web.missions.show', ['mission' => $mission?->uuid]),
+                route('web.missions.show', ['mission' => $mission?->slug ?? $mission?->uuid]),
                 $request,
             ),
         ];

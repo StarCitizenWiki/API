@@ -52,7 +52,7 @@ it('shows full faction card with reputation ladder on mission page', function ()
         ->forMission($mission)
         ->create(['faction_id' => $faction->id, 'title' => 'Nine Tails Heist']);
 
-    $response = $this->get("/missions/{$mission->uuid}");
+    $response = $this->get("/missions/{$mission->slug}");
 
     $response->assertSuccessful()
         ->assertSee('Faction')
@@ -79,7 +79,7 @@ it('shows faction card without ladder when faction has no reputation', function 
         ->forMission($mission)
         ->create(['faction_id' => $faction->id, 'title' => 'Simple Mission']);
 
-    $response = $this->get("/missions/{$mission->uuid}");
+    $response = $this->get("/missions/{$mission->slug}");
 
     $response->assertSuccessful()
         ->assertSee('Faction')
@@ -94,7 +94,7 @@ it('does not show faction card when mission has no faction', function (): void {
         ->forMission($mission)
         ->create(['faction_id' => null, 'title' => 'No Faction Mission']);
 
-    $response = $this->get("/missions/{$mission->uuid}");
+    $response = $this->get("/missions/{$mission->slug}");
 
     $response->assertSuccessful()
         ->assertDontSee('Faction</h2>');

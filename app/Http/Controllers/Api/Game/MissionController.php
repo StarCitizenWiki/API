@@ -130,9 +130,8 @@ class MissionController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Mission UUID',
+                    description: 'Mission slug or UUID',
                     type: 'string',
-                    format: 'uuid',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -153,6 +152,7 @@ class MissionController extends Controller
 
         $missionModel = Mission::query()
             ->when(Str::isUuid($mission), fn (Builder $q) => $q->where('uuid', $mission))
+            ->unless(Str::isUuid($mission), fn (Builder $q) => $q->where('slug', $mission))
             ->first();
 
         if ($missionModel === null) {

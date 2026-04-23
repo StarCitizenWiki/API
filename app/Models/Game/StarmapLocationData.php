@@ -32,7 +32,6 @@ class StarmapLocationData extends Model
         'provider_data_id',
         'location_hierarchy_entity_tag_id',
         'name',
-        'slug',
         'description',
         'type_name',
         'system',

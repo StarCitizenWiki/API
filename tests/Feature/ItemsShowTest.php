@@ -262,24 +262,24 @@ it('renders the item show view with api data', function (): void {
         'meta[name="twitter:card"]' => 'summary',
         'meta[name="twitter:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
     ]);
-    assertItemSeoCanonical($response, route('web.items.show', ['item' => $item->uuid]));
+    assertItemSeoCanonical($response, route('web.items.show', ['item' => $item->slug]));
 
     expect(trim(itemShowCrawler($response)->filter('title')->text()))
         ->toBe('Test Module by Acme Works | PowerPlant Size 2 | Star Citizen');
 
     $breadcrumbStructuredData = itemStructuredDataBlock($response, 'BreadcrumbList');
-    $productStructuredData = itemStructuredDataBlock($response, 'Product');
+    $productStructuredData = itemStructuredDataBlock($response, 'Item');
 
     expect(itemStructuredData($response))->toHaveCount(2)
         ->and(data_get($breadcrumbStructuredData, 'itemListElement'))->toHaveCount(5)
         ->and(data_get($breadcrumbStructuredData, 'itemListElement.0.name'))->toBe('All Items')
         ->and(data_get($breadcrumbStructuredData, 'itemListElement.3.name'))->toBe('Power-Plants')
-        ->and(data_get($breadcrumbStructuredData, 'itemListElement.4.item'))->toBe(route('web.items.show', ['item' => $item->uuid]))
+        ->and(data_get($breadcrumbStructuredData, 'itemListElement.4.item'))->toBe(route('web.items.show', ['item' => $item->slug]))
         ->and(data_get($productStructuredData, 'name'))->toBe('Test Module')
         ->and(data_get($productStructuredData, 'brand.name'))->toBe('Acme Works')
         ->and(data_get($productStructuredData, 'category'))->toBe('Power-Plants')
         ->and(data_get($productStructuredData, 'description'))->toBe('Base item description')
-        ->and(data_get($productStructuredData, 'url'))->toBe(route('web.items.show', ['item' => $item->uuid]));
+        ->and(data_get($productStructuredData, 'url'))->toBe(route('web.items.show', ['item' => $item->slug]));
 
     assertItemMetaPanels($response, showsPortsCard: true, portsCount: 1);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'test_module', '4.0.0-LIVE');
