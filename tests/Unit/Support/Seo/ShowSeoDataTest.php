@@ -79,7 +79,7 @@ it('builds item seo data with localized description and type-specific breadcrumb
         ->and($seo['breadcrumbs'][2]['label'])->toBe('Components')
         ->and($seo['breadcrumbs'][3]['label'])->toBe('Coolers')
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
-        ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Product')
+        ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Item')
         ->and(data_get($seo, 'structuredData.1.brand.name'))->toBe('Klaus & Werner')
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(5);
 });

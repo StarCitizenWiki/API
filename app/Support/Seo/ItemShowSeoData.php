@@ -317,7 +317,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
     ): array {
         $schema = [
             '@context' => 'https://schema.org',
-            '@type' => 'Product',
+            '@type' => 'Item',
             'name' => $itemName,
             'description' => $metaDescription,
             'url' => $canonicalUrl,
