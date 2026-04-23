@@ -151,7 +151,7 @@ it('builds blueprint seo data with HowTo structured data and ingredients as supp
     $request->setLaravelSession(app('session.store'));
     $request->session()->put('game_version_code', '4.1.0-LIVE');
 
-    $blueprintUuid = 'bp-123';
+    $blueprintUuid = '550e8400-e29b-41d4-a716-446655440000';
     $seo = app(BlueprintShowSeoData::class)->build([
         'uuid' => $blueprintUuid,
         'output_name' => 'Doom Missile',
