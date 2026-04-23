@@ -7,7 +7,7 @@ namespace App\Models\Game\Mission;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\Faction;
-use App\Models\Game\GameVersion;
+use App\Models\Game\HasGameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 class MissionData extends Model
 {
     use HasFactory;
+    use HasGameVersion;
 
     private const array GROUP_COLUMNS = [
         'game_version_id',
@@ -107,11 +108,6 @@ class MissionData extends Model
         return $this->belongsTo(Mission::class);
     }
 
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
-    }
-
     public function faction(): BelongsTo
     {
         return $this->belongsTo(Faction::class, 'faction_id');
@@ -164,19 +160,6 @@ class MissionData extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(ItemData::class, 'game_mission_data_item', 'mission_data_id', 'item_data_id');
-    }
-
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', function (Builder $builder) use ($code): void {
-                $builder->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', static function (Builder $builder): void {
-            $builder->where('is_default', true);
-        });
     }
 
     public function scopeExcludeUnreleased(Builder $query, bool $exclude = true): Builder

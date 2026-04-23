@@ -7,7 +7,6 @@ namespace App\Models\Game;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Resource\ResourceLocation;
 use Database\Factories\Game\StarmapLocationDataFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +19,8 @@ class StarmapLocationData extends Model
 {
     /** @use HasFactory<StarmapLocationDataFactory> */
     use HasFactory;
+
+    use HasGameVersion;
 
     protected $table = 'game_starmap_location_data';
 
@@ -55,27 +56,9 @@ class StarmapLocationData extends Model
         'data' => AsCollection::class,
     ];
 
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', function (Builder $builder) use ($code) {
-                $builder->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', function (Builder $builder) {
-            $builder->where('is_default', true);
-        });
-    }
-
     public function location(): BelongsTo
     {
         return $this->belongsTo(StarmapLocation::class, 'starmap_location_id');
-    }
-
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
     }
 
     public function parent(): BelongsTo

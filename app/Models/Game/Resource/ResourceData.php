@@ -6,9 +6,8 @@ namespace App\Models\Game\Resource;
 
 use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
+use App\Models\Game\HasGameVersion;
 use Database\Factories\Game\Resource\ResourceDataFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +19,8 @@ class ResourceData extends Model
 {
     /** @use HasFactory<ResourceDataFactory> */
     use HasFactory;
+
+    use HasGameVersion;
 
     protected $table = 'game_resource_data';
 
@@ -46,11 +47,6 @@ class ResourceData extends Model
         return $this->belongsTo(Resource::class);
     }
 
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
-    }
-
     public function commodities(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -71,18 +67,5 @@ class ResourceData extends Model
     public function locations(): HasMany
     {
         return $this->hasMany(ResourceLocation::class);
-    }
-
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', static function (Builder $q) use ($code): void {
-                $q->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', static function (Builder $q): void {
-            $q->where('is_default', true);
-        });
     }
 }

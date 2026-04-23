@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Game\Resource;
 
-use App\Models\Game\GameVersion;
+use App\Models\Game\HasVersionedData;
 use Database\Factories\Game\Resource\ResourceFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +14,8 @@ class Resource extends Model
 {
     /** @use HasFactory<ResourceFactory> */
     use HasFactory;
+
+    use HasVersionedData;
 
     protected $table = 'game_resources';
 
@@ -30,23 +31,5 @@ class Resource extends Model
     public function data(): HasMany
     {
         return $this->hasMany(ResourceData::class);
-    }
-
-    public function scopeWithDataForVersion(Builder $query, ?string $gameVersionCode = null): Builder
-    {
-        $version = GameVersion::resolveRequestedOrDefault($gameVersionCode);
-
-        return $query->with([
-            'data' => static function ($builder) use ($version): void {
-                $builder->where('game_version_id', $version->id);
-            },
-        ]);
-    }
-
-    public function dataForVersion(?string $gameVersionCode = null): HasMany
-    {
-        $version = GameVersion::resolveRequestedOrDefault($gameVersionCode);
-
-        return $this->data()->where('game_version_id', $version->id);
     }
 }

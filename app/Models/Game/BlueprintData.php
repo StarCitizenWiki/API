@@ -21,6 +21,8 @@ class BlueprintData extends Model
     /** @use HasFactory<BlueprintDataFactory> */
     use HasFactory;
 
+    use HasGameVersion;
+
     protected $table = 'game_blueprint_data';
 
     protected $perPage = 50;
@@ -53,11 +55,6 @@ class BlueprintData extends Model
         return $this->belongsTo(Blueprint::class);
     }
 
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
-    }
-
     public function outputItem(): BelongsTo
     {
         return $this->belongsTo(Item::class, 'output_item_uuid', 'uuid');
@@ -79,19 +76,6 @@ class BlueprintData extends Model
         return $this->belongsToMany(MissionData::class, 'game_mission_data_blueprint', 'blueprint_data_id', 'mission_data_id')
             ->withPivot(['pool_uuid', 'item_data_id'])
             ->using(MissionBlueprint::class);
-    }
-
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', function (Builder $builder) use ($code): void {
-                $builder->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', static function (Builder $builder): void {
-            $builder->where('is_default', true);
-        });
     }
 
     public function scopeConsumesResourceType(Builder $query, string $resourceTypeUuid): Builder

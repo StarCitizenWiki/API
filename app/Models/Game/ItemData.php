@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class ItemData extends Model
 {
     use HasFactory;
+    use HasGameVersion;
 
     protected $table = 'game_item_data';
 
@@ -48,19 +49,6 @@ class ItemData extends Model
         'data' => AsCollection::class,
         'uex_prices' => 'array',
     ];
-
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', function (Builder $q) use ($code) {
-                $q->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', function (Builder $q) {
-            $q->where('is_default', true);
-        });
-    }
 
     public function scopeCategory(Builder $query, string $category): Builder
     {
@@ -171,11 +159,6 @@ class ItemData extends Model
     public function variants(): HasMany
     {
         return $this->hasMany(self::class, 'base_id', 'id')->orderBy('name');
-    }
-
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
     }
 
     public function entityTags(): BelongsToMany

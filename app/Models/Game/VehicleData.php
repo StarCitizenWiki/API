@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 class VehicleData extends Model
 {
     use HasFactory;
+    use HasGameVersion;
 
     protected $table = 'game_vehicle_data';
 
@@ -69,11 +70,6 @@ class VehicleData extends Model
         return $this->belongsTo(Manufacturer::class);
     }
 
-    public function gameVersion(): BelongsTo
-    {
-        return $this->belongsTo(GameVersion::class, 'game_version_id');
-    }
-
     public function shipMatrixVehicle(): BelongsTo
     {
         return $this->belongsTo(
@@ -124,22 +120,6 @@ class VehicleData extends Model
 
     /**
      * Scope to filter by requested game version code or default version.
-     */
-    public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
-    {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', function (Builder $q) use ($code) {
-                $q->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
-
-        return $query->whereHas('gameVersion', function (Builder $q) {
-            $q->where('is_default', true);
-        });
-    }
-
-    /**
-     * Scope to filter vehicles by type category.
      */
     public function scopeForVehicleType(Builder $query, string $vehicleType): Builder
     {
