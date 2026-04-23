@@ -588,11 +588,7 @@ class VehicleResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $vehicleData = $this->data->first();
-
-        if ($vehicleData === null) {
-            return [];
-        }
+        $vehicleData = $this->resource;
 
         $payload = $vehicleData->data ?? [];
         $flight = Arr::get($payload, 'FlightCharacteristics', []);
@@ -626,7 +622,7 @@ class VehicleResource extends AbstractBaseResource
         ]);
 
         $data = [
-            'uuid' => $this->uuid,
+            'uuid' => $this->vehicle->uuid,
             'name' => $vehicleData->display_name ?? $vehicleData->name,
             'game_name' => $vehicleData->name,
             'slug' => Str::slug($vehicleData->display_name ?? $vehicleData->name),
@@ -849,7 +845,7 @@ class VehicleResource extends AbstractBaseResource
             'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
 
             $this->mergeWhen(
-                $this->whenLoaded('shipmatrixVehicle.components') && $this->isVehicleShowRoute($request),
+                $this->relationLoaded('shipMatrixVehicle') && $this->shipMatrixVehicle?->relationLoaded('components') && $this->isVehicleShowRoute($request),
                 fn () => ['components' => $this->getComponents($vehicleData)]
             ),
 
@@ -1123,7 +1119,7 @@ class VehicleResource extends AbstractBaseResource
 
     private function buildWebUrl(Request $request): string
     {
-        $url = route('web.vehicles.show', ['vehicle' => $this->uuid]);
+        $url = route('web.vehicles.show', ['vehicle' => $this->vehicle->uuid]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {
@@ -1135,8 +1131,7 @@ class VehicleResource extends AbstractBaseResource
 
     private function buildApiUrl(Request $request): string
     {
-        $vehicleData = $this->data->first();
-        $identifier = $this->uuid ?? $vehicleData?->name;
+        $identifier = $this->vehicle->uuid ?? $this->resource->name;
         $url = route('vehicles.show', ['vehicle' => $identifier]);
         $version = $request->query('version');
 
@@ -1153,11 +1148,7 @@ class VehicleResource extends AbstractBaseResource
      */
     private function loadShipMatrixData(array &$data, Request $request): void
     {
-        $vehicleData = $this->data->first();
-
-        if ($vehicleData === null) {
-            return;
-        }
+        $vehicleData = $this->resource;
 
         if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
             return;

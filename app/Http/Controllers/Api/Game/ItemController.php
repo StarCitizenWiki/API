@@ -16,12 +16,12 @@ use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -214,14 +214,12 @@ class ItemController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $versionCode = $this->gameVersionCode();
-
         $query = $this->buildBaseQuery($request);
         $items = $query->jsonPaginate();
 
-        return ItemResource::collection(
-            $this->transformToItems($items, $versionCode)
-        );
+        ItemData::loadCraftingBlueprints($items->getCollection());
+
+        return ItemResource::collection($items);
     }
 
     #[OA\Get(
@@ -294,22 +292,19 @@ class ItemController extends Controller
                 ->contains('blueprints');
 
             if ($includeBlueprint) {
-                ItemData::hydrateFullCraftingBlueprints(collect([$itemData]));
+                ItemData::loadCraftingBlueprints(new Collection([$itemData]), true);
             } else {
-                ItemData::hydrateCraftingBlueprints(collect([$itemData]));
+                ItemData::loadCraftingBlueprints(new Collection([$itemData]));
             }
-
-            $item = $itemData->item;
-            $item->setRelation('data', collect([$itemData]));
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        if ($item->data->first()?->type === 'NOITEM_Vehicle') {
-            return redirect(sprintf('/api/vehicles/%s', $item->uuid));
+        if ($itemData->type === 'NOITEM_Vehicle') {
+            return redirect(sprintf('/api/vehicles/%s', $itemData->item->uuid));
         }
 
-        return new ItemResource($item);
+        return new ItemResource($itemData);
     }
 
     #[OA\Post(
@@ -362,7 +357,6 @@ class ItemController extends Controller
     )]
     public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
-        $versionCode = $this->gameVersionCode();
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
         $normalizedSearch = mb_strtolower($toSearch);
@@ -380,11 +374,12 @@ class ItemController extends Controller
 
         $items = $query->jsonPaginate();
 
-        return ItemResource::collection(
-            $this->transformToItems($items, $versionCode)
-        )->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        ItemData::loadCraftingBlueprints($items->getCollection());
+
+        return ItemResource::collection($items)
+            ->additional([
+                'meta' => ['deprecated' => true],
+            ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Get(
@@ -530,36 +525,5 @@ class ItemController extends Controller
         return response()->json([
             'filters' => $filters,
         ]);
-    }
-
-    /**
-     * Transform ItemData collection to Items for resources.
-     *
-     * ItemResource expects Item models with loaded data relationship.
-     * This method transforms the ItemData query results back to Item models.
-     */
-    private function transformToItems($itemDataCollection, ?string $versionCode): mixed
-    {
-        if ($itemDataCollection instanceof LengthAwarePaginator) {
-            ItemData::hydrateCraftingBlueprints($itemDataCollection->getCollection());
-
-            $items = $itemDataCollection->getCollection()->map(function (ItemData $itemData) {
-                $item = $itemData->item;
-                $item->setRelation('data', collect([$itemData]));
-
-                return $item;
-            });
-
-            return $itemDataCollection->setCollection($items);
-        }
-
-        ItemData::hydrateCraftingBlueprints($itemDataCollection);
-
-        return $itemDataCollection->map(function (ItemData $itemData) {
-            $item = $itemData->item;
-            $item->setRelation('data', collect([$itemData]));
-
-            return $item;
-        });
     }
 }

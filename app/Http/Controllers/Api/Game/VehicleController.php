@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -112,9 +111,7 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection(
-            $this->transformToVehicles($vehicles)
-        );
+        return VehicleResource::collection($vehicles);
     }
 
     #[OA\Get(
@@ -220,9 +217,6 @@ class VehicleController extends Controller
                 throw new ModelNotFoundException('No Vehicle with specified UUID or Name found.');
             }
 
-            $vehicle = $vehicleData->vehicle;
-            $vehicle->setRelation('data', collect([$vehicleData]));
-
             $shipMatrixRelations = [
                 'shipMatrixVehicle.foci',
                 'shipMatrixVehicle.productionStatus',
@@ -237,7 +231,7 @@ class VehicleController extends Controller
 
             $vehicleData->load($shipMatrixRelations);
 
-            $vehicle->load(['item' => function ($query) use ($vehicleData) {
+            $vehicleData->vehicle->load(['item' => function ($query) use ($vehicleData) {
                 $query->with(['data' => function ($q) use ($vehicleData) {
                     $q->where('game_version_id', $vehicleData->game_version_id)
                         ->with('descriptionData');
@@ -249,7 +243,7 @@ class VehicleController extends Controller
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
 
-        return new VehicleResource($vehicle);
+        return new VehicleResource($vehicleData);
     }
 
     #[OA\Post(
@@ -336,11 +330,10 @@ class VehicleController extends Controller
 
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection(
-            $this->transformToVehicles($vehicles)
-        )->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return VehicleResource::collection($vehicles)
+            ->additional([
+                'meta' => ['deprecated' => true],
+            ])->response()->header('Deprecated', 'true');
     }
 
     #[OA\Get(
@@ -632,27 +625,6 @@ class VehicleController extends Controller
      * VehicleLinkResource expects Vehicle models with loaded data relationship.
      * This method transforms the VehicleData query results back to Vehicle models.
      */
-    private function transformToVehicles($vehicleDataCollection): mixed
-    {
-        if ($vehicleDataCollection instanceof LengthAwarePaginator) {
-            $vehicles = $vehicleDataCollection->getCollection()->map(function (VehicleData $vehicleData) {
-                $vehicle = $vehicleData->vehicle;
-                $vehicle->setRelation('data', collect([$vehicleData]));
-
-                return $vehicle;
-            });
-
-            return $vehicleDataCollection->setCollection($vehicles);
-        }
-
-        return $vehicleDataCollection->map(function (VehicleData $vehicleData) {
-            $vehicle = $vehicleData->vehicle;
-            $vehicle->setRelation('data', collect([$vehicleData]));
-
-            return $vehicle;
-        });
-    }
-
     /**
      * Eager load all port items from the vehicle's Loadout data.
      *

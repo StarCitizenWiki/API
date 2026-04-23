@@ -10,6 +10,8 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
+use App\Models\Game\VariantGroup;
+use App\Models\Game\VariantGroupItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
@@ -499,6 +501,33 @@ it('renders variant-heavy item with variants section', function (): void {
             ]);
     }
 
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $version->id,
+        'set_name' => 'Laser Cannon',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $baseItemData->id,
+        'variant_name' => 'Base',
+        'sort_order' => 0,
+        'is_base' => true,
+    ]);
+
+    for ($i = 1; $i <= 4; $i++) {
+        $variantData = ItemData::query()
+            ->where('name', "Laser Cannon Variant {$i}")
+            ->first();
+
+        VariantGroupItem::query()->create([
+            'variant_group_id' => $variantGroup->id,
+            'item_data_id' => $variantData->id,
+            'variant_name' => "Variant {$i}",
+            'sort_order' => $i,
+            'is_base' => false,
+        ]);
+    }
+
     $response = $this->get(route('web.items.show', $baseItem->uuid));
 
     $response->assertOk()
@@ -829,7 +858,7 @@ it('shows variant state in the hero and base variant link in quick facts', funct
         'translation' => ['en' => 'Variant rifle description'],
     ]);
 
-    ItemData::factory()
+    $variantItemData = ItemData::factory()
         ->for($variantItem)
         ->for($version, 'gameVersion')
         ->for($manufacturer)
@@ -842,6 +871,27 @@ it('shows variant state in the hero and base variant link in quick facts', funct
             'base_id' => $baseItemData->id,
             'data' => ['stdItem' => []],
         ]);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $version->id,
+        'set_name' => 'Prototype Rifle',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $baseItemData->id,
+        'variant_name' => 'Base',
+        'sort_order' => 0,
+        'is_base' => true,
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $variantItemData->id,
+        'variant_name' => 'Shadow',
+        'sort_order' => 1,
+        'is_base' => false,
+    ]);
 
     $blueprint = Blueprint::factory()->create();
 

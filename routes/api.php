@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Game\BlueprintController;
-use App\Http\Controllers\Api\Game\Commodity\CommodityController;
+use App\Http\Controllers\Api\Game\CommodityController;
 use App\Http\Controllers\Api\Game\FactionController;
 use App\Http\Controllers\Api\Game\GameVersionController;
 use App\Http\Controllers\Api\Game\ItemController;

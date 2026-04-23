@@ -454,10 +454,8 @@ class MissionController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
-    private function allowedFilters(bool $includeUnreleased = false): array
+    private function allowedFilters(): array
     {
-        $versionCode = $this->gameVersionCode();
-
         return [
             AllowedFilter::exact('mission_giver'),
             AllowedFilter::callback('faction', static function (Builder $query, mixed $value): void {

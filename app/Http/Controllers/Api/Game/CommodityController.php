@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\Game\Commodity;
+namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Game\CommodityIndexRequest;
@@ -32,13 +32,13 @@ class CommodityController extends Controller
 {
     use ResolvesGameVersion;
 
-    private const GROUP_SHIP = 'SpaceShip_Mineables';
+    private const string GROUP_SHIP = 'SpaceShip_Mineables';
 
-    private const GROUP_GROUND_VEHICLE = 'GroundVehicle_Mineables';
+    private const string GROUP_GROUND_VEHICLE = 'GroundVehicle_Mineables';
 
-    private const GROUPS_FPS = ['FPS_Mineables', 'FPS mineables'];
+    private const array GROUPS_FPS = ['FPS_Mineables', 'FPS mineables'];
 
-    private const GROUPS_HARVESTABLE = ['Harvestables', 'Havestables', 'Plants'];
+    private const array GROUPS_HARVESTABLE = ['Harvestables', 'Havestables', 'Plants'];
 
     #[OA\Get(
         path: '/api/commodities',

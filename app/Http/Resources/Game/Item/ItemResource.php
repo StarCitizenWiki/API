@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Item;
 
-use App\Enums\Game\CraftingBlueprintMode;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Blueprint\BlueprintResource;
 use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
@@ -452,7 +451,7 @@ class ItemResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        if ($this->uuid === null) {
+        if ($this->item?->uuid === null) {
             return [];
         }
 
@@ -460,24 +459,24 @@ class ItemResource extends AbstractBaseResource
             'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
         ]);
 
-        $itemData = $this->data->first();
+        $itemData = $this->resource;
 
         $type = str_replace('NOITEM_', '', ($itemData->type ?? ''));
 
         $this->eagerLoadPortEquippedItems($itemData, $request);
 
         return [
-            'uuid' => $this->uuid,
+            'uuid' => $this->item->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
             'classification' => $itemData->classification,
-            'description' => $this->getTranslation($this->resource, $request),
+            'description' => $this->getTranslation($itemData->item, $request),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
             $this->mergeWhen($itemData->is_craftable, [
-                'blueprint' => $itemData->getCraftingBlueprintMode() === CraftingBlueprintMode::Full
+                'blueprint' => $this->isFullBlueprintMode($itemData)
                     ? $this->buildFullBlueprintPayload($itemData, $request)
                     : $this->buildBlueprintPayload($itemData, $request),
             ]),
@@ -495,7 +494,7 @@ class ItemResource extends AbstractBaseResource
             'sub_type' => $itemData->sub_type,
             $this->mergeWhen(...$this->addAttachmentPosition($itemData)),
             $this->mergeWhen($this->isTurret($itemData), $this->addTurretData($itemData)),
-            $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
+            $this->mergeWhen(...$this->addSpecification($itemData)),
 
             'dimension' => new ItemDimensionResource($itemData),
 
@@ -568,7 +567,7 @@ class ItemResource extends AbstractBaseResource
             ),
             'web_url' => $this->buildWebUrl($request),
             'link' => $this->buildApiUrl($request),
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->item->updated_at,
             'version' => $itemData->relationLoaded('gameVersion')
                 ? $itemData->gameVersion->code
                 : null,
@@ -577,7 +576,7 @@ class ItemResource extends AbstractBaseResource
 
     private function buildApiUrl(Request $request): string
     {
-        $url = route('items.show', ['identifier' => $this->uuid]);
+        $url = route('items.show', ['identifier' => $this->item->uuid]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {
@@ -616,6 +615,15 @@ class ItemResource extends AbstractBaseResource
             ->all();
     }
 
+    private function isFullBlueprintMode(ItemData $itemData): bool
+    {
+        if (! $itemData->relationLoaded('craftingBlueprints')) {
+            return false;
+        }
+
+        return $itemData->craftingBlueprints->first()?->relationLoaded('ingredients') ?? false;
+    }
+
     /**
      * Eager load ItemData for all equipped items in ports to prevent N+1 queries.
      *
@@ -647,7 +655,7 @@ class ItemResource extends AbstractBaseResource
         request()->attributes->set('eager_loaded_port_items', $loaded);
     }
 
-    protected function addSpecification(Item $item, ItemData $itemData): array
+    protected function addSpecification(ItemData $itemData): array
     {
         $specifications = [];
         $hasMatch = false;
@@ -1051,7 +1059,7 @@ class ItemResource extends AbstractBaseResource
 
     private function buildWebUrl(Request $request): string
     {
-        $url = route('web.items.show', ['item' => $this->uuid]);
+        $url = route('web.items.show', ['item' => $this->item->uuid]);
         $version = $request->query('version');
 
         if ($version === null || $version === '') {

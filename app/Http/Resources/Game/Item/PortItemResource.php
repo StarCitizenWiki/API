@@ -101,7 +101,7 @@ class PortItemResource extends ItemResource
             $this->mergeWhen($itemData->manufacturer !== null, [
                 'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
             ]),
-            $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
+            $this->mergeWhen(...$this->addSpecification($itemData)),
 
             $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceNetwork'), [
                 'resource_network' => new ResourceNetworkResource($itemData),

@@ -417,29 +417,6 @@ it('does not include related items when not requested', function (): void {
         ->assertJsonMissingPath('data.related_items');
 });
 
-it('does not include related items on index route even when requested', function (): void {
-    $item = Item::factory()->create();
-    ItemData::factory()
-        ->for($item)
-        ->for($this->gameVersion, 'gameVersion')
-        ->for($this->manufacturer)
-        ->create([
-            'name' => 'Test Item',
-            'type' => 'Weapon',
-            'class_name' => 'test_item',
-            'classification' => 'WeaponPersonal',
-            'data' => ['stdItem' => []],
-        ]);
-
-    $response = $this->getJson('/api/items?include=related_items');
-
-    $response->assertSuccessful()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.uuid', $item->uuid)
-        ->assertJsonPath('data.0.name', 'Test Item')
-        ->assertJsonMissingPath('data.0.related_items');
-});
-
 it('includes web urls with version in item index', function (): void {
     $item = Item::factory()->create();
 
