@@ -6,6 +6,7 @@ namespace App\Models\Game;
 
 use App\Enums\Game\CraftingBlueprintMode;
 use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\Mission\MissionData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 class ItemData extends Model
@@ -175,6 +177,21 @@ class ItemData extends Model
             'game_item_data_commodity',
             'item_data_id',
             'commodity_id'
+        );
+    }
+
+    public function variantGroupItem(): HasOne
+    {
+        return $this->hasOne(VariantGroupItem::class, 'item_data_id');
+    }
+
+    public function setItems(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'game_item_set_items',
+            'item_data_id',
+            'set_item_data_id',
         );
     }
 

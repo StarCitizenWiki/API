@@ -48,28 +48,26 @@ class ItemController extends Controller
 
     /**
      * Get allowed includes with custom handlers.
-     *
-     * 'related_items' is handled as a custom include because it's computed
-     * in ItemResource rather than being an Eloquent relationship.
      */
-    private function allowedIncludes(bool $includeRelatedItems = false): array
+    private function allowedIncludes(): array
     {
-        $includes = array_merge(
+        return array_merge(
             ItemResource::validIncludes(),
             [
                 AllowedInclude::custom('shops', new CustomEagerLoadInclude),
                 AllowedInclude::custom('shops.items', new CustomEagerLoadInclude),
                 AllowedInclude::custom('variants', new CustomEagerLoadInclude([
-                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant',
+                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
                 ])),
-                AllowedInclude::custom('related_items', $includeRelatedItems
-                    ? new CustomEagerLoadInclude(['variants', 'baseVariant'])
-                    : new CustomEagerLoadInclude),
+                AllowedInclude::custom('related_items', new CustomEagerLoadInclude([
+                    'variantGroupItem.variantGroup.items.itemData.item',
+                    'setItems.item',
+                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
+                    'baseVariant.item',
+                ])),
                 AllowedInclude::custom('blueprints', new CustomEagerLoadInclude),
             ]
         );
-
-        return $includes;
     }
 
     /**
@@ -218,17 +216,6 @@ class ItemController extends Controller
     {
         $versionCode = $this->gameVersionCode();
 
-        $include = collect(explode(',', (string) $request->input('include', '')))
-            ->map(fn (string $value): string => trim($value))
-            ->reject(fn (string $value): bool => $value === '' || $value === 'related_items')
-            ->implode(',');
-
-        if ($include === '') {
-            $request->query->remove('include');
-        } else {
-            $request->query->set('include', $include);
-        }
-
         $query = $this->buildBaseQuery($request);
         $items = $query->jsonPaginate();
 
@@ -274,8 +261,8 @@ class ItemController extends Controller
         try {
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
-                ->allowedIncludes(...$this->allowedIncludes(includeRelatedItems: true))
-                ->with(['entityTags', 'item', 'gameVersion', 'baseVariant.item', 'baseVariant.manufacturer', 'baseVariant.gameVersion', 'manufacturer', 'descriptionData', 'commodities']);
+                ->allowedIncludes(...$this->allowedIncludes())
+                ->with(['entityTags', 'item', 'gameVersion', 'variantGroupItem', 'baseVariant.item', 'baseVariant.manufacturer', 'baseVariant.gameVersion', 'manufacturer', 'descriptionData', 'commodities']);
 
             $itemData = null;
 

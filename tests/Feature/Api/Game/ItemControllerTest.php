@@ -9,6 +9,8 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use App\Models\Game\VariantGroup;
+use App\Models\Game\VariantGroupItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -327,7 +329,7 @@ it('includes related items when requested', function (): void {
         ]);
 
     $variantSiblingItem = Item::factory()->create();
-    ItemData::factory()
+    $variantSiblingData = ItemData::factory()
         ->for($variantSiblingItem)
         ->for($this->gameVersion, 'gameVersion')
         ->for($this->manufacturer)
@@ -341,7 +343,7 @@ it('includes related items when requested', function (): void {
         ]);
 
     $variantItem = Item::factory()->create();
-    ItemData::factory()
+    $variantData = ItemData::factory()
         ->for($variantItem)
         ->for($this->gameVersion, 'gameVersion')
         ->for($this->manufacturer)
@@ -353,6 +355,35 @@ it('includes related items when requested', function (): void {
             'base_id' => $baseData->id,
             'data' => ['stdItem' => []],
         ]);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $this->gameVersion->id,
+        'set_name' => 'Test Base',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $baseData->id,
+        'variant_name' => 'Base',
+        'sort_order' => 0,
+        'is_base' => true,
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $variantData->id,
+        'variant_name' => 'Item',
+        'sort_order' => 1,
+        'is_base' => false,
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $variantSiblingData->id,
+        'variant_name' => 'Item Beta',
+        'sort_order' => 2,
+        'is_base' => false,
+    ]);
 
     $response = $this->getJson("/api/items/{$variantItem->uuid}?include=related_items");
 

@@ -55,7 +55,6 @@ use App\Http\Resources\TranslationResolver;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
-use App\Services\RelatedItemsBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -463,16 +462,6 @@ class ItemResource extends AbstractBaseResource
 
         $itemData = $this->data->first();
 
-        // Determine if 'related_items' has been requested via include
-        $includeParam = $request->query('include');
-        $includeValues = [];
-        if (is_string($includeParam)) {
-            $includeValues = array_map('trim', explode(',', $includeParam));
-        } elseif (is_array($includeParam)) {
-            $includeValues = $includeParam;
-        }
-        $includeRelated = in_array('related_items', $includeValues, true);
-
         $type = str_replace('NOITEM_', '', ($itemData->type ?? ''));
 
         $this->eagerLoadPortEquippedItems($itemData, $request);
@@ -572,9 +561,9 @@ class ItemResource extends AbstractBaseResource
                 )
                 : [],
             $this->mergeWhen(
-                $includeRelated && $itemData->relationLoaded('gameVersion'),
+                $itemData->relationLoaded('setItems'),
                 fn () => [
-                    'related_items' => (new RelatedItemsBuilder($itemData->gameVersion->code))->build($this->resource),
+                    'related_items' => new RelatedItemsResource($itemData),
                 ]
             ),
             'web_url' => $this->buildWebUrl($request),

@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\AddBatchJobs;
-use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
+use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\BlueprintData;
@@ -117,7 +118,7 @@ it('imports blueprints when an explicit game version is provided', function (): 
         '--skip-items' => true,
         '--skip-vehicles' => true,
         '--skip-resources' => true,
-        '--skip-compute-item-base-ids' => true,
+        '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
 
@@ -142,7 +143,7 @@ it('syncs non-versioned data without requiring a game version when item and vehi
         '--skip-starmap' => true,
         '--skip-resources' => true,
         '--skip-missions' => true,
-        '--skip-compute-item-base-ids' => true,
+        '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
 
@@ -171,7 +172,7 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
         '--skip-items' => true,
         '--skip-vehicles' => true,
         '--skip-resources' => true,
-        '--skip-compute-item-base-ids' => true,
+        '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::FAILURE);
 
@@ -180,7 +181,8 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
     Bus::assertNotDispatched(AddBatchJobs::class);
     Bus::assertNotDispatched(ImportItemData::class);
     Bus::assertNotDispatched(ImportVehicleData::class);
-    Bus::assertNotDispatched(ComputeItemBaseIdsJob::class);
+    Bus::assertNotDispatched(ComputeItemVariantGroupsJob::class);
+    Bus::assertNotDispatched(ComputeItemSetItemsJob::class);
 });
 
 it('imports missions when game version is provided', function (): void {
@@ -204,7 +206,7 @@ it('imports missions when game version is provided', function (): void {
         '--skip-vehicles' => true,
         '--skip-starmap' => true,
         '--skip-resources' => true,
-        '--skip-compute-item-base-ids' => true,
+        '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
 });
@@ -226,7 +228,7 @@ it('skips missions when --skip-missions is passed', function (): void {
         '--skip-starmap' => true,
         '--skip-resources' => true,
         '--skip-missions' => true,
-        '--skip-compute-item-base-ids' => true,
+        '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
     ])->assertExitCode(Command::SUCCESS);
 });

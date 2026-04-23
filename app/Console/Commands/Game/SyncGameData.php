@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\AddBatchJobs;
-use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
+use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportStarmapData;
 use App\Jobs\Game\ImportVehicleData;
@@ -34,7 +35,7 @@ class SyncGameData extends Command
                             {--skip-vehicles : Skip importing vehicle data}
                             {--skip-starmap : Skip importing starmap data}
                             {--skip-resources : Skip importing resource data}
-                            {--skip-compute-item-base-ids : Skip computing item base ids}
+                            {--skip-compute-item-groups : Skip computing item variant groups and set items}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
                             {--skip-factions : Skip importing faction data}
                             {--skip-missions : Skip importing mission data}';
@@ -66,7 +67,7 @@ class SyncGameData extends Command
         $skipVehicles = (bool) $this->option('skip-vehicles');
         $skipStarmap = (bool) $this->option('skip-starmap');
         $skipResources = (bool) $this->option('skip-resources');
-        $skipComputeBaseIds = (bool) $this->option('skip-compute-item-base-ids');
+        $skipComputeItemGroups = (bool) $this->option('skip-compute-item-groups');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
         $skipFactions = (bool) $this->option('skip-factions');
         $skipMissions = (bool) $this->option('skip-missions');
@@ -112,7 +113,7 @@ class SyncGameData extends Command
         }
 
         if (! $skipItems) {
-            $this->dispatchItemImports($gameVersion, $skipComputeBaseIds);
+            $this->dispatchItemImports($gameVersion, $skipComputeItemGroups);
         }
 
         if (! $skipVehicles) {
@@ -183,7 +184,7 @@ class SyncGameData extends Command
         return $gameVersion;
     }
 
-    private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeBaseIds): void
+    private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeItemGroups): void
     {
         $itemFiles = collect(Storage::disk('scunpacked')->files('items'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
@@ -199,8 +200,9 @@ class SyncGameData extends Command
             return new ImportItemData($gameVersion->id, $path);
         });
 
-        $this->dispatchChunkedBatch($jobs, $skipComputeBaseIds ? null : function () use ($gameVersion): void {
-            ComputeItemBaseIdsJob::dispatch($gameVersion->id, false);
+        $this->dispatchChunkedBatch($jobs, $skipComputeItemGroups ? null : function () use ($gameVersion): void {
+            ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
+            ComputeItemSetItemsJob::dispatch($gameVersion->id);
         });
     }
 

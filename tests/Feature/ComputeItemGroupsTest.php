@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Jobs\Game\ComputeItemBaseIds as ComputeItemBaseIdsJob;
+use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use App\Models\Game\VariantGroup;
+use App\Models\Game\VariantGroupItem;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -24,7 +27,7 @@ beforeEach(function (): void {
 it('fails when the requested game version does not exist', function (): void {
     Queue::fake();
 
-    $this->artisan('game:compute-item-base-ids', ['--game-version' => 'missing'])
+    $this->artisan('game:compute-item-groups', ['--game-version' => 'missing'])
         ->assertExitCode(Command::FAILURE)
         ->expectsOutput('Game version "missing" does not exist.');
 
@@ -41,72 +44,15 @@ it('dispatches a compute job for the default game version', function (): void {
         'is_default' => true,
     ]);
 
-    $this->artisan('game:compute-item-base-ids')
+    $this->artisan('game:compute-item-groups')
         ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('Dispatched item base id compute job for version 3.24.0-LIVE.');
+        ->expectsOutput('Dispatched compute jobs for version 3.24.0-LIVE.');
 
-    Queue::assertPushedTimes(ComputeItemBaseIdsJob::class, 1);
+    Queue::assertPushedTimes(ComputeItemVariantGroupsJob::class, 1);
+    Queue::assertPushedTimes(ComputeItemSetItemsJob::class, 1);
 });
 
-it('dispatches a dry-run compute job for the requested game version', function (): void {
-    Queue::fake();
-
-    $version = GameVersion::query()->create([
-        'code' => '3.24.5-PTU',
-        'channel' => 'ptu',
-        'released_at' => now(),
-        'is_default' => false,
-    ]);
-
-    $this->artisan('game:compute-item-base-ids', [
-        '--game-version' => $version->code,
-        '--dry-run' => true,
-    ])
-        ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('Dispatched dry-run item base id compute job for version 3.24.5-PTU.');
-
-    Queue::assertPushedTimes(ComputeItemBaseIdsJob::class, 1);
-});
-
-it('computes base ids from class name patterns', function (): void {
-    $version = GameVersion::query()->create([
-        'code' => '3.24.1-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
-
-    $baseUuid = fake()->uuid();
-    $baseItem = Item::query()->create(['uuid' => $baseUuid]);
-    $baseData = ItemData::query()->create([
-        'item_id' => $baseItem->id,
-        'game_version_id' => $version->id,
-        'manufacturer_id' => $this->manufacturer->id,
-        'name' => 'Acme Jacket Base',
-        'class_name' => 'acme_jacket_01_01_01',
-        'type' => 'Char_Clothing_Torso_1',
-        'data' => [],
-    ]);
-
-    $variantUuid = fake()->uuid();
-    $variantItem = Item::query()->create(['uuid' => $variantUuid]);
-    $variantData = ItemData::query()->create([
-        'item_id' => $variantItem->id,
-        'game_version_id' => $version->id,
-        'manufacturer_id' => $this->manufacturer->id,
-        'name' => 'Acme Jacket Variant',
-        'class_name' => 'acme_jacket_01_01_02',
-        'type' => 'Char_Clothing_Torso_1',
-        'data' => [],
-    ]);
-
-    (new ComputeItemBaseIdsJob($version->id))->handle();
-
-    expect($variantData->fresh()->base_id)->toBe($baseData->id)
-        ->and($baseData->fresh()->base_id)->toBeNull();
-});
-
-it('computes base ids from stditem tags when class names do not match', function (): void {
+it('computes variant groups from stditem tags when class names do not match', function (): void {
     $version = GameVersion::query()->create([
         'code' => '3.24.2-LIVE',
         'channel' => 'live',
@@ -146,8 +92,14 @@ it('computes base ids from stditem tags when class names do not match', function
         ],
     ]);
 
-    (new ComputeItemBaseIdsJob($version->id))->handle();
+    (new ComputeItemVariantGroupsJob($version->id))->handle();
 
     expect($variantData->fresh()->base_id)->toBe($baseData->id)
         ->and($baseData->fresh()->base_id)->toBeNull();
+
+    $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
+    expect($group)->not->toBeNull();
+
+    $items = VariantGroupItem::query()->where('variant_group_id', $group->id)->get();
+    expect($items)->toHaveCount(2);
 });
