@@ -377,7 +377,6 @@
 
                 <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <x-items.technical-card
-                        :uuid="$uuid"
                         :classification="$classification"
                         :class-name="$className"
                         :version="$version"

@@ -1,7 +1,6 @@
 @props(['vehicle'])
 
 @php
-    $uuid = data_get($vehicle, 'uuid');
     $classification = data_get($vehicle, 'classification');
     $className = data_get($vehicle, 'class_name');
     $version = data_get($vehicle, 'version');
@@ -12,19 +11,13 @@
 
 <div {{ $attributes->merge(['class' => 'space-y-3']) }}>
     <!-- Technical Details -->
-    @if ($uuid || $classification || $className || $version || $apiLink || $webUrl)
+    @if ($classification || $className || $version || $apiLink || $webUrl)
         <details id="technical-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
             <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="technical-details-content">
                 Technical
             </summary>
             <div id="technical-details-content" class="collapse-content">
                 <dl class="grid gap-4 grid-cols-1 md:grid-cols-2">
-                    @if ($uuid)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">UUID</dt>
-                            <dd class="text-right text-sm font-medium">{{ $uuid }}</dd>
-                        </div>
-                    @endif
                     @if ($classification)
                         <div class="space-y-1">
                             <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Classification</dt>

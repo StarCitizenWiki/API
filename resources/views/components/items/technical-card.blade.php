@@ -1,5 +1,4 @@
 @props([
-    'uuid',
     'classification',
     'className',
     'version',
@@ -13,10 +12,6 @@
     </summary>
     <div class="collapse-content">
         <dl class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 tabular-nums">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">UUID</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ $uuid ?? '-' }}</dd>
-            </div>
             <div class="space-y-1">
                 <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Classification</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $classification ?? '-' }}</dd>

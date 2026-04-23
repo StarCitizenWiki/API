@@ -1,6 +1,7 @@
 @props(['resource'])
 
 @php
+    $uuid = data_get($resource, 'uuid');
     $rankIndex = data_get($resource, 'rank_index');
     $faction = data_get($resource, 'faction');
     $factionName = data_get($faction, 'name');
@@ -120,6 +121,9 @@
                         : null,
                     $reacceptParts !== []
                         ? ['label' => 'Reaccept', 'value' => implode(' · ', $reacceptParts)]
+                        : null,
+                    $uuid !== null
+                        ? ['label' => 'UUID', 'value' => $uuid]
                         : null,
                     $gameVersion !== null
                         ? ['label' => 'Version', 'value' => $gameVersion]

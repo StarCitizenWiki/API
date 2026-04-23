@@ -1,6 +1,7 @@
 @props(['resource'])
 
 @php
+    $uuid = data_get($resource, 'uuid');
     $kind = data_get($resource, 'kind');
     $signature = data_get($resource, 'signature');
     $density = data_get($resource, 'density_g_per_cc');
@@ -138,6 +139,19 @@
                         </div>
                     </div>
                 @endif
+
+                <div class="space-y-3">
+                    <div class="text-sm font-semibold text-base-content/65">Stats</div>
+
+                    <dl class="space-y-2">
+                        <div class="grid grid-cols-2 items-start gap-x-3">
+                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">UUID</dt>
+                            <dd class="min-w-0 text-right text-sm font-semibold text-base-content break-all">
+                                {{ $uuid ?? '-' }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
             </section>
         </div>
     </div>

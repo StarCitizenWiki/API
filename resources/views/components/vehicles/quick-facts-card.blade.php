@@ -17,6 +17,7 @@
     $length = data_get($dimension, 'length');
     $width = data_get($dimension, 'width');
     $height = data_get($dimension, 'height');
+    $uuid = data_get($vehicle, 'uuid');
     $version = data_get($vehicle, 'version');
 
     if ($crewMinimum !== null && $crewMaximum !== null && $crewMaximum !== $crewMinimum) {
@@ -92,6 +93,10 @@
         [
             'label' => 'Mass',
             'value' => fmt_value_with_unit($massTotal, 'kg', 0),
+        ],
+        [
+            'label' => 'UUID',
+            'value' => $uuid ?? '-',
         ],
         [
             'label' => 'Version',

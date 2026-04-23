@@ -145,6 +145,10 @@
                         'value' => $uexPricesCount > 0 ? (string) $uexPricesCount : '-',
                     ],
                     [
+                        'label' => 'UUID',
+                        'value' => $currentItemUuid ?? '-',
+                    ],
+                    [
                         'label' => 'Version',
                         'value' => $version ?? '-',
                     ],
