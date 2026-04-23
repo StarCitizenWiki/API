@@ -146,9 +146,33 @@ class ItemVariantResolver
 
         $results = $query->with(['item', 'gameVersion'])->get()->all();
 
+        $results = $this->filterByClassNamePrefix($itemData, $results);
+
         $this->tagGroupCache[$cacheKey] = $results;
 
         return $results;
+    }
+
+    /**
+     * Filter tag-grouped results to only include items sharing the same
+     * class name prefix, preventing unrelated product lines from being
+     * grouped together (e.g. Davlos Shirt vs Forgiveness Sweater).
+     *
+     * @param  array<int, ItemData>  $results
+     * @return array<int, ItemData>
+     */
+    private function filterByClassNamePrefix(ItemData $itemData, array $results): array
+    {
+        $prefix = $this->extractClassNamePrefix($itemData->class_name ?? '');
+
+        if ($prefix === null) {
+            return $results;
+        }
+
+        return array_values(array_filter(
+            $results,
+            fn (ItemData $member): bool => $this->extractClassNamePrefix($member->class_name ?? '') === $prefix,
+        ));
     }
 
     /**
@@ -289,9 +313,11 @@ class ItemVariantResolver
     /**
      * Extract the base ClassName prefix for variant group matching.
      *
-     * Find the first `_0\d` pattern (e.g. `_01`) and use
-     * everything up to and including it as the prefix. This handles items
-     * with multi-level version numbers like `acme_jacket_01_01_01`.
+     * Find the first `_0\d` pattern (e.g. `_01`) and use everything up to
+     * and including the next segment as the prefix. This handles items with
+     * multi-level version numbers like `acme_jacket_01_01_01` and avoids
+     * grouping unrelated product lines like `mym_shirt_01_01_*` with
+     * `mym_shirt_01_lum02_*`.
      *
      * If no `_0\d` is found, strip trailing `_SCItem` and
      * remove trailing segments that are not base version identifiers.
@@ -302,6 +328,11 @@ class ItemVariantResolver
         if (preg_match('/_0\d/', $className, $match, PREG_OFFSET_CAPTURE) === 1) {
             $offset = $match[0][1];
             $prefix = substr($className, 0, $offset + 3);
+
+            $rest = substr($className, $offset + 3);
+            if (preg_match('/^_[a-zA-Z0-9]+/', $rest, $nextMatch)) {
+                $prefix .= $nextMatch[0];
+            }
 
             return $prefix !== '' ? $prefix : null;
         }

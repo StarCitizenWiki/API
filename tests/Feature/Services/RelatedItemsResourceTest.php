@@ -417,4 +417,78 @@ describe('naming', function () {
         $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
         expect($variantNames)->toContain('Scorched', 'Red Alert', 'Lodestone');
     });
+
+    it('separates class-name sub-variants into distinct groups', function (): void {
+        $base = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Davlos Shirt Charcoal',
+                'class_name' => 'mym_shirt_01_01_01',
+                'classification' => 'FPS.Clothing.Shirt',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['mym_shirt', 'Set_01', 'Color_01'],
+                    ],
+                ],
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Davlos Shirt Night',
+                'class_name' => 'mym_shirt_01_01_12',
+                'classification' => 'FPS.Clothing.Shirt',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['mym_shirt', 'Set_01', 'Color_12'],
+                    ],
+                ],
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Davlos Shirt Mustard',
+                'class_name' => 'mym_shirt_01_01_03',
+                'classification' => 'FPS.Clothing.Shirt',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['mym_shirt', 'Set_01', 'Color_03'],
+                    ],
+                ],
+            ]);
+
+        $sweater = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Forgiveness Sweater',
+                'class_name' => 'mym_shirt_01_lum02_02',
+                'classification' => 'FPS.Clothing.Shirt',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['mym_shirt', 'Set_01', 'Texture_lum02', 'Color_02'],
+                    ],
+                ],
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($base);
+
+        $variantUuids = collect($result['variant_items'])->pluck('uuid')->all();
+        expect($variantUuids)->not->toContain($sweater->item->uuid);
+
+        $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
+        expect($variantNames)->not->toContain('Davlos Shirt Night')
+            ->and($variantNames)->not->toContain('Davlos Shirt Mustard')
+            ->and($variantNames)->toContain('Night')
+            ->and($variantNames)->toContain('Mustard');
+
+        $sweaterResult = resolveRelatedItems($sweater);
+        expect($sweaterResult['variant_items'])->toHaveCount(0);
+    });
 });
