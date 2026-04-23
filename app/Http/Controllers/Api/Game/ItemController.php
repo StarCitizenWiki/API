@@ -157,6 +157,148 @@ class ItemController extends Controller
     }
 
     #[OA\Get(
+        path: '/api/weapons',
+        description: 'Alias for /api/items scoped to weapon items (FPS weapons).',
+        summary: 'In-Game Weapons Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/weapon-attachments',
+        description: 'Alias for /api/items scoped to weapon attachment items.',
+        summary: 'In-Game Weapon Attachments Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Weapon Attachments', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/clothes',
+        description: 'Alias for /api/items scoped to clothing items.',
+        summary: 'In-Game Clothes Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Clothes', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/armor',
+        description: 'Alias for /api/items scoped to armor items.',
+        summary: 'In-Game Armor Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Armor', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/food',
+        description: 'Alias for /api/items scoped to food items.',
+        summary: 'In-Game Food Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Food Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/vehicle-weapons',
+        description: 'Alias for /api/items scoped to vehicle weapon items.',
+        summary: 'In-Game Vehicle Weapons Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Vehicle Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/vehicle-items',
+        description: 'Alias for /api/items scoped to vehicle component items.',
+        summary: 'In-Game Vehicle Items Overview',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/sort'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'List of Vehicle Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
+        ]
+    )]
+    #[OA\Get(
         path: '/api/items',
         description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
         summary: 'In-Game Item Overview',
@@ -222,6 +364,111 @@ class ItemController extends Controller
         return ItemResource::collection($items);
     }
 
+    #[OA\Get(
+        path: '/api/weapons/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to weapons.',
+        summary: 'In-Game Weapon Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Weapon', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/weapon-attachments/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to weapon attachments.',
+        summary: 'In-Game Weapon Attachment Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Weapon Attachment', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/clothes/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to clothing.',
+        summary: 'In-Game Clothing Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Clothing Item', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/armor/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to armor.',
+        summary: 'In-Game Armor Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'An Armor Item', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/food/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to food.',
+        summary: 'In-Game Food Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Food Item', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/vehicle-weapons/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to vehicle weapons.',
+        summary: 'In-Game Vehicle Weapon Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Vehicle Weapon', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/api/vehicle-items/{identifier}',
+        description: 'Alias for /api/items/{identifier} scoped to vehicle items.',
+        summary: 'In-Game Vehicle Item Detail',
+        tags: ['In-Game', 'Items'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'A Vehicle Item', content: new OA\JsonContent(ref: '#/components/schemas/game_item')),
+        ]
+    )]
     #[OA\Get(
         path: '/api/items/{identifier}',
         description: 'Retrieve a specific item by name or UUID with metadata and includes.',

@@ -12,6 +12,12 @@ use OpenApi\Attributes as OA;
     contact: new OA\Contact(email: 'foxftw@star-citizen.wiki'),
 )]
 #[OA\Server(url: 'https://api.star-citizen.wiki')]
+#[OA\SecurityScheme(
+    securityScheme: 'sanctum',
+    type: 'http',
+    bearerFormat: 'JWT',
+    scheme: 'bearer',
+)]
 abstract class Controller
 {
     /**

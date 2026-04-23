@@ -110,7 +110,7 @@ class CommLinkSearchController extends Controller
                 description: 'List of Comm-Links that use that image',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link')
                 )
             ),
             new OA\Response(
@@ -156,7 +156,7 @@ class CommLinkSearchController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/v2/comm-links/reverse-image-search',
+        path: '/api/comm-links/reverse-image-search',
         description: 'Search comm-links by uploading an image and specifying a similarity threshold.',
         summary: 'Comm-Link Reverse Image Search',
         requestBody: new OA\RequestBody(
@@ -195,10 +195,10 @@ class CommLinkSearchController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Comm-Links that use that image',
+                description: 'List of similar images with associated Comm-Links',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
                 )
             ),
             new OA\Response(
@@ -252,10 +252,10 @@ class CommLinkSearchController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Comm-Link images that match the requested similarity',
+                description: 'List of similar Comm-Link images',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_link')
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
                 )
             ),
             new OA\Response(
@@ -264,12 +264,7 @@ class CommLinkSearchController extends Controller
             ),
         ],
         security: [
-            new OA\SecurityScheme(
-                securityScheme: 'sanctum',
-                type: 'http',
-                scheme: 'bearer',
-                bearerFormat: 'JWT',
-            ),
+            ['sanctum' => []],
         ],
     )]
     public function similarSearch(SimilarSearchRequest $request): AnonymousResourceCollection
