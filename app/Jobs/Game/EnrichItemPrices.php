@@ -206,7 +206,7 @@ class EnrichItemPrices implements ShouldQueue
             return false;
         }
 
-        return array_any($versionPrefixMap, fn($_, $prefix) => str_starts_with($apiVersion, $prefix));
+        return array_any($versionPrefixMap, fn ($_, $prefix) => str_starts_with($apiVersion, $prefix));
     }
 
     /**
@@ -218,7 +218,7 @@ class EnrichItemPrices implements ShouldQueue
             return null;
         }
 
-        return array_find($versionPrefixMap, fn($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
+        return array_find($versionPrefixMap, fn ($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
     }
 
     public function failed(Throwable $exception): void
