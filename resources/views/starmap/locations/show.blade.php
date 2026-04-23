@@ -25,9 +25,12 @@
     };
 
     $locationUuid = data_get($location, 'uuid');
+    $locationSlug = data_get($location, 'slug');
     $starName = data_get($location, 'star.name');
+    $starSlug = data_get($location, 'star.slug');
     $starUuid = data_get($location, 'star.uuid');
     $parentName = data_get($location, 'parent.name');
+    $parentSlug = data_get($location, 'parent.slug');
     $parentUuid = data_get($location, 'parent.uuid');
 
     $breadcrumbs = data_get($seo ?? [], 'breadcrumbs', []);
@@ -41,33 +44,33 @@
         ];
 
         $ancestorName = null;
-        $ancestorUuid = null;
+        $ancestorIdentifier = null;
 
         if (
             is_string($starName) && $starName !== ''
-            && is_string($starUuid) && $starUuid !== ''
+            && (is_string($starSlug) || is_string($starUuid)) && $starSlug !== '' && $starUuid !== ''
             && $starUuid !== $locationUuid
         ) {
             $ancestorName = $starName;
-            $ancestorUuid = $starUuid;
+            $ancestorIdentifier = $starSlug ?: $starUuid;
         }
 
-        if ($ancestorName !== null && $ancestorUuid !== null) {
+        if ($ancestorName !== null && $ancestorIdentifier !== null) {
             $breadcrumbs[] = [
                 'label' => $ancestorName,
-                'url' => $withVersion(route('web.locations.show', ['identifier' => $ancestorUuid])),
+                'url' => $withVersion(route('web.locations.show', ['identifier' => $ancestorIdentifier])),
             ];
         }
 
         if (
             is_string($parentName) && $parentName !== ''
-            && is_string($parentUuid) && $parentUuid !== ''
+            && (is_string($parentSlug) || is_string($parentUuid)) && $parentSlug !== '' && $parentUuid !== ''
             && $parentUuid !== $locationUuid
-            && $parentUuid !== $ancestorUuid
+            && $parentUuid !== $starUuid
         ) {
             $breadcrumbs[] = [
                 'label' => $parentName,
-                'url' => $withVersion(route('web.locations.show', ['identifier' => $parentUuid])),
+                'url' => $withVersion(route('web.locations.show', ['identifier' => $parentSlug ?: $parentUuid])),
             ];
         }
 
@@ -85,7 +88,7 @@
                     'label' => 'Star',
                     'value' => data_get($location, 'star.name', '-'),
                     'url' => is_string($starUuid) && $starUuid !== '' && $starUuid !== $locationUuid
-                        ? $withVersion(route('web.locations.show', ['identifier' => $starUuid]))
+                        ? $withVersion(route('web.locations.show', ['identifier' => $starSlug ?: $starUuid]))
                         : null,
                     'testid' => 'starmap-location-quick-facts-star-link',
                 ],
@@ -98,7 +101,7 @@
                     'label' => 'Parent',
                     'value' => data_get($location, 'parent.name', '-'),
                     'url' => is_string($parentUuid) && $parentUuid !== '' && $parentUuid !== $locationUuid
-                        ? $withVersion(route('web.locations.show', ['identifier' => $parentUuid]))
+                        ? $withVersion(route('web.locations.show', ['identifier' => $parentSlug ?: $parentUuid]))
                         : null,
                     'testid' => 'starmap-location-quick-facts-parent-link',
                 ],
@@ -143,6 +146,10 @@
         [
             'label' => 'Respawn',
             'value' => data_get($location, 'respawn_location_type', '-'),
+        ],
+        [
+            'label' => 'UUID',
+            'value' => $locationUuid ?? '-',
         ],
         [
             'label' => 'Version',
@@ -202,9 +209,6 @@
         ->all();
 
     $technicalEntries = array_values(array_filter([
-        data_get($location, 'uuid')
-            ? ['label' => 'UUID', 'value' => data_get($location, 'uuid'), 'url' => null]
-            : null,
         data_get($location, 'version')
             ? ['label' => 'Game Version', 'value' => data_get($location, 'version'), 'url' => null]
             : null,

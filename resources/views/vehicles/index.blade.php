@@ -1,7 +1,34 @@
 @extends('layouts.app')
 
-@section('title', 'Vehicles')
-@section('meta_description', 'Browse Vehicles.')
+@section('title')
+    {!! $pageTitle !!} - Star Citizen
+@endsection
+@section('meta_description', 'Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs. Filter by manufacturer, career, role, and size.')
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="route('web.vehicles.index')"
+        og-type="website"
+        :og-title="$pageTitle.' - Star Citizen Vehicles'"
+        og-description="Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs."
+        twitter-card="summary"
+        :twitter-title="$pageTitle.' - Star Citizen Vehicles'"
+        twitter-description="Explore all Star Citizen vehicles including ships, ground vehicles, and snubs."
+        :structured-data="[
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'CollectionPage',
+                'name' => $pageTitle,
+                'description' => 'Explore all Star Citizen vehicles including ships, ground vehicles, and snubs.',
+                'url' => route('web.vehicles.index'),
+                'about' => [
+                    '@type' => 'VehicleType',
+                    'name' => 'Star Citizen Vehicles',
+                ],
+            ],
+        ]"
+    />
+@endsection
 
 @section('content')
     @php

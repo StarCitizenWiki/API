@@ -9,6 +9,7 @@ use App\Models\Game\Blueprint;
 use App\Services\ApiJsonRequest;
 use App\Support\Blueprints\BlueprintShowViewData;
 use App\Support\Blueprints\BlueprintTableConfig;
+use App\Support\Seo\BlueprintShowSeoData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -16,11 +17,12 @@ use Illuminate\View\View;
 
 class BlueprintController extends Controller
 {
-    private const SEARCH_RESULTS_PAGE_SIZE = 5;
+    private const int SEARCH_RESULTS_PAGE_SIZE = 5;
 
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly BlueprintShowViewData $blueprintShowViewData,
+        private readonly BlueprintShowSeoData $blueprintShowSeoData,
         private readonly BlueprintTableConfig $blueprintTableConfig,
     ) {}
 
@@ -51,12 +53,15 @@ class BlueprintController extends Controller
     public function app(Request $request, ?Blueprint $blueprint = null): View
     {
         if ($blueprint === null) {
-            return view('blueprints.show', $this->blueprintShowViewData->build(
-                mode: 'empty',
-                blueprint: [],
-                search: $this->buildSearchState($request),
-                pageTitle: 'Search Blueprints',
-            ));
+            return view('blueprints.show', [
+                ...$this->blueprintShowViewData->build(
+                    mode: 'empty',
+                    blueprint: [],
+                    search: $this->buildSearchState($request),
+                    pageTitle: 'Search Blueprints',
+                ),
+                'seo' => $this->blueprintShowSeoData->build([], $request, isEmptyMode: true),
+            ]);
         }
 
         $payload = $this->apiJsonRequest->request(
@@ -71,14 +76,17 @@ class BlueprintController extends Controller
             abort(Response::HTTP_NOT_FOUND);
         }
 
-        return view('blueprints.show', $this->blueprintShowViewData->build(
-            mode: 'detail',
-            blueprint: $blueprintData,
-            search: $this->buildSearchState($request),
-            pageTitle: Arr::get($blueprintData, 'output_name')
-                ?? Arr::get($blueprintData, 'output.name')
-                ?? 'Blueprint',
-        ));
+        return view('blueprints.show', [
+            ...$this->blueprintShowViewData->build(
+                mode: 'detail',
+                blueprint: $blueprintData,
+                search: $this->buildSearchState($request),
+                pageTitle: Arr::get($blueprintData, 'output_name')
+                    ?? Arr::get($blueprintData, 'output.name')
+                    ?? 'Blueprint',
+            ),
+            'seo' => $this->blueprintShowSeoData->build($blueprintData, $request),
+        ]);
     }
 
     /**

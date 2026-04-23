@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Game\StarmapLocation;
 use App\Services\ApiJsonRequest;
 use App\Support\Missions\MissionTableConfig;
+use App\Support\Seo\MissionShowSeoData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
@@ -17,6 +18,7 @@ class MissionController extends Controller
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly MissionTableConfig $missionTableConfig,
+        private readonly MissionShowSeoData $missionShowSeoData,
     ) {}
 
     public function index(Request $request): View
@@ -53,6 +55,7 @@ class MissionController extends Controller
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'locationFilter' => $locationUuid,
             'activeLocationFilter' => $activeLocationFilter,
+            'seo' => $this->buildIndexSeo($request, $activeLocationFilter),
         ]);
     }
 
@@ -68,9 +71,12 @@ class MissionController extends Controller
             abort(404);
         }
 
+        $seo = $this->missionShowSeoData->build($data, $request);
+
         return view('missions.show', [
             'resource' => $data,
             'pageTitle' => Arr::get($data, 'title', 'Mission'),
+            'seo' => $seo,
         ]);
     }
 
@@ -164,5 +170,38 @@ class MissionController extends Controller
         $apiRequest->query->set('filter', $filters);
 
         return $apiRequest;
+    }
+
+    /**
+     * @param  array{name: string, url: string}|null  $activeLocationFilter
+     * @return array<string, mixed>
+     */
+    private function buildIndexSeo(Request $request, ?array $activeLocationFilter): array
+    {
+        $version = null;
+
+        if ($request->hasSession()) {
+            $version = $request->session()->get('game_version_code');
+        }
+
+        if ($version === null) {
+            $version = $request->query('version');
+        }
+
+        $versionParams = is_string($version) && $version !== '' ? ['version' => $version] : [];
+        $canonicalUrl = route('web.missions.index', $versionParams);
+
+        $metaDescription = $activeLocationFilter !== null
+            ? 'Browse Star Citizen missions available at '.$activeLocationFilter['name'].'. Filter by faction, type, legality, and more.'
+            : 'Browse Star Citizen missions. Filter by faction, type, location, legality, and more.';
+
+        return [
+            'canonicalUrl' => $canonicalUrl,
+            'metaDescription' => $metaDescription,
+            'ogTitle' => 'Star Citizen Missions',
+            'ogDescription' => $metaDescription,
+            'twitterTitle' => 'Star Citizen Missions',
+            'twitterDescription' => $metaDescription,
+        ];
     }
 }

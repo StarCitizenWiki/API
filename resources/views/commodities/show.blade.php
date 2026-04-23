@@ -9,22 +9,7 @@
         $indexRoute = url()->query($indexRoute, ['version' => $resolvedVersion]);
     }
 
-    $breadcrumbs = [
-        ['label' => 'All Commodities', 'url' => $indexRoute],
-    ];
-
-    $rawVersions = data_get($resource, 'raw_versions', []);
-    $refinedVersion = data_get($resource, 'refined_version', []);
-
-    if (is_array($rawVersions) && count($rawVersions) === 1 && ($rawVersions[0]['web_url'] ?? null)) {
-        $breadcrumbs[] = ['label' => $rawVersions[0]['name'], 'url' => $rawVersions[0]['web_url']];
-    }
-
-    $breadcrumbs[] = ['label' => $name, 'url' => null];
-
-    if (!empty($refinedVersion)) {
-        $breadcrumbs[] = ['label' => $refinedVersion['name'], 'url' => $refinedVersion['web_url']];
-    }
+    $breadcrumbs = data_get($seo, 'breadcrumbs', []);
 
     $locationCount = count(data_get($resource, 'locations', []));
     $totalDeposits = collect(data_get($resource, 'locations', []))
@@ -36,9 +21,24 @@
 @extends('layouts.app')
 
 @section('title')
-    {!! $pageTitle !!} - Star Citizen Resource
+    {!! data_get($seo, 'title', $name.' - Star Citizen Resource') !!}
 @endsection
-@section('meta_description', Str::limit(data_get($resource, 'description', 'Star Citizen resource details.'), 160))
+
+@section('meta_description')
+    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Star Citizen resource details.'), 160)) !!}
+@endsection
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
+@endsection
 
 @section('content')
     <div class="flex flex-col gap-4">

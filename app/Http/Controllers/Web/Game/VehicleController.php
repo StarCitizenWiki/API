@@ -30,6 +30,7 @@ class VehicleController extends Controller
         $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
 
         return view('vehicles.index', [
+            'pageTitle' => 'Vehicles',
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $allowedFilterValues,
             'initialFilters' => $this->buildInitialFilters($endpointFilters),

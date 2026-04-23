@@ -2,9 +2,34 @@
 @extends('layouts.app')
 
 @section('title')
-    {!! $pageTitle !!} - Star Citizen Item
+    {!! $pageTitle !!} - Star Citizen Items
 @endsection
-@section('meta_description', 'Browse Items.')
+@section('meta_description', 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more. Filter by type, grade, and size.')
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="route('web.items.index')"
+        og-type="website"
+        :og-title="$pageTitle.' - Star Citizen Items'"
+        og-description="Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more."
+        twitter-card="summary"
+        :twitter-title="$pageTitle.' - Star Citizen Items'"
+        twitter-description="Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more."
+        :structured-data="[
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'CollectionPage',
+                'name' => $pageTitle,
+                'description' => 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more.',
+                'url' => route('web.items.index'),
+                'about' => [
+                    '@type' => 'ItemType',
+                    'name' => 'Star Citizen Items',
+                ],
+            ],
+        ]"
+    />
+@endsection
 
 @section('content')
     @php

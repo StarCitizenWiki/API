@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@section('title')
-    {!! $pageTitleDecoded !!}@if (! $isEmptyMode) Blueprint @endif - Star Citizen
-@endsection
-
 @push('scripts')
     <script>
         (() => {
@@ -1070,24 +1066,24 @@
     </script>
 @endpush
 
+@section('title')
+    {!! data_get($seo, 'title', $pageTitleDecoded.' - Star Citizen') !!}
+@endsection
 @section('meta_description')
-    {{ $metaDescription }}
+    {!! data_get($seo, 'metaDescription', $metaDescription) !!}
 @endsection
 
 @section('meta')
-    <link rel="canonical" href="{{ $canonicalUrl }}">
-    @if ($isEmptyMode)
-        <meta name="robots" content="noindex,follow">
-    @else
-        <meta name="keywords" content="{{ $blueprintName }},{{ $outputType ?? '' }},{{ $outputClass ?? '' }},Blueprint,Star Citizen,SC">
-    @endif
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $metaTitle }}">
-    <meta property="og:url" content="{{ $canonicalUrl }}">
-    <meta property="og:description" content="{{ $metaDescription }}">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $metaTitle }}">
-    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl', $canonicalUrl)"
+        :keywords="data_get($seo, 'keywords', [])"
+        :robots="data_get($seo, 'robots')"
+        :og-title="data_get($seo, 'ogTitle', $metaTitle)"
+        :og-description="data_get($seo, 'ogDescription', $metaDescription)"
+        :twitter-title="data_get($seo, 'twitterTitle', $metaTitle)"
+        :twitter-description="data_get($seo, 'twitterDescription', $metaDescription)"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
 @endsection
 
 @push('styles')
@@ -1103,6 +1099,22 @@
 @endpush
 
 @section('content')
+    @php $breadcrumbs = data_get($seo, 'breadcrumbs', []); @endphp
+    @if (! $isEmptyMode && $breadcrumbs !== [])
+        <div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto" data-testid="blueprint-breadcrumbs">
+            <ul class="w">
+                @foreach ($breadcrumbs as $breadcrumb)
+                    <li>
+                        @if ($loop->last)
+                            <span>{{ $breadcrumb['label'] }}</span>
+                        @else
+                            <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['label'] }}</a>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="flex flex-col gap-6" data-blueprint-show>
         @if ($isEmptyMode)
             <div class="card border border-base-300 bg-base-100 shadow">

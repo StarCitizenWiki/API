@@ -3,7 +3,32 @@
 @section('title')
     {!! $pageTitle !!} - Star Citizen Starmap
 @endsection
-@section('meta_description', 'Browse Starmap locations.')
+@section('meta_description', 'Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones. Filter by system, type, amenities, and more.')
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="route('web.locations.index')"
+        og-type="website"
+        :og-title="$pageTitle.' - Star Citizen Starmap'"
+        og-description="Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones."
+        twitter-card="summary"
+        :twitter-title="$pageTitle.' - Star Citizen Starmap'"
+        twitter-description="Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones."
+        :structured-data="[
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'CollectionPage',
+                'name' => $pageTitle,
+                'description' => 'Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones.',
+                'url' => route('web.locations.index'),
+                'about' => [
+                    '@type' => 'Thing',
+                    'name' => 'Star Citizen Starmap',
+                ],
+            ],
+        ]"
+    />
+@endsection
 
 @section('content')
     @php

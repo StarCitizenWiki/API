@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Game;
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
 use App\Support\Resources\CommodityTableConfig;
+use App\Support\Seo\CommodityShowSeoData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class CommodityController extends Controller
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly CommodityTableConfig $commodityTableConfig,
+        private readonly CommodityShowSeoData $commodityShowSeoData,
     ) {}
 
     public function index(Request $request): View
@@ -56,6 +58,7 @@ class CommodityController extends Controller
         return view('commodities.show', [
             'resource' => $commodityData,
             'pageTitle' => Arr::get($commodityData, 'name', 'Commodity'),
+            'seo' => $this->commodityShowSeoData->build($commodityData, $request),
         ]);
     }
 

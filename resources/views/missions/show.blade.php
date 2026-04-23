@@ -2,17 +2,19 @@
     use Illuminate\Support\Str;
 
     $title = data_get($resource, 'title', 'Mission');
-    $indexRoute = route('web.missions.index');
-    $versionQuery = request()->query('version');
+    $seoBreadcrumbs = data_get($seo, 'breadcrumbs', []);
 
-    if (is_string($versionQuery) && $versionQuery !== '') {
-        $indexRoute = url()->query($indexRoute, ['version' => $versionQuery]);
+    $indexRoute = $seoBreadcrumbs[0]['url'] ?? route('web.missions.index');
+    $viewBreadcrumbs = $seoBreadcrumbs;
+    if ($viewBreadcrumbs === []) {
+        $viewBreadcrumbs = [
+            ['label' => 'All Missions', 'url' => $indexRoute],
+            ['label' => $title, 'url' => null],
+        ];
+    } else {
+        $lastIndex = count($viewBreadcrumbs) - 1;
+        $viewBreadcrumbs[$lastIndex]['url'] = null;
     }
-
-    $breadcrumbs = [
-        ['label' => 'All Missions', 'url' => $indexRoute],
-        ['label' => $title, 'url' => null],
-    ];
 
     $rewardItems = data_get($resource, 'reward_items') ?? [];
     $blueprints = data_get($resource, 'blueprints');
@@ -38,15 +40,29 @@
 @extends('layouts.app')
 
 @section('title')
-    {!! $pageTitle !!} - Star Citizen Mission
+    {!! data_get($seo, 'title', $pageTitle.' - Star Citizen Mission') !!}
 @endsection
-@section('meta_description', Str::limit(data_get($resource, 'description', 'Star Citizen mission details.'), 160))
+@section('meta_description')
+    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Star Citizen mission details.'), 160)) !!}
+@endsection
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
+@endsection
 
 @section('content')
     <div class="flex flex-col gap-4">
         <div class="breadcrumbs text-sm text-base-content/70" data-testid="mission-breadcrumbs">
             <ul>
-                @foreach ($breadcrumbs as $breadcrumb)
+                @foreach ($viewBreadcrumbs as $breadcrumb)
                     <li>
                         @if (! empty($breadcrumb['url']))
                             <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['label'] }}</a>

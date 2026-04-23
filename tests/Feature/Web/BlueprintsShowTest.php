@@ -110,7 +110,7 @@ it('renders the blueprint show view with normalized api data', function (): void
         ->assertViewHas('isEmptyMode', false)
         ->assertViewHas('mode', 'detail')
         ->assertViewHas('pageTitle', 'Detailed Output')
-        ->assertViewHas('canonicalUrl', route('web.blueprints.show', ['blueprint' => $blueprint->uuid]))
+        ->assertViewHas('canonicalUrl', route('web.blueprints.show', ['blueprint' => $blueprint->slug ?? $blueprint->uuid]))
         ->assertViewHas('metaTitle', 'Detailed Output Blueprint')
         ->assertViewHas('metaDescription', function (string $description): bool {
             return str_contains($description, 'Detailed Output blueprint')
@@ -120,7 +120,7 @@ it('renders the blueprint show view with normalized api data', function (): void
         ->assertViewHas('outputItemWebUrl', route('web.items.show', ['item' => $outputItemUuid]))
         ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
             return data_get($results, '0.uuid') === $blueprint->uuid
-                && data_get($results, '0.web_url') === route('web.blueprints.show', ['blueprint' => $blueprint->uuid]);
+                && data_get($results, '0.web_url') === route('web.blueprints.show', ['blueprint' => $blueprint->slug ?? $blueprint->uuid]);
         });
 
     $response->assertSeeText('Detailed Output')
@@ -247,7 +247,7 @@ it('renders the requested game version on the blueprint show route', function ()
 
     $response->assertOk()
         ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
-            'blueprint' => $blueprint->uuid,
+            'blueprint' => $blueprint->slug ?? $blueprint->uuid,
             'version' => $this->requestedVersion->code,
         ]))
         ->assertViewHas('outputItemWebUrl', route('web.items.show', [
@@ -256,7 +256,7 @@ it('renders the requested game version on the blueprint show route', function ()
         ]))
         ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
             return data_get($results, '0.web_url') === route('web.blueprints.show', [
-                'blueprint' => $blueprint->uuid,
+                'blueprint' => $blueprint->slug ?? $blueprint->uuid,
                 'version' => $this->requestedVersion->code,
             ]);
         })
@@ -319,7 +319,7 @@ it('uses the stored game version on the blueprint show route when the url omits 
 
     $response->assertOk()
         ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
-            'blueprint' => $blueprint->uuid,
+            'blueprint' => $blueprint->slug ?? $blueprint->uuid,
             'version' => $this->requestedVersion->code,
         ]))
         ->assertViewHas('outputItemWebUrl', route('web.items.show', [
@@ -328,7 +328,7 @@ it('uses the stored game version on the blueprint show route when the url omits 
         ]))
         ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
             return data_get($results, '0.web_url') === route('web.blueprints.show', [
-                'blueprint' => $blueprint->uuid,
+                'blueprint' => $blueprint->slug ?? $blueprint->uuid,
                 'version' => $this->requestedVersion->code,
             ]);
         })
@@ -555,4 +555,61 @@ it('returns not found when the blueprint is missing for the requested version', 
         'blueprint' => $blueprint->uuid,
         'version' => $this->requestedVersion->code,
     ]))->assertNotFound();
+});
+
+it('resolves a blueprint by slug', function (): void {
+    $blueprint = Blueprint::factory()->create([
+        'slug' => 'omega-output',
+    ]);
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'Omega Output',
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.blueprints.show', ['blueprint' => 'omega-output']));
+
+    $response->assertOk()
+        ->assertViewHas('isEmptyMode', false)
+        ->assertViewHas('mode', 'detail')
+        ->assertViewHas('pageTitle', 'Omega Output');
+});
+
+it('resolves a blueprint by uuid when no slug exists', function (): void {
+    $blueprint = Blueprint::factory()->create(['slug' => null]);
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'No Slug Output',
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    $response->assertOk()
+        ->assertViewHas('mode', 'detail')
+        ->assertViewHas('pageTitle', 'No Slug Output');
 });
