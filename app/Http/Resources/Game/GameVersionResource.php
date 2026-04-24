@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
     schema: 'game_version',
     title: 'Game Version',
     properties: [
-        new OA\Property(property: 'code', type: 'string', example: '3.24.1-LIVE'),
+        new OA\Property(property: 'code', type: 'string', example: '4.7.0-LIVE.11518367'),
         new OA\Property(property: 'channel', type: 'string', example: 'live'),
         new OA\Property(property: 'released_at', type: 'string', format: 'date-time', example: '2024-12-15T10:00:00+00:00'),
         new OA\Property(property: 'is_default', type: 'boolean', example: true),

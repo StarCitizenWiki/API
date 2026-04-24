@@ -15,11 +15,12 @@ use OpenApi\Attributes as OA;
     title: 'Vehicle Structure Part',
     description: 'Structural hierarchy for the vehicle with damage caps.',
     properties: [
-        new OA\Property(property: 'name', type: 'string', example: 'Nose'),
-        new OA\Property(property: 'display_name', type: 'string', example: 'Nose'),
-        new OA\Property(property: 'damage_max', type: 'number', example: 2500, nullable: true),
+        new OA\Property(property: 'name', description: 'Raw part name from scunpacked data (e.g. LEFT_WING).', type: 'string', example: 'Nose'),
+        new OA\Property(property: 'display_name', description: 'Human-readable name with positional suffix (e.g. "Wing (left)").', type: 'string', example: 'Nose'),
+        new OA\Property(property: 'damage_max', description: 'Maximum damage this structural part can absorb.', type: 'number', example: 2500, nullable: true),
         new OA\Property(
             property: 'children',
+            description: 'Nested child structural parts.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_part'),
             nullable: true

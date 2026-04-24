@@ -54,7 +54,6 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object'
         ),
-        new OA\Property(property: 'health', type: 'float'),
         new OA\Property(
             property: 'speed',
             properties: [
@@ -131,7 +130,6 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/vehicle_loaner'),
         ),
         new OA\Property(property: 'link', description: 'Link to detail endpoint', type: 'string'),
-        new OA\Property(property: 'updated_at_human', type: 'string', example: '1 hour ago'),
     ],
     type: 'object'
 )]

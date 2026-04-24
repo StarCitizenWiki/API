@@ -75,9 +75,10 @@ class FactionController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Faction UUID',
+                    description: 'Faction UUID.',
                     type: 'string',
                     format: 'uuid',
+                    example: '4e429470-4d4e-4c2b-a4ac-4de42ada16e0',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/include'),

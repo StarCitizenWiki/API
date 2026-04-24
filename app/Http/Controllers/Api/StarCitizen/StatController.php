@@ -16,8 +16,8 @@ class StatController extends Controller
 {
     #[OA\Get(
         path: '/api/stats/latest',
-        description: 'Return the most recent fund and fleet statistics snapshot.',
-        summary: 'Latest Fund / Fleet Stats',
+        description: 'Get the most recent Star Citizen crowdfunding statistics snapshot, including funds raised (USD), fan count, and fleet size.',
+        summary: 'Latest Crowdfunding Statistics',
         tags: ['Stats', 'RSI-Website'],
         responses: [
             new OA\Response(
@@ -36,8 +36,8 @@ class StatController extends Controller
 
     #[OA\Get(
         path: '/api/stats',
-        description: 'Return paginated historical fund and fleet statistics.',
-        summary: 'Fund / Fleet Stats',
+        description: 'Get paginated historical Star Citizen crowdfunding statistics, ordered by most recent first. Supports page-based pagination.',
+        summary: 'Paginated Historical Statistics',
         tags: ['Stats', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),

@@ -91,21 +91,14 @@ class CommLinkController extends Controller
         return QueryBuilder::for(CommLink::class, $request)
             ->allowedIncludes(...CommLinkResource::validIncludes())
             ->allowedFilters(...$this->allowedFilters())
-            ->allowedSorts(...[
-                AllowedSort::field('id', 'cig_id'),
-                'title',
-                'images_count',
-                'links_count',
-                AllowedSort::custom('channel', new SortByRelation, 'channel.name'),
-                AllowedSort::custom('category', new SortByRelation, 'category.name'),
-                AllowedSort::custom('series', new SortByRelation, 'series.name'),
-                'created_at',
-            ]);
+            ->allowedSorts(AllowedSort::field('id', 'cig_id'), 'title', 'images_count', 'links_count', AllowedSort::custom('channel', new SortByRelation, 'channel.name'), AllowedSort::custom('category', new SortByRelation, 'category.name'), AllowedSort::custom('series', new SortByRelation, 'series.name'), 'created_at'
+
+            );
     }
 
     #[OA\Get(
         path: '/api/comm-links',
-        description: 'Returns paginated comm-links with optional includes, categories, series, and channel filters.',
+        description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed translations, images, or links.',
         summary: 'Comm-Links Overview',
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
@@ -113,19 +106,24 @@ class CommLinkController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
-            new OA\Parameter(name: 'filter[id]', description: 'Filter by comm-link ID', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[title]', description: 'Filter by partial comm-link title', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[content]', description: 'Filter by full-text content within English comm-link translations', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[channel]', description: 'Filter by channel name', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[series]', description: 'Filter by series name', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[category]', description: 'Filter by category name', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[id]', description: 'Exact match on the Comm-Link CIG ID', in: 'query', schema: new OA\Schema(type: 'integer', example: 12663)),
+            new OA\Parameter(name: 'filter[title]', description: 'Partial match on the Comm-Link title', in: 'query', schema: new OA\Schema(type: 'string', example: 'This Week in Star Citizen')),
+            new OA\Parameter(name: 'filter[content]', description: 'Full-text search within English Comm-Link translations', in: 'query', schema: new OA\Schema(type: 'string', example: 'star citizen')),
+            new OA\Parameter(name: 'filter[channel]', description: 'Exact match on channel name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Engineering')),
+            new OA\Parameter(name: 'filter[series]', description: 'Exact match on series name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Around the Verse')),
+            new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'General')),
             new OA\Parameter(
                 name: 'filter[created_at]',
-                description: 'Filter by publication year (YYYY) or date (YYYY-MM-DD).',
+                description: 'Filter by publication year (YYYY) or exact date (YYYY-MM-DD)',
                 in: 'query',
-                schema: new OA\Schema(type: 'string')
+                schema: new OA\Schema(type: 'string', example: '2025')
             ),
-            new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'sort',
+                description: 'Sort field. Prefix with "-" for descending. Supported: id, title, images_count, links_count, channel, category, series, created_at.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: '-id')
+            ),
         ],
         responses: [
             new OA\Response(
@@ -152,9 +150,18 @@ class CommLinkController extends Controller
 
     #[OA\Get(
         path: '/api/comm-links/filters',
-        description: 'Return all available filter values for Comm-Links.',
+        description: 'Returns available category, channel, and series filter values for Comm-Links, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.',
         summary: 'Comm-Link Filters',
         tags: ['Comm-Links', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(name: 'filter[id]', description: 'Exact match on the Comm-Link CIG ID', in: 'query', schema: new OA\Schema(type: 'integer', example: 12663)),
+            new OA\Parameter(name: 'filter[title]', description: 'Partial match on the Comm-Link title', in: 'query', schema: new OA\Schema(type: 'string', example: 'This Week in Star Citizen')),
+            new OA\Parameter(name: 'filter[content]', description: 'Full-text search within English Comm-Link translations', in: 'query', schema: new OA\Schema(type: 'string', example: 'star citizen')),
+            new OA\Parameter(name: 'filter[channel]', description: 'Exact match on channel name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Engineering')),
+            new OA\Parameter(name: 'filter[series]', description: 'Exact match on series name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Around the Verse')),
+            new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name', in: 'query', schema: new OA\Schema(type: 'string', example: 'General')),
+            new OA\Parameter(name: 'filter[created_at]', description: 'Filter by publication year (YYYY) or exact date (YYYY-MM-DD)', in: 'query', schema: new OA\Schema(type: 'string', example: '2025')),
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -164,9 +171,9 @@ class CommLinkController extends Controller
                         new OA\Property(
                             property: 'filters',
                             properties: [
-                                new OA\Property(property: 'category', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'channel', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'series', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'category', description: 'Category names such as General, Community, Lore, Development', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'channel', description: 'Channel names such as Engineering, Transmission, Featured post', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'series', description: 'Series names such as Around the Verse, 10 For the Chairman', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -244,7 +251,7 @@ class CommLinkController extends Controller
 
     #[OA\Get(
         path: '/api/comm-links/{id}',
-        description: 'Retrieve a single comm-link by ID with the requested related resources.',
+        description: 'Retrieve a single Comm-Link by its CIG ID. Images with hash and metadata are always included. The response contains prev_id and next_id metadata for sequential navigation between Comm-Links.',
         summary: 'Comm-Link Detail',
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
@@ -254,10 +261,11 @@ class CommLinkController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Comm-Link ID, starting from 12663',
+                    description: 'Comm-Link CIG ID, starting from 12663',
                     type: 'integer',
                     format: 'int64',
-                    minimum: 12663
+                    minimum: 12663,
+                    example: 12663
                 ),
             ),
         ],

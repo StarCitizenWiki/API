@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'galactapedia_category',
-    title: 'Galctapedia article category',
+    title: 'Galactapedia article category',
     description: 'Category of an article',
     properties: [
         new OA\Property(property: 'id', type: 'string'),

@@ -33,12 +33,30 @@ class CommLinkSearchController extends Controller
         description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.',
         summary: 'Comm-Link Search (Deprecated)',
         requestBody: new OA\RequestBody(
-            description: '(Partial) Comm-Link Title or ID',
+            description: 'At least one of keyword or query is required.',
             required: true,
             content: [
                 new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'keyword',
+                                description: 'Search term for partial title match (min 3 characters)',
+                                type: 'string',
+                                maxLength: 255,
+                                minLength: 3,
+                                example: 'Banu Merchantman'
+                            ),
+                            new OA\Property(
+                                property: 'query',
+                                description: 'Search term for partial title match or numeric CIG ID (min 1 character)',
+                                type: 'string',
+                                maxLength: 255,
+                                minLength: 1,
+                                example: 'This Week in Star Citizen'
+                            ),
+                        ],
                         type: 'object',
                     ),
                     example: '{"query": "Banu Merchantman"}',
@@ -48,12 +66,20 @@ class CommLinkSearchController extends Controller
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
+            new OA\Parameter(name: 'filter[channel]', description: 'Exact match on channel name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Engineering')),
+            new OA\Parameter(name: 'filter[series]', description: 'Exact match on series name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Around the Verse')),
+            new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name (see GET /api/comm-links/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'General')),
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'A singular Comm-Link',
                 content: new OA\JsonContent(ref: '#/components/schemas/comm_link')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error. At least one of keyword or query is required.',
             ),
         ],
         deprecated: true,
@@ -62,7 +88,7 @@ class CommLinkSearchController extends Controller
     {
         $request->validate((new CommLinkSearchRequest)->rules());
 
-        $query = (string) ($request->get('keyword') ?? $request->get('query'));
+        $query = (string) ($request->input('keyword') ?? $request->input('query'));
 
         $commLinks = QueryBuilder::for(CommLink::class)
             ->where(function (Builder $builder) use ($query) {
@@ -73,11 +99,9 @@ class CommLinkSearchController extends Controller
                 }
             })
             ->allowedIncludes(...CommLinkResource::validIncludes())
-            ->allowedFilters(...[
-                AllowedFilter::exact('category', 'category.name'),
-                AllowedFilter::exact('series', 'series.name'),
-                AllowedFilter::exact('channel', 'channel.name'),
-            ])
+            ->allowedFilters(AllowedFilter::exact('category', 'category.name'), AllowedFilter::exact('series', 'series.name'), AllowedFilter::exact('channel', 'channel.name')
+
+            )
             ->jsonPaginate()
             ->appends(request()->query());
 
@@ -91,12 +115,22 @@ class CommLinkSearchController extends Controller
         description: 'Return comm-links that reference the same RSI-hosted image URL.',
         summary: 'Comm-Link Reverse Image Link Search',
         requestBody: new OA\RequestBody(
-            description: 'Url to an image hosted on (media.)robertsspaceindustries.com',
+            description: 'URL to an image hosted on (media.)robertsspaceindustries.com',
             required: true,
             content: [
-                'url' => new OA\MediaType(
+                new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
+                        required: ['url'],
+                        properties: [
+                            new OA\Property(
+                                property: 'url',
+                                description: 'Full URL to an image hosted on robertsspaceindustries.com or media.robertsspaceindustries.com',
+                                type: 'string',
+                                format: 'uri',
+                                example: 'https://robertsspaceindustries.com/i/cc75a45005a236c6e015dfc2782a2f55ed1e84a2/ADdPNihJzmPbNuTnFsH1DqUeqBRpXdSXVVtgJTyDDgscGKrzJuoFjResiiucPBBDeyrBscqRyZz4qxNsSbWvqUwdG/alien-week-2022-front.webp'
+                            ),
+                        ],
                         type: 'object',
                     ),
                     example: '{"url": "https://robertsspaceindustries.com/i/cc75a45005a236c6e015dfc2782a2f55ed1e84a2/ADdPNihJzmPbNuTnFsH1DqUeqBRpXdSXVVtgJTyDDgscGKrzJuoFjResiiucPBBDeyrBscqRyZz4qxNsSbWvqUwdG/alien-week-2022-front.webp"}',
@@ -116,6 +150,10 @@ class CommLinkSearchController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error. The url field is required and must be a valid URL on robertsspaceindustries.com.',
             ),
         ],
     )]
@@ -157,7 +195,7 @@ class CommLinkSearchController extends Controller
 
     #[OA\Post(
         path: '/api/comm-links/reverse-image-search',
-        description: 'Search comm-links by uploading an image and specifying a similarity threshold.',
+        description: 'Search comm-links by uploading an image and specifying a similarity threshold. Requires the GD PHP extension.',
         summary: 'Comm-Link Reverse Image Search',
         requestBody: new OA\RequestBody(
             required: true,
@@ -169,9 +207,17 @@ class CommLinkSearchController extends Controller
                         properties: [
                             new OA\Property(
                                 property: 'image',
-                                description: 'The image to reverse-search',
+                                description: 'The image to reverse-search (max 5 MB)',
                                 type: 'string',
                                 format: 'binary',
+                            ),
+                            new OA\Property(
+                                property: 'similarity',
+                                description: 'Similarity threshold percentage (1-100). Defaults to 75.',
+                                type: 'integer',
+                                maximum: 100,
+                                minimum: 1,
+                                example: 80,
                             ),
                         ],
                         type: 'object',
@@ -180,18 +226,6 @@ class CommLinkSearchController extends Controller
             ]
         ),
         tags: ['Comm-Links', 'RSI-Website', 'Search'],
-        parameters: [
-            new OA\Parameter(
-                name: 'similarity',
-                in: 'query',
-                required: false,
-                schema: new OA\Schema(
-                    type: 'integer',
-                    maximum: 100,
-                    minimum: 1,
-                )
-            ),
-        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -204,6 +238,14 @@ class CommLinkSearchController extends Controller
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error. The image field is required and must be a valid image file (max 5 MB).',
+            ),
+            new OA\Response(
+                response: 501,
+                description: 'The required GD PHP extension is not loaded on the server.',
             ),
         ],
     )]
@@ -229,23 +271,28 @@ class CommLinkSearchController extends Controller
         path: '/api/comm-link-images/{image}/similar',
         description: 'Find Comm-Link images similar to an existing RSI-hosted image.',
         summary: 'Comm-Link Reverse Image Similar Search',
+        security: [
+            ['sanctum' => []],
+        ],
         tags: ['Comm-Links', 'RSI-Website', 'Search'],
         parameters: [
             new OA\Parameter(
                 name: 'image',
+                description: 'Internal database ID of the image',
                 in: 'path',
                 required: true,
-                schema: new OA\Schema(type: 'integer'),
+                schema: new OA\Schema(type: 'integer', example: 44216),
             ),
             new OA\Parameter(
                 name: 'similarity',
-                description: 'Threshold similarity percentage (defaults to 50)',
+                description: 'Similarity threshold percentage (1-100). Defaults to 50.',
                 in: 'query',
                 required: false,
                 schema: new OA\Schema(
                     type: 'integer',
                     maximum: 100,
                     minimum: 1,
+                    example: 80
                 ),
             ),
         ],
@@ -262,9 +309,6 @@ class CommLinkSearchController extends Controller
                 response: 404,
                 description: 'Comm-Link image not found.',
             ),
-        ],
-        security: [
-            ['sanctum' => []],
         ],
     )]
     public function similarSearch(SimilarSearchRequest $request): AnonymousResourceCollection

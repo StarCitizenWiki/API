@@ -17,117 +17,153 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'game_starmap_location_linked_summary',
     title: 'Game Starmap Location Linked Summary',
+    description: 'A lightweight summary of a linked starmap location, used for parent, star, and related location references.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'type_name', type: 'string'),
-        new OA\Property(property: 'slug', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the linked location.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', description: 'Display name of the linked location.', type: 'string'),
+        new OA\Property(property: 'type_name', description: 'Type name of the linked location (e.g. Planet, Moon, Outpost).', type: 'string'),
+        new OA\Property(property: 'slug', description: 'URL-friendly slug for the linked location.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_type',
     title: 'Game Starmap Location Type',
+    description: 'Classification and quantum travel properties of a starmap location type.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'classification', type: 'string', nullable: true),
-        new OA\Property(property: 'spawn_nav_points', type: 'boolean', nullable: true),
-        new OA\Property(property: 'valid_quantum_travel_destination', type: 'boolean', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the location type.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Type name (e.g. Planet, Moon, Outpost, Asteroid).', type: 'string'),
+        new OA\Property(property: 'classification', description: 'Sub-classification of the location type (e.g. Outpost, LandingZone).', type: 'string', nullable: true),
+        new OA\Property(property: 'spawn_nav_points', description: 'Whether this location type spawns navigation points.', type: 'boolean', nullable: true),
+        new OA\Property(property: 'valid_quantum_travel_destination', description: 'Whether this location type is a valid quantum travel destination.', type: 'boolean', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_jurisdiction',
     title: 'Game Starmap Location Jurisdiction',
+    description: 'Legal jurisdiction governing a starmap location, including fines and prison status.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'base_fine', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_stolen_goods_possession_scu', type: 'integer', nullable: true),
-        new OA\Property(property: 'is_prison', type: 'boolean', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the jurisdiction.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Name of the governing jurisdiction (e.g. UEE).', type: 'string', nullable: true),
+        new OA\Property(property: 'base_fine', description: 'Base fine amount for crimes committed in this jurisdiction.', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_stolen_goods_possession_scu', description: 'Maximum stolen goods possession allowed in SCU before penalties apply.', type: 'integer', nullable: true),
+        new OA\Property(property: 'is_prison', description: 'Whether this location is a prison facility.', type: 'boolean', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_affiliation',
     title: 'Game Starmap Location Affiliation',
+    description: 'Faction or organization affiliation of a starmap location.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the affiliated faction or organization.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the affiliated faction or organization (e.g. UEE, Private Security).', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_amenity',
     title: 'Game Starmap Location Amenity',
+    description: 'An amenity available at a starmap location (e.g. hospital, commodity trading, garage).',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'display_name', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the amenity.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', description: 'Internal name of the amenity.', type: 'string'),
+        new OA\Property(property: 'display_name', description: 'Human-readable display name of the amenity, may differ from internal name.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_tag',
     title: 'Game Starmap Location Tag',
+    description: 'A hierarchy entity tag used for grouping and filtering locations (e.g. orbital markers like HUR_L1).',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the hierarchy entity tag.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', description: 'Tag name, typically an orbital or navigational marker code (e.g. HUR_L1, ARC_L2).', type: 'string'),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_radar_contact_type',
     title: 'Game Starmap Location Radar Contact Type',
+    description: 'Radar contact classification for a starmap location, used for navigation and object-of-interest detection.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'display_name', type: 'string', nullable: true),
-        new OA\Property(property: 'tag_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'tag_name', type: 'string', nullable: true),
-        new OA\Property(property: 'is_object_of_interest', type: 'boolean', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the radar contact type.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Internal name of the radar contact type.', type: 'string', nullable: true),
+        new OA\Property(property: 'display_name', description: 'Human-readable display name of the radar contact type.', type: 'string', nullable: true),
+        new OA\Property(property: 'tag_uuid', description: 'UUID of the associated hierarchy entity tag.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'tag_name', description: 'Name of the associated hierarchy entity tag.', type: 'string', nullable: true),
+        new OA\Property(property: 'is_object_of_interest', description: 'Whether this location is marked as an object of interest.', type: 'boolean', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'game_starmap_location_quantum_travel',
+    title: 'Game Starmap Location Quantum Travel',
+    description: 'Quantum travel parameters defining how ships interact with this location during quantum travel.',
+    properties: [
+        new OA\Property(property: 'ObstructionRadius', description: 'Radius around the location that obstructs quantum travel.', type: 'number'),
+        new OA\Property(property: 'ArrivalRadius', description: 'Radius at which a ship exits quantum travel near this location.', type: 'number'),
+        new OA\Property(property: 'ArrivalPointDetectionOffset', description: 'Positional offset for detecting the quantum travel arrival point.', type: 'number'),
+        new OA\Property(property: 'AdoptionRadius', description: 'Radius within which child locations are adopted into the quantum travel zone.', type: 'number'),
+        new OA\Property(property: 'SubPointRadiusMultiplier', description: 'Multiplier applied to the sub-point radius for quantum travel calculations.', type: 'number'),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'game_starmap_location_asteroid_ring',
+    title: 'Game Starmap Location Asteroid Ring',
+    description: 'Asteroid ring configuration for locations that have an asteroid belt, defining density, size, and dimensional parameters.',
+    properties: [
+        new OA\Property(property: 'DensityScale', description: 'Scale factor controlling asteroid density within the ring.', type: 'number'),
+        new OA\Property(property: 'SizeScale', description: 'Scale factor controlling individual asteroid size.', type: 'number'),
+        new OA\Property(property: 'InnerRadius', description: 'Inner boundary radius of the asteroid ring.', type: 'number'),
+        new OA\Property(property: 'OuterRadius', description: 'Outer boundary radius of the asteroid ring.', type: 'number'),
+        new OA\Property(property: 'Depth', description: 'Vertical depth or thickness of the asteroid ring.', type: 'number'),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'game_starmap_location_child_summary',
     title: 'Game Starmap Location Child Summary',
+    description: 'Summary of a child location within a starmap hierarchy, including amenities and resource availability.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'designation', type: 'string', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-        new OA\Property(property: 'type_name', type: 'string'),
-        new OA\Property(property: 'type_classification', type: 'string', nullable: true),
-        new OA\Property(property: 'respawn_location_type', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the child location.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', description: 'Display name of the child location.', type: 'string'),
+        new OA\Property(property: 'designation', description: 'Official designation code for the child location.', type: 'string', nullable: true),
+        new OA\Property(property: 'web_url', description: 'Web frontend URL for the child location.', type: 'string', format: 'uri'),
+        new OA\Property(property: 'type_name', description: 'Location type name (e.g. Outpost, Asteroid).', type: 'string'),
+        new OA\Property(property: 'type_classification', description: 'Sub-classification of the location type.', type: 'string', nullable: true),
+        new OA\Property(property: 'respawn_location_type', description: 'Type of respawn facility available, if any.', type: 'string', nullable: true),
         new OA\Property(
             property: 'amenities',
+            description: 'Amenities available at this child location.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_starmap_location_amenity')
         ),
         new OA\Property(
             property: 'amenity_labels',
+            description: 'Simplified list of amenity display names or internal names.',
             type: 'array',
             items: new OA\Items(type: 'string')
         ),
-        new OA\Property(property: 'has_resources', type: 'boolean'),
+        new OA\Property(property: 'has_resources', description: 'Whether this child location has harvestable resource deposits.', type: 'boolean'),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'starmap_location_resource',
     title: 'Starmap Location Resource',
-    description: 'Deposit base with commodity identity fields.',
+    description: 'A mineable or harvestable resource deposit at a starmap location, combining deposit configuration with commodity identity.',
     allOf: [
         new OA\Schema(ref: '#/components/schemas/deposit_base'),
         new OA\Schema(
             properties: [
-                new OA\Property(property: 'name', type: 'string'),
-                new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-                new OA\Property(property: 'tier', type: 'string', nullable: true),
-                new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-                new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+                new OA\Property(property: 'name', description: 'Commodity name of the resource deposit.', type: 'string'),
+                new OA\Property(property: 'uuid', description: 'UUID of the commodity, null for non-commodity deposits.', type: 'string', format: 'uuid', nullable: true),
+                new OA\Property(property: 'tier', description: 'Rarity tier of the commodity.', type: 'string', nullable: true),
+                new OA\Property(property: 'link', description: 'API URL for the commodity detail endpoint.', type: 'string', format: 'uri', nullable: true),
+                new OA\Property(property: 'web_url', description: 'Web frontend URL for the commodity detail page.', type: 'string', format: 'uri', nullable: true),
             ],
             type: 'object'
         ),
@@ -136,17 +172,19 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'starmap_location_mining_type_group',
     title: 'Starmap Location Mining Type Group',
+    description: 'A group of mineable or harvestable deposits at a location, categorized by extraction method (e.g. mining, hand-mining, salvage).',
     properties: [
-        new OA\Property(property: 'group_name', type: 'string'),
-        new OA\Property(property: 'mining_type', type: 'string'),
-        new OA\Property(property: 'mining_type_sort_order', type: 'integer'),
-        new OA\Property(property: 'resource_kind', type: 'string', nullable: true),
-        new OA\Property(property: 'group_probability_min', type: 'number', nullable: true),
-        new OA\Property(property: 'group_probability_max', type: 'number', nullable: true),
-        new OA\Property(property: 'group_probability_min_percent', type: 'number', nullable: true),
-        new OA\Property(property: 'group_probability_max_percent', type: 'number', nullable: true),
+        new OA\Property(property: 'group_name', description: 'Original group name from game data identifying the deposit group.', type: 'string'),
+        new OA\Property(property: 'mining_type', description: 'Extraction method label (e.g. Mining, Hand Mining, Salvage).', type: 'string'),
+        new OA\Property(property: 'mining_type_sort_order', description: 'Sort order for mining type display ordering.', type: 'integer'),
+        new OA\Property(property: 'resource_kind', description: 'Kind of resource (Mineable or Harvestable).', type: 'string', nullable: true),
+        new OA\Property(property: 'group_probability_min', description: 'Lowest raw probability among deposits in this group (0–1).', type: 'number', nullable: true),
+        new OA\Property(property: 'group_probability_max', description: 'Highest raw probability among deposits in this group (0–1).', type: 'number', nullable: true),
+        new OA\Property(property: 'group_probability_min_percent', description: 'Lowest probability in this group as a percentage (0–100).', type: 'number', nullable: true),
+        new OA\Property(property: 'group_probability_max_percent', description: 'Highest probability in this group as a percentage (0–100).', type: 'number', nullable: true),
         new OA\Property(
             property: 'resources',
+            description: 'Individual resource deposits within this group.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/starmap_location_resource')
         ),
@@ -158,9 +196,10 @@ use OpenApi\Attributes as OA;
     title: 'Game Starmap Location Mission Group',
     description: 'Missions associated with a starmap location, grouped by purpose.',
     properties: [
-        new OA\Property(property: 'purpose', type: 'string', nullable: true),
+        new OA\Property(property: 'purpose', description: 'Mission purpose category (e.g. Mission, Patrol, Investigation).', type: 'string', nullable: true),
         new OA\Property(
             property: 'missions',
+            description: 'List of mission summaries in this group.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/mission_summary')
         ),
@@ -172,58 +211,63 @@ use OpenApi\Attributes as OA;
     title: 'Game Starmap Location',
     description: 'Versioned starmap location data imported from game starmap data.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'slug', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'description', type: 'string', nullable: true),
-        new OA\Property(property: 'size', type: 'number', nullable: true),
-        new OA\Property(property: 'respawn_location_type', type: 'string', nullable: true),
-        new OA\Property(property: 'child_count', type: 'integer'),
-        new OA\Property(property: 'has_resources', type: 'boolean', nullable: true),
-        new OA\Property(property: 'mission_count', type: 'integer'),
-        new OA\Property(property: 'is_scannable', type: 'boolean'),
-        new OA\Property(property: 'hide_in_starmap', type: 'boolean'),
-        new OA\Property(property: 'hide_in_world', type: 'boolean'),
-        new OA\Property(property: 'block_travel', type: 'boolean'),
-        new OA\Property(property: 'quantum_travel', type: 'object', nullable: true),
-        new OA\Property(property: 'asteroid_ring', type: 'object', nullable: true),
-        new OA\Property(property: 'system', type: 'string', nullable: true),
-        new OA\Property(property: 'parent', ref: '#/components/schemas/game_starmap_location_linked_summary', nullable: true),
-        new OA\Property(property: 'star', ref: '#/components/schemas/game_starmap_location_linked_summary', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier for this starmap location.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'slug', description: 'URL-friendly slug for this location.', type: 'string', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the starmap location.', type: 'string'),
+        new OA\Property(property: 'description', description: 'In-universe description of the location.', type: 'string', nullable: true),
+        new OA\Property(property: 'size', description: 'Relative size of the location.', type: 'number', nullable: true),
+        new OA\Property(property: 'respawn_location_type', description: 'Type of respawn facility available (e.g. Hospital, MedicalRoom).', type: 'string', nullable: true),
+        new OA\Property(property: 'child_count', description: 'Number of direct child locations.', type: 'integer'),
+        new OA\Property(property: 'has_resources', description: 'Whether this location has harvestable resource deposits.', type: 'boolean', nullable: true),
+        new OA\Property(property: 'mission_count', description: 'Number of available missions at this location.', type: 'integer'),
+        new OA\Property(property: 'is_scannable', description: 'Whether this location can be detected by ship scanners.', type: 'boolean'),
+        new OA\Property(property: 'hide_in_starmap', description: 'Whether this location is hidden from the in-game starmap.', type: 'boolean'),
+        new OA\Property(property: 'hide_in_world', description: 'Whether this location is hidden in the game world.', type: 'boolean'),
+        new OA\Property(property: 'block_travel', description: 'Whether quantum travel to this location is blocked.', type: 'boolean'),
+        new OA\Property(property: 'quantum_travel', ref: '#/components/schemas/game_starmap_location_quantum_travel', description: 'Quantum travel parameters for this location.', nullable: true),
+        new OA\Property(property: 'asteroid_ring', ref: '#/components/schemas/game_starmap_location_asteroid_ring', description: 'Asteroid ring parameters, only present on locations with asteroid rings.', nullable: true),
+        new OA\Property(property: 'system', description: 'Name of the star system this location belongs to (e.g. Stanton System).', type: 'string', nullable: true),
+        new OA\Property(property: 'parent', ref: '#/components/schemas/game_starmap_location_linked_summary', description: 'Parent location in the hierarchy.', nullable: true),
+        new OA\Property(property: 'star', ref: '#/components/schemas/game_starmap_location_linked_summary', description: 'Nearest star or celestial body.', nullable: true),
         new OA\Property(
             property: 'children',
+            description: 'Direct child locations. Only included when requested via `include=children`.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_starmap_location_child_summary'),
             nullable: true
         ),
-        new OA\Property(property: 'type', ref: '#/components/schemas/game_starmap_location_type'),
-        new OA\Property(property: 'jurisdiction', ref: '#/components/schemas/game_starmap_location_jurisdiction', nullable: true),
-        new OA\Property(property: 'affiliation', ref: '#/components/schemas/game_starmap_location_affiliation', nullable: true),
+        new OA\Property(property: 'type', ref: '#/components/schemas/game_starmap_location_type', description: 'Location type classification and properties.'),
+        new OA\Property(property: 'jurisdiction', ref: '#/components/schemas/game_starmap_location_jurisdiction', description: 'Legal jurisdiction governing this location.', nullable: true),
+        new OA\Property(property: 'affiliation', ref: '#/components/schemas/game_starmap_location_affiliation', description: 'Faction or organization controlling this location.', nullable: true),
         new OA\Property(
             property: 'amenities',
+            description: 'Available amenities at this location.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_starmap_location_amenity')
         ),
-        new OA\Property(property: 'tag', ref: '#/components/schemas/game_starmap_location_tag', nullable: true),
-        new OA\Property(property: 'designation', type: 'string', nullable: true),
-        new OA\Property(property: 'radar_contact_type', ref: '#/components/schemas/game_starmap_location_radar_contact_type', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri'),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', nullable: true),
-        new OA\Property(property: 'version', type: 'string', nullable: true),
+        new OA\Property(property: 'tag', ref: '#/components/schemas/game_starmap_location_tag', description: 'Hierarchy entity tag for grouping and filtering.', nullable: true),
+        new OA\Property(property: 'designation', description: 'Official designation code for this location.', type: 'string', nullable: true),
+        new OA\Property(property: 'radar_contact_type', ref: '#/components/schemas/game_starmap_location_radar_contact_type', description: 'Radar contact classification for navigation.', nullable: true),
+        new OA\Property(property: 'link', description: 'API URL for this location\'s detail endpoint.', type: 'string', format: 'uri'),
+        new OA\Property(property: 'web_url', description: 'Web frontend URL for this location.', type: 'string', format: 'uri'),
+        new OA\Property(property: 'updated_at', description: 'Timestamp of the last data update.', type: 'string', format: 'date-time', nullable: true),
+        new OA\Property(property: 'version', description: 'Game data version code.', type: 'string', nullable: true),
         new OA\Property(
             property: 'area_boosts',
+            description: 'Areas with boosted deposit spawn rates. Only included when requested via `include=resources`.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/area_boost'),
             nullable: true
         ),
         new OA\Property(
             property: 'resources',
+            description: 'Harvestable resource deposits grouped by extraction method. Only included when requested via `include=resources`.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/starmap_location_mining_type_group')
         ),
         new OA\Property(
             property: 'missions',
+            description: 'Available missions grouped by purpose. Only included when requested via `include=missions`.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_starmap_location_mission_group'),
             nullable: true

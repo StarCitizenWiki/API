@@ -236,7 +236,7 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations',
-        description: 'Returns paginated versioned starmap locations with optional filters.',
+        description: 'Returns paginated versioned starmap locations with optional filters. Each location includes amenities, hierarchy entity tags, parent and star relations, child count, mission count, and resource availability.',
         summary: 'Game Starmap Locations Overview',
         tags: ['In-Game', 'Starmap'],
         parameters: [
@@ -244,23 +244,108 @@ class StarmapLocationController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string', example: '-size,name')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type_classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[respawn_location_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[jurisdiction_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[affiliation_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[is_scannable]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[block_travel]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[amenity]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[parent_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[parent_uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
-            new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[hide_minor_locations]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(
+                name: 'sort',
+                description: 'Sort field. Prefix with "-" for descending. Supported: name, type_name, size, child_count.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: '-size,name')
+            ),
+            new OA\Parameter(
+                name: 'filter[name]',
+                description: 'Partial match on location name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Aberdeen')
+            ),
+            new OA\Parameter(
+                name: 'filter[type_name]',
+                description: 'Exact match on location type name (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Planet')
+            ),
+            new OA\Parameter(
+                name: 'filter[type_classification]',
+                description: 'Location type classification from JSON data (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Outpost')
+            ),
+            new OA\Parameter(
+                name: 'filter[respawn_location_type]',
+                description: 'Respawn location type classification (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Hospital')
+            ),
+            new OA\Parameter(
+                name: 'filter[jurisdiction_name]',
+                description: 'Governing jurisdiction name (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'UEE')
+            ),
+            new OA\Parameter(
+                name: 'filter[affiliation_name]',
+                description: 'Faction or organization affiliation display name (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Private Security')
+            ),
+            new OA\Parameter(
+                name: 'filter[is_scannable]',
+                description: 'When true, only show scannable locations; when false, only show non-scannable.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
+            new OA\Parameter(
+                name: 'filter[block_travel]',
+                description: 'When true, only show locations where travel is blocked; when false, only show locations where travel is allowed.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: false)
+            ),
+            new OA\Parameter(
+                name: 'filter[amenity]',
+                description: 'Filter by amenity name, display name, or UUID. Accepts comma-separated values (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Commodity Trading')
+            ),
+            new OA\Parameter(
+                name: 'filter[tag]',
+                description: 'Filter by hierarchy entity tag name or UUID. Accepts comma-separated values.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'HUR_L1')
+            ),
+            new OA\Parameter(
+                name: 'filter[parent_name]',
+                description: 'Partial match on parent location name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'ArcCorp')
+            ),
+            new OA\Parameter(
+                name: 'filter[parent_uuid]',
+                description: 'Exact match on parent location UUID.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', format: 'uuid', example: 'f8f07f5b-1c0e-47c9-aa50-46963065bf18')
+            ),
+            new OA\Parameter(
+                name: 'filter[system]',
+                description: 'Partial match on star system name (see GET /api/locations/filters for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Stanton System')
+            ),
+            new OA\Parameter(
+                name: 'filter[has_resources]',
+                description: 'When true, only locations with harvestable resources; when false, only locations without.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
+            new OA\Parameter(
+                name: 'filter[resource]',
+                description: 'Filter by harvestable commodity name or UUID. Accepts comma-separated values (see GET /api/commodities for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Agricium')
+            ),
+            new OA\Parameter(
+                name: 'filter[hide_minor_locations]',
+                description: 'When true, exclude minor locations that are only shown when their parent is selected.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
         ],
         responses: [
             new OA\Response(
@@ -279,7 +364,7 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations/{identifier}',
-        description: 'Retrieve a versioned starmap location by slug or UUID.',
+        description: 'Retrieve a versioned starmap location by slug or UUID. Use the `include` parameter to load additional relations: `children` (child locations with amenities and tags), `resources` (harvestable resource placements with commodity data), `missions` (available missions with faction data).',
         summary: 'Game Starmap Location Detail',
         tags: ['In-Game', 'Starmap'],
         parameters: [
@@ -290,6 +375,7 @@ class StarmapLocationController extends Controller
                 schema: new OA\Schema(
                     description: 'Starmap location slug or UUID',
                     type: 'string',
+                    example: 'aberdeen',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/include'),
@@ -353,27 +439,107 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations/filters',
-        description: 'Return all available filter values for versioned starmap locations.',
+        description: 'Return all available filter facet values for versioned starmap locations. Applies any provided filter parameters to scope the facet counts. Returns facets for: type_name, type_classification, respawn_location_type, jurisdiction_name, affiliation_name, system, parent_name, amenity, and resource.',
         summary: 'Game Starmap Location Filters',
         tags: ['In-Game', 'Starmap'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type_classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[respawn_location_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[jurisdiction_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[affiliation_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[is_scannable]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[block_travel]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[amenity]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[parent_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[parent_uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
-            new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[has_resources]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[resource]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[hide_minor_locations]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(
+                name: 'filter[name]',
+                description: 'Partial match on location name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Aberdeen')
+            ),
+            new OA\Parameter(
+                name: 'filter[type_name]',
+                description: 'Exact match on location type name (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Planet')
+            ),
+            new OA\Parameter(
+                name: 'filter[type_classification]',
+                description: 'Location type classification from JSON data (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Outpost')
+            ),
+            new OA\Parameter(
+                name: 'filter[respawn_location_type]',
+                description: 'Respawn location type classification (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Hospital')
+            ),
+            new OA\Parameter(
+                name: 'filter[jurisdiction_name]',
+                description: 'Governing jurisdiction name (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'UEE')
+            ),
+            new OA\Parameter(
+                name: 'filter[affiliation_name]',
+                description: 'Faction or organization affiliation display name (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Private Security')
+            ),
+            new OA\Parameter(
+                name: 'filter[is_scannable]',
+                description: 'When true, only show scannable locations; when false, only show non-scannable.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
+            new OA\Parameter(
+                name: 'filter[block_travel]',
+                description: 'When true, only show locations where travel is blocked; when false, only show locations where travel is allowed.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: false)
+            ),
+            new OA\Parameter(
+                name: 'filter[amenity]',
+                description: 'Filter by amenity name, display name, or UUID. Accepts comma-separated values (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Commodity Trading')
+            ),
+            new OA\Parameter(
+                name: 'filter[tag]',
+                description: 'Filter by hierarchy entity tag name or UUID. Accepts comma-separated values.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'HUR_L1')
+            ),
+            new OA\Parameter(
+                name: 'filter[parent_name]',
+                description: 'Partial match on parent location name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'ArcCorp')
+            ),
+            new OA\Parameter(
+                name: 'filter[parent_uuid]',
+                description: 'Exact match on parent location UUID.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', format: 'uuid', example: 'f8f07f5b-1c0e-47c9-aa50-46963065bf18')
+            ),
+            new OA\Parameter(
+                name: 'filter[system]',
+                description: 'Partial match on star system name (see response for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Stanton System')
+            ),
+            new OA\Parameter(
+                name: 'filter[has_resources]',
+                description: 'When true, only locations with harvestable resources; when false, only locations without.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
+            new OA\Parameter(
+                name: 'filter[resource]',
+                description: 'Filter by harvestable commodity name or UUID. Accepts comma-separated values (see GET /api/commodities for valid values).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Agricium')
+            ),
+            new OA\Parameter(
+                name: 'filter[hide_minor_locations]',
+                description: 'When true, exclude minor locations that are only shown when their parent is selected.',
+                in: 'query',
+                schema: new OA\Schema(type: 'boolean', example: true)
+            ),
         ],
         responses: [
             new OA\Response(

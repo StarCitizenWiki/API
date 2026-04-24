@@ -62,29 +62,32 @@ class GalactapediaController extends Controller
     {
         return QueryBuilder::for(Article::class, $request)
             ->allowedFilters(...$this->allowedFilters())
-            ->allowedSorts(...[
-                'title',
-                'categories_count',
-                'tags_count',
-                'related_articles_count',
-            ])
+            ->allowedSorts('title', 'categories_count', 'tags_count', 'related_articles_count'
+
+            )
             ->defaultSort('-id');
     }
 
     #[OA\Get(
         path: '/api/galactapedia',
-        description: 'Return paginated Galactapedia articles with category, tag, and template filters.',
+        description: 'Returns paginated Galactapedia articles ordered by descending ID by default. Each article includes its templates, categories, and tags. Supports filtering by category, tag, template, title, and creation date. Results can be sorted by title, categories_count, tags_count, and related_articles_count.',
         summary: 'Galactapedia Overview',
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[template]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[title]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[created_at]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name (see GET /api/galactapedia/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Animals')),
+            new OA\Parameter(name: 'filter[tag]', description: 'Exact match on tag name (see GET /api/galactapedia/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: '100i')),
+            new OA\Parameter(name: 'filter[template]', description: 'Exact match on template name (see GET /api/galactapedia/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Civilization')),
+            new OA\Parameter(name: 'filter[title]', description: 'Partial match on the article title', in: 'query', schema: new OA\Schema(type: 'string', example: 'Messer')),
+            new OA\Parameter(name: 'filter[created_at]', description: 'Filter by creation year (YYYY), year-month (YYYY-MM), or exact date (YYYY-MM-DD)', in: 'query', schema: new OA\Schema(type: 'string', example: '2025')),
+            new OA\Parameter(
+                name: 'sort',
+                description: 'Sort field. Prefix with "-" for descending. Supported: title, categories_count, tags_count, related_articles_count.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: '-id')
+            ),
         ],
         responses: [
             new OA\Response(
@@ -109,9 +112,16 @@ class GalactapediaController extends Controller
 
     #[OA\Get(
         path: '/api/galactapedia/filters',
-        description: 'Return all available filter values for Galactapedia articles.',
+        description: 'Returns available category, tag, and template filter values for Galactapedia articles, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.',
         summary: 'Galactapedia Filters',
         tags: ['Galactapedia', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Animals')),
+            new OA\Parameter(name: 'filter[tag]', description: 'Exact match on tag name', in: 'query', schema: new OA\Schema(type: 'string', example: '100i')),
+            new OA\Parameter(name: 'filter[template]', description: 'Exact match on template name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Civilization')),
+            new OA\Parameter(name: 'filter[title]', description: 'Partial match on the article title', in: 'query', schema: new OA\Schema(type: 'string', example: 'Messer')),
+            new OA\Parameter(name: 'filter[created_at]', description: 'Filter by creation year (YYYY), year-month (YYYY-MM), or exact date (YYYY-MM-DD)', in: 'query', schema: new OA\Schema(type: 'string', example: '2025')),
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -121,9 +131,9 @@ class GalactapediaController extends Controller
                         new OA\Property(
                             property: 'filters',
                             properties: [
-                                new OA\Property(property: 'category', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'tag', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'template', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'category', description: 'Category names such as Animals, Archaeology, Art, Banu, Civilizations', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'tag', description: 'Tag names such as vehicle models, locations, and lore terms', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'template', description: 'Template types such as Civilization, Company, Event', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -216,8 +226,9 @@ class GalactapediaController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Galactapedia Article ID',
+                    description: 'Galactapedia Article CIG ID',
                     type: 'string',
+                    example: 'VyvYAGKxAz',
                 ),
             ),
             new OA\Parameter(

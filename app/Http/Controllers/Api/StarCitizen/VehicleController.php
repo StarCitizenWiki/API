@@ -68,18 +68,20 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles',
-        description: 'Returns paginated Ship Matrix vehicles with optional filters for manufacturer, size, and status.',
+        description: 'Returns paginated Ship Matrix vehicles with optional filters. SKU variants and loaner vehicles are included by default.',
         summary: 'Ship Matrix Vehicles Overview',
         tags: ['Ship-Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Exact match on manufacturer name (see GET /api/shipmatrix/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact match on size slug (see GET /api/shipmatrix/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'medium')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[focus]', description: 'Filter by vehicle focus slug (comma-separated for multiple)', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[production_status]', description: 'Filter by production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on vehicle name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Avenger')),
+            new OA\Parameter(name: 'sort', description: 'Sort field. Prefix with "-" for descending. Supported: id, chassis_id, name, msrp, updated_at, length, width, height, cargo_capacity, min_crew, max_crew, manufacturer, focus, type, size', in: 'query', schema: new OA\Schema(type: 'string', example: '-name')),
         ],
         responses: [
             new OA\Response(
@@ -103,7 +105,7 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles/filters',
-        description: 'Return all available filter values for Ship Matrix vehicles.',
+        description: 'Return all available filter values for Ship Matrix vehicles. Supports cross-filtering: pass filter parameters to get filtered facet counts.',
         summary: 'Ship Matrix Vehicle Filters',
         tags: ['Ship-Matrix', 'Vehicles'],
         responses: [
@@ -208,7 +210,7 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles/{slug}',
-        description: 'Retrieve a Ship Matrix vehicle by slug with optional related data.',
+        description: 'Retrieve a Ship Matrix vehicle by slug. Use the "include" query parameter to load additional relationships: components, loaner, skus.',
         summary: 'Ship Matrix Vehicle Detail',
         tags: ['Ship-Matrix', 'Vehicles'],
         parameters: [
@@ -274,10 +276,10 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Exact match on manufacturer name (see GET /api/shipmatrix/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact match on size slug (see GET /api/shipmatrix/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'medium')),
             new OA\Parameter(name: 'filter[type]', description: 'Filter by vehicle type slug', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[focus]', description: 'Filter by vehicle focus slug', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[focus]', description: 'Filter by vehicle focus slug (comma-separated for multiple)', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[production_status]', description: 'Filter by production status slug', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [

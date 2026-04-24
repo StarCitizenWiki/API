@@ -12,26 +12,32 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'galactapedia_article',
     title: 'Galactapedia Article',
-    description: 'An article form the Galactapedia',
+    description: 'An article from the Galactapedia',
     properties: [
-        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'id', description: 'CIG identifier', type: 'string'),
         new OA\Property(property: 'title', type: 'string'),
         new OA\Property(property: 'slug', type: 'string'),
-        new OA\Property(property: 'thumbnail', type: 'string'),
+        new OA\Property(property: 'thumbnail', type: 'string', nullable: true),
+        new OA\Property(property: 'type', description: 'Alias for template, the first template name', type: 'string', nullable: true),
         new OA\Property(property: 'template', type: 'string', nullable: true),
+        new OA\Property(property: 'category', description: 'Comma-separated category names', type: 'string', nullable: true),
+        new OA\Property(property: 'tag', description: 'Comma-separated tag names', type: 'string', nullable: true),
         new OA\Property(property: 'rsi_url', type: 'string'),
         new OA\Property(property: 'api_url', type: 'string'),
+        new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(property: 'created_at', type: 'string'),
         new OA\Property(
             property: 'categories',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/galactapedia_category'),
         ),
+        new OA\Property(property: 'categories_count', description: 'Number of categories (present when sorting by categories_count)', type: 'integer', nullable: true),
         new OA\Property(
             property: 'tags',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/galactapedia_tag'),
         ),
+        new OA\Property(property: 'tags_count', description: 'Number of tags (present when sorting by tags_count)', type: 'integer', nullable: true),
         new OA\Property(
             property: 'properties',
             type: 'array',
@@ -40,8 +46,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'related_articles',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/galactpedia_related_article'),
+            items: new OA\Items(ref: '#/components/schemas/galactapedia_related_article'),
         ),
+        new OA\Property(property: 'related_articles_count', description: 'Number of related articles (present when sorting by related_articles_count)', type: 'integer', nullable: true),
         new OA\Property(
             property: 'translations',
             oneOf: [

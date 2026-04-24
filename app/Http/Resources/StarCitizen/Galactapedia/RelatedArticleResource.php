@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactpedia_related_article',
+    schema: 'galactapedia_related_article',
     title: 'Galactapedia related article',
     description: 'Related article for this galactapedia article',
     properties: [
