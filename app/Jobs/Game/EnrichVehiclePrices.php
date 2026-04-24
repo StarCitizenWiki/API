@@ -97,7 +97,7 @@ class EnrichVehiclePrices implements ShouldQueue
                 continue;
             }
 
-            $uexUuid = $reverseMap->get($wikiUuid, $wikiUuid);
+            $uexUuid = $reverseMap->get($wikiUuid, $wikiUuid) ?? $wikiUuid;
 
             $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
