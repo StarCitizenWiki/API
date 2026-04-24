@@ -15,6 +15,7 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\SitemapIndex;
 use Spatie\Sitemap\Tags\Url;
@@ -67,6 +68,8 @@ class GenerateSitemap extends Command
             return self::FAILURE;
         }
 
+        File::ensureDirectoryExists(storage_path('app/sitemaps'));
+
         foreach ($segments as $segment) {
             $this->info("Generating sitemap segment: {$segment}");
             $this->generateSegment($segment);
@@ -98,7 +101,7 @@ class GenerateSitemap extends Command
             'celestial-objects' => $this->addCelestialObjects($sitemap),
         };
 
-        $sitemap->writeToFile(public_path(self::SITEMAP_FILES[$segment]));
+        $sitemap->writeToFile(storage_path('app/sitemaps/'.self::SITEMAP_FILES[$segment]));
     }
 
     private function generateIndex(): void
@@ -106,12 +109,12 @@ class GenerateSitemap extends Command
         $index = SitemapIndex::create();
 
         foreach (self::SITEMAP_FILES as $file) {
-            if (file_exists(public_path($file))) {
-                $index->add(url($file));
+            if (file_exists(storage_path('app/sitemaps/'.$file))) {
+                $index->add(url('sitemaps/'.$file));
             }
         }
 
-        $index->writeToFile(public_path('sitemap.xml'));
+        $index->writeToFile(storage_path('app/sitemaps/sitemap.xml'));
     }
 
     private function addStaticUrls(Sitemap $sitemap): void

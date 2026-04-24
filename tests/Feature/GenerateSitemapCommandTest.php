@@ -19,7 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 afterEach(function (): void {
-    foreach (glob(public_path('sitemap*.xml')) as $file) {
+    foreach (glob(storage_path('app/sitemaps/sitemap*.xml')) as $file) {
         unlink($file);
     }
 });
@@ -46,7 +46,7 @@ it('generates all sitemap segments when no --only flag is provided', function ()
         'sitemap-starsystems.xml',
         'sitemap-celestial-objects.xml',
     ] as $file) {
-        expect(public_path($file))->toBeFile();
+        expect(storage_path('app/sitemaps/'.$file))->toBeFile();
     }
 });
 
@@ -57,10 +57,10 @@ it('generates only specified segments with --only flag', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'comm-links'])
         ->assertExitCode(Command::SUCCESS);
 
-    expect(public_path('sitemap-comm-links.xml'))->toBeFile();
-    expect(public_path('sitemap.xml'))->toBeFile();
-    expect(public_path('sitemap-static.xml'))->not->toBeFile();
-    expect(public_path('sitemap-galactapedia.xml'))->not->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-comm-links.xml'))->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap.xml'))->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-static.xml'))->not->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-galactapedia.xml'))->not->toBeFile();
 });
 
 it('generates multiple segments with comma-separated --only flag', function (): void {
@@ -71,9 +71,9 @@ it('generates multiple segments with comma-separated --only flag', function (): 
     $this->artisan('sitemap:generate', ['--only' => 'comm-links,galactapedia'])
         ->assertExitCode(Command::SUCCESS);
 
-    expect(public_path('sitemap-comm-links.xml'))->toBeFile();
-    expect(public_path('sitemap-galactapedia.xml'))->toBeFile();
-    expect(public_path('sitemap-static.xml'))->not->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-comm-links.xml'))->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-galactapedia.xml'))->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-static.xml'))->not->toBeFile();
 });
 
 it('fails with invalid segment names', function (): void {
@@ -88,17 +88,17 @@ it('generates sitemap index linking to all segment files', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'static,comm-links'])
         ->assertExitCode(Command::SUCCESS);
 
-    $indexContent = file_get_contents(public_path('sitemap.xml'));
+    $indexContent = file_get_contents(storage_path('app/sitemaps/sitemap.xml'));
 
-    expect($indexContent)->toContain('sitemap-static.xml');
-    expect($indexContent)->toContain('sitemap-comm-links.xml');
+    expect($indexContent)->toContain('sitemaps/sitemap-static.xml');
+    expect($indexContent)->toContain('sitemaps/sitemap-comm-links.xml');
 });
 
 it('includes static routes in the static sitemap', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'static'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-static.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-static.xml'));
 
     expect($content)->toContain(route('home'));
     expect($content)->toContain(route('web.comm-links.index'));
@@ -114,7 +114,7 @@ it('includes comm-link URLs using cig_id', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'comm-links'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-comm-links.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-comm-links.xml'));
 
     expect($content)->toContain(route('web.comm-links.show', $commLink->cig_id));
 });
@@ -128,7 +128,7 @@ it('excludes subscriber-only comm-links', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'comm-links'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-comm-links.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-comm-links.xml'));
 
     expect($content)->toContain(route('web.comm-links.show', $public->cig_id));
     expect($content)->not->toContain('<loc>'.count(CommLink::withoutGlobalScope('limit_subscriber')->get()).'</loc>');
@@ -141,7 +141,7 @@ it('excludes disabled galactapedia articles', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'galactapedia'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-galactapedia.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-galactapedia.xml'));
 
     expect($content)->toContain(route('web.galactapedia.show', $enabled->cig_id));
     $disabled = Article::where('disabled', true)->first();
@@ -154,7 +154,7 @@ it('includes game vehicles with slug in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'vehicles'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-vehicles.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-vehicles.xml'));
 
     expect($content)->toContain(route('web.vehicles.show', $vehicle->slug));
 });
@@ -165,7 +165,7 @@ it('includes items with slug in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'items'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-items.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
 
     expect($content)->toContain(route('web.items.show', $item->slug));
 });
@@ -176,7 +176,7 @@ it('includes items with uuid fallback when slug is null', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'items'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-items.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
 
     expect($content)->toContain(route('web.items.show', $item->uuid));
 });
@@ -187,7 +187,7 @@ it('includes blueprints with slug in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'blueprints'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-blueprints.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-blueprints.xml'));
 
     expect($content)->toContain(route('web.blueprints.show', $blueprint->slug));
 });
@@ -198,7 +198,7 @@ it('includes blueprints with uuid fallback when slug is null', function (): void
     $this->artisan('sitemap:generate', ['--only' => 'blueprints'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-blueprints.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-blueprints.xml'));
 
     expect($content)->toContain(route('web.blueprints.show', $blueprint->uuid));
 });
@@ -209,7 +209,7 @@ it('includes commodities with slug in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'commodities'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-commodities.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-commodities.xml'));
 
     expect($content)->toContain(route('web.commodities.show', $commodity->slug));
 });
@@ -220,7 +220,7 @@ it('includes commodities with uuid fallback when slug is null', function (): voi
     $this->artisan('sitemap:generate', ['--only' => 'commodities'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-commodities.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-commodities.xml'));
 
     expect($content)->toContain(route('web.commodities.show', $commodity->uuid));
 });
@@ -231,7 +231,7 @@ it('includes missions with slug in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'missions'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-missions.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-missions.xml'));
 
     expect($content)->toContain(route('web.missions.show', $mission->slug));
 });
@@ -242,7 +242,7 @@ it('includes starmap locations with uuid when slug is null', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'locations'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-locations.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-locations.xml'));
 
     expect($content)->toContain(route('web.locations.show', $location->uuid));
 });
@@ -253,7 +253,7 @@ it('includes starsystems with code in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'starsystems'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-starsystems.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-starsystems.xml'));
 
     expect($content)->toContain(route('web.starmap.systems.show', $system->code));
 });
@@ -264,7 +264,7 @@ it('includes celestial objects with code in URLs', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'celestial-objects'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-celestial-objects.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-celestial-objects.xml'));
 
     expect($content)->toContain(route('web.starmap.celestial-objects.show', $object->code));
 });
@@ -275,7 +275,7 @@ it('sets priority 1.0 for game data segments', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'items'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-items.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
 
     expect($content)->toContain('<priority>1.0</priority>');
 });
@@ -287,7 +287,7 @@ it('sets priority 0.8 for comm-links and galactapedia', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'comm-links'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-comm-links.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-comm-links.xml'));
 
     expect($content)->toContain('<priority>0.8</priority>');
 });
@@ -298,7 +298,7 @@ it('sets priority 0.5 for starmap segments', function (): void {
     $this->artisan('sitemap:generate', ['--only' => 'starsystems'])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(public_path('sitemap-starsystems.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-starsystems.xml'));
 
     expect($content)->toContain('<priority>0.5</priority>');
 });

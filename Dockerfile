@@ -106,5 +106,7 @@ COPY --from=frontend --chown=www-data:www-data /var/www/html/public/build /var/w
 
 COPY --chown=www-data:www-data --chmod=770 ./docker/start.sh /usr/local/bin/start
 
+RUN php artisan storage:link
+
 USER www-data
 CMD ["/usr/local/bin/start"]
