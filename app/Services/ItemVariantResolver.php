@@ -429,8 +429,8 @@ class ItemVariantResolver
     {
         $tags = $this->extractStdItemTags($itemData);
 
-        if (array_any($tags, fn($tag) => preg_match('/^color_(\d+)$/i', $tag, $matches) === 1)) {
-            return (int)$matches[1];
+        if (array_any($tags, fn ($tag) => preg_match('/^color_(\d+)$/i', $tag, $matches) === 1)) {
+            return (int) $matches[1];
         }
 
         return null;

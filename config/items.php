@@ -310,11 +310,11 @@ return [
                 'frozen' => true,
             ],
             [
-                'title' => 'Class Name',
-                'field' => 'class_name',
+                'title' => 'Rarity',
+                'field' => 'rarity',
                 'headerSort' => true,
-                'headerFilter' => 'input',
-                'minWidth' => 220,
+                'headerFilter' => 'list',
+                'width' => 120,
             ],
             [
                 'title' => 'Manufacturer',
@@ -349,7 +349,13 @@ return [
                 'headerFilter' => 'list',
                 'minWidth' => 220,
             ],
-
+            [
+                'title' => 'Class Name',
+                'field' => 'class_name',
+                'headerSort' => true,
+                'headerFilter' => 'input',
+                'minWidth' => 220,
+            ],
             [
                 'title' => 'API Url',
                 'field' => 'uuid',
@@ -369,6 +375,7 @@ return [
             'type' => 'type',
             'sub_type_label' => 'sub_type',
             'classification_label' => 'classification',
+            'rarity' => 'rarity',
             'size' => 'size',
             'grade' => 'grade',
             'class' => 'class',

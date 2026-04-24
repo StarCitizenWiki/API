@@ -77,14 +77,14 @@ final class ItemTableConfig
             $columns = $this->removeColumns($columns, ['type']);
         }
 
-        // Enrich all columns with sortField from sorts configuration
+        $columns = $this->moveColumnBefore($columns, 'class_name', 'uuid');
+
         $sortsConfig = $this->getSortsConfig();
-        $columns = array_map(
+
+        return array_map(
             fn (array $column): array => $this->enrichColumn($column, $sortsConfig),
             $columns
         );
-
-        return $columns;
     }
 
     private function headerFilterOptionsMapForType(?string $type): array
@@ -288,6 +288,32 @@ final class ItemTableConfig
     private function isPositiveInsertAt(?int $insertAt): bool
     {
         return $insertAt !== null && $insertAt > 0;
+    }
+
+    /**
+     * Move a column so it appears right before another target column.
+     *
+     * @param  array<int, array<string, mixed>>  $columns
+     * @return array<int, array<string, mixed>>
+     */
+    private function moveColumnBefore(array $columns, string $field, string $beforeField): array
+    {
+        $sourceIndex = array_find_key($columns, fn (array $c) => ($c['field'] ?? null) === $field);
+        $targetIndex = array_find_key($columns, fn (array $c) => ($c['field'] ?? null) === $beforeField);
+
+        if ($sourceIndex === null || $targetIndex === null || $sourceIndex === $targetIndex - 1) {
+            return $columns;
+        }
+
+        $column = $columns[$sourceIndex];
+        unset($columns[$sourceIndex]);
+        $columns = array_values($columns);
+
+        $targetIndex = array_find_key($columns, fn (array $c) => ($c['field'] ?? null) === $beforeField);
+
+        array_splice($columns, $targetIndex, 0, [$column]);
+
+        return $columns;
     }
 
     /**

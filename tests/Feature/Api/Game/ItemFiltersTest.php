@@ -101,6 +101,9 @@ it('returns item filter values with counts', function (): void {
                     ['value' => 'Acme', 'label' => 'Acme', 'count' => 1],
                     ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
                 ],
+                'rarity' => [
+                    ['value' => null, 'label' => 'Unknown', 'count' => 2],
+                ],
             ],
         ]);
 });
@@ -175,6 +178,9 @@ it('filters item filter values by category', function (): void {
                 'manufacturer' => [
                     ['value' => 'Category Co', 'label' => 'Category Co', 'count' => 1],
                 ],
+                'rarity' => [
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
+                ],
             ],
         ]);
 });
@@ -248,6 +254,9 @@ it('filters item filter values by type', function (): void {
                 ],
                 'manufacturer' => [
                     ['value' => 'Type Co', 'label' => 'Type Co', 'count' => 1],
+                ],
+                'rarity' => [
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
             ],
         ]);

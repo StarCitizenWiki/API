@@ -99,6 +99,14 @@ use OpenApi\Attributes as OA;
             example: 1000.0,
             nullable: true
         ),
+        new OA\Property(
+            property: 'rarity',
+            description: 'Item rarity from stdItem.Rarity. Only present when the item has rarity data.',
+            type: 'string',
+            enum: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'],
+            example: 'Common',
+            nullable: true,
+        ),
         new OA\Property(property: 'is_base_variant', type: 'boolean'),
         new OA\Property(property: 'is_craftable', type: 'boolean'),
         new OA\Property(
@@ -500,6 +508,9 @@ class ItemResource extends AbstractBaseResource
             'description' => $this->getTranslation($itemData->item, $request),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'Rarity'), [
+                'rarity' => $this->extractString($itemData, 'Rarity'),
+            ]),
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
             $this->mergeWhen($itemData->is_craftable, [

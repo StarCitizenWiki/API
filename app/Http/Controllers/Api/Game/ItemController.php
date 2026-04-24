@@ -97,6 +97,7 @@ class ItemController extends Controller
                     'classification',
                     AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                     AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
+                    $this->jsonSort('rarity', 'stdItem.Rarity', 'text'),
                 ],
                 $this->allowedJsonSorts()
             ))
@@ -153,6 +154,9 @@ class ItemController extends Controller
             AllowedFilter::exact('size'),
             AllowedFilter::exact('grade'),
             AllowedFilter::exact('class'),
+            AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
+                $this->applyJsonFilter($query, 'stdItem.Rarity', $value);
+            }),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -349,6 +353,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
+            new OA\Parameter(name: 'filter[rarity]', description: 'Item rarity. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Rare')),
         ],
         responses: [
             new OA\Response(
@@ -675,6 +680,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[size]', description: 'Narrow facets to items with this size.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Narrow facets to items with this grade.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[class]', description: 'Narrow facets to items with this class.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
+            new OA\Parameter(name: 'filter[rarity]', description: 'Narrow facets to items with this rarity.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Rare')),
         ],
         responses: [
             new OA\Response(
@@ -692,6 +698,7 @@ class ItemController extends Controller
                                 new OA\Property(property: 'grade', description: 'Item grades (1–7, mapped A–G)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'class', description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'manufacturer', description: 'Manufacturer names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'rarity', description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -754,6 +761,10 @@ class ItemController extends Controller
                 ],
                 'class' => [
                     'expr' => 'game_item_data.class',
+                    'cast' => null,
+                ],
+                'rarity' => [
+                    'expr' => $this->jsonExpression('stdItem.Rarity'),
                     'cast' => null,
                 ],
                 'manufacturer' => [
