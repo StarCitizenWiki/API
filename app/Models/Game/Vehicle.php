@@ -21,6 +21,10 @@ class Vehicle extends Model
         'slug',
     ];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     public function data(): HasMany
     {
         return $this->hasMany(VehicleData::class);

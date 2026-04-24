@@ -25,6 +25,10 @@ class Item extends Model
         'translation',
     ];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     public function getRouteKeyName()
     {
         return 'uuid';
