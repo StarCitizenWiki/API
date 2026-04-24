@@ -192,7 +192,9 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'name', description: 'Item display name.', type: 'string'),
                     new OA\Property(property: 'uuid', description: 'UUID of the item entity.', type: 'string', format: 'uuid', nullable: true),
                     new OA\Property(property: 'type', description: 'Item type classification.', type: 'string', nullable: true),
+                    new OA\Property(property: 'type_label', description: 'Human-readable label for the item type.', type: 'string', nullable: true),
                     new OA\Property(property: 'sub_type', description: 'Item sub-type classification.', type: 'string', nullable: true),
+                    new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type.', type: 'string', nullable: true),
                     new OA\Property(property: 'size', description: 'Item size grade.', type: 'integer', nullable: true),
                     new OA\Property(property: 'web_url', description: 'Frontend URL for the item page.', type: 'string', format: 'uri', nullable: true),
                     new OA\Property(property: 'link', description: 'API link to the item details.', type: 'string', format: 'uri', nullable: true),
@@ -221,6 +223,7 @@ class CommodityShowResource extends CommodityIndexResource
         $locations = $this->buildDetailedLocations($resourceDataCollection, $this->id);
         $groupNames = $this->extractGroupNames($resourceDataCollection);
         ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
+        $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
         return [
             'uuid' => $this->uuid,
@@ -256,7 +259,7 @@ class CommodityShowResource extends CommodityIndexResource
             'has_salvage' => $hasSalvage,
 
             'signature' => ($sig = $resourceDataCollection->first()?->signature) !== null && $sig > 0 ? $sig : null,
-            'kind' => ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind instanceof ResourceKind ? $first->locations->first()->resource_kind->value : ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null,
+            'kind' => empty($kind) ? null : $kind,
             'methods' => $this->buildMethodsFromFlags($hasShip, $hasGround, $hasFps, $hasHarvestable, $hasSalvage),
             'systems' => $this->buildSystems($locations),
             'locations' => $locations,
@@ -297,7 +300,9 @@ class CommodityShowResource extends CommodityIndexResource
                     'name' => $itemData->name,
                     'uuid' => $itemData->item?->uuid,
                     'type' => $itemData->type,
+                    'type_label' => $itemData->type_label,
                     'sub_type' => $itemData->sub_type,
+                    'sub_type_label' => $itemData->sub_type_label,
                     'size' => $itemData->size,
                     'web_url' => $itemData->item?->uuid
                         ? $this->urlWithVersion(

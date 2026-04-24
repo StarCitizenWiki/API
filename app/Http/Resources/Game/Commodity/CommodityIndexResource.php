@@ -122,6 +122,8 @@ class CommodityIndexResource extends AbstractBaseResource
         $groupNames = $this->extractGroupNames($resourceDataCollection);
         ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
 
+        $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
+
         return [
             'uuid' => $this->uuid,
             'key' => $this->key,
@@ -159,7 +161,7 @@ class CommodityIndexResource extends AbstractBaseResource
             'has_salvage' => $hasSalvage,
 
             'signature' => ($sig = $resourceDataCollection->first()?->signature) !== null && $sig > 0 ? $sig : null,
-            'kind' => ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null,
+            'kind' => empty($kind) ? null : $kind,
             'methods' => $this->buildMethodsFromFlags($hasShip, $hasGround, $hasFps, $hasHarvestable, $hasSalvage),
             'systems' => $this->buildSystems($locations),
             'locations' => $locations,

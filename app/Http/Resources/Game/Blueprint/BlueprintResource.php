@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Blueprint;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatDuration;
 use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', description: 'Display name of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'class', description: 'Internal class identifier of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'type', description: 'Type category of the crafted item (e.g. WeaponPersonal, Char_Armor_Torso)', type: 'string', nullable: true),
+        new OA\Property(property: 'type_label', description: 'Human-readable label for the type', type: 'string', nullable: true),
         new OA\Property(property: 'subtype', description: 'Sub-type classification of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'grade', description: 'Grade or quality tier of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'item_web_url', description: 'Web URL for the crafted item detail page', type: 'string', format: 'uri', nullable: true),
@@ -418,11 +420,14 @@ class BlueprintResource extends AbstractBaseResource
 
         $uuid = $this->arrayNullableString($output, 'UUID') ?? $this->arrayNullableString($output, 'uuid') ?? $this->nullableString($this->output_item_uuid);
 
+        $type = $this->arrayNullableString($output, 'Type') ?? $this->arrayNullableString($output, 'type');
+
         return [
             'uuid' => $uuid,
             'name' => $this->arrayNullableString($output, 'Name') ?? $this->arrayNullableString($output, 'name') ?? $this->nullableString($this->output_name),
             'class' => $this->arrayNullableString($output, 'Class') ?? $this->arrayNullableString($output, 'class') ?? $this->nullableString($this->output_class),
-            'type' => $this->arrayNullableString($output, 'Type') ?? $this->arrayNullableString($output, 'type'),
+            'type' => $type,
+            'type_label' => ItemFilterLabel::resolveType($type, null),
             'subtype' => $this->arrayNullableString($output, 'Subtype') ?? $this->arrayNullableString($output, 'subtype'),
             'grade' => $this->arrayNullableString($output, 'Grade') ?? $this->arrayNullableString($output, 'grade'),
             'item_web_url' => $uuid !== null && Str::isUuid($uuid)

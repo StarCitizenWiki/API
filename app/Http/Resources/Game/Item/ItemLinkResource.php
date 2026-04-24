@@ -22,8 +22,11 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'name', type: 'string'),
                 new OA\Property(property: 'class_name', type: 'string', example: '987_jacket_03_01_04'),
                 new OA\Property(property: 'type', type: 'string'),
+                new OA\Property(property: 'type_label', description: 'Human-readable label for the item type', type: 'string', nullable: true),
                 new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+                new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type', type: 'string', nullable: true),
                 new OA\Property(property: 'classification', type: 'string', example: 'FPS.Clothing.Torso', nullable: true),
+                new OA\Property(property: 'classification_label', description: 'Human-readable label for the item classification', type: 'string', nullable: true),
                 new OA\Property(property: 'is_base_variant', type: 'boolean'),
                 new OA\Property(property: 'variant_name', description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"', type: 'string', nullable: true),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
@@ -55,8 +58,11 @@ class ItemLinkResource extends AbstractBaseResource
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
             'type' => $itemData->type,
+            'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
+            'sub_type_label' => $itemData->sub_type_label,
             'classification' => $itemData->classification,
+            'classification_label' => $itemData->classification_label,
             'is_base_variant' => $itemData->base_id === null,
             'variant_name' => $itemData->relationLoaded('variantGroupItem') && $itemData->variantGroupItem !== null
                 ? $itemData->variantGroupItem->variant_name

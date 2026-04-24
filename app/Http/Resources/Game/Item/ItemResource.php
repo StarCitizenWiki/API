@@ -72,6 +72,7 @@ use OpenApi\Attributes as OA;
             type: 'string',
             example: 'FPS.Clothing.Torso'
         ),
+        new OA\Property(property: 'classification_label', description: 'Human-readable label for the item classification', type: 'string', nullable: true),
         new OA\Property(
             property: 'description',
             nullable: true,
@@ -137,8 +138,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link', nullable: true),
 
         new OA\Property(property: 'type', description: 'AttachDef@Type (NOITEM_ prefix removed)', type: 'string', nullable: true),
+        new OA\Property(property: 'type_label', description: 'Human-readable label for the item type', type: 'string', nullable: true),
         new OA\Property(property: 'type_web_url', description: 'Web URL for filtering items by type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', description: 'AttachDef@SubType', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type', type: 'string', nullable: true),
 
         // Attachment convenience (WeaponAttachment only)
         new OA\Property(
@@ -315,6 +318,25 @@ use OpenApi\Attributes as OA;
         ),
 
         new OA\Property(
+            property: 'images',
+            description: 'Images from external sources for this item.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'source', description: 'Image source identifier', type: 'string', example: 'starcitizen.tools'),
+                    new OA\Property(property: 'thumbnail_url', type: 'string', nullable: true),
+                    new OA\Property(property: 'thumbnail_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'thumbnail_height', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_url', type: 'string', nullable: true),
+                    new OA\Property(property: 'original_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_height', type: 'integer', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
+
+        new OA\Property(
             property: 'uex_prices',
             description: 'Item prices from UEX Corp API.',
             type: 'array',
@@ -386,8 +408,11 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'class_name', type: 'string', nullable: true),
         new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'type_label', description: 'Human-readable label for the item type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type', type: 'string', nullable: true),
         new OA\Property(property: 'classification', type: 'string', nullable: true),
+        new OA\Property(property: 'classification_label', description: 'Human-readable label for the item classification', type: 'string', nullable: true),
         new OA\Property(property: 'is_base_variant', type: 'boolean'),
         new OA\Property(property: 'variant_name', type: 'string', nullable: true),
         new OA\Property(
@@ -471,6 +496,7 @@ class ItemResource extends AbstractBaseResource
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
             'classification' => $itemData->classification,
+            'classification_label' => $itemData->classification_label,
             'description' => $this->getTranslation($itemData->item, $request),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
@@ -491,8 +517,10 @@ class ItemResource extends AbstractBaseResource
                 ? new ManufacturerLinkResource($itemData->manufacturer)
                 : null,
             'type' => $type,
+            'type_label' => $itemData->type_label,
             'type_web_url' => $this->buildTypeWebUrl($type, $request),
             'sub_type' => $itemData->sub_type,
+            'sub_type_label' => $itemData->sub_type_label,
             $this->mergeWhen(...$this->addAttachmentPosition($itemData)),
             $this->mergeWhen($this->isTurret($itemData), $this->addTurretData($itemData)),
             $this->mergeWhen(...$this->addSpecification($itemData)),
@@ -550,6 +578,7 @@ class ItemResource extends AbstractBaseResource
             ]),
 
             'shops' => [],
+            'images' => $this->item->images ?? [],
             'uex_prices' => $this->expandUexPrices($itemData),
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
                 'base_variant' => new ItemLinkResource($itemData->baseVariant),
