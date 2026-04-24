@@ -20,24 +20,24 @@ class FactionController extends Controller
 {
     #[OA\Get(
         path: '/api/factions',
-        description: 'Returns paginated factions with optional filtering.',
+        description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded.',
         summary: 'List Factions',
         tags: ['In-Game', 'Factions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[faction_type]', in: 'query', schema: new OA\Schema(type: 'string', example: 'Lawful')),
-            new OA\Parameter(name: 'filter[has_reputation]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[lawful]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[is_npc]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[hide_in_delphi_app]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[query]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[faction_type]', description: 'Category of faction', in: 'query', schema: new OA\Schema(type: 'string', example: 'Lawful')),
+            new OA\Parameter(name: 'filter[has_reputation]', description: 'When true, only factions with a reputation system are returned', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[lawful]', description: 'When true, only lawful factions are returned', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[is_npc]', description: 'When true, only NPC-controlled factions are returned', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[hide_in_delphi_app]', description: 'When true, only factions hidden from the Delphi app are returned', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[query]', description: 'Search factions by name or description', in: 'query', schema: new OA\Schema(type: 'string', example: 'ArcCorp')),
             new OA\Parameter(
                 name: 'sort',
                 description: 'Sort field. Prefix with "-" for descending. Supported: name, faction_type.',
                 in: 'query',
-                schema: new OA\Schema(type: 'string', example: 'name'),
+                schema: new OA\Schema(type: 'string', example: '-name'),
             ),
         ],
         responses: [
@@ -66,7 +66,7 @@ class FactionController extends Controller
 
     #[OA\Get(
         path: '/api/factions/{faction}',
-        description: 'Returns full details for a single faction, including reputation ladder when included.',
+        description: 'Returns full details for a single faction, including reputation ladder with standings when the faction has a reputation system. Factions hidden from the Delphi app are excluded.',
         summary: 'Get Faction Detail',
         tags: ['In-Game', 'Factions'],
         parameters: [
