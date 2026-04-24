@@ -125,8 +125,7 @@ final class CommodityTableConfig
                     ],
                     'headerFilter' => 'list',
                     'headerSort' => false,
-                    'minWidth' => 280,
-                    'maxWidth' => '80%',
+                    'width' => 280,
                 ],
                 [
                     'title' => 'Density',

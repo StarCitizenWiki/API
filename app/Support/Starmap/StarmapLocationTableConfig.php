@@ -135,8 +135,7 @@ final class StarmapLocationTableConfig
                     ],
                     'headerSort' => false,
                     'headerFilter' => 'list',
-                    'minWidth' => 220,
-                    'maxWidth' => '80%',
+                    'width' => 220,
                 ],
                 [
                     'title' => 'Scannable',

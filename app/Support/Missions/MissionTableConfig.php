@@ -122,8 +122,7 @@ final class MissionTableConfig
                         'labelField' => 'name',
                     ],
                     'headerSort' => false,
-                    'minWidth' => 160,
-                    'maxWidth' => 200,
+                    'width' => 200,
                 ],
                 [
                     'title' => 'Reward',
