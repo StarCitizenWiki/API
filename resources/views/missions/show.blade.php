@@ -80,6 +80,7 @@
             :route="$indexRoute"
             placeholder="Search mission titles"
             variant="minimal"
+            apiEndpoint="/api/missions"
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">

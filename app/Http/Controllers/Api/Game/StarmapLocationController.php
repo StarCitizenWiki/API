@@ -148,6 +148,15 @@ class StarmapLocationController extends Controller
             AllowedFilter::callback('has_resources', $hasResourcesFilter),
             AllowedFilter::callback('resource', $resourceFilter),
             AllowedFilter::callback('hide_minor_locations', $hideMinorLocationsFilter),
+            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $query->where(static function (Builder $q) use ($value): void {
+                    $q->whereLike('game_starmap_location_data.name', '%'.$value.'%');
+                });
+            }),
         ];
     }
 
@@ -255,6 +264,12 @@ class StarmapLocationController extends Controller
                 description: 'Partial match on location name.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', example: 'Aberdeen')
+            ),
+            new OA\Parameter(
+                name: 'filter[query]',
+                description: 'Search locations by name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'ArcCorp')
             ),
             new OA\Parameter(
                 name: 'filter[type_name]',
@@ -449,6 +464,12 @@ class StarmapLocationController extends Controller
                 description: 'Partial match on location name.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', example: 'Aberdeen')
+            ),
+            new OA\Parameter(
+                name: 'filter[query]',
+                description: 'Search locations by name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'ArcCorp')
             ),
             new OA\Parameter(
                 name: 'filter[type_name]',

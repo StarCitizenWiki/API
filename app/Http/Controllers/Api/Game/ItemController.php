@@ -154,6 +154,16 @@ class ItemController extends Controller
             AllowedFilter::exact('grade'),
             AllowedFilter::exact('class'),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
+            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $query->where(static function (Builder $q) use ($value): void {
+                    $q->whereLike('game_item_data.name', '%'.$value.'%')
+                        ->orWhereLike('game_item_data.class_name', '%'.$value.'%');
+                });
+            }),
         ];
     }
 
@@ -172,6 +182,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on item class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
         ],
@@ -193,6 +204,7 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Clark Defense Systems')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Iron Sight')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Iron Sight')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 1)),
         ],
         responses: [
@@ -214,6 +226,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Stegman\'s')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Jacket')),
             new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Clothing). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Clothing.Torso')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Jacket')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Clothes', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -234,6 +247,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Clark Defense Systems')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Core')),
             new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Core')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Armor', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -253,6 +267,7 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'TDD')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Burger')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Burger')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Food Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -272,6 +287,7 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/sort'),
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cannon')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cannon')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
         ],
         responses: [
@@ -294,6 +310,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Shield')),
             new OA\Parameter(name: 'filter[type]', description: 'Exact match on item type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cooler')),
             new OA\Parameter(name: 'filter[sub_type]', description: 'Exact match on item sub-type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Default')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Shield')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -327,6 +344,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Same as filter[manufacturer]. Accepts comma-separated values for OR matching.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on item class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
             new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
@@ -652,6 +670,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Same as filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Narrow facets to items with matching class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
             new OA\Parameter(name: 'filter[name]', description: 'Narrow facets to items with matching name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[query]', description: 'Narrow facets to items matching name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
             new OA\Parameter(name: 'filter[classification]', description: 'Narrow facets to items with matching classification.', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
             new OA\Parameter(name: 'filter[size]', description: 'Narrow facets to items with this size.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Narrow facets to items with this grade.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),

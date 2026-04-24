@@ -4,6 +4,7 @@
     'route',
     'placeholder',
     'variant' => 'prominent',
+    'apiEndpoint',
 ])
 
 @if ($variant === 'minimal')
@@ -23,6 +24,9 @@
                         name="filter[name]"
                         class="grow text-sm"
                         placeholder="{{ $placeholder }}"
+                        data-live-search
+                        data-api-endpoint="{{ $apiEndpoint }}"
+                        autocomplete="off"
                     />
                 </label>
                 <button class="btn btn-secondary join-item px-4 sm:shrink-0" type="submit">Search</button>
@@ -46,6 +50,9 @@
                         name="filter[name]"
                         class="w-full"
                         placeholder="{{ $placeholder }}"
+                        data-live-search
+                        data-api-endpoint="{{ $apiEndpoint }}"
+                        autocomplete="off"
                     />
                 </label>
                 <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>

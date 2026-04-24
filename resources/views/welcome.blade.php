@@ -29,6 +29,7 @@
                 description="Find items by name across the universe database."
                 :route="route('web.items.index')"
                 placeholder="Search item names"
+                apiEndpoint="/api/items"
             />
         </div>
 

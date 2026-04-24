@@ -70,6 +70,7 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Alias for filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on vehicle class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'NOBI')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on vehicle display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6).', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size].', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Ground Combat')),
@@ -123,6 +124,7 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Alias for filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Argo Astronautics')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on vehicle class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Dragonfly')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on vehicle display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Dragonfly')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Dragonfly')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6).', in: 'query', schema: new OA\Schema(type: 'integer', example: 1)),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size].', in: 'query', schema: new OA\Schema(type: 'integer', example: 1)),
             new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Exploration')),
@@ -176,6 +178,7 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Alias for filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on vehicle class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'NOBI')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on vehicle display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6).', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size].', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Exploration')),
@@ -442,6 +445,7 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name.', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[size_class]', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[career]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -732,6 +736,16 @@ class VehicleController extends Controller
             }),
             AllowedFilter::callback('signature.em_shields', function (Builder $query, mixed $value): void {
                 $this->applyJsonFilter($query, 'Emission.EmShields', $value, 'numeric');
+            }),
+            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $query->where(static function (Builder $q) use ($value): void {
+                    $q->whereLike('game_vehicle_data.name', '%'.$value.'%')
+                        ->orWhereLike('game_vehicle_data.class_name', '%'.$value.'%');
+                });
             }),
         ];
     }

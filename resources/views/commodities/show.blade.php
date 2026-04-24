@@ -64,6 +64,7 @@
             :route="$indexRoute"
             placeholder="Search resource names"
             variant="minimal"
+            apiEndpoint="/api/commodities"
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">

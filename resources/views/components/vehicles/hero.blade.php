@@ -33,6 +33,11 @@
         ?? data_get(data_get($vehicle, 'images', []), '0.original_url');
     $fullImageUrl = data_get(data_get($vehicle, 'images', []), '0.original_url');
     $imageSource = data_get(data_get($vehicle, 'images', []), '0.source');
+    $imageWidth = data_get(data_get($vehicle, 'images', []), '0.thumbnail_width')
+        ?? data_get(data_get($vehicle, 'images', []), '0.original_width');
+    $imageHeight = data_get(data_get($vehicle, 'images', []), '0.thumbnail_height')
+        ?? data_get(data_get($vehicle, 'images', []), '0.original_height');
+    $isPortrait = $imageWidth !== null && $imageHeight !== null && $imageHeight > $imageWidth;
 
     if ($isGravlev) {
         $vehicleTypeIcon = 'drone';
@@ -44,11 +49,13 @@
         $vehicleTypeIcon = 'truck';
         $vehicleTypeLabel = 'Ground vehicle';
     }
+
+    $isPortrait = true;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow']) }}>
+<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'vehicle-hero']) }}>
     @if ($heroImage)
-        <div class="relative h-48 overflow-hidden rounded-t-box sm:h-56">
+        <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
                 <img src="{{ $heroImage }}" alt="{{ $vehicleName }}" class="h-full w-full object-cover" loading="lazy" />
             </a>
@@ -61,7 +68,7 @@
         </div>
     @endif
 
-    <div class="card-body gap-4 p-5 sm:p-6">
+    <div class="card-body gap-4 p-5 sm:p-6 {{ $isPortrait ? 'flex-1 min-w-0' : '' }}">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-1">
                 <div class="flex items-center gap-3">

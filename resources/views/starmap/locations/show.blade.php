@@ -268,6 +268,7 @@
             :route="$indexRoute"
             placeholder="Search location names"
             variant="minimal"
+            apiEndpoint="/api/locations"
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">

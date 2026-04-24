@@ -126,6 +126,7 @@
             :route="route('web.items.index')"
             placeholder="Search item names"
             variant="minimal"
+            apiEndpoint="/api/items"
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">

@@ -58,8 +58,9 @@
             title="Search vehicles"
             description="Find vehicles by name across the universe database."
             :route="route('web.vehicles.index')"
-            placeholder="Search Vehicles"
+            placeholder="Search vehicle names"
             variant="minimal"
+            apiEndpoint="/api/vehicles"
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">

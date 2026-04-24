@@ -1,5 +1,6 @@
 import "./bootstrap";
 import { initTabulatorTables } from "./tables/baseTable";
+import { initLiveSearch } from "./live-search";
 
 import { createIcons, icons } from 'lucide';
 
@@ -8,6 +9,7 @@ const darkTheme = window.AppThemes?.dark ?? 'night';
 
 document.addEventListener("DOMContentLoaded", () => {
     initTabulatorTables();
+    initLiveSearch();
     createIcons({icons});
 
     const themeToggles = document.querySelectorAll("[data-theme-toggle]");
