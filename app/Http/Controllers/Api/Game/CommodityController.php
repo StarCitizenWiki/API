@@ -42,7 +42,7 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities',
-        description: 'Returns paginated game commodities, optionally filtered to only those consumed by blueprints in the requested or default game version.',
+        description: 'Returns paginated game commodities with location data and resource metadata, optionally filtered to only those consumed by blueprints. Results include refined version info and starmap location data scoped to the requested or default game version.',
         summary: 'List Game Commodities',
         tags: ['In-Game', 'Commodities'],
         parameters: [
@@ -51,11 +51,30 @@ class CommodityController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
+                name: 'sort',
+                description: 'Sort field. Prefix with "-" for descending. Supported: key, name, rarity, density, instability, resistance, signature.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: '-rarity')
+            ),
+            new OA\Parameter(
                 name: 'filter[used]',
                 description: 'When true, only commodities used by blueprint ingredients in the requested or default game version are returned.',
                 in: 'query',
-                schema: new OA\Schema(type: 'boolean')
+                schema: new OA\Schema(type: 'boolean', example: true)
             ),
+            new OA\Parameter(name: 'filter[system]', description: 'Star system where the commodity can be found (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Stanton')),
+            new OA\Parameter(name: 'filter[type]', description: 'Location type name (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Planet')),
+            new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Epic')),
+            new OA\Parameter(name: 'filter[kind]', description: 'Resource kind (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'mineable')),
+            new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
+            new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name', in: 'query', schema: new OA\Schema(type: 'string', example: 'ArcCorp')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
+            new OA\Parameter(name: 'filter[ship]', description: 'When true, only show commodities mineable by ships', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[ground_vehicle]', description: 'When true, only show commodities mineable by ground vehicles', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[fps]', description: 'When true, only show commodities mineable on foot (FPS)', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[harvestable]', description: 'When true, only show commodities collectible from harvestable or plant deposits', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[salvage]', description: 'When true, only show commodities obtainable through salvage', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[mineable]', description: 'When true, only show mineable commodities; when false, only show non-mineable', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(
@@ -88,7 +107,7 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities/{commodity}',
-        description: 'Returns full details for a single game commodity including detailed location entries, composition, areas, and clustering data.',
+        description: 'Returns full details for a single game commodity including detailed location entries with starmap data, resource composition, areas, clustering data, and raw/refined version info. Optionally include related blueprints and items.',
         summary: 'Show Game Commodity',
         tags: ['In-Game', 'Commodities'],
         parameters: [
@@ -99,9 +118,16 @@ class CommodityController extends Controller
                 schema: new OA\Schema(
                     description: 'Commodity UUID or slug',
                     type: 'string',
+                    example: 'dc6fbcbb-5990-4ed5-82ee-93152dab7845',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(
+                name: 'include',
+                description: 'Comma-separated relationships to include. Available: blueprints (crafting blueprints that use this commodity), items (items that produce or require this commodity).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'blueprints,items')
+            ),
         ],
         responses: [
             new OA\Response(
@@ -153,25 +179,25 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities/filters',
-        description: 'Return all available filter values for game commodities.',
+        description: 'Returns all available filter values for game commodities, scoped to the requested or default game version. Filter values can be combined; providing a system filter will narrow the location facet to that system only.',
         summary: 'Game Commodity Filters',
         tags: ['In-Game', 'Commodities'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(name: 'filter[used]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[system]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[rarity]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[kind]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[refined_version]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[location]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[query]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[ship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[ground_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[fps]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[harvestable]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[salvage]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[mineable]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[used]', description: 'When true, filter facets to only commodities used by blueprint ingredients', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[system]', description: 'Star system where the commodity can be found', in: 'query', schema: new OA\Schema(type: 'string', example: 'Stanton')),
+            new OA\Parameter(name: 'filter[type]', description: 'Location type name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Planet')),
+            new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level', in: 'query', schema: new OA\Schema(type: 'string', example: 'Epic')),
+            new OA\Parameter(name: 'filter[kind]', description: 'Resource kind', in: 'query', schema: new OA\Schema(type: 'string', example: 'mineable')),
+            new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
+            new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name', in: 'query', schema: new OA\Schema(type: 'string', example: 'ArcCorp')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
+            new OA\Parameter(name: 'filter[ship]', description: 'When true, only show commodities mineable by ships', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[ground_vehicle]', description: 'When true, only show commodities mineable by ground vehicles', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[fps]', description: 'When true, only show commodities mineable on foot (FPS)', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[harvestable]', description: 'When true, only show commodities collectible from harvestable or plant deposits', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[salvage]', description: 'When true, only show commodities obtainable through salvage', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[mineable]', description: 'When true, only show mineable commodities; when false, only show non-mineable', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(
@@ -182,12 +208,12 @@ class CommodityController extends Controller
                         new OA\Property(
                             property: 'filters',
                             properties: [
-                                new OA\Property(property: 'system', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'type', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'rarity', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'kind', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'refined_version', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'location', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'system', description: 'Star systems where commodities can be found', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'type', description: 'Location type names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'rarity', description: 'Commodity tier/rarity levels', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'kind', description: 'Resource kinds', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'refined_version', description: 'Refined version names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'location', description: 'Starmap locations grouped by system', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -219,7 +245,11 @@ class CommodityController extends Controller
                     ->orderByRaw("{$expr} IS NULL, {$expr}")
                     ->get();
 
-                $out[$key] = FilterValues::fromRows($rows);
+                $labelResolver = $key === 'rarity'
+                    ? static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null
+                    : null;
+
+                $out[$key] = FilterValues::fromRows($rows, labelResolver: $labelResolver);
             }
 
             $locationFacets = [
@@ -243,7 +273,11 @@ class CommodityController extends Controller
                     ->orderByRaw("{$expr} IS NULL, {$expr}")
                     ->get();
 
-                $out[$key] = FilterValues::fromRows($rows);
+                $labelResolver = $key === 'kind'
+                    ? static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null
+                    : null;
+
+                $out[$key] = FilterValues::fromRows($rows, labelResolver: $labelResolver);
             }
 
             $locationQuery = clone $baseQuery;

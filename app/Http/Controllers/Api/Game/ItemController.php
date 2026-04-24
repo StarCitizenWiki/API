@@ -15,6 +15,7 @@ use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use App\Support\Filters\ItemClassificationLabel;
 use App\Support\Filters\ItemTypeLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -711,6 +712,7 @@ class ItemController extends Controller
                 'classification' => [
                     'expr' => 'game_item_data.classification',
                     'cast' => null,
+                    'labelResolver' => [ItemClassificationLabel::class, 'resolve'],
                 ],
                 'size' => [
                     'expr' => 'game_item_data.size',

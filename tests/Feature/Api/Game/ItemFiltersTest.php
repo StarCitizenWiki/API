@@ -82,7 +82,7 @@ it('returns item filter values with counts', function (): void {
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'classification' => [
-                    ['value' => 'FPS.Weapon', 'label' => 'FPS.Weapon', 'count' => 1],
+                    ['value' => 'FPS.Weapon', 'label' => 'Weapon', 'count' => 1],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'size' => [
@@ -235,7 +235,7 @@ it('filters item filter values by type', function (): void {
                     ['value' => 'Light', 'label' => 'Light', 'count' => 1],
                 ],
                 'classification' => [
-                    ['value' => 'FPS.Armor', 'label' => 'FPS.Armor', 'count' => 1],
+                    ['value' => 'FPS.Armor', 'label' => 'Armor', 'count' => 1],
                 ],
                 'size' => [
                     ['value' => 3, 'label' => '3', 'count' => 1],
@@ -350,4 +350,58 @@ it('treats item category-only and blank facet inputs as broad cache requests', f
 
     expect(Cache::get('filters:index:items'))->toBe([$foodKey])
         ->and(Cache::get($foodKey))->not->toBeNull();
+});
+
+it('resolves classification labels correctly', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '3.25.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Test Co',
+        'code' => 'TEST',
+    ]);
+
+    $classifications = [
+        ['classification' => 'FPS.Clothing.Torso', 'expected_label' => 'Jacket'],
+        ['classification' => 'FPS.Clothing.Legs', 'expected_label' => 'Pants'],
+        ['classification' => 'FPS.Clothing.Hat', 'expected_label' => 'Hat'],
+        ['classification' => 'FPS.Armor.Helmet', 'expected_label' => 'Helmet'],
+        ['classification' => 'FPS.Weapon.Large', 'expected_label' => 'Large Weapon'],
+        ['classification' => 'FPS.Weapon.Small', 'expected_label' => 'Small Weapon'],
+        ['classification' => 'Mining.Gadget', 'expected_label' => 'Mining Gadget'],
+        ['classification' => 'Mining.Module', 'expected_label' => 'Mining Module'],
+        ['classification' => 'Ship.Turret.BallTurret', 'expected_label' => 'Ball Turret'],
+        ['classification' => 'Ship.Weapon.Gun', 'expected_label' => 'Gun'],
+    ];
+
+    foreach ($classifications as $c) {
+        ItemData::factory()
+            ->for(Item::factory(), 'item')
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => fake()->word(),
+                'type' => 'Test',
+                'classification' => $c['classification'],
+                'size' => 1,
+                'grade' => 1,
+                'class' => 'A',
+                'data' => [],
+            ]);
+    }
+
+    $response = $this->getJson(route('items.filters'))
+        ->assertOk();
+
+    $classificationFilters = collect($response->json('filters.classification'));
+
+    foreach ($classifications as $c) {
+        $entry = $classificationFilters->first(fn (array $f) => $f['value'] === $c['classification']);
+        expect($entry)->not->toBeNull("Classification {$c['classification']} not found in filters")
+            ->and($entry['label'])->toBe($c['expected_label'], "Label for {$c['classification']}");
+    }
 });

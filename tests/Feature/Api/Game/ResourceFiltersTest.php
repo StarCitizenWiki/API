@@ -54,6 +54,11 @@ it('returns rarity facet from commodity data', function (): void {
     expect($rarities->where('value', 'common')->count())->toBe(1);
     expect($rarities->where('value', 'rare')->count())->toBe(1);
     expect($rarities->where('value', null)->count())->toBe(1);
+
+    $common = $rarities->firstWhere('value', 'common');
+    expect($common['label'])->toBe('Common');
+    $rare = $rarities->firstWhere('value', 'rare');
+    expect($rare['label'])->toBe('Rare');
 });
 
 it('returns system facet from linked starmap locations', function (): void {
@@ -97,7 +102,8 @@ it('returns kind facet from resource data', function (): void {
     $kinds = collect($response->json('filters.kind'));
     $mineable = $kinds->firstWhere('value', 'mineable');
     expect($mineable)->not->toBeNull()
-        ->and($mineable['count'])->toBe(1);
+        ->and($mineable['count'])->toBe(1)
+        ->and($mineable['label'])->toBe('Mineable');
 });
 
 it('returns refined_version facet', function (): void {
