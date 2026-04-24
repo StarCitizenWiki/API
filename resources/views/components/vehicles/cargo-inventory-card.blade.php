@@ -12,7 +12,7 @@
                 <span class="badge badge-ghost text-xs">{{ count($cargoGrids) }}</span>
             </h2>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto overflow-y-auto max-h-48">
                 <table class="table table-sm">
                     <thead>
                     <tr>

@@ -59,19 +59,17 @@
 @endphp
 
 @if ($hasBreakdowns)
-    <details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow']) }}>
-        <summary class="collapse-title min-h-11 py-3 font-semibold">
-            System Breakdown
-        </summary>
+    <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+        <div class="card-body gap-4">
+            <h2 class="card-title text-base">System Breakdown</h2>
 
-        <div class="collapse-content space-y-5">
             <div class="grid gap-12 xl:grid-cols-3">
                 @if ($signatureBreakdownRows !== [])
                     <section class="space-y-3">
                         <div class="text-sm font-semibold text-base-content/65">EM Groups</div>
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div></div>
+                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">System / EM</div>
                             <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
                             <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
@@ -89,7 +87,7 @@
                         <div class="text-sm font-semibold text-base-content/65">Cooling Groups</div>
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div></div>
+                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">System / Segment</div>
                             <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
                             <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
 
@@ -119,5 +117,5 @@
                 @endif
             </div>
         </div>
-    </details>
+    </section>
 @endif

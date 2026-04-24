@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Carbon; @endphp
 @props(['vehicle'])
 
 @php
@@ -54,7 +55,8 @@
 @endphp
 
 @if ($sections !== [] || $hasLoaners || $hasSkus)
-    <section data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+    <section
+        data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div @class([
                 'grid gap-8 xl:grid-cols-2 xl:gap-10' => $sections !== [] && ($hasLoaners || $hasSkus),
@@ -76,7 +78,8 @@
                                             </dt>
                                             <dd class="text-right text-sm font-semibold text-base-content">
                                                 @if ($row['url'])
-                                                    <a href="{{ $row['url'] }}" class="link link-primary" target="_blank" rel="noopener">{{ $row['value'] }}</a>
+                                                    <a href="{{ $row['url'] }}" class="link link-primary"
+                                                       target="_blank" rel="noopener">{{ $row['value'] }}</a>
                                                 @else
                                                     {{ $row['value'] }}
                                                 @endif
@@ -95,7 +98,8 @@
 
                         @if ($hasLoaners)
                             <section class="space-y-2">
-                                <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">Loaners</div>
+                                <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">Loaners
+                                </div>
 
                                 <div class="overflow-x-auto">
                                     <table class="table table-auto table-sm">
@@ -110,8 +114,9 @@
                                             <tr>
                                                 <td>{{ $loaner['name'] ?? '-' }}</td>
                                                 <td>
-                                                    @if (! empty($loaner['link']))
-                                                        <a href="{{ $loaner['link'] }}" class="link link-primary">View</a>
+                                                    @if (! empty($loaner['name']))
+                                                        <a href="{{ route('web.vehicles.show', ['vehicle' => $loaner['uuid'] ?? $loaner['slug'] ?? $loaner['name']]) }}"
+                                                           class="link link-primary">View</a>
                                                     @else
                                                         -
                                                     @endif
@@ -128,7 +133,7 @@
                             <section class="space-y-2">
                                 <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">SKUs</div>
 
-                                <div class="overflow-x-auto">
+                                <div class="overflow-x-auto overflow-y-auto max-h-48">
                                     <table class="table table-auto table-sm" data-testid="purchase-variants-skus">
                                         <thead>
                                         <tr>
@@ -145,7 +150,7 @@
                                                     {{ fmt_value_with_unit(data_get($sku, 'price'), '$', 0) }}
                                                 </td>
                                                 <td class="hidden sm:table-cell">
-                                                    {{ \Illuminate\Support\Carbon::createFromTimeString(data_get($sku, 'imported_at'))->diffForHumans() }}
+                                                    {{ Carbon::createFromTimeString(data_get($sku, 'imported_at'))->diffForHumans() }}
                                                 </td>
                                             </tr>
                                         @endforeach

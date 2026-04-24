@@ -23,7 +23,7 @@
     $coolingGeneration = data_get($cooling, 'generation_segments');
     $coolingSummaryRows = array_values(array_filter([
         [
-            'label' => 'Segments',
+            'label' => 'Used',
             'shields' => data_get($cooling, 'used_segments_shields') !== null
                 ? fmt_value_with_unit(data_get($cooling, 'used_segments_shields'), 'Segments', 0)
                 : null,
@@ -46,7 +46,7 @@
     $emPerSegment = data_get($signature, 'em_per_segment');
     $powerSummaryRows = array_values(array_filter([
         [
-            'label' => 'Segments',
+            'label' => 'Used',
             'shields' => data_get($power, 'used_segments_shields') !== null
                 ? fmt_value_with_unit(data_get($power, 'used_segments_shields'), 'Segments', 0)
                 : null,
