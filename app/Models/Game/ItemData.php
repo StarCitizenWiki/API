@@ -6,6 +6,7 @@ namespace App\Models\Game;
 
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\Mission\MissionData;
+use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Collection;
@@ -75,6 +76,21 @@ class ItemData extends Model
     public function getDescriptionManufacturerAttribute()
     {
         return $this->getDescriptionDatum('Manufacturer');
+    }
+
+    public function getTypeLabelAttribute(): ?string
+    {
+        return ItemFilterLabel::resolveType($this->type, null);
+    }
+
+    public function getSubTypeLabelAttribute(): ?string
+    {
+        return ItemFilterLabel::resolveSubType($this->sub_type, null);
+    }
+
+    public function getClassificationLabelAttribute(): ?string
+    {
+        return ItemFilterLabel::resolveClassification($this->classification, null);
     }
 
     /**

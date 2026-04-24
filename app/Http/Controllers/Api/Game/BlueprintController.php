@@ -13,7 +13,7 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
-use App\Support\Filters\ItemTypeLabel;
+use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -203,7 +203,7 @@ class BlueprintController extends Controller
 
             $out['output.type'] = FilterValues::fromRows(
                 $typeRows,
-                labelResolver: [ItemTypeLabel::class, 'resolve'],
+                labelResolver: [ItemFilterLabel::class, 'resolveType'],
             );
 
             $ingredientRows = QueryBuilder::for(BlueprintData::class, $request)

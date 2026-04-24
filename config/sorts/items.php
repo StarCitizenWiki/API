@@ -421,8 +421,8 @@ return [
     // =====================================================================
     // CLOTHING & ARMOR
     // =====================================================================
-    'clothing.temperature_resistance.min' => ['path' => 'TemperatureResistance.Minimum', 'cast' => 'numeric'],
-    'clothing.temperature_resistance.max' => ['path' => 'TemperatureResistance.Maximum', 'cast' => 'numeric'],
+    'temperature_resistance.minimum' => ['path' => 'TemperatureResistance.Minimum', 'cast' => 'numeric'],
+    'temperature_resistance.maximum' => ['path' => 'TemperatureResistance.Maximum', 'cast' => 'numeric'],
     'clothing.radiation_resistance.maximum_radiation_capacity' => ['path' => 'RadiationResistance.MaximumRadiationCapacity', 'cast' => 'numeric'],
     'clothing.radiation_resistance.radiation_dissipation_rate' => ['path' => 'RadiationResistance.RadiationDissipationRate', 'cast' => 'numeric'],
 

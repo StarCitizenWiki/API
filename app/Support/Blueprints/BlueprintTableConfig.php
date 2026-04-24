@@ -20,7 +20,7 @@ final class BlueprintTableConfig
             'title' => 'Blueprints',
             'pageSize' => 25,
             'headerFilterOptionsMap' => [
-                'output.type' => 'output.type',
+                'output.type_label' => 'output.type',
                 'is_available_by_default' => 'default',
                 'ingredients' => 'ingredient.uuid',
             ],
@@ -40,7 +40,7 @@ final class BlueprintTableConfig
                 ],
                 [
                     'title' => 'Type',
-                    'field' => 'output.type',
+                    'field' => 'output.type_label',
                     'headerFilter' => 'list',
                     'minWidth' => 170,
                 ],
