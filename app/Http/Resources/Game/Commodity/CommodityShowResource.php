@@ -21,9 +21,9 @@ use OpenApi\Attributes as OA;
         new OA\Schema(ref: '#/components/schemas/deposit_base'),
         new OA\Schema(
             properties: [
-                new OA\Property(property: 'resource_uuid', type: 'string', format: 'uuid', nullable: true),
-                new OA\Property(property: 'group_name', type: 'string'),
-                new OA\Property(property: 'resource_kind', type: 'string', nullable: true),
+                new OA\Property(property: 'resource_uuid', description: 'UUID of the resource (commodity) this deposit yields.', type: 'string', format: 'uuid', nullable: true),
+                new OA\Property(property: 'group_name', description: 'Internal group name for the mining category (e.g. "SpaceShip_Mineables").', type: 'string'),
+                new OA\Property(property: 'resource_kind', description: 'Resource extraction kind (e.g. "Mineable", "Harvestable").', type: 'string', nullable: true),
             ],
             type: 'object'
         ),
@@ -32,31 +32,34 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'commodity_show_location',
     title: 'Commodity Show Location',
+    description: 'Detailed location data for a commodity deposit, including quality range and probability information.',
     properties: [
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'designation', type: 'string', nullable: true),
-        new OA\Property(property: 'display_name', type: 'string'),
-        new OA\Property(property: 'system', type: 'string', nullable: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true),
-        new OA\Property(property: 'parent_name', type: 'string', nullable: true),
-        new OA\Property(property: 'parent_type', type: 'string', nullable: true),
-        new OA\Property(property: 'parent_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'group_probability', type: 'number'),
-        new OA\Property(property: 'group_probability_percent', type: 'number'),
-        new OA\Property(property: 'relative_probability', type: 'number'),
-        new OA\Property(property: 'relative_probability_percent', type: 'number'),
-        new OA\Property(property: 'quality_min', type: 'integer', nullable: true),
-        new OA\Property(property: 'quality_max', type: 'integer', nullable: true),
+        new OA\Property(property: 'name', description: 'Canonical location name.', type: 'string'),
+        new OA\Property(property: 'designation', description: 'Location designation code (e.g. "CRU-L1").', type: 'string', nullable: true),
+        new OA\Property(property: 'display_name', description: 'Formatted display name combining designation and name.', type: 'string'),
+        new OA\Property(property: 'system', description: 'Star system this location belongs to.', type: 'string', nullable: true),
+        new OA\Property(property: 'type', description: 'Location type classification (e.g. "Moon", "Planet", "Outpost").', type: 'string', nullable: true),
+        new OA\Property(property: 'parent_name', description: 'Name of the parent celestial body or location.', type: 'string', nullable: true),
+        new OA\Property(property: 'parent_type', description: 'Type of the parent location.', type: 'string', nullable: true),
+        new OA\Property(property: 'parent_uuid', description: 'UUID of the parent location entity.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of this starmap location entity.', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'link', description: 'API link to the full location details.', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'group_probability', description: 'Raw probability of this commodity group occurring at this location (0–1).', type: 'number'),
+        new OA\Property(property: 'group_probability_percent', description: 'Group probability expressed as a percentage (0–100).', type: 'number'),
+        new OA\Property(property: 'relative_probability', description: 'Raw relative probability compared to other commodities at this location (0–1).', type: 'number'),
+        new OA\Property(property: 'relative_probability_percent', description: 'Relative probability expressed as a percentage (0–100).', type: 'number'),
+        new OA\Property(property: 'quality_min', description: 'Minimum quality across all deposit instances at this location.', type: 'integer', nullable: true),
+        new OA\Property(property: 'quality_max', description: 'Maximum quality across all deposit instances at this location.', type: 'integer', nullable: true),
         new OA\Property(
             property: 'areas',
+            description: 'Areas with global modifiers that boost spawn rates at this location.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/area_boost'),
             nullable: true
         ),
         new OA\Property(
             property: 'resources',
+            description: 'Individual deposit groups for this commodity at this location.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/commodity_deposit_group')
         ),
@@ -66,21 +69,24 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'commodity_version_entry',
     title: 'Commodity Version Entry',
+    description: 'A raw or refined version of the commodity with navigation links.',
     properties: [
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-        new OA\Property(property: 'link', type: 'string', format: 'uri'),
+        new OA\Property(property: 'name', description: 'Display name of the versioned commodity.', type: 'string'),
+        new OA\Property(property: 'uuid', description: 'UUID of the versioned commodity.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'web_url', description: 'Frontend URL for the versioned commodity page.', type: 'string', format: 'uri'),
+        new OA\Property(property: 'link', description: 'API link to the versioned commodity details.', type: 'string', format: 'uri'),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'commodity_system_group',
     title: 'Commodity System Group',
+    description: 'Locations grouped by star system for organized display.',
     properties: [
-        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'name', description: 'Star system name.', type: 'string'),
         new OA\Property(
             property: 'locations',
+            description: 'All commodity deposit locations within this system.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/commodity_show_location')
         ),
@@ -92,78 +98,86 @@ use OpenApi\Attributes as OA;
     title: 'Commodity Show',
     description: 'Full game commodity detail used in show responses.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'key', type: 'string'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'slug', type: 'string'),
-        new OA\Property(property: 'description', type: 'string', nullable: true),
-        new OA\Property(property: 'tier', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique commodity identifier.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'key', description: 'Internal commodity key (e.g. "Quartz").', type: 'string'),
+        new OA\Property(property: 'name', description: 'Display name of the commodity.', type: 'string'),
+        new OA\Property(property: 'slug', description: 'URL-friendly slug for the commodity.', type: 'string'),
+        new OA\Property(property: 'description', description: 'In-game lore description.', type: 'string', nullable: true),
+        new OA\Property(property: 'tier', description: 'Refinement tier (e.g. "Raw", "Refined").', type: 'string', nullable: true),
         new OA\Property(
             property: 'refined_version',
+            description: 'The refined counterpart of this raw commodity, if applicable.',
             properties: [
-                new OA\Property(property: 'name', type: 'string'),
-                new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-                new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-                new OA\Property(property: 'link', type: 'string', format: 'uri'),
+                new OA\Property(property: 'name', description: 'Name of the refined commodity.', type: 'string'),
+                new OA\Property(property: 'uuid', description: 'UUID of the refined commodity.', type: 'string', format: 'uuid'),
+                new OA\Property(property: 'web_url', description: 'Frontend URL for the refined commodity page.', type: 'string', format: 'uri'),
+                new OA\Property(property: 'link', description: 'API link to the refined commodity details.', type: 'string', format: 'uri'),
             ],
             type: 'object',
             nullable: true
         ),
-        new OA\Property(property: 'density_g_per_cc', type: 'number', nullable: true),
-        new OA\Property(property: 'instability', type: 'number', nullable: true),
-        new OA\Property(property: 'resistance', type: 'number', nullable: true),
+        new OA\Property(property: 'density_g_per_cc', description: 'Density in grams per cubic centimeter.', type: 'number', nullable: true),
+        new OA\Property(property: 'instability', description: 'Instability rating affecting mining behavior.', type: 'number', nullable: true),
+        new OA\Property(property: 'resistance', description: 'Resistance rating affecting mining difficulty.', type: 'number', nullable: true),
         new OA\Property(
             property: 'box_sizes_scu',
+            description: 'Standard cargo box sizes in SCU that this commodity fits into.',
             type: 'array',
             items: new OA\Items(type: 'number')
         ),
-        new OA\Property(property: 'validate_default_cargo_box', type: 'boolean'),
-        new OA\Property(property: 'has_default_cargo_containers', type: 'boolean'),
-        new OA\Property(property: 'is_mineable', type: 'boolean'),
-        new OA\Property(property: 'has_ship_mineables', type: 'boolean'),
-        new OA\Property(property: 'has_ground_vehicle_mineables', type: 'boolean'),
-        new OA\Property(property: 'has_fps_mineables', type: 'boolean'),
-        new OA\Property(property: 'has_harvestables', type: 'boolean'),
-        new OA\Property(property: 'has_salvage', type: 'boolean'),
-        new OA\Property(property: 'signature', type: 'integer', nullable: true),
-        new OA\Property(property: 'kind', type: 'string', nullable: true),
+        new OA\Property(property: 'validate_default_cargo_box', description: 'Whether the default cargo box validation applies.', type: 'boolean'),
+        new OA\Property(property: 'has_default_cargo_containers', description: 'Whether default cargo containers are available for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'is_mineable', description: 'Whether this commodity can be obtained through mining or harvesting.', type: 'boolean'),
+        new OA\Property(property: 'has_ship_mineables', description: 'Whether ship mining deposits exist for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'has_ground_vehicle_mineables', description: 'Whether ground vehicle mining deposits exist for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'has_fps_mineables', description: 'Whether FPS mining deposits exist for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'has_harvestables', description: 'Whether harvestable deposits exist for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'has_salvage', description: 'Whether salvage deposits exist for this commodity.', type: 'boolean'),
+        new OA\Property(property: 'signature', description: 'Electromagnetic signature strength, used for scanner detection.', type: 'integer', nullable: true),
+        new OA\Property(property: 'kind', description: 'Resource kind classification (e.g. "Mineable", "Harvestable").', type: 'string', nullable: true),
         new OA\Property(
             property: 'methods',
+            description: 'Available extraction methods (e.g. ["Ship", "Ground Vehicle", "FPS"]).',
             type: 'array',
             items: new OA\Items(type: 'string')
         ),
         new OA\Property(
             property: 'systems',
+            description: 'Star systems where this commodity can be found.',
             type: 'array',
             items: new OA\Items(type: 'string')
         ),
         new OA\Property(
             property: 'locations',
+            description: 'Flat list of all locations with deposit details.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/commodity_show_location')
         ),
         new OA\Property(
             property: 'systems_grouped',
+            description: 'Locations organized by star system for hierarchical display.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/commodity_system_group')
         ),
         new OA\Property(
             property: 'raw_versions',
+            description: 'Raw (unrefined) versions of this commodity, if this is a refined commodity.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/commodity_version_entry'),
             nullable: true
         ),
         new OA\Property(
             property: 'blueprints',
+            description: 'Crafting blueprints that use or produce this commodity.',
             type: 'array',
             items: new OA\Items(
                 properties: [
-                    new OA\Property(property: 'key', type: 'string'),
-                    new OA\Property(property: 'output_name', type: 'string'),
-                    new OA\Property(property: 'output_item_uuid', type: 'string', format: 'uuid', nullable: true),
-                    new OA\Property(property: 'craft_time_label', type: 'string'),
-                    new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-                    new OA\Property(property: 'link', type: 'string', format: 'uri'),
+                    new OA\Property(property: 'key', description: 'Unique blueprint key identifier.', type: 'string'),
+                    new OA\Property(property: 'output_name', description: 'Name of the item produced by this blueprint.', type: 'string'),
+                    new OA\Property(property: 'output_item_uuid', description: 'UUID of the output item entity.', type: 'string', format: 'uuid', nullable: true),
+                    new OA\Property(property: 'craft_time_label', description: 'Human-readable crafting duration (e.g. "5m 30s").', type: 'string'),
+                    new OA\Property(property: 'web_url', description: 'Frontend URL for the blueprint page.', type: 'string', format: 'uri'),
+                    new OA\Property(property: 'link', description: 'API link to the blueprint details.', type: 'string', format: 'uri'),
                 ],
                 type: 'object'
             ),
@@ -171,23 +185,24 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'items',
+            description: 'Physical items associated with this commodity in the game.',
             type: 'array',
             items: new OA\Items(
                 properties: [
-                    new OA\Property(property: 'name', type: 'string'),
-                    new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-                    new OA\Property(property: 'type', type: 'string', nullable: true),
-                    new OA\Property(property: 'sub_type', type: 'string', nullable: true),
-                    new OA\Property(property: 'size', type: 'integer', nullable: true),
-                    new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-                    new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'name', description: 'Item display name.', type: 'string'),
+                    new OA\Property(property: 'uuid', description: 'UUID of the item entity.', type: 'string', format: 'uuid', nullable: true),
+                    new OA\Property(property: 'type', description: 'Item type classification.', type: 'string', nullable: true),
+                    new OA\Property(property: 'sub_type', description: 'Item sub-type classification.', type: 'string', nullable: true),
+                    new OA\Property(property: 'size', description: 'Item size grade.', type: 'integer', nullable: true),
+                    new OA\Property(property: 'web_url', description: 'Frontend URL for the item page.', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'link', description: 'API link to the item details.', type: 'string', format: 'uri', nullable: true),
                 ],
                 type: 'object'
             ),
             nullable: true
         ),
-        new OA\Property(property: 'link', type: 'string', format: 'uri'),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
+        new OA\Property(property: 'link', description: 'API link to this commodity\'s full details.', type: 'string', format: 'uri'),
+        new OA\Property(property: 'web_url', description: 'Frontend URL for this commodity\'s page.', type: 'string', format: 'uri'),
     ],
     type: 'object'
 )]
