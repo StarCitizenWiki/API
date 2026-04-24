@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 // Comm-Link schedules
@@ -17,7 +18,8 @@ Schedule::command('stats:sync')
 
 // Vehicles/Ship Matrix
 Schedule::command('vehicles:import-ship-matrix')
-    ->daily();
+    ->daily()
+    ->then(fn () => Artisan::call('sitemap:generate --only=vehicles'));
 
 Schedule::command('vehicles:import-msrp')
     ->daily();
@@ -27,11 +29,13 @@ Schedule::command('vehicles:import-loaner')
 
 // Item Prices
 Schedule::command('game:import-item-prices')
-    ->daily();
+    ->daily()
+    ->then(fn () => Artisan::call('sitemap:generate --only=items,blueprints,commodities,missions,locations'));
 
 // Starmap
 Schedule::command('starmap:sync')
-    ->monthly();
+    ->monthly()
+    ->then(fn () => Artisan::call('sitemap:generate --only=starsystems,celestial-objects'));
 
 // Galactapedia
 Schedule::command('galactapedia:sync')
@@ -40,4 +44,9 @@ Schedule::command('galactapedia:sync')
 
 Schedule::command('galactapedia:translate')
     ->dailyAt('3:00')
+    ->withoutOverlapping();
+
+// Sitemap: Comm-Links + Galactapedia daily
+Schedule::command('sitemap:generate --only=comm-links,galactapedia')
+    ->dailyAt('4:00')
     ->withoutOverlapping();

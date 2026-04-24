@@ -648,6 +648,13 @@ paths:
             type: string
             example: Arrow
         -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
+          schema:
+            type: string
+            example: Arrow
+        -
           name: 'filter[size]'
           in: query
           description: 'Exact item size (0–12).'
@@ -702,6 +709,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Partial match on item display name.'
+          schema:
+            type: string
+            example: 'Iron Sight'
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
           schema:
             type: string
             example: 'Iron Sight'
@@ -763,6 +777,13 @@ paths:
           schema:
             type: string
             example: FPS.Clothing.Torso
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
+          schema:
+            type: string
+            example: Jacket
       responses:
         '200':
           description: 'List of Clothes'
@@ -814,6 +835,13 @@ paths:
           schema:
             type: string
             example: FPS.Armor.Torso
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
+          schema:
+            type: string
+            example: Core
       responses:
         '200':
           description: 'List of Armor'
@@ -858,6 +886,13 @@ paths:
           schema:
             type: string
             example: Burger
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
+          schema:
+            type: string
+            example: Burger
       responses:
         '200':
           description: 'List of Food Items'
@@ -899,6 +934,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Partial match on item display name.'
+          schema:
+            type: string
+            example: Cannon
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
           schema:
             type: string
             example: Cannon
@@ -967,6 +1009,13 @@ paths:
           schema:
             type: string
             example: Default
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
+          schema:
+            type: string
+            example: Shield
       responses:
         '200':
           description: 'List of Vehicle Items'
@@ -1055,6 +1104,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Partial match on item display name.'
+          schema:
+            type: string
+            example: Arrow
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search items by name or class name.'
           schema:
             type: string
             example: Arrow
@@ -1523,6 +1579,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Narrow facets to items with matching name.'
+          schema:
+            type: string
+            example: Arrow
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Narrow facets to items matching name or class name.'
           schema:
             type: string
             example: Arrow
@@ -2059,6 +2122,13 @@ paths:
             type: string
             example: Aberdeen
         -
+          name: 'filter[query]'
+          in: query
+          description: 'Search locations by name.'
+          schema:
+            type: string
+            example: ArcCorp
+        -
           name: 'filter[type_name]'
           in: query
           description: 'Exact match on location type name (see GET /api/locations/filters for valid values).'
@@ -2221,6 +2291,13 @@ paths:
           schema:
             type: string
             example: Aberdeen
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search locations by name.'
+          schema:
+            type: string
+            example: ArcCorp
         -
           name: 'filter[type_name]'
           in: query
@@ -2387,6 +2464,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Partial match on vehicle display name.'
+          schema:
+            type: string
+            example: Nova
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search vehicles by name or class name.'
           schema:
             type: string
             example: Nova
@@ -2622,6 +2706,13 @@ paths:
             type: string
             example: Dragonfly
         -
+          name: 'filter[query]'
+          in: query
+          description: 'Search vehicles by name or class name.'
+          schema:
+            type: string
+            example: Dragonfly
+        -
           name: 'filter[size]'
           in: query
           description: 'Exact match on vehicle size (1-6).'
@@ -2849,6 +2940,13 @@ paths:
           name: 'filter[name]'
           in: query
           description: 'Partial match on vehicle display name.'
+          schema:
+            type: string
+            example: Nova
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search vehicles by name or class name.'
           schema:
             type: string
             example: Nova
@@ -3220,6 +3318,12 @@ paths:
         -
           name: 'filter[name]'
           in: query
+          schema:
+            type: string
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search vehicles by name or class name.'
           schema:
             type: string
         -
@@ -16628,8 +16732,16 @@ components:
     vehicle_loaner:
       title: 'Vehicle Loaner'
       properties:
+        uuid:
+          description: 'Unique vehicle identifier.'
+          type: string
+          nullable: true
         name:
           type: string
+        slug:
+          description: 'URL-friendly vehicle identifier.'
+          type: string
+          nullable: true
         link:
           type: string
         version:
