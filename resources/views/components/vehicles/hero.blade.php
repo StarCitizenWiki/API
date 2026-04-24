@@ -29,7 +29,9 @@
 
     $vehicleTypeIcon = null;
     $vehicleTypeLabel = null;
-    $heroImage = data_get(data_get($vehicle, 'images', []), '0.original_url');
+    $heroImage = data_get(data_get($vehicle, 'images', []), '0.thumbnail_url')
+        ?? data_get(data_get($vehicle, 'images', []), '0.original_url');
+    $fullImageUrl = data_get(data_get($vehicle, 'images', []), '0.original_url');
     $imageSource = data_get(data_get($vehicle, 'images', []), '0.source');
 
     if ($isGravlev) {
@@ -47,7 +49,7 @@
 <section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow']) }}>
     @if ($heroImage)
         <div class="relative h-48 overflow-hidden rounded-t-box sm:h-56">
-            <a href="{{ $heroImage }}" target="_blank" rel="noopener noreferrer">
+            <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
                 <img src="{{ $heroImage }}" alt="{{ $vehicleName }}" class="h-full w-full object-cover" loading="lazy" />
             </a>
             <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100/60 to-transparent"></div>

@@ -86,10 +86,14 @@
         default => null,
     };
 
-    $heroImage = data_get(data_get($item, 'images', []), '0.original_url');
+    $heroImage = data_get(data_get($item, 'images', []), '0.thumbnail_url')
+        ?? data_get(data_get($item, 'images', []), '0.original_url');
+    $fullImageUrl = data_get(data_get($item, 'images', []), '0.original_url');
     $imageSource = data_get(data_get($item, 'images', []), '0.source');
-    $imageWidth = data_get(data_get($item, 'images', []), '0.original_width');
-    $imageHeight = data_get(data_get($item, 'images', []), '0.original_height');
+    $imageWidth = data_get(data_get($item, 'images', []), '0.thumbnail_width')
+        ?? data_get(data_get($item, 'images', []), '0.original_width');
+    $imageHeight = data_get(data_get($item, 'images', []), '0.thumbnail_height')
+        ?? data_get(data_get($item, 'images', []), '0.original_height');
     $isPortrait = $imageWidth !== null && $imageHeight !== null && $imageHeight > $imageWidth;
 
     $iconName = match (true) {
@@ -132,12 +136,15 @@
         $isCraftable ? ['label' => 'Craftable', 'url' => $blueprintUrl, 'test_id' => 'item-hero-pill-craftable'] : null,
         $variantStateLabel ? ['label' => $variantStateLabel, 'url' => null, 'test_id' => 'item-hero-pill-variant-state'] : null,
     ]));
+
+    // TODO: Override for now
+    $isPortrait = true;
 @endphp
 
 <section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'item-hero']) }}>
     @if ($heroImage)
         <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
-            <a href="{{ $heroImage }}" target="_blank" rel="noopener noreferrer">
+            <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
                 <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="h-full w-full object-cover" loading="lazy" />
             </a>
             <div class="pointer-events-none absolute inset-0"></div>
