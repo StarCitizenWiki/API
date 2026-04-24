@@ -158,16 +158,19 @@ class BlueprintController extends Controller
                             properties: [
                                 new OA\Property(
                                     property: 'output.type',
+                                    description: 'Crafted item types (e.g. WeaponPersonal, Char_Armor_Torso, WeaponAttachment)',
                                     type: 'array',
                                     items: new OA\Items(ref: '#/components/schemas/filter_value')
                                 ),
                                 new OA\Property(
                                     property: 'ingredient.uuid',
+                                    description: 'Ingredient commodity UUIDs with names and counts',
                                     type: 'array',
                                     items: new OA\Items(ref: '#/components/schemas/filter_value')
                                 ),
                                 new OA\Property(
                                     property: 'resource.uuid',
+                                    description: 'Combined ingredient and dismantle return resource UUIDs with names and counts',
                                     type: 'array',
                                     items: new OA\Items(ref: '#/components/schemas/filter_value')
                                 ),

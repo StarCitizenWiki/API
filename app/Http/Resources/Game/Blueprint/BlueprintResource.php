@@ -17,13 +17,13 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Output',
     description: 'Crafted output metadata for a blueprint.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'class', type: 'string', nullable: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true),
-        new OA\Property(property: 'subtype', type: 'string', nullable: true),
-        new OA\Property(property: 'grade', type: 'string', nullable: true),
-        new OA\Property(property: 'item_web_url', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the crafted item', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'class', description: 'Internal class identifier of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'type', description: 'Type category of the crafted item (e.g. WeaponPersonal, Char_Armor_Torso)', type: 'string', nullable: true),
+        new OA\Property(property: 'subtype', description: 'Sub-type classification of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'grade', description: 'Grade or quality tier of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'item_web_url', description: 'Web URL for the crafted item detail page', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -31,8 +31,8 @@ use OpenApi\Attributes as OA;
     schema: 'blueprint_modifier_quality_range',
     title: 'Blueprint Modifier Quality Range',
     properties: [
-        new OA\Property(property: 'min', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'max', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum quality value', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'max', description: 'Maximum quality value', type: 'number', format: 'float', nullable: true),
     ],
     type: 'object'
 )]
@@ -40,8 +40,8 @@ use OpenApi\Attributes as OA;
     schema: 'blueprint_modifier_range',
     title: 'Blueprint Modifier Range',
     properties: [
-        new OA\Property(property: 'at_min_quality', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'at_max_quality', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'at_min_quality', description: 'Modifier value at minimum quality', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'at_max_quality', description: 'Modifier value at maximum quality', type: 'number', format: 'float', nullable: true),
     ],
     type: 'object'
 )]
@@ -50,10 +50,10 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Modifier',
     description: 'Modifier interpolation metadata used for blueprint quality effects.',
     properties: [
-        new OA\Property(property: 'property_key', type: 'string'),
-        new OA\Property(property: 'property_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(property: 'better_when', type: 'string', enum: ['higher', 'lower', 'neutral'], nullable: true),
+        new OA\Property(property: 'property_key', description: 'Internal key identifying the modifier property', type: 'string'),
+        new OA\Property(property: 'property_uuid', description: 'UUID of the property definition, if available', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'label', description: 'Human-readable label for the modifier', type: 'string'),
+        new OA\Property(property: 'better_when', description: 'Indicates whether a higher or lower value is desirable', type: 'string', enum: ['higher', 'lower', 'neutral'], nullable: true),
         new OA\Property(property: 'quality_range', ref: '#/components/schemas/blueprint_modifier_quality_range'),
         new OA\Property(property: 'modifier_range', ref: '#/components/schemas/blueprint_modifier_range'),
     ],
@@ -64,10 +64,10 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Summary Property',
     description: 'Aggregated modifier property shown in blueprint output summaries.',
     properties: [
-        new OA\Property(property: 'property_key', type: 'string'),
-        new OA\Property(property: 'property_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(property: 'better_when', type: 'string', enum: ['higher', 'lower', 'neutral'], nullable: true),
+        new OA\Property(property: 'property_key', description: 'Internal key identifying the property', type: 'string'),
+        new OA\Property(property: 'property_uuid', description: 'UUID of the property definition, if available', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'label', description: 'Human-readable label for the property', type: 'string'),
+        new OA\Property(property: 'better_when', description: 'Indicates whether a higher or lower value is desirable', type: 'string', enum: ['higher', 'lower', 'neutral'], nullable: true),
     ],
     type: 'object'
 )]
@@ -76,21 +76,23 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Requirement Child',
     description: 'Normalized blueprint requirement child entry. Children can represent groups, resources, or discrete items.',
     properties: [
-        new OA\Property(property: 'key', type: 'string', nullable: true),
-        new OA\Property(property: 'kind', type: 'string', enum: ['group', 'resource', 'item'], nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'required_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'quantity', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'min_quality', type: 'integer', nullable: true),
+        new OA\Property(property: 'key', description: 'Internal key of the requirement child', type: 'string', nullable: true),
+        new OA\Property(property: 'kind', description: 'Type of requirement entry', type: 'string', enum: ['group', 'resource', 'item'], nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the required resource type or item', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the required resource or item', type: 'string', nullable: true),
+        new OA\Property(property: 'required_count', description: 'Number of this child required within its group', type: 'integer', nullable: true),
+        new OA\Property(property: 'quantity', description: 'Discrete item count required', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'quantity_scu', description: 'Quantity in Standard Cargo Units (for resources)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'min_quality', description: 'Minimum quality tier required', type: 'integer', nullable: true),
         new OA\Property(
             property: 'modifiers',
+            description: 'Quality-dependent modifier effects for this child',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_modifier')
         ),
         new OA\Property(
             property: 'children',
+            description: 'Nested children when kind is group',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_requirement_child'),
             nullable: true
@@ -103,17 +105,19 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Requirement Group',
     description: 'Normalized requirement group derived from the first blueprint tier.',
     properties: [
-        new OA\Property(property: 'key', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'kind', type: 'string', enum: ['group']),
-        new OA\Property(property: 'required_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'key', description: 'Internal key of the requirement group', type: 'string', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the requirement group', type: 'string', nullable: true),
+        new OA\Property(property: 'kind', description: 'Always "group"', type: 'string', enum: ['group']),
+        new OA\Property(property: 'required_count', description: 'Number of children that must be fulfilled within this group', type: 'integer', nullable: true),
         new OA\Property(
             property: 'modifiers',
+            description: 'Quality-dependent modifier effects applied at the group level',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_modifier')
         ),
         new OA\Property(
             property: 'children',
+            description: 'Individual resources or items within this group',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_requirement_child')
         ),
@@ -125,22 +129,24 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Requirement Node',
     description: 'Raw recursive requirement node returned under tiers[].requirements.',
     properties: [
-        new OA\Property(property: 'kind', type: 'string', enum: ['root', 'group', 'resource', 'item'], nullable: true),
-        new OA\Property(property: 'key', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'required_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'quantity', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'min_quality', type: 'integer', nullable: true),
+        new OA\Property(property: 'kind', description: 'Node type in the requirement tree', type: 'string', enum: ['root', 'group', 'resource', 'item'], nullable: true),
+        new OA\Property(property: 'key', description: 'Internal key of the requirement node', type: 'string', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the requirement node', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'UUID of the required resource type or item', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'required_count', description: 'Number of children that must be fulfilled', type: 'integer', nullable: true),
+        new OA\Property(property: 'quantity', description: 'Discrete item count required', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'quantity_scu', description: 'Quantity in Standard Cargo Units (for resources)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'min_quality', description: 'Minimum quality tier required', type: 'integer', nullable: true),
         new OA\Property(
             property: 'modifiers',
+            description: 'Quality-dependent modifier effects',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_modifier'),
             nullable: true
         ),
         new OA\Property(
             property: 'children',
+            description: 'Nested child nodes in the requirement tree',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_requirement_node'),
             nullable: true
@@ -153,9 +159,9 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Tier',
     description: 'Raw blueprint tier as imported from the source payload.',
     properties: [
-        new OA\Property(property: 'tier_index', type: 'integer', nullable: true),
-        new OA\Property(property: 'craft_time_seconds', type: 'integer', nullable: true),
-        new OA\Property(property: 'requirements', ref: '#/components/schemas/blueprint_requirement_node', nullable: true),
+        new OA\Property(property: 'tier_index', description: 'Zero-based index of this crafting tier', type: 'integer', nullable: true),
+        new OA\Property(property: 'craft_time_seconds', description: 'Crafting duration in seconds for this tier', type: 'integer', nullable: true),
+        new OA\Property(property: 'requirements', description: 'Recursive requirement tree for this tier', ref: '#/components/schemas/blueprint_requirement_node', nullable: true),
     ],
     type: 'object'
 )]
@@ -164,14 +170,14 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Ingredient',
     description: 'Condensed ingredient summary used by blueprint list and detail responses.',
     properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'kind', type: 'string', enum: ['resource', 'item'], nullable: true),
-        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'item_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'quantity', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the ingredient', type: 'string', nullable: true),
+        new OA\Property(property: 'kind', description: 'Ingredient kind', type: 'string', enum: ['resource', 'item'], nullable: true),
+        new OA\Property(property: 'resource_type_uuid', description: 'UUID of the ingredient resource type (see GET /api/commodities)', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'item_uuid', description: 'UUID of the ingredient item (see GET /api/items)', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity_scu', description: 'Quantity in Standard Cargo Units (for resources)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'quantity', description: 'Discrete count (for items)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'link', description: 'API URL for the ingredient', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', description: 'Web URL for the ingredient detail page', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -180,11 +186,11 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Dismantle Return Summary',
     description: 'Lightweight dismantle return entry used by blueprint list responses.',
     properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'resource_type_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'quantity_scu', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the returned resource', type: 'string', nullable: true),
+        new OA\Property(property: 'resource_type_uuid', description: 'UUID of the returned resource type (see GET /api/commodities)', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity_scu', description: 'Quantity returned in Standard Cargo Units', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'link', description: 'API URL for the returned resource', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', description: 'Web URL for the returned resource detail page', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -193,9 +199,9 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Dismantle',
     description: 'Dismantle metadata for a blueprint. Only included on blueprint detail responses.',
     properties: [
-        new OA\Property(property: 'time_seconds', type: 'integer', nullable: true),
-        new OA\Property(property: 'time_label', type: 'string', nullable: true),
-        new OA\Property(property: 'efficiency', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'time_seconds', description: 'Dismantle duration in seconds', type: 'integer', nullable: true),
+        new OA\Property(property: 'time_label', description: 'Human-readable dismantle duration', type: 'string', nullable: true),
+        new OA\Property(property: 'efficiency', description: 'Dismantle efficiency ratio', type: 'number', format: 'float', nullable: true),
     ],
     type: 'object'
 )]
@@ -204,11 +210,11 @@ use OpenApi\Attributes as OA;
     title: 'Blueprint Unlocking Mission',
     description: 'A mission that can unlock this blueprint as a reward.',
     properties: [
-        new OA\Property(property: 'title', type: 'string', nullable: true),
-        new OA\Property(property: 'debug_name', type: 'string', nullable: true),
-        new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
-        new OA\Property(property: 'chance', type: 'number', format: 'float', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'title', description: 'Formatted mission title', type: 'string', nullable: true),
+        new OA\Property(property: 'debug_name', description: 'Internal debug name of the mission', type: 'string', nullable: true),
+        new OA\Property(property: 'reward_scope', description: 'Scope of the blueprint reward', type: 'string', nullable: true),
+        new OA\Property(property: 'chance', description: 'Drop chance as a decimal (e.g. 0.5 for 50%)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'web_url', description: 'Web URL for the mission detail page', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -216,33 +222,35 @@ use OpenApi\Attributes as OA;
     schema: 'blueprint',
     title: 'Blueprint',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'key', type: 'string'),
-        new OA\Property(property: 'category_uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'output_item_uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'output_name', type: 'string', nullable: true),
-        new OA\Property(property: 'output_class', type: 'string', nullable: true),
-        new OA\Property(property: 'craft_time_seconds', type: 'integer', nullable: true),
-        new OA\Property(property: 'craft_time_label', type: 'string', nullable: true),
-        new OA\Property(property: 'is_available_by_default', type: 'boolean'),
-        new OA\Property(property: 'game_version', type: 'string', nullable: true),
-        new OA\Property(property: 'ingredient_count', type: 'integer'),
-        new OA\Property(property: 'unlocking_missions_count', description: 'Number of missions that can unlock this blueprint.', type: 'integer'),
+        new OA\Property(property: 'uuid', description: 'Unique blueprint identifier', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'key', description: 'Internal blueprint key (e.g. BP_CRAFT_behr_pistol_ballistic_01)', type: 'string'),
+        new OA\Property(property: 'category_uuid', description: 'UUID of the blueprint category', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'output_item_uuid', description: 'UUID of the item this blueprint crafts', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'output_name', description: 'Display name of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'output_class', description: 'Internal class identifier of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'craft_time_seconds', description: 'Crafting duration in seconds', type: 'integer', nullable: true),
+        new OA\Property(property: 'craft_time_label', description: 'Human-readable crafting duration', type: 'string', nullable: true),
+        new OA\Property(property: 'is_available_by_default', description: 'Whether this blueprint is available without unlocking', type: 'boolean'),
+        new OA\Property(property: 'game_version', description: 'Game version code this data applies to', type: 'string', nullable: true),
+        new OA\Property(property: 'ingredient_count', description: 'Total number of distinct ingredients across all requirement groups', type: 'integer'),
+        new OA\Property(property: 'unlocking_missions_count', description: 'Number of missions that can unlock this blueprint', type: 'integer'),
         new OA\Property(
             property: 'ingredients',
+            description: 'Ingredients required to craft the item',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_ingredient')
         ),
         new OA\Property(
             property: 'dismantle_returns',
+            description: 'Resources returned when dismantling the crafted item',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_dismantle_return_summary')
         ),
-        new OA\Property(property: 'output', ref: '#/components/schemas/blueprint_output'),
+        new OA\Property(property: 'output', ref: '#/components/schemas/blueprint_output', description: 'Crafted item metadata'),
         new OA\Property(
             property: 'dismantle',
             ref: '#/components/schemas/blueprint_dismantle',
-            description: 'Only included on blueprint detail responses.'
+            description: 'Only included on blueprint detail responses.',
         ),
         new OA\Property(
             property: 'requirement_groups',
@@ -268,9 +276,9 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/blueprint_tier')
         ),
-        new OA\Property(property: 'link', type: 'string', format: 'uri'),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
-        new OA\Property(property: 'output_item_web_url', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'link', description: 'API URL for this blueprint', type: 'string', format: 'uri'),
+        new OA\Property(property: 'web_url', description: 'Web URL for the blueprint detail page', type: 'string', format: 'uri'),
+        new OA\Property(property: 'output_item_web_url', description: 'Web URL for the crafted item detail page', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
