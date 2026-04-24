@@ -8,6 +8,7 @@ use App\Models\Game\EntityTag;
 use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Services\Game\SlugService;
 use App\Support\Filters\FilterCache;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -63,16 +64,12 @@ class ImportStarmapData implements ShouldQueue
 
         $uuids = array_keys($validEntries);
 
-        $usedSlugs = StarmapLocation::query()
-            ->pluck('slug')
-            ->filter()
-            ->toArray();
-
+        $slugService = app(SlugService::class);
+        $usedSlugs = [];
         $slugMap = [];
         foreach ($validEntries as $uuid => $entry) {
             $name = $this->extractName($entry);
-            $slug = $this->generateUniqueSlugInMemory(Str::slug($name), $usedSlugs);
-            $usedSlugs[] = $slug;
+            $slug = $slugService->generateUniqueSlugForBatch(Str::slug($name), $usedSlugs, StarmapLocation::class);
             $slugMap[$uuid] = $slug;
         }
 
@@ -454,21 +451,5 @@ class ImportStarmapData implements ShouldQueue
         }
 
         return $value;
-    }
-
-    /**
-     * @param  list<string|null>  $usedSlugs
-     */
-    private function generateUniqueSlugInMemory(string $baseSlug, array &$usedSlugs): string
-    {
-        $slug = $baseSlug;
-        $counter = 2;
-
-        while (in_array($slug, $usedSlugs, true)) {
-            $slug = $baseSlug.'-'.$counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 }

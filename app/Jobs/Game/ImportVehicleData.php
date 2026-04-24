@@ -7,6 +7,7 @@ namespace App\Jobs\Game;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use App\Services\Game\SlugService;
 use App\Services\Game\VehicleItemImporter;
 use App\Services\Game\VehicleMatchingService;
 use App\Services\Parser\SC\Labels;
@@ -18,7 +19,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -244,17 +244,16 @@ class ImportVehicleData implements ShouldQueue
 
     private function updateSlug(Vehicle $vehicle, array $payload): void
     {
+        if ($vehicle->slug !== null && $vehicle->slug !== '') {
+            return;
+        }
+
         $className = $payload['ClassName'] ?? null;
 
         if ($className === null || $className === '') {
             return;
         }
 
-        $slug = Str::slug($className);
-
-        if ($vehicle->slug !== $slug) {
-            $vehicle->slug = $slug;
-            $vehicle->save();
-        }
+        app(SlugService::class)->assignUniqueSlug($vehicle, $className, "vehicle-{$vehicle->id}");
     }
 }

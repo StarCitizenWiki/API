@@ -11,7 +11,9 @@ use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
+use App\Services\Game\SlugService;
 use App\Services\Parser\SC\Labels;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,8 +22,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -212,8 +214,8 @@ class ImportItemData implements ShouldQueue
         foreach ([Language::CHINESE, Language::GERMAN] as $language) {
             try {
                 $updated = $this->syncLanguageTranslation($item, $descriptionLabel, $language) || $updated;
-            } catch (\Exception $e) {
-                \Log::warning("Failed to sync {$language} translation", [
+            } catch (Exception $e) {
+                Log::warning("Failed to sync {$language} translation", [
                     'item_id' => $item->id,
                     'label' => $descriptionLabel,
                     'error' => $e->getMessage(),
@@ -427,33 +429,10 @@ class ImportItemData implements ShouldQueue
 
     private function updateSlug(Item $item, string $name): void
     {
-        $slug = $this->generateUniqueSlug($name, Item::class, $item->id);
-
-        if ($item->slug !== $slug) {
-            $item->slug = $slug;
-            $item->save();
-        }
-    }
-
-    /**
-     * @param  class-string<Model>  $modelClass
-     */
-    private function generateUniqueSlug(string $name, string $modelClass, int $excludeId): string
-    {
-        $baseSlug = Str::slug($name);
-
-        if ($baseSlug === '') {
-            return 'item-'.$excludeId;
+        if ($item->slug !== null && $item->slug !== '') {
+            return;
         }
 
-        $slug = $baseSlug;
-        $counter = 2;
-
-        while ($modelClass::query()->where('slug', $slug)->where('id', '!=', $excludeId)->exists()) {
-            $slug = $baseSlug.'-'.$counter;
-            $counter++;
-        }
-
-        return $slug;
+        app(SlugService::class)->assignUniqueSlug($item, $name, "item-{$item->id}");
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game\Resources;
 
 use App\Models\Game\Commodity\Commodity;
+use App\Services\Game\SlugService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
@@ -66,8 +66,10 @@ class ImportCommodities extends Command
             })
             ->keyBy(fn (array $commodity): string => (string) $commodity['UUID']);
 
+        $slugService = app(SlugService::class);
+        $usedSlugs = [];
         $slugMap = [];
-        $commodities->each(function (array $commodity) use (&$slugMap): void {
+        $commodities->each(function (array $commodity) use ($slugService, &$usedSlugs, &$slugMap): void {
             $name = (string) ($commodity['Name'] ?? '');
             $baseSlug = Str::slug($name);
 
@@ -75,7 +77,7 @@ class ImportCommodities extends Command
                 $baseSlug = Str::slug((string) ($commodity['Key'] ?? 'commodity'));
             }
 
-            $slug = $this->generateUniqueSlug($baseSlug, $slugMap);
+            $slug = $slugService->generateUniqueSlugForBatch($baseSlug, $usedSlugs, Commodity::class);
             $slugMap[$commodity['UUID']] = $slug;
         });
 
@@ -169,24 +171,5 @@ class ImportCommodities extends Command
         $value = trim($value);
 
         return $value === '' ? null : $value;
-    }
-
-    /**
-     * @param  string  $baseSlug  The base slug to start with
-     * @param  array<string, string>  $slugMap  Local map of already generated slugs in this batch
-     * @param  string  $table  Database table name to check for existing slugs
-     * @param  string  $column  Column name to check for slug conflicts
-     */
-    private function generateUniqueSlug(string $baseSlug, array $slugMap, string $table = 'game_commodities', string $column = 'slug'): string
-    {
-        $slug = $baseSlug;
-        $counter = 2;
-
-        while (in_array($slug, $slugMap, true) || DB::table($table)->where($column, $slug)->exists()) {
-            $slug = $baseSlug.'-'.$counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 }

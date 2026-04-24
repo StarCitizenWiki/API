@@ -14,6 +14,7 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Services\Game\SlugService;
 use App\Support\Filters\MissionScopeMapping;
 use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Bus\Batchable;
@@ -24,7 +25,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ImportMissionData implements ShouldQueue
 {
@@ -660,21 +660,10 @@ class ImportMissionData implements ShouldQueue
         $debugName = $this->trimOrNull(Arr::get($payload, 'DebugName'));
         $formatted = FormatMissionTitle::format($title, $debugName);
 
-        $baseSlug = $formatted !== null ? Str::slug($formatted) : null;
-
-        if ($baseSlug === null || $baseSlug === '') {
-            $baseSlug = $mission->uuid;
-        }
-
-        $slug = $baseSlug;
-        $suffix = 2;
-
-        while (Mission::query()->where('slug', $slug)->where('id', '!=', $mission->id)->exists()) {
-            $slug = $baseSlug.'-'.$suffix;
-            $suffix++;
-        }
-
-        $mission->slug = $slug;
-        $mission->save();
+        app(SlugService::class)->assignUniqueSlug(
+            $mission,
+            $formatted ?? '',
+            $mission->uuid,
+        );
     }
 }
