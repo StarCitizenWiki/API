@@ -7,7 +7,10 @@
     $itemName = data_get($item, 'name', 'Item');
     $manufacturerName = data_get($item, 'manufacturer.name');
     $itemType = data_get($item, 'type');
+    $itemTypeLabel = data_get($item, 'type_label') ?? $itemType;
+    $subTypeLabel = data_get($item, 'sub_type_label') ?? data_get($item, 'sub_type') ?? '';
     $classification = data_get($item, 'classification');
+    $classificationLabel = data_get($item, 'classification_label') ?? $classification;
     $itemClass = data_get($item, 'class');
     $itemSize = data_get($item, 'size');
     $grade = data_get($item, 'grade');
@@ -83,6 +86,12 @@
         default => null,
     };
 
+    $heroImage = data_get(data_get($item, 'images', []), '0.original_url');
+    $imageSource = data_get(data_get($item, 'images', []), '0.source');
+    $imageWidth = data_get(data_get($item, 'images', []), '0.original_width');
+    $imageHeight = data_get(data_get($item, 'images', []), '0.original_height');
+    $isPortrait = $imageWidth !== null && $imageHeight !== null && $imageHeight > $imageWidth;
+
     $iconName = match (true) {
         $itemType === 'PowerPlant' => 'power',
         $itemType === 'Shield' || str_contains($classificationValue ?? '', 'Shield') => 'shield',
@@ -106,13 +115,13 @@
             : null,
         $itemType
             ? [
-                'label' => $itemType,
+                'label' => $itemTypeLabel,
                 'url' => $typeUrl,
             ]
             : null,
-        $classification
+        $subTypeLabel
             ? [
-                'label' => $classification,
+                'label' => $subTypeLabel,
                 'url' => null,
             ]
             : null,
@@ -120,23 +129,38 @@
 
     $badges = array_values(array_filter([
         $gradeLetter ? ['label' => 'Grade '.$gradeLetter, 'url' => null, 'test_id' => null] : null,
-        $itemClass ? ['label' => $itemClass, 'url' => null, 'test_id' => null] : null,
         $isCraftable ? ['label' => 'Craftable', 'url' => $blueprintUrl, 'test_id' => 'item-hero-pill-craftable'] : null,
         $variantStateLabel ? ['label' => $variantStateLabel, 'url' => null, 'test_id' => 'item-hero-pill-variant-state'] : null,
     ]));
 @endphp
 
-<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-hero']) }}>
-    <div class="card-body gap-4 p-5 sm:p-6">
+<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'item-hero']) }}>
+    @if ($heroImage)
+        <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
+            <a href="{{ $heroImage }}" target="_blank" rel="noopener noreferrer">
+                <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="h-full w-full object-cover" loading="lazy" />
+            </a>
+            <div class="pointer-events-none absolute inset-0"></div>
+            @if ($imageSource)
+                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70">
+                    Image from {{ $imageSource }}
+                </span>
+            @endif
+        </div>
+    @endif
+
+    <div class="card-body gap-4 p-5 sm:p-6 {{ $isPortrait ? 'flex-1 min-w-0' : '' }}">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-2">
                 <div class="flex items-center gap-3">
-                    <span
-                        class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
-                        aria-label="Item type"
-                    >
-                        <x-icon :name="$iconName" class="size-5 sm:size-6" />
-                    </span>
+                    @if (! $heroImage)
+                        <span
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
+                            aria-label="Item type"
+                        >
+                            <x-icon :name="$iconName" class="size-5 sm:size-6" />
+                        </span>
+                    @endif
 
                     <h1 class="min-w-0 text-3xl font-semibold tracking-tight sm:text-4xl">
                         {{ $itemName }}
