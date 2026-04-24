@@ -160,7 +160,7 @@ class ItemController extends Controller
 
     #[OA\Get(
         path: '/api/weapons',
-        description: 'Alias for /api/items scoped to weapon items (FPS weapons).',
+        description: 'Alias for /api/items scoped to FPS weapons (WeaponPersonal type). Returns weapon items with manufacturer, game version, and description data.',
         summary: 'In-Game Weapons Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -170,11 +170,11 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
+            new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on item class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -182,7 +182,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/weapon-attachments',
-        description: 'Alias for /api/items scoped to weapon attachment items.',
+        description: 'Alias for /api/items scoped to weapon attachments (WeaponAttachment type, excluding magazines and missiles). Returns attachment items with manufacturer, game version, and description data.',
         summary: 'In-Game Weapon Attachments Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -192,9 +192,9 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Clark Defense Systems')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Iron Sight')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 1)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapon Attachments', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -202,7 +202,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/clothes',
-        description: 'Alias for /api/items scoped to clothing items.',
+        description: 'Alias for /api/items scoped to clothing (FPS.Clothing.* classification). Returns clothing items with manufacturer, game version, and description data.',
         summary: 'In-Game Clothes Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -212,9 +212,9 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Stegman\'s')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Jacket')),
+            new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Clothing). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Clothing.Torso')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Clothes', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -222,7 +222,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/armor',
-        description: 'Alias for /api/items scoped to armor items.',
+        description: 'Alias for /api/items scoped to armor (FPS.Armor.* classification). Returns armor items with manufacturer, game version, and description data.',
         summary: 'In-Game Armor Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -232,9 +232,9 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Clark Defense Systems')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Core')),
+            new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Armor', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -242,7 +242,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/food',
-        description: 'Alias for /api/items scoped to food items.',
+        description: 'Alias for /api/items scoped to food and drink (Food, Bottle, Drink types). Returns consumable items with manufacturer, game version, and description data.',
         summary: 'In-Game Food Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -252,8 +252,8 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'TDD')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Burger')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Food Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -261,7 +261,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-weapons',
-        description: 'Alias for /api/items scoped to vehicle weapon items.',
+        description: 'Alias for /api/items scoped to vehicle weapons (WeaponGun type). Returns ship weapon items with manufacturer, game version, and description data.',
         summary: 'In-Game Vehicle Weapons Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -271,9 +271,9 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cannon')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -281,7 +281,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-items',
-        description: 'Alias for /api/items scoped to vehicle component items.',
+        description: 'Alias for /api/items scoped to vehicle components (coolers, shields, power plants, quantum drives, thrusters, etc.). Returns component items with manufacturer, game version, and description data.',
         summary: 'In-Game Vehicle Items Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -291,10 +291,10 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Aegis Dynamics')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Shield')),
+            new OA\Parameter(name: 'filter[type]', description: 'Exact match on item type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cooler')),
+            new OA\Parameter(name: 'filter[sub_type]', description: 'Exact match on item sub-type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Default')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -302,7 +302,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/items',
-        description: 'Returns paginated in-game items for the requested category and version with optional filters/includes.',
+        description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)',
         summary: 'In-Game Item Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -320,18 +320,18 @@ class ItemController extends Controller
                     example: '-weapon.damage.alpha_total'
                 )
             ),
-            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[variants]', description: 'When false, excludes variant items (base_id IS NOT NULL) and returns only base items. When true or omitted, returns all items including variants.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[category]', description: 'Item category to scope results. Accepts: weapons, weapon-attachments, clothes, armor, food, medical, mining-modifiers, fps-items, vehicle-weapons, vehicle-items, vehicle-flair-items, vehicle-components.', in: 'query', schema: new OA\Schema(type: 'string', example: 'weapons')),
+            new OA\Parameter(name: 'filter[type]', description: 'Exact match on item type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'WeaponPersonal')),
+            new OA\Parameter(name: 'filter[sub_type]', description: 'Exact match on item sub-type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Barrel')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Same as filter[manufacturer]. Accepts comma-separated values for OR matching.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
+            new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on item class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
         ],
         responses: [
             new OA\Response(
@@ -368,11 +368,11 @@ class ItemController extends Controller
 
     #[OA\Get(
         path: '/api/weapons/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to weapons.',
+        description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Weapon Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Arrow')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -383,11 +383,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/weapon-attachments/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to weapon attachments.',
+        description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Weapon Attachment Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Iron Sight')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -398,11 +398,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/clothes/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to clothing.',
+        description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Clothing Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Jacket')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -413,11 +413,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/armor/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to armor.',
+        description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Armor Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Core')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -428,11 +428,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/food/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to food.',
+        description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Food Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Burger')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -443,11 +443,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-weapons/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to vehicle weapons.',
+        description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Vehicle Weapon Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Greatsword')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -458,11 +458,11 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-items/{identifier}',
-        description: 'Alias for /api/items/{identifier} scoped to vehicle items.',
+        description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, shops.items.',
         summary: 'In-Game Vehicle Item Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Item name or UUID', type: 'string', example: 'Shield')),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -473,7 +473,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/items/{identifier}',
-        description: 'Retrieve a specific item by name or UUID with metadata and includes.',
+        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.',
         summary: 'In-Game Item Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -485,8 +485,9 @@ class ItemController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Item name or UUID',
+                    description: 'Item name, slug, class name, or UUID',
                     type: 'string',
+                    example: 'Arrow',
                 ),
             ),
         ],
@@ -585,18 +586,18 @@ class ItemController extends Controller
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/sort'),
-            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[variants]', description: 'When false, excludes variant items and returns only base items. When true or omitted, returns all items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[category]', description: 'Item category to scope results. Accepts: weapons, weapon-attachments, clothes, armor, food, medical, mining-modifiers, fps-items, vehicle-weapons, vehicle-items, vehicle-flair-items, vehicle-components.', in: 'query', schema: new OA\Schema(type: 'string', example: 'weapons')),
+            new OA\Parameter(name: 'filter[type]', description: 'Exact match on item type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'WeaponPersonal')),
+            new OA\Parameter(name: 'filter[sub_type]', description: 'Exact match on item sub-type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Barrel')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Same as filter[manufacturer]. Accepts comma-separated values for OR matching.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
+            new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on item class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
+            new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
+            new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
         ],
         responses: [
             new OA\Response(
@@ -639,40 +640,40 @@ class ItemController extends Controller
 
     #[OA\Get(
         path: '/api/items/filters',
-        description: 'Return all available filter values for in-game items, grouped by field.',
+        description: 'Returns available filter facet values for in-game items, grouped by field with occurrence counts. Applying other filters narrows the facet results. Use these values as filter[*] parameters on GET /api/items. Scoped to the default item category unless filter[category] is specified.',
         summary: 'In-Game Item Filters',
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[manufacturer.name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[class_name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[classification]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[grade]', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[variants]', description: 'When false, facets are computed excluding variant items. When true or omitted, all items are included.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[category]', description: 'Item category to scope facets. Accepts: weapons, weapon-attachments, clothes, armor, food, medical, mining-modifiers, fps-items, vehicle-weapons, vehicle-items, vehicle-flair-items, vehicle-components.', in: 'query', schema: new OA\Schema(type: 'string', example: 'weapons')),
+            new OA\Parameter(name: 'filter[type]', description: 'Narrow facets to items matching this type.', in: 'query', schema: new OA\Schema(type: 'string', example: 'WeaponPersonal')),
+            new OA\Parameter(name: 'filter[sub_type]', description: 'Narrow facets to items matching this sub-type.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Barrel')),
+            new OA\Parameter(name: 'filter[manufacturer]', description: 'Narrow facets to items from this manufacturer.', in: 'query', schema: new OA\Schema(type: 'string', example: 'KnightBridge Arms')),
+            new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Same as filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
+            new OA\Parameter(name: 'filter[class_name]', description: 'Narrow facets to items with matching class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MGA_Assault')),
+            new OA\Parameter(name: 'filter[name]', description: 'Narrow facets to items with matching name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
+            new OA\Parameter(name: 'filter[classification]', description: 'Narrow facets to items with matching classification.', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
+            new OA\Parameter(name: 'filter[size]', description: 'Narrow facets to items with this size.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[grade]', description: 'Narrow facets to items with this grade.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[class]', description: 'Narrow facets to items with this class.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Available filters for in-game items.',
+                description: 'Available filter facets for in-game items, grouped by field with counts.',
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(
                             property: 'filters',
                             properties: [
-                                new OA\Property(property: 'type', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'sub_type', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'classification', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'size', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'grade', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'class', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
-                                new OA\Property(property: 'manufacturer', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'type', description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'sub_type', description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'classification', description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'size', description: 'Item sizes (0–12)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'grade', description: 'Item grades (1–7, mapped A–G)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'class', description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'manufacturer', description: 'Manufacturer names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
