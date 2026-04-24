@@ -6,6 +6,7 @@ namespace App\Services\Game;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -40,7 +41,7 @@ class SlugService
             $model->$slugColumn = $slug;
 
             try {
-                $model->save();
+                DB::transaction(static fn () => $model->save());
 
                 return $slug;
             } catch (UniqueConstraintViolationException $e) {
