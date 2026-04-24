@@ -61,8 +61,8 @@ it('adds sort metadata only for configured sortable fields', function (): void {
             ->and($result['headerFilterOptionsMap'])->toMatchArray([
                 'manufacturer.name' => 'manufacturer',
                 'type' => 'type',
-                'sub_type' => 'sub_type',
-                'classification' => 'classification',
+                'sub_type_label' => 'sub_type',
+                'classification_label' => 'classification',
                 'size' => 'size',
                 'grade' => 'grade',
                 'class' => 'class',
