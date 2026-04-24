@@ -491,4 +491,84 @@ describe('naming', function () {
         $sweaterResult = resolveRelatedItems($sweater);
         expect($sweaterResult['variant_items'])->toHaveCount(0);
     });
+
+    it('derives set name from set items when variant group is absent', function (): void {
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Helmet HighSec',
+                'class_name' => 'kap_combat_heavy_helmet_02_03_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        $core = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Core HighSec',
+                'class_name' => 'kap_combat_heavy_core_02_03_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Arms HighSec',
+                'class_name' => 'kap_combat_heavy_arms_02_03_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Legs HighSec',
+                'class_name' => 'kap_combat_heavy_legs_02_03_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($core);
+
+        expect($result['set_name'])->toBe('Monde HighSec')
+            ->and($result['set_items'])->toHaveCount(3);
+    });
+
+    it('groups class name variants with numeric sub-variant fallback', function (): void {
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Core',
+                'class_name' => 'kap_combat_heavy_core_02_01_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        $highsec = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Core HighSec',
+                'class_name' => 'kap_combat_heavy_core_02_03_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Core Hemlock Camo',
+                'class_name' => 'kap_combat_heavy_core_02_04_01',
+                'classification' => 'Char_Armor',
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($highsec);
+
+        expect($result['variant_items'])->toHaveCount(1);
+    });
 });

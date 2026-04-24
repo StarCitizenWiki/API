@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Models\Game\ItemData;
+use App\Services\ItemVariantResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -20,7 +21,7 @@ class RelatedItemsResource extends JsonResource
 
         if ($pivotItem === null || ! $pivotItem->relationLoaded('variantGroup') || $pivotItem->variantGroup === null) {
             return [
-                'set_name' => null,
+                'set_name' => $this->deriveSetNameFromSetItems($itemData),
                 'base_item' => null,
                 'variant_items' => [],
                 'set_items' => $this->formatSetItems($itemData),
@@ -115,6 +116,37 @@ class RelatedItemsResource extends JsonResource
                 'web_url' => route('web.items.show', ['item' => $setItemData->item->slug ?? $setItemData->item->uuid]),
             ])
             ->all();
+    }
+
+    private function deriveSetNameFromSetItems(ItemData $itemData): ?string
+    {
+        if (! $itemData->relationLoaded('setItems') || $itemData->setItems->isEmpty()) {
+            return null;
+        }
+
+        $names = array_values(array_filter(
+            array_merge(
+                [$itemData->name ?? ''],
+                $itemData->setItems->map(fn (ItemData $s): string => $s->name ?? '')->all(),
+            ),
+            static fn (string $n): bool => $n !== '',
+        ));
+
+        if (count($names) < 2) {
+            return null;
+        }
+
+        $slotPattern = '/\s+('.implode('|', array_map(
+            static fn (string $w): string => preg_quote($w, '/'),
+            ItemVariantResolver::SLOT_WORDS,
+        )).')\s+/iu';
+
+        $strippedNames = array_map(
+            static fn (string $name): string => trim(preg_replace($slotPattern, ' ', $name) ?? $name),
+            $names,
+        );
+
+        return ItemVariantResolver::deriveSetNameFromNames($strippedNames);
     }
 
     private function expandManufacturerLink(?array $manufacturer): ?array

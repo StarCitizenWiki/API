@@ -217,6 +217,36 @@ class ItemVariantResolver
 
         $results = $query->with(['item', 'gameVersion'])->get()->all();
 
+        if (count($results) < 2 && preg_match('/_\d+$/', $prefix) === 1) {
+            $broaderPrefix = preg_replace('/_\d+$/', '', $prefix);
+
+            if ($broaderPrefix !== null && $broaderPrefix !== '') {
+                $broaderCacheKey = $this->buildClassNameGroupCacheKey($itemData, $broaderPrefix);
+
+                if (array_key_exists($broaderCacheKey, $this->classNameGroupCache)) {
+                    $broaderResults = $this->classNameGroupCache[$broaderCacheKey];
+                } else {
+                    $broaderQuery = ItemData::query()
+                        ->where('game_version_id', $this->gameVersionId)
+                        ->where(function (Builder $q) use ($broaderPrefix): void {
+                            $q->where('class_name', $broaderPrefix)
+                                ->orWhere('class_name', 'LIKE', $broaderPrefix.'_%');
+                        });
+
+                    $this->applyVariantTypeFilter($broaderQuery, $itemData);
+
+                    $broaderResults = $broaderQuery->with(['item', 'gameVersion'])->get()->all();
+                    $this->classNameGroupCache[$broaderCacheKey] = $broaderResults;
+                }
+
+                if (count($broaderResults) >= 2) {
+                    $this->classNameGroupCache[$cacheKey] = $broaderResults;
+
+                    return $broaderResults;
+                }
+            }
+        }
+
         $this->classNameGroupCache[$cacheKey] = $results;
 
         return $results;
@@ -399,41 +429,47 @@ class ItemVariantResolver
     {
         $tags = $this->extractStdItemTags($itemData);
 
-        foreach ($tags as $tag) {
-            if (preg_match('/^color_(\d+)$/i', $tag, $matches) === 1) {
-                return (int) $matches[1];
-            }
+        if (array_any($tags, fn($tag) => preg_match('/^color_(\d+)$/i', $tag, $matches) === 1)) {
+            return (int)$matches[1];
         }
 
         return null;
     }
 
-    public static function computeSetNameAndVariantNames(array $names, ?array $base, array $group): array
+    public static function deriveSetNameFromNames(array $names): ?string
     {
         $rawPrefix = self::longestCommonPrefix($names);
 
-        $setName = null;
-        if ($rawPrefix !== null) {
-            $candidate = rtrim($rawPrefix);
+        if ($rawPrefix === null) {
+            return null;
+        }
 
-            if ($candidate !== '') {
-                $isWordBoundary =
-                    str_ends_with($rawPrefix, ' ')
-                    || in_array($candidate, $names, true)
-                    || collect($names)->contains(fn (string $n): bool => str_starts_with($n, $candidate.' '));
+        $candidate = rtrim($rawPrefix);
 
-                if (! $isWordBoundary) {
-                    $lastSpace = strrpos($candidate, ' ');
+        if ($candidate === '') {
+            return null;
+        }
 
-                    if ($lastSpace !== false) {
-                        $candidate = substr($candidate, 0, $lastSpace);
-                    }
-                }
+        $isWordBoundary = str_ends_with($rawPrefix, ' ')
+            || in_array($candidate, $names, true)
+            || collect($names)->contains(fn (string $n): bool => str_starts_with($n, $candidate.' '));
 
-                $candidate = trim($candidate);
-                $setName = $candidate !== '' ? $candidate : null;
+        if (! $isWordBoundary) {
+            $lastSpace = strrpos($candidate, ' ');
+
+            if ($lastSpace !== false) {
+                $candidate = substr($candidate, 0, $lastSpace);
             }
         }
+
+        $candidate = trim($candidate);
+
+        return $candidate !== '' ? $candidate : null;
+    }
+
+    public static function computeSetNameAndVariantNames(array $names, ?array $base, array $group): array
+    {
+        $setName = self::deriveSetNameFromNames($names);
 
         if ($base !== null && $setName !== null && $setName === $base['name']) {
             $trimmed = self::trimTrailingSlotOrTypeWord($setName);
