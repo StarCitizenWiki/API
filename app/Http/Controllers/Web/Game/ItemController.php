@@ -7,7 +7,9 @@ namespace App\Http\Controllers\Web\Game;
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
 use App\Support\Items\ItemTableConfig;
+use App\Support\Seo\ItemIndexSeoData;
 use App\Support\Seo\ItemShowSeoData;
+use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -15,10 +17,13 @@ use Illuminate\View\View;
 
 class ItemController extends Controller
 {
+    use NormalizesFilterParams;
+
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly ItemTableConfig $itemTableConfig,
         private readonly ItemShowSeoData $itemShowSeoData,
+        private readonly ItemIndexSeoData $itemIndexSeoData,
     ) {}
 
     public function index(Request $request): View
@@ -44,6 +49,11 @@ class ItemController extends Controller
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'endpointRouteName' => 'items.index',
             'endpointFilters' => $endpointFilters,
+            'seo' => $this->itemIndexSeoData->build([
+                'pageTitle' => $tableConfig['title'],
+                'category' => $category,
+                'type' => $type,
+            ], $request),
         ]);
     }
 
@@ -90,55 +100,5 @@ class ItemController extends Controller
         }
 
         return $initialFilters;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function normalizeFilterParams(mixed $filters): array
-    {
-        if (! is_array($filters) || $filters === []) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($filters as $field => $value) {
-            if (! is_string($field) || $field === '') {
-                continue;
-            }
-
-            $normalizedValue = $this->normalizeFilterValue($value);
-
-            if ($normalizedValue === null) {
-                continue;
-            }
-
-            $normalized[$field] = $normalizedValue;
-        }
-
-        return $normalized;
-    }
-
-    private function normalizeFilterValue(mixed $value): ?string
-    {
-        if (is_array($value)) {
-            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
-            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
-
-            if ($values === []) {
-                return null;
-            }
-
-            return implode(',', $values);
-        }
-
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        return $normalized === '' ? null : $normalized;
     }
 }

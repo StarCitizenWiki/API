@@ -159,4 +159,79 @@ abstract class AbstractShowSeoData
     {
         return implode($glue, $this->compactValues($segments));
     }
+
+    /**
+     * @param  array<int, array{label: string, url: string}>  $breadcrumbs
+     */
+    protected function resolveLeafBreadcrumbLabel(array $breadcrumbs): ?string
+    {
+        if (count($breadcrumbs) < 2) {
+            return null;
+        }
+
+        return $this->normalizeString($breadcrumbs[count($breadcrumbs) - 2]['label'] ?? null);
+    }
+
+    /**
+     * @param  array<string, string|int|float|null>  $additionalProperties
+     * @return array<string, mixed>
+     */
+    protected function buildBaseEntityStructuredData(
+        string $schemaType,
+        string $name,
+        string $description,
+        string $url,
+        string $category,
+        array $additionalProperties = [],
+    ): array {
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => $schemaType,
+            'name' => $name,
+            'description' => $description,
+            'url' => $url,
+            'category' => $category,
+        ];
+
+        $propertyValues = $this->buildPropertyValues($additionalProperties);
+
+        if ($propertyValues !== []) {
+            $schema['additionalProperty'] = $propertyValues;
+        }
+
+        return $schema;
+    }
+
+    /**
+     * @param  array<int, string>  $keywords
+     * @param  array<int, array<string, mixed>>  $structuredData
+     * @return array<string, mixed>
+     */
+    protected function buildSeoResponse(
+        string $canonicalUrl,
+        string $metaDescription,
+        array $keywords,
+        string $ogTitle,
+        array $breadcrumbs,
+        array $structuredData,
+        ?string $title = null,
+    ): array {
+        $response = [];
+
+        if ($title !== null) {
+            $response['title'] = $title;
+        }
+
+        $response['canonicalUrl'] = $canonicalUrl;
+        $response['metaDescription'] = $metaDescription;
+        $response['keywords'] = $keywords;
+        $response['ogTitle'] = $ogTitle;
+        $response['ogDescription'] = $metaDescription;
+        $response['twitterTitle'] = $ogTitle;
+        $response['twitterDescription'] = $metaDescription;
+        $response['breadcrumbs'] = $breadcrumbs;
+        $response['structuredData'] = $this->compactValues($structuredData);
+
+        return $response;
+    }
 }

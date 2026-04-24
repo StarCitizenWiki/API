@@ -9,7 +9,9 @@ use App\Models\Game\Blueprint;
 use App\Services\ApiJsonRequest;
 use App\Support\Blueprints\BlueprintShowViewData;
 use App\Support\Blueprints\BlueprintTableConfig;
+use App\Support\Seo\BlueprintIndexSeoData;
 use App\Support\Seo\BlueprintShowSeoData;
+use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -17,6 +19,8 @@ use Illuminate\View\View;
 
 class BlueprintController extends Controller
 {
+    use NormalizesFilterParams;
+
     private const int SEARCH_RESULTS_PAGE_SIZE = 5;
 
     public function __construct(
@@ -24,6 +28,7 @@ class BlueprintController extends Controller
         private readonly BlueprintShowViewData $blueprintShowViewData,
         private readonly BlueprintShowSeoData $blueprintShowSeoData,
         private readonly BlueprintTableConfig $blueprintTableConfig,
+        private readonly BlueprintIndexSeoData $blueprintIndexSeoData,
     ) {}
 
     public function index(Request $request): View
@@ -47,6 +52,9 @@ class BlueprintController extends Controller
             'pageSize' => $tableConfig['pageSize'],
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
+            'seo' => $this->blueprintIndexSeoData->build([
+                'pageTitle' => $tableConfig['title'],
+            ], $request),
         ]);
     }
 
@@ -136,56 +144,6 @@ class BlueprintController extends Controller
             ...$parameters,
             'version' => $this->resolveVersionCode($request),
         ], static fn (mixed $value): bool => $value !== null && $value !== '' && $value !== []);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function normalizeFilterParams(mixed $filters): array
-    {
-        if (! is_array($filters) || $filters === []) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($filters as $field => $value) {
-            if (! is_string($field) || $field === '') {
-                continue;
-            }
-
-            $normalizedValue = $this->normalizeFilterValue($value);
-
-            if ($normalizedValue === null) {
-                continue;
-            }
-
-            $normalized[$field] = $normalizedValue;
-        }
-
-        return $normalized;
-    }
-
-    private function normalizeFilterValue(mixed $value): ?string
-    {
-        if (is_array($value)) {
-            $values = array_map(static fn (mixed $entry): string => trim((string) $entry), $value);
-            $values = array_values(array_filter($values, static fn (string $entry): bool => $entry !== ''));
-
-            if ($values === []) {
-                return null;
-            }
-
-            return implode(',', $values);
-        }
-
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        return $normalized === '' ? null : $normalized;
     }
 
     private function resolveVersionCode(Request $request): ?string

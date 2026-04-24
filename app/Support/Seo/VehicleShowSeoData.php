@@ -56,11 +56,10 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             $category = 'Star Citizen Vehicle';
         }
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $vehicleName,
                 $manufacturerName,
                 $sizeClass !== null ? 'Size '.$sizeClass : null,
@@ -69,14 +68,11 @@ final class VehicleShowSeoData extends AbstractShowSeoData
                 'Star Citizen',
                 'SC',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildEntityStructuredData(
+                $this->buildVehicleEntityStructuredData(
                     vehicleName: $vehicleName,
                     manufacturerName: $manufacturerName,
                     category: $category,
@@ -94,8 +90,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
                     quantumSpeed: $this->normalizeScalar(data_get($vehicle, 'quantum.quantum_speed')),
                     version: $this->normalizeString(data_get($vehicle, 'version')),
                 ),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**
@@ -185,7 +182,7 @@ final class VehicleShowSeoData extends AbstractShowSeoData
     /**
      * @return array<string, mixed>
      */
-    private function buildEntityStructuredData(
+    private function buildVehicleEntityStructuredData(
         string $vehicleName,
         ?string $manufacturerName,
         string $category,
@@ -203,14 +200,25 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         string|int|float|null $quantumSpeed,
         ?string $version,
     ): array {
-        $schema = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Vehicle',
-            'name' => $vehicleName,
-            'description' => $metaDescription,
-            'url' => $canonicalUrl,
-            'category' => $category,
-        ];
+        $schema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Vehicle',
+            name: $vehicleName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Manufacturer Code' => $manufacturerCode,
+                'Size Class' => $sizeClass,
+                'Career' => $career,
+                'Role' => $role,
+                'Crew' => $crewMin,
+                'Cargo Capacity' => $cargoCapacity,
+                'SCM Speed' => $scmSpeed,
+                'Max Speed' => $maxSpeed,
+                'Quantum Speed' => $quantumSpeed,
+                'Version' => $version,
+            ],
+        );
 
         if ($manufacturerName !== null) {
             $schema['brand'] = [
@@ -221,23 +229,6 @@ final class VehicleShowSeoData extends AbstractShowSeoData
 
         if ($className !== null) {
             $schema['vehicleConfiguration'] = $className;
-        }
-
-        $additionalProperty = $this->buildPropertyValues([
-            'Manufacturer Code' => $manufacturerCode,
-            'Size Class' => $sizeClass,
-            'Career' => $career,
-            'Role' => $role,
-            'Crew' => $crewMin,
-            'Cargo Capacity' => $cargoCapacity,
-            'SCM Speed' => $scmSpeed,
-            'Max Speed' => $maxSpeed,
-            'Quantum Speed' => $quantumSpeed,
-            'Version' => $version,
-        ]);
-
-        if ($additionalProperty !== []) {
-            $schema['additionalProperty'] = $additionalProperty;
         }
 
         return $schema;

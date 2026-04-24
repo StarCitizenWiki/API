@@ -46,11 +46,10 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
 
         $ingredients = $this->resolveIngredients($blueprint);
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $blueprintName,
                 $outputType,
                 $outputClass,
@@ -58,12 +57,9 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
                 'Star Citizen',
                 'SC',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
                 $this->buildHowToStructuredData(
                     blueprintName: $blueprintName,
@@ -75,8 +71,9 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
                     outputClass: $outputClass,
                     uuid: $uuid,
                 ),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**

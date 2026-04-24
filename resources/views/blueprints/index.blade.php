@@ -1,9 +1,25 @@
 @extends('layouts.app')
 
 @section('title')
-    {{ $pageTitle }} - Star Citizen
+    {!! $pageTitle !!} - Star Citizen
 @endsection
-@section('meta_description', 'Browse Star Citizen blueprints.')
+@section('meta_description')
+    {!! data_get($seo, 'metaDescription', 'Browse Star Citizen blueprints.') !!}
+@endsection
+
+@section('meta')
+    <x-seo.metadata
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
+        og-type="website"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        twitter-card="summary"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
+    />
+@endsection
 
 @section('content')
     @php

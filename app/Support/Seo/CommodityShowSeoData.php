@@ -36,25 +36,21 @@ final class CommodityShowSeoData extends AbstractShowSeoData
 
         $category = $this->resolveLeafBreadcrumbLabel($breadcrumbs) ?? $kind ?? 'Star Citizen Commodity';
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $commodityName,
                 $kind,
                 $tier !== null ? 'Tier '.$tier : null,
                 'Star Citizen',
                 'SC',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildEntityStructuredData(
+                $this->buildCommodityEntityStructuredData(
                     commodityName: $commodityName,
                     category: $category,
                     metaDescription: $metaDescription,
@@ -66,8 +62,9 @@ final class CommodityShowSeoData extends AbstractShowSeoData
                     instability: $instability,
                     resistance: $resistance,
                 ),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**
@@ -141,7 +138,7 @@ final class CommodityShowSeoData extends AbstractShowSeoData
     /**
      * @return array<string, mixed>
      */
-    private function buildEntityStructuredData(
+    private function buildCommodityEntityStructuredData(
         string $commodityName,
         string $category,
         string $metaDescription,
@@ -153,29 +150,23 @@ final class CommodityShowSeoData extends AbstractShowSeoData
         string|int|float|null $instability,
         string|int|float|null $resistance,
     ): array {
-        $schema = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Item',
-            'name' => $commodityName,
-            'description' => $metaDescription,
-            'url' => $canonicalUrl,
-            'category' => $category,
-        ];
+        $schema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Item',
+            name: $commodityName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Kind' => $kind,
+                'Tier' => $tier,
+                'Density' => $density,
+                'Instability' => $instability,
+                'Resistance' => $resistance,
+            ],
+        );
 
         if ($uuid !== null) {
             $schema['sku'] = $uuid;
-        }
-
-        $additionalProperty = $this->buildPropertyValues([
-            'Kind' => $kind,
-            'Tier' => $tier,
-            'Density' => $density,
-            'Instability' => $instability,
-            'Resistance' => $resistance,
-        ]);
-
-        if ($additionalProperty !== []) {
-            $schema['additionalProperty'] = $additionalProperty;
         }
 
         return $schema;
@@ -191,17 +182,5 @@ final class CommodityShowSeoData extends AbstractShowSeoData
             'identifier' => $identifier,
             'version' => $version,
         ]));
-    }
-
-    /**
-     * @param  array<int, array{label: string, url: string}>  $breadcrumbs
-     */
-    private function resolveLeafBreadcrumbLabel(array $breadcrumbs): ?string
-    {
-        if (count($breadcrumbs) < 2) {
-            return null;
-        }
-
-        return $this->normalizeString($breadcrumbs[count($breadcrumbs) - 2]['label'] ?? null);
     }
 }

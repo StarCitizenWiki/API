@@ -3,17 +3,17 @@
 @section('title')
     {!! $pageTitle !!} - Star Citizen
 @endsection
-@section('meta_description', 'Browse Star Citizen commodities and trade resources. Find prices, availability, and mining data across all tradeable goods.')
+@section('meta_description', 'Browse Star Citizen commodities and trade resources. Find availability, and mining data across tradeable goods.')
 
 @section('meta')
     <x-seo.metadata
         :canonical="route('web.commodities.index')"
         og-type="website"
         :og-title="$pageTitle.' - Star Citizen Commodities'"
-        og-description="Browse Star Citizen commodities and trade resources. Find prices, availability, and mining data."
+        og-description="Browse Star Citizen commodities and trade resources. Find availability, and mining data."
         twitter-card="summary"
         :twitter-title="$pageTitle.' - Star Citizen Commodities'"
-        twitter-description="Browse Star Citizen commodities and trade resources. Find prices, availability, and mining data."
+        twitter-description="Browse Star Citizen commodities and trade resources. Find availability, and mining data."
         :structured-data="[
             [
                 '@context' => 'https://schema.org',

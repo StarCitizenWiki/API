@@ -3,30 +3,21 @@
 @section('title')
     {!! $pageTitle !!} - Star Citizen
 @endsection
-@section('meta_description', 'Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs. Filter by manufacturer, career, role, and size.')
+@section('meta_description')
+    {!! data_get($seo, 'metaDescription', 'Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs.') !!}
+@endsection
 
 @section('meta')
     <x-seo.metadata
-        :canonical="route('web.vehicles.index')"
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
         og-type="website"
-        :og-title="$pageTitle.' - Star Citizen Vehicles'"
-        og-description="Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs."
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
         twitter-card="summary"
-        :twitter-title="$pageTitle.' - Star Citizen Vehicles'"
-        twitter-description="Explore all Star Citizen vehicles including ships, ground vehicles, and snubs."
-        :structured-data="[
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'CollectionPage',
-                'name' => $pageTitle,
-                'description' => 'Explore all Star Citizen vehicles including ships, ground vehicles, and snubs.',
-                'url' => route('web.vehicles.index'),
-                'about' => [
-                    '@type' => 'VehicleType',
-                    'name' => 'Star Citizen Vehicles',
-                ],
-            ],
-        ]"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
     />
 @endsection
 

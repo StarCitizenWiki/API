@@ -32,11 +32,10 @@ final class MissionShowSeoData extends AbstractShowSeoData
             160,
         );
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $title,
                 $type,
                 $factionName,
@@ -45,12 +44,9 @@ final class MissionShowSeoData extends AbstractShowSeoData
                 'Star Citizen',
                 'SC',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
                 $this->buildMissionStructuredData(
                     title: $title,
@@ -61,8 +57,9 @@ final class MissionShowSeoData extends AbstractShowSeoData
                     mission: $mission,
                     version: $this->normalizeString(data_get($mission, 'game_version')),
                 ),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**

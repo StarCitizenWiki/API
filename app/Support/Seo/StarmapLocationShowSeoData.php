@@ -57,11 +57,10 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             160,
         );
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $locationName,
                 $typeName,
                 $classification,
@@ -72,16 +71,14 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
                 'Star Citizen',
                 'Starmap',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
                 $this->buildPlaceStructuredData($location, $locationName, $metaDescription, $canonicalUrl),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**

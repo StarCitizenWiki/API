@@ -56,11 +56,10 @@ final class ItemShowSeoData extends AbstractShowSeoData
             ?? $type
             ?? 'Star Citizen Item';
 
-        return [
-            'title' => $metaTitle,
-            'metaDescription' => $metaDescription,
-            'canonicalUrl' => $canonicalUrl,
-            'keywords' => $this->compactValues([
+        return $this->buildSeoResponse(
+            canonicalUrl: $canonicalUrl,
+            metaDescription: $metaDescription,
+            keywords: $this->compactValues([
                 $itemName,
                 $type,
                 $manufacturerName,
@@ -71,14 +70,11 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 'Star Citizen',
                 'SC',
             ]),
-            'ogTitle' => $metaTitle,
-            'ogDescription' => $metaDescription,
-            'twitterTitle' => $metaTitle,
-            'twitterDescription' => $metaDescription,
-            'breadcrumbs' => $breadcrumbs,
-            'structuredData' => $this->compactValues([
+            ogTitle: $metaTitle,
+            breadcrumbs: $breadcrumbs,
+            structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildEntityStructuredData(
+                $this->buildItemEntityStructuredData(
                     itemName: $itemName,
                     manufacturerName: $manufacturerName,
                     category: $category,
@@ -92,8 +88,9 @@ final class ItemShowSeoData extends AbstractShowSeoData
                     grade: $grade,
                     version: $this->normalizeString(data_get($item, 'version')),
                 ),
-            ]),
-        ];
+            ],
+            title: $metaTitle,
+        );
     }
 
     /**
@@ -301,7 +298,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
     /**
      * @return array<string, mixed>
      */
-    private function buildEntityStructuredData(
+    private function buildItemEntityStructuredData(
         string $itemName,
         ?string $manufacturerName,
         string $category,
@@ -315,14 +312,21 @@ final class ItemShowSeoData extends AbstractShowSeoData
         ?string $grade,
         ?string $version,
     ): array {
-        $schema = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Item',
-            'name' => $itemName,
-            'description' => $metaDescription,
-            'url' => $canonicalUrl,
-            'category' => $category,
-        ];
+        $schema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Item',
+            name: $itemName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Type' => $type,
+                'Classification' => $classification,
+                'Size' => $size,
+                'Class' => $itemClass,
+                'Grade' => $grade,
+                'Version' => $version,
+            ],
+        );
 
         if ($manufacturerName !== null) {
             $schema['brand'] = [
@@ -333,19 +337,6 @@ final class ItemShowSeoData extends AbstractShowSeoData
 
         if ($uuid !== null) {
             $schema['sku'] = $uuid;
-        }
-
-        $additionalProperty = $this->buildPropertyValues([
-            'Type' => $type,
-            'Classification' => $classification,
-            'Size' => $size,
-            'Class' => $itemClass,
-            'Grade' => $grade,
-            'Version' => $version,
-        ]);
-
-        if ($additionalProperty !== []) {
-            $schema['additionalProperty'] = $additionalProperty;
         }
 
         return $schema;
@@ -382,17 +373,5 @@ final class ItemShowSeoData extends AbstractShowSeoData
             'item' => $identifier,
             'version' => $version,
         ]));
-    }
-
-    /**
-     * @param  array<int, array{label: string, url: string}>  $breadcrumbs
-     */
-    private function resolveLeafBreadcrumbLabel(array $breadcrumbs): ?string
-    {
-        if (count($breadcrumbs) < 2) {
-            return null;
-        }
-
-        return $this->normalizeString($breadcrumbs[count($breadcrumbs) - 2]['label'] ?? null);
     }
 }

@@ -4,30 +4,21 @@
 @section('title')
     {!! $pageTitle !!} - Star Citizen Items
 @endsection
-@section('meta_description', 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more. Filter by type, grade, and size.')
+@section('meta_description')
+    {!! data_get($seo, 'metaDescription', 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more.') !!}
+@endsection
 
 @section('meta')
     <x-seo.metadata
-        :canonical="route('web.items.index')"
+        :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
         og-type="website"
-        :og-title="$pageTitle.' - Star Citizen Items'"
-        og-description="Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more."
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
         twitter-card="summary"
-        :twitter-title="$pageTitle.' - Star Citizen Items'"
-        twitter-description="Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more."
-        :structured-data="[
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'CollectionPage',
-                'name' => $pageTitle,
-                'description' => 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more.',
-                'url' => route('web.items.index'),
-                'about' => [
-                    '@type' => 'ItemType',
-                    'name' => 'Star Citizen Items',
-                ],
-            ],
-        ]"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
+        :structured-data="data_get($seo, 'structuredData', [])"
     />
 @endsection
 

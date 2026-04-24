@@ -10,25 +10,14 @@
 @section('meta')
     <x-seo.metadata
         :canonical="data_get($seo, 'canonicalUrl')"
+        :keywords="data_get($seo, 'keywords', [])"
         og-type="website"
         :og-title="data_get($seo, 'ogTitle')"
         :og-description="data_get($seo, 'ogDescription')"
         twitter-card="summary"
         :twitter-title="data_get($seo, 'twitterTitle')"
         :twitter-description="data_get($seo, 'twitterDescription')"
-        :structured-data="[
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'CollectionPage',
-                'name' => $pageTitle,
-                'description' => data_get($seo, 'metaDescription', 'Browse Star Citizen missions.'),
-                'url' => data_get($seo, 'canonicalUrl'),
-                'about' => [
-                    '@type' => 'MissionType',
-                    'name' => 'Star Citizen Missions',
-                ],
-            ],
-        ]"
+        :structured-data="data_get($seo, 'structuredData', [])"
     />
 @endsection
 
