@@ -13,6 +13,7 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use App\Support\Filters\ItemTypeLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints',
-        description: 'Returns paginated blueprints for the requested or default game version.',
+        description: 'Returns paginated crafting blueprints, including ingredients, crafted items, and dismantle returns. Results are scoped to the requested or default game version.',
         summary: 'List Game Blueprints',
         tags: ['In-Game', 'Blueprints'],
         parameters: [
@@ -51,24 +52,24 @@ class BlueprintController extends Controller
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'sort',
-                description: 'Sort field. Prefix with "-" for descending. Supported: craft_time_seconds, ingredient_count.',
+                description: 'Sort field. Prefix with "-" for descending. Supported: craft_time_seconds, ingredient_count, unlocking_missions_count.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', example: '-craft_time_seconds')
             ),
-            new OA\Parameter(name: 'filter[query]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[output.uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
-            new OA\Parameter(name: 'filter[output.name]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[output.class]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[output.type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[default]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[query]', description: 'Search blueprints by crafted item name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Distiller')),
+            new OA\Parameter(name: 'filter[output.uuid]', description: 'Filter by crafted item UUID (see GET /api/items)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter[output.name]', description: 'Filter by crafted item name', in: 'query', schema: new OA\Schema(type: 'string', example: 'P4-AR Magazine (40 cap)')),
+            new OA\Parameter(name: 'filter[output.class]', description: 'Filter by crafted item class', in: 'query', schema: new OA\Schema(type: 'string', example: 'ksar_smg_energy_01_gold01')),
+            new OA\Parameter(name: 'filter[output.type]', description: 'Filter by crafted item type (see GET /api/blueprints/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'WeaponPersonal')),
+            new OA\Parameter(name: 'filter[default]', description: 'Filter by default availability (true/false)', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
             new OA\Parameter(
                 name: 'filter[ingredient]',
                 description: 'Matches ingredient resource type by name, key, or UUID before filtering blueprints.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string')
             ),
-            new OA\Parameter(name: 'filter[ingredient.uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
-            new OA\Parameter(name: 'filter[resource.uuid]', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter[ingredient.uuid]', description: 'Filter by ingredient commodity UUID. Accepts comma-separated values (see GET /api/commodities)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid', example: 'a11394c9-ad7c-404d-9209-3a5e57bb4aa4')),
+            new OA\Parameter(name: 'filter[resource.uuid]', description: 'Filter by resource commodity UUID, matching ingredients and dismantle returns. Accepts comma-separated values (see GET /api/commodities)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid', example: '9b47bacf-8efa-42e2-8d84-dee64983a00a')),
         ],
         responses: [
             new OA\Response(
@@ -95,7 +96,7 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints/{blueprint}',
-        description: 'Returns blueprint detail for the requested or default game version, including raw blueprint tiers.',
+        description: 'Returns full detail for a single crafting blueprint, including ingredients, crafted item, dismantle returns, and associated missions. Scoped to the requested or default game version.',
         summary: 'Get Game Blueprint Detail',
         tags: ['In-Game', 'Blueprints'],
         parameters: [
@@ -140,7 +141,7 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints/filters',
-        description: 'Returns available filter facets for blueprints, optionally scoped to the requested or default game version.',
+        description: 'Returns available filter facets for blueprints (crafted item types, ingredient and resource UUIDs), optionally scoped to the requested or default game version.',
         summary: 'Get Blueprint Filter Options',
         tags: ['In-Game', 'Blueprints'],
         parameters: [
@@ -155,6 +156,11 @@ class BlueprintController extends Controller
                         new OA\Property(
                             property: 'filters',
                             properties: [
+                                new OA\Property(
+                                    property: 'output.type',
+                                    type: 'array',
+                                    items: new OA\Items(ref: '#/components/schemas/filter_value')
+                                ),
                                 new OA\Property(
                                     property: 'ingredient.uuid',
                                     type: 'array',
@@ -192,7 +198,10 @@ class BlueprintController extends Controller
                 ->orderByRaw($typeExpr)
                 ->get();
 
-            $out['output.type'] = FilterValues::fromRows($typeRows);
+            $out['output.type'] = FilterValues::fromRows(
+                $typeRows,
+                labelResolver: [ItemTypeLabel::class, 'resolve'],
+            );
 
             $ingredientRows = QueryBuilder::for(BlueprintData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)

@@ -152,11 +152,11 @@ it('returns output.type facets with counts', function (): void {
 
     $weaponFacet = collect($typeFacets)->first(fn (array $f): bool => $f['value'] === 'WeaponPersonal');
     expect($weaponFacet)->not->toBeNull()
-        ->and($weaponFacet['label'])->toBe('WeaponPersonal')
+        ->and($weaponFacet['label'])->toBe('FPS Weapon')
         ->and($weaponFacet['count'])->toBe(2);
 
     $armorFacet = collect($typeFacets)->first(fn (array $f): bool => $f['value'] === 'Char_Armor_Torso');
     expect($armorFacet)->not->toBeNull()
-        ->and($armorFacet['label'])->toBe('Char_Armor_Torso')
+        ->and($armorFacet['label'])->toBe('Torso (Armor)')
         ->and($armorFacet['count'])->toBe(1);
 });

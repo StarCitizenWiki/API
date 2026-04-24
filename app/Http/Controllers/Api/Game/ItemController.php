@@ -15,6 +15,7 @@ use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use App\Support\Filters\ItemTypeLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -701,6 +702,7 @@ class ItemController extends Controller
                 'type' => [
                     'expr' => 'game_item_data.type',
                     'cast' => null,
+                    'labelResolver' => [ItemTypeLabel::class, 'resolve'],
                 ],
                 'sub_type' => [
                     'expr' => 'game_item_data.sub_type',

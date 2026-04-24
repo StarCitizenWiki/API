@@ -11,12 +11,13 @@ final class FilterValues
 {
     /**
      * @param  Collection<int, object>  $rows
+     * @param  (callable(mixed, ?string): (?string))|null  $labelResolver
      * @return array<int, array{value: mixed, label: string, count: int, group?: string}>
      */
     public static function fromRows(
         Collection $rows,
         ?Closure $valueCaster = null,
-        ?Closure $labelResolver = null,
+        ?callable $labelResolver = null,
         ?string $groupColumn = null,
     ): array {
         return $rows->map(function (object $row) use ($valueCaster, $labelResolver, $groupColumn): array {
