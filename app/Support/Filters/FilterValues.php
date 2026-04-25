@@ -33,7 +33,7 @@ final class FilterValues
 
             $label = $row->label ?? null;
 
-            if (is_string($label) && $label === '') {
+            if ($label === '') {
                 $label = null;
             }
 

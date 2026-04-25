@@ -410,7 +410,7 @@ class BlueprintController extends Controller
 
                 $query->orderByRaw($this->ingredientCountSortExpression().' '.$direction.' nulls last');
             }),
-            AllowedSort::callback('unlocking_missions_count', function (Builder $query, bool $descending): void {
+            AllowedSort::callback('unlocking_missions_count', static function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
 
                 $query->orderBy('missions_count', $direction);

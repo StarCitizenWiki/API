@@ -53,8 +53,8 @@ class ImportCommodities extends Command
                     return false;
                 }
 
-                $uuid = $this->normalizeString($commodity['UUID'] ?? null);
-                $key = $this->normalizeString($commodity['Key'] ?? null);
+                $uuid = $commodity['UUID'] ?? null;
+                $key = $commodity['Key'] ?? null;
 
                 if ($uuid === null || $key === null) {
                     $skipped++;
@@ -94,14 +94,14 @@ class ImportCommodities extends Command
                 'name' => (string) ($commodity['Name'] ?? ''),
                 'slug' => $slugMap[$commodity['UUID']] ?? Str::slug((string) ($commodity['Name'] ?? '')),
                 'description' => (string) ($commodity['Description'] ?? ''),
-                'refined_version_uuid' => $this->normalizeString($commodity['RefinedVersionUUID'] ?? null),
-                'refined_version_name' => $this->normalizeString($commodity['RefinedVersionName'] ?? null),
+                'refined_version_uuid' => $commodity['RefinedVersionUUID'] ?? null,
+                'refined_version_name' => $commodity['RefinedVersionName'] ?? null,
                 'validate_default_cargo_box' => (bool) ($commodity['ValidateDefaultCargoBox'] ?? false),
                 'has_default_cargo_containers' => (bool) ($commodity['HasDefaultCargoContainers'] ?? false),
-                'tier' => $this->normalizeString($commodity['Tier'] ?? null),
+                'tier' => $commodity['Tier'] ?? null,
                 'box_sizes_scu' => json_encode($boxSizes, JSON_THROW_ON_ERROR),
-                'quality_distribution_uuid' => $this->normalizeString($commodity['QualityDistributionUUID'] ?? null),
-                'quality_location_override_uuid' => $this->normalizeString($commodity['QualityLocationOverrideUUID'] ?? null),
+                'quality_distribution_uuid' => $commodity['QualityDistributionUUID'] ?? null,
+                'quality_location_override_uuid' => $commodity['QualityLocationOverrideUUID'] ?? null,
                 'instability' => $commodity['Instability'] ?? null,
                 'resistance' => $commodity['Resistance'] ?? null,
                 'density_g_per_cc' => $commodity['DensityGPerCc'] ?? null,
@@ -160,16 +160,5 @@ class ImportCommodities extends Command
         ));
 
         return self::SUCCESS;
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
     }
 }

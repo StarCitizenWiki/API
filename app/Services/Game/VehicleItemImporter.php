@@ -130,13 +130,7 @@ class VehicleItemImporter
             Arr::get($rawPayload, 'Entity.ClassName'),
         ];
 
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
-            }
-        }
-
-        return null;
+        return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
     }
 
     private function extractType(array $attachDef): ?string
@@ -160,13 +154,7 @@ class VehicleItemImporter
             Arr::get($vehiclePayload, 'Manufacturer.UUID'),
         ];
 
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
-            }
-        }
-
-        return null;
+        return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
     }
 
     private function extractManufacturerCode(array $vehiclePayload, array $attachDef): ?string
@@ -176,13 +164,7 @@ class VehicleItemImporter
             Arr::get($vehiclePayload, 'Manufacturer.Code'),
         ];
 
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
-            }
-        }
-
-        return null;
+        return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
     }
 
     private function extractDescriptionData(array $vehiclePayload): array
@@ -319,13 +301,7 @@ class VehicleItemImporter
             Arr::get($localization, 'Description'),
         ];
 
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
-            }
-        }
-
-        return null;
+        return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
     }
 
     private function getLabels(): Labels

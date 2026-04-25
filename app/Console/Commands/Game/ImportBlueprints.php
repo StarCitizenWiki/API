@@ -95,12 +95,12 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
                 $existingBlueprints++;
             }
 
-            $outputName = $this->normalizeString(Arr::get($blueprintPayload, 'Output.Name'));
+            $outputName = Arr::get($blueprintPayload, 'Output.Name');
 
             if ($blueprint->slug === null) {
                 app(SlugService::class)->assignUniqueSlug(
                     $blueprint,
-                    $outputName ?? $this->normalizeString($blueprintPayload['Key']),
+                    ($outputName !== '' ? $outputName : null) ?? $blueprintPayload['Key'],
                     "blueprint-{$blueprint->id}",
                 );
             }
@@ -114,8 +114,8 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
                     'key' => (string) $blueprintPayload['Key'],
                     'category_uuid' => (string) $blueprintPayload['CategoryUUID'],
                     'output_item_uuid' => (string) Arr::get($blueprintPayload, 'Output.UUID'),
-                    'output_name' => $this->normalizeString(Arr::get($blueprintPayload, 'Output.Name')),
-                    'output_class' => $this->normalizeString(Arr::get($blueprintPayload, 'Output.Class')),
+                    'output_name' => Arr::get($blueprintPayload, 'Output.Name'),
+                    'output_class' => Arr::get($blueprintPayload, 'Output.Class'),
                     'craft_time_seconds' => $this->extractCraftTimeSeconds($blueprintPayload),
                     'is_available_by_default' => (bool) Arr::get($blueprintPayload, 'Availability.Default', false),
                     'ingredient_resource_type_uuids' => $this->extractIngredientResourceTypeUuids($blueprintPayload),
@@ -167,10 +167,10 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
 
     private function isValidBlueprintPayload(array $blueprintPayload): bool
     {
-        return $this->normalizeString($blueprintPayload['UUID'] ?? null) !== null
-            && $this->normalizeString($blueprintPayload['Key'] ?? null) !== null
-            && $this->normalizeString($blueprintPayload['CategoryUUID'] ?? null) !== null
-            && $this->normalizeString(Arr::get($blueprintPayload, 'Output.UUID')) !== null;
+        return ($blueprintPayload['UUID'] ?? null) !== null
+            && ($blueprintPayload['Key'] ?? null) !== null
+            && ($blueprintPayload['CategoryUUID'] ?? null) !== null
+            && Arr::get($blueprintPayload, 'Output.UUID') !== null;
     }
 
     private function extractCraftTimeSeconds(array $blueprintPayload): ?int
@@ -208,7 +208,7 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
         }
 
         if (($node['Kind'] ?? null) === 'resource') {
-            $uuid = $this->normalizeString($node['UUID'] ?? null);
+            $uuid = $node['UUID'] ?? null;
 
             if ($uuid !== null) {
                 $uuids[$uuid] = true;
@@ -278,7 +278,7 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
                 continue;
             }
 
-            $uuid = $this->normalizeString($return['UUID'] ?? null);
+            $uuid = $return['UUID'] ?? null;
 
             if ($uuid === null) {
                 continue;
@@ -298,16 +298,5 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
         }
 
         $blueprintData->dismantleReturns()->sync($syncData);
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
     }
 }

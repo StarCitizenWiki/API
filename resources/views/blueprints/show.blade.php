@@ -1067,21 +1067,21 @@
 @endpush
 
 @section('title')
-    {!! data_get($seo, 'title', $pageTitleDecoded.' - Star Citizen') !!}
+    {!! data_get($seo, 'title') !!}
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', $metaDescription) !!}
+    {!! data_get($seo, 'metaDescription') !!}
 @endsection
 
 @section('meta')
     <x-seo.metadata
-        :canonical="data_get($seo, 'canonicalUrl', $canonicalUrl)"
+        :canonical="data_get($seo, 'canonicalUrl')"
         :keywords="data_get($seo, 'keywords', [])"
         :robots="data_get($seo, 'robots')"
-        :og-title="data_get($seo, 'ogTitle', $metaTitle)"
-        :og-description="data_get($seo, 'ogDescription', $metaDescription)"
-        :twitter-title="data_get($seo, 'twitterTitle', $metaTitle)"
-        :twitter-description="data_get($seo, 'twitterDescription', $metaDescription)"
+        :og-title="data_get($seo, 'ogTitle')"
+        :og-description="data_get($seo, 'ogDescription')"
+        :twitter-title="data_get($seo, 'twitterTitle')"
+        :twitter-description="data_get($seo, 'twitterDescription')"
         :structured-data="data_get($seo, 'structuredData', [])"
     />
 @endsection

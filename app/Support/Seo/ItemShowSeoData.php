@@ -9,25 +9,43 @@ use Illuminate\Support\Str;
 
 final class ItemShowSeoData extends AbstractShowSeoData
 {
+    protected function showRouteName(): string
+    {
+        return 'web.items.show';
+    }
+
+    protected function showRouteParameterName(): string
+    {
+        return 'item';
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function build(array $item, Request $request): array
     {
-        $itemName = $this->normalizeString(data_get($item, 'name')) ?? 'Item';
-        $type = $this->normalizeString(data_get($item, 'type'));
-        $manufacturerName = $this->normalizeString(data_get($item, 'manufacturer.name'));
-        $classification = $this->normalizeString(data_get($item, 'classification'));
-        $itemClass = $this->normalizeString(data_get($item, 'class'));
-        $grade = $this->formatGrade(data_get($item, 'grade'));
-        $uuid = $this->normalizeString(data_get($item, 'uuid'));
+        $itemName = data_get($item, 'name') ?? 'Item';
+        $type = data_get($item, 'type');
+        $manufacturerName = ($v = data_get($item, 'manufacturer.name')) !== null ? trim(html_entity_decode($v)) : null;
+        $classification = data_get($item, 'classification');
+        $itemClass = data_get($item, 'class');
+        $rawGrade = data_get($item, 'grade');
+        $grade = $rawGrade === null || $rawGrade === '' ? null : match ($rawGrade) {
+            1, '1' => 'A',
+            2, '2' => 'B',
+            3, '3' => 'C',
+            4, '4' => 'D',
+            default => (string) $rawGrade,
+        };
+        $uuid = data_get($item, 'uuid');
         $description = $this->resolveDescription(data_get($item, 'description'));
-        $size = $this->normalizeScalar(data_get($item, 'size'));
+        $size = data_get($item, 'size');
         $version = $this->resolveVersionCode($request);
-        $canonicalUrl = $this->normalizeString(data_get($item, 'web_url'))
-            ?? $this->fallbackShowUrl($this->normalizeString(data_get($item, 'slug')) ?? $uuid, $version);
+        $canonicalUrl = data_get($item, 'web_url')
+            ?? $this->fallbackShowUrl(data_get($item, 'slug') ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs($item, $canonicalUrl, $version);
-        $isShipComponent = $this->isShipComponent($type, $classification);
+        $isShipComponent = str_starts_with($classification ?? '', 'Ship.')
+            || in_array($type, ['Cooler', 'PowerPlant', 'QuantumDrive', 'Shield'], true);
         $metaTitle = $this->buildMetaTitle(
             itemName: $itemName,
             manufacturerName: $manufacturerName,
@@ -56,10 +74,37 @@ final class ItemShowSeoData extends AbstractShowSeoData
             ?? $type
             ?? 'Star Citizen Item';
 
+        $itemSchema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Item',
+            name: $itemName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Type' => $type,
+                'Classification' => $classification,
+                'Size' => $size,
+                'Class' => $itemClass,
+                'Grade' => $grade,
+                'Version' => data_get($item, 'version'),
+            ],
+        );
+
+        if ($manufacturerName !== null) {
+            $itemSchema['brand'] = [
+                '@type' => 'Brand',
+                'name' => $manufacturerName,
+            ];
+        }
+
+        if ($uuid !== null) {
+            $itemSchema['sku'] = $uuid;
+        }
+
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $itemName,
                 $type,
                 $manufacturerName,
@@ -67,27 +112,12 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 $size !== null ? 'Size '.$size : null,
                 $itemClass,
                 $grade !== null ? 'Grade '.$grade : null,
-                'Star Citizen',
-                'SC',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
             structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildItemEntityStructuredData(
-                    itemName: $itemName,
-                    manufacturerName: $manufacturerName,
-                    category: $category,
-                    metaDescription: $metaDescription,
-                    canonicalUrl: $canonicalUrl,
-                    uuid: $uuid,
-                    type: $type,
-                    classification: $classification,
-                    size: $size,
-                    itemClass: $itemClass,
-                    grade: $grade,
-                    version: $this->normalizeString(data_get($item, 'version')),
-                ),
+                $itemSchema,
             ],
             title: $metaTitle,
         );
@@ -168,10 +198,11 @@ final class ItemShowSeoData extends AbstractShowSeoData
             return route('web.items.index', array_merge($versionParams, ['filter' => $filter]));
         };
 
-        $type = $this->normalizeString(data_get($item, 'type'));
-        $classification = $this->normalizeString(data_get($item, 'classification'));
+        $type = data_get($item, 'type');
+        $classification = data_get($item, 'classification');
         $normalizedType = $type !== null ? str_replace([' ', '-'], '', $type) : null;
-        $isShip = $this->isShipComponent($type, $classification);
+        $isShip = str_starts_with($classification ?? '', 'Ship.')
+            || in_array($type, ['Cooler', 'PowerPlant', 'QuantumDrive', 'Shield'], true);
         $category = $isShip ? 'vehicle-items' : 'fps-items';
 
         $breadcrumbs[] = [
@@ -217,7 +248,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
         }
 
         $breadcrumbs[] = [
-            'label' => $this->normalizeString(data_get($item, 'name')) ?? 'Item',
+            'label' => data_get($item, 'name') ?? 'Item',
             'url' => $canonicalUrl,
         ];
 
@@ -253,7 +284,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
             $detail = $type !== null ? $type.' Item' : 'Item';
         }
 
-        return $this->joinSegments([$leading, $detail, 'Star Citizen'], ' | ');
+        return $this->pipeTitle([$leading, $detail]);
     }
 
     private function buildFallbackDescription(
@@ -275,14 +306,14 @@ final class ItemShowSeoData extends AbstractShowSeoData
         }
 
         $attributes = $isShipComponent
-            ? $this->compactValues([
+            ? array_values(array_filter([
                 $size !== null ? 'size '.$size : null,
                 $itemClass !== null ? 'class '.$itemClass : null,
                 $grade !== null ? 'grade '.$grade : null,
-            ])
-            : $this->compactValues([
+            ], static fn (mixed $v): bool => $v !== null && $v !== ''))
+            : array_values(array_filter([
                 $classification !== null ? 'classification '.$classification : null,
-            ]);
+            ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($attributes !== []) {
             $base .= ', '.implode(', ', $attributes);
@@ -293,85 +324,5 @@ final class ItemShowSeoData extends AbstractShowSeoData
             : '. View description, related items, and technical details.';
 
         return $base;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildItemEntityStructuredData(
-        string $itemName,
-        ?string $manufacturerName,
-        string $category,
-        string $metaDescription,
-        string $canonicalUrl,
-        ?string $uuid,
-        ?string $type,
-        ?string $classification,
-        string|int|float|null $size,
-        ?string $itemClass,
-        ?string $grade,
-        ?string $version,
-    ): array {
-        $schema = $this->buildBaseEntityStructuredData(
-            schemaType: 'Item',
-            name: $itemName,
-            description: $metaDescription,
-            url: $canonicalUrl,
-            category: $category,
-            additionalProperties: [
-                'Type' => $type,
-                'Classification' => $classification,
-                'Size' => $size,
-                'Class' => $itemClass,
-                'Grade' => $grade,
-                'Version' => $version,
-            ],
-        );
-
-        if ($manufacturerName !== null) {
-            $schema['brand'] = [
-                '@type' => 'Brand',
-                'name' => $manufacturerName,
-            ];
-        }
-
-        if ($uuid !== null) {
-            $schema['sku'] = $uuid;
-        }
-
-        return $schema;
-    }
-
-    private function isShipComponent(?string $type, ?string $classification): bool
-    {
-        return str_starts_with($classification ?? '', 'Ship.')
-            || in_array($type, ['Cooler', 'PowerPlant', 'QuantumDrive', 'Shield'], true);
-    }
-
-    private function formatGrade(mixed $grade): ?string
-    {
-        if ($grade === null || $grade === '') {
-            return null;
-        }
-
-        return match ($grade) {
-            1, '1' => 'A',
-            2, '2' => 'B',
-            3, '3' => 'C',
-            4, '4' => 'D',
-            default => $this->normalizeString((string) $grade),
-        };
-    }
-
-    protected function fallbackShowUrl(?string $identifier, ?string $version): string
-    {
-        if ($identifier === null) {
-            return url()->current();
-        }
-
-        return route('web.items.show', array_filter([
-            'item' => $identifier,
-            'version' => $version,
-        ]));
     }
 }

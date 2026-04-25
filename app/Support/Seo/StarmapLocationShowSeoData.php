@@ -9,27 +9,37 @@ use Illuminate\Support\Str;
 
 final class StarmapLocationShowSeoData extends AbstractShowSeoData
 {
+    protected function baseKeywords(): array
+    {
+        return ['Star Citizen', 'Starmap'];
+    }
+
+    protected function showRouteName(): string
+    {
+        return 'web.locations.show';
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function build(array $location, Request $request): array
     {
-        $locationName = $this->normalizeString(data_get($location, 'name')) ?? 'Starmap Location';
-        $typeName = $this->normalizeString(data_get($location, 'Type.Name'))
-            ?? $this->normalizeString(data_get($location, 'type_name'));
-        $classification = $this->normalizeString(data_get($location, 'Type.Classification'))
-            ?? $this->normalizeString(data_get($location, 'type_classification'));
+        $locationName = data_get($location, 'name') ?? 'Starmap Location';
+        $typeName = data_get($location, 'Type.Name')
+            ?? data_get($location, 'type_name');
+        $classification = data_get($location, 'Type.Classification')
+            ?? data_get($location, 'type_classification');
         $description = $this->resolveDescription(data_get($location, 'description'));
-        $starName = $this->normalizeString(data_get($location, 'star.name'));
-        $starSlug = $this->normalizeString(data_get($location, 'star.slug'));
-        $starUuid = $this->normalizeString(data_get($location, 'star.uuid'));
-        $parentName = $this->normalizeString(data_get($location, 'parent.name'));
-        $parentSlug = $this->normalizeString(data_get($location, 'parent.slug'));
-        $parentUuid = $this->normalizeString(data_get($location, 'parent.uuid'));
-        $uuid = $this->normalizeString(data_get($location, 'uuid'));
-        $slug = $this->normalizeString(data_get($location, 'slug'));
+        $starName = data_get($location, 'star.name');
+        $starSlug = data_get($location, 'star.slug');
+        $starUuid = data_get($location, 'star.uuid');
+        $parentName = data_get($location, 'parent.name');
+        $parentSlug = data_get($location, 'parent.slug');
+        $parentUuid = data_get($location, 'parent.uuid');
+        $uuid = data_get($location, 'uuid');
+        $slug = data_get($location, 'slug');
         $version = $this->resolveVersionCode($request);
-        $canonicalUrl = $this->normalizeString(data_get($location, 'web_url'))
+        $canonicalUrl = data_get($location, 'web_url')
             ?? $this->fallbackShowUrl($slug ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs(
             locationName: $locationName,
@@ -44,7 +54,7 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             locationUuid: $uuid,
             version: $version,
         );
-        $metaTitle = $this->joinSegments([$locationName, $typeName, 'Star Citizen Starmap'], ' | ');
+        $metaTitle = $this->pipeTitle([$locationName, $typeName], 'Star Citizen Starmap');
         $metaDescription = Str::limit(
             $description ?? $this->buildFallbackDescription(
                 locationName: $locationName,
@@ -52,7 +62,7 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
                 classification: $classification,
                 starName: $starName,
                 parentName: $parentName,
-                childCount: $this->normalizeInt(data_get($location, 'child_count')),
+                childCount: data_get($location, 'child_count'),
             ),
             160,
         );
@@ -60,16 +70,14 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $locationName,
                 $typeName,
                 $classification,
-                $this->normalizeString(data_get($location, 'Affiliation.Name')),
-                $this->normalizeString(data_get($location, 'Jurisdiction.Name')),
+                data_get($location, 'Affiliation.Name'),
+                data_get($location, 'Jurisdiction.Name'),
                 $starName,
                 $parentName,
-                'Star Citizen',
-                'Starmap',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
@@ -145,7 +153,7 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         ?string $classification,
         ?string $starName,
         ?string $parentName,
-        ?int $childCount,
+        mixed $childCount,
     ): string {
         $description = 'Browse Star Citizen starmap data for '.$locationName;
 
@@ -155,10 +163,10 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             $description .= ', a '.$detail;
         }
 
-        $context = $this->compactValues([
+        $context = array_values(array_filter([
             $parentName !== null ? 'within '.$parentName : null,
             $starName !== null ? 'in the '.$starName.' system' : null,
-        ]);
+        ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($context !== []) {
             $description .= ' '.implode(' ', $context);
@@ -193,16 +201,16 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         ];
 
         $additionalProperty = $this->buildPropertyValues([
-            'Type' => $this->normalizeString(data_get($location, 'Type.Name'))
-                ?? $this->normalizeString(data_get($location, 'type_name')),
-            'Classification' => $this->normalizeString(data_get($location, 'Type.Classification'))
-                ?? $this->normalizeString(data_get($location, 'type_classification')),
-            'Tag' => $this->normalizeString(data_get($location, 'tag.name')),
-            'Affiliation' => $this->normalizeString(data_get($location, 'Affiliation.Name')),
-            'Jurisdiction' => $this->normalizeString(data_get($location, 'Jurisdiction.Name')),
-            'Respawn Location Type' => $this->normalizeString(data_get($location, 'respawn_location_type')),
-            'Version' => $this->normalizeString(data_get($location, 'version')),
-            'Child Count' => $this->normalizeInt(data_get($location, 'child_count')),
+            'Type' => data_get($location, 'Type.Name')
+                ?? data_get($location, 'type_name'),
+            'Classification' => data_get($location, 'Type.Classification')
+                ?? data_get($location, 'type_classification'),
+            'Tag' => data_get($location, 'tag.name'),
+            'Affiliation' => data_get($location, 'Affiliation.Name'),
+            'Jurisdiction' => data_get($location, 'Jurisdiction.Name'),
+            'Respawn Location Type' => data_get($location, 'respawn_location_type'),
+            'Version' => data_get($location, 'version'),
+            'Child Count' => data_get($location, 'child_count'),
         ]);
 
         if ($additionalProperty !== []) {
@@ -227,8 +235,8 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
      */
     private function buildContainedInPlace(array $location): ?array
     {
-        $parentName = $this->normalizeString(data_get($location, 'parent.name'));
-        $parentUuid = $this->normalizeString(data_get($location, 'parent.uuid'));
+        $parentName = data_get($location, 'parent.name');
+        $parentUuid = data_get($location, 'parent.uuid');
 
         if ($parentName === null || $parentUuid === null) {
             return null;
@@ -239,19 +247,19 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             'name' => $parentName,
         ];
 
-        $parentTypeName = $this->normalizeString(data_get($location, 'parent.type_name'));
+        $parentTypeName = data_get($location, 'parent.type_name');
         if ($parentTypeName !== null) {
             $containedIn['@type'] = $parentTypeName;
         }
 
-        $starName = $this->normalizeString(data_get($location, 'star.name'));
+        $starName = data_get($location, 'star.name');
         if ($starName !== null) {
             $containedIn['containedInPlace'] = [
                 '@type' => 'Place',
                 'name' => $starName,
             ];
 
-            $system = $this->normalizeString(data_get($location, 'system'));
+            $system = data_get($location, 'system');
             if ($system !== null) {
                 $containedIn['containedInPlace']['containedInPlace'] = [
                     '@type' => 'Place',
@@ -276,8 +284,8 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         $features = [];
 
         foreach ($amenities as $amenity) {
-            $name = $this->normalizeString(data_get($amenity, 'display_name'))
-                ?? $this->normalizeString(data_get($amenity, 'name'));
+            $name = data_get($amenity, 'display_name')
+                ?? data_get($amenity, 'name');
 
             if ($name === null) {
                 continue;
@@ -301,52 +309,6 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             $routeParameters['version'] = $version;
         }
 
-        return route('web.locations.show', $routeParameters);
-    }
-
-    protected function resolveDescription(mixed $description): ?string
-    {
-        if (! is_string($description)) {
-            return null;
-        }
-
-        $description = trim(html_entity_decode($description));
-
-        return $description === '' ? null : $description;
-    }
-
-    protected function resolveVersionCode(Request $request): ?string
-    {
-        return $this->normalizeString($request->query('version'));
-    }
-
-    /**
-     * @param  array<string, string|int|float|null>  $properties
-     * @return array<int, array<string, mixed>>
-     */
-    protected function buildPropertyValues(array $properties): array
-    {
-        $values = [];
-
-        foreach ($properties as $name => $value) {
-            if ($value === null || $value === '') {
-                continue;
-            }
-
-            $values[] = [
-                '@type' => 'PropertyValue',
-                'name' => $name,
-                'value' => (string) $value,
-            ];
-        }
-
-        return $values;
-    }
-
-    protected function joinSegments(array $segments, string $separator = ' '): string
-    {
-        $segments = $this->compactValues($segments);
-
-        return implode($separator, $segments);
+        return route($this->showRouteName(), $routeParameters);
     }
 }

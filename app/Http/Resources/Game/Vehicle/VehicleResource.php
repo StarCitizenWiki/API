@@ -13,8 +13,7 @@ use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Models\Game\VehicleData;
-use App\Traits\CalculatesCargoGridSizeLimits;
-use App\Traits\ComputesWeaponSnapshot;
+use App\Services\Game\WeaponSnapshotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -603,8 +602,6 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleResource extends AbstractBaseResource
 {
-    use CalculatesCargoGridSizeLimits;
-    use ComputesWeaponSnapshot;
     use ExpandsUexPrices;
     use ExtractsJsonData;
 
@@ -633,9 +630,15 @@ class VehicleResource extends AbstractBaseResource
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
         $cargoGridPayload = Arr::get($payload, 'CargoGrids', []);
-        $cargoLimits = self::calculateCargoGridSizeLimits($cargoGridPayload);
+        $cargoLimits = $this->calculateCargoGridSizeLimits($cargoGridPayload);
 
-        $weaponSnapshot = self::computeWeaponSnapshot(Arr::get($payload, 'Loadout', []));
+        $weaponSnapshot = Arr::get($payload, 'Loadout', []);
+        if (! empty($weaponSnapshot)) {
+            $weaponSnapshot = app(WeaponSnapshotService::class)->compute($weaponSnapshot);
+        } else {
+            $weaponSnapshot = null;
+        }
+
         $mannedTurrets = $this->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
         $remoteTurrets = $this->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
         $pdcTurrets = $this->buildPdcTurretEntries(Arr::get($payload, 'Loadout', []));
@@ -1293,5 +1296,62 @@ class VehicleResource extends AbstractBaseResource
     private function expandVehiclePrices(VehicleData $vehicleData, string $column, string $priceField): array
     {
         return $this->expandPrices((array) ($vehicleData->$column ?? []));
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $cargoGrids
+     * @return array{min_size?: array{x: float|int, y: float|int, z: float|int}, max_size?: array{x: float|int, y: float|int, z: float|int}}|null
+     */
+    public function calculateCargoGridSizeLimits(array $cargoGrids): ?array
+    {
+        $minSize = collect($cargoGrids)
+            ->map(fn (array $grid) => $this->extractSizeBlock($grid, 'MinSize', 'min_size'))
+            ->filter()
+            ->sortBy(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
+            ->first();
+
+        $maxSize = collect($cargoGrids)
+            ->map(fn (array $grid) => $this->extractSizeBlock($grid, 'MaxSize', 'max_size'))
+            ->filter()
+            ->sortByDesc(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
+            ->first();
+
+        $limits = array_filter([
+            'min_size' => $minSize,
+            'max_size' => $maxSize,
+        ], static fn ($value) => $value !== null);
+
+        return $limits === [] ? null : $limits;
+    }
+
+    /**
+     * @param  array<string, mixed>  $grid
+     * @return array{x: float|int, y: float|int, z: float|int}|null
+     */
+    private function extractSizeBlock(array $grid, string $key, string $fallbackKey): ?array
+    {
+        $data = Arr::get($grid, $key);
+
+        if (! is_array($data)) {
+            $data = Arr::get($grid, $fallbackKey);
+        }
+
+        if (! is_array($data)) {
+            return null;
+        }
+
+        $x = Arr::get($data, 'X', Arr::get($data, 'x'));
+        $y = Arr::get($data, 'Y', Arr::get($data, 'y'));
+        $z = Arr::get($data, 'Z', Arr::get($data, 'z'));
+
+        if ($x === null || $y === null || $z === null) {
+            return null;
+        }
+
+        return [
+            'x' => $x,
+            'y' => $y,
+            'z' => $z,
+        ];
     }
 }

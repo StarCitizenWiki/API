@@ -9,25 +9,25 @@ use Illuminate\Support\Facades\Cache;
 
 final class FilterCache
 {
-    public const NAMESPACE_ITEMS = 'items';
+    public const string NAMESPACE_ITEMS = 'items';
 
-    public const NAMESPACE_COMM_LINKS = 'comm-links';
+    public const string NAMESPACE_COMM_LINKS = 'comm-links';
 
-    public const NAMESPACE_GALACTAPEDIA = 'galactapedia';
+    public const string NAMESPACE_GALACTAPEDIA = 'galactapedia';
 
-    public const NAMESPACE_STARSYSTEMS = 'starsystems';
+    public const string NAMESPACE_STARSYSTEMS = 'starsystems';
 
-    public const NAMESPACE_STARMAP_LOCATIONS = 'starmap-locations';
+    public const string NAMESPACE_STARMAP_LOCATIONS = 'starmap-locations';
 
-    public const NAMESPACE_SHIPMATRIX = 'shipmatrix';
+    public const string NAMESPACE_SHIPMATRIX = 'shipmatrix';
 
-    public const NAMESPACE_VEHICLES = 'vehicles';
+    public const string NAMESPACE_VEHICLES = 'vehicles';
 
-    public const NAMESPACE_COMMODITIES = 'commodities';
+    public const string NAMESPACE_COMMODITIES = 'commodities';
 
-    public const NAMESPACE_BLUEPRINTS = 'blueprints';
+    public const string NAMESPACE_BLUEPRINTS = 'blueprints';
 
-    public const NAMESPACE_MISSIONS = 'missions';
+    public const string NAMESPACE_MISSIONS = 'missions';
 
     public static function rememberForever(string $namespace, string $key, Closure $resolver): mixed
     {

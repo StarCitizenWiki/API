@@ -98,7 +98,7 @@ class ImportResources extends Command implements PromptsForMissingInput
                     'key' => (string) $resourcePayload['Key'],
                     'name' => (string) ($resourcePayload['Name'] ?? ''),
                     'kind' => ResourceKind::fromRawKind((string) $resourcePayload['Kind']),
-                    'tier' => $this->normalizeString($resourcePayload['Tier'] ?? null),
+                    'tier' => $resourcePayload['Tier'] ?? null,
                     'signature' => isset($resourcePayload['Signature']) && is_numeric($resourcePayload['Signature'])
                         ? (int) $resourcePayload['Signature']
                         : null,
@@ -174,7 +174,7 @@ class ImportResources extends Command implements PromptsForMissingInput
                     continue;
                 }
 
-                $commodityUuid = $this->normalizeString($part['ResourceTypeUUID'] ?? null);
+                $commodityUuid = $part['ResourceTypeUUID'] ?? null;
 
                 if ($commodityUuid === null) {
                     continue;
@@ -228,7 +228,7 @@ class ImportResources extends Command implements PromptsForMissingInput
                         continue;
                     }
 
-                    $commodityUuid = $this->normalizeString($resourceType['ResourceTypeUUID'] ?? null);
+                    $commodityUuid = $resourceType['ResourceTypeUUID'] ?? null;
 
                     if ($commodityUuid === null) {
                         continue;
@@ -264,19 +264,8 @@ class ImportResources extends Command implements PromptsForMissingInput
 
     private function isValidResourcePayload(array $resourcePayload): bool
     {
-        return $this->normalizeString($resourcePayload['UUID'] ?? null) !== null
-            && $this->normalizeString($resourcePayload['Key'] ?? null) !== null
-            && $this->normalizeString($resourcePayload['Kind'] ?? null) !== null;
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
+        return ($resourcePayload['UUID'] ?? null) !== null
+            && ($resourcePayload['Key'] ?? null) !== null
+            && ($resourcePayload['Kind'] ?? null) !== null;
     }
 }

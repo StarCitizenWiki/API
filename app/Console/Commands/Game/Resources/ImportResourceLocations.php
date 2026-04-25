@@ -107,7 +107,7 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
                     continue;
                 }
 
-                $objectUuid = $this->normalizeString($location['Object'] ?? null);
+                $objectUuid = $location['Object'] ?? null;
 
                 if ($objectUuid !== null) {
                     $starmapDataId = $starmapLookup->get($objectUuid);
@@ -122,7 +122,7 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
 
             $areaData = $this->buildAreaData($areas);
 
-            $providerName = $this->normalizeString($provider['Provider']['Name'] ?? null);
+            $providerName = $provider['Provider']['Name'] ?? null;
 
             $resourceProvider = ResourceProvider::query()->updateOrCreate(
                 [
@@ -146,7 +146,7 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
                     continue;
                 }
 
-                $groupName = $this->normalizeGroupName($this->normalizeString($group['GroupName'] ?? null) ?? 'Unknown');
+                $groupName = $this->normalizeGroupName($group['GroupName'] ?? 'Unknown');
                 $groupProbability = round((float) ($group['GroupProbability'] ?? 0), 6);
                 $deposits = $group['Deposits'] ?? [];
 
@@ -322,7 +322,7 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
 
     private function resolveResourceDataId(array $deposit, Collection $lookup): ?int
     {
-        $resourceUuid = $this->normalizeString($deposit['ResourceUUID'] ?? null);
+        $resourceUuid = $deposit['ResourceUUID'] ?? null;
 
         if ($resourceUuid === null) {
             return null;
@@ -345,17 +345,17 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
     ): array {
         $relativeProbability = round((float) ($deposit['RelativeProbability'] ?? 0), 10);
         $resourceKind = ResourceKind::fromGroupName($groupName);
-        $commodityKey = $this->normalizeString($deposit['ResourceKey'] ?? null);
+        $commodityKey = $deposit['ResourceKey'] ?? null;
         $locationData = [
             'locations' => collect($locations)->map(fn (array $loc): array => [
-                'key' => $this->normalizeString($loc['Key'] ?? null),
-                'object_uuid' => $this->normalizeString($loc['Object'] ?? null),
-                'location_uuid' => $this->normalizeString($loc['Location'] ?? null),
-                'tag' => $this->normalizeString($loc['Tag'] ?? null),
-                'match_strategy' => $this->normalizeString($loc['MatchStrategy'] ?? null),
-                'system' => $this->normalizeString($loc['System'] ?? null),
-                'name' => $this->normalizeString($loc['Name'] ?? null),
-                'type' => $this->normalizeString($loc['Type'] ?? null),
+                'key' => $loc['Key'] ?? null,
+                'object_uuid' => $loc['Object'] ?? null,
+                'location_uuid' => $loc['Location'] ?? null,
+                'tag' => $loc['Tag'] ?? null,
+                'match_strategy' => $loc['MatchStrategy'] ?? null,
+                'system' => $loc['System'] ?? null,
+                'name' => $loc['Name'] ?? null,
+                'type' => $loc['Type'] ?? null,
             ])->all(),
             'clustering' => $deposit['Clustering'] ?? null,
             'harvestable_setup' => $deposit['HarvestableSetup'] ?? null,
@@ -420,7 +420,7 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
 
             $qualityRange = $quality['QualityRange'] ?? $quality;
 
-            $qualityCommodityKey = $this->normalizeString($quality['ResourceKey'] ?? null) ?? $commodityKey;
+            $qualityCommodityKey = $quality['ResourceKey'] ?? $commodityKey;
 
             $rows[] = [
                 'resource_data_id' => $resourceDataId,
@@ -489,16 +489,5 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
             'Havestables' => 'Harvestables',
             default => $groupName,
         };
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
     }
 }

@@ -21,7 +21,7 @@ final class ItemTableConfig
      */
     public function build(?string $type): array
     {
-        $resolvedType = $this->normalizeType($type);
+        $resolvedType = $type !== null && trim($type) !== '' ? trim($type) : null;
         $columns = $this->columnsForType($resolvedType);
         $headerFilterOptionsMap = $this->headerFilterOptionsMapForType($resolvedType);
 
@@ -169,22 +169,11 @@ final class ItemTableConfig
             return $columns;
         }
 
-        return array_values(array_filter($columns, function (array $column) use ($fields): bool {
+        return array_values(array_filter($columns, static function (array $column) use ($fields): bool {
             $field = $column['field'] ?? null;
 
             return ! in_array($field, $fields, true);
         }));
-    }
-
-    private function normalizeType(?string $type): ?string
-    {
-        if ($type === null) {
-            return null;
-        }
-
-        $trimmedType = trim($type);
-
-        return $trimmedType === '' ? null : $trimmedType;
     }
 
     /**
@@ -209,7 +198,6 @@ final class ItemTableConfig
 
             $group = $sharedGroups[$key];
 
-            // Apply overrides if provided
             if (isset($sharedOverrides[$key]) && is_array($sharedOverrides[$key])) {
                 $group = array_replace_recursive($group, $sharedOverrides[$key]);
             }
@@ -250,7 +238,6 @@ final class ItemTableConfig
             return $columns;
         }
 
-        // If no position specified, append (backwards compatible)
         if ($insertAt === null) {
             return array_values(array_merge($columns, $newColumns));
         }
@@ -261,15 +248,13 @@ final class ItemTableConfig
 
         $columnCount = count($columns);
 
-        // Handle negative indices (count from end)
+        // count from end
         if ($insertAt < 0) {
             $insertAt = max(0, $columnCount + $insertAt);
         }
 
-        // Clamp to valid range
         $insertAt = max(0, min($insertAt, $columnCount));
 
-        // Protect view button if requested
         if ($protectViewButton) {
             $viewButtonIndex = $this->findViewButtonIndex($columns);
             if ($viewButtonIndex !== null && $insertAt > $viewButtonIndex) {
@@ -277,7 +262,6 @@ final class ItemTableConfig
             }
         }
 
-        // Insert columns
         return array_values(array_merge(
             array_slice($columns, 0, $insertAt),
             $newColumns,
@@ -342,30 +326,24 @@ final class ItemTableConfig
      */
     private function enrichColumnSort(array $column, array $sortsConfig): array
     {
-        // Skip if no field defined
         if (! isset($column['field']) || ! is_string($column['field'])) {
             return $column;
         }
 
         $field = $column['field'];
 
-        // Skip if field already has sortField (manual override)
         if (isset($column['sortField'])) {
             return $column;
         }
 
-        // Lookup sort configuration by field name
         if (! isset($sortsConfig[$field])) {
-            // Not all fields are sortable - this is normal
             return $column;
         }
 
         $sortConfig = $sortsConfig[$field];
 
-        // Add sortField from path
         $column['sortField'] = $sortConfig['path'];
 
-        // Optionally add complete sort metadata
         $column['sort'] = [
             'path' => $sortConfig['path'],
             'cast' => $sortConfig['cast'] ?? 'text',
@@ -383,7 +361,6 @@ final class ItemTableConfig
      */
     private function enrichColumn(array $column, array $sortsConfig): array
     {
-        // Handle nested column groups
         if (isset($column['columns']) && is_array($column['columns'])) {
             $column['columns'] = array_map(
                 fn (array $nestedColumn): array => $this->enrichColumn($nestedColumn, $sortsConfig),
@@ -391,7 +368,6 @@ final class ItemTableConfig
             );
         }
 
-        // Enrich this column's sortField
         return $this->enrichColumnSort($column, $sortsConfig);
     }
 }

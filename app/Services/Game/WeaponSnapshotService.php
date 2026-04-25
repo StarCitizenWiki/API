@@ -54,7 +54,6 @@ class WeaponSnapshotService
             $subtype = $this->extractSubtype($port);
             $isGimbal = $this->isGimbal($port);
 
-            // Update turret ancestry (exclude gimbals)
             $currentAncestors = $turretAncestors;
             if ($this->isMannedTurret($port) && ! $isGimbal) {
                 $counts['turrets_manned_count']++;
@@ -64,7 +63,6 @@ class WeaponSnapshotService
                 $currentAncestors[] = $port;
             }
 
-            // Count weapon guns (pilot vs turret)
             if ($type === 'WeaponGun') {
                 if ($this->hasNonGimbalTurretAncestor($currentAncestors)) {
                     $counts['turret_weapon_guns_count']++;
@@ -73,22 +71,18 @@ class WeaponSnapshotService
                 }
             }
 
-            // Count missile racks
             if ($type === 'MissileLauncher') {
                 $counts['missile_rack_count']++;
             }
 
-            // Count missiles
             if ($type === 'Missile') {
                 $counts['missile_count']++;
             }
 
-            // Count countermeasures
             if ($type === 'WeaponDefensive' && $subtype === 'CountermeasureLauncher') {
                 $counts['countermeasures_count']++;
             }
 
-            // Recurse into child ports
             $childLoadout = Arr::get($port, 'Loadout', []);
             if (is_array($childLoadout) && count($childLoadout) > 0) {
                 $this->traversePorts($childLoadout, $currentAncestors, $counts);

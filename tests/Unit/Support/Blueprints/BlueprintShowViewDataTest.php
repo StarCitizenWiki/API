@@ -163,11 +163,6 @@ it('builds grouped blueprint detail view data', function (): void {
         ->and($page['blueprintName'])->toBe('Chiron Legs')
         ->and($page['craftTimeLabel'])->toBe('3 minutes')
         ->and($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
-        ->and($page['canonicalUrl'])->toBe(route('web.blueprints.show', [
-            'blueprint' => $blueprintUuid,
-            'version' => '4.0.0-PTU',
-        ]))
-        ->and($page['metaDescription'])->toBe('Chiron Legs blueprint, type Armor, craft time 180 seconds, 3 inputs')
         ->and($page['outputItemWebUrl'])->toBe(route('web.items.show', [
             'item' => $outputItemUuid,
             'version' => '4.0.0-PTU',
@@ -296,9 +291,6 @@ it('builds empty blueprint search view data', function (): void {
 
     expect($page['isEmptyMode'])->toBeTrue()
         ->and($page['pageTitleDecoded'])->toBe('Search Blueprints')
-        ->and($page['canonicalUrl'])->toBe(route('web.blueprints.search', ['version' => '4.0.0-PTU']))
-        ->and($page['metaTitle'])->toBe('Search Blueprints - Star Citizen')
-        ->and($page['metaDescription'])->toBe('Search Star Citizen blueprints by output name, class, item, or input resource.')
         ->and($page['rawBlueprintJson'])->toBe('{}')
         ->and($page['searchQuery'])->toBe('legs')
         ->and($page['renderSearchResultCount'])->toBe(0)
@@ -321,9 +313,7 @@ it('prefers the explicit query version over the stored session version', functio
         pageTitle: 'Search Blueprints',
     );
 
-    expect($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
-        ->and($page['canonicalUrl'])->toBe(route('web.blueprints.search', ['version' => '4.0.0-PTU']))
-        ->and($page['metaTitle'])->toBe('Search Blueprints - Star Citizen');
+    expect($page['resolvedVersionCode'])->toBe('4.0.0-PTU');
 });
 
 it('escapes embedded client payload json for script tags', function (): void {

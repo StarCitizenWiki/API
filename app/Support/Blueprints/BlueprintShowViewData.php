@@ -19,27 +19,125 @@ final class BlueprintShowViewData
         $isEmptyMode = $resolvedMode === 'empty';
         $normalizedBlueprint = is_array($blueprint) ? $blueprint : [];
         $normalizedSearch = is_array($search) ? $search : [];
-        $searchFilters = is_array(data_get($normalizedSearch, 'filters'))
-            ? data_get($normalizedSearch, 'filters')
-            : [];
-        $searchQuery = trim((string) ($searchFilters['query'] ?? data_get($normalizedSearch, 'query', '')));
-        $searchResults = is_array(data_get($normalizedSearch, 'results'))
-            ? array_values(data_get($normalizedSearch, 'results'))
-            : [];
-        $searchResultCount = (int) data_get($normalizedSearch, 'result_count', count($searchResults));
         $pageTitleDecoded = html_entity_decode($pageTitle);
-        $resolvedVersionCode = $this->normalizeString(request()->query('version'))
-            ?? $this->normalizeString(session('game_version_code'));
-        $blueprintName = $this->normalizeString(data_get($normalizedBlueprint, 'output_name'))
-            ?? $this->normalizeString(data_get($normalizedBlueprint, 'output.name'))
+        $rawVersion = request()->query('version');
+        $resolvedVersionCode = (is_string($rawVersion) && trim($rawVersion) !== '' ? trim($rawVersion) : null)
+            ?? session('game_version_code');
+
+        $blueprintData = $this->extractBlueprintData($normalizedBlueprint);
+        $dismantleData = $this->buildDismantleData($normalizedBlueprint);
+        $canonicalUrl = $isEmptyMode
+            ? route('web.blueprints.search', array_filter([
+                'version' => $resolvedVersionCode,
+            ]))
+            : (data_get($normalizedBlueprint, 'web_url') ?? url()->current());
+        $searchState = $this->buildSearchState(
+            $normalizedSearch,
+            $normalizedBlueprint,
+            $isEmptyMode,
+            $blueprintData,
+            $canonicalUrl,
+        );
+        $rawBlueprintJson = $isEmptyMode ? '{}' : $this->encodeJson($normalizedBlueprint);
+        $aspectState = $this->buildAspectState($blueprintData['requirementGroups'], $resolvedVersionCode);
+        $summaryPropertyList = $this->normalizeArrayList($blueprintData['summaryProperties']);
+        $hasSearchFilters = $searchState['searchQuery'] !== '' || $searchState['selectedIngredientResourceTypeUuids'] !== [];
+        $renderSearchResultCount = $hasSearchFilters ? $searchState['searchResultCount'] : count($searchState['initialSearchResults']);
+        $clientPayload = $this->encodeHtmlSafeJson([
+            'search' => [
+                'apiEndpoint' => $searchState['searchApiEndpoint'],
+                'resourceTypesEndpoint' => $searchState['resourceTypesEndpoint'],
+                'query' => $searchState['searchQuery'],
+                'version' => $resolvedVersionCode,
+                'currentBlueprintUuid' => $blueprintData['blueprintUuid'],
+                'selectedResourceTypeUuids' => $searchState['selectedIngredientResourceTypeUuids'],
+                'initialResults' => $searchState['initialSearchResults'],
+                'initialResultCount' => $renderSearchResultCount,
+            ],
+            'detail' => $isEmptyMode ? null : [
+                'hasInteractiveAspects' => $aspectState['hasInteractiveAspects'],
+                'summaryProperties' => $summaryPropertyList,
+                'aspects' => array_values($aspectState['aspects']),
+            ],
+        ]);
+
+        return [
+            'mode' => $resolvedMode,
+            'isEmptyMode' => $isEmptyMode,
+            'blueprint' => $normalizedBlueprint,
+            'search' => $normalizedSearch,
+            'pageTitle' => $pageTitle,
+            'pageTitleDecoded' => $pageTitleDecoded,
+            'searchQuery' => $searchState['searchQuery'],
+            'blueprintName' => $blueprintData['blueprintName'],
+            'blueprintKey' => $blueprintData['blueprintKey'],
+            'blueprintUuid' => $blueprintData['blueprintUuid'],
+            'outputClass' => $blueprintData['outputClass'],
+            'outputType' => $blueprintData['outputType'],
+            'outputSubtype' => $blueprintData['outputSubtype'],
+            'outputGrade' => $blueprintData['outputGrade'],
+            'craftTimeLabel' => $blueprintData['craftTimeLabel'],
+            'requirementGroups' => $blueprintData['requirementGroups'],
+            'isAvailableByDefault' => $blueprintData['isAvailableByDefault'],
+            'outputItemWebUrl' => $blueprintData['outputItemWebUrl'],
+            'apiLink' => $blueprintData['apiLink'],
+            'unlockingMissions' => $blueprintData['unlockingMissions'],
+            'hasDismantleData' => $dismantleData['hasDismantleData'],
+            'dismantleTimeLabel' => $dismantleData['dismantleTimeLabel'],
+            'dismantleEfficiency' => $dismantleData['dismantleEfficiency'],
+            'dismantleReturns' => $dismantleData['dismantleReturns'],
+            'rawBlueprintJson' => $rawBlueprintJson,
+            'resolvedVersionCode' => $resolvedVersionCode,
+            'selectedIngredientResourceTypeUuids' => $searchState['selectedIngredientResourceTypeUuids'],
+            'initialSearchResults' => $searchState['initialSearchResults'],
+            'hasSearchFilters' => $hasSearchFilters,
+            'renderSearchResultCount' => $renderSearchResultCount,
+            'summaryPropertyList' => $summaryPropertyList,
+            'hasInteractiveAspects' => $aspectState['hasInteractiveAspects'],
+            'aspects' => $aspectState['aspects'],
+            'aspectGroups' => $aspectState['aspectGroups'],
+            'clientPayload' => $clientPayload,
+            'formatCraftTime' => $blueprintData['formatCraftTime'],
+            'formatAspectAmount' => static fn (array $aspect): ?string => self::formatAspectAmount($aspect),
+            'formatAspectQuality' => static fn (array $aspect): string => self::formatAspectQuality($aspect),
+            'resolveRequirementLabel' => static fn (mixed $name, mixed $key, string $fallback = 'Aspect'): string => self::resolveRequirementLabel($name, $key, $fallback),
+        ];
+    }
+
+    /**
+     * @return array{
+     *     blueprintName: string,
+     *     blueprintKey: ?string,
+     *     blueprintUuid: ?string,
+     *     outputClass: ?string,
+     *     outputType: ?string,
+     *     outputSubtype: ?string,
+     *     outputGrade: ?string,
+     *     craftTimeSeconds: mixed,
+     *     craftTimeLabel: ?string,
+     *     formatCraftTime: Closure,
+     *     ingredientCount: int,
+     *     ingredients: array<int, mixed>,
+     *     requirementGroups: array<int, mixed>,
+     *     summaryProperties: array<int, mixed>,
+     *     isAvailableByDefault: bool,
+     *     outputItemWebUrl: ?string,
+     *     apiLink: ?string,
+     *     unlockingMissions: array<int, mixed>,
+     * }
+     */
+    private function extractBlueprintData(array $normalizedBlueprint): array
+    {
+        $blueprintName = data_get($normalizedBlueprint, 'output_name')
+            ?? data_get($normalizedBlueprint, 'output.name')
             ?? 'Blueprint';
-        $blueprintKey = $this->normalizeString(data_get($normalizedBlueprint, 'key'));
-        $blueprintUuid = $this->normalizeString(data_get($normalizedBlueprint, 'uuid'));
-        $outputClass = $this->normalizeString(data_get($normalizedBlueprint, 'output_class'))
-            ?? $this->normalizeString(data_get($normalizedBlueprint, 'output.class'));
-        $outputType = $this->normalizeString(data_get($normalizedBlueprint, 'output.type'));
-        $outputSubtype = $this->normalizeString(data_get($normalizedBlueprint, 'output.subtype'));
-        $outputGrade = $this->normalizeString(data_get($normalizedBlueprint, 'output.grade'));
+        $blueprintKey = data_get($normalizedBlueprint, 'key');
+        $blueprintUuid = data_get($normalizedBlueprint, 'uuid');
+        $outputClass = data_get($normalizedBlueprint, 'output_class')
+            ?? data_get($normalizedBlueprint, 'output.class');
+        $outputType = data_get($normalizedBlueprint, 'output.type');
+        $outputSubtype = data_get($normalizedBlueprint, 'output.subtype');
+        $outputGrade = data_get($normalizedBlueprint, 'output.grade');
         $craftTimeSeconds = data_get($normalizedBlueprint, 'craft_time_seconds');
         $formatCraftTime = static fn (mixed $seconds): ?string => self::formatCraftTime($seconds);
         $craftTimeLabel = self::formatCraftTime($craftTimeSeconds);
@@ -56,14 +154,47 @@ final class BlueprintShowViewData
             'is_available_by_default',
             false,
         );
-        $outputItemWebUrl = $this->normalizeString(data_get($normalizedBlueprint, 'output.item_web_url'))
-            ?? $this->normalizeString(data_get($normalizedBlueprint, 'output_item_web_url'));
-        $apiLink = $this->normalizeString(data_get($normalizedBlueprint, 'link'));
+        $outputItemWebUrl = data_get($normalizedBlueprint, 'output.item_web_url')
+            ?? data_get($normalizedBlueprint, 'output_item_web_url');
+        $apiLink = data_get($normalizedBlueprint, 'link');
         $unlockingMissions = $this->buildUnlockingMissions(
             is_array(data_get($normalizedBlueprint, 'unlocking_missions'))
                 ? data_get($normalizedBlueprint, 'unlocking_missions')
                 : [],
         );
+
+        return [
+            'blueprintName' => $blueprintName,
+            'blueprintKey' => $blueprintKey,
+            'blueprintUuid' => $blueprintUuid,
+            'outputClass' => $outputClass,
+            'outputType' => $outputType,
+            'outputSubtype' => $outputSubtype,
+            'outputGrade' => $outputGrade,
+            'craftTimeSeconds' => $craftTimeSeconds,
+            'craftTimeLabel' => $craftTimeLabel,
+            'formatCraftTime' => $formatCraftTime,
+            'ingredientCount' => $ingredientCount,
+            'ingredients' => $ingredients,
+            'requirementGroups' => $requirementGroups,
+            'summaryProperties' => $summaryProperties,
+            'isAvailableByDefault' => $isAvailableByDefault,
+            'outputItemWebUrl' => $outputItemWebUrl,
+            'apiLink' => $apiLink,
+            'unlockingMissions' => $unlockingMissions,
+        ];
+    }
+
+    /**
+     * @return array{
+     *     hasDismantleData: bool,
+     *     dismantleTimeLabel: ?string,
+     *     dismantleEfficiency: int|float|null,
+     *     dismantleReturns: array<int, array<string, mixed>>,
+     * }
+     */
+    private function buildDismantleData(array $normalizedBlueprint): array
+    {
         $dismantle = is_array(data_get($normalizedBlueprint, 'dismantle'))
             ? data_get($normalizedBlueprint, 'dismantle')
             : [];
@@ -92,27 +223,44 @@ final class BlueprintShowViewData
         $hasDismantleData = $dismantleTimeSeconds !== null
             || $dismantleEfficiency !== null
             || $dismantleReturns !== [];
-        $canonicalUrl = $isEmptyMode
-            ? route('web.blueprints.search', array_filter([
-                'version' => $resolvedVersionCode,
-            ]))
-            : ($this->normalizeString(data_get($normalizedBlueprint, 'web_url')) ?? url()->current());
-        $metaDescription = $isEmptyMode
-            ? 'Search Star Citizen blueprints by output name, class, item, or input resource.'
-            : Str::limit(
-                trim(collect([
-                    $blueprintName.' blueprint',
-                    $outputType !== null ? 'type '.$outputType : null,
-                    $craftTimeSeconds !== null ? 'craft time '.$craftTimeSeconds.' seconds' : null,
-                    $ingredientCount > 0 ? $ingredientCount.' inputs' : null,
-                ])->filter()->implode(', ')),
-                160,
-            );
-        $rawBlueprintJson = $isEmptyMode ? '{}' : $this->encodeJson($normalizedBlueprint);
-        $metaTitle = $isEmptyMode ? 'Search Blueprints - Star Citizen' : $blueprintName.' Blueprint';
-        $searchApiEndpoint = $this->normalizeString(data_get($normalizedSearch, 'api_endpoint'))
+
+        return [
+            'hasDismantleData' => $hasDismantleData,
+            'dismantleTimeLabel' => $dismantleTimeLabel,
+            'dismantleEfficiency' => $dismantleEfficiency,
+            'dismantleReturns' => $dismantleReturns,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $blueprintData  Output from extractBlueprintData()
+     * @return array{
+     *     searchApiEndpoint: string,
+     *     resourceTypesEndpoint: string,
+     *     searchQuery: string,
+     *     searchResultCount: int,
+     *     selectedIngredientResourceTypeUuids: array<int, string>,
+     *     initialSearchResults: array<int, mixed>,
+     * }
+     */
+    private function buildSearchState(
+        array $normalizedSearch,
+        array $normalizedBlueprint,
+        bool $isEmptyMode,
+        array $blueprintData,
+        string $canonicalUrl,
+    ): array {
+        $searchFilters = is_array(data_get($normalizedSearch, 'filters'))
+            ? data_get($normalizedSearch, 'filters')
+            : [];
+        $searchQuery = trim((string) ($searchFilters['query'] ?? data_get($normalizedSearch, 'query', '')));
+        $searchResults = is_array(data_get($normalizedSearch, 'results'))
+            ? array_values(data_get($normalizedSearch, 'results'))
+            : [];
+        $searchResultCount = (int) data_get($normalizedSearch, 'result_count', count($searchResults));
+        $searchApiEndpoint = data_get($normalizedSearch, 'api_endpoint')
             ?? route('blueprints.index', [], false);
-        $resourceTypesEndpoint = $this->normalizeString(data_get($normalizedSearch, 'resource_types_endpoint'))
+        $resourceTypesEndpoint = data_get($normalizedSearch, 'resource_types_endpoint')
             ?? route('commodities.index', ['filter' => ['used' => 'true']], false);
         $selectedIngredientResourceTypeUuids = array_values(array_filter(
             array_map(
@@ -125,82 +273,25 @@ final class BlueprintShowViewData
             isEmptyMode: $isEmptyMode,
             searchResults: $searchResults,
             blueprint: $normalizedBlueprint,
-            blueprintUuid: $blueprintUuid,
-            blueprintKey: $blueprintKey,
-            blueprintName: $blueprintName,
-            outputClass: $outputClass,
-            craftTimeSeconds: $craftTimeSeconds,
-            ingredientCount: $ingredientCount,
-            ingredients: $ingredients,
-            outputType: $outputType,
-            outputSubtype: $outputSubtype,
+            blueprintUuid: $blueprintData['blueprintUuid'],
+            blueprintKey: $blueprintData['blueprintKey'],
+            blueprintName: $blueprintData['blueprintName'],
+            outputClass: $blueprintData['outputClass'],
+            craftTimeSeconds: $blueprintData['craftTimeSeconds'],
+            ingredientCount: $blueprintData['ingredientCount'],
+            ingredients: $blueprintData['ingredients'],
+            outputType: $blueprintData['outputType'],
+            outputSubtype: $blueprintData['outputSubtype'],
             canonicalUrl: $canonicalUrl,
         );
-        $hasSearchFilters = $searchQuery !== '' || $selectedIngredientResourceTypeUuids !== [];
-        $renderSearchResultCount = $hasSearchFilters ? $searchResultCount : count($initialSearchResults);
-        $summaryPropertyList = $this->normalizeArrayList($summaryProperties);
-        $aspectState = $this->buildAspectState($requirementGroups, $resolvedVersionCode);
-        $clientPayload = $this->encodeHtmlSafeJson([
-            'search' => [
-                'apiEndpoint' => $searchApiEndpoint,
-                'resourceTypesEndpoint' => $resourceTypesEndpoint,
-                'query' => $searchQuery,
-                'version' => $resolvedVersionCode,
-                'currentBlueprintUuid' => $blueprintUuid,
-                'selectedResourceTypeUuids' => $selectedIngredientResourceTypeUuids,
-                'initialResults' => $initialSearchResults,
-                'initialResultCount' => $renderSearchResultCount,
-            ],
-            'detail' => $isEmptyMode ? null : [
-                'hasInteractiveAspects' => $aspectState['hasInteractiveAspects'],
-                'summaryProperties' => $summaryPropertyList,
-                'aspects' => array_values($aspectState['aspects']),
-            ],
-        ]);
 
         return [
-            'mode' => $resolvedMode,
-            'isEmptyMode' => $isEmptyMode,
-            'blueprint' => $normalizedBlueprint,
-            'search' => $normalizedSearch,
-            'pageTitle' => $pageTitle,
-            'pageTitleDecoded' => $pageTitleDecoded,
+            'searchApiEndpoint' => $searchApiEndpoint,
+            'resourceTypesEndpoint' => $resourceTypesEndpoint,
             'searchQuery' => $searchQuery,
-            'blueprintName' => $blueprintName,
-            'blueprintKey' => $blueprintKey,
-            'blueprintUuid' => $blueprintUuid,
-            'outputClass' => $outputClass,
-            'outputType' => $outputType,
-            'outputSubtype' => $outputSubtype,
-            'outputGrade' => $outputGrade,
-            'craftTimeLabel' => $craftTimeLabel,
-            'requirementGroups' => $requirementGroups,
-            'isAvailableByDefault' => $isAvailableByDefault,
-            'outputItemWebUrl' => $outputItemWebUrl,
-            'apiLink' => $apiLink,
-            'unlockingMissions' => $unlockingMissions,
-            'hasDismantleData' => $hasDismantleData,
-            'dismantleTimeLabel' => $dismantleTimeLabel,
-            'dismantleEfficiency' => $dismantleEfficiency,
-            'dismantleReturns' => $dismantleReturns,
-            'canonicalUrl' => $canonicalUrl,
-            'metaDescription' => $metaDescription,
-            'rawBlueprintJson' => $rawBlueprintJson,
-            'metaTitle' => $metaTitle,
-            'resolvedVersionCode' => $resolvedVersionCode,
+            'searchResultCount' => $searchResultCount,
             'selectedIngredientResourceTypeUuids' => $selectedIngredientResourceTypeUuids,
             'initialSearchResults' => $initialSearchResults,
-            'hasSearchFilters' => $hasSearchFilters,
-            'renderSearchResultCount' => $renderSearchResultCount,
-            'summaryPropertyList' => $summaryPropertyList,
-            'hasInteractiveAspects' => $aspectState['hasInteractiveAspects'],
-            'aspects' => $aspectState['aspects'],
-            'aspectGroups' => $aspectState['aspectGroups'],
-            'clientPayload' => $clientPayload,
-            'formatCraftTime' => $formatCraftTime,
-            'formatAspectAmount' => static fn (array $aspect): ?string => self::formatAspectAmount($aspect),
-            'formatAspectQuality' => static fn (array $aspect): string => self::formatAspectQuality($aspect),
-            'resolveRequirementLabel' => static fn (mixed $name, mixed $key, string $fallback = 'Aspect'): string => self::resolveRequirementLabel($name, $key, $fallback),
         ];
     }
 
@@ -210,13 +301,13 @@ final class BlueprintShowViewData
      */
     private function buildUnlockingMissions(array $missions): array
     {
-        $flat = array_values(array_filter(array_map(function (mixed $mission): ?array {
+        $flat = array_values(array_filter(array_map(static function (mixed $mission): ?array {
             if (! is_array($mission)) {
                 return null;
             }
 
-            $title = $this->normalizeString(data_get($mission, 'title'));
-            $debugName = $this->normalizeString(data_get($mission, 'debug_name'));
+            $title = data_get($mission, 'title');
+            $debugName = data_get($mission, 'debug_name');
 
             if ($title === null && $debugName === null) {
                 return null;
@@ -225,9 +316,9 @@ final class BlueprintShowViewData
             return [
                 'title' => FormatMissionTitle::format($title, $debugName),
                 'debug_name' => $debugName,
-                'reward_scope' => $this->normalizeString(data_get($mission, 'reward_scope')),
+                'reward_scope' => data_get($mission, 'reward_scope'),
                 'chance' => is_numeric(data_get($mission, 'chance')) ? data_get($mission, 'chance') + 0 : null,
-                'web_url' => $this->normalizeString(data_get($mission, 'web_url')),
+                'web_url' => data_get($mission, 'web_url'),
             ];
         }, $missions)));
 
@@ -347,7 +438,7 @@ final class BlueprintShowViewData
             }
 
             $groupName = self::resolveRequirementLabel(data_get($group, 'name'), data_get($group, 'key'), 'Aspect');
-            $groupKey = $this->normalizeString(data_get($group, 'key'));
+            $groupKey = data_get($group, 'key');
             $groupRequiredCount = is_numeric(data_get($group, 'required_count'))
                 ? (int) data_get($group, 'required_count')
                 : null;
@@ -508,7 +599,7 @@ final class BlueprintShowViewData
 
             if ($kind === 'group') {
                 $nestedName = data_get($node, 'name');
-                $nestedKey = $this->normalizeString(data_get($node, 'key'));
+                $nestedKey = data_get($node, 'key');
                 $nestedRequiredCount = data_get($node, 'required_count');
                 $children = is_array(data_get($node, 'children')) ? data_get($node, 'children') : [];
                 $resolvedAspectName = self::resolveRequirementLabel($nestedName, $nestedKey, $aspectName ?? 'Aspect');
@@ -623,8 +714,8 @@ final class BlueprintShowViewData
         }
 
         foreach ($this->normalizeIngredientList(data_get($blueprint, 'ingredients')) as $ingredient) {
-            $uuid = $this->normalizeString(data_get($ingredient, 'resource_type_uuid'));
-            $name = $this->normalizeString(data_get($ingredient, 'name'));
+            $uuid = data_get($ingredient, 'resource_type_uuid');
+            $name = data_get($ingredient, 'name');
 
             if ($uuid !== null || $name !== null) {
                 $this->pushIngredient($ingredients, $name, $uuid);
@@ -659,10 +750,10 @@ final class BlueprintShowViewData
                 continue;
             }
 
-            $ingredientName = $this->normalizeString(data_get($node, 'name'))
-                ?? $this->normalizeString(data_get($node, 'key'));
+            $ingredientName = data_get($node, 'name')
+                ?? data_get($node, 'key');
             $resourceTypeUuid = (string) data_get($node, 'kind', '') === 'resource'
-                ? $this->normalizeString(data_get($node, 'uuid'))
+                ? data_get($node, 'uuid')
                 : null;
 
             $this->pushIngredient($ingredients, $ingredientName, $resourceTypeUuid);
@@ -684,17 +775,6 @@ final class BlueprintShowViewData
             'name' => $name,
             'resource_type_uuid' => $resourceTypeUuid,
         ];
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $normalized = trim($value);
-
-        return $normalized === '' ? null : $normalized;
     }
 
     /**
@@ -727,8 +807,8 @@ final class BlueprintShowViewData
 
             $this->pushIngredient(
                 $ingredients,
-                $this->normalizeString(data_get($ingredient, 'name')),
-                $this->normalizeString(data_get($ingredient, 'resource_type_uuid')),
+                data_get($ingredient, 'name'),
+                data_get($ingredient, 'resource_type_uuid'),
             );
         }
 
@@ -747,11 +827,11 @@ final class BlueprintShowViewData
         $normalizedValues = [];
 
         foreach ($value as $item) {
-            $normalizedItem = $this->normalizeString($item);
-
-            if ($normalizedItem !== null && ! in_array($normalizedItem, $normalizedValues, true)) {
-                $normalizedValues[] = $normalizedItem;
+            if (! is_string($item) || $item === '' || in_array($item, $normalizedValues, true)) {
+                continue;
             }
+
+            $normalizedValues[] = $item;
         }
 
         return $normalizedValues;
@@ -759,20 +839,17 @@ final class BlueprintShowViewData
 
     private function encodeJson(mixed $value): string
     {
-        return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
+        return json_encode($value, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
     }
 
     private function encodeHtmlSafeJson(mixed $value): string
     {
-        return json_encode(
-            $value,
-            JSON_PRETTY_PRINT
-                | JSON_UNESCAPED_SLASHES
-                | JSON_HEX_TAG
-                | JSON_HEX_AMP
-                | JSON_HEX_APOS
-                | JSON_HEX_QUOT,
-        ) ?: '{}';
+        return json_encode($value, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+            | JSON_UNESCAPED_SLASHES
+            | JSON_HEX_TAG
+            | JSON_HEX_AMP
+            | JSON_HEX_APOS
+            | JSON_HEX_QUOT) ?: '{}';
     }
 
     private static function formatCraftTime(mixed $seconds): ?string

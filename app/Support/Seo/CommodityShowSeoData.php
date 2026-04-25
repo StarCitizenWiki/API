@@ -9,22 +9,27 @@ use Illuminate\Support\Str;
 
 final class CommodityShowSeoData extends AbstractShowSeoData
 {
+    protected function showRouteName(): string
+    {
+        return 'web.commodities.show';
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function build(array $commodity, Request $request): array
     {
-        $commodityName = $this->normalizeString(data_get($commodity, 'name')) ?? 'Commodity';
-        $slug = $this->normalizeString(data_get($commodity, 'slug'));
-        $uuid = $this->normalizeString(data_get($commodity, 'uuid'));
-        $kind = $this->normalizeString(data_get($commodity, 'kind'));
-        $tier = $this->normalizeScalar(data_get($commodity, 'tier'));
-        $density = $this->normalizeScalar(data_get($commodity, 'density'));
-        $instability = $this->normalizeScalar(data_get($commodity, 'instability'));
-        $resistance = $this->normalizeScalar(data_get($commodity, 'resistance'));
+        $commodityName = data_get($commodity, 'name') ?? 'Commodity';
+        $slug = data_get($commodity, 'slug');
+        $uuid = data_get($commodity, 'uuid');
+        $kind = data_get($commodity, 'kind');
+        $tier = data_get($commodity, 'tier');
+        $density = data_get($commodity, 'density');
+        $instability = data_get($commodity, 'instability');
+        $resistance = data_get($commodity, 'resistance');
         $description = $this->resolveDescription(data_get($commodity, 'description'));
         $version = $this->resolveVersionCode($request);
-        $canonicalUrl = $this->normalizeString(data_get($commodity, 'web_url'))
+        $canonicalUrl = data_get($commodity, 'web_url')
             ?? $this->fallbackShowUrl($slug ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs($commodity, $commodityName, $canonicalUrl, $version);
 
@@ -36,32 +41,38 @@ final class CommodityShowSeoData extends AbstractShowSeoData
 
         $category = $this->resolveLeafBreadcrumbLabel($breadcrumbs) ?? $kind ?? 'Star Citizen Commodity';
 
+        $commoditySchema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Item',
+            name: $commodityName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Kind' => $kind,
+                'Tier' => $tier,
+                'Density' => $density,
+                'Instability' => $instability,
+                'Resistance' => $resistance,
+            ],
+        );
+
+        if ($uuid !== null) {
+            $commoditySchema['sku'] = $uuid;
+        }
+
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $commodityName,
                 $kind,
                 $tier !== null ? 'Tier '.$tier : null,
-                'Star Citizen',
-                'SC',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
             structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildCommodityEntityStructuredData(
-                    commodityName: $commodityName,
-                    category: $category,
-                    metaDescription: $metaDescription,
-                    canonicalUrl: $canonicalUrl,
-                    uuid: $uuid,
-                    kind: $kind,
-                    tier: $tier,
-                    density: $density,
-                    instability: $instability,
-                    resistance: $resistance,
-                ),
+                $commoditySchema,
             ],
             title: $metaTitle,
         );
@@ -82,7 +93,7 @@ final class CommodityShowSeoData extends AbstractShowSeoData
         $rawVersions = data_get($commodity, 'raw_versions', []);
         if (is_array($rawVersions) && count($rawVersions) === 1 && ($rawVersions[0]['web_url'] ?? null)) {
             $breadcrumbs[] = [
-                'label' => $this->normalizeString($rawVersions[0]['name']) ?? 'Raw',
+                'label' => $rawVersions[0]['name'] ?? 'Raw',
                 'url' => $rawVersions[0]['web_url'],
             ];
         }
@@ -95,7 +106,7 @@ final class CommodityShowSeoData extends AbstractShowSeoData
         $refinedVersion = data_get($commodity, 'refined_version');
         if (is_array($refinedVersion) && ($refinedVersion['web_url'] ?? null)) {
             $breadcrumbs[] = [
-                'label' => $this->normalizeString($refinedVersion['name']) ?? 'Refined',
+                'label' => $refinedVersion['name'] ?? 'Refined',
                 'url' => $refinedVersion['web_url'],
             ];
         }
@@ -114,17 +125,17 @@ final class CommodityShowSeoData extends AbstractShowSeoData
             $detail = 'Commodity';
         }
 
-        return $this->joinSegments([$commodityName, $detail, 'Star Citizen'], ' | ');
+        return $this->pipeTitle([$commodityName, $detail]);
     }
 
     private function buildFallbackDescription(string $commodityName, ?string $kind, string|int|float|null $tier): string
     {
         $base = 'Browse Star Citizen commodity data for '.$commodityName;
 
-        $attributes = $this->compactValues([
+        $attributes = array_values(array_filter([
             $kind !== null ? 'kind '.$kind : null,
             $tier !== null ? 'tier '.$tier : null,
-        ]);
+        ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($attributes !== []) {
             $base .= ', '.implode(', ', $attributes);
@@ -133,54 +144,5 @@ final class CommodityShowSeoData extends AbstractShowSeoData
         $base .= '. View locations, blueprints, and technical details.';
 
         return $base;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildCommodityEntityStructuredData(
-        string $commodityName,
-        string $category,
-        string $metaDescription,
-        string $canonicalUrl,
-        ?string $uuid,
-        ?string $kind,
-        string|int|float|null $tier,
-        string|int|float|null $density,
-        string|int|float|null $instability,
-        string|int|float|null $resistance,
-    ): array {
-        $schema = $this->buildBaseEntityStructuredData(
-            schemaType: 'Item',
-            name: $commodityName,
-            description: $metaDescription,
-            url: $canonicalUrl,
-            category: $category,
-            additionalProperties: [
-                'Kind' => $kind,
-                'Tier' => $tier,
-                'Density' => $density,
-                'Instability' => $instability,
-                'Resistance' => $resistance,
-            ],
-        );
-
-        if ($uuid !== null) {
-            $schema['sku'] = $uuid;
-        }
-
-        return $schema;
-    }
-
-    protected function fallbackShowUrl(?string $identifier, ?string $version): string
-    {
-        if ($identifier === null) {
-            return url()->current();
-        }
-
-        return route('web.commodities.show', array_filter([
-            'identifier' => $identifier,
-            'version' => $version,
-        ]));
     }
 }

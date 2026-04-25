@@ -103,7 +103,7 @@ class ImportStarmapData implements ShouldQueue
                 'star_data_id' => null,
                 'location_hierarchy_entity_tag_id' => $hierarchyTagUuid !== null ? ($entityTagMap[$hierarchyTagUuid] ?? null) : null,
                 'name' => $name,
-                'description' => $this->normalizeNullableString($entry['Description'] ?? null),
+                'description' => $entry['Description'] ?? null,
                 'type_name' => $this->extractTypeName($entry),
                 'system' => null,
                 'size' => is_numeric($entry['Size'] ?? null) ? (float) $entry['Size'] : null,
@@ -124,8 +124,8 @@ class ImportStarmapData implements ShouldQueue
                 }
 
                 $amenityEntries[$aUuid] = [
-                    'name' => $this->normalizeNullableString($amenity['Name'] ?? null) ?? $aUuid,
-                    'display_name' => $this->normalizeNullableString($amenity['DisplayName'] ?? null),
+                    'name' => ($amenity['Name'] ?? null) ?? $aUuid,
+                    'display_name' => $amenity['DisplayName'] ?? null,
                 ];
                 $entryAmenityUuids[$uuid][$aUuid] = $aUuid;
             }
@@ -193,14 +193,14 @@ class ImportStarmapData implements ShouldQueue
 
     private function extractName(array $entry): string
     {
-        $name = $this->normalizeNullableString($entry['Name'] ?? null);
+        $name = $entry['Name'] ?? null;
 
         return $name ?? (string) ($entry['UUID'] ?? 'Unknown Location');
     }
 
     private function extractTypeName(array $entry): string
     {
-        $typeName = $this->normalizeNullableString(Arr::get($entry, 'Type.Name'));
+        $typeName = Arr::get($entry, 'Type.Name');
 
         return $typeName ?? 'Unknown';
     }
@@ -236,7 +236,7 @@ class ImportStarmapData implements ShouldQueue
         }
 
         $currentType = $this->extractTypeName($current);
-        $parentUuid = $this->normalizeNullableString($current['ParentUUID'] ?? null);
+        $parentUuid = $current['ParentUUID'] ?? null;
         $currentName = $this->extractName($current);
 
         if ($currentType === 'SolarSystem') {
@@ -436,20 +436,5 @@ class ImportStarmapData implements ShouldQueue
                 DB::table('game_starmap_location_data_amenity')->insert($chunk);
             }
         }
-    }
-
-    private function normalizeNullableString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        if ($value === '') {
-            return null;
-        }
-
-        return $value;
     }
 }

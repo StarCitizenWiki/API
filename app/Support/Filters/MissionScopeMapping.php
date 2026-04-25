@@ -6,23 +6,23 @@ namespace App\Support\Filters;
 
 final class MissionScopeMapping
 {
-    public const BOUNTY_HUNTER = 'Bounty Hunter';
+    public const string BOUNTY_HUNTER = 'Bounty Hunter';
 
-    public const HAULING = 'Hauling';
+    public const string HAULING = 'Hauling';
 
-    public const SECURITY = 'Security';
+    public const string SECURITY = 'Security';
 
-    public const ASSASSINATION = 'Assassination';
+    public const string ASSASSINATION = 'Assassination';
 
-    public const MINING = 'Mining';
+    public const string MINING = 'Mining';
 
-    public const SALVAGE = 'Salvage';
+    public const string SALVAGE = 'Salvage';
 
-    public const INVESTIGATION = 'Investigation';
+    public const string INVESTIGATION = 'Investigation';
 
-    public const RECOVERY = 'Recovery';
+    public const string RECOVERY = 'Recovery';
 
-    public const OTHER = 'Other';
+    public const string OTHER = 'Other';
 
     public static function scopeForRow(object $row): string
     {
@@ -191,11 +191,7 @@ final class MissionScopeMapping
             }
         }
 
-        if ($generatorClass === 'Unaffiliated_Generator' && $debugName !== null && str_starts_with($debugName, 'Manfred')) {
-            return true;
-        }
-
-        return false;
+        return $generatorClass === 'Unaffiliated_Generator' && $debugName !== null && str_starts_with($debugName, 'Manfred');
     }
 
     private static function rowMatchesRecovery(?string $generatorClass): bool
@@ -205,7 +201,7 @@ final class MissionScopeMapping
         }
 
         if (str_contains($generatorClass, 'RecoverCargo') || str_contains($generatorClass, 'RecoverItem')) {
-            return ! in_array($generatorClass, ['HockrowAgency_RecoverItem'], true);
+            return $generatorClass !== 'HockrowAgency_RecoverItem';
         }
 
         return false;

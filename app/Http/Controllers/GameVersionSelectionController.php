@@ -15,7 +15,7 @@ class GameVersionSelectionController extends Controller
         $versionCode = $request->string('version')->toString();
 
         $gameVersion = GameVersion::query()
-            ->whereRaw('LOWER(code) = ?', [strtolower($versionCode)])
+            ->where('code', strtoupper($versionCode))
             ->firstOrFail();
 
         $request->session()->put('game_version_code', $gameVersion->code);

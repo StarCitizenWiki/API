@@ -9,22 +9,32 @@ use Illuminate\Support\Str;
 
 final class VehicleShowSeoData extends AbstractShowSeoData
 {
+    protected function showRouteName(): string
+    {
+        return 'web.vehicles.show';
+    }
+
+    protected function showRouteParameterName(): string
+    {
+        return 'vehicle';
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function build(array $vehicle, Request $request): array
     {
-        $vehicleName = $this->normalizeString(data_get($vehicle, 'name')) ?? 'Vehicle';
-        $manufacturerName = $this->normalizeString(data_get($vehicle, 'manufacturer.name'));
-        $manufacturerCode = $this->normalizeString(data_get($vehicle, 'manufacturer.code'));
-        $sizeClass = $this->normalizeScalar(data_get($vehicle, 'size_class'));
-        $career = $this->normalizeString(data_get($vehicle, 'career'));
-        $role = $this->normalizeString(data_get($vehicle, 'role'));
-        $className = $this->normalizeString(data_get($vehicle, 'class_name'));
+        $vehicleName = data_get($vehicle, 'name') ?? 'Vehicle';
+        $manufacturerName = ($v = data_get($vehicle, 'manufacturer.name')) !== null ? trim(html_entity_decode($v)) : null;
+        $manufacturerCode = data_get($vehicle, 'manufacturer.code');
+        $sizeClass = data_get($vehicle, 'size_class');
+        $career = data_get($vehicle, 'career');
+        $role = data_get($vehicle, 'role');
+        $className = data_get($vehicle, 'class_name');
         $description = $this->resolveDescription(data_get($vehicle, 'description'));
-        $canonicalUrl = $this->normalizeString(data_get($vehicle, 'web_url'))
+        $canonicalUrl = data_get($vehicle, 'web_url')
             ?? $this->fallbackShowUrl(
-                identifier: $this->normalizeString(data_get($vehicle, 'slug')) ?? $this->normalizeString(data_get($vehicle, 'uuid')),
+                identifier: data_get($vehicle, 'slug') ?? data_get($vehicle, 'uuid'),
                 version: $this->resolveVersionCode($request),
             );
         $breadcrumbs = $this->buildBreadcrumbs(
@@ -56,40 +66,52 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             $category = 'Star Citizen Vehicle';
         }
 
+        $vehicleSchema = $this->buildBaseEntityStructuredData(
+            schemaType: 'Vehicle',
+            name: $vehicleName,
+            description: $metaDescription,
+            url: $canonicalUrl,
+            category: $category,
+            additionalProperties: [
+                'Manufacturer Code' => $manufacturerCode,
+                'Size Class' => $sizeClass,
+                'Career' => $career,
+                'Role' => $role,
+                'Crew' => data_get($vehicle, 'crew.min'),
+                'Cargo Capacity' => data_get($vehicle, 'cargo_capacity'),
+                'SCM Speed' => data_get($vehicle, 'speed.scm'),
+                'Max Speed' => data_get($vehicle, 'speed.max'),
+                'Quantum Speed' => data_get($vehicle, 'quantum.quantum_speed'),
+                'Version' => data_get($vehicle, 'version'),
+            ],
+        );
+
+        if ($manufacturerName !== null) {
+            $vehicleSchema['brand'] = [
+                '@type' => 'Brand',
+                'name' => $manufacturerName,
+            ];
+        }
+
+        if ($className !== null) {
+            $vehicleSchema['vehicleConfiguration'] = $className;
+        }
+
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $vehicleName,
                 $manufacturerName,
                 $sizeClass !== null ? 'Size '.$sizeClass : null,
                 $career,
                 $role,
-                'Star Citizen',
-                'SC',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
             structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildVehicleEntityStructuredData(
-                    vehicleName: $vehicleName,
-                    manufacturerName: $manufacturerName,
-                    category: $category,
-                    metaDescription: $metaDescription,
-                    canonicalUrl: $canonicalUrl,
-                    className: $className,
-                    manufacturerCode: $manufacturerCode,
-                    sizeClass: $sizeClass,
-                    career: $career,
-                    role: $role,
-                    crewMin: $this->normalizeScalar(data_get($vehicle, 'crew.min')),
-                    cargoCapacity: $this->normalizeScalar(data_get($vehicle, 'cargo_capacity')),
-                    scmSpeed: $this->normalizeScalar(data_get($vehicle, 'speed.scm')),
-                    maxSpeed: $this->normalizeScalar(data_get($vehicle, 'speed.max')),
-                    quantumSpeed: $this->normalizeScalar(data_get($vehicle, 'quantum.quantum_speed')),
-                    version: $this->normalizeString(data_get($vehicle, 'version')),
-                ),
+                $vehicleSchema,
             ],
             title: $metaTitle,
         );
@@ -148,7 +170,7 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             $detail = 'Vehicle';
         }
 
-        return $this->joinSegments([$leading, $detail, 'Star Citizen'], ' | ');
+        return $this->pipeTitle([$leading, $detail]);
     }
 
     private function buildFallbackDescription(
@@ -164,11 +186,11 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             $description .= ' by '.$manufacturerName;
         }
 
-        $attributes = $this->compactValues([
+        $attributes = array_values(array_filter([
             $sizeClass !== null ? 'size '.$sizeClass : null,
             $role !== null ? 'role '.$role : null,
             $career !== null ? 'career '.$career : null,
-        ]);
+        ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($attributes !== []) {
             $description .= ', '.implode(', ', $attributes);
@@ -177,72 +199,5 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         $description .= '. View cargo, crew, speed, quantum, signatures, and insurance data.';
 
         return $description;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildVehicleEntityStructuredData(
-        string $vehicleName,
-        ?string $manufacturerName,
-        string $category,
-        string $metaDescription,
-        string $canonicalUrl,
-        ?string $className,
-        ?string $manufacturerCode,
-        string|int|float|null $sizeClass,
-        ?string $career,
-        ?string $role,
-        string|int|float|null $crewMin,
-        string|int|float|null $cargoCapacity,
-        string|int|float|null $scmSpeed,
-        string|int|float|null $maxSpeed,
-        string|int|float|null $quantumSpeed,
-        ?string $version,
-    ): array {
-        $schema = $this->buildBaseEntityStructuredData(
-            schemaType: 'Vehicle',
-            name: $vehicleName,
-            description: $metaDescription,
-            url: $canonicalUrl,
-            category: $category,
-            additionalProperties: [
-                'Manufacturer Code' => $manufacturerCode,
-                'Size Class' => $sizeClass,
-                'Career' => $career,
-                'Role' => $role,
-                'Crew' => $crewMin,
-                'Cargo Capacity' => $cargoCapacity,
-                'SCM Speed' => $scmSpeed,
-                'Max Speed' => $maxSpeed,
-                'Quantum Speed' => $quantumSpeed,
-                'Version' => $version,
-            ],
-        );
-
-        if ($manufacturerName !== null) {
-            $schema['brand'] = [
-                '@type' => 'Brand',
-                'name' => $manufacturerName,
-            ];
-        }
-
-        if ($className !== null) {
-            $schema['vehicleConfiguration'] = $className;
-        }
-
-        return $schema;
-    }
-
-    protected function fallbackShowUrl(?string $identifier, ?string $version): string
-    {
-        if ($identifier === null) {
-            return url()->current();
-        }
-
-        return route('web.vehicles.show', array_filter([
-            'vehicle' => $identifier,
-            'version' => $version,
-        ]));
     }
 }

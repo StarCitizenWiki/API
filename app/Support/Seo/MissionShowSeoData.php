@@ -4,59 +4,93 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 final class MissionShowSeoData extends AbstractShowSeoData
 {
+    protected function showRouteName(): string
+    {
+        return 'web.missions.show';
+    }
+
+    protected function showRouteParameterName(): string
+    {
+        return 'mission';
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function build(array $mission, Request $request): array
     {
-        $title = $this->normalizeString(data_get($mission, 'title')) ?? 'Mission';
-        $type = $this->normalizeString(data_get($mission, 'mission_type'));
-        $factionName = $this->normalizeString(data_get($mission, 'faction.name'));
-        $missionGiver = $this->normalizeString(data_get($mission, 'mission_giver'));
-        $legalityLabel = $this->normalizeString(data_get($mission, 'legality_label'));
-        $uuid = $this->normalizeString(data_get($mission, 'uuid'));
+        $title = data_get($mission, 'title') ?? 'Mission';
+        $type = data_get($mission, 'mission_type');
+        $factionName = data_get($mission, 'faction.name');
+        $missionGiver = data_get($mission, 'mission_giver');
+        $legalityLabel = data_get($mission, 'legality_label');
+        $uuid = data_get($mission, 'uuid');
         $description = $this->resolveDescription(data_get($mission, 'description'));
         $version = $this->resolveVersionCode($request);
-        $canonicalUrl = $this->normalizeString(data_get($mission, 'web_url'))
+        $canonicalUrl = data_get($mission, 'web_url')
             ?? $this->fallbackShowUrl($uuid, $version);
 
         $breadcrumbs = $this->buildBreadcrumbs($title, $factionName, $canonicalUrl, $version);
-        $metaTitle = $this->buildMetaTitle($title, $type);
+        $metaTitle = $this->pipeTitle([$title, $type ?? 'Mission'], 'Star Citizen Mission');
         $metaDescription = Str::limit(
             $description ?? $this->buildFallbackDescription($title, $type, $factionName, $mission),
             160,
         );
 
+        $missionSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Action',
+            'name' => $title,
+            'description' => $metaDescription,
+            'url' => $canonicalUrl,
+        ];
+
+        if ($factionName !== null) {
+            $missionSchema['agent'] = [
+                '@type' => 'Organization',
+                'name' => $factionName,
+            ];
+        }
+
+        $missionAdditionalProperty = $this->buildPropertyValues([
+            'Type' => $type,
+            'Faction' => $factionName,
+            'Reputation XP' => data_get($mission, 'reputation_amount'),
+            'Legality' => data_get($mission, 'legality_label'),
+            'Has Combat' => data_get($mission, 'has_combat') === true ? 'Yes' : null,
+            'Enemy Count' => $this->buildEnemyCountRange($mission),
+            'Rank' => data_get($mission, 'rank_index'),
+            'Time to Complete' => ($mins = data_get($mission, 'time_to_complete_minutes')) !== null
+                ? CarbonInterval::minutes((int) $mins)->cascade()->forHumans(short: true)
+                : null,
+            'Version' => data_get($mission, 'game_version'),
+        ]);
+
+        if ($missionAdditionalProperty !== []) {
+            $missionSchema['additionalProperty'] = $missionAdditionalProperty;
+        }
+
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $title,
                 $type,
                 $factionName,
                 $missionGiver,
                 $legalityLabel,
-                'Star Citizen',
-                'SC',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
             structuredData: [
                 $this->buildBreadcrumbStructuredData($breadcrumbs),
-                $this->buildMissionStructuredData(
-                    title: $title,
-                    type: $type,
-                    factionName: $factionName,
-                    metaDescription: $metaDescription,
-                    canonicalUrl: $canonicalUrl,
-                    mission: $mission,
-                    version: $this->normalizeString(data_get($mission, 'game_version')),
-                ),
+                $missionSchema,
             ],
             title: $metaTitle,
         );
@@ -91,13 +125,6 @@ final class MissionShowSeoData extends AbstractShowSeoData
         return $breadcrumbs;
     }
 
-    private function buildMetaTitle(string $title, ?string $type): string
-    {
-        $detail = $type ?? 'Mission';
-
-        return $this->joinSegments([$title, $detail, 'Star Citizen Mission'], ' | ');
-    }
-
     private function buildFallbackDescription(string $title, ?string $type, ?string $factionName, array $mission): string
     {
         $typeLabel = $type ?? 'mission';
@@ -107,7 +134,7 @@ final class MissionShowSeoData extends AbstractShowSeoData
             $base .= ' from '.$factionName;
         }
 
-        $reputationAmount = $this->normalizeInt(data_get($mission, 'reputation_amount'));
+        $reputationAmount = data_get($mission, 'reputation_amount');
         if ($reputationAmount !== null) {
             $base .= '. '.number_format($reputationAmount).' reputation XP';
         }
@@ -117,56 +144,10 @@ final class MissionShowSeoData extends AbstractShowSeoData
         return $base;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildMissionStructuredData(
-        string $title,
-        ?string $type,
-        ?string $factionName,
-        string $metaDescription,
-        string $canonicalUrl,
-        array $mission,
-        ?string $version,
-    ): array {
-        $schema = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Action',
-            'name' => $title,
-            'description' => $metaDescription,
-            'url' => $canonicalUrl,
-        ];
-
-        if ($factionName !== null) {
-            $schema['agent'] = [
-                '@type' => 'Organization',
-                'name' => $factionName,
-            ];
-        }
-
-        $additionalProperty = $this->buildPropertyValues([
-            'Type' => $type,
-            'Faction' => $factionName,
-            'Reputation XP' => $this->normalizeInt(data_get($mission, 'reputation_amount')),
-            'Legality' => $this->normalizeString(data_get($mission, 'legality_label')),
-            'Has Combat' => data_get($mission, 'has_combat') === true ? 'Yes' : null,
-            'Enemy Count' => $this->buildEnemyCountRange($mission),
-            'Rank' => $this->normalizeInt(data_get($mission, 'rank_index')),
-            'Time to Complete' => $this->buildTimeToComplete(data_get($mission, 'time_to_complete_minutes')),
-            'Version' => $version,
-        ]);
-
-        if ($additionalProperty !== []) {
-            $schema['additionalProperty'] = $additionalProperty;
-        }
-
-        return $schema;
-    }
-
     private function buildEnemyCountRange(array $mission): ?string
     {
-        $min = $this->normalizeInt(data_get($mission, 'enemy_count_min'));
-        $max = $this->normalizeInt(data_get($mission, 'enemy_count_max'));
+        $min = data_get($mission, 'enemy_count_min');
+        $max = data_get($mission, 'enemy_count_max');
 
         if ($min === null && $max === null) {
             return null;
@@ -177,37 +158,5 @@ final class MissionShowSeoData extends AbstractShowSeoData
         }
 
         return ($min ?? 0).'-'.($max ?? '?');
-    }
-
-    private function buildTimeToComplete(mixed $minutes): ?string
-    {
-        $mins = $this->normalizeInt($minutes);
-
-        if ($mins === null) {
-            return null;
-        }
-
-        if ($mins >= 60) {
-            $hours = intdiv($mins, 60);
-            $remaining = $mins % 60;
-
-            return $remaining > 0
-                ? $hours.'h '.$remaining.'m'
-                : $hours.'h';
-        }
-
-        return $mins.'m';
-    }
-
-    protected function fallbackShowUrl(?string $uuid, ?string $version): string
-    {
-        if ($uuid === null) {
-            return url()->current();
-        }
-
-        return route('web.missions.show', array_filter([
-            'mission' => $uuid,
-            'version' => $version,
-        ]));
     }
 }

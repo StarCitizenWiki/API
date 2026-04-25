@@ -4,11 +4,35 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
-abstract class AbstractIndexSeoData extends AbstractShowSeoData
+use Illuminate\Http\Request;
+
+abstract class AbstractIndexSeoData extends AbstractSeoData
 {
     abstract protected function indexRouteName(): string;
 
     abstract protected function itemListName(): string;
+
+    protected function defaultPageTitle(): string
+    {
+        return $this->itemListName();
+    }
+
+    abstract protected function metaDescription(array $data): string;
+
+    /**
+     * @return array<int, string>
+     */
+    abstract protected function keywords(array $data): array;
+
+    protected function ogTitle(string $pageTitle, array $data): string
+    {
+        return $pageTitle;
+    }
+
+    /**
+     * @return array<int, array{label: string, url: string|null}>
+     */
+    abstract protected function breadcrumbs(string $canonicalUrl, array $versionParams, array $data): array;
 
     /**
      * @param  array<int, array{label: string, url: string|null}>  $breadcrumbs
@@ -34,5 +58,24 @@ abstract class AbstractIndexSeoData extends AbstractShowSeoData
             $collectionPage,
             $breadcrumbSchema,
         ]));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function build(array $data, Request $request): array
+    {
+        $versionCode = $this->resolveVersionCode($request);
+        $versionParams = $versionCode !== null ? ['version' => $versionCode] : [];
+        $canonicalUrl = route($this->indexRouteName(), $versionParams);
+
+        $pageTitle = $data['pageTitle'] ?? $this->defaultPageTitle();
+        $metaDescription = $this->metaDescription($data);
+        $keywords = $this->keywords($data);
+        $ogTitle = $this->ogTitle($pageTitle, $data);
+        $breadcrumbs = $this->breadcrumbs($canonicalUrl, $versionParams, $data);
+        $structuredData = $this->buildIndexStructuredData($pageTitle, $metaDescription, $canonicalUrl, $breadcrumbs);
+
+        return $this->buildSeoResponse($canonicalUrl, $metaDescription, $keywords, $ogTitle, $breadcrumbs, $structuredData);
     }
 }

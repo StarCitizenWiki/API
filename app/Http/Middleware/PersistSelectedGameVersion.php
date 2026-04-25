@@ -14,8 +14,10 @@ class PersistSelectedGameVersion
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->hasSession()) {
-            $requestedCode = $this->normalizeCode($request->query('version'));
-            $sessionCode = $this->normalizeCode($request->session()->get('game_version_code'));
+            $rawRequested = $request->query('version');
+            $requestedCode = is_string($rawRequested) && trim($rawRequested) !== '' ? trim($rawRequested) : null;
+            $rawSession = $request->session()->get('game_version_code');
+            $sessionCode = is_string($rawSession) && trim($rawSession) !== '' ? trim($rawSession) : null;
             $defaultCode = null;
 
             if ($requestedCode !== null) {
@@ -48,7 +50,7 @@ class PersistSelectedGameVersion
     protected function resolveVersionCode(string $code): ?string
     {
         return GameVersion::query()
-            ->whereRaw('LOWER(code) = ?', [strtolower($code)])
+            ->where('code', strtoupper($code))
             ->value('code');
     }
 
@@ -59,16 +61,5 @@ class PersistSelectedGameVersion
             ->orderByDesc('released_at')
             ->orderBy('code')
             ->value('code');
-    }
-
-    protected function normalizeCode(mixed $code): ?string
-    {
-        if (! is_string($code)) {
-            return null;
-        }
-
-        $code = trim($code);
-
-        return $code === '' ? null : $code;
     }
 }

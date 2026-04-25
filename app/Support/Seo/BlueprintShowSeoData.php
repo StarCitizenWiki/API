@@ -10,6 +10,16 @@ use Illuminate\Support\Str;
 
 final class BlueprintShowSeoData extends AbstractShowSeoData
 {
+    protected function showRouteName(): string
+    {
+        return 'web.blueprints.show';
+    }
+
+    protected function showRouteParameterName(): string
+    {
+        return 'blueprint';
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -19,17 +29,17 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
             return $this->buildEmptySeo($request);
         }
 
-        $blueprintName = $this->normalizeString(data_get($blueprint, 'output_name'))
-            ?? $this->normalizeString(data_get($blueprint, 'output.name'))
+        $blueprintName = data_get($blueprint, 'output_name')
+            ?? data_get($blueprint, 'output.name')
             ?? 'Blueprint';
-        $outputClass = $this->normalizeString(data_get($blueprint, 'output_class'))
-            ?? $this->normalizeString(data_get($blueprint, 'output.class'));
-        $outputType = $this->normalizeString(data_get($blueprint, 'output.type'));
-        $uuid = $this->normalizeString(data_get($blueprint, 'uuid'));
+        $outputClass = data_get($blueprint, 'output_class')
+            ?? data_get($blueprint, 'output.class');
+        $outputType = data_get($blueprint, 'output.type');
+        $uuid = data_get($blueprint, 'uuid');
         $craftTimeSeconds = data_get($blueprint, 'craft_time_seconds');
         $ingredientCount = (int) data_get($blueprint, 'ingredient_count', 0);
         $version = $this->resolveVersionCode($request);
-        $canonicalUrl = $this->normalizeString(data_get($blueprint, 'web_url'))
+        $canonicalUrl = data_get($blueprint, 'web_url')
             ?? $this->fallbackShowUrl($uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs($blueprintName, $canonicalUrl, $version);
 
@@ -49,13 +59,11 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
-            keywords: $this->compactValues([
+            keywords: $this->keywords([
                 $blueprintName,
                 $outputType,
                 $outputClass,
                 'Blueprint',
-                'Star Citizen',
-                'SC',
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
@@ -154,7 +162,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
 
         $supply = [];
         foreach ($ingredients as $ingredient) {
-            $name = $this->normalizeString(data_get($ingredient, 'name'));
+            $name = data_get($ingredient, 'name');
             if ($name !== null) {
                 $supply[] = [
                     '@type' => 'HowToSupply',
@@ -206,7 +214,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
                 continue;
             }
 
-            $name = $this->normalizeString(data_get($ingredient, 'name'));
+            $name = data_get($ingredient, 'name');
             if ($name !== null) {
                 $ingredients[] = ['name' => $name];
             }
@@ -223,8 +231,8 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
 
         $slug = Blueprint::query()->where('uuid', $uuid)->value('slug');
 
-        return route('web.blueprints.show', array_filter([
-            'blueprint' => $slug ?? $uuid,
+        return route($this->showRouteName(), array_filter([
+            $this->showRouteParameterName() => $slug ?? $uuid,
             'version' => $version,
         ]));
     }

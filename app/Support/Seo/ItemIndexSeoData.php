@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ItemIndexSeoData extends AbstractIndexSeoData
@@ -19,31 +18,11 @@ class ItemIndexSeoData extends AbstractIndexSeoData
         return 'Star Citizen Items';
     }
 
-    /**
-     * @param  array{pageTitle?: string, category?: string|null, type?: string|null}  $data
-     * @return array<string, mixed>
-     */
-    public function build(array $data, Request $request): array
+    protected function metaDescription(array $data): string
     {
-        $versionCode = $this->resolveVersionCode($request);
-        $versionParams = $versionCode !== null ? ['version' => $versionCode] : [];
-        $canonicalUrl = route($this->indexRouteName(), $versionParams);
+        $category = $data['category'] ?? null;
+        $type = $data['type'] ?? null;
 
-        $pageTitle = $this->normalizeString($data['pageTitle'] ?? null) ?? 'Star Citizen Items';
-        $category = $this->normalizeString($data['category'] ?? null);
-        $type = $this->normalizeString($data['type'] ?? null);
-
-        $metaDescription = $this->buildMetaDescription($category, $type);
-        $keywords = $this->buildKeywords($category, $type);
-        $ogTitle = $this->buildOgTitle($pageTitle);
-        $breadcrumbs = $this->buildBreadcrumbs($versionParams, $category, $type);
-        $structuredData = $this->buildIndexStructuredData($pageTitle, $metaDescription, $canonicalUrl, $breadcrumbs);
-
-        return $this->buildSeoResponse($canonicalUrl, $metaDescription, $keywords, $ogTitle, $breadcrumbs, $structuredData);
-    }
-
-    private function buildMetaDescription(?string $category, ?string $type): string
-    {
         if ($type !== null) {
             $label = Str::headline($type);
 
@@ -62,9 +41,11 @@ class ItemIndexSeoData extends AbstractIndexSeoData
     /**
      * @return array<int, string>
      */
-    private function buildKeywords(?string $category, ?string $type): array
+    protected function keywords(array $data): array
     {
         $keywords = ['Star Citizen', 'SC', 'items', 'item database'];
+        $category = $data['category'] ?? null;
+        $type = $data['type'] ?? null;
 
         if ($type !== null) {
             $keywords[] = Str::headline($type);
@@ -78,17 +59,19 @@ class ItemIndexSeoData extends AbstractIndexSeoData
         return $keywords;
     }
 
-    private function buildOgTitle(string $pageTitle): string
+    protected function ogTitle(string $pageTitle, array $data): string
     {
         return $pageTitle.' - Star Citizen Items';
     }
 
     /**
-     * @param  array<string, string>  $versionParams
      * @return array<int, array{label: string, url: string|null}>
      */
-    private function buildBreadcrumbs(array $versionParams, ?string $category, ?string $type): array
+    protected function breadcrumbs(string $canonicalUrl, array $versionParams, array $data): array
     {
+        $category = $data['category'] ?? null;
+        $type = $data['type'] ?? null;
+
         $breadcrumbs = [
             ['label' => 'All Items', 'url' => route('web.items.index', $versionParams)],
         ];
@@ -118,12 +101,5 @@ class ItemIndexSeoData extends AbstractIndexSeoData
         }
 
         return $breadcrumbs;
-    }
-
-    protected function fallbackShowUrl(?string $uuid, ?string $version): string
-    {
-        return route($this->indexRouteName(), array_filter([
-            'version' => $version,
-        ]));
     }
 }

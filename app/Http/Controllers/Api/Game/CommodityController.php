@@ -420,7 +420,7 @@ class CommodityController extends Controller
                         });
                 });
             }),
-            AllowedFilter::callback('query', function (Builder $query, mixed $value): void {
+            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }

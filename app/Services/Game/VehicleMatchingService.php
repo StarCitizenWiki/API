@@ -144,13 +144,11 @@ class VehicleMatchingService
             }
         }
 
-        // Config overrides
         $overrides = config('game.vehicle_name_overrides', []);
         if ($payloadName !== '' && array_key_exists($payloadName, $overrides)) {
             array_unshift($candidates, $overrides[$payloadName]);
         }
 
-        // Reversed word order
         $reversed = [];
         foreach ($candidates as $candidate) {
             $parts = preg_split('/\\s+/', $candidate);
@@ -160,7 +158,6 @@ class VehicleMatchingService
         }
         $candidates = [...$candidates, ...$reversed];
 
-        // Conservative suffix stripping (fallback to base models)
         $withEditionsStripped = [];
         foreach ($candidates as $candidate) {
             $stripped = $this->stripSpecialEditionSuffixes($candidate);
@@ -200,7 +197,6 @@ class VehicleMatchingService
 
         $candidates = [];
 
-        // Special case mappings for known abbreviations (most specific first)
         $specialCases = [
             'Roberts Space Industries' => ['RSI'],
             'Consolidated Outland' => ['C.O.'],
@@ -254,15 +250,11 @@ class VehicleMatchingService
      */
     private function reorderBestInShowName(string $name): ?string
     {
-        // Match: "Vehicle Name 2949 Best In Show Edition"
         if (preg_match('/^(.+?)\s+(\d{4})\s+(Best\s+In\s+Show\s+Edition)$/i', $name, $matches)) {
-            // Return: "Vehicle Name Best In Show Edition 2949"
             return trim($matches[1].' '.$matches[3].' '.$matches[2]);
         }
 
-        // Match: "Vehicle Name Best In Show Edition 2949"
         if (preg_match('/^(.+?)\s+(Best\s+In\s+Show\s+Edition)\s+(\d{4})$/i', $name, $matches)) {
-            // Return: "Vehicle Name 2949 Best In Show Edition"
             return trim($matches[1].' '.$matches[3].' '.$matches[2]);
         }
 

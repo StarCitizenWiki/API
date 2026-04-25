@@ -65,8 +65,8 @@ class ImportManufacturers extends Command
                     return false;
                 }
 
-                $reference = $this->normalizeString($manufacturer['Reference'] ?? null);
-                $name = $this->normalizeString($manufacturer['Name'] ?? null);
+                $reference = $manufacturer['Reference'] ?? null;
+                $name = $manufacturer['Name'] ?? null;
                 $hasRequiredValues = $reference !== null && $name !== null;
 
                 if (! $hasRequiredValues) {
@@ -75,12 +75,12 @@ class ImportManufacturers extends Command
 
                 return $hasRequiredValues;
             })
-            ->keyBy(fn (array $manufacturer): string => (string) $this->normalizeString($manufacturer['Reference']))
+            ->keyBy(fn (array $manufacturer): string => (string) $manufacturer['Reference'])
             ->map(function (array $manufacturer) use ($now): array {
                 return [
-                    'uuid' => (string) $this->normalizeString($manufacturer['Reference']),
-                    'name' => (string) $this->normalizeString($manufacturer['Name']),
-                    'code' => $this->normalizeString($manufacturer['Code'] ?? null) ?? '',
+                    'uuid' => (string) $manufacturer['Reference'],
+                    'name' => (string) $manufacturer['Name'],
+                    'code' => (string) ($manufacturer['Code'] ?? ''),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -120,16 +120,5 @@ class ImportManufacturers extends Command
         ));
 
         return self::SUCCESS;
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
     }
 }
