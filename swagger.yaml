@@ -1142,6 +1142,13 @@ paths:
           schema:
             type: string
             example: Military
+        -
+          name: 'filter[rarity]'
+          in: query
+          description: 'Item rarity. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)'
+          schema:
+            type: string
+            example: Rare
       responses:
         '200':
           description: 'List of Items'
@@ -1617,6 +1624,13 @@ paths:
           schema:
             type: string
             example: Military
+        -
+          name: 'filter[rarity]'
+          in: query
+          description: 'Narrow facets to items with this rarity.'
+          schema:
+            type: string
+            example: Rare
       responses:
         '200':
           description: 'Available filter facets for in-game items, grouped by field with counts.'
@@ -1624,7 +1638,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0–12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1–7, mapped A–G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0–12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1–7, mapped A–G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
   /api/manufacturers:
     get:
@@ -2413,6 +2427,36 @@ paths:
                 properties:
                   filters: { properties: { type_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type_classification: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, respawn_location_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, jurisdiction_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, affiliation_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, parent_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, amenity: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, resource: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+  /api/search:
+    get:
+      tags:
+        - Search
+      summary: 'Unified Search Across All Game Data'
+      description: 'Search across items, vehicles, starmap locations, commodities, blueprints, and missions simultaneously. Returns results grouped by type, limited to 5 results per group.'
+      operationId: 69cac0354375bc4ac499a9110b6914be
+      parameters:
+        -
+          name: 'filter[query]'
+          in: query
+          description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.'
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            example: Arrow
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'Grouped search results'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { properties: { type: { type: string, example: items }, label: { type: string, example: Items }, results: { type: array, items: { properties: { name: { type: string, example: Arrow }, class_name: { type: string, example: AEGS_Arrow, nullable: true }, classification: { type: string, example: fighter, nullable: true }, classification_label: { type: string, example: Fighter, nullable: true }, web_url: { type: string, example: 'https://example.com/vehicles/arrow' }, api_url: { type: string, example: 'https://example.com/api/vehicles/arrow' } }, type: object } } }, type: object } }
+                type: object
+        '422':
+          description: 'Validation error – filter[query] is required and must be at least 2 characters'
   /api/ground-vehicles:
     get:
       tags:
@@ -6710,6 +6754,17 @@ components:
           type: number
           format: double
           example: 1000
+          nullable: true
+        rarity:
+          description: 'Item rarity from stdItem.Rarity. Only present when the item has rarity data.'
+          type: string
+          enum:
+            - Common
+            - Uncommon
+            - Rare
+            - Epic
+            - Legendary
+          example: Common
           nullable: true
         is_base_variant:
           type: boolean
