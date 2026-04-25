@@ -63,6 +63,9 @@ class MissionController extends Controller
             'seo' => $this->missionIndexSeoData->build([
                 'activeLocationFilter' => $activeLocationFilter,
                 'pageTitle' => $tableConfig['title'],
+                'total' => Arr::get($initialTableData, 'meta.total', 0),
+                'reward_scope' => $endpointFilters['reward_scope'] ?? null,
+                'faction' => $endpointFilters['faction'] ?? null,
             ], $request),
         ]);
     }

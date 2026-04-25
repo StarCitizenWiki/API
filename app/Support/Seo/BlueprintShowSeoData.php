@@ -38,6 +38,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         $uuid = data_get($blueprint, 'uuid');
         $craftTimeSeconds = data_get($blueprint, 'craft_time_seconds');
         $ingredientCount = (int) data_get($blueprint, 'ingredient_count', 0);
+        $isAvailableByDefault = data_get($blueprint, 'is_available_by_default');
         $version = $this->resolveVersionCode($request);
         $canonicalUrl = data_get($blueprint, 'web_url')
             ?? $this->fallbackShowUrl($uuid, $version);
@@ -50,6 +51,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
                 $outputType !== null ? 'type '.$outputType : null,
                 $craftTimeSeconds !== null ? 'craft time '.$craftTimeSeconds.' seconds' : null,
                 $ingredientCount > 0 ? $ingredientCount.' inputs' : null,
+                $isAvailableByDefault === true ? 'available by default' : null,
             ])->filter()->implode(', ')),
             160,
         );
@@ -78,6 +80,9 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
                     outputType: $outputType,
                     outputClass: $outputClass,
                     uuid: $uuid,
+                    isAvailableByDefault: $isAvailableByDefault,
+                    version: $version,
+                    ingredientCount: $ingredientCount,
                 ),
             ],
             title: $metaTitle,
@@ -131,7 +136,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
     }
 
     /**
-     * @param  array<int, array{name: string}>  $ingredients
+     * @param  array<int, array{name: string, quantity_scu: int|float|null, quantity: int|float|null}>  $ingredients
      * @return array<string, mixed>
      */
     private function buildHowToStructuredData(
@@ -143,6 +148,9 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         ?string $outputType,
         ?string $outputClass,
         ?string $uuid,
+        mixed $isAvailableByDefault,
+        ?string $version,
+        int $ingredientCount,
     ): array {
         $schema = [
             '@context' => 'https://schema.org',
@@ -160,19 +168,55 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
             $schema['totalTime'] = 'PT'.((int) $craftTimeSeconds).'S';
         }
 
+        $schema['yield'] = [
+            '@type' => 'QuantitativeValue',
+            'name' => $blueprintName,
+            'value' => 1,
+            'unitText' => 'item',
+        ];
+
         $supply = [];
         foreach ($ingredients as $ingredient) {
             $name = data_get($ingredient, 'name');
-            if ($name !== null) {
-                $supply[] = [
-                    '@type' => 'HowToSupply',
-                    'name' => $name,
+            $quantityScu = data_get($ingredient, 'quantity_scu');
+            $quantity = data_get($ingredient, 'quantity');
+
+            if ($name === null) {
+                continue;
+            }
+
+            $supplyEntry = [
+                '@type' => 'HowToSupply',
+                'name' => $name,
+            ];
+
+            if ($quantityScu !== null) {
+                $supplyEntry['requiredQuantity'] = [
+                    '@type' => 'QuantitativeValue',
+                    'value' => $quantityScu,
+                    'unitText' => 'SCU',
+                ];
+            } elseif ($quantity !== null) {
+                $supplyEntry['requiredQuantity'] = [
+                    '@type' => 'QuantitativeValue',
+                    'value' => $quantity,
+                    'unitText' => 'items',
                 ];
             }
+
+            $supply[] = $supplyEntry;
         }
 
         if ($supply !== []) {
             $schema['supply'] = $supply;
+        }
+
+        if ($ingredientCount > 0) {
+            $schema['estimatedCost'] = [
+                '@type' => 'QuantitativeValue',
+                'value' => $ingredientCount,
+                'unitText' => 'ingredients',
+            ];
         }
 
         $stepText = collect([
@@ -188,6 +232,8 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         $additionalProperty = $this->buildPropertyValues([
             'Output Type' => $outputType,
             'Output Class' => $outputClass,
+            'Is Available by Default' => $isAvailableByDefault === true ? 'Yes' : 'No',
+            'Game Version' => $version,
         ]);
 
         if ($additionalProperty !== []) {
@@ -198,7 +244,7 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
     }
 
     /**
-     * @return array<int, array{name: string}>
+     * @return array<int, array{name: string, quantity_scu: int|float|null, quantity: int|float|null}>
      */
     private function resolveIngredients(array $blueprint): array
     {
@@ -216,7 +262,11 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
 
             $name = data_get($ingredient, 'name');
             if ($name !== null) {
-                $ingredients[] = ['name' => $name];
+                $ingredients[] = [
+                    'name' => $name,
+                    'quantity_scu' => data_get($ingredient, 'quantity_scu'),
+                    'quantity' => data_get($ingredient, 'quantity'),
+                ];
             }
         }
 

@@ -41,6 +41,8 @@ class VehicleController extends Controller
             'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'seo' => $this->vehicleIndexSeoData->build([
                 'pageTitle' => 'Vehicles',
+                'total' => Arr::get($initialTableData, 'meta.total', 0),
+                'manufacturer' => $endpointFilters['manufacturer'] ?? null,
             ], $request),
         ]);
     }

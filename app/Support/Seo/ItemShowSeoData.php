@@ -46,6 +46,11 @@ final class ItemShowSeoData extends AbstractShowSeoData
         $breadcrumbs = $this->buildBreadcrumbs($item, $canonicalUrl, $version);
         $isShipComponent = str_starts_with($classification ?? '', 'Ship.')
             || in_array($type, ['Cooler', 'PowerPlant', 'QuantumDrive', 'Shield'], true);
+        $rarity = data_get($item, 'rarity');
+        $mass = data_get($item, 'mass');
+        $subTypeLabel = data_get($item, 'sub_type_label');
+        $isCraftable = data_get($item, 'is_craftable');
+        $isBaseVariant = data_get($item, 'is_base_variant');
         $metaTitle = $this->buildMetaTitle(
             itemName: $itemName,
             manufacturerName: $manufacturerName,
@@ -66,6 +71,10 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 itemClass: $itemClass,
                 grade: $grade,
                 isShipComponent: $isShipComponent,
+                rarity: $rarity,
+                mass: $mass,
+                subTypeLabel: $subTypeLabel,
+                isCraftable: $isCraftable,
             ),
             160,
         );
@@ -86,19 +95,28 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 'Size' => $size,
                 'Class' => $itemClass,
                 'Grade' => $grade,
+                'Rarity' => $rarity,
+                'Mass' => $mass !== null ? $this->formatMass($mass) : null,
+                'Sub-Type' => $subTypeLabel,
+                'Craftable' => $isCraftable === true ? 'Yes' : null,
+                'Base Variant' => $isBaseVariant === false ? 'Yes' : null,
                 'Version' => data_get($item, 'version'),
             ],
+            brand: $manufacturerName,
         );
-
-        if ($manufacturerName !== null) {
-            $itemSchema['brand'] = [
-                '@type' => 'Brand',
-                'name' => $manufacturerName,
-            ];
-        }
 
         if ($uuid !== null) {
             $itemSchema['sku'] = $uuid;
+        }
+
+        $image = $this->buildImage($item);
+        if ($image !== null) {
+            $itemSchema['image'] = $image;
+        }
+
+        $offers = $this->buildOffers($item);
+        if ($offers !== null) {
+            $itemSchema['offers'] = $offers;
         }
 
         return $this->buildSeoResponse(
@@ -112,6 +130,8 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 $size !== null ? 'Size '.$size : null,
                 $itemClass,
                 $grade !== null ? 'Grade '.$grade : null,
+                $rarity,
+                $subTypeLabel,
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
@@ -296,6 +316,10 @@ final class ItemShowSeoData extends AbstractShowSeoData
         ?string $itemClass,
         ?string $grade,
         bool $isShipComponent,
+        ?string $rarity = null,
+        string|int|float|null $mass = null,
+        ?string $subTypeLabel = null,
+        ?bool $isCraftable = null,
     ): string {
         $base = $type !== null
             ? 'Browse Star Citizen '.$type.' data for '.$itemName
@@ -315,6 +339,22 @@ final class ItemShowSeoData extends AbstractShowSeoData
                 $classification !== null ? 'classification '.$classification : null,
             ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
+        if ($rarity !== null) {
+            $attributes[] = strtolower($rarity);
+        }
+
+        if ($mass !== null) {
+            $attributes[] = $this->formatMass($mass);
+        }
+
+        if ($subTypeLabel !== null) {
+            $attributes[] = $subTypeLabel;
+        }
+
+        if ($isCraftable === true) {
+            $attributes[] = 'craftable';
+        }
+
         if ($attributes !== []) {
             $base .= ', '.implode(', ', $attributes);
         }
@@ -324,5 +364,15 @@ final class ItemShowSeoData extends AbstractShowSeoData
             : '. View description, related items, and technical details.';
 
         return $base;
+    }
+
+    private function buildOffers(array $item): ?array
+    {
+        $uexPrices = data_get($item, 'uex_prices');
+        if (! is_array($uexPrices) || $uexPrices === []) {
+            return null;
+        }
+
+        return $this->buildUexAggregateOffer($uexPrices);
     }
 }

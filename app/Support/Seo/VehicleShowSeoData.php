@@ -45,6 +45,13 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             version: $this->resolveVersionCode($request),
         );
         $metaTitle = $this->buildMetaTitle($vehicleName, $manufacturerName, $sizeClass, $role);
+        $massTotal = data_get($vehicle, 'mass_total');
+        $health = data_get($vehicle, 'health');
+        $shieldHp = data_get($vehicle, 'shield.hp');
+        $maxCrew = data_get($vehicle, 'crew.max');
+        $productionStatus = data_get($vehicle, 'production_status');
+        $quantumFuelCapacity = data_get($vehicle, 'quantum.quantum_fuel_capacity');
+        $quantumRange = data_get($vehicle, 'quantum.quantum_range');
         $metaDescription = Str::limit(
             $description ?? $this->buildFallbackDescription(
                 vehicleName: $vehicleName,
@@ -52,6 +59,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
                 sizeClass: $sizeClass,
                 role: $role,
                 career: $career,
+                massTotal: $massTotal,
+                maxCrew: $maxCrew,
+                productionStatus: $productionStatus,
             ),
             160,
         );
@@ -82,19 +92,33 @@ final class VehicleShowSeoData extends AbstractShowSeoData
                 'SCM Speed' => data_get($vehicle, 'speed.scm'),
                 'Max Speed' => data_get($vehicle, 'speed.max'),
                 'Quantum Speed' => data_get($vehicle, 'quantum.quantum_speed'),
+                'Length' => data_get($vehicle, 'dimension.length'),
+                'Width' => data_get($vehicle, 'dimension.width'),
+                'Height' => data_get($vehicle, 'dimension.height'),
+                'Mass' => $massTotal !== null ? $this->formatMass($massTotal) : null,
+                'Health' => $health,
+                'Shield HP' => $shieldHp,
+                'Max Crew' => $maxCrew,
+                'Production Status' => $productionStatus,
+                'Quantum Fuel Capacity' => $quantumFuelCapacity,
+                'Quantum Range' => $quantumRange,
                 'Version' => data_get($vehicle, 'version'),
             ],
+            brand: $manufacturerName,
         );
-
-        if ($manufacturerName !== null) {
-            $vehicleSchema['brand'] = [
-                '@type' => 'Brand',
-                'name' => $manufacturerName,
-            ];
-        }
 
         if ($className !== null) {
             $vehicleSchema['vehicleConfiguration'] = $className;
+        }
+
+        $image = $this->buildImage($vehicle);
+        if ($image !== null) {
+            $vehicleSchema['image'] = $image;
+        }
+
+        $offers = $this->buildOffers($vehicle);
+        if ($offers !== null) {
+            $vehicleSchema['offers'] = $offers;
         }
 
         return $this->buildSeoResponse(
@@ -106,6 +130,8 @@ final class VehicleShowSeoData extends AbstractShowSeoData
                 $sizeClass !== null ? 'Size '.$sizeClass : null,
                 $career,
                 $role,
+                $productionStatus,
+                $className,
             ]),
             ogTitle: $metaTitle,
             breadcrumbs: $breadcrumbs,
@@ -179,6 +205,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         string|int|float|null $sizeClass,
         ?string $role,
         ?string $career,
+        string|int|float|null $massTotal = null,
+        string|int|float|null $maxCrew = null,
+        ?string $productionStatus = null,
     ): string {
         $description = 'Browse Star Citizen vehicle data for '.$vehicleName;
 
@@ -190,6 +219,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             $sizeClass !== null ? 'size '.$sizeClass : null,
             $role !== null ? 'role '.$role : null,
             $career !== null ? 'career '.$career : null,
+            $massTotal !== null ? $this->formatMass($massTotal) : null,
+            $maxCrew !== null ? 'max crew '.$maxCrew : null,
+            $productionStatus !== null ? strtolower($productionStatus) : null,
         ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($attributes !== []) {
@@ -199,5 +231,52 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         $description .= '. View cargo, crew, speed, quantum, signatures, and insurance data.';
 
         return $description;
+    }
+
+    private function buildOffers(array $vehicle): ?array
+    {
+        $allOffers = [];
+
+        $msrp = data_get($vehicle, 'msrp');
+        if ($msrp !== null && (is_int($msrp) || is_float($msrp)) && $msrp > 0) {
+            $msrpOffer = [
+                '@type' => 'Offer',
+                'price' => $msrp,
+                'priceCurrency' => 'USD',
+                'availability' => 'https://schema.org/InStock',
+            ];
+
+            $pledgeUrl = data_get($vehicle, 'pledge_url');
+            if ($pledgeUrl !== null) {
+                $msrpOffer['url'] = $pledgeUrl;
+            }
+
+            $allOffers[] = [
+                '@type' => 'AggregateOffer',
+                'priceCurrency' => 'USD',
+                'lowPrice' => $msrp,
+                'highPrice' => $msrp,
+                'offerCount' => 1,
+                'offers' => [$msrpOffer],
+            ];
+        }
+
+        $uexPrices = data_get($vehicle, 'uex_prices');
+        if (is_array($uexPrices) && $uexPrices !== []) {
+            $uexOffer = $this->buildUexAggregateOffer($uexPrices);
+            if ($uexOffer !== null) {
+                $allOffers[] = $uexOffer;
+            }
+        }
+
+        if ($allOffers === []) {
+            return null;
+        }
+
+        if (count($allOffers) === 1) {
+            return $allOffers[0];
+        }
+
+        return $allOffers;
     }
 }

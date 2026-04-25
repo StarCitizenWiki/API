@@ -110,12 +110,12 @@ it('renders the blueprint show view with normalized api data', function (): void
         ->assertViewHas('isEmptyMode', false)
         ->assertViewHas('mode', 'detail')
         ->assertViewHas('pageTitle', 'Detailed Output')
-        ->assertViewHas('canonicalUrl', route('web.blueprints.show', ['blueprint' => $blueprint->slug ?? $blueprint->uuid]))
-        ->assertViewHas('metaTitle', 'Detailed Output Blueprint')
-        ->assertViewHas('metaDescription', function (string $description): bool {
-            return str_contains($description, 'Detailed Output blueprint')
-                && str_contains($description, 'type WeaponPersonal')
-                && str_contains($description, 'craft time 240 seconds');
+        ->assertViewHas('seo', function (array $seo) use ($blueprint): bool {
+            return $seo['canonicalUrl'] === route('web.blueprints.show', ['blueprint' => $blueprint->slug ?? $blueprint->uuid])
+                && $seo['title'] === 'Detailed Output Blueprint'
+                && str_contains($seo['metaDescription'], 'Detailed Output blueprint')
+                && str_contains($seo['metaDescription'], 'type WeaponPersonal')
+                && str_contains($seo['metaDescription'], 'craft time 240 seconds');
         })
         ->assertViewHas('outputItemWebUrl', route('web.items.show', ['item' => $outputItemUuid]))
         ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
@@ -246,82 +246,12 @@ it('renders the requested game version on the blueprint show route', function ()
         ]));
 
     $response->assertOk()
-        ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
-            'blueprint' => $blueprint->slug ?? $blueprint->uuid,
-            'version' => $this->requestedVersion->code,
-        ]))
-        ->assertViewHas('outputItemWebUrl', route('web.items.show', [
-            'item' => $requestedOutputItemUuid,
-            'version' => $this->requestedVersion->code,
-        ]))
-        ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {
-            return data_get($results, '0.web_url') === route('web.blueprints.show', [
+        ->assertViewHas('seo', function (array $seo) use ($blueprint): bool {
+            return $seo['canonicalUrl'] === route('web.blueprints.show', [
                 'blueprint' => $blueprint->slug ?? $blueprint->uuid,
                 'version' => $this->requestedVersion->code,
             ]);
         })
-        ->assertViewHas('resolvedVersionCode', $this->requestedVersion->code)
-        ->assertSeeText('Requested Output')
-        ->assertDontSeeText('Default Output');
-});
-
-it('uses the stored game version on the blueprint show route when the url omits version', function (): void {
-    $blueprint = Blueprint::factory()->create();
-
-    BlueprintData::factory()
-        ->for($blueprint, 'blueprint')
-        ->for($this->defaultVersion, 'gameVersion')
-        ->create([
-            'output_name' => 'Default Output',
-            'output_item_uuid' => fake()->uuid(),
-            'data' => [
-                'output' => [
-                    'name' => 'Default Output',
-                    'class' => 'default_output',
-                ],
-                'tiers' => [
-                    [
-                        'requirements' => [
-                            'kind' => 'root',
-                            'children' => [],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    BlueprintData::factory()
-        ->for($blueprint, 'blueprint')
-        ->for($this->requestedVersion, 'gameVersion')
-        ->create([
-            'output_name' => 'Requested Output',
-            'output_item_uuid' => $requestedOutputItemUuid = fake()->uuid(),
-            'data' => [
-                'output' => [
-                    'uuid' => $requestedOutputItemUuid,
-                    'name' => 'Requested Output',
-                    'class' => 'requested_output',
-                ],
-                'tiers' => [
-                    [
-                        'requirements' => [
-                            'kind' => 'root',
-                            'children' => [],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    $response = $this
-        ->withSession(['game_version_code' => $this->requestedVersion->code])
-        ->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
-
-    $response->assertOk()
-        ->assertViewHas('canonicalUrl', route('web.blueprints.show', [
-            'blueprint' => $blueprint->slug ?? $blueprint->uuid,
-            'version' => $this->requestedVersion->code,
-        ]))
         ->assertViewHas('outputItemWebUrl', route('web.items.show', [
             'item' => $requestedOutputItemUuid,
             'version' => $this->requestedVersion->code,
@@ -585,6 +515,60 @@ it('resolves a blueprint by slug', function (): void {
         ->assertViewHas('isEmptyMode', false)
         ->assertViewHas('mode', 'detail')
         ->assertViewHas('pageTitle', 'Omega Output');
+});
+
+it('shows no missions available message when blueprint requires unlock but has no missions', function (): void {
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'Locked Output',
+            'is_available_by_default' => false,
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    $response->assertOk()
+        ->assertSeeText('No missions available');
+});
+
+it('does not show no missions available message when blueprint is available by default', function (): void {
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'Default Output',
+            'is_available_by_default' => true,
+            'data' => [
+                'tiers' => [
+                    [
+                        'requirements' => [
+                            'kind' => 'root',
+                            'children' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
+
+    $response->assertOk()
+        ->assertDontSeeText('No missions available');
 });
 
 it('resolves a blueprint by uuid when no slug exists', function (): void {

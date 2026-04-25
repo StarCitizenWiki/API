@@ -19,11 +19,6 @@ abstract class AbstractIndexSeoData extends AbstractSeoData
 
     abstract protected function metaDescription(array $data): string;
 
-    /**
-     * @return array<int, string>
-     */
-    abstract protected function keywords(array $data): array;
-
     protected function ogTitle(string $pageTitle, array $data): string
     {
         return $pageTitle;
@@ -38,18 +33,25 @@ abstract class AbstractIndexSeoData extends AbstractSeoData
      * @param  array<int, array{label: string, url: string|null}>  $breadcrumbs
      * @return array<int, array<string, mixed>>
      */
-    protected function buildIndexStructuredData(string $pageTitle, string $metaDescription, string $canonicalUrl, array $breadcrumbs): array
+    protected function buildIndexStructuredData(string $pageTitle, string $metaDescription, string $canonicalUrl, array $breadcrumbs, array $data = []): array
     {
+        $itemList = [
+            '@type' => 'ItemList',
+            'name' => $this->itemListName(),
+        ];
+
+        $total = $data['total'] ?? null;
+        if (is_numeric($total)) {
+            $itemList['numberOfItems'] = (int) $total;
+        }
+
         $collectionPage = [
             '@context' => 'https://schema.org',
             '@type' => 'CollectionPage',
             'name' => $pageTitle,
             'description' => $metaDescription,
             'url' => $canonicalUrl,
-            'mainEntity' => [
-                '@type' => 'ItemList',
-                'name' => $this->itemListName(),
-            ],
+            'mainEntity' => $itemList,
         ];
 
         $breadcrumbSchema = $this->buildBreadcrumbStructuredData($breadcrumbs);
@@ -74,7 +76,7 @@ abstract class AbstractIndexSeoData extends AbstractSeoData
         $keywords = $this->keywords($data);
         $ogTitle = $this->ogTitle($pageTitle, $data);
         $breadcrumbs = $this->breadcrumbs($canonicalUrl, $versionParams, $data);
-        $structuredData = $this->buildIndexStructuredData($pageTitle, $metaDescription, $canonicalUrl, $breadcrumbs);
+        $structuredData = $this->buildIndexStructuredData($pageTitle, $metaDescription, $canonicalUrl, $breadcrumbs, $data);
 
         return $this->buildSeoResponse($canonicalUrl, $metaDescription, $keywords, $ogTitle, $breadcrumbs, $structuredData);
     }

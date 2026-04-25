@@ -1368,7 +1368,7 @@
                 </div>
             </div>
 
-            @if ($unlockingMissions !== [] || $hasDismantleData)
+            @if ($unlockingMissions !== [] || $hasDismantleData || (! $isAvailableByDefault && $unlockingMissions === []))
                 <div class="grid gap-6 lg:grid-cols-2">
                     @if ($unlockingMissions !== [])
                         <div class="card border border-base-300 bg-base-100 shadow">
@@ -1401,6 +1401,13 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            </div>
+                        </div>
+                    @elseif (! $isAvailableByDefault)
+                        <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card-body gap-4">
+                                <h2 class="text-base font-semibold tracking-tight">Unlocking missions</h2>
+                                <p class="text-sm text-base-content/60">No missions available for this blueprint yet.</p>
                             </div>
                         </div>
                     @endif

@@ -101,7 +101,7 @@
         $baseVariantUuid = data_get($baseVariant, 'uuid');
         $isSelfReferential = $baseVariantUuid === $uuid;
         $baseVariantCount = (! empty($baseVariant) && (! $isSelfReferential || $variantCount > 0)) ? 1 : 0;
-        $relatedItemsCount = $setItemCount + $variantCount + $baseVariantCount;
+        $relatedItemsCount = $type === 'Cargo' ? 0 : ($setItemCount + $variantCount + $baseVariantCount);
         $portsCount = is_array($ports) ? count($ports) : 0;
         $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
 

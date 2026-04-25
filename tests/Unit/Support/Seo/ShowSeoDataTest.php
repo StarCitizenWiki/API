@@ -30,10 +30,36 @@ it('builds vehicle seo data with session version fallback and shared schema help
         'description' => [
             'en_EN' => 'Fast &amp; versatile courier ship.',
         ],
-        'crew' => ['min' => 2],
+        'crew' => ['min' => 2, 'max' => 3],
         'cargo_capacity' => 114,
         'speed' => ['scm' => 215, 'max' => 1287],
-        'quantum' => ['quantum_speed' => 250_000_000],
+        'quantum' => ['quantum_speed' => 250_000_000, 'quantum_fuel_capacity' => 5000, 'quantum_range' => 20_000_000_000],
+        'dimension' => ['length' => 40.5, 'width' => 25.0, 'height' => 8.2],
+        'mass_total' => 350_000,
+        'health' => 5000,
+        'shield' => ['hp' => 2000],
+        'production_status' => 'Flight Ready',
+        'images' => [
+            [
+                'source' => 'starcitizen.tools',
+                'original_url' => 'https://example.com/mercury.jpg',
+                'thumbnail_url' => 'https://example.com/mercury-thumb.jpg',
+            ],
+        ],
+        'msrp' => 220,
+        'pledge_url' => 'https://robertsspaceindustries.com/pledge/ships/mercury-star-runner',
+        'uex_prices' => [
+            [
+                'terminal_name' => 'Port Olisar',
+                'price_buy' => 6_500_000,
+                'price_sell' => 5_000_000,
+            ],
+            [
+                'terminal_name' => 'Lorville',
+                'price_buy' => 6_800_000,
+                'price_sell' => 5_200_000,
+            ],
+        ],
     ], $request);
 
     expect($seo['title'])->toBe('Mercury Star Runner by Crusader Industries | Size 3 Courier Vehicle | Star Citizen')
@@ -42,13 +68,27 @@ it('builds vehicle seo data with session version fallback and shared schema help
             'vehicle' => $vehicleUuid,
             'version' => '4.1.0-LIVE',
         ]))
-        ->and($seo['keywords'])->toContain('Star Citizen', 'SC', 'Size 3')
+        ->and($seo['keywords'])->toContain('Star Citizen', 'SC', 'Size 3', 'Flight Ready', 'Medium Freight')
         ->and($seo['breadcrumbs'])->toHaveCount(3)
         ->and($seo['breadcrumbs'][0]['url'])->toBe(route('web.vehicles.index', ['version' => '4.1.0-LIVE']))
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Vehicle')
         ->and(data_get($seo, 'structuredData.1.vehicleConfiguration'))->toBe('Medium Freight')
-        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(9);
+        ->and(data_get($seo, 'structuredData.1.image'))->toBe('https://example.com/mercury.jpg')
+        ->and(data_get($seo, 'structuredData.1.brand.name'))->toBe('Crusader Industries')
+        ->and(data_get($seo, 'structuredData.1.offers'))->toHaveCount(2)
+        ->and(data_get($seo, 'structuredData.1.offers.0.@type'))->toBe('AggregateOffer')
+        ->and(data_get($seo, 'structuredData.1.offers.0.priceCurrency'))->toBe('USD')
+        ->and(data_get($seo, 'structuredData.1.offers.0.lowPrice'))->toBe(220)
+        ->and(data_get($seo, 'structuredData.1.offers.0.offers.0.price'))->toBe(220)
+        ->and(data_get($seo, 'structuredData.1.offers.0.offers.0.url'))->toBe('https://robertsspaceindustries.com/pledge/ships/mercury-star-runner')
+        ->and(data_get($seo, 'structuredData.1.offers.1.@type'))->toBe('AggregateOffer')
+        ->and(data_get($seo, 'structuredData.1.offers.1.priceCurrency'))->toBe('aUEC')
+        ->and(data_get($seo, 'structuredData.1.offers.1.lowPrice'))->toBe(6_500_000.0)
+        ->and(data_get($seo, 'structuredData.1.offers.1.highPrice'))->toBe(6_800_000.0)
+        ->and(data_get($seo, 'structuredData.1.offers.1.offers'))->toHaveCount(2)
+        ->and(data_get($seo, 'structuredData.1.offers.1.offers.0.seller.name'))->toBe('Port Olisar')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(19);
 });
 
 it('builds item seo data with localized description and type-specific breadcrumbs', function (): void {
@@ -69,6 +109,30 @@ it('builds item seo data with localized description and type-specific breadcrumb
             'en' => 'Military &amp; tuned cooler.',
         ],
         'size' => 2,
+        'rarity' => 'Common',
+        'mass' => 12.5,
+        'sub_type_label' => 'Small',
+        'is_craftable' => true,
+        'is_base_variant' => true,
+        'images' => [
+            [
+                'source' => 'starcitizen.tools',
+                'thumbnail_url' => 'https://example.com/thumb.jpg',
+                'original_url' => 'https://example.com/original.jpg',
+            ],
+        ],
+        'uex_prices' => [
+            [
+                'terminal_name' => 'Port Olisar',
+                'price_buy' => 1500.0,
+                'price_sell' => 1200.0,
+            ],
+            [
+                'terminal_name' => 'Lorville',
+                'price_buy' => 1600.0,
+                'price_sell' => 1300.0,
+            ],
+        ],
     ], $request);
 
     expect($seo['title'])->toBe('Voyager Cooler by Klaus & Werner | Cooler Size 2 Military Grade A | Star Citizen')
@@ -77,6 +141,7 @@ it('builds item seo data with localized description and type-specific breadcrumb
             'item' => $itemUuid,
             'version' => '4.1.0-LIVE',
         ]))
+        ->and($seo['keywords'])->toContain('Common', 'Small')
         ->and($seo['breadcrumbs'])->toHaveCount(5)
         ->and($seo['breadcrumbs'][1]['label'])->toBe('Vehicle Items')
         ->and($seo['breadcrumbs'][2]['label'])->toBe('Components')
@@ -84,7 +149,13 @@ it('builds item seo data with localized description and type-specific breadcrumb
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Item')
         ->and(data_get($seo, 'structuredData.1.brand.name'))->toBe('Klaus & Werner')
-        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(5);
+        ->and(data_get($seo, 'structuredData.1.image'))->toBe('https://example.com/original.jpg')
+        ->and(data_get($seo, 'structuredData.1.offers.@type'))->toBe('AggregateOffer')
+        ->and(data_get($seo, 'structuredData.1.offers.lowPrice'))->toBe(1500.0)
+        ->and(data_get($seo, 'structuredData.1.offers.highPrice'))->toBe(1600.0)
+        ->and(data_get($seo, 'structuredData.1.offers.offers'))->toHaveCount(2)
+        ->and(data_get($seo, 'structuredData.1.offers.offers.0.seller.name'))->toBe('Port Olisar')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(9);
 });
 
 it('builds starmap seo data with query-only version handling and identifier fallback routing', function (): void {
@@ -183,11 +254,28 @@ it('builds blueprint seo data with HowTo structured data and ingredients as supp
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('HowTo')
         ->and(data_get($seo, 'structuredData.1.name'))->toBe('Doom Missile Blueprint')
         ->and(data_get($seo, 'structuredData.1.totalTime'))->toBe('PT120S')
+        ->and(data_get($seo, 'structuredData.1.yield.@type'))->toBe('QuantitativeValue')
+        ->and(data_get($seo, 'structuredData.1.yield.name'))->toBe('Doom Missile')
+        ->and(data_get($seo, 'structuredData.1.yield.value'))->toBe(1)
+        ->and(data_get($seo, 'structuredData.1.yield.unitText'))->toBe('item')
         ->and(data_get($seo, 'structuredData.1.supply'))->toHaveCount(3)
         ->and(data_get($seo, 'structuredData.1.supply.0.name'))->toBe('Steel')
+        ->and(data_get($seo, 'structuredData.1.supply.0.requiredQuantity.value'))->toBe(5)
+        ->and(data_get($seo, 'structuredData.1.supply.0.requiredQuantity.unitText'))->toBe('items')
+        ->and(data_get($seo, 'structuredData.1.supply.1.requiredQuantity.value'))->toBe(3)
+        ->and(data_get($seo, 'structuredData.1.supply.2.requiredQuantity.value'))->toBe(2)
+        ->and(data_get($seo, 'structuredData.1.estimatedCost.@type'))->toBe('QuantitativeValue')
+        ->and(data_get($seo, 'structuredData.1.estimatedCost.value'))->toBe(3)
+        ->and(data_get($seo, 'structuredData.1.estimatedCost.unitText'))->toBe('ingredients')
         ->and(data_get($seo, 'structuredData.1.step.@type'))->toBe('HowToStep')
         ->and(data_get($seo, 'structuredData.1.step.name'))->toBe('Craft Doom Missile')
-        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(2);
+        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(4)
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.0.name'))->toBe('Output Type')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.1.name'))->toBe('Output Class')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.2.name'))->toBe('Is Available by Default')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.2.value'))->toBe('No')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.3.name'))->toBe('Game Version')
+        ->and(data_get($seo, 'structuredData.1.additionalProperty.3.value'))->toBe('4.1.0-LIVE');
 });
 
 it('builds empty blueprint seo data with noindex robots and no structured data', function (): void {
@@ -228,6 +316,23 @@ it('builds mission seo data with faction breadcrumbs and Action structured data'
         'rank_index' => 2,
         'time_to_complete_minutes' => 45,
         'reputation_amount' => 1500,
+        'reward_scope' => 'Bounty Hunter',
+        'shareable' => true,
+        'once_only' => false,
+        'available_in_prison' => true,
+        'has_defend_objective' => false,
+        'min_crime_stat' => 0,
+        'max_crime_stat' => 3,
+        'reward_min' => 1000,
+        'reward_max' => 5000,
+        'reward_currency' => 'aUEC',
+        'star_systems' => ['Stanton', 'Pyro'],
+        'blueprints' => [
+            'drop_chance_percent' => 12.5,
+            'items' => [
+                ['name' => 'Weapon Blueprint', 'uuid' => 'bp-item-1'],
+            ],
+        ],
         'game_version' => '4.1.0-LIVE',
         'web_url' => route('web.missions.show', ['mission' => $missionSlug, 'version' => '4.1.0-LIVE']),
     ], $request);
@@ -238,7 +343,7 @@ it('builds mission seo data with faction breadcrumbs and Action structured data'
             'mission' => $missionSlug,
             'version' => '4.1.0-LIVE',
         ]))
-        ->and($seo['keywords'])->toContain('Nine Tails Heist', 'Delivery', 'Nine Tails', 'Ruto', 'Illegal', 'Star Citizen', 'SC')
+        ->and($seo['keywords'])->toContain('Nine Tails Heist', 'Delivery', 'Nine Tails', 'Ruto', 'Illegal', 'Star Citizen', 'SC', 'Bounty Hunter', 'Stanton')
         ->and($seo['breadcrumbs'])->toHaveCount(3)
         ->and($seo['breadcrumbs'][0]['label'])->toBe('All Missions')
         ->and($seo['breadcrumbs'][1]['label'])->toBe('Nine Tails')
@@ -248,8 +353,21 @@ it('builds mission seo data with faction breadcrumbs and Action structured data'
         ]))
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Action')
+        ->and(data_get($seo, 'structuredData.1.identifier'))->toBe('mis-456')
         ->and(data_get($seo, 'structuredData.1.agent.name'))->toBe('Nine Tails')
-        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(9);
+        ->and(data_get($seo, 'structuredData.1.location'))->toHaveCount(2)
+        ->and(data_get($seo, 'structuredData.1.location.0.@type'))->toBe('Place')
+        ->and(data_get($seo, 'structuredData.1.location.0.name'))->toBe('Stanton')
+        ->and(data_get($seo, 'structuredData.1.object.@type'))->toBe('Offer')
+        ->and(data_get($seo, 'structuredData.1.object.priceSpecification.@type'))->toBe('QuantitativeValue')
+        ->and(data_get($seo, 'structuredData.1.object.priceSpecification.minValue'))->toBe(1000)
+        ->and(data_get($seo, 'structuredData.1.object.priceSpecification.maxValue'))->toBe(5000)
+        ->and(data_get($seo, 'structuredData.1.object.priceSpecification.unitText'))->toBe('aUEC')
+        ->and(data_get($seo, 'structuredData.1.instrument'))->toHaveCount(1)
+        ->and(data_get($seo, 'structuredData.1.instrument.0.@type'))->toBe('Thing')
+        ->and(data_get($seo, 'structuredData.1.instrument.0.name'))->toBe('Weapon Blueprint')
+        ->and(data_get($seo, 'structuredData.1.instrument.0.probability'))->toBe(12.5)
+        ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(13);
 });
 
 it('builds mission seo data without faction and with fallback description', function (): void {
@@ -281,6 +399,10 @@ it('builds mission seo data without faction and with fallback description', func
         ->and($seo['breadcrumbs'][0]['label'])->toBe('All Missions')
         ->and($seo['breadcrumbs'][1]['label'])->toBe('Generic Mission')
         ->and(data_get($seo, 'structuredData.1.agent'))->toBeNull()
+        ->and(data_get($seo, 'structuredData.1.identifier'))->toBe('mis-789')
+        ->and(data_get($seo, 'structuredData.1.location'))->toBeNull()
+        ->and(data_get($seo, 'structuredData.1.object'))->toBeNull()
+        ->and(data_get($seo, 'structuredData.1.instrument'))->toBeNull()
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(3);
 });
 

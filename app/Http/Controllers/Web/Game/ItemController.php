@@ -40,6 +40,9 @@ class ItemController extends Controller
 
         $tableConfig = $this->itemTableConfig->build($resolvedType);
 
+        $total = Arr::get($initialTableData, 'meta.total');
+        $manufacturer = $endpointFilters['manufacturer'] ?? null;
+
         return view('items.index', [
             'initialTableData' => $initialTableData,
             'initialHeaderFilter' => $filterOptions,
@@ -53,6 +56,8 @@ class ItemController extends Controller
                 'pageTitle' => $tableConfig['title'],
                 'category' => $category,
                 'type' => $type,
+                'total' => $total,
+                'manufacturer' => $manufacturer,
             ], $request),
         ]);
     }

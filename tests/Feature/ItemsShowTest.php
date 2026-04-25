@@ -256,7 +256,7 @@ it('renders the item show view with api data', function (): void {
 
     assertItemSeoMetadata($response, [
         'meta[name="description"]' => 'Base item description',
-        'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Size 2,Star Citizen,SC',
+        'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Size 2,Small,Star Citizen,SC',
         'meta[property="og:type"]' => 'website',
         'meta[property="og:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
         'meta[name="twitter:card"]' => 'summary',
@@ -1160,4 +1160,82 @@ it('does not show blueprints row in quick-facts card when item is not craftable'
 
     expect($quickFacts->count())->toBe(1)
         ->and($quickFacts->text())->not->toContain('Blueprints');
+});
+
+it('hides the related items card for cargo items', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'CargoCorp',
+        'code' => 'CRCO',
+    ]);
+
+    $baseItem = Item::factory()->create([
+        'translation' => ['en' => 'Base cargo description'],
+    ]);
+
+    $baseItemData = ItemData::factory()
+        ->for($baseItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Standard Cargo Crate',
+            'class_name' => 'standard_cargo_crate',
+            'classification' => 'Cargo',
+            'type' => 'Cargo',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $variantItem = Item::factory()->create([
+        'translation' => ['en' => 'Variant cargo description'],
+    ]);
+
+    $variantItemData = ItemData::factory()
+        ->for($variantItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Large Cargo Crate',
+            'class_name' => 'large_cargo_crate',
+            'classification' => 'Cargo',
+            'type' => 'Cargo',
+            'base_id' => $baseItemData->id,
+            'data' => ['stdItem' => []],
+        ]);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $version->id,
+        'set_name' => 'Cargo Crate',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $baseItemData->id,
+        'variant_name' => 'Base',
+        'sort_order' => 0,
+        'is_base' => true,
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $variantItemData->id,
+        'variant_name' => 'Large',
+        'sort_order' => 1,
+        'is_base' => false,
+    ]);
+
+    $response = $this->get(route('web.items.show', $baseItem->uuid));
+
+    $response->assertOk();
+
+    $relatedItemsCard = itemRelatedItemsCard($response);
+    $quickFacts = itemQuickFacts($response);
+
+    expect($relatedItemsCard->count())->toBe(0)
+        ->and($quickFacts->text())->not->toContain('Related Items');
 });

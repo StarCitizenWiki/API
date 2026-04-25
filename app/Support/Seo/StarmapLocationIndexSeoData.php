@@ -24,7 +24,7 @@ class StarmapLocationIndexSeoData extends AbstractIndexSeoData
     /**
      * @return array<int, string>
      */
-    protected function keywords(array $data): array
+    protected function keywords(array $entityFields): array
     {
         return ['Star Citizen', 'SC', 'starmap', 'locations', 'planets', 'stations', 'outposts'];
     }

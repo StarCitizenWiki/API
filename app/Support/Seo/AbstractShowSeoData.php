@@ -105,6 +105,7 @@ abstract class AbstractShowSeoData extends AbstractSeoData
         string $url,
         string $category,
         array $additionalProperties = [],
+        ?string $brand = null,
     ): array {
         $schema = [
             '@context' => 'https://schema.org',
@@ -121,6 +122,88 @@ abstract class AbstractShowSeoData extends AbstractSeoData
             $schema['additionalProperty'] = $propertyValues;
         }
 
+        if ($brand !== null) {
+            $schema['brand'] = [
+                '@type' => 'Brand',
+                'name' => $brand,
+            ];
+        }
+
         return $schema;
+    }
+
+    protected function formatMass(float|int $mass): string
+    {
+        if ($mass >= 1000) {
+            return number_format($mass, 0, '.', ',').' kg';
+        }
+
+        return rtrim(rtrim(number_format($mass, 2, '.', ''), '0'), '.').' kg';
+    }
+
+    protected function buildImage(array $entity): ?string
+    {
+        $images = data_get($entity, 'images');
+        if (! is_array($images) || $images === []) {
+            return null;
+        }
+
+        return data_get($images, '0.original_url')
+            ?? data_get($images, '0.thumbnail_url');
+    }
+
+    /**
+     * @param  array<int, array{price_buy?: int|float, price_sell?: int|float, terminal_name?: string}>  $uexPrices
+     * @return array<string, mixed>|null
+     */
+    protected function buildUexAggregateOffer(array $uexPrices): ?array
+    {
+        $buyPrices = array_filter(array_map(
+            static fn (array $price) => ($price['price_buy'] ?? 0) > 0 ? (float) $price['price_buy'] : null,
+            $uexPrices,
+        ));
+
+        $aggregateOffer = [
+            '@type' => 'AggregateOffer',
+            'priceCurrency' => 'aUEC',
+        ];
+
+        if ($buyPrices !== []) {
+            $aggregateOffer['lowPrice'] = min($buyPrices);
+            $aggregateOffer['highPrice'] = max($buyPrices);
+            $aggregateOffer['offerCount'] = count($buyPrices);
+        }
+
+        $individualOffers = [];
+        $terminals = array_slice($uexPrices, 0, 5);
+        foreach ($terminals as $price) {
+            $buyPrice = ($price['price_buy'] ?? 0) > 0 ? (float) $price['price_buy'] : null;
+            if ($buyPrice === null) {
+                continue;
+            }
+
+            $offer = [
+                '@type' => 'Offer',
+                'price' => $buyPrice,
+                'priceCurrency' => 'aUEC',
+                'availability' => 'https://schema.org/InStock',
+            ];
+
+            $terminalName = $price['terminal_name'] ?? null;
+            if ($terminalName !== null) {
+                $offer['seller'] = [
+                    '@type' => 'Organization',
+                    'name' => $terminalName,
+                ];
+            }
+
+            $individualOffers[] = $offer;
+        }
+
+        if ($individualOffers !== []) {
+            $aggregateOffer['offers'] = $individualOffers;
+        }
+
+        return $individualOffers !== [] ? $aggregateOffer : null;
     }
 }
