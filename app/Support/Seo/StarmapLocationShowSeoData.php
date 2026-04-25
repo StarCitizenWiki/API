@@ -227,6 +227,11 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             $schema['amenityFeature'] = $amenityFeatures;
         }
 
+        $image = $this->buildImage($location);
+        if ($image !== null) {
+            $schema['image'] = $image;
+        }
+
         return $schema;
     }
 

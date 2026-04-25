@@ -50,6 +50,7 @@ class Commodity extends Model
         'validate_default_cargo_box' => 'boolean',
         'has_default_cargo_containers' => 'boolean',
         'box_sizes_scu' => 'array',
+        'images' => 'array',
         'data' => AsCollection::class,
     ];
 

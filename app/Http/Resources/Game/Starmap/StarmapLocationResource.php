@@ -329,6 +329,7 @@ class StarmapLocationResource extends AbstractBaseResource
             'radar_contact_type' => $this->buildRadarContactType($payload),
             'link' => $this->buildApiUrl($locationData, $request),
             'web_url' => $this->buildWebUrl($locationData, $request),
+            'images' => $locationData->location?->images ?? [],
             'updated_at' => $locationData->updated_at?->toIso8601String(),
             'version' => $locationData->gameVersion?->code,
             'children' => $this->whenLoaded('children', fn (): array => $locationData->children

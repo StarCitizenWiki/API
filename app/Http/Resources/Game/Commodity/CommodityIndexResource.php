@@ -174,6 +174,7 @@ class CommodityIndexResource extends AbstractBaseResource
                 route('web.commodities.show', ['identifier' => $this->slug ?? $this->uuid]),
                 $request,
             ),
+            'images' => $this->images ?? [],
         ];
     }
 

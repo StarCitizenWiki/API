@@ -23,6 +23,10 @@ class StarmapLocation extends Model
         'slug',
     ];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     public function data(): HasMany
     {
         return $this->hasMany(StarmapLocationData::class, 'starmap_location_id');

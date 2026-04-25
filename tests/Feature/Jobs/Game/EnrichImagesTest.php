@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\EnrichImages;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use App\Models\Game\StarmapLocation;
+use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -376,4 +379,106 @@ it('chunks 50+ titles into multiple API calls', function (): void {
 
     expect($toolsCalls)->toBe(2); // ceil(55/50) = 2
     expect($wikiCalls)->toBe(2); // same for fallback
+});
+
+it('stores image on starmap location from primary source', function (): void {
+    Log::spy();
+
+    $location = StarmapLocation::factory()->create();
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => $location->id,
+        'game_version_id' => $version->id,
+        'name' => 'Crusader',
+    ]);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    789 => [
+                        'pageid' => 789,
+                        'title' => 'Crusader',
+                        'pageimage' => 'Crusader.jpg',
+                        'thumbnail' => [
+                            'source' => 'https://media.starcitizen.tools/thumb/crusader.jpg',
+                            'width' => 600,
+                            'height' => 360,
+                        ],
+                        'original' => [
+                            'source' => 'https://media.starcitizen.tools/crusader.jpg',
+                            'width' => 3840,
+                            'height' => 2304,
+                        ],
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response(['query' => ['pages' => []]]),
+    ]);
+
+    $job = new EnrichImages(StarmapLocation::class, [$location->id => 'Crusader'], [$location->id => $location->uuid]);
+    $job->handle();
+
+    $location->refresh();
+
+    expect($location->images)->toBeArray()
+        ->and($location->images)->toHaveCount(1)
+        ->and($location->images[0])->toMatchArray([
+            'source' => 'starcitizen.tools',
+            'thumbnail_url' => 'https://media.starcitizen.tools/thumb/crusader.jpg',
+            'thumbnail_width' => 600,
+            'thumbnail_height' => 360,
+            'original_url' => 'https://media.starcitizen.tools/crusader.jpg',
+            'original_width' => 3840,
+            'original_height' => 2304,
+        ]);
+});
+
+it('stores image on commodity from primary source', function (): void {
+    Log::spy();
+
+    $commodity = Commodity::factory()->create(['name' => 'Quantanium']);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    321 => [
+                        'pageid' => 321,
+                        'title' => 'Quantanium',
+                        'pageimage' => 'Quantanium.jpg',
+                        'thumbnail' => [
+                            'source' => 'https://media.starcitizen.tools/thumb/quantanium.jpg',
+                            'width' => 600,
+                            'height' => 400,
+                        ],
+                        'original' => [
+                            'source' => 'https://media.starcitizen.tools/quantanium.jpg',
+                            'width' => 1920,
+                            'height' => 1280,
+                        ],
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response(['query' => ['pages' => []]]),
+    ]);
+
+    $job = new EnrichImages(Commodity::class, [$commodity->id => 'Quantanium'], [$commodity->id => $commodity->uuid]);
+    $job->handle();
+
+    $commodity->refresh();
+
+    expect($commodity->images)->toBeArray()
+        ->and($commodity->images)->toHaveCount(1)
+        ->and($commodity->images[0])->toMatchArray([
+            'source' => 'starcitizen.tools',
+            'thumbnail_url' => 'https://media.starcitizen.tools/thumb/quantanium.jpg',
+            'thumbnail_width' => 600,
+            'thumbnail_height' => 400,
+            'original_url' => 'https://media.starcitizen.tools/quantanium.jpg',
+            'original_width' => 1920,
+            'original_height' => 1280,
+        ]);
 });

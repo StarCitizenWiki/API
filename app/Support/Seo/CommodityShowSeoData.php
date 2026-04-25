@@ -60,6 +60,11 @@ final class CommodityShowSeoData extends AbstractShowSeoData
             $commoditySchema['sku'] = $uuid;
         }
 
+        $image = $this->buildImage($commodity);
+        if ($image !== null) {
+            $commoditySchema['image'] = $image;
+        }
+
         return $this->buildSeoResponse(
             canonicalUrl: $canonicalUrl,
             metaDescription: $metaDescription,
