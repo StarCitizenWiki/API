@@ -4,8 +4,6 @@ const DEBOUNCE_MS = 250;
 const MIN_QUERY_LENGTH = 2;
 const MAX_RESULTS = 15;
 
-const ACTIVE_ITEM_CLASS = 'bg-base-200';
-
 export function initLiveSearch() {
     const inputs = document.querySelectorAll('[data-live-search]');
 
@@ -24,9 +22,27 @@ export function initLiveSearch() {
 
         const positionDropdown = () => {
             const rect = input.getBoundingClientRect();
+            const parentRect = input.parentElement.getBoundingClientRect();
             dropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
-            dropdown.style.left = `${rect.left + window.scrollX}px`;
-            dropdown.style.width = `${rect.width}px`;
+            dropdown.style.left = `${parentRect.left + window.scrollX}px`;
+            dropdown.style.width = `${parentRect.width}px`;
+        };
+
+        const showDropdown = () => {
+            positionDropdown();
+            dropdown.style.display = 'block';
+            repositionHandler = positionDropdown;
+            window.addEventListener('scroll', repositionHandler, true);
+            window.addEventListener('resize', repositionHandler);
+        };
+
+        const hideDropdown = () => {
+            dropdown.style.display = 'none';
+            if (repositionHandler) {
+                window.removeEventListener('scroll', repositionHandler, true);
+                window.removeEventListener('resize', repositionHandler);
+                repositionHandler = null;
+            }
         };
 
         input.addEventListener('input', () => {
@@ -34,23 +50,25 @@ export function initLiveSearch() {
             const query = input.value.trim();
 
             if (query.length < MIN_QUERY_LENGTH) {
-                hideDropdown(dropdown, repositionHandler);
-                repositionHandler = null;
+                hideDropdown();
                 return;
             }
 
-            debounceTimer = setTimeout(() => {
-                fetchResults(apiEndpoint, query, abortController, (controller) => {
-                    abortController = controller;
-                }).then((data) => {
-                    results = data;
-                    activeIndex = -1;
-                    renderResults(dropdown, results);
-                    showDropdown(dropdown, positionDropdown);
-                    repositionHandler = positionDropdown;
-                    window.addEventListener('scroll', repositionHandler, true);
-                    window.addEventListener('resize', repositionHandler);
-                });
+            debounceTimer = setTimeout(async () => {
+                if (abortController) {
+                    abortController.abort();
+                }
+                abortController = new AbortController();
+
+                const data = await fetchResults(apiEndpoint, query, abortController);
+                if (!data) {
+                    return;
+                }
+
+                results = data;
+                activeIndex = -1;
+                renderResults(dropdown, results);
+                showDropdown();
             }, DEBOUNCE_MS);
         });
 
@@ -77,25 +95,20 @@ export function initLiveSearch() {
                     }
                 }
             } else if (e.key === 'Escape') {
-                hideDropdown(dropdown, repositionHandler);
-                repositionHandler = null;
+                hideDropdown();
                 input.blur();
             }
         });
 
         input.addEventListener('focus', () => {
             if (results.length > 0 && input.value.trim().length >= MIN_QUERY_LENGTH) {
-                showDropdown(dropdown, positionDropdown);
-                repositionHandler = positionDropdown;
-                window.addEventListener('scroll', repositionHandler, true);
-                window.addEventListener('resize', repositionHandler);
+                showDropdown();
             }
         });
 
         document.addEventListener('click', (e) => {
             if (!dropdown.contains(e.target) && e.target !== input) {
-                hideDropdown(dropdown, repositionHandler);
-                repositionHandler = null;
+                hideDropdown();
             }
         });
     });
@@ -107,7 +120,7 @@ function createDropdown() {
     dropdown.style.position = 'absolute';
     dropdown.style.zIndex = '9999';
     dropdown.setAttribute('role', 'listbox');
-    dropdown.className = 'rounded-box border border-base-300 bg-base-100 shadow-xl max-h-96 overflow-y-auto';
+    dropdown.className = 'rounded-box border border-base-300 bg-base-100 shadow-xl max-h-96 overflow-y-auto overflow-x-hidden';
 
     document.body.appendChild(dropdown);
 
@@ -132,40 +145,45 @@ function renderResults(dropdown, results) {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = item.web_url;
-        a.className = 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm w-full';
+        a.className = 'grid grid-cols-[auto_1fr] items-center gap-x-2 rounded-lg px-3 py-2 text-sm w-full';
         a.setAttribute('data-live-search-item', '');
         a.setAttribute('role', 'option');
 
         if (item.type_label) {
             const badge = document.createElement('span');
-            badge.className = 'text-xs text-base-content/40 shrink-0 inline-block w-22';
+            badge.className = 'text-xs text-base-content/40 truncate max-w-20';
             badge.textContent = item.type_label;
             a.appendChild(badge);
+        } else {
+            const spacer = document.createElement('span');
+            a.appendChild(spacer);
         }
 
         const icon = document.createElement('i');
         icon.setAttribute('data-lucide', 'arrow-right');
-        icon.className = 'size-3.5 text-base-content/40';
+        icon.className = 'size-3.5 shrink-0 text-base-content/40';
 
         const name = document.createElement('span');
         name.className = 'truncate';
         name.textContent = item.name ?? item.title;
 
-        const parts = [];
-        if (item.classification) parts.push(item.classification);
-        if (item.item_type_label) parts.push(item.item_type_label);
-        if (item.extra_label) parts.push(item.extra_label);
-        if (item.class_name && parts.length === 0) parts.push(item.class_name);
+        const parts = [item.classification, item.item_type_label, item.extra_label].filter(Boolean);
+        if (parts.length === 0 && item.class_name) {
+            parts.push(item.class_name);
+        }
 
         if (parts.length > 0) {
             const suffix = document.createElement('span');
-            suffix.className = 'text-xs text-base-content/40 pl-1';
+            suffix.className = 'text-xs text-base-content/40 shrink-0 pl-1';
             suffix.textContent = `(${parts.join(' · ')})`;
             name.appendChild(suffix);
         }
 
-        a.appendChild(icon);
-        a.appendChild(name);
+        const nameCol = document.createElement('div');
+        nameCol.className = 'flex items-center gap-2 min-w-0';
+        nameCol.appendChild(icon);
+        nameCol.appendChild(name);
+        a.appendChild(nameCol);
         li.appendChild(a);
         list.appendChild(li);
     });
@@ -174,38 +192,16 @@ function renderResults(dropdown, results) {
     createIcons({ icons });
 }
 
-function showDropdown(dropdown, positionFn) {
-    positionFn();
-    dropdown.style.display = 'block';
-}
-
-function hideDropdown(dropdown, repositionHandler) {
-    dropdown.style.display = 'none';
-    if (repositionHandler) {
-        window.removeEventListener('scroll', repositionHandler, true);
-        window.removeEventListener('resize', repositionHandler);
-    }
-}
-
 function updateActiveItem(items, activeIndex) {
     items.forEach((item, i) => {
+        item.classList.toggle('bg-base-200', i === activeIndex);
         if (i === activeIndex) {
-            item.classList.add(ACTIVE_ITEM_CLASS);
             item.scrollIntoView({ block: 'nearest' });
-        } else {
-            item.classList.remove(ACTIVE_ITEM_CLASS);
         }
     });
 }
 
-async function fetchResults(apiEndpoint, query, previousController, onNewController) {
-    if (previousController) {
-        previousController.abort();
-    }
-
-    const controller = new AbortController();
-    onNewController(controller);
-
+async function fetchResults(apiEndpoint, query, controller) {
     const url = `${apiEndpoint}?filter[query]=${encodeURIComponent(query)}&limit=${MAX_RESULTS}`;
 
     try {
@@ -218,7 +214,6 @@ async function fetchResults(apiEndpoint, query, previousController, onNewControl
         });
 
         const json = await response.json();
-
         const isGrouped = Array.isArray(json.data) && json.data.some((item) => Array.isArray(item.results));
 
         if (isGrouped) {
@@ -243,7 +238,7 @@ async function fetchResults(apiEndpoint, query, previousController, onNewControl
         }));
     } catch (e) {
         if (e.name === 'AbortError') {
-            return [];
+            return null;
         }
         throw e;
     }

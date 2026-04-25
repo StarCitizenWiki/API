@@ -56,6 +56,14 @@ class AppServiceProvider extends ServiceProvider
                 });
         });
 
+        RateLimiter::for('search', static function (Request $request) {
+            return Limit::perMinute(60)
+                ->by($request->ip())
+                ->response(function (Request $request, array $headers) {
+                    return response('Too many search requests. Please try again later.', 429, $headers);
+                });
+        });
+
         Nightwatch::rejectQueries(static function (Query $query) {
             return str_contains($query->sql, 'into "jobs"')
                 || str_contains($query->sql, 'from "jobs"')

@@ -2453,7 +2453,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  data: { type: array, items: { properties: { type: { type: string, example: items }, label: { type: string, example: Items }, results: { type: array, items: { properties: { name: { type: string, example: Arrow }, class_name: { type: string, example: AEGS_Arrow, nullable: true }, classification: { type: string, example: fighter, nullable: true }, classification_label: { type: string, example: Fighter, nullable: true }, web_url: { type: string, example: 'https://example.com/vehicles/arrow' }, api_url: { type: string, example: 'https://example.com/api/vehicles/arrow' } }, type: object } } }, type: object } }
+                  data: { type: array, items: { properties: { type: { type: string, example: items }, label: { type: string, example: Items }, results: { type: array, items: { properties: { name: { type: string, example: Arrow }, class_name: { type: string, example: AEGS_Arrow, nullable: true }, classification: { type: string, example: fighter, nullable: true }, classification_label: { type: string, example: Fighter, nullable: true }, item_type_label: { type: string, example: Weapon, nullable: true }, extra_label: { type: string, example: Fighter, nullable: true }, web_url: { type: string, example: 'https://example.com/vehicles/arrow' }, api_url: { type: string, example: 'https://example.com/api/vehicles/arrow' } }, type: object } } }, type: object } }
                 type: object
         '422':
           description: 'Validation error – filter[query] is required and must be at least 2 characters'

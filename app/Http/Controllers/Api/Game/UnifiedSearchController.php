@@ -9,6 +9,7 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
@@ -39,6 +40,8 @@ class UnifiedSearchController extends Controller
                                     new OA\Property(property: 'class_name', type: 'string', example: 'AEGS_Arrow', nullable: true),
                                     new OA\Property(property: 'classification', type: 'string', example: 'fighter', nullable: true),
                                     new OA\Property(property: 'classification_label', type: 'string', example: 'Fighter', nullable: true),
+                                    new OA\Property(property: 'item_type_label', type: 'string', example: 'Weapon', nullable: true),
+                                    new OA\Property(property: 'extra_label', type: 'string', example: 'Fighter', nullable: true),
                                     new OA\Property(property: 'web_url', type: 'string', example: 'https://example.com/vehicles/arrow'),
                                     new OA\Property(property: 'api_url', type: 'string', example: 'https://example.com/api/vehicles/arrow'),
                                 ],
@@ -86,6 +89,21 @@ class UnifiedSearchController extends Controller
         return response()->json([
             'data' => $grouped,
         ]);
+    }
+
+    public function resolve(string $query): RedirectResponse
+    {
+        $versionId = $this->gameVersion()->id;
+
+        $rows = DB::select($this->buildResolveSql(), $this->buildResolveBindings($versionId, $query));
+
+        if ($rows === []) {
+            abort(404, 'No matching entity found.');
+        }
+
+        $match = $rows[0];
+
+        return redirect($this->webUrl($match->type, $match), 302);
     }
 
     private function buildSql(): string
@@ -172,9 +190,95 @@ class UnifiedSearchController extends Controller
         return "{$base} LIMIT 5)";
     }
 
+    private function buildResolveSql(): string
+    {
+        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
+        $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
+        $eq = static fn (string $col) => "LOWER({$col}) = LOWER(?)";
+
+        return <<<SQL
+            SELECT * FROM (
+                SELECT 1 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
+                FROM game_item_data gid
+                JOIN game_items gi ON gi.id = gid.item_id
+                WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
+                  AND ({$eq('gid.name')} OR {$eq('gid.class_name')} OR LOWER({$uuidCast('gi.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 2 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
+                FROM game_vehicle_data gvd
+                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
+                WHERE gvd.game_version_id = ?
+                  AND ({$eq('gvd.name')} OR {$eq('gvd.class_name')} OR LOWER({$uuidCast('gv.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 3 AS priority, 'missions' AS type, gm.slug, {$uuidCast('gm.uuid')} AS uuid
+                FROM game_mission_data gmd
+                JOIN game_missions gm ON gm.id = gmd.mission_id
+                WHERE gmd.game_version_id = ? AND gmd.not_for_release = false AND gmd.work_in_progress = false
+                  AND ({$eq('gmd.title')} OR {$eq('gmd.debug_name')} OR LOWER({$uuidCast('gm.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 4 AS priority, 'locations' AS type, {$uuidCast('gsl.uuid')} AS slug, {$uuidCast('gsl.uuid')} AS uuid
+                FROM game_starmap_location_data gsld
+                JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
+                WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>'
+                  AND ({$eq('gsld.name')} OR LOWER({$uuidCast('gsl.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 5 AS priority, 'blueprints' AS type, gb.slug, {$uuidCast('gb.uuid')} AS uuid
+                FROM game_blueprint_data gbd
+                JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
+                WHERE gbd.game_version_id = ?
+                  AND ({$eq('gbd.output_name')} OR {$eq('gbd.output_class')} OR {$eq('gbd.key')} OR LOWER({$uuidCast('gb.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 6 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
+                FROM game_commodities gc
+                WHERE ({$eq('gc.name')} OR {$eq('gc.key')} OR LOWER({$uuidCast('gc.uuid')}) = LOWER(?))
+                LIMIT 1
+            ) t
+
+            ORDER BY priority
+            LIMIT 1
+        SQL;
+    }
+
     /**
-     * @return array<int, string|int>
+     * @return array<int, string>
      */
+    private function buildResolveBindings(int $versionId, string $query): array
+    {
+        return [
+            $versionId, $query, $query, $query,
+            $versionId, $query, $query, $query,
+            $versionId, $query, $query, $query,
+            $versionId, $query, $query,
+            $versionId, $query, $query, $query, $query,
+            $query, $query, $query,
+        ];
+    }
+
     private function buildBindings(int $versionId, string $like): array
     {
         return [

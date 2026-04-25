@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
@@ -70,6 +71,11 @@ Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');
 Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])
     ->name('web.locations.show');
+
+Route::get('/search/{query}', [UnifiedSearchController::class, 'resolve'])
+    ->middleware('throttle:search')
+    ->where('query', '[^/]+')
+    ->name('web.search');
 
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');
