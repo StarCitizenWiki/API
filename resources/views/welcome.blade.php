@@ -26,7 +26,7 @@
         <div data-testid="welcome-search-items">
             <x-resource-search
                 title="Search the Verse"
-                description="Find items, vehicles, locations, commodities, and missions."
+                description="Find items, vehicles, locations, commodities, blueprints, and missions."
                 :route="route('web.items.index')"
                 placeholder="Search ships, items, locations..."
                 apiEndpoint="/api/search"

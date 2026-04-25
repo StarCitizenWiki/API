@@ -107,7 +107,7 @@ function createDropdown() {
     dropdown.style.position = 'absolute';
     dropdown.style.zIndex = '9999';
     dropdown.setAttribute('role', 'listbox');
-    dropdown.className = 'rounded-box border border-base-300 bg-base-100 shadow-xl max-h-72 overflow-y-auto';
+    dropdown.className = 'rounded-box border border-base-300 bg-base-100 shadow-xl max-h-96 overflow-y-auto';
 
     document.body.appendChild(dropdown);
 

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
@@ -69,6 +71,17 @@ it('returns grouped results for a query matching multiple domains', function ():
         'slug' => 'arrowroot-extract',
     ]);
 
+    // Blueprint
+    $blueprint = Blueprint::factory()->create(['slug' => 'arrow-blueprint']);
+    BlueprintData::factory()
+        ->for($blueprint)
+        ->for($version, 'gameVersion')
+        ->create([
+            'output_name' => 'Arrow Weapon Blueprint',
+            'output_class' => 'BP_CRAFT_Arrow',
+            'key' => 'arrow_bp_key',
+        ]);
+
     // Mission
     $mission = Mission::factory()->create(['slug' => 'arrow-mission']);
     MissionData::factory()
@@ -87,7 +100,7 @@ it('returns grouped results for a query matching multiple domains', function ():
 
     $types = collect($response->json('data'))->pluck('type');
 
-    expect($types)->toContain('items', 'vehicles', 'locations', 'commodities', 'missions');
+    expect($types)->toContain('items', 'vehicles', 'locations', 'commodities', 'blueprints', 'missions');
 
     $groups = collect($response->json('data'));
 
@@ -106,6 +119,11 @@ it('returns grouped results for a query matching multiple domains', function ():
     // Commodity: classification is null → classification_label is null
     $commoditiesGroup = $groups->first(fn ($g) => $g['type'] === 'commodities');
     expect($commoditiesGroup['results'][0]['classification_label'])->toBeNull();
+
+    // Blueprint: classification is null → classification_label is null
+    $blueprintsGroup = $groups->first(fn ($g) => $g['type'] === 'blueprints');
+    expect($blueprintsGroup['results'][0]['name'])->toBe('Arrow Weapon Blueprint');
+    expect($blueprintsGroup['results'][0]['classification_label'])->toBeNull();
 
     // Mission: classification_label mirrors mission_type
     $missionsGroup = $groups->first(fn ($g) => $g['type'] === 'missions');
@@ -166,7 +184,7 @@ it('omits groups with zero results', function (): void {
     $types = collect($response->json('data'))->pluck('type');
 
     expect($types)->toContain('items');
-    expect($types)->not->toContain('vehicles', 'locations', 'commodities', 'missions');
+    expect($types)->not->toContain('vehicles', 'locations', 'commodities', 'blueprints', 'missions');
 });
 
 it('respects version parameter', function (): void {
@@ -301,6 +319,16 @@ it('generates correct web_url per domain', function (): void {
             'class_name' => 'url_test_vehicle',
         ]);
 
+    $blueprint = Blueprint::factory()->create(['slug' => 'url-test-blueprint']);
+    BlueprintData::factory()
+        ->for($blueprint)
+        ->for($version, 'gameVersion')
+        ->create([
+            'output_name' => 'UrlTestBlueprint',
+            'output_class' => 'BP_UrlTest',
+            'key' => 'url_test_bp_key',
+        ]);
+
     $response = $this->getJson('/api/search?filter[query]=UrlTest');
 
     $response->assertSuccessful();
@@ -308,13 +336,16 @@ it('generates correct web_url per domain', function (): void {
     $groups = collect($response->json('data'));
     $itemsGroup = $groups->first(fn ($g) => $g['type'] === 'items');
     $vehiclesGroup = $groups->first(fn ($g) => $g['type'] === 'vehicles');
+    $blueprintsGroup = $groups->first(fn ($g) => $g['type'] === 'blueprints');
 
     expect($itemsGroup['results'][0]['web_url'])->toEndWith('/items/url-test-item');
     expect($vehiclesGroup['results'][0]['web_url'])->toEndWith('/vehicles/url-test-vehicle');
+    expect($blueprintsGroup['results'][0]['web_url'])->toEndWith('/blueprints/url-test-blueprint');
 
     // api_url uses API route names
     expect($itemsGroup['results'][0]['api_url'])->toEndWith('/api/items/url-test-item');
     expect($vehiclesGroup['results'][0]['api_url'])->toEndWith('/api/vehicles/url-test-vehicle');
+    expect($blueprintsGroup['results'][0]['api_url'])->toEndWith('/api/blueprints/url-test-blueprint');
 });
 
 it('returns empty data array when nothing matches', function (): void {

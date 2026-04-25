@@ -19,7 +19,7 @@ class UnifiedSearchController extends Controller
 
     #[OA\Get(
         path: '/api/search',
-        description: 'Search across items, vehicles, starmap locations, commodities, and missions simultaneously. Returns results grouped by type, limited to 5 results per group.',
+        description: 'Search across items, vehicles, starmap locations, commodities, blueprints, and missions simultaneously. Returns results grouped by type, limited to 5 results per group.',
         summary: 'Unified Search Across All Game Data',
         tags: ['Search'],
         parameters: [
@@ -131,6 +131,15 @@ class UnifiedSearchController extends Controller
 
              UNION ALL
 
+             SELECT * FROM (SELECT 'blueprints' AS type, gbd.output_name AS name, gbd.output_class AS class_name, NULL{$nt} AS classification,
+                     gb.slug, {$uuidCast('gb.uuid')} AS uuid, gbd.key AS extra_label, NULL{$nt} AS item_type
+              FROM game_blueprint_data gbd
+              JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
+              WHERE gbd.game_version_id = ? AND (gbd.output_name {$like} ? OR gbd.output_class {$like} ? OR gbd.key {$like} ?)
+              LIMIT 5)
+
+             UNION ALL
+
              {$this->buildMissionSubquery($isPgsql, $like, $nt, $uuidCast)}
         SQL;
     }
@@ -177,6 +186,8 @@ class UnifiedSearchController extends Controller
             $versionId, $like,
             // Commodities (no version)
             $like, $like,
+            // Blueprints
+            $versionId, $like, $like, $like,
             // Missions
             $versionId, $like, $like, $like,
         ];
@@ -189,6 +200,7 @@ class UnifiedSearchController extends Controller
             'vehicles' => 'Vehicles',
             'locations' => 'Locations',
             'commodities' => 'Commodities',
+            'blueprints' => 'Blueprints',
             'missions' => 'Missions',
             default => ucfirst($type),
         };
@@ -214,6 +226,7 @@ class UnifiedSearchController extends Controller
             'vehicles' => route('vehicles.show', ['vehicle' => $row->slug ?? $row->uuid]),
             'locations' => route('locations.show', ['identifier' => $row->uuid]),
             'commodities' => route('commodities.show', ['commodity' => $row->slug ?? $row->uuid]),
+            'blueprints' => route('blueprints.show', ['blueprint' => $row->slug ?? $row->uuid]),
             'missions' => route('missions.show', ['mission' => $row->slug ?? $row->uuid]),
             default => '',
         };
@@ -226,6 +239,7 @@ class UnifiedSearchController extends Controller
             'vehicles' => route('web.vehicles.show', ['vehicle' => $row->slug ?? $row->uuid]),
             'locations' => route('web.locations.show', ['identifier' => $row->uuid]),
             'commodities' => route('web.commodities.show', ['identifier' => $row->slug ?? $row->uuid]),
+            'blueprints' => route('web.blueprints.show', ['blueprint' => $row->slug ?? $row->uuid]),
             'missions' => route('web.missions.show', ['mission' => $row->slug ?? $row->uuid]),
             default => '',
         };
