@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
 use App\Http\Controllers\Api\Game\MissionController;
 use App\Http\Controllers\Api\Game\StarmapLocationController;
+use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkSearchController;
@@ -40,8 +41,9 @@ Route::get('/openapi', static function () {
 Route::group(
     [],
     static function () {
-
         Route::middleware(['game.version', 'limit.parameter'])->group(static function () {
+            Route::get('search', [UnifiedSearchController::class, 'search'])->name('search');
+
             Route::prefix('v2')->group(static function () {
                 Route::get('vehicles', [VehicleController::class, 'index'])
                     ->defaults('api_version', 'v2')

@@ -136,6 +136,13 @@ function renderResults(dropdown, results) {
         a.setAttribute('data-live-search-item', '');
         a.setAttribute('role', 'option');
 
+        if (item.type_label) {
+            const badge = document.createElement('span');
+            badge.className = 'text-xs text-base-content/40 shrink-0 inline-block w-22';
+            badge.textContent = item.type_label;
+            a.appendChild(badge);
+        }
+
         const icon = document.createElement('i');
         icon.setAttribute('data-lucide', 'arrow-right');
         icon.className = 'size-3.5 text-base-content/40';
@@ -144,14 +151,16 @@ function renderResults(dropdown, results) {
         name.className = 'truncate';
         name.textContent = item.name ?? item.title;
 
-        const suffix = document.createElement('span');
-        suffix.className = 'text-xs text-base-content/40 pl-1';
+        const parts = [];
+        if (item.classification) parts.push(item.classification);
+        if (item.item_type_label) parts.push(item.item_type_label);
+        if (item.extra_label) parts.push(item.extra_label);
+        if (item.class_name && parts.length === 0) parts.push(item.class_name);
 
-        if (item.classification) {
-            suffix.textContent = `(${item.classification})`;
-            name.appendChild(suffix);
-        } else if (item.class_name) {
-            suffix.textContent = `(${item.class_name})`;
+        if (parts.length > 0) {
+            const suffix = document.createElement('span');
+            suffix.className = 'text-xs text-base-content/40 pl-1';
+            suffix.textContent = `(${parts.join(' · ')})`;
             name.appendChild(suffix);
         }
 
@@ -209,6 +218,22 @@ async function fetchResults(apiEndpoint, query, previousController, onNewControl
         });
 
         const json = await response.json();
+
+        const isGrouped = Array.isArray(json.data) && json.data.some((item) => Array.isArray(item.results));
+
+        if (isGrouped) {
+            return json.data.flatMap((group) =>
+                group.results.map((result) => ({
+                    name: result.name ?? result.title,
+                    classification: result.classification_label,
+                    class_name: result.class_name,
+                    web_url: result.web_url,
+                    type_label: group.label,
+                    item_type_label: result.item_type_label ?? null,
+                    extra_label: result.extra_label ?? null,
+                })),
+            );
+        }
 
         return (json.data ?? []).map((item) => ({
             name: item.name ?? item.title,

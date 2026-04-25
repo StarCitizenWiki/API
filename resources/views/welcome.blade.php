@@ -25,11 +25,11 @@
 
         <div data-testid="welcome-search-items">
             <x-resource-search
-                title="Search items"
-                description="Find items by name across the universe database."
+                title="Search the Verse"
+                description="Find items, vehicles, locations, commodities, and missions."
                 :route="route('web.items.index')"
-                placeholder="Search item names"
-                apiEndpoint="/api/items"
+                placeholder="Search ships, items, locations..."
+                apiEndpoint="/api/search"
             />
         </div>
 
