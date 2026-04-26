@@ -11,6 +11,7 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
+use App\Models\Game\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -296,6 +297,7 @@ it('returns not found for non-existent item', function () {
 
 it('redirects to the vehicle endpoint for vehicle items', function (): void {
     $item = Item::factory()->create();
+    Vehicle::factory()->create(['uuid' => $item->uuid]);
 
     ItemData::factory()
         ->for($item)
@@ -303,7 +305,7 @@ it('redirects to the vehicle endpoint for vehicle items', function (): void {
         ->for($this->manufacturer)
         ->create([
             'name' => 'Test Vehicle',
-            'type' => 'NOITEM_Vehicle',
+            'type' => null,
             'class_name' => 'test_vehicle',
             'classification' => 'Vehicle',
             'data' => ['stdItem' => []],
@@ -312,6 +314,38 @@ it('redirects to the vehicle endpoint for vehicle items', function (): void {
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertRedirect("/api/vehicles/{$item->uuid}");
+});
+
+it('excludes vehicle items from the items index', function (): void {
+    $normalItem = Item::factory()->create();
+    $vehicleItem = Item::factory()->create();
+    Vehicle::factory()->create(['uuid' => $vehicleItem->uuid]);
+
+    ItemData::factory()
+        ->for($normalItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Normal Item',
+            'type' => 'WeaponPersonal',
+            'class_name' => 'normal_item',
+        ]);
+
+    ItemData::factory()
+        ->for($vehicleItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Vehicle Item',
+            'type' => null,
+            'class_name' => 'vehicle_item',
+        ]);
+
+    $response = $this->getJson('/api/items');
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'data');
+    $response->assertJsonPath('data.0.name', 'Normal Item');
 });
 
 it('includes related items when requested', function (): void {

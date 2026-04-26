@@ -13,6 +13,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
+use App\Models\Game\Vehicle;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use App\Support\Filters\ItemFilterLabel;
@@ -578,7 +579,7 @@ class ItemController extends Controller
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        if ($itemData->type === 'NOITEM_Vehicle') {
+        if (Vehicle::where('uuid', $itemData->item->uuid)->exists()) {
             return redirect(sprintf('/api/vehicles/%s', $itemData->item->uuid));
         }
 

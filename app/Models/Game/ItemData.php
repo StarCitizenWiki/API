@@ -237,7 +237,7 @@ class ItemData extends Model
             'vehicle-items' => $query->vehicleItems(),
             'vehicle-flair-items' => $query->vehicleFlairItems(),
             'vehicle-components' => $query->vehicleComponents(),
-            default => $query,
+            default => $query->whereDoesntHave('item.vehicle'),
         };
     }
 

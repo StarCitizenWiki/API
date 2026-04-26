@@ -58,6 +58,10 @@ class ApiJsonRequest
             return [];
         }
 
+        if ($response->isRedirection()) {
+            return ['__redirect' => $response->headers->get('Location')];
+        }
+
         $payload = json_decode($response->getContent() ?? 'null', true, 512, JSON_THROW_ON_ERROR);
 
         return is_array($payload) ? $payload : [];

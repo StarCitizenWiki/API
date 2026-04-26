@@ -10,6 +10,7 @@ use App\Support\Items\ItemTableConfig;
 use App\Support\Seo\ItemIndexSeoData;
 use App\Support\Seo\ItemShowSeoData;
 use App\Traits\NormalizesFilterParams;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -62,7 +63,7 @@ class ItemController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $item): View
+    public function show(Request $request, string $item): View|RedirectResponse
     {
         $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
         $include = array_values(array_unique(array_merge($include, ['related_items', 'blueprints'])));
@@ -71,6 +72,16 @@ class ItemController extends Controller
         $apiRequest->query->set('include', implode(',', $include));
 
         $payload = $this->apiJsonRequest->request(route('items.show', ['identifier' => $item], false), $apiRequest);
+
+        if (isset($payload['__redirect'])) {
+            $path = parse_url($payload['__redirect'], PHP_URL_PATH) ?? '';
+            $uuid = basename($path);
+
+            if ($uuid !== '') {
+                return redirect(route('web.vehicles.show', ['vehicle' => $uuid]));
+            }
+        }
+
         $itemData = Arr::get($payload, 'data', []);
 
         if ($itemData === []) {
