@@ -31,7 +31,7 @@ class MissionController extends Controller
 
     #[OA\Get(
         path: '/api/missions',
-        description: 'Returns paginated missions for the requested or default game version, excluding unreleased and work-in-progress by default. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.',
+        description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.',
         summary: 'List Game Missions',
         tags: ['In-Game', 'Missions'],
         parameters: [
@@ -64,7 +64,6 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[title]', description: 'Partial match on mission title', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[description]', description: 'Partial match on mission description', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[query]', description: 'Search across title, description, and debug name', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[include_unreleased]', description: 'Include unreleased and work-in-progress missions', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[reward_scope]', description: 'Mission category scope. (see GET /api/missions/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Bounty Hunter')),
             new OA\Parameter(name: 'filter[has_blueprints]', description: 'Filter for missions that reward blueprints', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[reputation_scope]', description: 'Reputation reward scope from ReputationGained data. (see GET /api/missions/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FactionReputation')),
@@ -84,15 +83,10 @@ class MissionController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $includeUnreleased = filter_var(
-            $request->input('filter.include_unreleased', false),
-            FILTER_VALIDATE_BOOLEAN,
-        );
-
         $hasActiveFiltersOrSorts = $request->filled('filter') || $request->filled('sort');
         $grouped = ! $hasActiveFiltersOrSorts;
 
-        $missions = $this->buildIndexQuery($request, $includeUnreleased, $grouped)
+        $missions = $this->buildIndexQuery($request, $grouped)
             ->with(['mission', 'gameVersion', 'faction', 'blueprints.blueprint'])
             ->withCount('prerequisiteGroups')
             ->defaultSort('title')
@@ -164,8 +158,6 @@ class MissionController extends Controller
         $missionData = MissionData::query()
             ->forRequestedOrDefaultVersion($versionCode)
             ->where('mission_id', $missionModel->id)
-            ->where('not_for_release', false)
-            ->where('work_in_progress', false)
             ->with([
                 'mission',
                 'gameVersion',
@@ -189,7 +181,7 @@ class MissionController extends Controller
 
     #[OA\Get(
         path: '/api/missions/filters',
-        description: 'Returns available filter facets for missions, scoped to the requested or default game version. Excludes unreleased and WIP missions by default.',
+        description: 'Returns available filter facets for missions, scoped to the requested or default game version.',
         summary: 'Get Mission Filter Options',
         tags: ['In-Game', 'Missions'],
         parameters: [
@@ -253,12 +245,8 @@ class MissionController extends Controller
     public function filters(Request $request): JsonResponse
     {
         $versionCode = $this->gameVersionCode() ?? $this->gameVersion()->code;
-        $includeUnreleased = filter_var(
-            $request->input('filter.include_unreleased', false),
-            FILTER_VALIDATE_BOOLEAN,
-        );
 
-        $resolver = function () use ($request, $versionCode, $includeUnreleased): array {
+        $resolver = function () use ($request, $versionCode): array {
             $out = [];
 
             $simpleFacets = [
@@ -286,8 +274,8 @@ class MissionController extends Controller
             ];
 
             foreach ($simpleFacets as $key => $facet) {
-                $q = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                    ->allowedFilters(...$this->allowedFilters($includeUnreleased));
+                $q = $this->buildFiltersBaseQuery($request, $versionCode)
+                    ->allowedFilters(...$this->allowedFilters());
 
                 $expr = $facet['expr'];
 
@@ -303,8 +291,8 @@ class MissionController extends Controller
                 $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
 
-            $factionQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased))
+            $factionQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters())
                 ->leftJoin('game_factions', 'game_mission_data.faction_id', '=', 'game_factions.id');
 
             $factionRows = $factionQuery
@@ -318,8 +306,8 @@ class MissionController extends Controller
 
             $out['faction'] = FilterValues::fromRows($factionRows);
 
-            $starSystemQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased))
+            $starSystemQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters())
                 ->join(
                     'game_mission_data_starmap_location as mdsl',
                     'game_mission_data.id',
@@ -345,8 +333,8 @@ class MissionController extends Controller
 
             $out['star_system'] = FilterValues::fromRows($starSystemRows);
 
-            $prereqQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased));
+            $prereqQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters());
 
             $prereqRows = $prereqQuery
                 ->select([
@@ -364,8 +352,8 @@ class MissionController extends Controller
 
             $out['has_prerequisites'] = FilterValues::fromRows($prereqRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
 
-            $scopeQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased));
+            $scopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters());
 
             $scopeRows = $scopeQuery
                 ->select([
@@ -378,8 +366,8 @@ class MissionController extends Controller
 
             $out['reward_scope'] = FilterValues::fromRows($scopeRows);
 
-            $blueprintQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased));
+            $blueprintQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters());
 
             $blueprintRows = $blueprintQuery
                 ->select([
@@ -397,8 +385,8 @@ class MissionController extends Controller
 
             $out['has_blueprints'] = FilterValues::fromRows($blueprintRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
 
-            $blueprintNameQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased))
+            $blueprintNameQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters())
                 ->join('game_mission_data_blueprint as mdb', 'game_mission_data.id', '=', 'mdb.mission_data_id')
                 ->join('game_blueprint_data as bd', 'mdb.blueprint_data_id', '=', 'bd.id');
 
@@ -414,8 +402,8 @@ class MissionController extends Controller
 
             $out['blueprint_name'] = FilterValues::fromRows($blueprintNameRows);
 
-            $repScopeQuery = $this->buildFiltersBaseQuery($request, $versionCode, $includeUnreleased)
-                ->allowedFilters(...$this->allowedFilters($includeUnreleased));
+            $repScopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+                ->allowedFilters(...$this->allowedFilters());
 
             $repScopeRows = $repScopeQuery
                 ->select([
@@ -433,7 +421,7 @@ class MissionController extends Controller
             return $out;
         };
 
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []), ['include_unreleased'])) {
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
             $filters = $resolver();
         } else {
             $filters = FilterCache::rememberForever(
@@ -448,21 +436,19 @@ class MissionController extends Controller
         ]);
     }
 
-    private function buildIndexQuery(Request $request, bool $includeUnreleased = false, bool $grouped = true): QueryBuilder
+    private function buildIndexQuery(Request $request, bool $grouped = true): QueryBuilder
     {
         return QueryBuilder::for(MissionData::class, $request)
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
-            ->excludeUnreleased(! $includeUnreleased)
             ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id)->withGroupedAggregates())
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...$this->allowedSorts());
     }
 
-    private function buildFiltersBaseQuery(Request $request, string $versionCode, bool $includeUnreleased = false): QueryBuilder
+    private function buildFiltersBaseQuery(Request $request, string $versionCode): QueryBuilder
     {
         return QueryBuilder::for(MissionData::class, $request)
-            ->forRequestedOrDefaultVersion($versionCode)
-            ->excludeUnreleased(! $includeUnreleased);
+            ->forRequestedOrDefaultVersion($versionCode);
     }
 
     /**

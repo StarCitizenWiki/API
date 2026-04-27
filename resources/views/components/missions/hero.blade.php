@@ -23,6 +23,9 @@
         'Recovery' => 'locate',
         default => 'flag',
     };
+
+    $notForRelease = data_get($resource, 'not_for_release');
+    $workInProgress = data_get($resource, 'work_in_progress');
 @endphp
 
 <section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow', 'data-testid' => 'mission-hero']) }}>
@@ -40,6 +43,12 @@
                     <h1 class="min-w-0 text-3xl font-semibold tracking-tight sm:text-4xl">
                         {{ $title }}
                     </h1>
+
+                    @if ($notForRelease || $workInProgress)
+                        <span class="badge {{ $workInProgress ? 'badge-error' : 'badge-warning' }} badge-sm shrink-0 font-semibold">
+                            {{ $workInProgress ? 'WIP' : 'Unreleased' }}
+                        </span>
+                    @endif
                 </div>
 
                 @if ($headlineLinks !== [])

@@ -168,7 +168,7 @@ class UnifiedSearchController extends Controller
                     gm.slug, {$uuidCast('gm.uuid')} AS uuid, gmd.debug_name AS extra_label, NULL{$nt} AS item_type
              FROM game_mission_data gmd
              JOIN game_missions gm ON gm.id = gmd.mission_id
-             WHERE gmd.game_version_id = ? AND gmd.not_for_release = false AND gmd.work_in_progress = false
+             WHERE gmd.game_version_id = ?
                AND (gmd.title {$like} ? OR gmd.description {$like} ? OR gmd.debug_name {$like} ?)";
 
         if ($isPgsql) {
@@ -179,7 +179,7 @@ class UnifiedSearchController extends Controller
                         gmd.debug_name AS extra_label, NULL::text AS item_type
                  FROM game_mission_data gmd
                  JOIN game_missions gm ON gm.id = gmd.mission_id
-                 WHERE gmd.game_version_id = ? AND gmd.not_for_release = false AND gmd.work_in_progress = false
+                 WHERE gmd.game_version_id = ?
                    AND (gmd.title ILIKE ? OR gmd.description ILIKE ? OR gmd.debug_name ILIKE ?)
                    AND gmd.title IS NOT NULL AND gmd.title != ''
                  ORDER BY gmd.game_version_id, gmd.title, gmd.generator_class,
@@ -223,7 +223,7 @@ class UnifiedSearchController extends Controller
                 SELECT 3 AS priority, 'missions' AS type, gm.slug, {$uuidCast('gm.uuid')} AS uuid
                 FROM game_mission_data gmd
                 JOIN game_missions gm ON gm.id = gmd.mission_id
-                WHERE gmd.game_version_id = ? AND gmd.not_for_release = false AND gmd.work_in_progress = false
+                WHERE gmd.game_version_id = ?
                   AND ({$eq('gmd.title')} OR {$eq('gmd.debug_name')} OR LOWER({$uuidCast('gm.uuid')}) = LOWER(?))
                 LIMIT 1
             ) t

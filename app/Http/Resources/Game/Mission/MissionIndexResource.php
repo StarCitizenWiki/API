@@ -74,6 +74,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'min_crime_stat', type: 'integer', nullable: true),
         new OA\Property(property: 'max_crime_stat', type: 'integer', nullable: true),
         new OA\Property(property: 'available_in_prison', type: 'boolean'),
+        new OA\Property(property: 'not_for_release', type: 'boolean'),
+        new OA\Property(property: 'work_in_progress', type: 'boolean'),
         new OA\Property(
             property: 'reputation_gained',
             type: 'array',
@@ -209,6 +211,9 @@ class MissionIndexResource extends AbstractBaseResource
             'min_crime_stat' => $this->resource->min_crime_stat,
             'max_crime_stat' => $this->resource->max_crime_stat,
             'available_in_prison' => $this->resource->available_in_prison,
+            'not_for_release' => $this->resource->not_for_release,
+            'work_in_progress' => $this->resource->work_in_progress,
+            'released' => ! $this->resource->not_for_release && ! $this->resource->work_in_progress,
             'reputation_gained' => $this->mapReputationGained($data),
             'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
             'max_instances_per_player' => is_array($lifetime) ? ($lifetime['MaxInstancesPerPlayer'] ?? null) : null,

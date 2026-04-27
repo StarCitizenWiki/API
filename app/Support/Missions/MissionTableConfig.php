@@ -195,6 +195,17 @@ final class MissionTableConfig
                     'hozAlign' => 'center',
                 ],
                 [
+                    'title' => 'Released',
+                    'field' => 'released',
+                    'formatter' => 'tickCross',
+                    'formatterParams' => [
+                        'allowEmpty' => true,
+                        'cross' => true,
+                    ],
+                    'headerSort' => false,
+                    'hozAlign' => 'center',
+                ],
+                [
                     'title' => 'API Url',
                     'field' => 'uuid',
                     'formatter' => 'link',

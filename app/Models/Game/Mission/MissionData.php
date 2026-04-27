@@ -162,16 +162,6 @@ class MissionData extends Model
         return $this->belongsToMany(ItemData::class, 'game_mission_data_item', 'mission_data_id', 'item_data_id');
     }
 
-    public function scopeExcludeUnreleased(Builder $query, bool $exclude = true): Builder
-    {
-        if ($exclude) {
-            $query->where('not_for_release', false)
-                ->where('work_in_progress', false);
-        }
-
-        return $query;
-    }
-
     public function scopeGroupByTitle(Builder $query, int $gameVersionId): Builder
     {
         if (DB::connection()->getDriverName() !== 'pgsql') {
