@@ -6,6 +6,7 @@
     $vehicleName = data_get($vehicle, 'name', 'Vehicle');
     $manufacturerName = data_get($vehicle, 'manufacturer.name');
     $sizeClass = data_get($vehicle, 'size_class');
+    $maxMedicalTier = data_get($vehicle, 'max_medical_tier');
     $career = data_get($vehicle, 'career');
     $role = data_get($vehicle, 'role');
     $description = data_get($vehicle, 'description.en');
@@ -87,7 +88,7 @@
                     </h1>
                 </div>
 
-                @if ($manufacturerName || $career || $role || $sizeClass !== null)
+                @if ($manufacturerName || $career || $role || $sizeClass !== null || $maxMedicalTier !== null)
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-base-content/60">
                         @if ($manufacturerName)
                             <a
@@ -97,24 +98,30 @@
                                 {{ $manufacturerName }}
                             </a>
                         @endif
-                        @if ($manufacturerName && ($career || $role || $sizeClass !== null))
-                            <span aria-hidden="true" class="text-base-content/35">|</span>
-                        @endif
-                        @if ($career)
-                            <span>{{ $career }}</span>
-                        @endif
-                        @if ($career && ($role || $sizeClass !== null))
-                            <span aria-hidden="true" class="text-base-content/35">|</span>
-                        @endif
-                        @if ($role)
-                            <span>{{ $role }}</span>
-                        @endif
-                        @if ($role && $sizeClass !== null)
-                            <span aria-hidden="true" class="text-base-content/35">|</span>
-                        @endif
-                        @if ($sizeClass !== null)
-                            <span>S{{ $sizeClass }}</span>
-                        @endif
+                @if ($manufacturerName && ($career || $role || $sizeClass !== null || $maxMedicalTier !== null))
+                    <span aria-hidden="true" class="text-base-content/35">|</span>
+                @endif
+                @if ($career)
+                    <span>{{ $career }}</span>
+                @endif
+                @if ($career && ($role || $sizeClass !== null || $maxMedicalTier !== null))
+                    <span aria-hidden="true" class="text-base-content/35">|</span>
+                @endif
+                @if ($role)
+                    <span>{{ $role }}</span>
+                @endif
+                @if ($role && ($sizeClass !== null || $maxMedicalTier !== null))
+                    <span aria-hidden="true" class="text-base-content/35">|</span>
+                @endif
+                @if ($sizeClass !== null)
+                    <span>S{{ $sizeClass }}</span>
+                @endif
+                @if ($sizeClass !== null && $maxMedicalTier !== null)
+                    <span aria-hidden="true" class="text-base-content/35">|</span>
+                @endif
+                @if ($maxMedicalTier !== null)
+                    <span class="badge badge-primary badge-sm">Medical {{ $maxMedicalTier }}</span>
+                @endif
                     </div>
                 @endif
             </div>

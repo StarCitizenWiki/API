@@ -96,6 +96,32 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
+        new OA\Property(
+            property: 'max_medical_tier',
+            description: 'Highest medical bed tier available (e.g., "T2", "T3"). Null if no medical beds.',
+            type: 'string',
+            example: 'T3',
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'seating',
+            description: 'Seating and bed summary.',
+            properties: [
+                new OA\Property(property: 'crew_stations', description: 'Total number of crew stations.', type: 'integer', example: 14),
+                new OA\Property(property: 'ejection_seats', description: 'Number of ejection seats.', type: 'integer', example: 1),
+                new OA\Property(property: 'escape_pods', description: 'Number of escape pods. Null when absent.', type: 'integer', example: 4, nullable: true),
+                new OA\Property(property: 'jump_seats', description: 'Number of jump seats. Null when absent.', type: 'integer', example: 4, nullable: true),
+                new OA\Property(property: 'beds', description: 'Total number of beds.', type: 'integer', example: 22),
+                new OA\Property(
+                    property: 'medical_beds',
+                    description: 'Medical bed counts by tier. Null if no medical beds.',
+                    type: 'object',
+                    example: '{"T2": 1, "T3": 4}',
+                    nullable: true,
+                ),
+            ],
+            type: 'object',
+        ),
         new OA\Property(property: 'is_vehicle', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
@@ -704,6 +730,17 @@ class VehicleResource extends AbstractBaseResource
                 'max' => Arr::get($payload, 'Crew'),
                 'weapon' => Arr::get($payload, 'WeaponCrew'),
                 'operation' => null,
+            ],
+
+            'max_medical_tier' => $this->resolveMaxMedicalTier($vehicleData),
+
+            'seating' => [
+                'crew_stations' => $this->extractFromVehicleJson($vehicleData, 'Seating.CrewStations', 0),
+                'ejection_seats' => $this->extractFromVehicleJson($vehicleData, 'Seating.EjectionSeats', 0),
+                'escape_pods' => $this->extractFromVehicleJson($vehicleData, 'Seating.EscapePods'),
+                'jump_seats' => $this->extractFromVehicleJson($vehicleData, 'Seating.JumpSeats'),
+                'beds' => $this->extractFromVehicleJson($vehicleData, 'Seating.TotalBeds', 0),
+                'medical_beds' => $this->resolveMedicalBeds($vehicleData),
             ],
 
             'health' => Arr::get($payload, 'Health', 0),
@@ -1348,5 +1385,24 @@ class VehicleResource extends AbstractBaseResource
             'y' => $y,
             'z' => $z,
         ];
+    }
+
+    private function resolveMaxMedicalTier(VehicleData $vehicleData): ?string
+    {
+        return collect($this->extractFromVehicleJson($vehicleData, 'Seating.MedicalBeds'))
+            ->pluck('Tier')
+            ->sortByDesc(static fn (string $tier): int => (int) ltrim($tier, 'T'))
+            ->first();
+    }
+
+    private function resolveMedicalBeds(VehicleData $vehicleData): ?array
+    {
+        $medicalBeds = $this->extractFromVehicleJson($vehicleData, 'Seating.MedicalBeds');
+
+        if ($medicalBeds === null || $medicalBeds === []) {
+            return null;
+        }
+
+        return collect($medicalBeds)->pluck('Count', 'Tier')->all();
     }
 }

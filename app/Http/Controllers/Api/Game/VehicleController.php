@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -611,6 +612,48 @@ class VehicleController extends Controller
                 $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
 
+            $driver = DB::connection()->getDriverName();
+            $tableName = $this->getJsonTableName();
+            $columnName = $this->getJsonColumnName();
+            $medicalBedsPath = "{$tableName}.{$columnName}->'Seating'->'MedicalBeds'";
+
+            if ($driver === 'sqlite') {
+                $medicalTierRows = (clone $baseQuery)
+                    ->selectRaw("json_extract({$tableName}.{$columnName}, '$.Seating.MedicalBeds') as value")
+                    ->whereNotNull(DB::raw("json_extract({$tableName}.{$columnName}, '$.Seating.MedicalBeds')"))
+                    ->get()
+                    ->flatMap(static function (object $row): array {
+                        $decoded = json_decode((string) $row->value, true);
+
+                        return is_array($decoded) ? array_map(static fn (array $bed): string => $bed['Tier'], $decoded) : [];
+                    })
+                    ->groupBy(fn (string $tier): string => $tier)
+                    ->map(static fn (Collection $items, string $tier): array => [
+                        'value' => $tier,
+                        'count' => $items->count(),
+                    ])
+                    ->values()
+                    ->all();
+            } else {
+                $medicalTierRows = (clone $baseQuery)
+                    ->joinSub(
+                        VehicleData::selectRaw("{$tableName}.id, jsonb_extract_path_text(elem, 'Tier') as value")
+                            ->fromRaw("{$tableName}, jsonb_array_elements({$medicalBedsPath}) elem")
+                            ->whereNotNull(DB::raw($medicalBedsPath)),
+                        'medical_tiers',
+                        'medical_tiers.id',
+                        "{$tableName}.id"
+                    )
+                    ->selectRaw('medical_tiers.value, count(*) as count')
+                    ->groupBy('medical_tiers.value')
+                    ->orderBy('medical_tiers.value')
+                    ->get();
+            }
+
+            $out['max_medical_tier'] = FilterValues::fromRows(
+                collect($medicalTierRows),
+            );
+
             return $out;
         };
 
@@ -736,6 +779,33 @@ class VehicleController extends Controller
             }),
             AllowedFilter::callback('signature.em_shields', function (Builder $query, mixed $value): void {
                 $this->applyJsonFilter($query, 'Emission.EmShields', $value, 'numeric');
+            }),
+            AllowedFilter::callback('has_medical_beds', function (Builder $query, mixed $value): void {
+                $hasMedicalBeds = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                $column = $this->laravelJsonColumn(
+                    $this->getJsonTableName().'.'.$this->getJsonColumnName(),
+                    'Seating.MedicalBeds',
+                );
+
+                if ($hasMedicalBeds) {
+                    $query->whereNotNull($column);
+                } else {
+                    $query->whereNull($column);
+                }
+            }),
+            AllowedFilter::callback('max_medical_tier', function (Builder $query, mixed $value): void {
+                $driver = DB::connection()->getDriverName();
+                $tableName = $this->getJsonTableName();
+                $columnName = $this->getJsonColumnName();
+                $column = $this->laravelJsonColumn("{$tableName}.{$columnName}", 'Seating.MedicalBeds');
+
+                if ($driver === 'sqlite') {
+                    $query->where($column, 'like', '%{"Tier":"'.$value.'"%');
+                } else {
+                    $query->whereRaw("{$tableName}.{$columnName}->'Seating'->'MedicalBeds' @> ?::jsonb", [
+                        json_encode([['Tier' => $value]]),
+                    ]);
+                }
             }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {

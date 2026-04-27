@@ -23,6 +23,12 @@
 
 @section('content')
     @php
+        $booleanFilterOptions = [
+            ['value' => '', 'label' => 'All'],
+            ['value' => 'true', 'label' => 'Yes'],
+            ['value' => 'false', 'label' => 'No'],
+        ];
+
         $tableId = 'vehicles-table';
         $resolvedVersionCode = $selectedGameVersionCode ?? session('game_version_code') ?? request()->query('version');
         $versionParams = $resolvedVersionCode ? ['version' => $resolvedVersionCode] : [];
@@ -32,6 +38,7 @@
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
             'initialHeaderFilter' => $initialHeaderFilter,
+            'initialFilters' => $initialFilters,
             'columnDefaults' => [
                 'headerSortTristate' => true,
             ],
@@ -40,12 +47,16 @@
                 'size_class' => 'size',
                 'career' => 'career',
                 'role' => 'role',
-                'is_vehicle' => 'is_vehicle',
-                'is_gravlev' => 'is_gravlev',
-                'is_spaceship' => 'is_spaceship',
                 'shield.face_type' => 'shield.face_type',
+                'max_medical_tier' => 'max_medical_tier',
             ],
             'apiUrlTargetId' => 'vehicles-api-url',
+            'externalFilters' => [
+                ['title' => 'Ship', 'field' => 'is_spaceship', 'options' => $booleanFilterOptions],
+                ['title' => 'Ground Vehicle', 'field' => 'is_vehicle', 'options' => $booleanFilterOptions],
+                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'options' => $booleanFilterOptions],
+                ['title' => 'Medical Tier', 'field' => 'max_medical_tier'],
+            ],
             'columns' => [
                 ['title' => 'Name', 'field' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
                 ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
@@ -69,7 +80,7 @@
                     'title' => 'Cargo',
                     'columns' => [
                         ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'Cargo', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
-                        ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'Stowage', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
+                        ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'Stowage', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' μSCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
                     ],
                 ],
 
@@ -82,6 +93,8 @@
                         ['title' => 'Shield Face', 'field' => 'shield.face_type', 'sortField' => 'ShieldController.FaceType', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                     ],
                 ],
+
+                ['title' => 'Medical', 'field' => 'max_medical_tier', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 120],
 
                 [
                     'title' => 'Speed',
@@ -100,9 +113,9 @@
                     ],
                 ],
 
-                ['title' => 'Vehicle', 'field' => 'is_vehicle', 'sortField' => 'IsVehicle', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
-                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'sortField' => 'IsGravlev', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 110],
-                ['title' => 'Spaceship', 'field' => 'is_spaceship', 'sortField' => 'IsSpaceship', 'formatter' => 'tickCross', 'headerSort' => true, 'headerFilter' => 'list', 'width' => 120],
+                ['title' => 'Vehicle', 'field' => 'is_vehicle', 'sortField' => 'IsVehicle', 'headerSort' => true, 'visible' => false],
+                ['title' => 'Gravlev', 'field' => 'is_gravlev', 'sortField' => 'IsGravlev', 'headerSort' => true, 'visible' => false],
+                ['title' => 'Spaceship', 'field' => 'is_spaceship', 'sortField' => 'IsSpaceship', 'headerSort' => true, 'visible' => false],
 
                 [
                     'title' => 'Signature',

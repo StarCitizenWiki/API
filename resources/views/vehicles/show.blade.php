@@ -93,6 +93,10 @@
                         <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="parts" />
                         <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
                     </div>
+
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                        <x-vehicles.crew-medical-card :vehicle="$vehicle" />
+                    </div>
                 </div>
             </section>
 
