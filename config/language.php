@@ -15,9 +15,4 @@ return [
         'en',
         'zh',
     ],
-
-    'enable_galactapedia_language_links' => env('GALACTAPEDIA_LANGUAGE_LINKS', false),
-    'translate_wrap_galactapedia' => env('GALACTAPEDIA_TRANSLATE_WRAP', false),
-
-    'translate_wrap_commlinks' => env('COMMLINKS_TRANSLATE_WRAP', false),
 ];

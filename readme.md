@@ -1,438 +1,170 @@
-# Star Citizen API
+# Star Citizen Wiki API
 
-A Laravel-based API providing comprehensive access to Star Citizen game data, including vehicles, items, manufacturers, star systems, comm-links, and galactapedia entries. Features multi-language support (English, German, Chinese Simplified) with automated translation capabilities.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4.svg)](https://php.net)
+[![Laravel 13](https://img.shields.io/badge/Laravel-13-FF2D20.svg)](https://laravel.com)
+[![Docker Build](https://github.com/StarCitizenWiki/API/actions/workflows/docker.yml/badge.svg)](https://github.com/StarCitizenWiki/API/actions/workflows/docker.yml)
 
-## Key Features
+The Star Citizen Wiki / Tools API for Star Citizen game data – vehicles, items, manufacturers, star systems, missions, commodities, comm-links, and galactapedia entries.
 
-- **Complete Game Data**: Items, vehicles, manufacturers, tags, and specifications from unpacked game files
-- **Starmap Integration**: Full star system, celestial object, and jump point data
+Interactive **Swagger API documentation:** [docs.star-citizen.wiki](https://docs.star-citizen.wiki)
+
+
+## Quick Example
+
+```bash
+curl https://api.star-citizen.wiki/api/vehicles?filter[name]=Arrow
+```
+
+```json
+{
+  "data": [
+    {
+      "uuid": "...",
+      "name": "Arrow",
+      "class_name": "AEGS_Arrow",
+      "manufacturer": {
+        "name": "Aegis Dynamics",
+        "code": "AEGS"
+      },
+      "classification": "fighter",
+      "crew": 1,
+      "mass": 26357.0,
+      "cargo_capacity": 0.0
+    }
+  ]
+}
+```
+
+
+## Features
+
+- **Game Data**: Items, vehicles, manufacturers, missions, starmap locations, and specifications from [ScDataDumper](https://github.com/octfx/ScDataDumper) game files
+- **Starmap**: Star systems, celestial objects, and jump points
 - **Comm-Link Archive**: Automated downloading, importing, and translating of official RSI Comm-Links
-- **Galactapedia**: Synchronized galactapedia articles with translation support
-- **Ship Matrix & Pricing**: Daily updates of ship specifications, MSRP, and loaner information
-- **Multi-language Support**: English, German, and Chinese Simplified translations
-- **RESTful API**: Well-documented API endpoints for all data (see [docs.star-citizen.wiki](https://docs.star-citizen.wiki))
+- **Galactapedia**: Synchronized articles with translation support
+- **Ship Matrix & Pricing**: Daily updates of ship specifications, MSRP, and loaner data
+- **Multi-language**: English, German, and Chinese Simplified translations
+- **RESTful API**: Game-Versioned endpoints with filtering, sorting, and includes ([docs](https://docs.star-citizen.wiki))
 
----
 
-## Quick Start with Docker
+## Tech Stack
+
+| Component        | Technology                |
+|------------------|---------------------------|
+| Runtime          | PHP 8.4+                  |
+| Framework        | Laravel 13                |
+| Database         | PostgreSQL 16             |
+| Queue            | Database / Redis          |
+| Cache            | Database / Redis          |
+| Auth             | Laravel Sanctum + Fortify |
+| Translations     | DeepL API                 |
+| Search           | Spatie Query Builder      |
+| Containerization | Docker + Docker Compose   |
+
+
+## Quick Start
 
 ### Prerequisites
 
-- Docker 20.10+
+- [Docker](https://docs.docker.com/get-docker/)
 - Docker Compose 2.0+
 - Git
 
-### Installation Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/StarCitizenWiki/API.git
-   cd API
-   ```
-
-2. **Initialize git submodules**
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edit `.env` and configure at minimum:
-   - `APP_NAME`, `APP_KEY`, `APP_URL`
-   - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-   - `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (should match POSTGRES_* values)
-
-4. **Start all services**
-   ```bash
-   docker compose up -d
-   ```
-
-5. **Run initial setup**
-   ```bash
-   docker compose exec api php artisan key:generate
-   docker compose exec api php artisan migrate
-   docker compose exec api php artisan game:add-version --default <SC_UNPACKED_DATA_VERSION>
-   docker compose exec api php artisan db:seed
-   docker compose exec api php artisan game:sync
-   ```
-
-6. **Verify installation**
-
-   Visit [http://localhost:8080](http://localhost:8080) to access the API.
-
----
-
-## Environment Configuration
-
-Configure your `.env` file with the following variables. Priority indicators help you understand which variables are critical.
-
-**Priority Indicators:**
-- 🔴 **Required** - Must be set for the application to function
-- 🟡 **Important** - Should be configured for full functionality
-- ⚪ **Optional** - Has sensible defaults, configure as needed
-
-### Application Core
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `APP_NAME` | 🔴 | `Laravel` | Application name |
-| `APP_KEY` | 🔴 | *(generate)* | Encryption key - generate with `php artisan key:generate` |
-| `APP_ENV` | 🔴 | `local` | Environment: `local`, `production` |
-| `APP_URL` | 🔴 | `http://localhost` | Base URL for the application |
-| `APP_DEBUG` | 🔴 | `true` | Enable debug mode (set `false` in production) |
-| `APP_LOCALE` | ⚪ | `en` | Default language |
-| `APP_FALLBACK_LOCALE` | ⚪ | `en` | Fallback language |
-
-### Database - PostgreSQL
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `DB_CONNECTION` | 🔴 | `pgsql` | Database driver (must be `pgsql`) |
-| `DB_HOST` | 🔴 | `127.0.0.1` | Database host (`db` for Docker) |
-| `DB_PORT` | 🔴 | `5432` | PostgreSQL port |
-| `DB_DATABASE` | 🔴 | `api` | Database name |
-| `DB_USERNAME` | 🔴 | `root` | Database username |
-| `DB_PASSWORD` | 🔴 | *(empty)* | Database password |
-| `POSTGRES_DB` | 🔴 | *(match DB_DATABASE)* | PostgreSQL container database name |
-| `POSTGRES_USER` | 🔴 | *(match DB_USERNAME)* | PostgreSQL container username |
-| `POSTGRES_PASSWORD` | 🔴 | *(match DB_PASSWORD)* | PostgreSQL container password |
-
-### External Services
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `DEEPL_AUTH_KEY` | 🟡 | *(empty)* | DeepL API key for automated translations |
-| `DEEPL_TARGET_LOCALE` | ⚪ | `de` | Locale sent to DeepL for automated translations |
-| `DEEPL_TRANSLATION_LOCALE` | ⚪ | *(derived from `DEEPL_TARGET_LOCALE`)* | Translation key used when saving automated translations. Override this when the DeepL locale differs from the app locale key, for example `de_DE` -> `de` |
-
-### Authentication
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `SANCTUM_STATEFUL_DOMAINS` | ⚪ | `localhost` | Comma-separated domains for stateful API authentication |
-| `FORTIFY_ALLOW_REGISTRATION` | ⚪ | `true` | Allow user registration |
-
-### Infrastructure
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `QUEUE_CONNECTION` | ⚪ | `database` | Queue driver: `sync`, `database`, `redis` |
-| `CACHE_STORE` | ⚪ | `database` | Cache driver: `file`, `database`, `redis` |
-| `SESSION_DRIVER` | ⚪ | `database` | Session storage: `file`, `cookie`, `database`, `redis` |
-| `SESSION_LIFETIME` | ⚪ | `120` | Session lifetime in minutes |
-| `REDIS_HOST` | ⚪ | `127.0.0.1` | Redis server host |
-| `REDIS_PASSWORD` | ⚪ | `null` | Redis password |
-| `REDIS_PORT` | ⚪ | `6379` | Redis port |
-
-### Mail Configuration
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `MAIL_MAILER` | ⚪ | `log` | Mail driver: `smtp`, `sendmail`, `log` |
-| `MAIL_HOST` | ⚪ | `127.0.0.1` | SMTP host |
-| `MAIL_PORT` | ⚪ | `2525` | SMTP port |
-| `MAIL_USERNAME` | ⚪ | `null` | SMTP username |
-| `MAIL_PASSWORD` | ⚪ | `null` | SMTP password |
-| `MAIL_FROM_ADDRESS` | ⚪ | `hello@example.com` | Default "from" email address |
-| `MAIL_FROM_NAME` | ⚪ | `${APP_NAME}` | Default "from" name |
-
-### Logging
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `LOG_CHANNEL` | ⚪ | `stack` | Logging channel: `stack`, `single`, `daily` |
-| `LOG_LEVEL` | ⚪ | `debug` | Minimum log level: `debug`, `info`, `warning`, `error` |
-
-### Filesystem
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `FILESYSTEM_DISK` | ⚪ | `local` | Default filesystem disk: `local`, `public`, `s3` |
-| `AWS_ACCESS_KEY_ID` | ⚪ | *(empty)* | AWS access key (if using S3) |
-| `AWS_SECRET_ACCESS_KEY` | ⚪ | *(empty)* | AWS secret key (if using S3) |
-| `AWS_DEFAULT_REGION` | ⚪ | `us-east-1` | AWS region |
-| `AWS_BUCKET` | ⚪ | *(empty)* | S3 bucket name |
-
-### Data Migration - v2 to v3
-
-⚪ **Only required when migrating from v2 to v3**
-
-| Variable | Priority | Default | Description |
-|----------|----------|---------|-------------|
-| `MARIADB_HOST` | ⚪ | *(empty)* | MariaDB host for v2 migration |
-| `MARIADB_DATABASE` | ⚪ | *(empty)* | MariaDB database name |
-| `MARIADB_USERNAME` | ⚪ | *(empty)* | MariaDB username |
-| `MARIADB_PASSWORD` | ⚪ | *(empty)* | MariaDB password |
-
----
-
-## Custom Artisan Commands
-
-The API provides specialized Artisan commands for managing game data, comm-links, and translations.
-
-### User Management
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `user:add` | Create a new user | Interactive prompts for email, name, password |
-
-### Comm-Link Management
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `comm-link:download` | Download Comm-Links for the given IDs | `<ids>` - Comma-separated list of Comm-Link IDs |
-| `comm-link:import` | Import Comm-Link HTML from storage | Processes downloaded HTML files |
-| `comm-link:schedule` | Download missing Comm-Links and queue imports | Automated by scheduler |
-| `comm-link:download-new-versions` | Re-download and import existing Comm-Links | `--skip` - Skip certain operations |
-| `comm-link:translate` | Translate all untranslated Comm-Links using DeepL | Requires `DEEPL_AUTH_KEY` |
-| `comm-link:backfill-image-hashes` | Dispatch comm-link image hashing jobs | Processes images for deduplication |
-| `comm-link:backfill-counts` | Backfill comm-link images_count and links_count from pivot tables | `--chunk` - Process per chunk size, `--dry-run` - Preview changes |
-| `comm-link:compute-similar-image-ids` | Compute and mark similar/duplicate comm-link images | `--queue` - Queue name (default: expensive), `--recent` - Only recent images |
-
-### Game Data Management
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `game:add-version` | Add a new game version | `--default` - Set as default version |
-| `game:sync` | Sync manufacturers, tags, and optionally import items/vehicles | Runs multiple import commands |
-| `game:import-manufacturers` | Import game manufacturers from scunpacked data | Syncs manufacturer data |
-| `game:import-tags` | Import game entity tags from scunpacked data | Syncs classification tags |
-| `game:import-items` | Dispatch item import jobs for a specific game version | Imports weapons, components, etc. |
-| `game:import-vehicles` | Dispatch vehicle import jobs for a specific game version | Imports ships and ground vehicles |
-| `game:compute-item-base-ids` | Compute base_id values for item variants | Groups item variants |
-| `game:backfill-shipmatrix-ids` | Backfill shipmatrix_id for game_vehicle_data records | Links vehicles to ship matrix |
-| `game:review-vehicle-matches` | Interactively review and match unmatched game vehicles | Manual matching interface |
-
-### Vehicle/Ship Matrix
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `vehicles:import-ship-matrix` | Download and import the latest ship matrix | Syncs official ship specifications |
-| `vehicles:import-msrp` | Import all MSRPs from pledge store upgrade API | Updates ship pricing |
-| `vehicles:import-loaner` | Import all loaner ship mappings | Updates loaner relationships |
-
-### Starmap
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `starmap:sync` | Download and import the latest starmap | Syncs systems, objects, jump points |
-| `starmap:translate-systems` | Translate all star systems using DeepL | Requires `DEEPL_AUTH_KEY` |
-
-### Galactapedia
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `galactapedia:sync` | Sync galactapedia categories, articles, and properties | Downloads latest articles |
-| `galactapedia:translate` | Translate all available galactapedia articles | Requires `DEEPL_AUTH_KEY` |
-
-### Statistics
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `stats:sync` | Download and import funding statistics | Updates crowdfunding stats |
-
-### Data Migration
-
-| Command | Description | Common Options |
-|---------|-------------|----------------|
-| `data:migrate` | Migrate selected table groups from MariaDB to Postgres | `--all` - Migrate all tables |
-| `data:migrate-translations` | Migrate translations from relational tables to JSON columns | Run after `data:migrate` |
-
----
-
-## Docker Architecture
-
-The application uses a multi-container Docker architecture with specialized services.
-
-### Services Overview
-
-| Service | Role | Description |
-|---------|------|-------------|
-| `api` | Web Server | Serves the Laravel application via PHP-FPM and Nginx |
-| `scheduler` | Task Scheduler | Runs Laravel's scheduled tasks (cron replacement) |
-| `queue` | Default Queue Worker | Processes jobs from the `default` queue |
-| `queue_expensive` | Specialized Queue Worker | Processes `expensive` queue jobs |
-| `db` | Database | PostgreSQL 16 database server |
-
-### Container Roles
-
-The `CONTAINER_ROLE` environment variable determines what each container runs:
-
-- **`app`** - Starts PHP-FPM and Nginx to serve web requests
-- **`scheduler`** - Runs `php artisan schedule:work` to execute scheduled commands
-- **`queue`** - Runs `php artisan queue:work` to process queued jobs
-  - Customize with: `QUEUE_NAME`, `QUEUE_TRIES`, `QUEUE_MAX_JOBS`, `QUEUE_SLEEP`
-
-### Queue Architecture
-
-The application uses multiple queue workers for specialized workloads:
-
-- **Default Queue** (`queue` service): Handles general background jobs (imports, syncs, translations)
-- **Expensive Queue** (`queue_expensive` service): Dedicated to expensive tasks like image hashing and similarity computation
-
-### Volume Management
-
-Persistent data is stored in mounted volumes:
-
-- `./storage` - Laravel storage directory (logs, cache, uploaded files, API data submodules)
-- `./var/lib/db` - PostgreSQL data directory
-
-### Optional: Traefik Integration
-
-For production deployments with automatic HTTPS, use the Traefik configuration:
+### Installation
 
 ```bash
-docker compose -f compose.yaml -f compose.traefik.yaml up -d
+git clone https://github.com/StarCitizenWiki/API.git
+cd API
+git submodule update --init --recursive
+cp .env.example .env
 ```
 
-This enables automatic SSL certificate management and reverse proxy capabilities.
-
----
-
-## Scheduled Tasks
-
-The following commands run automatically via Laravel's scheduler (handled by the `scheduler` service in Docker).
-
-| Command | Schedule | Purpose |
-|---------|----------|---------|
-| `comm-link:schedule` | Every 15 minutes | Download missing Comm-Links and queue imports |
-| `comm-link:download-new-versions` | Yearly | Re-download all existing Comm-Links |
-| `stats:sync` | Daily at 20:00 | Update funding statistics |
-| `vehicles:import-ship-matrix` | Daily | Sync ship matrix data |
-| `vehicles:import-msrp` | Daily | Update ship pricing |
-| `vehicles:import-loaner` | Daily | Update loaner mappings |
-| `starmap:sync` | Monthly | Sync starmap data |
-| `galactapedia:sync` | Daily at 2:00 | Sync galactapedia articles |
-| `galactapedia:translate` | Daily at 3:00 | Translate galactapedia content |
-
-All scheduled tasks are defined in `routes/console.php`.
-
----
-
-## Migrating from v2
-
-Ensure that both MariaDB and PostgreSQL are installed and running on your server.
-
-MariaDB is configured using:
+Edit `.env` and set at minimum:
 
 ```dotenv
-MARIADB_HOST=
-MARIADB_DATABASE=
-MARIADB_USERNAME=
-MARIADB_PASSWORD=
+APP_NAME='Star Citizen API'
+APP_URL=http://localhost:8080
+
+DB_DATABASE=api
+DB_USERNAME=api
+DB_PASSWORD=secret
+
+POSTGRES_DB=api
+POSTGRES_USER=api
+POSTGRES_PASSWORD=secret
 ```
 
-Run these commands in order once. This will setup all migrations in postgres and migrate data from MariaDB to postgres.
+> The `DB_*` and `POSTGRES_*` values must match. For the full configuration reference, see [docs/configuration.md](docs/configuration.md).
+
+### Start Services
 
 ```bash
-php artisan db:wipe
-php artisan migrate
-php artisan game:add-version --default <SC_UNPACKED_DATA_VERSION>
-php artisan data:migrate --all
-php artisan db:seed
-php artisan game:sync
-php artisan starmap:sync
-
-# Let the job runner finish processing all jobs
-php artisan queue:work
-
-# After ALL jobs have finished
-php artisan data:migrate-translations
+docker compose up -d
+docker compose exec api php artisan key:generate
+docker compose exec api php artisan migrate
+docker compose exec api php artisan game:add-version --default <SC_UNPACKED_DATA_VERSION>
+docker compose exec api php artisan db:seed
+docker compose exec api php artisan game:sync
 ```
 
----
+Visit [http://localhost:8080](http://localhost:8080) to verify.
 
-## Third-Party Projects & Licenses
 
-This project integrates data and translations from the following external community projects:
+## Contributing
 
-### 1. StarCitizenDeutsch
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Make your changes and add tests
+4. Run the test suite (`php artisan test --compact`)
+5. Run the linter (`vendor/bin/pint --dirty`)
+6. Open a pull request
 
-**Repository:** https://github.com/rjcncpt/StarCitizen-Deutsch-INI
 
-**License:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International)
+## Documentation
 
-**Purpose:** Provides German language translations for Star Citizen game content, including items, vehicles, missions, and UI elements.
+| Document                                          | Description                                      |
+|---------------------------------------------------|--------------------------------------------------|
+| [API Reference](https://docs.star-citizen.wiki)   | Interactice swagger api endpoint documentation   |
+| [Configuration](docs/configuration.md)            | Environment variable reference                   |
+| [Artisan Commands](docs/commands.md)              | All custom commands and scheduled tasks          |
+| [Docker Guide](docs/docker.md)                    | Architecture, queues, volumes, and Traefik setup |
+| [v2 Migration](docs/migration-v2.md)              | Migrating from v2 to v3                          |
 
-**Integration:** Integrated as a git submodule at `storage/app/api/StarCitizenDeutsch/`. German translations are loaded from `global.ini` files during the item import process via the Labels service.
 
-**Attribution:** German translations are provided by the Star Citizen community translation team led by [rjcncpt](https://github.com/rjcncpt).
+## Third-Party Data & Attributions
 
----
+### StarCitizenDeutsch: German Translations
 
-### 2. ScToolBoxLocales
+**Source:** [rjcncpt/StarCitizen-Deutsch-INI](https://github.com/rjcncpt/StarCitizen-Deutsch-INI)
+**License:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-**Repository:** https://github.com/StarCitizenToolBox/LocalizationData
+German translations loaded from `global.ini` files during item import. Integrated as a git submodule at `storage/app/api/StarCitizenDeutsch/`.
 
-**License:** License not explicitly stated in the repository
+### ScToolBoxLocales: Chinese Simplified Translations
 
-**Purpose:** Provides Chinese Simplified language translations for Star Citizen game content maintained by the StarCitizenToolBox community.
+**Source:** [StarCitizenToolBox/LocalizationData](https://github.com/StarCitizenToolBox/LocalizationData)
 
-**Integration:** Located at `storage/app/api/ScToolBoxLocales/`. Chinese translations are loaded from `chinese_(simplified)/global.ini` during the item import process.
+Chinese Simplified translations maintained by the StarCitizenToolBox community. Located at `storage/app/api/ScToolBoxLocales/`.
 
-**Attribution:** Chinese translations are maintained by the StarCitizenToolBox organization and community contributors.
+### scunpacked-data: Game Data
 
----
+**Source:** [StarCitizenWiki/scunpacked-data](https://github.com/StarCitizenWiki/scunpacked-data)
 
-### 3. scunpacked-data
+Unpacked Star Citizen game data in JSON format: items, vehicles, manufacturers, labels, and tags. Primary data source for all game content imports. Located at `storage/app/api/scunpacked-data/`.
 
-**Repository:** https://github.com/StarCitizenWiki/scunpacked-data
+### Inspiration
 
-**License:** License not explicitly stated in the repository
+Datatables inspired by [spviewer.eu](https://spviewer.eu).
 
-**Purpose:** Contains unpacked and extracted Star Citizen game data in JSON format, including:
-- Item definitions (`items.json`)
-- Vehicle/ship data (`ships.json`)
-- Manufacturer information (`manufacturers.json`)
-- Translation labels (`labels.json`)
-- Tags and classifications (`tags.json`)
 
-**Integration:** Integrated as a separate repository at `storage/app/api/scunpacked-data/`. This is the primary data source for all game content imports, providing the raw game data that populates the API database.
+## License
 
-**Attribution:** Data extraction and maintenance by the Star Citizen Wiki community.
+This project is licensed under the [MIT License](LICENSE).
 
----
+German translations are &copy; Star Citizen Community Translation Team (rjcncpt and contributors), licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). ScToolBoxLocales and scunpacked-data are community-maintained; verify licensing independently for commercial use.
 
-## Inspiration
-
-The datatables used in this project are inspired by [spviewer.eu](https://spviewer.eu).
-
----
-
-## License Compliance
-
-### StarCitizenDeutsch (CC BY-NC-SA 4.0)
-
-This project uses German translations from StarCitizenDeutsch under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license. This means:
-
-- **Attribution (BY):** Credit must be given to the original creators
-- **NonCommercial (NC):** The material cannot be used for commercial purposes
-- **ShareAlike (SA):** Adaptations must be shared under the same license
-
-**Required Attribution:**
-German translations © Star Citizen Community Translation Team (rjcncpt and contributors)
-Licensed under CC BY-NC-SA 4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-### Other Projects
-
-ScToolBoxLocales and scunpacked-data do not have explicit license files in their repositories. These are community-maintained projects for the Star Citizen ecosystem. Users of this API should verify licensing requirements independently if using this data for commercial purposes.
-
----
-
-## Acknowledgments
-
-Special thanks to:
-- The **Star Citizen German Translation Team** for their comprehensive German localization work
-- The **StarCitizenToolBox** team for maintaining Chinese translations
-- All community contributors who make these resources available
-
----
 
 ## Legal Notice
 
-This project is a fan-made tool for the Star Citizen community and is not affiliated with or endorsed by Cloud Imperium Games or Roberts Space Industries. Star Citizen®, Roberts Space Industries®, and Cloud Imperium® are registered trademarks of Cloud Imperium Rights LLC and Cloud Imperium Rights Ltd.
-
-All game data and translations are used for informational and educational purposes only.
+This is a fan-made tool and is not affiliated with or endorsed by Cloud Imperium Games or Roberts Space Industries. Star Citizen&reg;, Roberts Space Industries&reg;, and Cloud Imperium&reg; are registered trademarks of Cloud Imperium Rights LLC and Cloud Imperium Rights Ltd. All game data and translations are used for informational and educational purposes only.
