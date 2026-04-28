@@ -418,7 +418,7 @@ describe('naming', function () {
         expect($variantNames)->toContain('Scorched', 'Red Alert', 'Lodestone');
     });
 
-    it('separates class-name sub-variants into distinct groups', function (): void {
+    it('groups texture variants with color variants via className prefix', function (): void {
         $base = ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -479,17 +479,10 @@ describe('naming', function () {
 
         $result = resolveRelatedItems($base);
 
+        expect($result['variant_items'])->toHaveCount(3);
+
         $variantUuids = collect($result['variant_items'])->pluck('uuid')->all();
-        expect($variantUuids)->not->toContain($sweater->item->uuid);
-
-        $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
-        expect($variantNames)->not->toContain('Davlos Shirt Night')
-            ->and($variantNames)->not->toContain('Davlos Shirt Mustard')
-            ->and($variantNames)->toContain('Night')
-            ->and($variantNames)->toContain('Mustard');
-
-        $sweaterResult = resolveRelatedItems($sweater);
-        expect($sweaterResult['variant_items'])->toHaveCount(0);
+        expect($variantUuids)->toContain($sweater->item->uuid);
     });
 
     it('derives set name from set items when variant group is absent', function (): void {

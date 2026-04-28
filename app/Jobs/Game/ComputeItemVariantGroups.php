@@ -14,6 +14,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ComputeItemVariantGroups implements ShouldQueue
 {
@@ -21,6 +24,10 @@ class ComputeItemVariantGroups implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    public int $tries = 3;
+
+    public int $timeout = 600;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -33,75 +40,69 @@ class ComputeItemVariantGroups implements ShouldQueue
         $this->computeVariantGroups($resolver);
     }
 
-    private function computeVariantGroups(ItemVariantResolver $resolver): void
+    public function failed(Throwable $exception): void
     {
-        VariantGroup::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->delete();
-
-        $processedIds = [];
-
-        ItemData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->with(['item', 'gameVersion'])
-            ->chunkById(250, function (Collection $items) use ($resolver, &$processedIds): void {
-                foreach ($items as $itemData) {
-                    if (isset($processedIds[$itemData->id])) {
-                        continue;
-                    }
-
-                    $group = array_values(array_filter(
-                        $this->resolveGroup($resolver, $itemData),
-                        fn (ItemData $member): bool => ! isset($processedIds[$member->id]),
-                    ));
-
-                    if (count($group) < 2) {
-                        $this->updateBaseId($itemData, null);
-
-                        continue;
-                    }
-
-                    $base = $this->resolveExistingBase($group) ?? $resolver->resolveBaseForGroup($group);
-
-                    foreach ($group as $member) {
-                        $processedIds[$member->id] = true;
-                    }
-
-                    $this->persistGroup($group, $base);
-                }
-
-                $resolver->clearCaches();
-            });
+        Log::error('Compute item variant groups job failed', [
+            'game_version_id' => $this->gameVersionId,
+            'message' => $exception->getMessage(),
+        ]);
     }
 
-    /**
-     * If any items in the group already have base_id set, find the existing base.
-     * The base is the item whose ID is referenced by others' base_id, or the
-     * item with base_id = null if it's the only one.
-     *
-     * @param  array<int, ItemData>  $group
-     */
-    private function resolveExistingBase(array $group): ?ItemData
+    private function computeVariantGroups(ItemVariantResolver $resolver): void
     {
-        $byId = collect($group)->keyBy('id');
-        $baseIdCounts = [];
-        $nullBaseIdMember = null;
+        DB::transaction(function () use ($resolver): void {
+            $hadPreviousGroups = VariantGroup::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->exists();
 
-        foreach ($group as $member) {
-            if ($member->base_id !== null && $byId->has($member->base_id)) {
-                $baseIdCounts[$member->base_id] = ($baseIdCounts[$member->base_id] ?? 0) + 1;
-            } elseif ($member->base_id === null && $nullBaseIdMember === null) {
-                $nullBaseIdMember = $member;
+            VariantGroup::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->delete();
+
+            if ($hadPreviousGroups) {
+                ItemData::query()
+                    ->where('game_version_id', $this->gameVersionId)
+                    ->update(['base_id' => null]);
             }
-        }
 
-        if ($baseIdCounts !== []) {
-            arsort($baseIdCounts);
+            $processedIds = [];
 
-            return $byId[array_key_first($baseIdCounts)];
-        }
+            ItemData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->with(['item', 'gameVersion'])
+                ->chunkById(250, function (Collection $items) use ($resolver, &$processedIds): void {
+                    foreach ($items as $itemData) {
+                        if (isset($processedIds[$itemData->id])) {
+                            continue;
+                        }
 
-        return $nullBaseIdMember;
+                        if ($resolver->isExcludedItem($itemData)) {
+                            continue;
+                        }
+
+                        $group = array_values(array_filter(
+                            $this->resolveGroup($resolver, $itemData),
+                            fn (ItemData $member): bool => ! isset($processedIds[$member->id]),
+                        ));
+
+                        if (count($group) < 2) {
+                            $this->updateBaseId($itemData, null);
+
+                            continue;
+                        }
+
+                        $base = $resolver->resolveBaseForGroup($group);
+
+                        foreach ($group as $member) {
+                            $processedIds[$member->id] = true;
+                        }
+
+                        $this->persistGroup($resolver, $group, $base);
+                    }
+
+                    $resolver->clearCaches();
+                });
+        });
     }
 
     private function resolveGroup(ItemVariantResolver $resolver, ItemData $itemData): array
@@ -126,6 +127,14 @@ class ComputeItemVariantGroups implements ShouldQueue
             }
         }
 
+        if ($itemData->classification === 'Ship.Paints') {
+            $paintGroup = $resolver->findVariantGroupFromPaint($itemData);
+
+            if (count($paintGroup) > 1) {
+                return $paintGroup;
+            }
+        }
+
         $tagGroup = $resolver->findVariantGroupFromTags($itemData);
 
         if (count($tagGroup) > 1) {
@@ -141,15 +150,19 @@ class ComputeItemVariantGroups implements ShouldQueue
         return [$itemData];
     }
 
-    private function persistGroup(array $group, ItemData $base): void
+    private function persistGroup(ItemVariantResolver $resolver, array $group, ItemData $base): void
     {
-        $names = array_map(fn (ItemData $item): string => $item->name ?? '', $group);
+        $setName = $resolver->resolveSetNameFromEntityTags($group);
 
-        [$setName, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames(
-            $names,
-            ['uuid' => $base->item->uuid ?? '', 'name' => $base->name ?? ''],
-            array_map(fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group)
-        );
+        $names = array_map(fn (ItemData $item): string => $item->name ?? '', $group);
+        $baseInfo = ['uuid' => $base->item->uuid ?? '', 'name' => $base->name ?? ''];
+        $groupInfo = array_map(fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group);
+
+        if ($setName === null) {
+            [$setName, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
+        } else {
+            [, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
+        }
 
         $variantGroup = VariantGroup::query()->create([
             'game_version_id' => $this->gameVersionId,
