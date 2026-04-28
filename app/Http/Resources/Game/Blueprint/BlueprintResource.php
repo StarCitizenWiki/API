@@ -329,7 +329,8 @@ class BlueprintResource extends AbstractBaseResource
 
     private function shouldIncludeDetailFields(Request $request): bool
     {
-        return $request->routeIs('blueprints.show');
+        return $request->routeIs('blueprints.show')
+            || $this->resource->relationLoaded('missions');
     }
 
     /**

@@ -738,8 +738,13 @@ it('returns full blueprint data when include=blueprints is requested on show rou
     expect($response->json('data.blueprint.0'))->toHaveKey('dismantle_returns');
     expect($response->json('data.blueprint.0'))->toHaveKey('output');
     expect($response->json('data.blueprint.0'))->toHaveKey('link');
-    expect($response->json('data.blueprint.0'))->not->toHaveKey('dismantle');
-    expect($response->json('data.blueprint.0'))->not->toHaveKey('requirement_groups');
+    expect($response->json('data.blueprint.0'))->toHaveKey('dismantle');
+    expect($response->json('data.blueprint.0'))->toHaveKey('requirement_groups');
+    expect($response->json('data.blueprint.0'))->toHaveKey('summary_properties');
+    expect($response->json('data.blueprint.0'))->toHaveKey('unlocking_missions');
+    expect($response->json('data.blueprint.0'))->toHaveKey('tiers');
+    expect($response->json('data.blueprint.0.unlocking_missions'))->toBe([]);
+    expect($response->json('data.blueprint.0.tiers'))->toBe([]);
 });
 
 it('returns link-only blueprint data without include=blueprints', function (): void {

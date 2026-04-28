@@ -501,7 +501,12 @@ class ItemController extends Controller
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
-            new OA\Parameter(ref: '#/components/parameters/include'),
+            new OA\Parameter(
+                name: 'include',
+                description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), shops (shop availability data), shops.items (shop items).',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'blueprints')
+            ),
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(
                 name: 'identifier',

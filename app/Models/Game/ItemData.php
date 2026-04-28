@@ -438,7 +438,8 @@ class ItemData extends Model
                 ->orderBy('game_blueprint_data.blueprint_id');
 
             if ($full) {
-                $query->with(['blueprint', 'gameVersion', 'ingredients', 'dismantleReturns']);
+                $query->with(['blueprint', 'gameVersion', 'ingredients', 'dismantleReturns', 'missions.mission'])
+                    ->withCount('missions');
             } else {
                 $query->with('blueprint:id,uuid');
             }
