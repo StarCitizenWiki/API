@@ -1380,7 +1380,12 @@ paths:
         -
           $ref: '#/components/parameters/locale'
         -
-          $ref: '#/components/parameters/include'
+          name: include
+          in: query
+          description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), shops (shop availability data), shops.items (shop items).'
+          schema:
+            type: string
+            example: blueprints
         -
           $ref: '#/components/parameters/version'
         -
@@ -1733,7 +1738,7 @@ paths:
         - In-Game
         - Missions
       summary: 'List Game Missions'
-      description: 'Returns paginated missions for the requested or default game version, excluding unreleased and work-in-progress by default. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.'
+      description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.'
       operationId: 209d50edcdf13365e8eb791b4368dc87
       parameters:
         -
@@ -1864,12 +1869,6 @@ paths:
           schema:
             type: string
         -
-          name: 'filter[include_unreleased]'
-          in: query
-          description: 'Include unreleased and work-in-progress missions'
-          schema:
-            type: boolean
-        -
           name: 'filter[reward_scope]'
           in: query
           description: 'Mission category scope. (see GET /api/missions/filters for valid values)'
@@ -1946,7 +1945,7 @@ paths:
         - In-Game
         - Missions
       summary: 'Get Mission Filter Options'
-      description: 'Returns available filter facets for missions, scoped to the requested or default game version. Excludes unreleased and WIP missions by default.'
+      description: 'Returns available filter facets for missions, scoped to the requested or default game version.'
       operationId: c1bb2317bbefee1d18ecf19d0999eac0
       parameters:
         -
@@ -13112,6 +13111,10 @@ components:
           nullable: true
         available_in_prison:
           type: boolean
+        not_for_release:
+          type: boolean
+        work_in_progress:
+          type: boolean
         reputation_gained:
           type: array
           items:
@@ -13266,6 +13269,10 @@ components:
         once_only:
           type: boolean
         available_in_prison:
+          type: boolean
+        not_for_release:
+          type: boolean
+        work_in_progress:
           type: boolean
         has_combat:
           type: boolean
@@ -15172,6 +15179,42 @@ components:
               nullable: true
           type: object
           nullable: true
+        max_medical_tier:
+          description: 'Highest medical bed tier available (e.g., "T2", "T3"). Null if no medical beds.'
+          type: string
+          example: T3
+          nullable: true
+        seating:
+          description: 'Seating and bed summary.'
+          properties:
+            crew_stations:
+              description: 'Total number of crew stations.'
+              type: integer
+              example: 14
+            ejection_seats:
+              description: 'Number of ejection seats.'
+              type: integer
+              example: 1
+            escape_pods:
+              description: 'Number of escape pods. Null when absent.'
+              type: integer
+              example: 4
+              nullable: true
+            jump_seats:
+              description: 'Number of jump seats. Null when absent.'
+              type: integer
+              example: 4
+              nullable: true
+            beds:
+              description: 'Total number of beds.'
+              type: integer
+              example: 22
+            medical_beds:
+              description: 'Medical bed counts by tier. Null if no medical beds.'
+              type: object
+              example: '{"T2": 1, "T3": 4}'
+              nullable: true
+          type: object
         is_vehicle:
           type: boolean
           example: false
