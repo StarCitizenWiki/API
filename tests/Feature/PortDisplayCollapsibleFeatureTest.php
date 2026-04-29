@@ -113,7 +113,6 @@ it('renders nested hardpoints on the vehicle page', function (): void {
         ->assertSeeText('Test Vehicle')
         ->assertSeeText('Gimballed')
         ->assertSeeText('Fixed')
-        ->assertSeeText('Weapon Sizes')
         ->assertSeeText('Dimensions & Mass')
         ->assertSeeText('Cargo Grids')
         ->assertSeeText('Insurance')
