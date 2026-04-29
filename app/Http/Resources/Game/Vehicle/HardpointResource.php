@@ -25,6 +25,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'health', description: 'Port health points.', type: 'number', example: 300, nullable: true),
         new OA\Property(property: 'type', description: 'Port type (e.g. WeaponGun, Shield, PowerPlant).', type: 'string', example: 'LifeSupportGenerator', nullable: true),
         new OA\Property(property: 'sub_type', description: 'Port sub-type identifier.', type: 'string', example: 'UNDEFINED', nullable: true),
+        new OA\Property(property: 'pilot_slaveable', description: 'Whether the port can be slaved to a pilot.', type: 'boolean', nullable: true),
         new OA\Property(property: 'item', ref: '#/components/schemas/game_vehicle_hardpoint_item', description: 'Equipped item details, resolved from the game database.', nullable: true),
         new OA\Property(
             property: 'children',
@@ -71,6 +72,7 @@ class HardpointResource extends AbstractBaseResource
             'health' => $health,
             'type' => $type,
             'sub_type' => $subtype,
+            'pilot_slaveable' => Arr::get($this, 'IsPilotSlaveable'),
         ];
 
         if ($resolvedItem !== null) {

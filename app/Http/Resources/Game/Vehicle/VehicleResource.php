@@ -138,6 +138,58 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'max_reallocation', description: 'Maximum shield reallocation ratio (0–1).', type: 'number', example: 0.5, nullable: true),
                 new OA\Property(property: 'reconfiguration_cooldown', description: 'Cooldown time for shield reconfiguration in seconds.', type: 'number', example: 2.0, nullable: true),
                 new OA\Property(property: 'max_electrical_charge_damage_rate', description: 'Maximum electrical charge damage rate.', type: 'number', example: 100, nullable: true),
+                new OA\Property(property: 'resistance', description: 'Shield resistance values by damage type.', properties: [
+                    new OA\Property(property: 'physical', description: 'Physical shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'energy', description: 'Energy shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'distortion', description: 'Distortion shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'thermal', description: 'Thermal shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'biochemical', description: 'Biochemical shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'stun', description: 'Stun shield resistance.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                ], type: 'object', nullable: true),
+                new OA\Property(property: 'absorption', description: 'Shield absorption values by damage type.', properties: [
+                    new OA\Property(property: 'physical', description: 'Physical shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'energy', description: 'Energy shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'distortion', description: 'Distortion shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'thermal', description: 'Thermal shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'biochemical', description: 'Biochemical shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                    new OA\Property(property: 'stun', description: 'Stun shield absorption.', properties: [
+                        new OA\Property(property: 'minimum', type: 'number', nullable: true),
+                        new OA\Property(property: 'maximum', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                ], type: 'object', nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -283,6 +335,14 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'biochemical', description: 'Biochemical damage multiplier.', type: 'number', example: 1, nullable: true),
                     new OA\Property(property: 'stun', description: 'Stun damage multiplier.', type: 'number', example: 0, nullable: true),
                 ], type: 'object', nullable: true),
+                new OA\Property(property: 'deflection', description: 'Armor deflection values by damage type.', properties: [
+                    new OA\Property(property: 'physical', description: 'Physical deflection.', type: 'number', example: 24, nullable: true),
+                    new OA\Property(property: 'energy', description: 'Energy deflection.', type: 'number', example: 13, nullable: true),
+                    new OA\Property(property: 'distortion', description: 'Distortion deflection.', type: 'number', example: 0, nullable: true),
+                    new OA\Property(property: 'thermal', description: 'Thermal deflection.', type: 'number', example: 0, nullable: true),
+                    new OA\Property(property: 'biochemical', description: 'Biochemical deflection.', type: 'number', example: 0, nullable: true),
+                    new OA\Property(property: 'stun', description: 'Stun deflection.', type: 'number', example: 0, nullable: true),
+                ], type: 'object', nullable: true),
                 new OA\Property(property: 'resistance_multipliers', description: 'Resistance multipliers by damage type.', properties: [
                     new OA\Property(property: 'physical', description: 'Physical resistance multiplier.', type: 'number', example: 0.001, nullable: true),
                     new OA\Property(property: 'energy', description: 'Energy resistance multiplier.', type: 'number', example: 0.001, nullable: true),
@@ -304,6 +364,79 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
+        new OA\Property(
+            property: 'propulsion',
+            description: 'Vehicle propulsion thruster data.',
+            properties: [
+                new OA\Property(
+                    property: 'thrusters',
+                    description: 'Array of thruster groups by type.',
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'type', description: 'Thruster type (Main, Maneuver, Retro, etc).', type: 'string', example: 'Main'),
+                            new OA\Property(property: 'count', description: 'Number of thrusters of this type.', type: 'integer', example: 1),
+                            new OA\Property(property: 'capacity', description: 'Thruster capacity.', type: 'number', example: 8.65, nullable: true),
+                            new OA\Property(property: 'g', description: 'G-force rating.', type: 'number', example: 14.19, nullable: true),
+                        ],
+                        type: 'object'
+                    ),
+                ),
+                new OA\Property(
+                    property: 'thrust_capacity',
+                    description: 'Directional thrust capacity values.',
+                    properties: [
+                        new OA\Property(property: 'main', description: 'Main engine thrust in Newtons.', type: 'number', example: 3566000, nullable: true),
+                        new OA\Property(property: 'retro', description: 'Retro thruster thrust in Newtons.', type: 'number', example: 890000, nullable: true),
+                        new OA\Property(property: 'vtol', description: 'VTOL thruster thrust in Newtons.', type: 'number', example: 0, nullable: true),
+                        new OA\Property(property: 'maneuvering', description: 'Maneuvering thruster thrust in Newtons.', type: 'number', example: 1200000, nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'weaponry',
+            description: 'Computed weapon DPS and damage statistics from scunpacked.',
+            properties: [
+                new OA\Property(property: 'pilot_dps', description: 'Total pilot weapon DPS.', type: 'number', example: 1200.5, nullable: true),
+                new OA\Property(property: 'pilot_alpha', description: 'Total pilot weapon alpha damage.', type: 'number', example: 350.0, nullable: true),
+                new OA\Property(property: 'pilot_sustained_dps', description: 'Total pilot weapon sustained DPS.', type: 'number', example: 980.0, nullable: true),
+                new OA\Property(property: 'turret_dps', description: 'Total turret weapon DPS.', type: 'number', nullable: true),
+                new OA\Property(property: 'turret_alpha', description: 'Total turret weapon alpha damage.', type: 'number', nullable: true),
+                new OA\Property(property: 'turret_sustained_dps', description: 'Total turret weapon sustained DPS.', type: 'number', nullable: true),
+                new OA\Property(property: 'fixed_weapons', description: 'Fixed weapon aggregate stats.', properties: [
+                    new OA\Property(property: 'dps_total', type: 'number', nullable: true),
+                    new OA\Property(property: 'sustained_dps_total', type: 'number', nullable: true),
+                    new OA\Property(property: 'alpha_total', type: 'number', nullable: true),
+                    new OA\Property(property: 'weapons', type: 'array', items: new OA\Items(properties: [
+                        new OA\Property(property: 'name', type: 'string', nullable: true),
+                        new OA\Property(property: 'dps', type: 'number', nullable: true),
+                        new OA\Property(property: 'sustained_dps', type: 'number', nullable: true),
+                        new OA\Property(property: 'alpha', type: 'number', nullable: true),
+                    ], type: 'object'), nullable: true),
+                ], type: 'object', nullable: true),
+                new OA\Property(property: 'missiles', description: 'Missile statistics.', properties: [
+                    new OA\Property(property: 'count', type: 'integer', example: 4, nullable: true),
+                    new OA\Property(property: 'damage', properties: [
+                        new OA\Property(property: 'physical', type: 'number', nullable: true),
+                        new OA\Property(property: 'energy', type: 'number', nullable: true),
+                        new OA\Property(property: 'distortion', type: 'number', nullable: true),
+                        new OA\Property(property: 'thermal', type: 'number', nullable: true),
+                        new OA\Property(property: 'biochemical', type: 'number', nullable: true),
+                        new OA\Property(property: 'stun', type: 'number', nullable: true),
+                        new OA\Property(property: 'total', type: 'number', nullable: true),
+                    ], type: 'object', nullable: true),
+                ], type: 'object', nullable: true),
+                new OA\Property(property: 'total_missile_damage', description: 'Total missile damage.', type: 'integer', example: 8, nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+
         new OA\Property(
             property: 'insurance',
             description: 'Insurance claim times and expedite costs.',
@@ -673,7 +806,7 @@ class VehicleResource extends AbstractBaseResource
 
         $mannedTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'MannedTurrets', []), 'manned');
         $remoteTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'RemoteTurrets', []), 'remote');
-        $pdcTurrets = $this->buildPdcTurretEntries($this->extractFromVehicleJson($vehicleData, 'Loadout', []));
+        $pdcTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'PdcTurrets', []), 'pdc');
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -755,6 +888,8 @@ class VehicleResource extends AbstractBaseResource
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
                 'max_electrical_charge_damage_rate' => Arr::get($payload, 'ShieldController.MaxElectricalChargeDamageRate'),
+                'resistance' => $this->buildDamageTypeRange($vehicleData, 'ShieldsTotal.Resistance'),
+                'absorption' => $this->buildDamageTypeRange($vehicleData, 'ShieldsTotal.Absorption'),
             ],
 
             $this->mergeWhen(
@@ -783,11 +918,19 @@ class VehicleResource extends AbstractBaseResource
             ],
 
             'fuel' => $this->buildFuel($vehicleData, $payload),
+            'propulsion' => $this->buildPropulsion($vehicleData),
             'quantum' => $this->buildQuantum($vehicleData),
 
             'agility' => $this->buildAgility($flight),
 
             'armor' => $this->buildArmor($vehicleData),
+
+            $this->mergeWhen(
+                $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotDps') !== null
+                || $this->extractFromVehicleJson($vehicleData, 'Weaponry.FixedWeapons') !== null
+                || $this->extractFromVehicleJson($vehicleData, 'Weaponry.Missiles') !== null,
+                fn () => ['weaponry' => $this->buildWeaponry($vehicleData)]
+            ),
 
             'manufacturer' => new ManufacturerLinkResource($vehicleData->manufacturer),
             'size_class' => $vehicleData->size ?? Arr::get($payload, 'Size'),
@@ -999,155 +1142,6 @@ class VehicleResource extends AbstractBaseResource
             ->all();
     }
 
-    /**
-     * @param  array<int, mixed>  $loadout
-     * @return array<int, array<string, mixed>>
-     */
-    private function buildPdcTurretEntries(array $loadout): array
-    {
-        return collect($loadout)
-            ->filter(static fn (mixed $entry): bool => is_array($entry))
-            ->flatMap(fn (array $entry): array => $this->collectPdcTurretEntries($entry))
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     * @return array<int, array<string, mixed>>
-     */
-    private function collectPdcTurretEntries(array $entry): array
-    {
-        $entries = [];
-
-        if ($this->isPdcTurretEntry($entry)) {
-            $entries[] = $this->normalizePdcTurretEntry($entry);
-        }
-
-        foreach (Arr::get($entry, 'Loadout', []) as $child) {
-            if (! is_array($child)) {
-                continue;
-            }
-
-            $entries = [...$entries, ...$this->collectPdcTurretEntries($child)];
-        }
-
-        return $entries;
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     */
-    private function isPdcTurretEntry(array $entry): bool
-    {
-        [$type, $subtype] = $this->splitLoadoutType(Arr::get($entry, 'Type'));
-
-        return $type === 'Turret' && $subtype === 'PDCTurret';
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     * @return array<string, mixed>
-     */
-    private function normalizePdcTurretEntry(array $entry): array
-    {
-        $mounts = $this->buildPdcTurretMounts(Arr::get($entry, 'Loadout', []));
-
-        return array_filter([
-            'Category' => 'pdc',
-            'DisplayName' => Arr::get($entry, 'Name', Arr::get($entry, 'HardpointName')),
-            'Size' => Arr::get($entry, 'MaxSize', Arr::get($entry, 'MinSize', Arr::get($entry, 'Size'))),
-            'Turret' => true,
-            'HardpointName' => Arr::get($entry, 'HardpointName'),
-            'PartName' => Arr::get($entry, 'HardpointName'),
-            'TurretType' => Arr::get($entry, 'Type'),
-            'TurretClassName' => Arr::get($entry, 'ClassName'),
-            'MountCount' => $mounts === [] ? null : count($mounts),
-            'WeaponSizes' => $this->collectUniqueMountValues($mounts, 'WeaponSizes'),
-            'PayloadSizes' => $this->collectUniqueMountValues($mounts, 'PayloadSizes'),
-            'PayloadTypes' => $this->collectUniqueMountValues($mounts, 'PayloadTypes'),
-            'PayloadClassNames' => $this->collectUniqueMountValues($mounts, 'PayloadClassNames'),
-            'Mounts' => $mounts,
-        ], static fn (mixed $value): bool => $value !== null && $value !== []);
-    }
-
-    /**
-     * @param  array<int, mixed>  $loadout
-     * @return array<int, array<string, mixed>>
-     */
-    private function buildPdcTurretMounts(array $loadout): array
-    {
-        return collect($loadout)
-            ->filter(static fn (mixed $entry): bool => is_array($entry))
-            ->filter(fn (array $entry): bool => $this->isRelevantPdcMountEntry($entry))
-            ->map(fn (array $entry): array => $this->normalizePdcTurretMount($entry))
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     */
-    private function isRelevantPdcMountEntry(array $entry): bool
-    {
-        [$type] = $this->splitLoadoutType(Arr::get($entry, 'Type'));
-
-        return in_array($type, ['BombRack', 'MissileLauncher', 'Turret', 'WeaponGun'], true);
-    }
-
-    /**
-     * @param  array<string, mixed>  $entry
-     * @return array<string, mixed>
-     */
-    private function normalizePdcTurretMount(array $entry): array
-    {
-        $size = Arr::get($entry, 'MaxSize', Arr::get($entry, 'MinSize', Arr::get($entry, 'Size')));
-        $payloadType = Arr::get($entry, 'Type');
-        $payloadClassName = Arr::get($entry, 'ClassName');
-
-        return array_filter([
-            'DisplayName' => Arr::get($entry, 'Name', Arr::get($entry, 'HardpointName')),
-            'HardpointName' => Arr::get($entry, 'HardpointName'),
-            'MountType' => $payloadType,
-            'MountClassName' => $payloadClassName,
-            'Size' => $size,
-            'WeaponSizes' => $size === null ? [] : [$size],
-            'PayloadSizes' => $size === null ? [] : [$size],
-            'PayloadTypes' => $payloadType === null ? [] : [$payloadType],
-            'PayloadClassNames' => $payloadClassName === null ? [] : [$payloadClassName],
-        ], static fn (mixed $value): bool => $value !== null && $value !== []);
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $mounts
-     * @return array<int, int|string>
-     */
-    private function collectUniqueMountValues(array $mounts, string $key): array
-    {
-        return collect($mounts)
-            ->flatMap(static fn (array $mount): array => array_values(array_filter(
-                Arr::wrap(Arr::get($mount, $key, [])),
-                static fn (mixed $value): bool => is_int($value) || is_string($value)
-            )))
-            ->uniqueStrict()
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @return array{0: string|null, 1: string|null}
-     */
-    private function splitLoadoutType(mixed $type): array
-    {
-        if (! is_string($type) || $type === '') {
-            return [null, null];
-        }
-
-        $parts = explode('.', $type, 2);
-
-        return [$parts[0] ?? null, $parts[1] ?? null];
-    }
-
     private function buildWebUrl(Request $request): string
     {
         return $this->urlWithVersion(
@@ -1197,12 +1191,12 @@ class VehicleResource extends AbstractBaseResource
                 'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Stun'),
             ],
             'resistance_multipliers' => [
-                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Physical'),
-                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Energy'),
-                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Distortion'),
-                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Thermal'),
-                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Biochemical'),
-                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultiplier.Stun'),
+                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Physical'),
+                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Energy'),
+                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Distortion'),
+                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Thermal'),
+                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Biochemical'),
+                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Stun'),
             ],
             'penetration_resistance' => [
                 'base' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Base'),
@@ -1212,6 +1206,14 @@ class VehicleResource extends AbstractBaseResource
                 'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Thermal'),
                 'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Biochemical'),
                 'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Stun'),
+            ],
+            'deflection' => [
+                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Physical'),
+                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Energy'),
+                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Distortion'),
+                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Thermal'),
+                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Biochemical'),
+                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Stun'),
             ],
         ];
     }
@@ -1404,5 +1406,106 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return collect($medicalBeds)->pluck('Count', 'Tier')->all();
+    }
+
+    /**
+     * Build damage-type range data (minimum/maximum per type).
+     * Used for shield resistance and absorption.
+     *
+     * @return array<string, array{minimum: mixed, maximum: mixed}>
+     */
+    private function buildDamageTypeRange(VehicleData $vehicleData, string $path): array
+    {
+        $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
+
+        $result = [];
+        foreach ($damageTypes as $type) {
+            $result[strtolower($type)] = [
+                'minimum' => $this->extractFromVehicleJson($vehicleData, "{$path}.{$type}.Minimum"),
+                'maximum' => $this->extractFromVehicleJson($vehicleData, "{$path}.{$type}.Maximum"),
+            ];
+        }
+
+        return $result;
+    }
+
+    private function buildPropulsion(VehicleData $vehicleData): array
+    {
+        $thrusters = $this->extractFromVehicleJson($vehicleData, 'Propulsion.Thrusters', []);
+
+        $thrustCapacityRaw = $this->extractFromVehicleJson($vehicleData, 'Propulsion.ThrustCapacity');
+        $thrustCapacity = null;
+        if (is_array($thrustCapacityRaw)) {
+            $thrustCapacity = array_filter([
+                'main' => Arr::get($thrustCapacityRaw, 'Main'),
+                'retro' => Arr::get($thrustCapacityRaw, 'Retro'),
+                'vtol' => Arr::get($thrustCapacityRaw, 'Vtol'),
+                'maneuvering' => Arr::get($thrustCapacityRaw, 'Maneuvering'),
+            ], static fn (mixed $value): bool => $value !== null);
+
+            if ($thrustCapacity === []) {
+                $thrustCapacity = null;
+            }
+        }
+
+        return [
+            'thrusters' => array_map(static fn (array $thruster): array => [
+                'type' => Arr::get($thruster, 'Type'),
+                'count' => Arr::get($thruster, 'Count'),
+                'capacity' => Arr::get($thruster, 'Capacity'),
+                'g' => Arr::get($thruster, 'G'),
+            ], $thrusters),
+            'thrust_capacity' => $thrustCapacity,
+        ];
+    }
+
+    private function buildWeaponry(VehicleData $vehicleData): array
+    {
+        $result = array_filter([
+            'pilot_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotDps'),
+            'pilot_alpha' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotAlpha'),
+            'pilot_sustained_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotSustainedDps'),
+            'turret_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretDps'),
+            'turret_alpha' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretAlpha'),
+            'turret_sustained_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretSustainedDps'),
+        ], static fn (mixed $value): bool => $value !== null);
+
+        $fixedWeapons = $this->extractFromVehicleJson($vehicleData, 'Weaponry.FixedWeapons');
+        if (is_array($fixedWeapons)) {
+            $result['fixed_weapons'] = [
+                'dps_total' => Arr::get($fixedWeapons, 'DpsTotal'),
+                'sustained_dps_total' => Arr::get($fixedWeapons, 'SustainedDpsTotal'),
+                'alpha_total' => Arr::get($fixedWeapons, 'AlphaTotal'),
+                'weapons' => array_map(static fn (array $weapon): array => [
+                    'name' => Arr::get($weapon, 'Name'),
+                    'dps' => Arr::get($weapon, 'Dps'),
+                    'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
+                    'alpha' => Arr::get($weapon, 'Alpha'),
+                ], Arr::get($fixedWeapons, 'Weapons', [])),
+            ];
+        }
+
+        $missiles = $this->extractFromVehicleJson($vehicleData, 'Weaponry.Missiles');
+        if (is_array($missiles)) {
+            $result['missiles'] = [
+                'count' => Arr::get($missiles, 'Count'),
+                'damage' => [
+                    'physical' => Arr::get($missiles, 'Damage.Physical'),
+                    'energy' => Arr::get($missiles, 'Damage.Energy'),
+                    'distortion' => Arr::get($missiles, 'Damage.Distortion'),
+                    'thermal' => Arr::get($missiles, 'Damage.Thermal'),
+                    'biochemical' => Arr::get($missiles, 'Damage.Biochemical'),
+                    'stun' => Arr::get($missiles, 'Damage.Stun'),
+                    'total' => Arr::get($missiles, 'Damage.Total'),
+                ],
+            ];
+        }
+
+        $totalMissiles = $this->extractFromVehicleJson($vehicleData, 'Weaponry.TotalMissiles');
+        if ($totalMissiles !== null) {
+            $result['total_missile_damage'] = $totalMissiles;
+        }
+
+        return $result;
     }
 }

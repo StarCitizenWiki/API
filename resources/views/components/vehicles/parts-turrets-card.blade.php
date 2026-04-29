@@ -58,21 +58,9 @@
             'subtitle' => $subtitle,
         ];
     };
-    $weaponSizeLabel = static function (array $weaponSizes): ?string {
-        $sizes = collect($weaponSizes)
-            ->filter(static fn ($size) => is_int($size) || is_float($size) || (is_string($size) && is_numeric($size)))
-            ->map(static fn ($size) => (float) $size)
-            ->sort()
-            ->values();
+    $formatDps = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 1);
+    $formatWhole = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
 
-        if ($sizes->isEmpty()) {
-            return null;
-        }
-
-        $label = fmt_range($sizes->first(), $sizes->last(), '');
-
-        return $label === '—' ? null : 'S'.$label;
-    };
     $turretSections = [
         'Manned' => [
             'items' => $mannedTurrets,
@@ -160,17 +148,23 @@
                                     <tr>
                                         <th>Turret</th>
                                         <th>Size</th>
-                                        <th>Traits</th>
-                                        <th class="hidden sm:table-cell">Weapon Sizes</th>
+                                        <th class="text-right">DPS</th>
+                                        <th class="text-right">Sustained DPS</th>
+                                        <th class="text-right">Alpha</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach ($turrets as $turret)
                                         @php
                                             $traits = $turretTraits($turret);
-                                            $weaponSizes = data_get($turret, 'weapon_sizes', []);
                                             $label = $turretLabel($turret);
-                                            $weaponSizeLabelValue = is_array($weaponSizes) ? $weaponSizeLabel($weaponSizes) : null;
+                                            $dpsTotal = data_get($turret, 'dps_total');
+                                            $sustainedDpsTotal = data_get($turret, 'sustained_dps_total');
+                                            $alphaTotal = data_get($turret, 'alpha_total');
+                                            $mountCount = data_get($turret, 'mount_count');
+                                            $isPilotSlaveable = data_get($turret, 'is_pilot_slaveable');
+                                            $weapons = data_get($turret, 'weapons', []);
+                                            $hasSubRow = $traits !== [] || $mountCount !== null || $isPilotSlaveable === true || (is_array($weapons) && $weapons !== []);
                                         @endphp
                                         <tr>
                                             <td class="min-w-48">
@@ -179,22 +173,49 @@
                                                     <div class="text-xs text-base-content/60">{{ $label['subtitle'] }}</div>
                                                 @endif
                                             </td>
-                                            <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }}</td>
-                                            <td>
-                                                @if ($traits !== [])
-                                                    <div class="text-sm text-base-content/80">{{ implode(', ', $traits) }}</div>
-                                                @else
-                                                    <span class="text-base-content/60">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="hidden sm:table-cell">
-                                                @if ($weaponSizeLabelValue !== null)
-                                                    <span>{{ $weaponSizeLabelValue }}</span>
-                                                @else
-                                                    <span class="text-base-content/60">-</span>
-                                                @endif
+                                            <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }} @if($mountCount) (x{{$formatWhole($mountCount)}}) @endif</td>
+                                            <td class="text-right font-semibold">{{ $formatDps($dpsTotal) }}</td>
+                                            <td class="text-right font-semibold">{{ $formatDps($sustainedDpsTotal) }}</td>
+                                            <td class="text-right font-semibold">{{ $formatDps($alphaTotal) }}</td>
+                                        </tr>
+                                        @if ($hasSubRow)
+                                        <tr>
+                                            <td colspan="5" class="pt-1 border-t border-base-200">
+                                                <dd class="flex flex-col gap-2 text-sm">
+                                                    @if ($traits !== [] || $mountCount !== null || $isPilotSlaveable === true)
+                                                        <dl class="grid grid-cols-2 gap-x-4 gap-y-1">
+                                                            @if ($traits !== [])
+                                                                <dt class="text-base-content/80">Traits</dt>
+                                                                <dd class="text-right font-medium">{{ implode(', ', $traits) }}</dd>
+                                                            @endif
+                                                            @if ($isPilotSlaveable === true)
+                                                                <dt class="text-base-content/80">Pilot Control</dt>
+                                                                <dd class="text-right"><span class="badge badge-sm badge-outline">Slaveable</span></dd>
+                                                            @endif
+                                                            @if (is_array($weapons) && $weapons !== [])
+                                                                <dt class="text-base-content/80">Installed</dt>
+                                                                    <dd class="text-right">
+                                                                    @foreach ($weapons as $weapon)
+                                                                        <span class="text-base-content/80 block">
+                                                                            @if (isset($weapon['link']))
+                                                                                <a href="{{ $weapon['link'] }}" class="link link-hover link-primary">{{ $weapon['name'] ?? $weapon['class_name'] ?? '-' }}</a>
+                                                                            @else
+                                                                                {{ $weapon['name'] ?? $weapon['class_name'] ?? '-' }}
+                                                                            @endif
+                                                                            @if (isset($weapon['dps']))
+                                                                                <span class="text-xs text-base-content/60"> ({{ $formatDps($weapon['dps']) }} dps)</span>
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </dd>
+                                                            @endif
+                                                        </dl>
+                                                    @endif
+
+                                                </div>
                                             </td>
                                         </tr>
+                                        @endif
                                     @endforeach
                                     </tbody>
                                 </table>

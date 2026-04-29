@@ -49,6 +49,29 @@ use OpenApi\Attributes as OA;
             ),
             nullable: true
         ),
+        new OA\Property(property: 'dps_total', description: 'Aggregate DPS for the turret.', type: 'number', example: 166.7, nullable: true),
+        new OA\Property(property: 'sustained_dps_total', description: 'Sustained DPS for the turret.', type: 'number', example: 74.2, nullable: true),
+        new OA\Property(property: 'alpha_total', description: 'Alpha (per-shot) damage for the turret.', type: 'number', example: 10.0, nullable: true),
+        new OA\Property(property: 'is_pilot_slaveable', description: 'Whether the turret can be slaved to pilot control.', type: 'boolean', example: false, nullable: true),
+        new OA\Property(
+            property: 'weapons',
+            description: 'Per-weapon breakdown with DPS and alpha data.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'uuid', description: 'Weapon UUID.', type: 'string', example: '18b795c5-25f1-444a-86c0-b5edd7cf0118', nullable: true),
+                    new OA\Property(property: 'class_name', description: 'SC class name of the weapon.', type: 'string', example: 'BEHR_LaserRepeater_PDC_S1', nullable: true),
+                    new OA\Property(property: 'name', description: 'Human-readable weapon name.', type: 'string', example: 'M2C "Swarm"', nullable: true),
+                    new OA\Property(property: 'link', description: 'API URL for the full item detail.', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'dps', description: 'Weapon DPS.', type: 'number', example: 166.7, nullable: true),
+                    new OA\Property(property: 'sustained_dps', description: 'Weapon sustained DPS.', type: 'number', example: 74.2, nullable: true),
+                    new OA\Property(property: 'alpha', description: 'Weapon alpha damage.', type: 'number', example: 10.0, nullable: true),
+                    new OA\Property(property: 'is_pilot_slaveable', description: 'Whether this weapon can be slaved to pilot control.', type: 'boolean', example: false, nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -80,6 +103,11 @@ class TurretSummaryResource extends AbstractBaseResource
             'payload_types' => Arr::get($this->resource, 'PayloadTypes', $this->aggregateRawMountValues('PayloadTypes')),
             'payload_class_names' => Arr::get($this->resource, 'PayloadClassNames', $this->aggregateRawMountValues('PayloadClassNames')),
             'mounts' => $mounts,
+            'dps_total' => Arr::get($this->resource, 'DpsTotal'),
+            'sustained_dps_total' => Arr::get($this->resource, 'SustainedDpsTotal'),
+            'alpha_total' => Arr::get($this->resource, 'AlphaTotal'),
+            'is_pilot_slaveable' => Arr::get($this->resource, 'IsPilotSlaveable'),
+            'weapons' => $this->weaponRows(),
         ], static fn ($value) => $value !== null && $value !== []);
     }
 
@@ -127,6 +155,32 @@ class TurretSummaryResource extends AbstractBaseResource
                 static fn (mixed $value): bool => is_int($value) || is_string($value)
             )))
             ->uniqueStrict()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function weaponRows(): array
+    {
+        return collect(Arr::get($this->resource, 'Weapons', []))
+            ->filter(static fn (mixed $weapon): bool => is_array($weapon))
+            ->map(function (array $weapon): array {
+                return array_filter([
+                    'uuid' => Arr::get($weapon, 'UUID'),
+                    'class_name' => Arr::get($weapon, 'ClassName'),
+                    'name' => Arr::get($weapon, 'Name'),
+                    'link' => Arr::get($weapon, 'UUID') !== null
+                        ? route('items.show', ['identifier' => Arr::get($weapon, 'UUID')])
+                        : null,
+                    'dps' => Arr::get($weapon, 'Dps'),
+                    'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
+                    'alpha' => Arr::get($weapon, 'Alpha'),
+                    'is_pilot_slaveable' => Arr::get($weapon, 'IsPilotSlaveable'),
+                ], static fn ($value) => $value !== null && $value !== []);
+            })
+            ->filter(static fn (array $weapon): bool => $weapon !== [])
             ->values()
             ->all();
     }

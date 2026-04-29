@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 function color_class(float|int|null $value, ?bool $invert = false): string
 {
-    if ($value === null) {
-        return '';
-    }
-
-    if ($value === 0.0) {
+    if (empty($value)) {
         return '';
     }
 
@@ -31,7 +27,7 @@ function fmt(float|int $value, int $decimals = 0): string
 function fmt_or_dash(float|int|null $value, int $decimals = 0): string
 {
     if ($value === null) {
-        return '—';
+        return '-';
     }
 
     return fmt($value, $decimals);
@@ -260,13 +256,13 @@ function fmt_range(?float $min, ?float $max, string $unit, int $decimals = 0, bo
         return '≤ '.$b.' '.$unit;
     }
 
-    return '—';
+    return '-';
 }
 
 function fmt_container_size(?float $value): string
 {
     if ($value === null) {
-        return '—';
+        return '-';
     }
 
     if ($value < 0) {
@@ -274,4 +270,23 @@ function fmt_container_size(?float $value): string
     }
 
     return (string) (int) $value;
+}
+
+function fmt_signed_percent(mixed $value, bool $showPlus = true): string
+{
+    if ($value === null) {
+        return '-';
+    }
+
+    $pct = ((float) $value - 1) * 100;
+
+    if ($pct > 0) {
+        return ($showPlus ? '+' : '').number_format($pct, 0).'%';
+    }
+
+    if ($pct < 0) {
+        return number_format($pct, 0).'%';
+    }
+
+    return '0%';
 }
