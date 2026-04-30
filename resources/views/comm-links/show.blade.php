@@ -1,3 +1,4 @@
+@php use App\Models\System\Language; @endphp
 @extends('layouts.app')
 
 @php
@@ -60,12 +61,14 @@
 
         <div class="flex flex-wrap gap-3">
             @if (is_int($prevId) && $prevId > 0)
-                <a class="btn btn-outline btn-sm" data-testid="comm-link-prev-link" href="{{ route('web.comm-links.show', $prevId) }}">Previous</a>
+                <a class="btn btn-outline btn-sm" data-testid="comm-link-prev-link"
+                   href="{{ route('web.comm-links.show', $prevId) }}">Previous</a>
             @else
                 <button class="btn btn-outline btn-sm" data-testid="comm-link-prev-button" disabled>Previous</button>
             @endif
             @if (is_int($nextId) && $nextId > 0)
-                <a class="btn btn-outline btn-sm" data-testid="comm-link-next-link" href="{{ route('web.comm-links.show', $nextId) }}">Next</a>
+                <a class="btn btn-outline btn-sm" data-testid="comm-link-next-link"
+                   href="{{ route('web.comm-links.show', $nextId) }}">Next</a>
             @else
                 <button class="btn btn-outline btn-sm" data-testid="comm-link-next-button" disabled>Next</button>
             @endif
@@ -80,17 +83,18 @@
                             <div class="space-y-3">
                                 @foreach ($translations as $locale => $translation)
                                     @php
-                                        $label = is_string($locale) ? \App\Models\System\Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
+                                        $label = is_string($locale) ? Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
                                         $translationText = is_string($translation)
                                             ? $translation
                                             : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
                                     @endphp
-                                    <div class="collapse collapse-arrow border border-base-200 bg-base-100">
-                                        <input type="checkbox" />
+                                    <div {{ $label !== 'English' ? 'data-remove' : '' }} class="collapse collapse-arrow border border-base-200 bg-base-100">
+                                        <input type="checkbox"/>
                                         <div class="collapse-title text-sm font-semibold">{{ $label }}</div>
                                         <div class="collapse-content">
                                             @if ($translationText)
-                                                <div class="text-sm leading-relaxed text-base-content/80 whitespace-pre-line">
+                                                <div
+                                                    class="text-sm leading-relaxed text-base-content/80 whitespace-pre-line">
                                                     {!! nl2br(e($translationText)) !!}
                                                 </div>
                                             @else
@@ -124,7 +128,8 @@
                                             <td class="whitespace-nowrap">{{ $link['text'] ?? '-' }}</td>
                                             <td class="text-sm">
                                                 @if (! empty($link['href']))
-                                                    <a class="link link-primary" href="{{ $link['href'] }}" target="_blank" rel="noreferrer">
+                                                    <a class="link link-primary" href="{{ $link['href'] }}"
+                                                       target="_blank" rel="noreferrer">
                                                         {{ $link['href'] }}
                                                     </a>
                                                 @else
@@ -151,7 +156,7 @@
                         @if (is_array($images) && $images !== [])
                             <div class="grid gap-4 sm:grid-cols-2">
                                 @foreach ($images as $image)
-                                    <x-comm-links.image-card :image="$image" />
+                                    <x-comm-links.image-card :image="$image"/>
                                 @endforeach
                             </div>
                         @else
@@ -167,27 +172,36 @@
                         <h2 class="card-title text-base">Metadata</h2>
                         <dl class="grid gap-4">
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">CIG ID</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">CIG ID
+                                </dt>
                                 <dd class="text-sm font-medium">{{ $commLinkId ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Channel</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Channel
+                                </dt>
                                 <dd class="text-sm font-medium">{{ $channel ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Category</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                    Category
+                                </dt>
                                 <dd class="text-sm font-medium">{{ $category ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Series</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Series
+                                </dt>
                                 <dd class="text-sm font-medium">{{ $series ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Comments</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                    Comments
+                                </dt>
                                 <dd class="text-sm font-medium">{{ $commentCount ?? 0 }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Published</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                    Published
+                                </dt>
                                 <dd class="text-sm font-medium">
                                     {{ $createdAtHuman ?? '-' }}
                                     @if ($createdAt)
@@ -198,7 +212,8 @@
                         </dl>
                         <div class="flex flex-wrap gap-2">
                             @if ($rsiUrl)
-                                <a class="btn btn-outline btn-sm" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI Article</a>
+                                <a class="btn btn-outline btn-sm" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI
+                                    Article</a>
                             @endif
                             @if ($apiUrl)
                                 <a class="btn btn-outline btn-sm" href="{{ $apiUrl }}" target="_blank" rel="noreferrer">API</a>

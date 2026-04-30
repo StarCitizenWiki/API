@@ -20,76 +20,79 @@ use App\Http\Controllers\Web\StarCitizen\StatController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Spatie\MarkdownResponse\Middleware\ProvideMarkdownResponse;
 
 Route::get('/', static function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
-Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');
-Route::get('/comm-links/images', [CommLinkController::class, 'imagesIndex'])->name('web.comm-links.images.index');
-Route::get('/comm-links/images/search', [CommLinkController::class, 'searchImagesByName'])->name('web.comm-links.images.search');
-Route::post('/comm-links/images/reverse-search', [CommLinkController::class, 'reverseImageSearch'])
-    ->middleware('throttle:reverse-image-search')
-    ->name('web.comm-links.images.reverse-search');
-Route::get('/comm-links/images/tag-{tag}', static function (): never {
-    abort(404);
+Route::middleware(ProvideMarkdownResponse::class)->group(function () {
+    Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
+    Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');
+    Route::get('/comm-links/images', [CommLinkController::class, 'imagesIndex'])->name('web.comm-links.images.index');
+    Route::get('/comm-links/images/search', [CommLinkController::class, 'searchImagesByName'])->name('web.comm-links.images.search');
+    Route::post('/comm-links/images/reverse-search', [CommLinkController::class, 'reverseImageSearch'])
+        ->middleware('throttle:reverse-image-search')
+        ->name('web.comm-links.images.reverse-search');
+    Route::get('/comm-links/images/tag-{tag}', static function (): never {
+        abort(404);
+    });
+    Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])
+        ->whereNumber('image')
+        ->name('web.comm-links.images.show');
+    Route::get('/comm-links/images/{image}/similar', [CommLinkController::class, 'similarImages'])
+        ->whereNumber('image')
+        ->middleware(['auth', 'throttle:similar-image-search'])
+        ->name('web.comm-links.images.similar');
+    Route::get('/comm-links/{id}', [CommLinkController::class, 'show'])->name('web.comm-links.show');
+
+    Route::get('/stats', [StatController::class, 'index'])->name('web.stats.index');
+
+    Route::get('/galactapedia', [GalactapediaController::class, 'index'])->name('web.galactapedia.index');
+    Route::get('/galactapedia/{article}', [GalactapediaController::class, 'show'])->name('web.galactapedia.show');
+
+    Route::get('/vehicles', [VehicleController::class, 'index'])->name('web.vehicles.index');
+    Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('web.vehicles.show');
+
+    Route::get('/blueprints', [BlueprintController::class, 'index'])->name('web.blueprints.index');
+    Route::get('/blueprints/search', [BlueprintController::class, 'app'])->name('web.blueprints.search');
+    Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
+        ->name('web.blueprints.show');
+
+    Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
+    Route::get('/items/{item}', [ItemController::class, 'show'])->name('web.items.show');
+
+    Route::get('/commodities', [CommodityController::class, 'index'])->name('web.commodities.index');
+    Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->name('web.commodities.show');
+
+    Route::get('/missions', [MissionController::class, 'index'])->name('web.missions.index');
+    Route::get('/missions/{mission}', [MissionController::class, 'show'])
+        ->name('web.missions.show');
+
+    Route::get('/locations', [StarmapLocationController::class, 'index'])
+        ->name('web.locations.index');
+    Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])
+        ->name('web.locations.show');
+
+    Route::get('/search/{query}', [UnifiedSearchController::class, 'resolve'])
+        ->middleware('throttle:search')
+        ->where('query', '[^/]+')
+        ->name('web.search');
+
+    Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
+        ->name('web.ship-matrix.vehicles.index');
+    Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 'index'])
+        ->name('web.ship-matrix.ground-vehicles.index');
+
+    Route::get('/starmap/systems', [StarsystemController::class, 'index'])
+        ->name('web.starmap.systems.index');
+    Route::get('/starmap/systems/{code}', [StarsystemController::class, 'show'])
+        ->name('web.starmap.systems.show');
+    Route::get('/starmap/celestial-objects', [CelestialObjectController::class, 'index'])
+        ->name('web.starmap.celestial-objects.index');
+    Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::class, 'show'])
+        ->name('web.starmap.celestial-objects.show');
 });
-Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])
-    ->whereNumber('image')
-    ->name('web.comm-links.images.show');
-Route::get('/comm-links/images/{image}/similar', [CommLinkController::class, 'similarImages'])
-    ->whereNumber('image')
-    ->middleware(['auth', 'throttle:similar-image-search'])
-    ->name('web.comm-links.images.similar');
-Route::get('/comm-links/{id}', [CommLinkController::class, 'show'])->name('web.comm-links.show');
-
-Route::get('/stats', [StatController::class, 'index'])->name('web.stats.index');
-
-Route::get('/galactapedia', [GalactapediaController::class, 'index'])->name('web.galactapedia.index');
-Route::get('/galactapedia/{article}', [GalactapediaController::class, 'show'])->name('web.galactapedia.show');
-
-Route::get('/vehicles', [VehicleController::class, 'index'])->name('web.vehicles.index');
-Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('web.vehicles.show');
-
-Route::get('/blueprints', [BlueprintController::class, 'index'])->name('web.blueprints.index');
-Route::get('/blueprints/search', [BlueprintController::class, 'app'])->name('web.blueprints.search');
-Route::get('/blueprints/{blueprint}', [BlueprintController::class, 'app'])
-    ->name('web.blueprints.show');
-
-Route::get('/items', [ItemController::class, 'index'])->name('web.items.index');
-Route::get('/items/{item}', [ItemController::class, 'show'])->name('web.items.show');
-
-Route::get('/commodities', [CommodityController::class, 'index'])->name('web.commodities.index');
-Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->name('web.commodities.show');
-
-Route::get('/missions', [MissionController::class, 'index'])->name('web.missions.index');
-Route::get('/missions/{mission}', [MissionController::class, 'show'])
-    ->name('web.missions.show');
-
-Route::get('/locations', [StarmapLocationController::class, 'index'])
-    ->name('web.locations.index');
-Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])
-    ->name('web.locations.show');
-
-Route::get('/search/{query}', [UnifiedSearchController::class, 'resolve'])
-    ->middleware('throttle:search')
-    ->where('query', '[^/]+')
-    ->name('web.search');
-
-Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
-    ->name('web.ship-matrix.vehicles.index');
-Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 'index'])
-    ->name('web.ship-matrix.ground-vehicles.index');
-
-Route::get('/starmap/systems', [StarsystemController::class, 'index'])
-    ->name('web.starmap.systems.index');
-Route::get('/starmap/systems/{code}', [StarsystemController::class, 'show'])
-    ->name('web.starmap.systems.show');
-Route::get('/starmap/celestial-objects', [CelestialObjectController::class, 'index'])
-    ->name('web.starmap.celestial-objects.index');
-Route::get('/starmap/celestial-objects/{code}', [CelestialObjectController::class, 'show'])
-    ->name('web.starmap.celestial-objects.show');
 
 Route::post('/game-version', GameVersionSelectionController::class)
     ->name('game-version.select');

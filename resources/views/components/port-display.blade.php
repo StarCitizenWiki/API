@@ -101,7 +101,7 @@
 @endphp
 
 <div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}" data-testid="port-display">
-    <details
+    <details {{ $depth > 0 ? 'data-remove' : '' }}
         id="{{ $portIdentifier }}"
         data-testid="port-display-details"
         class="collapse collapse-arrow border border-base-300 bg-base-100 {{ $depth === 0 ? 'shadow-sm' : '' }}"
@@ -228,7 +228,7 @@
                 </dl>
 
                 @unless(empty($equippedItem))
-                    <div class="grid gap-3">
+                    <div data-remove class="grid gap-3">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
                                 Equipped Item

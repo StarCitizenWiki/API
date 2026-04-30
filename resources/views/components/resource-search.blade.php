@@ -8,7 +8,7 @@
 ])
 
 @if ($variant === 'minimal')
-    <div class="rounded-box border border-base-300 bg-base-200/40 p-3 sm:p-4">
+    <div data-remove class="rounded-box border border-base-300 bg-base-200/40 p-3 sm:p-4">
         <form method="GET" action="{{ $route }}" class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div class="min-w-0 space-y-1 lg:max-w-sm xl:max-w-md">
                 <h2 class="text-sm font-semibold tracking-tight text-base-content/85">{{ $title }}</h2>
@@ -34,7 +34,7 @@
         </form>
     </div>
 @else
-    <div class="card border border-base-300 bg-base-100 shadow">
+    <div data-remove class="card border border-base-300 bg-base-100 shadow">
         <form method="GET" action="{{ $route }}" class="card-body gap-4">
             <div class="flex flex-col gap-2">
                 <h2 class="card-title text-base">{{ $title }}</h2>

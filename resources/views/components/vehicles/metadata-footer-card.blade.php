@@ -58,7 +58,7 @@
     @endif
 
     <!-- Raw Payload -->
-    <details id="raw-payload-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
+    <details data-remove id="raw-payload-details" class="collapse collapse-arrow border border-base-300 bg-base-100 shadow">
         <summary class="collapse-title min-h-11 py-3 text-sm font-semibold" aria-expanded="false" aria-controls="raw-payload-details-content">
             Raw Payload
         </summary>

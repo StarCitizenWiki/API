@@ -2,7 +2,7 @@
     'rawData',
 ])
 
-<details {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-raw-payload-card']) }}>
+<details data-remove {{ $attributes->merge(['class' => 'collapse collapse-arrow border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-raw-payload-card']) }}>
     <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
         Raw Item Payload
     </summary>

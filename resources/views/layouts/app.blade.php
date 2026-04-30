@@ -40,7 +40,7 @@
             <input id="app-drawer" type="checkbox" class="drawer-toggle" />
 
             <div class="drawer-content flex min-h-screen flex-col">
-                <div class="navbar sticky top-0 z-30 border-b border-base-300 bg-base-100 backdrop-blur">
+                <nav class="navbar sticky top-0 z-30 border-b border-base-300 bg-base-100 backdrop-blur">
                     <div class="flex-none ">
                         <label for="app-drawer" class="btn btn-square btn-ghost" aria-label="Open menu">
                             <x-icon name="menu" class="size-5" />
@@ -151,14 +151,14 @@
                             </ul>
                         </div>
                     </div>
-                </div>
+                </nav>
 
                 <main class="flex-1 px-4 py-6 sm:px-6 lg:px-10">
                     @yield('content')
                 </main>
             </div>
 
-            <div class="drawer-side">
+            <nav class="drawer-side">
                 <label for="app-drawer" class="drawer-overlay"></label>
                 <aside class="min-h-full w-72 bg-base-100 px-3 py-5 pt-20">
                     <x-app.sidemenu>
@@ -168,7 +168,7 @@
                         @endif
                     </x-app.sidemenu>
                 </aside>
-            </div>
+            </nav>
         </div>
 
         @stack('scripts')
