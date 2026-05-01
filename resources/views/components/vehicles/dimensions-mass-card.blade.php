@@ -56,14 +56,14 @@
             <div class="grid gap-12 lg:grid-cols-3">
                 @foreach ($sections as $section)
                     <section class="min-w-0 space-y-3">
-                        <div class="text-sm font-semibold text-base-content/65">
+                        <div class="text-sm font-semibold text-subtle">
                             {{ $section['label'] }}
                         </div>
 
                         <dl class="space-y-2">
                             @foreach ($section['rows'] as $row)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">

@@ -17,13 +17,13 @@
 
             <section class="space-y-3">
                 <dl class="grid grid-cols-4 gap-x-3 gap-y-2">
-                    <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">Type</div>
-                    <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Count</div>
-                    <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</div>
-                    <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Accel</div>
+                    <div class="text-xs font-medium uppercase tracking-wide text-muted">Type</div>
+                    <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Count</div>
+                    <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Capacity</div>
+                    <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Accel</div>
 
                     @foreach ($thrusterRows as $thruster)
-                        <dt class="text-sm text-base-content/80">{{ $thruster['type'] }}</dt>
+                        <dt class="text-sm text-emphasis">{{ $thruster['type'] }}</dt>
                         <dd class="text-right text-sm font-semibold text-base-content">{{ (int) ($thruster['count'] ?? 0) }}</dd>
                         <dd class="text-right text-sm font-semibold text-base-content">
                             @if (($thruster['capacity'] ?? null) !== null)

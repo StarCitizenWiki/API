@@ -8,7 +8,7 @@
     <div class="card border border-base-300 bg-base-100 shadow-sm" data-testid="starmap-location-area-boosts">
         <div class="card-body gap-3 p-5">
             <h3 class="text-base font-semibold tracking-tight">Area Boosts</h3>
-            <p class="text-sm text-base-content/60">Areas with spawn rate multipliers affecting all resources in this zone.</p>
+            <p class="text-sm text-subtle">Areas with spawn rate multipliers affecting all resources in this zone.</p>
 
             <table class="table table-sm">
                 <thead>

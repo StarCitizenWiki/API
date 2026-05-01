@@ -132,7 +132,7 @@ function renderResults(dropdown, results) {
 
     if (results.length === 0) {
         const empty = document.createElement('div');
-        empty.className = 'px-3 py-2 text-sm text-base-content/50';
+        empty.className = 'px-3 py-2 text-sm text-muted';
         empty.textContent = 'No results found';
         dropdown.appendChild(empty);
         return;
@@ -151,7 +151,7 @@ function renderResults(dropdown, results) {
 
         if (item.type_label) {
             const badge = document.createElement('span');
-            badge.className = 'text-xs text-base-content/40 truncate max-w-20';
+            badge.className = 'text-xs text-muted truncate max-w-20';
             badge.textContent = item.type_label;
             a.appendChild(badge);
         } else {
@@ -161,7 +161,7 @@ function renderResults(dropdown, results) {
 
         const icon = document.createElement('i');
         icon.setAttribute('data-lucide', 'arrow-right');
-        icon.className = 'size-3.5 shrink-0 text-base-content/40';
+        icon.className = 'size-3.5 shrink-0 text-muted';
 
         const name = document.createElement('span');
         name.className = 'truncate';
@@ -174,7 +174,7 @@ function renderResults(dropdown, results) {
 
         if (parts.length > 0) {
             const suffix = document.createElement('span');
-            suffix.className = 'text-xs text-base-content/40 shrink-0 pl-1';
+            suffix.className = 'text-xs text-muted shrink-0 pl-1';
             suffix.textContent = `(${parts.join(' · ')})`;
             name.appendChild(suffix);
         }

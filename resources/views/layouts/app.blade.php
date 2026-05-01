@@ -63,7 +63,7 @@
                             <form method="POST" action="{{ route('game-version.select') }}" class="hidden items-center gap-2 md:flex">
                                 @csrf
                                 <input type="hidden" name="redirect" value="{{ url()->full() }}">
-                                <label class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version</label>
+                                <label class="text-xs font-semibold uppercase tracking-wide text-subtle">Version</label>
                                 <select name="version" data-testid="game-version-select-desktop" class="select select-bordered select-sm" onchange="this.form.submit()">
                                     @foreach ($gameVersions as $version)
                                         <option data-testid="game-version-option-desktop-{{ $version->code }}" value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>
@@ -113,7 +113,7 @@
                                         <form method="POST" action="{{ route('game-version.select') }}" class="flex flex-col gap-2">
                                             @csrf
                                             <input type="hidden" name="redirect" value="{{ url()->full() }}">
-                                            <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Version</span>
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-subtle">Version</span>
                                             <select name="version" data-testid="game-version-select-mobile" class="select select-bordered select-sm" onchange="this.form.submit()">
                                                 @foreach ($gameVersions as $version)
                                                     <option data-testid="game-version-option-mobile-{{ $version->code }}" value="{{ $version->code }}" @selected($selectedGameVersionCode === $version->code)>

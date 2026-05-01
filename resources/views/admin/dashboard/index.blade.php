@@ -2,7 +2,7 @@
 
 @section('admin.content')
     <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-bold" data-testid="admin-dashboard-heading">Admin Dashboard</h1>
+        <h1 class="text-2xl font-semibold" data-testid="admin-dashboard-heading">Admin Dashboard</h1>
 
          <div class="stats stats-vertical lg:stats-horizontal shadow" data-testid="admin-dashboard-stats">
               {{-- Total Users --}}

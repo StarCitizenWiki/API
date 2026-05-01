@@ -20,7 +20,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70">
+            <div class="breadcrumbs text-sm text-subtle">
                 <ul>
                     <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
                     <li>Images</li>
@@ -28,7 +28,7 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h1 class="text-2xl font-semibold tracking-tight" data-testid="comm-links-images-heading">Comm-Link Images</h1>
-                <div class="text-sm text-base-content/70">
+                <div class="text-sm text-subtle">
                     Page {{ $currentPage }} of {{ max($lastPage, 1) }}
                     @if ($total !== null)
                         · {{ $total }} total
@@ -58,7 +58,7 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="text-sm text-base-content/70">
+            <div class="text-sm text-subtle">
                 Ordered by latest upload date.
             </div>
             <div class="join">
@@ -78,11 +78,11 @@
                 @endforeach
             </div>
         @else
-            <div class="text-sm text-base-content/70" data-testid="comm-links-images-empty-state">No images available.</div>
+            <div class="text-sm text-subtle" data-testid="comm-links-images-empty-state">No images available.</div>
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="text-sm text-base-content/70">
+            <div class="text-sm text-subtle">
                 Page {{ $currentPage }} of {{ max($lastPage, 1) }}
             </div>
             <div class="join">

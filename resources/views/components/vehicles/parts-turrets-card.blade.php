@@ -83,7 +83,7 @@
         <summary class="collapse-title min-h-11 py-3 font-semibold">Parts</summary>
         <div class="collapse-content">
             <div class="space-y-3">
-                <div class="flex items-center justify-between border-b border-base-200 pb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50">
+                <div class="flex items-center justify-between border-b border-base-200 pb-2 text-xs font-semibold uppercase tracking-wide text-muted">
                     <span>Structure</span>
                     <span>Damage Max</span>
                 </div>
@@ -107,8 +107,8 @@
                                         <div @class([
                                             'text-sm leading-5',
                                             'font-semibold text-base-content' => $depth === 0,
-                                            'font-medium text-base-content/90' => $depth > 0 && $hasChildren,
-                                            'text-base-content/80' => $depth > 0 && ! $hasChildren,
+                                            'font-medium text-emphasis' => $depth > 0 && $hasChildren,
+                                            'text-emphasis' => $depth > 0 && ! $hasChildren,
                                         ])>
                                             {{ $partName }}
                                         </div>
@@ -170,7 +170,7 @@
                                             <td class="min-w-48">
                                                 <div class="font-medium">{{ $label['title'] }}</div>
                                                 @if (!empty($label['subtitle']))
-                                                    <div class="text-xs text-base-content/60">{{ $label['subtitle'] }}</div>
+                                                    <div class="text-xs text-subtle">{{ $label['subtitle'] }}</div>
                                                 @endif
                                             </td>
                                             <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }} @if($mountCount) (x{{$formatWhole($mountCount)}}) @endif</td>
@@ -185,25 +185,25 @@
                                                     @if ($traits !== [] || $mountCount !== null || $isPilotSlaveable === true)
                                                         <dl class="grid grid-cols-2 gap-x-4 gap-y-1">
                                                             @if ($traits !== [])
-                                                                <dt class="text-base-content/80">Traits</dt>
+                                                                <dt class="text-emphasis">Traits</dt>
                                                                 <dd class="text-right font-medium">{{ implode(', ', $traits) }}</dd>
                                                             @endif
                                                             @if ($isPilotSlaveable === true)
-                                                                <dt class="text-base-content/80">Pilot Control</dt>
+                                                                <dt class="text-emphasis">Pilot Control</dt>
                                                                 <dd class="text-right"><span class="badge badge-sm badge-outline">Slaveable</span></dd>
                                                             @endif
                                                             @if (is_array($weapons) && $weapons !== [])
-                                                                <dt class="text-base-content/80">Installed</dt>
+                                                                <dt class="text-emphasis">Installed</dt>
                                                                     <dd class="text-right">
                                                                     @foreach ($weapons as $weapon)
-                                                                        <span class="text-base-content/80 block">
+                                                                        <span class="text-emphasis block">
                                                                             @if (isset($weapon['link']))
                                                                                 <a href="{{ $weapon['link'] }}" class="link link-hover link-primary">{{ $weapon['name'] ?? $weapon['class_name'] ?? '-' }}</a>
                                                                             @else
                                                                                 {{ $weapon['name'] ?? $weapon['class_name'] ?? '-' }}
                                                                             @endif
                                                                             @if (isset($weapon['dps']))
-                                                                                <span class="text-xs text-base-content/60"> ({{ $formatDps($weapon['dps']) }} dps)</span>
+                                                                                <span class="text-xs text-subtle"> ({{ $formatDps($weapon['dps']) }} dps)</span>
                                                                             @endif
                                                                         </span>
                                                                     @endforeach
@@ -221,7 +221,7 @@
                                 </table>
                             </div>
                         @else
-                            <div class="text-sm text-base-content/70">{{ $sectionData['empty'] }}</div>
+                            <div class="text-sm text-subtle">{{ $sectionData['empty'] }}</div>
                         @endif
                     </div>
                 @endforeach

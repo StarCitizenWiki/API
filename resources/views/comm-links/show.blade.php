@@ -39,7 +39,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70">
+            <div class="breadcrumbs text-sm text-subtle">
                 <ul>
                     <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
                     <li>{{ $title }}</li>
@@ -94,18 +94,18 @@
                                         <div class="collapse-content">
                                             @if ($translationText)
                                                 <div
-                                                    class="text-sm leading-relaxed text-base-content/80 whitespace-pre-line">
+                                                    class="text-sm leading-relaxed text-emphasis whitespace-pre-line">
                                                     {!! nl2br(e($translationText)) !!}
                                                 </div>
                                             @else
-                                                <div class="text-sm text-base-content/70">No content available.</div>
+                                                <div class="text-sm text-subtle">No content available.</div>
                                             @endif
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
                         @else
-                            <div class="text-sm text-base-content/70">No translations available.</div>
+                            <div class="text-sm text-subtle">No translations available.</div>
                         @endif
                     </div>
                 </div>
@@ -142,7 +142,7 @@
                                 </table>
                             </div>
                         @else
-                            <div class="text-sm text-base-content/70">No links available.</div>
+                            <div class="text-sm text-subtle">No links available.</div>
                         @endif
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="text-sm text-base-content/70">No images available.</div>
+                            <div class="text-sm text-subtle">No images available.</div>
                         @endif
                     </div>
                 </div>
@@ -172,40 +172,40 @@
                         <h2 class="card-title text-base">Metadata</h2>
                         <dl class="grid gap-4">
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">CIG ID
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">CIG ID
                                 </dt>
                                 <dd class="text-sm font-medium">{{ $commLinkId ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Channel
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Channel
                                 </dt>
                                 <dd class="text-sm font-medium">{{ $channel ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                                     Category
                                 </dt>
                                 <dd class="text-sm font-medium">{{ $category ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Series
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Series
                                 </dt>
                                 <dd class="text-sm font-medium">{{ $series ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                                     Comments
                                 </dt>
                                 <dd class="text-sm font-medium">{{ $commentCount ?? 0 }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                                     Published
                                 </dt>
                                 <dd class="text-sm font-medium">
                                     {{ $createdAtHuman ?? '-' }}
                                     @if ($createdAt)
-                                        <span class="text-xs text-base-content/60">({{ $createdAt }})</span>
+                                        <span class="text-xs text-subtle">({{ $createdAt }})</span>
                                     @endif
                                 </dd>
                             </div>

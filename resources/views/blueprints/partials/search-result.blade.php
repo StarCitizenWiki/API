@@ -69,12 +69,12 @@
                 </div>
 
                 @if (is_string($searchResultClass) && trim($searchResultClass) !== '')
-                    <p class="mt-1 truncate text-xs font-mono text-base-content/55">{{ $searchResultClass }}</p>
+                    <p class="mt-1 truncate text-xs font-mono text-muted">{{ $searchResultClass }}</p>
                 @endif
 
                 @if ($searchResultIngredientPreview !== '')
-                    <p class="mt-2 text-xs text-base-content/70">
-                        <span class="font-semibold text-base-content/80">Inputs:</span>
+                    <p class="mt-2 text-xs text-subtle">
+                        <span class="font-semibold text-emphasis">Inputs:</span>
                         {{ $searchResultIngredientPreview }}
                     </p>
                 @endif

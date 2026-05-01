@@ -7,9 +7,9 @@
 @section('admin.content')
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold" data-testid="admin-failed-jobs-heading">Failed Jobs</h1>
+            <h1 class="text-2xl font-semibold" data-testid="admin-failed-jobs-heading">Failed Jobs</h1>
             <div class="flex gap-2">
-                <span class="text-sm text-base-content/60" data-testid="admin-failed-jobs-total">Total: {{ number_format($jobs->total()) }}</span>
+                <span class="text-sm text-subtle" data-testid="admin-failed-jobs-total">Total: {{ number_format($jobs->total()) }}</span>
                 @if ($jobs->total() > 0)
                     <button onclick="truncateModal.showModal()" class="btn btn-error btn-sm" data-testid="admin-failed-jobs-truncate-button">
                         Truncate All
@@ -59,7 +59,7 @@
                                 {{-- Exception Modal --}}
                                 <dialog id="exceptionModal{{ $job->id }}" class="modal">
                                     <div class="modal-box max-w-4xl">
-                                        <h3 class="text-lg font-bold">Exception Details</h3>
+                                        <h3 class="text-lg font-semibold">Exception Details</h3>
                                         <div class="py-4">
                                             <pre class="overflow-auto rounded bg-base-200 p-4 text-sm">{{ $job->exception }}</pre>
                                         </div>
@@ -75,7 +75,7 @@
                                 {{-- Delete Modal --}}
                                 <dialog id="deleteModal{{ $job->id }}" class="modal">
                                     <div class="modal-box">
-                                        <h3 class="text-lg font-bold">Confirm Deletion</h3>
+                                        <h3 class="text-lg font-semibold">Confirm Deletion</h3>
                                         <p class="py-4">Are you sure you want to delete this failed job?</p>
                                         <div class="modal-action">
                                             <form method="POST" action="{{ route('admin.jobs.destroy', $job->id) }}" data-testid="admin-failed-jobs-delete-form-{{ $job->id }}">
@@ -91,7 +91,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-base-content/60" data-testid="admin-failed-jobs-empty-state">No failed jobs found.</td>
+                            <td colspan="6" class="text-center text-subtle" data-testid="admin-failed-jobs-empty-state">No failed jobs found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -108,7 +108,7 @@
     {{-- Truncate All Modal --}}
     <dialog id="truncateModal" class="modal">
         <div class="modal-box">
-            <h3 class="text-lg font-bold">Confirm Truncate</h3>
+            <h3 class="text-lg font-semibold">Confirm Truncate</h3>
             <p class="py-4">Are you sure you want to delete ALL failed jobs? This action cannot be undone.</p>
             <div class="modal-action">
                 <form method="POST" action="{{ route('admin.jobs.truncate') }}" data-testid="admin-failed-jobs-truncate-form">

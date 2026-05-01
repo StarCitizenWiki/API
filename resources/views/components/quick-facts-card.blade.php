@@ -35,7 +35,7 @@
                 <div class="space-y-6">
                     @foreach ($column as $section)
                         <section class="min-w-0 space-y-3">
-                            <div class="text-sm font-semibold text-base-content/65">
+                            <div class="text-sm font-semibold text-subtle">
                                 {{ $section['title'] }}
                             </div>
 
@@ -43,7 +43,7 @@
                                 <dl class="space-y-2">
                                     @foreach ($section['rows'] as $row)
                                         <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                                 {{ $row['label'] }}
                                             </dt>
                                             <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
@@ -88,7 +88,7 @@
                                     @endforeach
                                 </dl>
                             @else
-                                <div class="text-sm text-base-content/70">-</div>
+                                <div class="text-sm text-subtle">-</div>
                             @endif
                         </section>
                     @endforeach
@@ -98,7 +98,7 @@
     </div>
     @if($footer)
         <div class="px-5 sm:px-6 pt-3 pb-4">
-            <dl class="text-xs flex flex-wrap gap-x-4 gap-y-1 text-base-content/40 justify-end">
+            <dl class="text-xs flex flex-wrap gap-x-4 gap-y-1 text-muted justify-end">
                 @foreach ($footer as $item)
                     <div class="flex gap-1">
                         <dt class="font-semibold">{{ $item['label'] }}</dt>

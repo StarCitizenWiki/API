@@ -7,8 +7,8 @@
 @section('admin.content')
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold" data-testid="admin-game-versions-heading">Game Versions</h1>
-            <span class="text-sm text-base-content/60" data-testid="admin-game-versions-total">Total: {{ $versions->count() }}</span>
+            <h1 class="text-2xl font-semibold" data-testid="admin-game-versions-heading">Game Versions</h1>
+            <span class="text-sm text-subtle" data-testid="admin-game-versions-total">Total: {{ $versions->count() }}</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -70,7 +70,7 @@
                                             </div>
                                         </dialog>
                                     @else
-                                        <span class="text-sm text-base-content/60" data-testid="admin-game-versions-current-default-{{ $version->id }}">Current Default</span>
+                                        <span class="text-sm text-subtle" data-testid="admin-game-versions-current-default-{{ $version->id }}">Current Default</span>
                                     @endif
 
                                     @if ($version->is_hidden)
@@ -89,7 +89,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-base-content/60" data-testid="admin-game-versions-empty">No game versions found.</td>
+                            <td colspan="6" class="text-center text-subtle" data-testid="admin-game-versions-empty">No game versions found.</td>
                         </tr>
                     @endforelse
                 </tbody>

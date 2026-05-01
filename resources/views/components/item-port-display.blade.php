@@ -69,7 +69,7 @@
 
             <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
                 @if (! empty($equippedItemName))
-                    <span class="max-w-56 truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                    <span class="max-w-56 truncate text-subtle" title="{{ $equippedDisplayName }}">
                         {{ $equippedDisplayName }}
                     </span>
                 @endif
@@ -81,7 +81,7 @@
         <div id="{{ $portId }}-content" class="collapse-content">
             <dl class="grid gap-3 sm:grid-cols-2 tabular-nums">
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                         Equippable Item Size
                     </dt>
                     <dd class="text-sm">
@@ -90,7 +90,7 @@
                 </div>
 
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                         Required Type + Sub Type
                     </dt>
                     <dd class="text-sm">

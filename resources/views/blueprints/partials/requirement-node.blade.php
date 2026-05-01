@@ -50,7 +50,7 @@
             </div>
 
             @if (is_string($uuid) && $uuid !== '')
-                <div class="mt-1 break-all font-mono text-xs text-base-content/60">{{ $uuid }}</div>
+                <div class="mt-1 break-all font-mono text-xs text-subtle">{{ $uuid }}</div>
             @endif
         </div>
 

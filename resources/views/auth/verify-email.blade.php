@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold">Verify your email</h1>
-            <p class="text-sm text-base-content/70">We sent a verification link to your email address.</p>
+            <p class="text-sm text-subtle">We sent a verification link to your email address.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
@@ -16,7 +16,7 @@
                     <div class="alert alert-success text-sm">A new verification link has been sent.</div>
                 @endif
 
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-subtle">
                     Before continuing, please check your inbox for a verification link.
                 </p>
 

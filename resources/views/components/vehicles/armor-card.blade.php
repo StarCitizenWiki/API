@@ -43,19 +43,19 @@
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
 
                             @if ($health !== null)
-                                <dt class="text-sm text-base-content/80">Health</dt>
+                                <dt class="text-sm text-emphasis">Health</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ fmt_or_dash($health) }} <span class="text-xs text-base-content/45">HP</span>
+                                    {{ fmt_or_dash($health) }} <span class="text-xs text-muted">HP</span>
                                 </dd>
                             @endif
 
                             @if ($deflectionPhysical !== null)
-                                <dt class="text-sm text-base-content/80">Physical Def.</dt>
+                                <dt class="text-sm text-emphasis">Physical Def.</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ fmt_or_dash($deflectionPhysical) }}</dd>
                             @endif
 
                             @if ($deflectionEnergy !== null)
-                                <dt class="text-sm text-base-content/80">Energy Def.</dt>
+                                <dt class="text-sm text-emphasis">Energy Def.</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ fmt_or_dash($deflectionEnergy) }}</dd>
                             @endif
                         </dl>
@@ -71,7 +71,7 @@
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
 
                             @foreach ($damageRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['value']-1) }}">{{ fmt_signed_percent($row['value']) }}</dd>
                             @endforeach
                         </dl>
@@ -87,7 +87,7 @@
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
 
                             @foreach ($signalRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['value']-1) }}">{{ fmt_signed_percent($row['value']) }}</dd>
                             @endforeach
                         </dl>

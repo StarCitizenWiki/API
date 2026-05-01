@@ -42,21 +42,21 @@
 
                     <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
                         @if ($faceType !== null)
-                            <dt class="text-sm text-base-content/80">Face Type</dt>
+                            <dt class="text-sm text-emphasis">Face Type</dt>
                             <dd class="text-right text-sm font-semibold text-base-content">{{ $faceType }}</dd>
                         @endif
 
                         @if ($hp !== null)
-                            <dt class="text-sm text-base-content/80">Hit Points</dt>
+                            <dt class="text-sm text-emphasis">Hit Points</dt>
                             <dd class="text-right text-sm font-semibold text-base-content">
-                                {{ $formatWholeNumber($hp) }} <span class="text-xs text-base-content/45">HP</span>
+                                {{ $formatWholeNumber($hp) }} <span class="text-xs text-muted">HP</span>
                             </dd>
                         @endif
 
                         @if ($regeneration !== null)
-                            <dt class="text-sm text-base-content/80">Regeneration</dt>
+                            <dt class="text-sm text-emphasis">Regeneration</dt>
                             <dd class="text-right text-sm font-semibold text-base-content">
-                                {{ $formatWholeNumber($regeneration) }} <span class="text-xs text-base-content/45">HP/s</span>
+                                {{ $formatWholeNumber($regeneration) }} <span class="text-xs text-muted">HP/s</span>
                             </dd>
                         @endif
                     </dl>
@@ -70,7 +70,7 @@
 
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
                             @foreach ($resistanceRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['maximum'], true) }}">
                                     {{ $formatPercent($row['maximum']) }}
                                 </dd>

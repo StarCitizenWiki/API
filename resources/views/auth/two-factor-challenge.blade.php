@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold">Two-factor challenge</h1>
-            <p class="text-sm text-base-content/70">Enter your authentication code or a recovery code.</p>
+            <p class="text-sm text-subtle">Enter your authentication code or a recovery code.</p>
         </div>
 
         @if ($errors->any())

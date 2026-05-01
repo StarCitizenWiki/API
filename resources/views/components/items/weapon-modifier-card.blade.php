@@ -81,13 +81,13 @@
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($activateOnAttach !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Activate On Attach</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Activate On Attach</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ $activateOnAttach ? 'Yes' : 'No' }}</dd>
                 </div>
             @endif
             @if ($ignoreWear !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ignore Wear</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ignore Wear</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ $ignoreWear ? 'Yes' : 'No' }}</dd>
                 </div>
             @endif
@@ -95,104 +95,104 @@
 
         @if ($hasBase)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Base
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($baseMuzzleFlashMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Muzzle Flash Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Muzzle Flash Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseMuzzleFlashMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseMuzzleFlashChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Muzzle Flash</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Muzzle Flash</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseMuzzleFlashChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseFireRateMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fire Rate Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fire Rate Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseFireRateMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseFireRateChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fire Rate</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fire Rate</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseFireRateChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseDamageMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Damage Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseDamageMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseDamageChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Damage</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseDamageChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseProjectileSpeedMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Projectile Speed Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Projectile Speed Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseProjectileSpeedMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseProjectileSpeedChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Projectile Speed</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Projectile Speed</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseProjectileSpeedChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseAmmoCostMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ammo Cost Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ammo Cost Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseAmmoCostMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseAmmoCostChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ammo Cost</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ammo Cost</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseAmmoCostChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseHeatGenerationMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Heat Generation Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Heat Generation Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseHeatGenerationMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseHeatGenerationChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Heat Generation</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Heat Generation</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseHeatGenerationChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseSoundRadiusMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Sound Radius Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Sound Radius Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseSoundRadiusMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseSoundRadiusChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Sound Radius</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Sound Radius</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseSoundRadiusChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseChargeTimeMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Charge Time Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Charge Time Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseChargeTimeMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($baseChargeTimeChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Charge Time</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Charge Time</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baseChargeTimeChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
@@ -202,32 +202,32 @@
 
         @if ($hasRecoil)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Recoil
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($recoilDecayMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($recoilDecayMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($recoilDecayChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($recoilDecayChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($recoilMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($recoilMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($recoilMultiplierChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($recoilMultiplierChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
@@ -237,68 +237,68 @@
 
         @if ($hasSpread)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Spread
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($spreadMinMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Min Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Min Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadMinMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadMinChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Min</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Min</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadMinChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadMaxMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadMaxMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadMaxChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadMaxChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadFirstAttackMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">First Attack Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">First Attack Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadFirstAttackMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadFirstAttackChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">First Attack</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">First Attack</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadFirstAttackChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadPerAttackMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Attack Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Per Attack Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadPerAttackMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadPerAttackChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Attack</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Per Attack</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadPerAttackChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadDecayMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadDecayMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($spreadDecayChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($spreadDecayChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
@@ -308,44 +308,44 @@
 
         @if ($hasAim)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Aim
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($aimZoomScale !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Zoom Scale</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Zoom Scale</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($aimZoomScale, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($aimSecondZoomScale !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Second Zoom Scale</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Second Zoom Scale</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($aimSecondZoomScale, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($aimZoomTimeScale !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Zoom Time Scale</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Zoom Time Scale</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($aimZoomTimeScale, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($aimZoomTimeChange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Zoom Time</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Zoom Time</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($aimZoomTimeChange * 100, '%', 2) }}</dd>
                             </div>
                         @endif
                         @if ($aimHideWeaponInAds !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Hide Weapon In ADS</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Hide Weapon In ADS</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ $aimHideWeaponInAds ? 'Yes' : 'No' }}</dd>
                             </div>
                         @endif
                         @if ($aimFstopMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">F-Stop Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">F-Stop Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($aimFstopMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
@@ -355,26 +355,26 @@
 
         @if ($hasRegen)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Regen
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($regenPowerRatioMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Power Ratio Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Power Ratio Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($regenPowerRatioMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($regenMaxAmmoLoadMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Ammo Load Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Ammo Load Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($regenMaxAmmoLoadMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($regenMaxRegenPerSecMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Regen Per Sec Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Regen Per Sec Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($regenMaxRegenPerSecMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
@@ -384,26 +384,26 @@
 
         @if ($hasSalvage)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Salvage
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($salvageSpeedMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Salvage Speed Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Salvage Speed Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($salvageSpeedMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($salvageRadiusMultiplier !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Radius Multiplier</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Radius Multiplier</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($salvageRadiusMultiplier, 'x', 2) }}</dd>
                             </div>
                         @endif
                         @if ($salvageExtractionEfficiency !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Extraction Efficiency</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Extraction Efficiency</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($salvageExtractionEfficiency, 'x', 2) }}</dd>
                             </div>
                         @endif
@@ -413,32 +413,32 @@
 
         @if ($hasZeroing)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Zeroing
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($zeroingDefaultRange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Default Range</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Default Range</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($zeroingDefaultRange, 'm', 2) }}</dd>
                             </div>
                         @endif
                         @if ($zeroingMaxRange !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Range</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Range</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($zeroingMaxRange, 'm', 2) }}</dd>
                             </div>
                         @endif
                         @if ($zeroingRangeIncrement !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Range Increment</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Range Increment</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($zeroingRangeIncrement, 'm', 2) }}</dd>
                             </div>
                         @endif
                         @if ($zeroingAutoZeroingTime !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Auto Zeroing Time</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Auto Zeroing Time</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($zeroingAutoZeroingTime, 's', 2) }}</dd>
                             </div>
                         @endif

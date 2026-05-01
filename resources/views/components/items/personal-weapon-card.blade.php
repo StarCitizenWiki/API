@@ -41,147 +41,147 @@
 
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Class</dt>
-                <dd class="text-sm font-medium">{{ $class ?? '—' }} {{ $type ?? '—' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Class</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $class ?? '—' }} {{ $type ?? '—' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($capacity, 'rounds', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Capacity</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($capacity, 'rounds', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Range</dt>
-                <dd class="text-sm font-medium">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Range</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fire Mode</dt>
-                <dd class="text-sm font-medium">{{ $fireMode ?? '—' }}</dd>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fire Mode</dt>
+                <dd class="text-sm font-semibold text-base-content">{{ $fireMode ?? '—' }}</dd>
             </div>
         </dl>
 
         @if ($hasDamage)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Damage Stats
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($dpsTotal !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">DPS Total</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($dpsTotal, '', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">DPS Total</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($dpsTotal, '', 0) }}</dd>
                             </div>
                         @endif
                         @if ($alphaTotal !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Alpha Total</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($alphaTotal, '', 0) }}</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Alpha Total</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($alphaTotal, '', 0) }}</dd>
                             </div>
                         @endif
                         @if ($maximum !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Maximum</dt>
-                                <dd class="text-sm font-medium">{{ fmt_value_with_unit($maximum, '', 0) }} per magazine</dd>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Maximum</dt>
+                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($maximum, '', 0) }} per magazine</dd>
                             </div>
                         @endif
                     </dl>
 
                     @if ($hasFireRate)
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mt-4 mb-2">Fire Rate</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mt-4 mb-2">Fire Rate</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if ($rpm !== null)
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">RPM</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($rpm, '/min', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">RPM</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpm, '/min', 0) }}</dd>
                                 </div>
                             @endif
                             @if ($pelletsPerShot !== null)
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Pellets per Shot</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit($pelletsPerShot, '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pellets per Shot</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pelletsPerShot, '', 0) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
 
                     @if ($nonZeroDps !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mt-4 mb-2">DPS Breakdown</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mt-4 mb-2">DPS Breakdown</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($nonZeroDps, 'physical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'physical'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'physical'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'energy'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'energy'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'energy'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'distortion'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'distortion'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'distortion'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'thermal'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'thermal'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'thermal'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'biochemical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'biochemical'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'biochemical'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroDps, 'stun'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroDps, 'stun'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroDps, 'stun'), '', 0) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
 
                     @if ($nonZeroAlpha !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mt-4 mb-2">Alpha Breakdown</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mt-4 mb-2">Alpha Breakdown</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($nonZeroAlpha, 'physical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'physical'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'physical'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'energy'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'energy'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'energy'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'distortion'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'distortion'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'distortion'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'thermal'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'thermal'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'thermal'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'biochemical'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'biochemical'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'biochemical'), '', 0) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($nonZeroAlpha, 'stun'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'stun'), '', 0) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($nonZeroAlpha, 'stun'), '', 0) }}</dd>
                                 </div>
                             @endif
                         </dl>
@@ -191,77 +191,77 @@
 
         @if ($hasSpreadSection)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Spread
                 </summary>
                     @if (is_array($spread) && $spread !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2">Hip-fire Spread</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mb-2">Hip-fire Spread</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($spread, 'minimum'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Minimum</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'minimum'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Minimum</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'minimum'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($spread, 'maximum'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Maximum</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'maximum'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Maximum</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'maximum'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($spread, 'first_attack'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">First Attack</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'first_attack'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">First Attack</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'first_attack'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($spread, 'per_attack'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Attack</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'per_attack'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Per Attack</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'per_attack'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($spread, 'decay'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($spread, 'decay'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($spread, 'decay'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
 
                     @if (is_array($adsSpread) && $adsSpread !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mt-4 mb-2">ADS Spread</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mt-4 mb-2">ADS Spread</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($adsSpread, 'minimum'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Minimum</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($adsSpread, 'minimum'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Minimum</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($adsSpread, 'minimum'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($adsSpread, 'maximum'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Maximum</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($adsSpread, 'maximum'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Maximum</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($adsSpread, 'maximum'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($adsSpread, 'first_attack'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">First Attack</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($adsSpread, 'first_attack'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">First Attack</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($adsSpread, 'first_attack'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($adsSpread, 'per_attack'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Per Attack</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($adsSpread, 'per_attack'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Per Attack</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($adsSpread, 'per_attack'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($adsSpread, 'decay'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Decay</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($adsSpread, 'decay'), 'deg', 1) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Decay</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($adsSpread, 'decay'), 'deg', 1) }}</dd>
                                 </div>
                             @endif
                         </dl>
@@ -271,59 +271,59 @@
 
         @if ($hasChargeSection)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Charge
                 </summary>
                     @if (is_array($charge) && $charge !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-2">Charge Timings</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mb-2">Charge Timings</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($charge, 'time'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Time</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($charge, 'time'), 's', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Time</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($charge, 'time'), 's', 2) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($charge, 'overcharge_time'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overcharge Time</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($charge, 'overcharge_time'), 's', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Overcharge Time</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($charge, 'overcharge_time'), 's', 2) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($charge, 'overcharged_time'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Overcharged Time</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($charge, 'overcharged_time'), 's', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Overcharged Time</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($charge, 'overcharged_time'), 's', 2) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($charge, 'cooldown_time'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooldown Time</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($charge, 'cooldown_time'), 's', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Cooldown Time</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($charge, 'cooldown_time'), 's', 2) }}</dd>
                                 </div>
                             @endif
                         </dl>
                     @endif
 
                     @if (is_array($chargeModifier) && $chargeModifier !== [])
-                        <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mt-4 mb-2">Charge Modifiers</h4>
+                        <h4 class="text-xs font-medium uppercase tracking-wide text-muted mt-4 mb-2">Charge Modifiers</h4>
                         <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                             @if (data_get($chargeModifier, 'damage'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($chargeModifier, 'damage'), '', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Damage</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($chargeModifier, 'damage'), '', 2) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($chargeModifier, 'fire_rate'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Fire Rate</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($chargeModifier, 'fire_rate'), '', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fire Rate</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($chargeModifier, 'fire_rate'), '', 2) }}</dd>
                                 </div>
                             @endif
                             @if (data_get($chargeModifier, 'ammo_speed'))
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Ammo Speed</dt>
-                                    <dd class="text-sm font-medium">{{ fmt_value_with_unit(data_get($chargeModifier, 'ammo_speed'), '', 2) }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ammo Speed</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($chargeModifier, 'ammo_speed'), '', 2) }}</dd>
                                 </div>
                             @endif
                         </dl>

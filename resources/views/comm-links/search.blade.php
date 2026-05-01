@@ -6,7 +6,7 @@
 @section('content')
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70">
+            <div class="breadcrumbs text-sm text-subtle">
                 <ul>
                     <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
                     <li>Search</li>
@@ -40,7 +40,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Title</h3>
-                            <p class="text-sm text-base-content/70">Search by comm-link title or exact CIG ID.</p>
+                            <p class="text-sm text-subtle">Search by comm-link title or exact CIG ID.</p>
                         </div>
 
                         <label class="input w-full">
@@ -65,7 +65,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Content</h3>
-                            <p id="content-search-help" class="text-sm text-base-content/70">Search full comm-link article content.</p>
+                            <p id="content-search-help" class="text-sm text-subtle">Search full comm-link article content.</p>
                         </div>
 
                         <label class="input w-full">
@@ -91,7 +91,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media URL</h3>
-                            <p id="media-url-help" class="text-sm text-base-content/70">Find comm-links that reference a specific RSI-hosted image URL.</p>
+                            <p id="media-url-help" class="text-sm text-subtle">Find comm-links that reference a specific RSI-hosted image URL.</p>
                         </div>
 
                         <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
@@ -108,7 +108,7 @@
                                         required
                                     />
                                 </label>
-                                <span class="label-text-alt text-base-content/60">
+                                <span class="label-text-alt text-subtle">
                                     Use https://robertsspaceindustries.com/media/... or https://media.robertsspaceindustries.com/...
                                 </span>
                             </div>
@@ -130,7 +130,7 @@
                     <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4" data-testid="comm-links-search-media-name-form">
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media Name</h3>
-                            <p class="text-sm text-base-content/70">Search comm-link images by filename.</p>
+                            <p class="text-sm text-subtle">Search comm-link images by filename.</p>
                         </div>
 
                         <label class="input w-full">
@@ -161,13 +161,13 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Reverse Image Search</h3>
-                            <p class="text-sm text-base-content/70">Upload an image to find similar comm-link visuals.</p>
+                            <p class="text-sm text-subtle">Upload an image to find similar comm-link visuals.</p>
                         </div>
 
                         <div class="flex flex-col gap-1 w-full">
                             <span class="label">Image file</span>
                             <input type="file" name="image" accept="image/*" class="file-input w-full" data-testid="comm-links-search-image-input" required />
-                            <span class="label-text-alt text-base-content/60">Max file size 5 MB.</span>
+                            <span class="label-text-alt text-subtle">Max file size 5 MB.</span>
                         </div>
 
                         <div class="flex flex-col gap-1 w-full">
@@ -180,7 +180,7 @@
                                 <option value="50">50% (Loose)</option>
                                 <option value="25">25% (Very loose)</option>
                             </select>
-                            <span class="label-text-alt text-base-content/60">Lower values return more results.</span>
+                            <span class="label-text-alt text-subtle">Lower values return more results.</span>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Search by image</button>

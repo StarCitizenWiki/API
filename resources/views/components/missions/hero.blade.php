@@ -34,7 +34,7 @@
             <div class="min-w-0 space-y-2">
                 <div class="flex items-center gap-3">
                     <span
-                        class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
+                        class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200 text-muted sm:size-11"
                         aria-label="Mission type"
                     >
                         <x-icon :name="$iconName" class="size-5 sm:size-6" />
@@ -52,7 +52,7 @@
                 </div>
 
                 @if ($headlineLinks !== [])
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-base-content/60">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-subtle">
                         @foreach ($headlineLinks as $entry)
                             @if (! $loop->first)
                                 <span aria-hidden="true" class="text-base-content/35">|</span>
@@ -69,8 +69,8 @@
             @endphp
 
             @if ($rankIndex !== null)
-                <div class="rounded-xl border border-base-300 bg-base-200/45 px-3 py-2.5 sm:shrink-0">
-                    <div class="text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/50">
+                <div class="rounded-xl border border-base-300 bg-base-200 px-3 py-2.5 sm:shrink-0">
+                    <div class="text-xs font-semibold uppercase tracking-widest text-muted">
                         Rank
                     </div>
                     <div class="mt-1.5 text-base font-semibold leading-none text-base-content">
@@ -81,7 +81,7 @@
         </div>
 
         @if ($description)
-            <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base" data-testid="mission-hero-description">
+            <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="mission-hero-description">
                 {!! nl2br(e($description)) !!}
             </div>
         @endif

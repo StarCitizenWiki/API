@@ -68,7 +68,7 @@
 
                         <a
                             href="{{ $missionUrl }}"
-                            class="group block rounded-box border border-base-300 bg-base-100/70 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
+                            class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                             data-testid="starmap-location-mission-card"
                         >
                             <div class="min-w-0 space-y-1.5">
@@ -80,7 +80,7 @@
                                 </div>
 
                                 @if ($missionType || $factionName)
-                                    <div class="truncate text-xs text-base-content/60">
+                                    <div class="truncate text-xs text-subtle">
                                         @if ($missionType)
                                             {{ $missionType }}
                                         @endif

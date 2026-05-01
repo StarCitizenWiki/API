@@ -56,11 +56,11 @@
             <div class="grid gap-6 lg:grid-cols-2">
                 @if ($capacityMetrics !== [])
                     <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Capacity</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Capacity</h3>
                         <dl class="space-y-2">
                             @foreach ($capacityMetrics as $metric)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
                                     <dd class="text-right text-sm font-medium text-base-content">
                                         {{ fmt_value_with_unit($metric['value'], $metric['unit'], $metric['precision']) }}
                                     </dd>
@@ -72,11 +72,11 @@
 
                 @if ($travelMetrics !== [])
                     <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Travel</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Travel</h3>
                         <dl class="space-y-2">
                             @foreach ($travelMetrics as $metric)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
                                     <dd class="text-right text-sm font-medium text-base-content">
                                         {{ $metric['formatter']($metric['value']) }}
                                     </dd>

@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold" data-testid="auth-register-heading">Star Citizen Wiki API</h1>
-            <p class="text-sm text-base-content/70">Create a new account.</p>
+            <p class="text-sm text-subtle">Create a new account.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
@@ -79,7 +79,7 @@
         </div>
 
         <div class="text-center text-sm">
-            <span class="text-base-content/70">Already have an account?</span>
+            <span class="text-subtle">Already have an account?</span>
             <a class="text-primary" data-testid="auth-register-login-link" href="{{ route('login') }}">Sign in</a>
         </div>
     </div>

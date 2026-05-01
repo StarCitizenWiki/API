@@ -206,7 +206,7 @@
         }
     }
 @endphp
-<div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto" data-testid="item-breadcrumbs">
+<div class="breadcrumbs text-sm text-subtle overflow-x-auto" data-testid="item-breadcrumbs">
     <ul class="w">
         @foreach ($breadcrumbs as $breadcrumb)
             <li>

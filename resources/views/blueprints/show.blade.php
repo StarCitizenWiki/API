@@ -165,7 +165,7 @@
             const toneClasses = (modifier, value) => {
                 if (isNeutral(value) || modifier?.better_when === "neutral") {
                     return {
-                        text: "text-base-content/60",
+                        text: "text-subtle",
                         card: "rounded-box border border-base-300 bg-base-100 px-2.5 py-2",
                     };
                 }
@@ -340,8 +340,8 @@
                                         <span class="text-base font-semibold text-base-content">${escapeHtml(title)}</span>
                                         ${isSelected ? '<span class="badge badge-primary badge-sm">Selected</span>' : ""}
                                     </div>
-                                    ${outputClass === "" ? "" : `<p class="mt-1 truncate text-xs font-mono text-base-content/55">${escapeHtml(outputClass)}</p>`}
-                                    ${ingredientPreview === "" ? "" : `<p class="mt-2 text-xs text-base-content/70"><span class="font-semibold text-base-content/80">Inputs:</span> ${escapeHtml(ingredientPreview)}</p>`}
+                                    ${outputClass === "" ? "" : `<p class="mt-1 truncate text-xs font-mono text-muted">${escapeHtml(outputClass)}</p>`}
+                                    ${ingredientPreview === "" ? "" : `<p class="mt-2 text-xs text-subtle"><span class="font-semibold text-emphasis">Inputs:</span> ${escapeHtml(ingredientPreview)}</p>`}
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2 lg:justify-end">
                                     ${typeLabel === "" ? "" : `<span class="badge badge-ghost badge-sm">${escapeHtml(typeLabel)}</span>`}
@@ -476,7 +476,7 @@
                         setHidden(resourceFilterEmpty, resourceTypes.length !== 0);
                         syncResourceFilterUi();
                     } catch {
-                        resourceFilterOptions.innerHTML = '<div class="rounded-box border border-dashed border-base-300 bg-base-200/30 px-3 py-4 text-sm text-base-content/70">Unable to load resource filters.</div>';
+                        resourceFilterOptions.innerHTML = '<div class="rounded-box border border-dashed border-base-300 bg-base-200 px-3 py-4 text-sm text-subtle">Unable to load resource filters.</div>';
                         setHidden(resourceFilterEmpty, true);
                     }
                 };
@@ -669,9 +669,9 @@
                 const selectionGroups = new Map();
                 const selectionGroupViews = new Map();
                 const activeAspectCardClass = "card border border-base-300 bg-base-200/60 shadow-sm";
-                const inactiveAspectCardClass = "card border border-dashed border-base-300 bg-base-100/70 opacity-70 shadow-sm";
+                const inactiveAspectCardClass = "card border border-dashed border-base-300 bg-base-100 opacity-70 shadow-sm";
                 const activeSelectionButtonClass = "btn btn-primary btn-xs";
-                const inactiveSelectionButtonClass = "btn btn-outline btn-xs border-base-300 bg-base-100 text-base-content/70";
+                const inactiveSelectionButtonClass = "btn btn-outline btn-xs border-base-300 bg-base-100 text-subtle";
                 const selectedCountForGroup = (group) => {
                     return group.aspectIndexes.filter((aspectIndex) => selectedByAspect[aspectIndex]).length;
                 };
@@ -777,7 +777,7 @@
                         }
 
                         element.textContent = isSelected ? `Q${quality}` : "Excluded";
-                        element.className = isSelected ? "font-medium tabular-nums" : "text-base-content/60";
+                        element.className = isSelected ? "font-medium tabular-nums" : "text-subtle";
                     });
 
                     view.sliders.forEach((element) => {
@@ -797,7 +797,7 @@
 
                         view.reset.disabled = isDefaultQuality;
                         view.reset.className = isDefaultQuality
-                            ? "invisible btn btn-ghost btn-xs text-base-content/40 transition-colors"
+                            ? "invisible btn btn-ghost btn-xs text-muted transition-colors"
                             : "btn btn-outline btn-primary btn-xs border-primary/40 bg-base-100 text-primary transition-colors hover:bg-primary/10";
                     }
 
@@ -815,7 +815,7 @@
 
                             if (modifierView.change instanceof HTMLElement) {
                                 modifierView.change.textContent = "Excluded";
-                                modifierView.change.className = "text-xs font-semibold tabular-nums text-base-content/45";
+                                modifierView.change.className = "text-xs font-semibold tabular-nums text-muted";
                             }
 
                             return;
@@ -1101,7 +1101,7 @@
 @section('content')
     @php $breadcrumbs = data_get($seo, 'breadcrumbs', []); @endphp
     @if (! $isEmptyMode && $breadcrumbs !== [])
-        <div class="breadcrumbs text-sm text-base-content/70 overflow-x-auto" data-testid="blueprint-breadcrumbs">
+        <div class="breadcrumbs text-sm text-subtle overflow-x-auto" data-testid="blueprint-breadcrumbs">
             <ul class="w">
                 @foreach ($breadcrumbs as $breadcrumb)
                     <li>
@@ -1138,7 +1138,7 @@
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div>
                                     <h2 class="text-sm font-semibold">Change blueprint</h2>
-                                    <p class="text-xs text-base-content/70">
+                                    <p class="text-xs text-subtle">
                                         Search or filter another craftable output.
                                     </p>
                                 </div>
@@ -1179,14 +1179,14 @@
                     <div class="grid gap-4 xl:grid-cols-12">
                         <div class="order-2 grid gap-4 xl:order-1 xl:col-span-7">
                             @if ($aspects === [])
-                                <div class="rounded-box border border-dashed border-base-300 bg-base-200/30 p-6 text-sm text-base-content/70">
+                                <div class="rounded-box border border-dashed border-base-300 bg-base-200 p-6 text-sm text-subtle">
                                     No recipe inputs were returned for this blueprint.
                                 </div>
                             @endif
 
                             @foreach ($aspectGroups as $aspectGroup)
                                 @if ($aspectGroup['is_choice_group'])
-                                    <div class="rounded-box border border-base-300 bg-base-200/30 p-4">
+                                    <div class="rounded-box border border-base-300 bg-base-200 p-4">
                                         <div class="flex flex-wrap items-start justify-between gap-3">
                                             <div class="space-y-2">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -1203,7 +1203,7 @@
                                             </span>
                                         </div>
 
-                                        <p class="mt-2 text-xs text-base-content/70">
+                                        <p class="mt-2 text-xs text-subtle">
                                             Default preview uses the first {{ $aspectGroup['required_count'] }} option{{ $aspectGroup['required_count'] === 1 ? '' : 's' }}.
                                             Switch selections to model a different valid recipe.
                                         </p>
@@ -1261,17 +1261,17 @@
                                         </h3>
 
                                         @if ($blueprintKey)
-                                            <div class="text-xs font-mono text-base-content/55">{{ $blueprintKey }}</div>
+                                            <div class="text-xs font-mono text-muted">{{ $blueprintKey }}</div>
                                         @endif
 
-                                        <p class="text-sm text-base-content/80">
+                                        <p class="text-sm text-emphasis">
                                             {{ $outputType ?? 'Unknown type' }}@if ($outputSubtype) / {{ $outputSubtype }}@endif
                                         </p>
                                     </div>
 
                                     <div class="grid gap-3 sm:grid-cols-2">
                                         <div class="rounded-box border border-base-300 bg-base-100 px-4 py-3">
-                                            <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Craft time</div>
+                                            <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Craft time</div>
                                             <div class="mt-1 text-sm font-medium">
                                                 {{ $craftTimeLabel ?? 'Unknown' }}
                                             </div>
@@ -1285,7 +1285,7 @@
                                     <div class="text-sm font-medium text-base-content" data-aggregate-empty-title>
                                         {{ $hasInteractiveAspects ? 'No output changes from baseline' : 'No adjustable output tuning available' }}
                                     </div>
-                                    <p class="mt-1 text-xs text-base-content/70" data-aggregate-empty-copy>
+                                    <p class="mt-1 text-xs text-subtle" data-aggregate-empty-copy>
                                         {{ $hasInteractiveAspects
                                             ? 'Move any quality slider away from its baseline to preview tuning changes.'
                                             : 'This blueprint does not expose quality-range modifier data for its recipe inputs.' }}
@@ -1307,22 +1307,22 @@
                                                 </div>
 
                                                 <div class="shrink-0 text-right">
-                                                    <div class="text-sm font-semibold tabular-nums text-base-content/60" data-aggregate-change="{{ data_get($summaryProperty, 'property_key') }}">No change</div>
+                                                    <div class="text-sm font-semibold tabular-nums text-subtle" data-aggregate-change="{{ data_get($summaryProperty, 'property_key') }}">No change</div>
                                                 </div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
 
-                                <p class="text-xs text-base-content/75">
+                                <p class="text-xs text-emphasis">
                                     Changes are shown relative to each selected input&apos;s baseline quality.
                                 </p>
 
                                 @if ($aspects !== [])
                                     <div class="border-t border-primary/15 pt-3">
-                                        <div class="overflow-hidden rounded-box border border-base-300/80 bg-base-100/70">
+                                        <div class="overflow-hidden rounded-box border border-base-300/80 bg-base-100">
                                             <table class="table">
-                                                <thead class="bg-base-200/40 text-xs uppercase tracking-wide text-base-content/55">
+                                                <thead class="bg-base-200 text-xs uppercase tracking-wide text-muted">
                                                     <tr>
                                                         <th>Input</th>
                                                         <th class="text-right">Quality</th>
@@ -1339,21 +1339,21 @@
                                                         @endphp
                                                         <tr data-bom-row="{{ $aspectIndex }}" @if (($aspect['is_selected'] ?? true) === false) hidden @endif>
                                                             <td class="py-2">
-                                                                <div class="font-medium text-base-content/85">{{ $aspect['name'] }}</div>
-                                                                <div class="text-[11px] text-base-content/60">{{ $selectedInputName }}</div>
+                                                                <div class="font-medium text-emphasis">{{ $aspect['name'] }}</div>
+                                                                <div class="text-xs text-subtle">{{ $selectedInputName }}</div>
                                                             </td>
                                                             <td class="py-2 text-right">
-                                                                <span class="font-medium tabular-nums text-base-content/80" data-bom-quality="{{ $aspectIndex }}">
+                                                                <span class="font-medium tabular-nums text-emphasis" data-bom-quality="{{ $aspectIndex }}">
                                                                     {{ $formatAspectQuality($aspect) }}
                                                                 </span>
                                                             </td>
-                                                            <td class="py-2 text-right text-base-content/70">
+                                                            <td class="py-2 text-right text-subtle">
                                                                 {{ $selectedInputAmount ?? 'Unknown' }}
                                                             </td>
                                                         </tr>
                                                     @endforeach
                                                     <tr data-bom-empty-row hidden>
-                                                        <td colspan="3" class="py-2 text-xs text-base-content/60">
+                                                        <td colspan="3" class="py-2 text-xs text-subtle">
                                                             No inputs currently selected.
                                                         </td>
                                                     </tr>
@@ -1378,22 +1378,22 @@
                                 <div class="space-y-3">
                                     @foreach ($unlockingMissions as $group)
                                         <div>
-                                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-base-content/50">{{ $group['label'] }}</div>
+                                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ $group['label'] }}</div>
                                             <div class="grid grid-cols-1 gap-px overflow-hidden rounded-box border border-base-300 bg-base-300 sm:grid-cols-2">
                                                 @foreach ($group['missions'] as $mission)
                                                     <div class="flex flex-col justify-center bg-base-100 px-3 py-2">
                                                         <div class="flex flex-wrap items-center gap-1.5">
                                                             @if ($mission['web_url'] ?? null)
-                                                                <a href="{{ $mission['web_url'] }}" class="text-sm font-medium text-base-content/90 link link-hover">{{ $mission['title'] ?? 'Unknown mission' }}</a>
+                                                                <a href="{{ $mission['web_url'] }}" class="text-sm font-medium text-emphasis link link-hover">{{ $mission['title'] ?? 'Unknown mission' }}</a>
                                                             @else
-                                                                <span class="text-sm font-medium text-base-content/90">{{ $mission['title'] ?? 'Unknown mission' }}</span>
+                                                                <span class="text-sm font-medium text-emphasis">{{ $mission['title'] ?? 'Unknown mission' }}</span>
                                                             @endif
                                                             @if (($mission['count'] ?? 1) > 1)
                                                                 <span class="badge badge-ghost badge-sm">&times;{{ $mission['count'] }}</span>
                                                             @endif
                                                         </div>
                                                         @if ($mission['reward_scope'])
-                                                            <span class="text-xs text-base-content/50">{{ $mission['reward_scope'] }}</span>
+                                                            <span class="text-xs text-muted">{{ $mission['reward_scope'] }}</span>
                                                         @endif
                                                     </div>
                                                 @endforeach
@@ -1407,7 +1407,7 @@
                         <div class="card border border-base-300 bg-base-100 shadow">
                             <div class="card-body gap-4">
                                 <h2 class="text-base font-semibold tracking-tight">Unlocking missions</h2>
-                                <p class="text-sm text-base-content/60">No missions available for this blueprint yet.</p>
+                                <p class="text-sm text-subtle">No missions available for this blueprint yet.</p>
                             </div>
                         </div>
                     @endif
@@ -1420,14 +1420,14 @@
                                 @if ($dismantleTimeLabel || $dismantleEfficiency !== null)
                                     <div class="grid gap-3 sm:grid-cols-2">
                                         @if ($dismantleTimeLabel)
-                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
-                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Time</div>
+                                            <div class="rounded-box border border-base-300 bg-base-200 px-4 py-3">
+                                                <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Time</div>
                                                 <div class="mt-1 text-sm font-medium">{{ $dismantleTimeLabel }}</div>
                                             </div>
                                         @endif
                                         @if ($dismantleEfficiency !== null)
-                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
-                                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/70">Efficiency</div>
+                                            <div class="rounded-box border border-base-300 bg-base-200 px-4 py-3">
+                                                <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Efficiency</div>
                                                 <div class="mt-1 text-sm font-medium">{{ $dismantleEfficiency }}</div>
                                             </div>
                                         @endif
@@ -1437,7 +1437,7 @@
                                 @if ($dismantleReturns !== [])
                                     <div class="space-y-2">
                                         @foreach ($dismantleReturns as $dismantleReturn)
-                                            <div class="rounded-box border border-base-300 bg-base-200/40 px-4 py-3">
+                                            <div class="rounded-box border border-base-300 bg-base-200 px-4 py-3">
                                                 <div class="flex flex-wrap items-center justify-between gap-2">
                                                     @if (data_get($dismantleReturn, 'web_url'))
                                                         <a href="{{ data_get($dismantleReturn, 'web_url') }}" class="text-sm font-medium link link-hover">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</a>
@@ -1445,7 +1445,7 @@
                                                         <div class="text-sm font-medium">{{ data_get($dismantleReturn, 'name', 'Unknown') }}</div>
                                                     @endif
                                                     @if (data_get($dismantleReturn, 'quantity_scu') !== null)
-                                                        <div class="text-xs text-base-content/70">{{ data_get($dismantleReturn, 'quantity_scu') }} SCU</div>
+                                                        <div class="text-xs text-subtle">{{ data_get($dismantleReturn, 'quantity_scu') }} SCU</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1468,13 +1468,13 @@
 
                                 <dl class="space-y-3 text-sm">
                                     <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Blueprint UUID</dt>
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Blueprint UUID</dt>
                                         <dd class="mt-1 break-all font-mono">{{ $blueprintUuid }}</dd>
                                     </div>
 
                                     @if ($apiLink)
                                         <div>
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">API route</dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">API route</dt>
                                             <dd class="mt-1 break-all font-mono">
                                                 <a class="link link-hover" href="{{ $apiLink }}">{{ $apiLink }}</a>
                                             </dd>
@@ -1482,16 +1482,16 @@
                                     @endif
 
                                     <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Availability</dt>
+                                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Availability</dt>
                                         <dd class="mt-1">{{ $isAvailableByDefault ? 'Available by default' : 'Not available by default' }}</dd>
                                     </div>
                                 </dl>
 
                                 @if (! $isAvailableByDefault && $unlockingMissions === [])
                                     <div class="space-y-2">
-                                        <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Where to find blueprint</div>
+                                        <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Where to find blueprint</div>
 
-                                        <p class="text-sm text-base-content/70">
+                                        <p class="text-sm text-subtle">
                                             Unlock required, but no source location was returned for this blueprint.
                                         </p>
                                     </div>
@@ -1507,18 +1507,18 @@
                                 </div>
 
                                 @if (! is_array($requirementGroups) || $requirementGroups === [])
-                                    <p class="text-sm text-base-content/70">No requirement groups were returned for this blueprint.</p>
+                                    <p class="text-sm text-subtle">No requirement groups were returned for this blueprint.</p>
                                 @else
                                     <div class="space-y-4">
                                         @foreach ($requirementGroups as $group)
-                                            <div class="rounded-box border border-base-300 bg-base-200/30 p-4">
+                                            <div class="rounded-box border border-base-300 bg-base-200 p-4">
                                                 <div class="flex flex-wrap items-start justify-between gap-2">
                                                     <div>
                                                         <h3 class="text-base font-semibold">
                                                             {{ $resolveRequirementLabel(data_get($group, 'name'), data_get($group, 'key'), 'Requirement group') }}
                                                         </h3>
                                                         @if (data_get($group, 'key'))
-                                                            <div class="mt-1 text-xs font-mono text-base-content/60">{{ data_get($group, 'key') }}</div>
+                                                            <div class="mt-1 text-xs font-mono text-subtle">{{ data_get($group, 'key') }}</div>
                                                         @endif
                                                     </div>
 

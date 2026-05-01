@@ -54,7 +54,7 @@
 
         @if ($activeLocationFilter)
             <div class="flex items-center gap-2" data-testid="missions-location-filter-badge">
-                <span class="text-sm text-base-content/60">Filtered by:</span>
+                <span class="text-sm text-subtle">Filtered by:</span>
                 <a href="{{ route('web.missions.index', $versionParams) }}" class="badge badge-primary badge-sm gap-1.5" title="Clear location filter">
                     <x-icon name="map-pin" class="size-3" />
                     {{ $activeLocationFilter['name'] }}

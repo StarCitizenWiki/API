@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-8">
         <div class="text-center">
             <h1 class="text-2xl font-semibold" data-testid="profile-heading">Profile</h1>
-            <p class="text-sm text-base-content/70">Manage your account settings.</p>
+            <p class="text-sm text-subtle">Manage your account settings.</p>
         </div>
 
         @if (session('status'))
@@ -108,7 +108,7 @@
                                             @if ($token->last_used_at)
                                                 {{ $token->last_used_at->diffForHumans() }}
                                             @else
-                                                <span class="text-base-content/40">Never</span>
+                                                <span class="text-muted">Never</span>
                                             @endif
                                         </td>
                                         <td class="text-right">
@@ -139,8 +139,8 @@
                 @else
                     <div class="flex flex-col items-center justify-center py-8 text-center" data-testid="profile-token-empty-state">
                         <x-icon name="key" class="size-12 text-base-content/30 mb-3" />
-                        <p class="text-base-content/60">You don't have any API tokens yet.</p>
-                        <p class="text-sm text-base-content/40">Create a token to authenticate with the API.</p>
+                        <p class="text-subtle">You don't have any API tokens yet.</p>
+                        <p class="text-sm text-muted">Create a token to authenticate with the API.</p>
                     </div>
                 @endif
             </div>
@@ -203,7 +203,7 @@
         <div class="card border border-base-200 bg-base-100 shadow" data-testid="profile-delete-card">
             <div class="card-body gap-4">
                 <h2 class="card-title text-error">Delete Account</h2>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-subtle">
                     Once you delete your account, there is no going back. Please be certain.
                 </p>
 

@@ -17,7 +17,7 @@
                     <span class="badge badge-ghost">{{ $childCount }}</span>
                 </div>
                 @if ($childTypeCount > 0)
-                    <div class="text-sm text-base-content/65">{{ $childTypeCount }} type{{ $childTypeCount === 1 ? '' : 's' }}</div>
+                    <div class="text-sm text-subtle">{{ $childTypeCount }} type{{ $childTypeCount === 1 ? '' : 's' }}</div>
                 @endif
             </div>
 
@@ -26,7 +26,7 @@
                     @foreach ($childGroups as $group)
                         <section class="space-y-3" data-testid="starmap-location-child-group-{{ $group['key'] }}">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h4 class="text-sm font-semibold tracking-tight text-base-content/80">{{ $group['type_name'] }}</h4>
+                                <h4 class="text-sm font-semibold tracking-tight text-emphasis">{{ $group['type_name'] }}</h4>
                                 <span class="badge badge-outline badge-sm">{{ $group['count'] }}</span>
                             </div>
 
@@ -54,7 +54,7 @@
                     @endforeach
                 </div>
             @else
-                <div class="text-sm text-base-content/70">
+                <div class="text-sm text-subtle">
                     No child locations are available for this location.
                 </div>
             @endif

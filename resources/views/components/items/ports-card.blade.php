@@ -22,7 +22,7 @@
                 @endforeach
             </div>
         @else
-            <div class="text-sm text-base-content/70">No ports available.</div>
+            <div class="text-sm text-subtle">No ports available.</div>
         @endif
     </div>
 </section>

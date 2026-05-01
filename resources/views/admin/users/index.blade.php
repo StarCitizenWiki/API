@@ -7,8 +7,8 @@
 @section('admin.content')
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold">Users Management</h1>
-            <span class="text-sm text-base-content/60" data-testid="admin-users-total">Total: {{ number_format($users->total()) }}</span>
+            <h1 class="text-2xl font-semibold">Users Management</h1>
+            <span class="text-sm text-subtle" data-testid="admin-users-total">Total: {{ number_format($users->total()) }}</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -49,7 +49,7 @@
 
                                     <dialog id="deleteModal{{ $user->id }}" class="modal" data-testid="admin-users-delete-modal-{{ $user->id }}">
                                         <div class="modal-box">
-                                            <h3 class="text-lg font-bold">Confirm Deletion</h3>
+                                            <h3 class="text-lg font-semibold">Confirm Deletion</h3>
                                             <p class="py-4">Are you sure you want to delete user "{{ $user->name }}"? This action cannot be undone.</p>
                                             <div class="modal-action">
                                                 <form
@@ -72,7 +72,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-base-content/60">No users found.</td>
+                            <td colspan="6" class="text-center text-subtle">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>

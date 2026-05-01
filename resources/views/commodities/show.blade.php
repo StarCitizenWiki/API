@@ -42,7 +42,7 @@
 @section('content')
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70" data-testid="resource-breadcrumbs">
+            <div class="breadcrumbs text-sm text-subtle" data-testid="resource-breadcrumbs">
                 <ul>
                     @foreach ($breadcrumbs as $breadcrumb)
                         <li>

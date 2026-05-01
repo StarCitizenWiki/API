@@ -75,7 +75,7 @@
                 <div class="flex items-center gap-3">
                     @if ($vehicleTypeIcon && ! $heroImage)
                         <span
-                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200 text-muted sm:size-11"
                             title="{{ $vehicleTypeLabel }}"
                             aria-label="{{ $vehicleTypeLabel }}"
                         >
@@ -89,11 +89,11 @@
                 </div>
 
                 @if ($manufacturerName || $career || $role || $sizeClass !== null || $maxMedicalTier !== null)
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-base-content/60">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-subtle">
                         @if ($manufacturerName)
                             <a
                                 href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerName]]) }}"
-                                class="link link-hover font-semibold text-base-content/70"
+                                class="link link-hover font-semibold text-subtle"
                             >
                                 {{ $manufacturerName }}
                             </a>
@@ -127,8 +127,8 @@
             </div>
 
             @if ($msrp !== null)
-                <div class="rounded-xl border border-base-300 bg-base-200/45 px-3 py-2.5 sm:shrink-0">
-                    <div class="text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/50">
+                <div class="rounded-xl border border-base-300 bg-base-200 px-3 py-2.5 sm:shrink-0">
+                    <div class="text-xs font-semibold uppercase tracking-widest text-muted">
                         MSRP
                     </div>
                     <div class="mt-1.5 text-base font-semibold leading-none text-base-content">
@@ -139,7 +139,7 @@
         </div>
 
         @if ($description)
-            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base">
+            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-subtle sm:text-base">
                 {!! nl2br(e((string) $description)) !!}
             </div>
         @endif

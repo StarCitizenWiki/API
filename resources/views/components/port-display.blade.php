@@ -120,14 +120,14 @@
                     </span>
                 @endif
                 @if ($depth > 0)
-                    <span class="text-base-content/50">↳</span>
+                    <span class="text-muted">↳</span>
                 @endif
                 @if($isLocked)
                     <x-icon name="lock" class="size-3"/>
                 @endif
                 <span>{{ $displayPortLabel }}</span>
                 @if (! empty($portPosition))
-                    <span class="text-xs font-normal text-base-content/60">{{ $portPosition }}</span>
+                    <span class="text-xs font-normal text-subtle">{{ $portPosition }}</span>
                 @endif
                 @if ($sizeRangeLabel !== '-')
                     <span class="badge badge-ghost badge-sm">{{ $sizeRangeLabel }}</span>
@@ -158,7 +158,7 @@
             @if ($showQuickStats)
                 <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
                     @if ($hasNamedEquippedItem)
-                        <span class="max-w-56 truncate text-base-content/70" title="{{ $equippedDisplayName }}">
+                        <span class="max-w-56 truncate text-subtle" title="{{ $equippedDisplayName }}">
                             {{ $equippedDisplayName }}
                         </span>
                     @endif
@@ -197,21 +197,21 @@
             <div class="grid gap-4">
                 <dl class="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 tabular-nums">
                     <div class="flex flex-col gap-1">
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                             Port Name
                         </dt>
                         <dd class="text-sm font-medium">{{ $displayPortName }}</dd>
                     </div>
 
                     <div class="flex flex-col gap-1">
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                             Equippable Item Size
                         </dt>
                         <dd class="text-sm font-medium">{{ $sizeRangeLabel }}</dd>
                     </div>
 
                     <div class="flex flex-col gap-1">
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                             Equippable Type + Sub Type
                         </dt>
                         <dd class="text-sm font-medium">{{ $portTypeLabel !== '' ? $portTypeLabel : '-' }}</dd>
@@ -219,7 +219,7 @@
 
                     @if (! empty($portPosition))
                         <div class="flex flex-col gap-1">
-                            <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
                                 Position
                             </dt>
                             <dd class="text-sm font-medium">{{ $portPosition }}</dd>
@@ -230,7 +230,7 @@
                 @unless(empty($equippedItem))
                     <div data-remove class="grid gap-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                            <span class="text-xs font-semibold uppercase tracking-wide text-subtle">
                                 Equipped Item
                             </span>
                             <span class="text-sm font-medium">{{ $equippedItemName }}</span>

@@ -38,23 +38,23 @@
 
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
                             @if ($pilotDps !== null)
-                                <dt class="text-sm text-base-content/80">DPS</dt>
+                                <dt class="text-sm text-emphasis">DPS</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($pilotDps) }} <span class="text-xs text-base-content/45">DPS</span>
+                                    {{ $formatDps($pilotDps) }} <span class="text-xs text-muted">DPS</span>
                                 </dd>
                             @endif
 
                             @if ($pilotAlpha !== null)
-                                <dt class="text-sm text-base-content/80">Alpha</dt>
+                                <dt class="text-sm text-emphasis">Alpha</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
                                     {{ $formatDps($pilotAlpha) }}
                                 </dd>
                             @endif
 
                             @if ($pilotSustainedDps !== null)
-                                <dt class="text-sm text-base-content/80">Sustained DPS</dt>
+                                <dt class="text-sm text-emphasis">Sustained DPS</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($pilotSustainedDps) }} <span class="text-xs text-base-content/45">DPS</span>
+                                    {{ $formatDps($pilotSustainedDps) }} <span class="text-xs text-muted">DPS</span>
                                 </dd>
                             @endif
                         </dl>
@@ -69,23 +69,23 @@
 
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
                             @if ($turretDps !== null)
-                                <dt class="text-sm text-base-content/80">DPS</dt>
+                                <dt class="text-sm text-emphasis">DPS</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($turretDps) }} <span class="text-xs text-base-content/45">DPS</span>
+                                    {{ $formatDps($turretDps) }} <span class="text-xs text-muted">DPS</span>
                                 </dd>
                             @endif
 
                             @if ($turretAlpha !== null)
-                                <dt class="text-sm text-base-content/80">Alpha</dt>
+                                <dt class="text-sm text-emphasis">Alpha</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
                                     {{ $formatDps($turretAlpha) }}
                                 </dd>
                             @endif
 
                             @if ($turretSustainedDps !== null)
-                                <dt class="text-sm text-base-content/80">Sustained DPS</dt>
+                                <dt class="text-sm text-emphasis">Sustained DPS</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($turretSustainedDps) }} <span class="text-xs text-base-content/45">DPS</span>
+                                    {{ $formatDps($turretSustainedDps) }} <span class="text-xs text-muted">DPS</span>
                                 </dd>
                             @endif
                         </dl>
@@ -100,14 +100,14 @@
 
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
                             @if ($missileCount !== null)
-                                <dt class="text-sm text-base-content/80">Count</dt>
+                                <dt class="text-sm text-emphasis">Count</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
                                     {{ $formatWhole($missileCount) }}
                                 </dd>
                             @endif
 
                             @if ($totalMissileDamage !== null)
-                                <dt class="text-sm text-base-content/80">Total Damage</dt>
+                                <dt class="text-sm text-emphasis">Total Damage</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
                                     {{ $formatWhole($totalMissileDamage) }}
                                 </dd>

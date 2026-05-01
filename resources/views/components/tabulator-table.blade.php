@@ -17,7 +17,7 @@
             @foreach ($config['externalFilters'] as $filter)
                 <label class="form-control">
                     <div class="label">
-                        <span class="label-text text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                        <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">
                             {{ $filter['title'] }}
                         </span>
                     </div>
@@ -64,7 +64,7 @@
     <div class="card card-border border-base-300 bg-base-100" data-testid="tabulator-api-url-card-{{ $id }}">
         <div class="card-body gap-3 p-4">
             <label class="label p-0" for="{{ $apiUrlTargetId }}" data-testid="tabulator-api-url-label-{{ $id }}">
-                <span class="label-text text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">
                     {{ $apiUrlLabel }}
                 </span>
             </label>

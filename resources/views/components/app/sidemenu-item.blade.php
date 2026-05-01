@@ -135,7 +135,7 @@
         }
     }
 
-    $iconClass = $isActive ? 'menu-active-fg' : 'text-base-content/70';
+    $iconClass = $isActive ? 'menu-active-fg' : 'text-subtle';
 @endphp
 
 @if ($collapsible && isset($children) && !empty(trim((string) $children)))

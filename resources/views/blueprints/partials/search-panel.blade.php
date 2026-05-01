@@ -3,10 +3,10 @@
 @endphp
 
 <div class="space-y-4">
-    <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
+    <div class="rounded-box border border-base-300 bg-base-200 p-4">
         <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <label class="input input-bordered flex min-h-12 w-full items-center gap-2 bg-base-100 px-4">
-                <x-icon name="search" class="size-4 text-base-content/55" />
+                <x-icon name="search" class="size-4 text-muted" />
                 <span class="sr-only">Search craftable blueprints</span>
                 <input
                     type="search"
@@ -45,14 +45,14 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <div class="text-sm font-semibold">Filter by resource</div>
-                <p class="mt-1 text-xs leading-5 text-base-content/70">
+                <p class="mt-1 text-xs leading-5 text-subtle">
                     Pick one or more input materials. Results only include blueprints that use every selected resource.
                 </p>
             </div>
 
             <button
                 type="button"
-                class="btn btn-ghost btn-xs hidden w-fit px-0 text-base-content/70 hover:bg-transparent hover:text-base-content"
+                class="btn btn-ghost btn-xs hidden w-fit px-0 text-subtle hover:bg-transparent hover:text-base-content"
                 data-resource-filter-clear
             >
                 Clear all
@@ -60,12 +60,12 @@
         </div>
 
         <div class="mt-4 grid gap-2 sm:grid-cols-2 2xl:grid-cols-3" data-resource-filter-options>
-            <div class="rounded-box border border-dashed border-base-300 bg-base-200/30 px-3 py-4 text-sm text-base-content/70">
+            <div class="rounded-box border border-dashed border-base-300 bg-base-200 px-3 py-4 text-sm text-subtle">
                 Loading resource filters...
             </div>
         </div>
 
-        <div class="rounded-box border border-dashed border-base-300 bg-base-200/30 px-3 py-4 text-sm text-base-content/70" data-resource-filter-empty hidden>
+        <div class="rounded-box border border-dashed border-base-300 bg-base-200 px-3 py-4 text-sm text-subtle" data-resource-filter-empty hidden>
             No blueprint input resources are available for this game version.
         </div>
     </div>
@@ -73,7 +73,7 @@
     <section class="space-y-3">
         <div class="flex flex-wrap items-center gap-2 text-sm font-semibold">
             <span>Matching blueprints</span>
-            <span class="text-base-content/55" data-blueprint-search-count>
+            <span class="text-muted" data-blueprint-search-count>
                 ({{ $renderSearchResultCount }} result{{ $renderSearchResultCount === 1 ? '' : 's' }})
             </span>
         </div>
@@ -84,12 +84,12 @@
             @endforeach
         </div>
 
-        <div class="rounded-box border border-base-300 bg-base-100 px-4 py-3 text-sm text-base-content/70" data-blueprint-search-loading hidden>
+        <div class="rounded-box border border-base-300 bg-base-100 px-4 py-3 text-sm text-subtle" data-blueprint-search-loading hidden>
             Searching blueprints...
         </div>
 
         <div
-            class="rounded-box border border-dashed border-base-300 bg-base-100 px-4 py-5 text-sm text-base-content/70"
+            class="rounded-box border border-dashed border-base-300 bg-base-100 px-4 py-5 text-sm text-subtle"
             data-testid="blueprints-search-empty-state"
             data-blueprint-search-empty
             @if ($initialSearchResults !== []) hidden @endif

@@ -36,7 +36,7 @@
 
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70">
+            <div class="breadcrumbs text-sm text-subtle">
                 <ul>
                     <li><a href="{{ route('web.comm-links.index') }}">Comm-Links</a></li>
                     <li><a href="{{ route('web.comm-links.images.index') }}">Images</a></li>
@@ -61,7 +61,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <div class="text-sm font-semibold">{{ $name ?? 'Image' }}</div>
-                                <div class="text-xs text-base-content/60">{{ $alt ?: 'No description available.' }}</div>
+                                <div class="text-xs text-subtle">{{ $alt ?: 'No description available.' }}</div>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 @if ($rsiUrl)
@@ -87,19 +87,19 @@
                         <h2 class="card-title text-base">Metadata</h2>
                         <dl class="grid gap-4">
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">ID</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">ID</dt>
                                 <dd class="text-sm font-medium">{{ $imageId ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Name</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Name</dt>
                                 <dd class="text-sm font-medium">{{ $name ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Mime Type</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Mime Type</dt>
                                 <dd class="text-sm font-medium">{{ $mimeType ?? '-' }}</dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Size</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Size</dt>
                                 <dd class="text-sm font-medium">
                                     @if ($sizeMb !== null)
                                         {{ $sizeMb }} MB
@@ -109,7 +109,7 @@
                                 </dd>
                             </div>
                             <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Last Modified</dt>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Last Modified</dt>
                                 <dd class="text-sm font-medium">{{ $lastModified ?? '-' }}</dd>
                             </div>
                         </dl>
@@ -120,7 +120,7 @@
                     <div class="card-body gap-4">
                         <h2 class="card-title text-base">Duplicates</h2>
                         @if ($baseImage)
-                            <div class="text-sm text-base-content/70">
+                            <div class="text-sm text-subtle">
                                 Base image:
                                 <a class="link link-primary" href="{{ route('web.comm-links.images.show', $baseImage['id']) }}">
                                     {{ $baseImage['name'] ?? $baseImage['id'] }}
@@ -136,7 +136,7 @@
                                 @endforeach
                             </div>
                         @elseif (! $baseImage)
-                            <div class="text-sm text-base-content/70">No duplicates available.</div>
+                            <div class="text-sm text-subtle">No duplicates available.</div>
                         @endif
                     </div>
                 </div>
@@ -172,7 +172,7 @@
                         </div>
                     @endif
                 @else
-                    <div class="text-sm text-base-content/70">No comm-links available.</div>
+                    <div class="text-sm text-subtle">No comm-links available.</div>
                 @endif
             </div>
         </div>

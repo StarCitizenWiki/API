@@ -22,18 +22,18 @@
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($scuConverted !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Capacity</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($scuConverted, data_get($inventory, 'unit', 'SCU'), 1) }}</dd>
                 </div>
             @endif
             @if ($hasDimensions)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Dimensions</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Dimensions</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($width, 'm', 1) }} × {{ fmt_value_with_unit($height, 'm', 1) }} × {{ fmt_value_with_unit($length, 'm', 1) }}</dd>
                 </div>
             @endif
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Type</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Type</dt>
                 <dd class="text-sm font-semibold text-base-content">
                     {{ $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-')) }}
                 </dd>

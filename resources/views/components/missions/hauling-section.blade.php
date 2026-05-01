@@ -37,13 +37,13 @@
             <div class="card-body p-5 sm:p-6">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="badge {{ $badge }} badge-sm">Choice</span>
-                    <span class="text-sm text-base-content/60">Deliver one of the following</span>
+                    <span class="text-sm text-subtle">Deliver one of the following</span>
                 </div>
 
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     @foreach ($orOptions as $optionIdx => $optionGroup)
-                        <div class="rounded-lg border border-dashed border-base-300 bg-base-200/30 p-3">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-2">
+                        <div class="rounded-lg border border-dashed border-base-300 bg-base-200 p-3">
+                            <div class="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                                 Choice {{ $optionIdx + 1 }} of {{ count($orOptions) }}
                             </div>
 
@@ -75,7 +75,7 @@
 
                                         @if ($hasScu || $hasAmount || (data_get($groupEntry, 'max_container_size') ?? 0) > 0)
                                             <div
-                                                class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-base-content/60">
+                                                class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-subtle">
                                                 @if ($hasScu)
                                                     <span>SCU: {{ fmt_range(data_get($groupEntry, 'min_scu'), data_get($groupEntry, 'max_scu'), '', 0) }}</span>
                                                 @endif
@@ -142,7 +142,7 @@
                             <div class="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-sm">
                                 @if ($hasScu)
                                     <div>
-                                        <span class="text-base-content/50">SCU:</span>
+                                        <span class="text-muted">SCU:</span>
                                         <span
                                             class="font-medium">{{ fmt_range(data_get($order, 'min_scu'), data_get($order, 'max_scu'), '', 0) }}</span>
                                     </div>
@@ -150,7 +150,7 @@
 
                                 @if ($hasAmount)
                                     <div>
-                                        <span class="text-base-content/50">Amount:</span>
+                                        <span class="text-muted">Amount:</span>
                                         <span
                                             class="font-medium">{{ fmt_range(data_get($order, 'min_amount'), data_get($order, 'max_amount'), '', 0) }}</span>
                                     </div>
@@ -158,7 +158,7 @@
 
                                 @if ((data_get($order, 'max_container_size') ?? 0) > 0)
                                     <div>
-                                        <span class="text-base-content/50">Container:</span>
+                                        <span class="text-muted">Container:</span>
                                         <span
                                             class="font-medium">{{ fmt_container_size(data_get($order, 'max_container_size')) }}</span>
                                     </div>
@@ -168,7 +168,7 @@
 
                         @if ($orderItems !== [])
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-2">
+                                <div class="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                                     {{ count($orderItems) === 1 ? 'Item' : count($orderItems) . ' items' }}
                                 </div>
                                 <div class="flex flex-wrap gap-1.5">

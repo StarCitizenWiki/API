@@ -78,11 +78,11 @@
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                             <div></div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
 
                             @foreach ($signatureSummaryRows as $row)
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                     {{ $row['label'] }}
                                 </dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
@@ -113,11 +113,11 @@
                         @if ($coolingSummaryRows !== [])
                             <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                                 <div></div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
 
                                 @foreach ($coolingSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">
@@ -153,11 +153,11 @@
                         @if ($powerSummaryRows !== [])
                             <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                                 <div></div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
+                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
 
                                 @foreach ($powerSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">

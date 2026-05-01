@@ -10,7 +10,7 @@
 @if ($childUrl)
     <a
         href="{{ $childUrl }}"
-        class="group block rounded-box border border-base-300 bg-base-100/70 p-4 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
+        class="group block rounded-box border border-base-300 bg-base-100 p-4 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
         @if ($testId) data-testid="{{ $testId }}" @endif
     >
         <div class="min-w-0 space-y-2">
@@ -20,7 +20,7 @@
                 </div>
 
                 @if (is_string($childTypeName) && $childTypeName !== '')
-                    <div class="truncate text-xs text-base-content/60">
+                    <div class="truncate text-xs text-subtle">
                         {{ $childTypeName }}
 
                         @if (is_string($childClassification) && $childClassification !== '' && $childClassification !== $childTypeName)
@@ -41,7 +41,7 @@
         </div>
     </a>
 @else
-    <div class="rounded-box border border-base-300 bg-base-100/70 p-4">
+    <div class="rounded-box border border-base-300 bg-base-100 p-4">
         <div class="min-w-0 space-y-2">
             <div class="space-y-1">
                 <div class="truncate text-sm font-semibold text-base-content">
@@ -49,7 +49,7 @@
                 </div>
 
                 @if (is_string($childTypeName) && $childTypeName !== '')
-                    <div class="truncate text-xs text-base-content/60">
+                    <div class="truncate text-xs text-subtle">
                         {{ $childTypeName }}
 
                         @if (is_string($childClassification) && $childClassification !== '' && $childClassification !== $childTypeName)

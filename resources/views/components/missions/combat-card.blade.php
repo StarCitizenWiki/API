@@ -44,7 +44,7 @@
         <div class="card-body p-5 sm:p-6 space-y-6">
             @if ($aggregatedSpawns !== [])
                 <div>
-                    <h3 class="text-sm font-semibold text-base-content/65 mb-3">Spawns</h3>
+                    <h3 class="text-sm font-semibold text-subtle mb-3">Spawns</h3>
                     <div class="overflow-x-auto">
                         <table class="table table-sm table-zebra">
                             <thead>
@@ -65,7 +65,7 @@
                                                 $isLong = Str::length($spawnGroup) > 35;
                                             @endphp
                                             @if ($isLong)
-                                                <span title="{{ $spawnGroup }}" class="inline-block max-w-[200px] truncate">{{ $spawnGroup }}</span>
+                                                <span title="{{ $spawnGroup }}" class="inline-block max-w-48 truncate">{{ $spawnGroup }}</span>
                                             @else
                                                 {{ $spawnGroup }}
                                             @endif
@@ -102,7 +102,7 @@
 
             @if ($entitySpawns !== [])
                 <div>
-                    <h3 class="text-sm font-semibold text-base-content/65 mb-3">Entity Spawns</h3>
+                    <h3 class="text-sm font-semibold text-subtle mb-3">Entity Spawns</h3>
                     <div class="overflow-x-auto">
                         <table class="table table-sm table-zebra">
                             <thead>

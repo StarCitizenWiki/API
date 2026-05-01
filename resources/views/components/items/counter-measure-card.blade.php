@@ -21,7 +21,7 @@
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($type !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Type</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Type</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ $type }}</dd>
                 </div>
             @endif
@@ -29,26 +29,26 @@
 
         @if ($hasSignatureData)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Signature
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if ($sigInfrared !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Infrared</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Infrared</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($sigInfrared, '', 2, true) }}</dd>
                             </div>
                         @endif
                         @if ($sigCrossSection !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cross Section</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Cross Section</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($sigCrossSection, '', 2, true) }}</dd>
                             </div>
                         @endif
                         @if ($sigElectromagnetic !== null)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Electromagnetic</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Electromagnetic</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($sigElectromagnetic, '', 2, true) }}</dd>
                             </div>
                         @endif

@@ -93,7 +93,7 @@
                     <div class="flex flex-col gap-1">
                         <h2 class="card-title">Media URL Results</h2>
                         @if (! empty($searchUrl))
-                            <p class="text-sm text-base-content/70">{{ $searchUrl }}</p>
+                            <p class="text-sm text-subtle">{{ $searchUrl }}</p>
                         @endif
                     </div>
 
@@ -106,7 +106,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-base-content/70" data-testid="comm-links-media-url-empty-state">No comm-links found for that media URL.</p>
+                        <p class="text-sm text-subtle" data-testid="comm-links-media-url-empty-state">No comm-links found for that media URL.</p>
                     @endif
                 </div>
             </div>

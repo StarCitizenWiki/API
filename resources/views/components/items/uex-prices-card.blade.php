@@ -22,12 +22,12 @@
     </summary>
     <div class="collapse-content max-h-96 overflow-y-auto">
         @if ($grouped === [])
-            <div class="text-sm text-base-content/70">No prices available.</div>
+            <div class="text-sm text-subtle">No prices available.</div>
         @else
             <div class="space-y-4">
                 @foreach ($grouped as $systemName => $systemPrices)
                     <section>
-                        <div class="text-sm font-semibold text-base-content/65">{{ $systemName }}</div>
+                        <div class="text-sm font-semibold text-subtle">{{ $systemName }}</div>
                         <div class="overflow-x-auto">
                             <table class="table table-sm">
                                 <caption class="sr-only">UEX prices for this item in {{ $systemName }}</caption>
@@ -44,7 +44,7 @@
                                 <tbody>
                                     @foreach ($systemPrices as $price)
                                         <tr>
-                                            <td class="whitespace-nowrap text-xs text-base-content/70">
+                                            <td class="whitespace-nowrap text-xs text-subtle">
                                                 {{ data_get($price, 'starmap_location.parent_name', '—') }}
                                             </td>
                                             <td class="whitespace-nowrap">
@@ -60,7 +60,7 @@
                                             <td>
                                                 {{ data_get($price, 'price_sell') > 0 ? number_format((float) data_get($price, 'price_sell')) . ' aUEC' : '—' }}
                                             </td>
-                                            <td class="whitespace-nowrap text-xs text-base-content/70">
+                                            <td class="whitespace-nowrap text-xs text-subtle">
                                                 {{ data_get($price, 'game_version', '—') }}
                                             </td>
                                             <td>

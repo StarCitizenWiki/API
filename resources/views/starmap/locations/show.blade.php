@@ -232,7 +232,7 @@
 @section('content')
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-base-content/70" data-testid="starmap-location-breadcrumbs">
+            <div class="breadcrumbs text-sm text-subtle" data-testid="starmap-location-breadcrumbs">
                 <ul>
                     @foreach ($breadcrumbs as $breadcrumb)
                         <li>
@@ -267,14 +267,14 @@
                         <div class="space-y-5">
                             @foreach ($quickFacts as $fact)
                                 <section class="min-w-0 space-y-3">
-                                    <div class="text-sm font-semibold text-base-content/65">
+                                    <div class="text-sm font-semibold text-subtle">
                                         {{ $fact['label'] }}
                                     </div>
 
                                     <dl class="space-y-2">
                                         @foreach ($fact['rows'] as $row)
                                             <div class="grid grid-cols-2 items-start gap-x-3">
-                                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                                     {{ $row['label'] }}
                                                 </dt>
                                                 <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
@@ -296,12 +296,12 @@
                         </div>
 
                         <section class="space-y-3 pt-4 md:border-t-0 md:pt-0 md:pl-5">
-                            <div class="text-sm font-semibold text-base-content/65">Overview</div>
+                            <div class="text-sm font-semibold text-subtle">Overview</div>
 
                             <dl class="space-y-3">
                                 @foreach ($stats as $stat)
                                     <div class="grid grid-cols-2 items-start gap-x-3">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                             {{ $stat['label'] }}
                                         </dt>
                                         <dd class="text-right text-sm font-semibold text-base-content">
@@ -366,14 +366,14 @@
                         <dl class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                             @foreach ($details as $detail)
                                 <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $detail['label'] }}</dt>
-                                    <dd class="text-sm font-medium text-base-content">{{ $detail['value'] }}</dd>
+                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $detail['label'] }}</dt>
+                                    <dd class="text-sm font-semibold text-base-content">{{ $detail['value'] }}</dd>
                                 </div>
                             @endforeach
                         </dl>
 
                         <div class="space-y-3">
-                            <h3 class="text-sm font-semibold text-base-content/75">Amenities</h3>
+                            <h3 class="text-sm font-semibold text-emphasis">Amenities</h3>
 
                             @if ($amenities !== [])
                                 <div class="flex flex-wrap gap-2">
@@ -382,7 +382,7 @@
                                     @endforeach
                                 </div>
                             @else
-                                <div class="text-sm text-base-content/70">No amenities are listed for this location.</div>
+                                <div class="text-sm text-subtle">No amenities are listed for this location.</div>
                             @endif
                         </div>
                     </div>

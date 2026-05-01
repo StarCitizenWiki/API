@@ -62,7 +62,7 @@
                                             {{ $ingredientName }}
                                         @endif
                                     </td>
-                                    <td class="text-right text-base-content/70">
+                                    <td class="text-right text-subtle">
                                         @if ($ingredientQuantity !== null && $ingredientQuantity > 0)
                                             {{ $ingredientQuantity }}×
                                         @elseif ($ingredientQuantityScu !== null && $ingredientQuantityScu > 0)
@@ -80,11 +80,11 @@
 
             <dl class="space-y-4">
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Craft Time</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Craft Time</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ $craftTimeLabel ?? '—' }}</dd>
                 </div>
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Availability</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Availability</dt>
                     <dd>
                         @if ($isAvailableByDefault === true)
                             <span class="badge badge-success badge-sm badge-outline">Default</span>

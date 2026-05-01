@@ -7,17 +7,17 @@
         <!-- Primary Section: Always Visible -->
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Health</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Health</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($shield, 'max_health'), 'HP', 0) }}</dd>
             </div>
 
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Rate</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Rate</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($shield, 'regen_rate'), 'HP/s', 0) }}</dd>
             </div>
 
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Time</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Time</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($shield, 'regen_time'), 's', 2) }}</dd>
             </div>
         </dl>
@@ -30,49 +30,49 @@
 
         @if ($hasReservePool)
             <details class="group" data-testid="shield-card-reserve-pool" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Reserve Pool
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($reservePool, 'regen_rate'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Rate</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Rate</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'regen_rate'), 'HP/s', 0) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($reservePool, 'regen_time'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Time</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Time</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'regen_time'), 's', 1) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($reservePool, 'initial_health_ratio'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Initial Health Ratio</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Initial Health Ratio</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'initial_health_ratio'), '', 1) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($reservePool, 'max_health_ratio'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Health Ratio</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Health Ratio</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'max_health_ratio'), '', 1) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($reservePool, 'regen_rate_ratio'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Regen Rate Ratio</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Rate Ratio</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'regen_rate_ratio'), '', 1) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($reservePool, 'drain_rate_ratio'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Drain Rate Ratio</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Drain Rate Ratio</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($reservePool, 'drain_rate_ratio'), '', 1) }}</dd>
                             </div>
                         @endif
@@ -88,21 +88,21 @@
 
         @if ($hasRegenDelay)
             <details class="group" data-testid="shield-card-regen-delay">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Regen Delay
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($regenDelay, 'downed'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Downed</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Downed</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($regenDelay, 'downed'), 's', 2) }}</dd>
                             </div>
                         @endif
 
                         @if (data_get($regenDelay, 'damage'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Damage</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($regenDelay, 'damage'), 's', 2) }}</dd>
                             </div>
                         @endif
@@ -118,7 +118,7 @@
 
         @if ($hasAbsorption)
             <details class="group" data-testid="shield-card-absorption">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Absorption
                 </summary>
@@ -129,7 +129,7 @@
                         @endphp
                         @if ($hasValues)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45"> {{ \Illuminate\Support\Str::headline($type) }}</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted"> {{ \Illuminate\Support\Str::headline($type) }}</dt>
                                 <dd class="text-sm font-semibold text-base-content">
                                     {{ fmt(data_get($values, 'max'), 2) }}
                                 </dd>
@@ -148,7 +148,7 @@
 
         @if ($hasResistance)
             <details class="group" data-testid="shield-card-resistance">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Resistance
                 </summary>
@@ -159,7 +159,7 @@
                         @endphp
                         @if ($hasValues)
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">{{ \Illuminate\Support\Str::headline($type) }}</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ \Illuminate\Support\Str::headline($type) }}</dt>
                                 <dd class="text-sm font-semibold text-base-content">
                                     {{ fmt_range(data_get($values, 'min'), data_get($values, 'max'), '', 2) }}
                                 </dd>

@@ -30,7 +30,7 @@
         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between sm:gap-2">
 
             <div>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-subtle">
                     {!! __('Showing') !!}
                     @if ($paginator->firstItem())
                         <span class="font-medium text-base-content">{{ $paginator->firstItem() }}</span>

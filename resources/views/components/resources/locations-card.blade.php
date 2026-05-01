@@ -97,7 +97,7 @@
 @else
     <div class="card border border-base-300 bg-base-100 shadow">
         <div class="card-body p-5 sm:p-6">
-            <div class="text-sm text-base-content/70">No location data available for this resource.</div>
+            <div class="text-sm text-subtle">No location data available for this resource.</div>
         </div>
     </div>
 @endif

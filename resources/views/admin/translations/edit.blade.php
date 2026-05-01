@@ -18,7 +18,7 @@
             <div class="card-body">
                 <div class="mb-4" data-testid="translation-edit-meta">
                     <h2 class="text-lg font-semibold">{{ $model->title }}</h2>
-                    <p class="text-sm text-base-content/60">ID: {{ $model->id }} | Type: {{ ucfirst(str_replace('-', ' ', $type)) }}</p>
+                    <p class="text-sm text-subtle">ID: {{ $model->id }} | Type: {{ ucfirst(str_replace('-', ' ', $type)) }}</p>
                 </div>
 
                 <form

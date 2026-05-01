@@ -32,7 +32,7 @@
                 <div class="flex items-center gap-3">
                     @if (! $heroImage)
                         <span
-                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200/70 text-base-content/55 sm:size-11"
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200 text-muted sm:size-11"
                             aria-label="Resource type"
                         >
                             <x-icon name="gem" class="size-5 sm:size-6" />
@@ -46,8 +46,8 @@
             </div>
 
             @if ($tier)
-                <div class="rounded-xl border border-base-300 bg-base-200/45 px-3 py-2.5 sm:shrink-0">
-                    <div class="text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/50">
+                <div class="rounded-xl border border-base-300 bg-base-200 px-3 py-2.5 sm:shrink-0">
+                    <div class="text-xs font-semibold uppercase tracking-widest text-muted">
                         Rarity
                     </div>
                     <div class="mt-1.5">
@@ -58,7 +58,7 @@
         </div>
 
         @if ($description)
-            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-base-content/70 sm:text-base" data-testid="resource-hero-description">
+            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="resource-hero-description">
                 {!! nl2br(e($description)) !!}
             </div>
         @endif

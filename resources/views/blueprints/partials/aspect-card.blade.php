@@ -19,10 +19,10 @@
     $inputWebUrl = is_string($input['web_url'] ?? null) && trim($input['web_url']) !== '' ? trim($input['web_url']) : null;
     $cardClasses = $isSelected
         ? 'card border border-base-300 bg-base-200/60 shadow-sm'
-        : 'card border border-dashed border-base-300 bg-base-100/70 opacity-70 shadow-sm';
+        : 'card border border-dashed border-base-300 bg-base-100 opacity-70 shadow-sm';
     $selectionButtonClasses = $isSelected
         ? 'btn btn-primary btn-xs'
-        : 'btn btn-outline btn-xs border-base-300 bg-base-100 text-base-content/70';
+        : 'btn btn-outline btn-xs border-base-300 bg-base-100 text-subtle';
 @endphp
 
 <div class="{{ $cardClasses }}" data-aspect-card="{{ $aspectIndex }}">
@@ -31,7 +31,7 @@
             <div class="flex flex-1 flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
                 <div class="min-w-0 space-y-1 lg:w-1/2">
                     <div class="flex flex-wrap items-center gap-2">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-base-content/55">{{ $aspect['name'] }}</div>
+                        <div class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $aspect['name'] }}</div>
                         @if ($isSelectable)
                             <button
                                 type="button"
@@ -48,7 +48,7 @@
                     @else
                         <h3 class="text-base font-semibold leading-snug"><span class="link link-primary">{{ $inputName }}</span></h3>
                     @endif
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-base-content/70">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-subtle">
                         <span>{{ $inputKindLabel }}</span>
 
                         @if ($inputQuantityScu !== null)
@@ -75,11 +75,11 @@
                 @if ($aspect['has_dynamic_modifiers'])
                     <div class="min-w-0 space-y-1 lg:w-1/2">
                         <div class="flex items-center justify-between gap-2">
-                            <div class="text-xs font-semibold text-base-content/90">Quality</div>
+                            <div class="text-xs font-semibold text-emphasis">Quality</div>
                             <div class="flex items-center gap-2">
                                 <button
                                     type="button"
-                                    class="invisible btn btn-ghost btn-xs text-base-content/40 transition-colors"
+                                    class="invisible btn btn-ghost btn-xs text-muted transition-colors"
                                     data-aspect-reset="{{ $aspectIndex }}"
                                     aria-label="Reset {{ $aspect['name'] }} quality"
                                     @if (! $isSelected) disabled @endif
@@ -100,7 +100,7 @@
                             data-aspect-slider="{{ $aspectIndex }}"
                             @if (! $isSelected) disabled @endif
                         />
-                        <div class="flex w-full justify-between text-xs text-base-content/70">
+                        <div class="flex w-full justify-between text-xs text-subtle">
                             <span>{{ $aspect['slider_min'] }}</span>
                             <span>Base {{ $aspect['initial_quality'] }}</span>
                             <span>{{ $aspect['slider_max'] }}</span>
@@ -108,12 +108,12 @@
                     </div>
                 @elseif ($aspect['has_modifiers'])
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
-                        <span class="text-xs text-base-content/70">Fixed modifier band.</span>
+                        <span class="text-xs text-subtle">Fixed modifier band.</span>
                         <span class="badge badge-ghost badge-sm">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
                     </div>
                 @else
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
-                        <span class="text-xs text-base-content/70">No modifier data.</span>
+                        <span class="text-xs text-subtle">No modifier data.</span>
                         <span class="badge badge-ghost badge-sm">{{ $isSelected ? 'None' : 'Off' }}</span>
                     </div>
                 @endif
@@ -132,7 +132,7 @@
                                 <div class="truncate text-xs font-medium text-base-content">
                                     {{ data_get($modifier, 'label', data_get($modifier, 'property_key', 'Modifier')) }}
                                 </div>
-                                <div class="mt-0.5 text-xs text-base-content/70">
+                                <div class="mt-0.5 text-xs text-subtle">
                                     {{ match (data_get($modifier, 'better_when', 'neutral')) {
                                         'higher' => 'Higher is better',
                                         'lower' => 'Lower is better',
@@ -141,7 +141,7 @@
                                 </div>
                             </div>
                             <div class="shrink-0 text-right">
-                                <div class="text-xs font-semibold tabular-nums text-base-content/60" data-modifier-change="{{ $aspectIndex }}:{{ $modifierIndex }}">
+                                <div class="text-xs font-semibold tabular-nums text-subtle" data-modifier-change="{{ $aspectIndex }}:{{ $modifierIndex }}">
                                     {{ $isSelected ? 'No change' : 'Excluded' }}
                                 </div>
                             </div>

@@ -15,19 +15,19 @@
 
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Face Type</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Face Type</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $faceType ?? '—' }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Reconfiguration Cooldown</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Reconfiguration Cooldown</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($reconfigurationCooldown, 's', 1) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Reallocation</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Reallocation</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($maxReallocation, 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Electrical Charge Dmg</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Electrical Charge Dmg</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($maxElectricalChargeDamageRate, '/s', 1) }}</dd>
             </div>
         </dl>

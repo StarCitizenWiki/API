@@ -39,7 +39,7 @@
                                     {{ $commodityName }}
                                 @endif
                             </div>
-                            <div class="text-xs text-base-content/70">
+                            <div class="text-xs text-subtle">
                                 Weight: {{ $weight !== null ? rtrim(rtrim(number_format($weight * 100, 2), '0'), '.') . '%' : '-' }}
                             </div>
                         </div>
@@ -91,7 +91,7 @@
                 </table>
             </div>
         @else
-            <div class="text-sm text-base-content/70">No default composition data available.</div>
+            <div class="text-sm text-subtle">No default composition data available.</div>
         @endif
     </div>
 </section>

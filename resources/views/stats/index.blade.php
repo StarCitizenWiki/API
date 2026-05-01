@@ -19,7 +19,7 @@
     <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
             <h1 class="text-2xl font-semibold tracking-tight">Stats</h1>
-            <p class="text-sm text-base-content/70">Latest fund and fleet snapshot.</p>
+            <p class="text-sm text-subtle">Latest fund and fleet snapshot.</p>
         </div>
 
         <div class="stats stats-vertical bg-base-100 shadow sm:stats-horizontal" data-testid="stats-summary">

@@ -36,7 +36,7 @@
                             <div class="card border border-base-300 bg-base-100 shadow-sm">
                                 <div class="card-body gap-2 p-3">
                                     <div class="text-sm font-semibold">{{ $setItem['name'] ?? '-' }}</div>
-                                    <div class="text-xs text-base-content/70">
+                                    <div class="text-xs text-subtle">
                                         Slot: {{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}
                                     </div>
                                     <div class="text-xs">
@@ -125,7 +125,7 @@
                     </div>
                 </div>
             @elseif ($setItemCount === 0)
-                <div class="text-sm text-base-content/70">No related items available.</div>
+                <div class="text-sm text-subtle">No related items available.</div>
             @endif
         </div>
     </div>

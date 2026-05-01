@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold" data-testid="auth-confirm-password-heading">Confirm your password</h1>
-            <p class="text-sm text-base-content/70">This action requires a fresh confirmation.</p>
+            <p class="text-sm text-subtle">This action requires a fresh confirmation.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">

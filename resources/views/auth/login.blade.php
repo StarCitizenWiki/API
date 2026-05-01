@@ -7,7 +7,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold" data-testid="auth-login-heading">Welcome back</h1>
-            <p class="text-sm text-base-content/70">Sign in to continue.</p>
+            <p class="text-sm text-subtle">Sign in to continue.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">
@@ -68,7 +68,7 @@
 
         @if (Route::has('register'))
             <div class="text-center text-sm">
-                <span class="text-base-content/70">New here?</span>
+                <span class="text-subtle">New here?</span>
                 <a class="text-primary" data-testid="auth-login-register-link" href="{{ route('register') }}">Create an account</a>
             </div>
         @endif

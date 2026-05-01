@@ -63,16 +63,16 @@
             <div class="grid gap-6 xl:grid-cols-2">
                 @if ($boostMetrics !== [])
                     <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Boost</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Boost</h3>
                         <dl class="space-y-2">
                             @foreach ($boostMetrics as $metric)
                                 <div class="flex items-start justify-between gap-3">
-                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
                                     <dd class="shrink-0 text-right text-sm font-medium text-base-content">
                                         {{ fmt_value_with_unit($metric['value'], $metric['unit'] ?? 's', $metric['precision']) }}
 
                                         @if (array_key_exists('delay', $metric) && $metric['delay'] !== null)
-                                            <span class="inline-block whitespace-nowrap text-base-content/45">
+                                            <span class="inline-block whitespace-nowrap text-muted">
                                                 (+ {{ fmt_value_with_unit($metric['delay'], 's', $metric['precision']) }})
                                             </span>
                                         @endif
@@ -85,11 +85,11 @@
 
                 @if ($agilityMetrics !== [])
                     <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Agility</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Agility</h3>
                         <dl class="space-y-2">
                             @foreach ($agilityMetrics as $metric)
                                 <div class="flex items-start justify-between gap-3">
-                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $metric['label'] }}</dt>
+                                    <dt class="min-w-0 text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
                                     <dd class="shrink-0 text-right text-sm font-medium text-base-content">
                                         @if ($metric['value'] !== null || $metric['boosted'] !== null)
                                             <span class="inline-flex flex-nowrap items-baseline justify-end gap-1 whitespace-nowrap">
@@ -98,7 +98,7 @@
                                                 @endif
 
                                                 @if ($metric['boosted'] !== null)
-                                                    <span class="text-base-content/45">
+                                                    <span class="text-muted">
                                                         @if ($metric['value'] !== null)
                                                             (boost {{ number_format((float) $metric['boosted'], 1) }} °/s)
                                                         @else

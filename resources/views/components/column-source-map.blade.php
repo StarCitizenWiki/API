@@ -7,7 +7,7 @@
     </summary>
 
     <div class="collapse-content">
-        <p class="text-sm text-base-content/70 mb-3">
+        <p class="text-sm text-subtle mb-3">
             Field corresponds to key under data json output from API.
         </p>
 

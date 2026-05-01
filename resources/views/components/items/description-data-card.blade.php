@@ -11,7 +11,7 @@
                 @foreach ($descriptionData as $datum)
                     <div class="card border border-base-300 bg-base-100 shadow-sm">
                         <div class="card-body gap-2 p-3">
-                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                            <div class="text-xs font-medium uppercase tracking-wide text-muted">
                                 {{ $datum['name'] ?? '-' }}
                             </div>
                             <div class="text-sm font-medium wrap-break-word">
@@ -42,7 +42,7 @@
                 </table>
             </div>
         @else
-            <div class="text-sm text-base-content/70">No structured description data available.</div>
+            <div class="text-sm text-subtle">No structured description data available.</div>
         @endif
     </div>
 </section>

@@ -66,14 +66,14 @@
                     <div class="space-y-6">
                         @foreach ($sections as $section)
                             <section class="min-w-0 space-y-3">
-                                <div class="text-sm font-semibold text-base-content/65">
+                                <div class="text-sm font-semibold text-subtle">
                                     {{ $section['label'] }}
                                 </div>
 
                                 <dl class="space-y-2">
                                     @foreach ($section['rows'] as $row)
                                         <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
+                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">
                                                 {{ $row['label'] }}
                                             </dt>
                                             <dd class="text-right text-sm font-semibold text-base-content">
@@ -94,11 +94,11 @@
 
                 @if ($hasLoaners || $hasSkus)
                     <section class="space-y-4">
-                        <div class="text-sm font-semibold text-base-content/65">Loaner & SKUs</div>
+                        <div class="text-sm font-semibold text-subtle">Loaner & SKUs</div>
 
                         @if ($hasLoaners)
                             <section class="space-y-2">
-                                <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">Loaners
+                                <div class="text-xs font-medium uppercase tracking-wide text-muted">Loaners
                                 </div>
 
                                 <div class="overflow-x-auto">
@@ -131,7 +131,7 @@
 
                         @if ($hasSkus)
                             <section class="space-y-2">
-                                <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">SKUs</div>
+                                <div class="text-xs font-medium uppercase tracking-wide text-muted">SKUs</div>
 
                                 <div class="overflow-x-auto overflow-y-auto max-h-48">
                                     <table class="table table-auto table-sm" data-testid="purchase-variants-skus">

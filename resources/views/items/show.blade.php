@@ -381,7 +381,7 @@
             <x-technical-section :entries="$technicalEntries" testId="item-technical-card">
                 @if (is_array($entityTagMap) && $entityTagMap !== [])
                     <div class="mt-5 pt-5 border-t border-base-300 space-y-1">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Entity Tag Map</dt>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Entity Tag Map</dt>
                         <dd class="text-sm font-semibold text-base-content">
                             <div class="flex flex-wrap gap-2">
                                 @foreach ($entityTagMap as $tag)

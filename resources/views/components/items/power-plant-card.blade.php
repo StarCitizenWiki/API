@@ -13,7 +13,7 @@
 
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Power Segment Generation</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Power Segment Generation</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($powerSegmentGeneration, 'Segments', 0) }}</dd>
             </div>
         </dl>

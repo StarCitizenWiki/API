@@ -66,7 +66,7 @@
 
 @section('content')
     <div class="flex flex-col gap-4">
-        <div class="breadcrumbs text-sm text-base-content/70" data-testid="mission-breadcrumbs">
+        <div class="breadcrumbs text-sm text-subtle" data-testid="mission-breadcrumbs">
             <ul>
                 @foreach ($viewBreadcrumbs as $breadcrumb)
                     <li>
@@ -105,7 +105,7 @@
                         @if ($rewardItems !== [])
                             <div class="card border border-base-300 bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
-                                    <h3 class="text-sm font-semibold text-base-content/65 mb-3">Reward Items</h3>
+                                    <h3 class="text-sm font-semibold text-subtle mb-3">Reward Items</h3>
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm table-zebra">
                                             <thead>
@@ -139,9 +139,9 @@
                         @if ($blueprintItems !== [])
                             <div class="card border border-base-300 bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
-                                    <h3 class="text-sm font-semibold text-base-content/65 mb-3">Blueprints</h3>
+                                    <h3 class="text-sm font-semibold text-subtle mb-3">Blueprints</h3>
                                     @if (data_get($blueprints, 'drop_chance'))
-                                        <p class="text-xs text-base-content/60 mb-3">
+                                        <p class="text-xs text-subtle mb-3">
                                             One blueprint from this pool ({{ data_get($blueprints, 'drop_chance_percent') }}% drop chance)
                                         </p>
                                     @endif
@@ -185,7 +185,7 @@
                                     <div class="space-y-6">
                                         @if ($reputationGained !== [])
                                             <div>
-                                                <h3 class="text-sm font-semibold text-base-content/65 mb-3">Reputation Gained</h3>
+                                                <h3 class="text-sm font-semibold text-subtle mb-3">Reputation Gained</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
@@ -219,7 +219,7 @@
 
                                         @if ($reputationLost !== [])
                                             <div>
-                                                <h3 class="text-sm font-semibold text-base-content/65 mb-3">Reputation Lost</h3>
+                                                <h3 class="text-sm font-semibold text-subtle mb-3">Reputation Lost</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
@@ -279,14 +279,14 @@
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
                         <h2 class="text-lg font-semibold tracking-tight">Faction</h2>
-                        <span class="text-base text-base-content/70">{{ data_get($factionData, 'name') }}</span>
+                        <span class="text-base text-subtle">{{ data_get($factionData, 'name') }}</span>
                     </div>
 
                     <div class="card border border-base-300 bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
                             <div class="grid gap-6 {{ $hasLadder ? 'lg:grid-cols-2' : '' }}">
                                 <div>
-                                    <h3 class="text-sm font-semibold text-base-content/65 mb-3">Overview</h3>
+                                    <h3 class="text-sm font-semibold text-subtle mb-3">Overview</h3>
                                     <dl class="space-y-2">
                                         @foreach ([
                                             ['label' => 'Type', 'value' => data_get($factionData, 'faction_type')],
@@ -298,7 +298,7 @@
                                         ] as $row)
                                             @if ($row['value'] !== null)
                                                 <div class="grid grid-cols-2 items-start gap-x-3">
-                                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">{{ $row['label'] }}</dt>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $row['label'] }}</dt>
                                                     <dd class="text-right text-sm font-semibold text-base-content">{{ $row['value'] }}</dd>
                                                 </div>
                                             @endif
@@ -308,7 +308,7 @@
 
                                 @if ($hasLadder)
                                     <div>
-                                        <h3 class="text-sm font-semibold text-base-content/65 mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
+                                        <h3 class="text-sm font-semibold text-subtle mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
                                         <div class="overflow-x-auto">
                                             <table class="table table-sm table-zebra">
                                                 <thead>
@@ -359,7 +359,7 @@
                                 {{ $groupLabel }}
                                 <span class="badge badge-outline badge-sm">{{ $groupCount }}</span>
                                 @if (isset($purposeHelpText[$groupLabel]))
-                                    <span class="text-xs text-base-content/50">{{ $purposeHelpText[$groupLabel] }}</span>
+                                    <span class="text-xs text-muted">{{ $purposeHelpText[$groupLabel] }}</span>
                                 @endif
                             </summary>
 
@@ -368,13 +368,13 @@
                                     @foreach ($visibleLocations as $location)
                                         <a
                                             href="{{ data_get($location, 'web_link', '#') }}"
-                                            class="group block rounded-box border border-base-300 bg-base-100/70 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
+                                            class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                         >
                                             <div class="min-w-0 space-y-1.5">
                                                 <div class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
                                                     <span class="truncate">{{ data_get($location, 'name', '-') }}</span>
                                                 </div>
-                                                <div class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                                <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                     @if (data_get($location, 'system'))
                                                         <span class="badge badge-ghost badge-sm">{{ data_get($location, 'system') }}</span>
                                                     @endif
@@ -396,13 +396,13 @@
                                             @foreach ($hiddenLocations as $location)
                                                 <a
                                                     href="{{ data_get($location, 'web_link', '#') }}"
-                                                    class="group block rounded-box border border-base-300 bg-base-100/70 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
+                                                    class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                                 >
                                                     <div class="min-w-0 space-y-1.5">
                                                         <div class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
                                                             <span class="truncate">{{ data_get($location, 'name', '-') }}</span>
                                                         </div>
-                                                        <div class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                                        <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                             @if (data_get($location, 'system'))
                                                                 <span class="badge badge-ghost badge-sm">{{ data_get($location, 'system') }}</span>
                                                             @endif
@@ -425,7 +425,7 @@
             <x-technical-section :entries="$technicalEntries" testId="mission-technical-card">
                 @if ($completionTags !== [])
                     <div class="mt-5 pt-5 border-t border-base-300">
-                        <h3 class="text-sm font-semibold text-base-content/65 mb-3">Completion Tags</h3>
+                        <h3 class="text-sm font-semibold text-subtle mb-3">Completion Tags</h3>
                         <div class="overflow-x-auto">
                             <table class="table table-sm table-zebra">
                                 <thead>

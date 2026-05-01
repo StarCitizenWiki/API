@@ -11,7 +11,7 @@
     <div class="mx-auto flex w-full max-w-md flex-col gap-6">
         <div class="text-center">
             <h1 class="text-2xl font-semibold" data-testid="auth-reset-password-heading">Choose a new password</h1>
-            <p class="text-sm text-base-content/70">Secure your account with a new password.</p>
+            <p class="text-sm text-subtle">Secure your account with a new password.</p>
         </div>
 
         <div class="card border border-base-200 bg-base-100 shadow">

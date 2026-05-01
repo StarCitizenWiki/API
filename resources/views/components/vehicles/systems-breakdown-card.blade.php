@@ -66,15 +66,15 @@
             <div class="grid gap-12 xl:grid-cols-3">
                 @if ($signatureBreakdownRows !== [])
                     <section class="space-y-3">
-                        <div class="text-sm font-semibold text-base-content/65">EM Groups</div>
+                        <div class="text-sm font-semibold text-subtle">EM Groups</div>
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">System / EM</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System / EM</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
 
                             @foreach ($signatureBreakdownRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
                             @endforeach
@@ -84,15 +84,15 @@
 
                 @if ($coolingBreakdownRows !== [])
                     <section class="space-y-3">
-                        <div class="text-sm font-semibold text-base-content/65">Cooling Groups</div>
+                        <div class="text-sm font-semibold text-subtle">Cooling Groups</div>
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">System / Segment</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Quantum</div>
+                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System / Segment</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
 
                             @foreach ($coolingBreakdownRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
                             @endforeach
@@ -102,14 +102,14 @@
 
                 @if ($powerBreakdownRows !== [])
                     <section class="space-y-3">
-                        <div class="text-sm font-semibold text-base-content/65">Power Groups</div>
+                        <div class="text-sm font-semibold text-subtle">Power Groups</div>
 
                         <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-base-content/45">System</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-base-content/45">Segments</div>
+                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System</div>
+                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Segments</div>
 
                             @foreach ($powerBreakdownRows as $row)
-                                <dt class="text-sm text-base-content/80">{{ $row['label'] }}</dt>
+                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">{{ $row['value'] }}</dd>
                             @endforeach
                         </dl>

@@ -16,19 +16,19 @@
         <h2 class="card-title text-base">Self Destruct</h2>
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Damage</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Damage</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($damage, '', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Countdown</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Countdown</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($countdown, 's', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Radius</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Radius</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_range($minRadius, $radius, 'm', 0) }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical Impact Radius</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical Impact Radius</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_range($minPhysRadius, $physRadius, 'm', 0) }}</dd>
             </div>
         </dl>

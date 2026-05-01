@@ -23,23 +23,23 @@
 
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">EMP Radius</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">EMP Radius</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $empRadiusFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Charge Duration</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Charge Duration</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $chargeDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Unleash Duration</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Unleash Duration</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $unleashDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Cooldown Duration</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Cooldown Duration</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $cooldownDurationFormatted }}</dd>
             </div>
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion Damage</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion Damage</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ $distortionDamageFormatted }}</dd>
             </div>
         </dl>

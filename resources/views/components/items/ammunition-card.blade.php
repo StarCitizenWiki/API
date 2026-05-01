@@ -42,25 +42,25 @@
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($size !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Size</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Size</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($size, 0) }}</dd>
                 </div>
             @endif
             @if ($range !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Range</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Range</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($range, 'm', 0) }}</dd>
                 </div>
             @endif
             @if ($speed !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Speed</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Speed</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($speed, 'm/s', 0) }}</dd>
                 </div>
             @endif
             @if ($lifetime !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Lifetime</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Lifetime</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($lifetime, 's', 2) }}</dd>
                 </div>
             @endif
@@ -68,13 +68,13 @@
 
             @if ($capacity !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Capacity</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Capacity</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($capacity, 0) }}</dd>
                 </div>
             @endif
             @if ($initialCapacity !== null)
                 <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Initial Capacity</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Initial Capacity</dt>
                     <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($initialCapacity, 0) }}</dd>
                 </div>
             @endif
@@ -82,32 +82,32 @@
 
         @if ($hasPenetration)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Penetration
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($penetration, 'base_distance'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Base Distance</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Base Distance</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($penetration, 'base_distance'), 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($penetration, 'near_radius'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Near Radius</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Near Radius</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($penetration, 'near_radius'), 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($penetration, 'far_radius'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Far Radius</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Far Radius</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($penetration, 'far_radius'), 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($penetration, 'angle'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Angle</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Angle</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($penetration, 'angle'), 'deg', 1) }}</dd>
                             </div>
                         @endif
@@ -117,44 +117,44 @@
 
         @if ($hasImpactDamage)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Impact Damage
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($nonZeroImpact, 'physical'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'physical'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroImpact, 'energy'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'energy'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroImpact, 'distortion'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'distortion'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroImpact, 'thermal'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'thermal'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroImpact, 'biochemical'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'biochemical'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroImpact, 'stun'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroImpact, 'stun'), 0) }}</dd>
                             </div>
                         @endif
@@ -164,44 +164,44 @@
 
         @if ($hasDetonationDamage)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Detonation Damage
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($nonZeroDetonation, 'physical'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'physical'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroDetonation, 'energy'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'energy'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroDetonation, 'distortion'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'distortion'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroDetonation, 'thermal'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'thermal'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroDetonation, 'biochemical'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'biochemical'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($nonZeroDetonation, 'stun'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($nonZeroDetonation, 'stun'), 0) }}</dd>
                             </div>
                         @endif
@@ -211,14 +211,14 @@
 
         @if ($hasExplosionRadius)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Explosion Radius
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($explosionRadius, 'min') || data_get($explosionRadius, 'max'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Radius</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Radius</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_range(data_get($explosionRadius, 'min'), data_get($explosionRadius, 'max'), 'm', 0) }}</dd>
                             </div>
                         @endif
@@ -228,54 +228,54 @@
 
         @if ($hasDamageDrop)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Damage Drop
                 </summary>
                 <div class="collapse-content space-y-6">
                     @if (is_array($damageDropMinDistance) && $damageDropMinDistance !== [])
                         <div>
-                            <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-3">Min Distance</h4>
+                            <h4 class="text-xs font-medium uppercase tracking-wide text-muted mb-3">Min Distance</h4>
                             <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                                 @if (data_get($damageDropMinDistance, 'physical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'physical'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'energy'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'energy'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'distortion'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'distortion'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'thermal'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'thermal'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'biochemical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'biochemical'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'stun'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'stun'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDistance, 'total'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Total</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Total</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($damageDropMinDistance, 'total'), 'm', 0) }}</dd>
                                     </div>
                                 @endif
@@ -285,47 +285,47 @@
 
                     @if (is_array($damageDropPerMeter) && $damageDropPerMeter !== [])
                         <div>
-                            <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-3">Per Meter</h4>
+                            <h4 class="text-xs font-medium uppercase tracking-wide text-muted mb-3">Per Meter</h4>
                             <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                                 @if (data_get($damageDropPerMeter, 'physical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'physical'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'energy'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'energy'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'distortion'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'distortion'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'thermal'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'thermal'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'biochemical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'biochemical'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'stun'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'stun'), 2) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropPerMeter, 'total'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Total</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Total</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropPerMeter, 'total'), 2) }}</dd>
                                     </div>
                                 @endif
@@ -335,47 +335,47 @@
 
                     @if (is_array($damageDropMinDamage) && $damageDropMinDamage !== [])
                         <div>
-                            <h4 class="text-xs font-medium uppercase tracking-wide text-base-content/45 mb-3">Min Damage</h4>
+                            <h4 class="text-xs font-medium uppercase tracking-wide text-muted mb-3">Min Damage</h4>
                             <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                                 @if (data_get($damageDropMinDamage, 'physical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Physical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'physical'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'energy'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Energy</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'energy'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'distortion'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Distortion</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'distortion'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'thermal'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Thermal</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'thermal'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'biochemical'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Biochemical</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'biochemical'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'stun'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Stun</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'stun'), 0) }}</dd>
                                     </div>
                                 @endif
                                 @if (data_get($damageDropMinDamage, 'total'))
                                     <div class="space-y-1">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Total</dt>
+                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Total</dt>
                                         <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($damageDropMinDamage, 'total'), 0) }}</dd>
                                     </div>
                                 @endif
@@ -387,26 +387,26 @@
 
         @if ($hasBulletImpulseFalloff)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Bullet Impulse Falloff
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($bulletImpulseFalloff, 'min_distance'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Min Distance</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Min Distance</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($bulletImpulseFalloff, 'min_distance'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($bulletImpulseFalloff, 'drop_falloff'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Drop Falloff</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Drop Falloff</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($bulletImpulseFalloff, 'drop_falloff'), 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($bulletImpulseFalloff, 'max_falloff'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Max Falloff</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Falloff</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($bulletImpulseFalloff, 'max_falloff'), 0) }}</dd>
                             </div>
                         @endif
@@ -416,20 +416,20 @@
 
         @if ($hasBulletElectron)
             <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Bullet Electron
                 </summary>
                     <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
                         @if (data_get($bulletElectron, 'jump_range'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Jump Range</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Jump Range</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($bulletElectron, 'jump_range'), 'm', 0) }}</dd>
                             </div>
                         @endif
                         @if (data_get($bulletElectron, 'maximum_jumps'))
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Maximum Jumps</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Maximum Jumps</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash(data_get($bulletElectron, 'maximum_jumps'), 0) }}</dd>
                             </div>
                         @endif

@@ -6,12 +6,12 @@
 
         <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Type</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Type</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ data_get($miningModifier, 'item_type') }} ({{ data_get($miningModifier, 'type') }})</dd>
             </div>
 
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Charges</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Charges</dt>
                 <dd class="text-sm font-semibold text-base-content">
                     @if (data_get($miningModifier, 'charges') !== null)
                         {{ fmt((int)data_get($miningModifier, 'charges'), 0) }}
@@ -22,12 +22,12 @@
             </div>
 
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Duration</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Duration</dt>
                 <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($miningModifier, 'duration'), 's', 2) }}</dd>
             </div>
 
             <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Power Modifier</dt>
+                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Power Modifier</dt>
                 <dd class="text-sm font-semibold text-base-content">
                     @if (is_numeric(data_get($miningModifier, 'power_modifier')))
                         {{ fmt_value_with_unit((float)data_get($miningModifier, 'power_modifier'), 'x', 2) }}
@@ -45,7 +45,7 @@
 
         @if ($hasModifiers)
             <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-base-content/70 list-none [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
                     <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
                     Modifiers
                 </summary>
@@ -56,7 +56,7 @@
                                 $displayValue = is_numeric($value) ? fmt((float)$value, 0) : fmt_or_dash($value);
                             @endphp
                             <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">{{ $displayKey }}</dt>
+                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $displayKey }}</dt>
                                 <dd class="text-sm font-semibold text-base-content">{{ $displayValue }}%</dd>
                             </div>
                         @endforeach

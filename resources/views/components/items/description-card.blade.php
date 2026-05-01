@@ -39,12 +39,12 @@
                             <span class="badge badge-outline text-xs">{{ $entry['label'] }}</span>
 
                             @if ($entry['text'])
-                                <div class="text-sm leading-relaxed text-base-content/80 wrap-break-word whitespace-pre-line">
+                                <div class="text-sm leading-relaxed text-emphasis wrap-break-word whitespace-pre-line">
                                     {!! nl2br(e($entry['text'])) !!}
                                 </div>
 
                                 @if (in_array($entry['label'], ['German', 'Chinese'], true) && is_string($entry['locale']))
-                                    <div class="text-xs text-base-content/70">
+                                    <div class="text-xs text-subtle">
                                         {{ $entry['label'] }} translation from
                                         <a
                                             class="link"
@@ -56,14 +56,14 @@
                                     </div>
                                 @endif
                             @else
-                                <div class="text-sm text-base-content/70">No content available.</div>
+                                <div class="text-sm text-subtle">No content available.</div>
                             @endif
                         </div>
                     </div>
                 @endforeach
             </div>
         @else
-            <div class="text-sm text-base-content/70">No translations available.</div>
+            <div class="text-sm text-subtle">No translations available.</div>
         @endif
     </div>
 </details>

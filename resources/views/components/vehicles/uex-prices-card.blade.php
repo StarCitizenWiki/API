@@ -25,7 +25,7 @@
             <div class="space-y-6">
                 @if ($purchaseCount > 0)
                     <section class="space-y-3">
-                        <div class="flex items-center gap-2 text-sm font-semibold text-base-content/65">
+                        <div class="flex items-center gap-2 text-sm font-semibold text-subtle">
                             <span>Purchase Prices</span>
                             <span class="badge badge-ghost text-xs">{{ $purchaseCount }}</span>
                         </div>
@@ -33,7 +33,7 @@
                         <div class="space-y-3">
                             @foreach ($purchaseGrouped as $systemName => $systemPrices)
                                 <section>
-                                    <div class="text-sm font-semibold text-base-content/65">{{ $systemName }}</div>
+                                    <div class="text-sm font-semibold text-subtle">{{ $systemName }}</div>
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm">
                                             <caption class="sr-only">UEX purchase prices for this vehicle in {{ $systemName }}</caption>
@@ -49,7 +49,7 @@
                                             <tbody>
                                             @foreach ($systemPrices as $price)
                                                 <tr>
-                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                    <td class="whitespace-nowrap text-xs text-subtle">
                                                         {{ data_get($price, 'starmap_location.parent_name', '—') }}
                                                     </td>
                                                     <td class="whitespace-nowrap">
@@ -63,7 +63,7 @@
                                                     <td>
                                                         {{ data_get($price, 'price_buy') > 0 ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
                                                     </td>
-                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                    <td class="whitespace-nowrap text-xs text-subtle">
                                                         {{ data_get($price, 'game_version', '—') }}
                                                     </td>
                                                     <td>
@@ -86,7 +86,7 @@
 
                 @if ($rentalCount > 0)
                     <section class="space-y-3">
-                        <div class="flex items-center gap-2 text-sm font-semibold text-base-content/65">
+                        <div class="flex items-center gap-2 text-sm font-semibold text-subtle">
                             <span>Rental Prices</span>
                             <span class="badge badge-ghost text-xs">{{ $rentalCount }}</span>
                         </div>
@@ -94,7 +94,7 @@
                         <div class="space-y-3">
                             @foreach ($rentalGrouped as $systemName => $systemPrices)
                                 <section>
-                                    <div class="text-sm font-semibold text-base-content/65">{{ $systemName }}</div>
+                                    <div class="text-sm font-semibold text-subtle">{{ $systemName }}</div>
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm">
                                             <caption class="sr-only">UEX rental prices for this vehicle in {{ $systemName }}</caption>
@@ -110,7 +110,7 @@
                                             <tbody>
                                             @foreach ($systemPrices as $price)
                                                 <tr>
-                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                    <td class="whitespace-nowrap text-xs text-subtle">
                                                         {{ data_get($price, 'starmap_location.parent_name', '—') }}
                                                     </td>
                                                     <td class="whitespace-nowrap">
@@ -124,7 +124,7 @@
                                                     <td>
                                                         {{ data_get($price, 'price_rent') > 0 ? number_format((float) data_get($price, 'price_rent')) . ' aUEC' : '—' }}
                                                     </td>
-                                                    <td class="whitespace-nowrap text-xs text-base-content/70">
+                                                    <td class="whitespace-nowrap text-xs text-subtle">
                                                         {{ data_get($price, 'game_version', '—') }}
                                                     </td>
                                                     <td>

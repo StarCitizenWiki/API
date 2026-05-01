@@ -93,7 +93,7 @@
                 <source src="{{ $rsiUrl }}" type="{{ $mimeType }}">
             </audio>
         @else
-            <div class="flex h-48 items-center justify-center text-sm text-base-content/70">
+            <div class="flex h-48 items-center justify-center text-sm text-subtle">
                 {{ $name ?? 'File' }}
             </div>
         @endif
@@ -104,7 +104,7 @@
             <div>
                 <div class="text-sm font-semibold">{{ $name ?? 'Image' }}</div>
                 @if ($alt)
-                    <div class="text-xs text-base-content/60">{{ $alt }}</div>
+                    <div class="text-xs text-subtle">{{ $alt }}</div>
                 @endif
             </div>
             @if ($imageId)
@@ -112,7 +112,7 @@
             @endif
         </div>
 
-        <dl class="grid gap-2 text-xs text-base-content/70">
+        <dl class="grid gap-2 text-xs text-subtle">
             <div class="flex items-center justify-between">
                 <dt>Last Modified</dt>
                 <dd class="tooltip" data-tip="{{ $lastModifiedAbsolute }}">
@@ -141,7 +141,7 @@
 
         @if (count($commLinks) > 3)
             <div class="flex items-center gap-2">
-                <div class="text-xs text-base-content/70">Used in Comm-Links</div>
+                <div class="text-xs text-subtle">Used in Comm-Links</div>
                 <span class="badge badge-neutral badge-xs">{{ count($commLinks) }}</span>
             </div>
             <div class="collapse collapse-arrow border border-base-300 bg-base-100">
@@ -160,7 +160,7 @@
                 </div>
             </div>
         @elseif ($commLinksPreview->isNotEmpty())
-            <div class="text-xs text-base-content/70">Used in Comm-Links</div>
+            <div class="text-xs text-subtle">Used in Comm-Links</div>
             <div class="flex flex-col gap-1 text-xs">
                 @foreach ($commLinksPreview as $commLink)
                     <a class="link link-primary" href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">

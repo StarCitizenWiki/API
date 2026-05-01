@@ -6,7 +6,7 @@
 
 @section('admin.content')
     <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-bold" data-testid="translation-index-heading">Translations Management</h1>
+        <h1 class="text-2xl font-semibold" data-testid="translation-index-heading">Translations Management</h1>
 
         <div role="tablist" class="tabs tabs-lifted">
             {{-- CommLinks Tab --}}
@@ -15,7 +15,7 @@
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold">Comm-Links</h2>
-                        <span class="text-sm text-base-content/60">Total: {{ number_format($commLinks->total()) }}</span>
+                        <span class="text-sm text-subtle">Total: {{ number_format($commLinks->total()) }}</span>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -63,7 +63,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-base-content/60">No comm-links found.</td>
+                                        <td colspan="4" class="text-center text-subtle">No comm-links found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -84,7 +84,7 @@
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold">Articles</h2>
-                        <span class="text-sm text-base-content/60">Total: {{ number_format($articles->total()) }}</span>
+                        <span class="text-sm text-subtle">Total: {{ number_format($articles->total()) }}</span>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -132,7 +132,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-base-content/60">No articles found.</td>
+                                        <td colspan="4" class="text-center text-subtle">No articles found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -205,7 +205,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-base-content/60">No Sizes found.</td>
+                                        <td colspan="4" class="text-center text-subtle">No Sizes found.</td>
                                     </tr>
                                 @endforelse
 
@@ -247,7 +247,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-base-content/60">No Focuses found.</td>
+                                        <td colspan="4" class="text-center text-subtle">No Focuses found.</td>
                                     </tr>
                                 @endforelse
 
@@ -289,7 +289,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-base-content/60">No Types found.</td>
+                                        <td colspan="4" class="text-center text-subtle">No Types found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

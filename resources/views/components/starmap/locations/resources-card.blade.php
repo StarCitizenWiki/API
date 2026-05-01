@@ -72,7 +72,7 @@
 @else
     <div class="card border border-base-300 bg-base-100 shadow">
         <div class="card-body p-5 sm:p-6">
-            <div class="text-sm text-base-content/70">No resource data available for this location.</div>
+            <div class="text-sm text-subtle">No resource data available for this location.</div>
         </div>
     </div>
 @endif
