@@ -35,8 +35,14 @@
     $hasRewards = data_get($resource, 'has_rewards', false);
     $hasCombatSection = data_get($resource, 'has_combat_section', false);
     $hasLocations = data_get($resource, 'has_locations', false);
-@endphp
 
+    $technicalEntries = array_values(array_filter([
+        ['label' => 'Mission Type', 'value' => data_get($resource, 'mission_type') ?? '-', 'url' => null],
+        ['label' => 'Mission Giver', 'value' => data_get($resource, 'mission_giver') ?? '-', 'url' => null],
+        data_get($resource, 'debug_name') ? ['label' => 'Debug Name', 'value' => data_get($resource, 'debug_name'), 'url' => null] : null,
+    ]));
+    $completionTags = data_get($resource, 'completion_tags') ?? [];
+@endphp
 @extends('layouts.app')
 
 @section('title')
@@ -89,14 +95,6 @@
         </div>
 
         <div class="flex flex-col gap-8">
-            @if ($haulingOrders !== [])
-                <x-missions.hauling-section :hauling-orders="$haulingOrders" />
-            @endif
-
-            @if ($hasCombatSection)
-                <x-missions.combat-card :resource="$resource" />
-            @endif
-
             @if ($hasRewards)
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
@@ -262,6 +260,14 @@
 
             <x-missions.chain-flow :resource="$resource" />
 
+            @if ($haulingOrders !== [])
+                <x-missions.hauling-section :hauling-orders="$haulingOrders" />
+            @endif
+
+            @if ($hasCombatSection)
+                <x-missions.combat-card :resource="$resource" />
+            @endif
+
             @if (data_get($resource, 'faction') !== null)
                 @php
                     $factionData = data_get($resource, 'faction');
@@ -416,11 +422,48 @@
                 </section>
             @endif
 
-            <section class="space-y-4">
-                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
-
-                <x-missions.technical-card :resource="$resource" />
-            </section>
+            <x-technical-section :entries="$technicalEntries" testId="mission-technical-card">
+                @if ($completionTags !== [])
+                    <div class="mt-5 pt-5 border-t border-base-300">
+                        <h3 class="text-sm font-semibold text-base-content/65 mb-3">Completion Tags</h3>
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm table-zebra">
+                                <thead>
+                                    <tr>
+                                        <th>Tag</th>
+                                        <th>Unlocks Missions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($completionTags as $tag)
+                                        <tr>
+                                            <td>{{ data_get($tag, 'name', '-') }}</td>
+                                            <td>
+                                                @php
+                                                    $tagMissions = data_get($tag, 'unlocks_missions', []);
+                                                @endphp
+                                                @if ($tagMissions !== [])
+                                                    <div class="flex flex-wrap gap-2">
+                                                        @foreach ($tagMissions as $tagMission)
+                                                            @if (data_get($tagMission, 'link'))
+                                                                <a href="{{ data_get($tagMission, 'link') }}" class="link link-primary text-sm">{{ data_get($tagMission, 'title', '-') }}</a>
+                                                            @else
+                                                                <span class="text-sm">{{ data_get($tagMission, 'title', '-') }}</span>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+            </x-technical-section>
         </div>
     </div>
 @endsection

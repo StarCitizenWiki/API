@@ -207,18 +207,6 @@
         ->filter()
         ->values()
         ->all();
-
-    $technicalEntries = array_values(array_filter([
-        data_get($location, 'version')
-            ? ['label' => 'Game Version', 'value' => data_get($location, 'version'), 'url' => null]
-            : null,
-        data_get($location, 'updated_at')
-            ? ['label' => 'Updated At', 'value' => data_get($location, 'updated_at'), 'url' => null]
-            : null,
-        data_get($location, 'link')
-            ? ['label' => 'API URL', 'value' => data_get($location, 'link'), 'url' => data_get($location, 'link')]
-            : null,
-    ]));
 @endphp
 
 @section('title')
@@ -399,32 +387,6 @@
                         </div>
                     </div>
                 </section>
-            </section>
-
-            <section class="space-y-4">
-                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
-
-                <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow" data-testid="starmap-location-technical">
-                    <summary class="collapse-title min-h-11 py-3 text-sm font-semibold">
-                        Technical
-                    </summary>
-                    <div class="collapse-content">
-                        <dl class="grid gap-4 md:grid-cols-2">
-                            @foreach ($technicalEntries as $entry)
-                                <div class="space-y-1">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">{{ $entry['label'] }}</dt>
-                                    <dd class="text-sm font-medium text-base-content break-all">
-                                        @if ($entry['url'])
-                                            <a href="{{ $entry['url'] }}" class="link link-primary">{{ $entry['value'] }}</a>
-                                        @else
-                                            {{ $entry['value'] }}
-                                        @endif
-                                    </dd>
-                                </div>
-                            @endforeach
-                        </dl>
-                    </div>
-                </details>
             </section>
         </div>
     </div>

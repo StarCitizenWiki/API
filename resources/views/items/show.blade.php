@@ -54,6 +54,11 @@
         $defaultComposition = data_get($item, 'resource_container.default_composition', []);
         $versionQuery = request()->query('version');
 
+        $technicalEntries = array_values(array_filter([
+            ['label' => 'Classification', 'value' => $classification ?? '-', 'url' => null],
+            ['label' => 'Class Name', 'value' => $className ?? '-', 'url' => null],
+        ]));
+
         $fpsSpecsAvailable = (
             $type === 'WeaponPersonal' ||
             str_starts_with($classification, 'FPS.Armor') ||
@@ -373,21 +378,20 @@
                 </section>
             @endif
 
-            <section class="space-y-4">
-                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
-
-                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                    <x-items.technical-card
-                        :classification="$classification"
-                        :class-name="$className"
-                        :version="$version"
-                        :api-link="$apiLink"
-                        :entity-tag-map="$entityTagMap"
-                    />
-
-                    <x-items.raw-payload-card :raw-data="$rawItemJson" />
-                </div>
-            </section>
+            <x-technical-section :entries="$technicalEntries" testId="item-technical-card">
+                @if (is_array($entityTagMap) && $entityTagMap !== [])
+                    <div class="mt-5 pt-5 border-t border-base-300 space-y-1">
+                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">Entity Tag Map</dt>
+                        <dd class="text-sm font-semibold text-base-content">
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($entityTagMap as $tag)
+                                    <span class="badge badge-neutral" title="{{ $tag['uuid'] ?? '' }}">{{ $tag['name'] ?? 'Unknown' }}</span>
+                                @endforeach
+                            </div>
+                        </dd>
+                    </div>
+                @endif
+            </x-technical-section>
         </div>
     </div>
 @endsection

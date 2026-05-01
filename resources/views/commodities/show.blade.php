@@ -17,7 +17,6 @@
     $blueprints = data_get($resource, 'blueprints', []);
     $items = data_get($resource, 'items', []);
 @endphp
-
 @extends('layouts.app')
 
 @section('title')
@@ -165,12 +164,6 @@
                     </div>
                 </section>
             @endif
-
-            <section class="space-y-4">
-                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
-
-                <x-resources.technical-card :resource="$resource" />
-            </section>
         </div>
     </div>
 @endsection

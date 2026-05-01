@@ -26,8 +26,12 @@
     $uexPurchasePrices = data_get($vehicle, 'uex_prices.purchase', []);
     $uexRentalPrices = data_get($vehicle, 'uex_prices.rental', []);
     $hasUexPrices = (is_array($uexPurchasePrices) && $uexPurchasePrices !== []) || (is_array($uexRentalPrices) && $uexRentalPrices !== []);
-@endphp
 
+    $technicalEntries = array_values(array_filter([
+        data_get($vehicle, 'classification') ? ['label' => 'Classification', 'value' => data_get($vehicle, 'classification'), 'url' => null] : null,
+        data_get($vehicle, 'class_name') ? ['label' => 'Class Name', 'value' => data_get($vehicle, 'class_name'), 'url' => null] : null,
+    ]));
+@endphp
 @section('title')
     {!! data_get($seo, 'title', $vehicleName.' - Star Citizen Vehicle') !!}
 @endsection
@@ -129,13 +133,7 @@
                 @endif
             </section>
 
-            <section class="space-y-4">
-                <h2 class="text-lg font-semibold tracking-tight">Technical</h2>
-
-                <div class="grid grid-cols-1 gap-4">
-                    <x-vehicles.metadata-footer-card :vehicle="$vehicle" />
-                </div>
-            </section>
+            <x-technical-section :entries="$technicalEntries" />
         </div>
     </div>
 @endsection
