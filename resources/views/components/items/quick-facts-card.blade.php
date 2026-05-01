@@ -79,57 +79,53 @@
         }
     }
 
+    $linksRows = [
+        ['label' => 'Ports', 'value' => $portsCount > 0 ? (string) $portsCount : '-'],
+        ['label' => 'Related', 'value' => $relatedItemsCount > 0 ? (string) $relatedItemsCount : '-'],
+    ];
+
+    if ($matchedCommodities !== []) {
+        $linksRows[] = ['label' => 'Commodities', 'value' => $matchedCommodities, 'type' => 'links'];
+    }
+
+    if ($matchedBlueprints !== []) {
+        $linksRows[] = ['label' => 'Blueprints', 'value' => $matchedBlueprints, 'type' => 'links'];
+    }
+
+    $statsRows = [
+        ['label' => 'UEX Listings', 'value' => $uexPricesCount > 0 ? (string) $uexPricesCount : '-'],
+    ];
+
+    if ($baseVariantUrl !== null) {
+        $statsRows[] = [
+            'label' => 'Base Variant',
+            'value' => $baseVariantName ?? 'View',
+            'type' => 'link',
+            'url' => $baseVariantUrl,
+            'test_id' => 'item-quick-facts-base-variant-link',
+        ];
+    }
+
     $columns = [
         [
             [
                 'title' => 'Fitment',
                 'rows' => [
-                    [
-                        'label' => 'Grade',
-                        'value' => $gradeLetter ?? '-',
-                    ],
-                    [
-                        'label' => 'Size',
-                        'value' => $size !== null ? (string) $size : '-',
-                    ],
+                    ['label' => 'Grade', 'value' => $gradeLetter ?? '-'],
+                    ['label' => 'Size', 'value' => $size !== null ? (string) $size : '-'],
                 ],
             ],
             [
                 'title' => 'Links',
-                'rows' => [
-                    [
-                        'label' => 'Ports',
-                        'value' => $portsCount > 0 ? (string) $portsCount : '-',
-                    ],
-                    [
-                        'label' => 'Related',
-                        'value' => $relatedItemsCount > 0 ? (string) $relatedItemsCount : '-',
-                    ],
-                    ...($matchedCommodities !== [] ? [[
-                        'label' => 'Commodities',
-                        'value' => $matchedCommodities,
-                        'type' => 'commodity_links',
-                    ]] : []),
-                    ...($matchedBlueprints !== [] ? [[
-                        'label' => 'Blueprints',
-                        'value' => $matchedBlueprints,
-                        'type' => 'blueprint_links',
-                    ]] : []),
-                ],
+                'rows' => $linksRows,
             ],
         ],
         [
             [
                 'title' => 'Physical',
                 'rows' => [
-                    [
-                        'label' => 'Mass',
-                        'value' => $mass !== null ? fmt_value_with_unit($mass, 'kg', 0) : '-',
-                    ],
-                    [
-                        'label' => 'Volume',
-                        'value' => $volume !== null ? fmt_value_with_unit($volume, $volumeUnit ?? '', 0) : '-',
-                    ],
+                    ['label' => 'Mass', 'value' => $mass !== null ? fmt_value_with_unit($mass, 'kg', 0) : '-'],
+                    ['label' => 'Volume', 'value' => $volume !== null ? fmt_value_with_unit($volume, $volumeUnit ?? '', 0) : '-'],
                     [
                         'label' => 'Dimensions',
                         'value' => $dimensionsValue,
@@ -139,90 +135,19 @@
             ],
             [
                 'title' => 'Stats',
-                'rows' => [
-                    [
-                        'label' => 'UEX Listings',
-                        'value' => $uexPricesCount > 0 ? (string) $uexPricesCount : '-',
-                    ],
-                    [
-                        'label' => 'UUID',
-                        'value' => $currentItemUuid ?? '-',
-                    ],
-                    [
-                        'label' => 'Version',
-                        'value' => $version ?? '-',
-                    ],
-                    ...($baseVariantUrl !== null ? [[
-                        'label' => 'Base Variant',
-                        'value' => $baseVariantName ?? 'View',
-                        'url' => $baseVariantUrl,
-                        'test_id' => 'item-quick-facts-base-variant-link',
-                    ]] : []),
-                ],
+                'rows' => $statsRows,
             ],
         ],
     ];
+
+    $className = data_get($item, 'class_name');
+    $uuidApiUrl = $currentItemUuid !== null ? route('items.show', $currentItemUuid) : null;
+
+    $footer = [
+        ['label' => 'Class Name', 'value' => $className],
+        $currentItemUuid !== null ? ['label' => 'UUID', 'value' => $currentItemUuid, 'url' => $uuidApiUrl] : ['label' => 'UUID', 'value' => '-'],
+        ['label' => 'Version', 'value' => $version ?? '-'],
+    ];
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card h-full border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-quick-facts-card']) }}>
-    <div class="card-body p-5 sm:p-6">
-        <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-8">
-            @foreach ($columns as $column)
-                <div class="space-y-6">
-                    @foreach ($column as $section)
-                        <section class="min-w-0 space-y-3">
-                            <div class="text-sm font-semibold text-base-content/65">
-                                {{ $section['title'] }}
-                            </div>
-
-                            <dl class="space-y-2">
-                                @foreach ($section['rows'] as $row)
-                                    <div class="grid grid-cols-2 items-start gap-x-3">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                                            {{ $row['label'] }}
-                                        </dt>
-                                        <dd class="text-right text-sm font-semibold text-base-content">
-                                            @if (($row['type'] ?? null) === 'commodity_links')
-                                                <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
-                                                    @foreach ($row['value'] as $i => $commodity)
-                                                        <a
-                                                            href="{{ $commodity['url'] }}"
-                                                            class="link link-hover link-primary"
-                                                        >{{ $commodity['name'] }}</a>@if (!$loop->last),@endif
-                                                    @endforeach
-                                                </span>
-                                            @elseif (($row['type'] ?? null) === 'blueprint_links')
-                                                <span class="flex flex-wrap justify-end gap-x-1.5 gap-y-0.5">
-                                                    @foreach ($row['value'] as $i => $blueprint)
-                                                        <a
-                                                            href="{{ $blueprint['url'] }}"
-                                                            class="link link-hover link-primary"
-                                                        >{{ $blueprint['name'] }}</a>@if (!$loop->last),@endif
-                                                    @endforeach
-                                                </span>
-                                            @elseif (! empty($row['url']))
-                                                <a
-                                                    href="{{ $row['url'] }}"
-                                                    class="link link-hover link-primary"
-                                                    @if (! empty($row['test_id'])) data-testid="{{ $row['test_id'] }}" @endif
-                                                >
-                                                    {{ $row['value'] }}
-                                                </a>
-                                            @else
-                                                @if (! empty($row['title']))
-                                                    <span title="{{ $row['title'] }}">{{ $row['value'] }}</span>
-                                                @else
-                                                    {{ $row['value'] }}
-                                                @endif
-                                            @endif
-                                        </dd>
-                                    </div>
-                                @endforeach
-                            </dl>
-                        </section>
-                    @endforeach
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
+<x-quick-facts-card :columns="$columns" :footer="$footer" :test-id="'item-quick-facts-card'" {{ $attributes }} />

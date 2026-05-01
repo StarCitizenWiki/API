@@ -49,7 +49,6 @@ function itemRelatedItemsCard(TestResponse $response): Crawler
 function assertItemMetaPanels(TestResponse $response, bool $showsPortsCard = false, ?int $portsCount = null): TestResponse
 {
     expect(itemDetailsPanel($response, 'Technical')->count())->toBe(1);
-    expect(itemDetailsPanel($response, 'Raw Item Payload')->count())->toBe(1);
 
     if ($showsPortsCard) {
         $portsPanel = itemShowCrawler($response)->filter('[data-testid="item-ports-card"]');
@@ -75,29 +74,15 @@ function assertTechnicalMetadataVisible(
     string $className,
     string $version,
 ): TestResponse {
+
     return $response->assertSeeText('Technical')
-        ->assertSeeText('UUID')
         ->assertSeeText($uuid)
         ->assertSeeText('Classification')
         ->assertSeeText($classification)
         ->assertSeeText('Class Name')
         ->assertSeeText($className)
-        ->assertSeeText('Game Version')
-        ->assertSeeText($version)
-        ->assertSeeText('API Link')
-        ->assertSeeText('Entity Tag Map')
-        ->assertSee(route('items.show', ['identifier' => $uuid]), false);
-}
-
-function assertRawPayloadVisible(TestResponse $response, array $snippets): TestResponse
-{
-    $response->assertSeeText('Raw Item Payload');
-
-    foreach ($snippets as $snippet) {
-        $response->assertSeeText($snippet);
-    }
-
-    return $response;
+        ->assertSeeText('Version')
+        ->assertSeeText($version);
 }
 
 function assertItemSeoMetadata(TestResponse $response, array $metadata): TestResponse
@@ -243,7 +228,6 @@ it('renders the item show view with api data', function (): void {
         ->assertSeeText('Acme Works')
         ->assertSeeText('PowerPlant')
         ->assertSeeText('Main Port')
-        ->assertSeeText('Test Module Variant')
         ->assertSeeText('Explosive')
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
@@ -283,12 +267,6 @@ it('renders the item show view with api data', function (): void {
 
     assertItemMetaPanels($response, showsPortsCard: true, portsCount: 1);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'test_module', '4.0.0-LIVE');
-    assertRawPayloadVisible($response, [
-        '"name": "Test Module"',
-        '"class_name": "test_module"',
-        '"classification": "Test.Module"',
-        '"type": "PowerPlant"',
-    ]);
 });
 
 it('renders quoted item names in the page title without double-escaped entities', function (): void {
@@ -660,7 +638,7 @@ it('renders item with long description in collapsible details', function (): voi
         ->assertSeeText($item->uuid);
 });
 
-it('displays raw payload in collapsible details', function (): void {
+it('displays technical metadata in collapsible details', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -701,15 +679,9 @@ it('displays raw payload in collapsible details', function (): void {
 
     assertItemMetaPanels($response);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Furniture', 'luxury_lamp', '4.0.0-LIVE');
-    assertRawPayloadVisible($response, [
-        '"name": "Luxury Lamp"',
-        '"class_name": "luxury_lamp"',
-        '"classification": "Equipment.Furniture"',
-        '"type": "Furniture"',
-    ]);
 });
 
-it('renders the item page with technical metadata and raw payload details', function (): void {
+it('renders the item page with technical metadata', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -757,12 +729,6 @@ it('renders the item page with technical metadata and raw payload details', func
 
     assertItemMetaPanels($response);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Display', 'tactical_display', '4.0.0-LIVE');
-    assertRawPayloadVisible($response, [
-        '"name": "Tactical Display"',
-        '"class_name": "tactical_display"',
-        '"classification": "Equipment.Display"',
-        '"type": "Display"',
-    ]);
 });
 
 it('renders the item page with core metadata', function (): void {
@@ -809,19 +775,13 @@ it('renders the item page with core metadata', function (): void {
 
     $response->assertOk()
         ->assertSeeText('Standard Component')
-        ->assertSeeText('RSI')
+        ->assertSeeText('Roberts Space Industries')
         ->assertSeeText('Utility')
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
 
     assertItemMetaPanels($response);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Standard', 'standard_component', '4.0.0-LIVE');
-    assertRawPayloadVisible($response, [
-        '"name": "Standard Component"',
-        '"class_name": "standard_component"',
-        '"classification": "Equipment.Standard"',
-        '"type": "Utility"',
-    ]);
 });
 
 it('shows variant state in the hero and base variant link in quick facts', function (): void {

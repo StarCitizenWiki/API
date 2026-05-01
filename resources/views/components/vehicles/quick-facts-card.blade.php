@@ -32,128 +32,53 @@
         $dimensionsValue = '-';
     }
 
-    $quickFacts = [
+    $storageRows = [
+        ['label' => 'Cargo', 'value' => $cargoCapacity !== null ? fmt_value_with_unit($cargoCapacity, 'SCU', 0) : null],
+        ['label' => 'Stowage', 'value' => $stowage !== null ? fmt_value_with_unit($stowage, 'µSCU', 0) : null],
+    ];
+
+    $speedRows = [
+        ['label' => 'SCM', 'value' => $scmSpeed !== null ? fmt_value_with_unit($scmSpeed, 'm/s', 0) : null],
+        ['label' => 'Max', 'value' => $maxSpeed !== null ? fmt_value_with_unit($maxSpeed, 'm/s', 0) : null],
+    ];
+
+    $defenseRows = [
+        ['label' => 'HP', 'value' => $health !== null ? fmt_value_with_unit($health, 'HP', 0) : null],
+        ['label' => 'Shield', 'value' => $shieldHp !== null ? fmt_value_with_unit($shieldHp, 'HP', 0) : null],
+    ];
+
+    $signatureRows = [
+        ['label' => 'IR', 'value' => $irShields !== null ? fmt_or_dash($irShields) : null],
+        ['label' => 'EM', 'value' => $emShields !== null ? fmt_or_dash($emShields) : null],
+    ];
+
+    $columns = [
         [
-            'label' => 'Storage',
-            'primary_label' => 'Cargo',
-            'primary_value' => $cargoCapacity !== null ? fmt_value_with_unit($cargoCapacity, 'SCU', 0) : '-',
-            'secondary_label' => 'Stowage',
-            'secondary_value' => $stowage !== null ? fmt_value_with_unit($stowage, 'µSCU', 0) : '-',
-            'render' => $cargoCapacity !== null || $stowage !== null,
+            ['title' => 'Storage', 'rows' => $storageRows],
+            ['title' => 'Signature', 'rows' => $signatureRows],
+            [
+                'title' => 'Stats',
+                'rows' => [
+                    ['label' => 'Crew', 'value' => $crewValue],
+                    ['label' => 'Dimensions', 'value' => $dimensionsValue],
+                    ['label' => 'Cross Section', 'value' => fmt_or_dash(data_get($vehicle, 'cross_section_max'))],
+                    ['label' => 'Mass', 'value' => fmt_value_with_unit($massTotal, 'kg', 0)],
+                ],
+            ],
         ],
         [
-            'label' => 'Speed',
-            'primary_label' => 'SCM',
-            'primary_value' => $scmSpeed !== null ? fmt_value_with_unit($scmSpeed, 'm/s', 0) : '-',
-            'secondary_label' => 'Max',
-            'secondary_value' => $maxSpeed !== null ? fmt_value_with_unit($maxSpeed, 'm/s', 0) : '-',
-            'render' => $scmSpeed !== null || $maxSpeed !== null,
-        ],
-        [
-            'label' => 'Defense',
-            'primary_label' => 'HP',
-            'primary_value' => $health !== null ? fmt_value_with_unit($health, 'HP', 0) : '-',
-            'secondary_label' => 'Shield',
-            'secondary_value' => $shieldHp !== null ? fmt_value_with_unit($shieldHp, 'HP', 0) : '-',
-            'render' => $health !== null || $shieldHp !== null,
-        ],
-        [
-            'label' => 'Signature',
-            'primary_label' => 'IR',
-            'primary_value' => fmt_or_dash($irShields),
-            'secondary_label' => 'EM',
-            'secondary_value' => fmt_or_dash($emShields),
-            'render' => $irShields !== null || $emShields !== null,
+            ['title' => 'Speed', 'rows' => $speedRows],
+            ['title' => 'Defense', 'rows' => $defenseRows],
         ],
     ];
 
-    $quickFacts = array_values(array_filter($quickFacts, static fn (array $fact): bool => $fact['render']));
+    $className = data_get($vehicle, 'class_name');
+    $uuidApiUrl = $uuid !== null ? route('vehicles.show', $uuid) : null;
 
-    $factColumns = [[], []];
-
-    foreach ($quickFacts as $index => $fact) {
-        $factColumns[$index % 2][] = $fact;
-    }
-
-    $factColumns = array_values(array_filter($factColumns, static fn (array $column): bool => $column !== []));
-
-    $stats = [
-        [
-            'label' => 'Crew',
-            'value' => $crewValue,
-        ],
-        [
-            'label' => 'Dimensions',
-            'value' => $dimensionsValue,
-        ],
-        [
-            'label' => 'Cross Section',
-            'value' => fmt_or_dash(data_get($vehicle, 'cross_section_max')),
-        ],
-        [
-            'label' => 'Mass',
-            'value' => fmt_value_with_unit($massTotal, 'kg', 0),
-        ],
-        [
-            'label' => 'UUID',
-            'value' => $uuid ?? '-',
-        ],
-        [
-            'label' => 'Version',
-            'value' => $version ?? '-',
-        ],
+    $footer = [
+        ['label' => 'Class Name', 'value' => $className],
+        $uuid !== null ? ['label' => 'UUID', 'value' => $uuid, 'url' => $uuidApiUrl] : ['label' => 'UUID', 'value' => '-'],
+        ['label' => 'Version', 'value' => $version ?? '-'],
     ];
 @endphp
-
-@if ($quickFacts !== [])
-    <section {{ $attributes->merge(['class' => 'card h-full border border-base-300 bg-base-100 shadow']) }}>
-        <div class="card-body p-5 sm:p-6">
-            <div class="grid h-full gap-6 xl:grid-cols-2 xl:gap-8 2xl:grid-cols-3">
-                @foreach ($factColumns as $column)
-                    <div class="space-y-6">
-                        @foreach ($column as $fact)
-                            <section class="min-w-0 space-y-3">
-                                <div class="text-sm font-semibold text-base-content/65">
-                                    {{ $fact['label'] }}
-                                </div>
-
-                                <dl class="grid grid-cols-2 items-start gap-x-3 gap-y-2">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                                        {{ $fact['primary_label'] }}
-                                    </dt>
-                                    <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
-                                        {{ $fact['primary_value'] }}
-                                    </dd>
-
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                                        {{ $fact['secondary_label'] }}
-                                    </dt>
-                                    <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
-                                        {{ $fact['secondary_value'] }}
-                                    </dd>
-                                </dl>
-                            </section>
-                        @endforeach
-                    </div>
-                @endforeach
-
-                <section class="space-y-3 xl:col-span-2 2xl:col-span-1">
-                    <div class="text-sm font-semibold text-base-content/65">Stats</div>
-
-                    <dl class="space-y-2">
-                        @foreach ($stats as $stat)
-                            <div class="grid grid-cols-2 items-start gap-x-3">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                                    {{ $stat['label'] }}
-                                </dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $stat['value'] }}
-                                </dd>
-                            </div>
-                        @endforeach
-                    </dl>
-                </section>
-            </div>
-        </div>
-    </section>
-@endif
+<x-quick-facts-card :columns="$columns" :footer="$footer" :test-id="'vehicle-quick-facts-card'" {{ $attributes }} />

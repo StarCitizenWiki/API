@@ -35,64 +35,47 @@
     $availableInPrison = data_get($resource, 'available_in_prison');
     $onceOnly = data_get($resource, 'once_only');
 
-    $reacceptParts = array_values(array_filter([
+    $reacceptParts = array_filter([
         $reacceptFailing !== null ? 'Failing: ' . ($reacceptFailing ? 'Yes' : 'No') : null,
         $reacceptAbandoning !== null ? 'Abandoning: ' . ($reacceptAbandoning ? 'Yes' : 'No') : null,
-    ]));
+    ]);
+
+    $uuidApiUrl = $uuid !== null ? route('missions.show', $uuid) : null;
+
+    $footer = [
+        ['label' => 'UUID', 'value' => $uuid, 'url' => $uuidApiUrl],
+        ['label' => 'Version', 'value' => $gameVersion],
+    ];
 
     $columns = [
         [
             [
                 'title' => 'Overview',
-                'rows' => array_values(array_filter([
-                    $rankIndex !== null
-                        ? ['label' => 'Rank', 'value' => (string) $rankIndex]
-                        : null,
-                    $factionName !== null
-                        ? ['label' => 'Faction', 'value' => $factionName]
-                        : null,
-                    $rewardScope !== null
-                        ? ['label' => 'Type', 'value' => $rewardScope]
-                        : null,
-                    $hasBlueprints
-                        ? ['label' => 'Blueprints', 'value' => 'Yes']
-                        : null,
-                    $illegal
-                        ? ['label' => 'Illegal', 'value' => 'Yes']
-                        : null,
-                    $shareable
-                        ? ['label' => 'Shareable', 'value' => 'Yes']
-                        : null,
-                    $availableInPrison
-                        ? ['label' => 'Prison', 'value' => 'Yes']
-                        : null,
-                    $onceOnly
-                        ? ['label' => 'Once Only', 'value' => 'Yes']
-                        : null,
-                ])),
+                'rows' => [
+                    ['label' => 'Rank', 'value' => $rankIndex],
+                    ['label' => 'Faction', 'value' => $factionName],
+                    ['label' => 'Type', 'value' => $rewardScope],
+                    ['label' => 'Blueprints', 'value' => $hasBlueprints ? 'Yes' : null],
+                    ['label' => 'Illegal', 'value' => $illegal ? 'Yes' : null],
+                    ['label' => 'Shareable', 'value' => $shareable ? 'Yes' : null],
+                    ['label' => 'Prison', 'value' => $availableInPrison ? 'Yes' : null],
+                    ['label' => 'Once Only', 'value' => $onceOnly ? 'Yes' : null],
+                ],
             ],
             [
                 'title' => 'Timing',
-                'rows' => array_values(array_filter([
-                    $timeToComplete !== null
-                        ? ['label' => 'Duration', 'value' => fmt_value_with_unit($timeToComplete, 'min', 0)]
-                        : null,
-                    $cooldownLabel !== null
-                        ? ['label' => 'Cooldown', 'value' => $cooldownLabel]
-                        : null,
-                    $lifetimeLabel !== null
-                        ? ['label' => 'Lifetime', 'value' => $lifetimeLabel]
-                        : null,
-                    $deadlineMinutes !== null
-                        ? ['label' => 'Deadline', 'value' => fmt_value_with_unit($deadlineMinutes, 'min', 0)]
-                        : null,
-                ])),
+                'rows' => [
+                    ['label' => 'Duration', 'value' => $timeToComplete !== null ? fmt_value_with_unit($timeToComplete, 'min', 0) : null],
+                    ['label' => 'Cooldown', 'value' => $cooldownLabel],
+                    ['label' => 'Lifetime', 'value' => $lifetimeLabel],
+                    ['label' => 'Deadline', 'value' => $deadlineMinutes !== null ? fmt_value_with_unit($deadlineMinutes, 'min', 0) : null],
+                ],
             ],
         ],
         [
             [
                 'title' => 'Combat',
-                'rows' => array_values(array_filter([
+                'rows' => [
                     $hasCombat !== null
                         ? ['label' => 'Combat', 'value' => $hasCombat ? 'Yes' : 'No']
                         : null,
@@ -105,66 +88,23 @@
                     $minCrimeStat !== null || $maxCrimeStat !== null
                         ? ['label' => 'Crime Stat', 'value' => fmt_range($minCrimeStat, $maxCrimeStat, '', 0)]
                         : null,
-                ])),
+                ],
             ],
             [
                 'title' => 'Details',
-                'rows' => array_values(array_filter([
-                    $cost !== null
-                        ? ['label' => 'Cost', 'value' => fmt_value_with_unit($cost, 'aUEC', 0, true)]
-                        : null,
-                    $maxPlayersPerInstance !== null
-                        ? ['label' => 'Max Players', 'value' => (string) $maxPlayersPerInstance]
-                        : null,
+                'rows' => [
+                    ['label' => 'Cost', 'value' => $cost !== null ? fmt_value_with_unit($cost, 'aUEC', 0, true) : null],
+                    ['label' => 'Max Players', 'value' => $maxPlayersPerInstance],
                     $starSystems !== []
                         ? ['label' => 'Systems', 'value' => implode(', ', $starSystems)]
                         : null,
                     $reacceptParts !== []
                         ? ['label' => 'Reaccept', 'value' => implode(' · ', $reacceptParts)]
                         : null,
-                    $uuid !== null
-                        ? ['label' => 'UUID', 'value' => $uuid]
-                        : null,
-                    $gameVersion !== null
-                        ? ['label' => 'Version', 'value' => $gameVersion]
-                        : null,
-                ])),
+                ],
             ],
         ],
     ];
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card h-full border border-base-300 bg-base-100 shadow', 'data-testid' => 'mission-quick-facts-card']) }}>
-    <div class="card-body p-5 sm:p-6">
-        <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-8">
-            @foreach ($columns as $column)
-                <div class="space-y-6">
-                    @foreach ($column as $section)
-                        <section class="min-w-0 space-y-3">
-                            <div class="text-sm font-semibold text-base-content/65">
-                                {{ $section['title'] }}
-                            </div>
-
-                            @if ($section['rows'] !== [])
-                                <dl class="space-y-2">
-                                    @foreach ($section['rows'] as $row)
-                                        <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                                                {{ $row['label'] }}
-                                            </dt>
-                                            <dd class="text-right text-sm font-semibold text-base-content">
-                                                {{ $row['value'] }}
-                                            </dd>
-                                        </div>
-                                    @endforeach
-                                </dl>
-                            @else
-                                <div class="text-sm text-base-content/70">-</div>
-                            @endif
-                        </section>
-                    @endforeach
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
+<x-quick-facts-card :columns="$columns" :footer="$footer" :test-id="'mission-quick-facts-card'" {{ $attributes }} />

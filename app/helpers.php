@@ -9,11 +9,11 @@ function color_class(float|int|null $value, ?bool $invert = false): string
     }
 
     if ($invert) {
-        return $value < 0 ? 'text-warning' : 'text-success';
+        return $value < 0 ? 'text-error' : 'text-success';
     }
 
     return match ($value <=> 0) {
-        1 => 'text-warning',
+        1 => 'text-error',
         0 => '',
         -1 => 'text-success',
     };
