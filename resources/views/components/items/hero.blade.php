@@ -132,9 +132,9 @@
     ]));
 
     $badges = array_values(array_filter([
-        $gradeLetter ? ['label' => 'Grade '.$gradeLetter, 'url' => null, 'test_id' => null] : null,
-        $isCraftable ? ['label' => 'Craftable', 'url' => $blueprintUrl, 'test_id' => 'item-hero-pill-craftable'] : null,
-        $variantStateLabel ? ['label' => $variantStateLabel, 'url' => null, 'test_id' => 'item-hero-pill-variant-state'] : null,
+        $gradeLetter ? ['label' => 'Grade '.$gradeLetter, 'url' => null, 'test_id' => null, 'badge_class' => 'badge-accent badge-outline'] : null,
+        $isCraftable ? ['label' => 'Craftable', 'url' => $blueprintUrl, 'test_id' => 'item-hero-pill-craftable', 'badge_class' => 'badge-primary badge-outline'] : null,
+        $variantStateLabel ? ['label' => $variantStateLabel, 'url' => null, 'test_id' => 'item-hero-pill-variant-state', 'badge_class' => 'badge-accent badge-outline'] : null,
     ]));
 
     // TODO: Override for now
@@ -162,7 +162,7 @@
                 <div class="flex items-center gap-3">
                     @if (! $heroImage)
                         <span
-                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200 text-muted sm:size-11"
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-muted sm:size-11"
                             aria-label="Item type"
                         >
                             <x-icon :name="$iconName" class="size-5 sm:size-6" />
@@ -194,7 +194,7 @@
             </div>
 
             @if ($itemSize !== null)
-                <div class="rounded-xl border border-base-300 bg-base-200 px-3 py-2.5 sm:shrink-0">
+                <div class="rounded-xl border border-accent/30 bg-base-200 px-3 py-2.5 sm:shrink-0">
                     <div class="text-xs font-semibold uppercase tracking-widest text-muted">
                         Size
                     </div>
@@ -211,13 +211,13 @@
                     @if ($badge['url'])
                         <a
                             href="{{ $badge['url'] }}"
-                            class="badge badge-ghost transition hover:border-base-content/25 hover:bg-base-200"
+                            class="badge {{ $badge['badge_class'] ?? 'badge-ghost' }} transition hover:border-base-content/25 hover:bg-base-200"
                             @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif
                         >
                             {{ $badge['label'] }}
                         </a>
                     @else
-                        <span class="badge badge-ghost" @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif>{{ $badge['label'] }}</span>
+                        <span class="badge {{ $badge['badge_class'] ?? 'badge-ghost' }}" @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif>{{ $badge['label'] }}</span>
                     @endif
                 @endforeach
             </div>

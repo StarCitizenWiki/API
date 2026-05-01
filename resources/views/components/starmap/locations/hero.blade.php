@@ -46,7 +46,7 @@
                 <div class="flex items-center gap-3">
                     @if (! $heroImage)
                         <span
-                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-base-200 text-muted sm:size-11"
+                            class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-muted sm:size-11"
                             aria-label="Starmap location"
                         >
                             <x-icon name="radar" class="size-5 sm:size-6" />
@@ -60,7 +60,7 @@
             </div>
 
             @if (is_string($typeName) && $typeName !== '')
-                <div class="rounded-xl border border-base-300 bg-base-200 px-3 py-2.5 sm:shrink-0">
+                <div class="rounded-xl border border-accent/30 bg-base-200 px-3 py-2.5 sm:shrink-0">
                     <div class="text-xs font-semibold uppercase tracking-widest text-muted">
                         Type
                     </div>

@@ -30,7 +30,7 @@
         <section class="flex flex-col gap-4" aria-labelledby="text-search-heading">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="text-search-heading" class="text-lg font-semibold tracking-tight" data-testid="comm-links-search-text-heading">Text Search</h2>
-                <span class="badge badge-outline">Comm-Link records</span>
+                <span class="badge badge-secondary badge-outline">Comm-Link records</span>
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">

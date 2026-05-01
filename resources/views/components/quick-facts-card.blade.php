@@ -35,7 +35,7 @@
                 <div class="space-y-6">
                     @foreach ($column as $section)
                         <section class="min-w-0 space-y-3">
-                            <div class="text-sm font-semibold text-subtle">
+                            <div class="font-semibold text-accent">
                                 {{ $section['title'] }}
                             </div>
 
@@ -43,10 +43,10 @@
                                 <dl class="space-y-2">
                                     @foreach ($section['rows'] as $row)
                                         <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">
+                                            <dt class="font-light uppercase tracking-wide text-subtle">
                                                 {{ $row['label'] }}
                                             </dt>
-                                            <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
+                                            <dd class="min-w-0 text-right font-semibold text-base-content">
                                                 @if (($row['type'] ?? null) === 'link')
                                                     <a
                                                         href="{{ $row['url'] }}"
