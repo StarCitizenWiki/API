@@ -1215,19 +1215,19 @@
                                         ></div>
 
                                         <div class="mt-4 grid gap-4">
-                                            @foreach ($aspectGroup['aspects'] as $groupedAspect)
+                                            @foreach ($aspectGroup['aspect_indexes'] as $aspectIdx)
                                                 @include('blueprints.partials.aspect-card', [
-                                                    'aspect' => $groupedAspect,
-                                                    'aspectIndex' => $groupedAspect['index'],
+                                                    'aspect' => $aspects[$aspectIdx],
+                                                    'aspectIndex' => $aspectIdx,
                                                 ])
                                             @endforeach
                                         </div>
                                     </div>
                                 @else
-                                    @foreach ($aspectGroup['aspects'] as $groupedAspect)
+                                    @foreach ($aspectGroup['aspect_indexes'] as $aspectIdx)
                                         @include('blueprints.partials.aspect-card', [
-                                            'aspect' => $groupedAspect,
-                                            'aspectIndex' => $groupedAspect['index'],
+                                            'aspect' => $aspects[$aspectIdx],
+                                            'aspectIndex' => $aspectIdx,
                                         ])
                                     @endforeach
                                 @endif

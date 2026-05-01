@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Support\Blueprints;
 
 use App\Support\Formatting\FormatDuration;
-use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Support\Str;
 
 final class BlueprintShowViewData
@@ -24,7 +23,39 @@ final class BlueprintShowViewData
         $resolvedVersionCode = (is_string($rawVersion) && trim($rawVersion) !== '' ? trim($rawVersion) : null)
             ?? session('game_version_code');
 
-        $blueprintData = $this->extractBlueprintData($normalizedBlueprint);
+        $blueprintName = data_get($normalizedBlueprint, 'output_name')
+            ?? data_get($normalizedBlueprint, 'output.name')
+            ?? 'Blueprint';
+        $blueprintKey = data_get($normalizedBlueprint, 'key');
+        $blueprintUuid = data_get($normalizedBlueprint, 'uuid');
+        $outputClass = data_get($normalizedBlueprint, 'output_class')
+            ?? data_get($normalizedBlueprint, 'output.class');
+        $outputType = data_get($normalizedBlueprint, 'output.type');
+        $outputSubtype = data_get($normalizedBlueprint, 'output.subtype');
+        $outputGrade = data_get($normalizedBlueprint, 'output.grade');
+        $craftTimeSeconds = data_get($normalizedBlueprint, 'craft_time_seconds');
+        $craftTimeLabel = data_get($normalizedBlueprint, 'craft_time_label')
+            ?? self::formatCraftTime($craftTimeSeconds);
+        $ingredientCount = (int) data_get($normalizedBlueprint, 'ingredient_count', 0);
+        $requirementGroups = is_array(data_get($normalizedBlueprint, 'requirement_groups'))
+            ? data_get($normalizedBlueprint, 'requirement_groups')
+            : [];
+        $ingredients = $this->resolveIngredients($normalizedBlueprint, $requirementGroups);
+        $summaryProperties = is_array(data_get($normalizedBlueprint, 'summary_properties'))
+            ? data_get($normalizedBlueprint, 'summary_properties')
+            : [];
+        $isAvailableByDefault = (bool) data_get(
+            $normalizedBlueprint,
+            'is_available_by_default',
+            false,
+        );
+        $outputItemWebUrl = data_get($normalizedBlueprint, 'output.item_web_url')
+            ?? data_get($normalizedBlueprint, 'output_item_web_url');
+        $apiLink = data_get($normalizedBlueprint, 'link');
+        $unlockingMissions = is_array(data_get($normalizedBlueprint, 'unlocking_missions_grouped'))
+            ? data_get($normalizedBlueprint, 'unlocking_missions_grouped')
+            : [];
+
         $dismantleData = $this->buildDismantleData($normalizedBlueprint);
         $canonicalUrl = $isEmptyMode
             ? route('web.blueprints.search', array_filter([
@@ -35,12 +66,21 @@ final class BlueprintShowViewData
             $normalizedSearch,
             $normalizedBlueprint,
             $isEmptyMode,
-            $blueprintData,
-            $canonicalUrl,
+            blueprintName: $blueprintName,
+            blueprintKey: $blueprintKey,
+            blueprintUuid: $blueprintUuid,
+            outputClass: $outputClass,
+            outputType: $outputType,
+            outputSubtype: $outputSubtype,
+            craftTimeSeconds: $craftTimeSeconds,
+            ingredientCount: $ingredientCount,
+            ingredients: $ingredients,
+            canonicalUrl: $canonicalUrl,
         );
         $rawBlueprintJson = $isEmptyMode ? '{}' : $this->encodeJson($normalizedBlueprint);
-        $aspectState = $this->buildAspectState($blueprintData['requirementGroups'], $resolvedVersionCode);
-        $summaryPropertyList = $this->normalizeArrayList($blueprintData['summaryProperties']);
+
+        $aspectState = $this->resolveAspectState($normalizedBlueprint, $isEmptyMode);
+        $summaryPropertyList = $this->normalizeArrayList($summaryProperties);
         $hasSearchFilters = $searchState['searchQuery'] !== '' || $searchState['selectedIngredientResourceTypeUuids'] !== [];
         $renderSearchResultCount = $hasSearchFilters ? $searchState['searchResultCount'] : count($searchState['initialSearchResults']);
         $clientPayload = $this->encodeHtmlSafeJson([
@@ -49,7 +89,7 @@ final class BlueprintShowViewData
                 'resourceTypesEndpoint' => $searchState['resourceTypesEndpoint'],
                 'query' => $searchState['searchQuery'],
                 'version' => $resolvedVersionCode,
-                'currentBlueprintUuid' => $blueprintData['blueprintUuid'],
+                'currentBlueprintUuid' => $blueprintUuid,
                 'selectedResourceTypeUuids' => $searchState['selectedIngredientResourceTypeUuids'],
                 'initialResults' => $searchState['initialSearchResults'],
                 'initialResultCount' => $renderSearchResultCount,
@@ -69,19 +109,19 @@ final class BlueprintShowViewData
             'pageTitle' => $pageTitle,
             'pageTitleDecoded' => $pageTitleDecoded,
             'searchQuery' => $searchState['searchQuery'],
-            'blueprintName' => $blueprintData['blueprintName'],
-            'blueprintKey' => $blueprintData['blueprintKey'],
-            'blueprintUuid' => $blueprintData['blueprintUuid'],
-            'outputClass' => $blueprintData['outputClass'],
-            'outputType' => $blueprintData['outputType'],
-            'outputSubtype' => $blueprintData['outputSubtype'],
-            'outputGrade' => $blueprintData['outputGrade'],
-            'craftTimeLabel' => $blueprintData['craftTimeLabel'],
-            'requirementGroups' => $blueprintData['requirementGroups'],
-            'isAvailableByDefault' => $blueprintData['isAvailableByDefault'],
-            'outputItemWebUrl' => $blueprintData['outputItemWebUrl'],
-            'apiLink' => $blueprintData['apiLink'],
-            'unlockingMissions' => $blueprintData['unlockingMissions'],
+            'blueprintName' => $blueprintName,
+            'blueprintKey' => $blueprintKey,
+            'blueprintUuid' => $blueprintUuid,
+            'outputClass' => $outputClass,
+            'outputType' => $outputType,
+            'outputSubtype' => $outputSubtype,
+            'outputGrade' => $outputGrade,
+            'craftTimeLabel' => $craftTimeLabel,
+            'requirementGroups' => $requirementGroups,
+            'isAvailableByDefault' => $isAvailableByDefault,
+            'outputItemWebUrl' => $outputItemWebUrl,
+            'apiLink' => $apiLink,
+            'unlockingMissions' => $unlockingMissions,
             'hasDismantleData' => $dismantleData['hasDismantleData'],
             'dismantleTimeLabel' => $dismantleData['dismantleTimeLabel'],
             'dismantleEfficiency' => $dismantleData['dismantleEfficiency'],
@@ -97,91 +137,10 @@ final class BlueprintShowViewData
             'aspects' => $aspectState['aspects'],
             'aspectGroups' => $aspectState['aspectGroups'],
             'clientPayload' => $clientPayload,
-            'formatCraftTime' => $blueprintData['formatCraftTime'],
+            'formatCraftTime' => static fn (mixed $seconds): ?string => self::formatCraftTime($seconds),
             'formatAspectAmount' => static fn (array $aspect): ?string => self::formatAspectAmount($aspect),
             'formatAspectQuality' => static fn (array $aspect): string => self::formatAspectQuality($aspect),
             'resolveRequirementLabel' => static fn (mixed $name, mixed $key, string $fallback = 'Aspect'): string => self::resolveRequirementLabel($name, $key, $fallback),
-        ];
-    }
-
-    /**
-     * @return array{
-     *     blueprintName: string,
-     *     blueprintKey: ?string,
-     *     blueprintUuid: ?string,
-     *     outputClass: ?string,
-     *     outputType: ?string,
-     *     outputSubtype: ?string,
-     *     outputGrade: ?string,
-     *     craftTimeSeconds: mixed,
-     *     craftTimeLabel: ?string,
-     *     formatCraftTime: Closure,
-     *     ingredientCount: int,
-     *     ingredients: array<int, mixed>,
-     *     requirementGroups: array<int, mixed>,
-     *     summaryProperties: array<int, mixed>,
-     *     isAvailableByDefault: bool,
-     *     outputItemWebUrl: ?string,
-     *     apiLink: ?string,
-     *     unlockingMissions: array<int, mixed>,
-     * }
-     */
-    private function extractBlueprintData(array $normalizedBlueprint): array
-    {
-        $blueprintName = data_get($normalizedBlueprint, 'output_name')
-            ?? data_get($normalizedBlueprint, 'output.name')
-            ?? 'Blueprint';
-        $blueprintKey = data_get($normalizedBlueprint, 'key');
-        $blueprintUuid = data_get($normalizedBlueprint, 'uuid');
-        $outputClass = data_get($normalizedBlueprint, 'output_class')
-            ?? data_get($normalizedBlueprint, 'output.class');
-        $outputType = data_get($normalizedBlueprint, 'output.type');
-        $outputSubtype = data_get($normalizedBlueprint, 'output.subtype');
-        $outputGrade = data_get($normalizedBlueprint, 'output.grade');
-        $craftTimeSeconds = data_get($normalizedBlueprint, 'craft_time_seconds');
-        $formatCraftTime = static fn (mixed $seconds): ?string => self::formatCraftTime($seconds);
-        $craftTimeLabel = self::formatCraftTime($craftTimeSeconds);
-        $ingredientCount = (int) data_get($normalizedBlueprint, 'ingredient_count', 0);
-        $requirementGroups = is_array(data_get($normalizedBlueprint, 'requirement_groups'))
-            ? data_get($normalizedBlueprint, 'requirement_groups')
-            : [];
-        $ingredients = $this->resolveIngredients($normalizedBlueprint, $requirementGroups);
-        $summaryProperties = is_array(data_get($normalizedBlueprint, 'summary_properties'))
-            ? data_get($normalizedBlueprint, 'summary_properties')
-            : [];
-        $isAvailableByDefault = (bool) data_get(
-            $normalizedBlueprint,
-            'is_available_by_default',
-            false,
-        );
-        $outputItemWebUrl = data_get($normalizedBlueprint, 'output.item_web_url')
-            ?? data_get($normalizedBlueprint, 'output_item_web_url');
-        $apiLink = data_get($normalizedBlueprint, 'link');
-        $unlockingMissions = $this->buildUnlockingMissions(
-            is_array(data_get($normalizedBlueprint, 'unlocking_missions'))
-                ? data_get($normalizedBlueprint, 'unlocking_missions')
-                : [],
-        );
-
-        return [
-            'blueprintName' => $blueprintName,
-            'blueprintKey' => $blueprintKey,
-            'blueprintUuid' => $blueprintUuid,
-            'outputClass' => $outputClass,
-            'outputType' => $outputType,
-            'outputSubtype' => $outputSubtype,
-            'outputGrade' => $outputGrade,
-            'craftTimeSeconds' => $craftTimeSeconds,
-            'craftTimeLabel' => $craftTimeLabel,
-            'formatCraftTime' => $formatCraftTime,
-            'ingredientCount' => $ingredientCount,
-            'ingredients' => $ingredients,
-            'requirementGroups' => $requirementGroups,
-            'summaryProperties' => $summaryProperties,
-            'isAvailableByDefault' => $isAvailableByDefault,
-            'outputItemWebUrl' => $outputItemWebUrl,
-            'apiLink' => $apiLink,
-            'unlockingMissions' => $unlockingMissions,
         ];
     }
 
@@ -199,7 +158,8 @@ final class BlueprintShowViewData
             ? data_get($normalizedBlueprint, 'dismantle')
             : [];
         $dismantleTimeSeconds = data_get($dismantle, 'time_seconds');
-        $dismantleTimeLabel = self::formatCraftTime($dismantleTimeSeconds);
+        $dismantleTimeLabel = data_get($dismantle, 'time_label')
+            ?? self::formatCraftTime($dismantleTimeSeconds);
         $dismantleEfficiency = is_numeric(data_get($dismantle, 'efficiency'))
             ? data_get($dismantle, 'efficiency') + 0
             : null;
@@ -233,7 +193,6 @@ final class BlueprintShowViewData
     }
 
     /**
-     * @param  array<string, mixed>  $blueprintData  Output from extractBlueprintData()
      * @return array{
      *     searchApiEndpoint: string,
      *     resourceTypesEndpoint: string,
@@ -247,7 +206,15 @@ final class BlueprintShowViewData
         array $normalizedSearch,
         array $normalizedBlueprint,
         bool $isEmptyMode,
-        array $blueprintData,
+        ?string $blueprintName,
+        ?string $blueprintKey,
+        ?string $blueprintUuid,
+        ?string $outputClass,
+        ?string $outputType,
+        ?string $outputSubtype,
+        mixed $craftTimeSeconds,
+        int $ingredientCount,
+        array $ingredients,
         string $canonicalUrl,
     ): array {
         $searchFilters = is_array(data_get($normalizedSearch, 'filters'))
@@ -273,15 +240,15 @@ final class BlueprintShowViewData
             isEmptyMode: $isEmptyMode,
             searchResults: $searchResults,
             blueprint: $normalizedBlueprint,
-            blueprintUuid: $blueprintData['blueprintUuid'],
-            blueprintKey: $blueprintData['blueprintKey'],
-            blueprintName: $blueprintData['blueprintName'],
-            outputClass: $blueprintData['outputClass'],
-            craftTimeSeconds: $blueprintData['craftTimeSeconds'],
-            ingredientCount: $blueprintData['ingredientCount'],
-            ingredients: $blueprintData['ingredients'],
-            outputType: $blueprintData['outputType'],
-            outputSubtype: $blueprintData['outputSubtype'],
+            blueprintUuid: $blueprintUuid,
+            blueprintKey: $blueprintKey,
+            blueprintName: $blueprintName,
+            outputClass: $outputClass,
+            craftTimeSeconds: $craftTimeSeconds,
+            ingredientCount: $ingredientCount,
+            ingredients: $ingredients,
+            outputType: $outputType,
+            outputSubtype: $outputSubtype,
             canonicalUrl: $canonicalUrl,
         );
 
@@ -296,93 +263,6 @@ final class BlueprintShowViewData
     }
 
     /**
-     * @param  array<int, mixed>  $missions
-     * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, chance: int|float|null}>
-     */
-    private function buildUnlockingMissions(array $missions): array
-    {
-        $flat = array_values(array_filter(array_map(static function (mixed $mission): ?array {
-            if (! is_array($mission)) {
-                return null;
-            }
-
-            $title = data_get($mission, 'title');
-            $debugName = data_get($mission, 'debug_name');
-
-            if ($title === null && $debugName === null) {
-                return null;
-            }
-
-            return [
-                'title' => FormatMissionTitle::format($title, $debugName),
-                'debug_name' => $debugName,
-                'reward_scope' => data_get($mission, 'reward_scope'),
-                'chance' => is_numeric(data_get($mission, 'chance')) ? data_get($mission, 'chance') + 0 : null,
-                'web_url' => data_get($mission, 'web_url'),
-            ];
-        }, $missions)));
-
-        return $this->groupMissionsByChance($flat);
-    }
-
-    private function groupMissionsByChance(array $missions): array
-    {
-        if ($missions === []) {
-            return [];
-        }
-
-        usort($missions, static function (array $a, array $b): int {
-            $chanceA = $a['chance'] ?? 0;
-            $chanceB = $b['chance'] ?? 0;
-
-            if ($chanceB !== $chanceA) {
-                return $chanceB <=> $chanceA;
-            }
-
-            return strcasecmp($a['title'] ?? '', $b['title'] ?? '');
-        });
-
-        $groups = [];
-
-        foreach ($missions as $mission) {
-            $chance = $mission['chance'] ?? null;
-            $chanceKey = $chance !== null ? (string) $chance : '0';
-
-            if (! isset($groups[$chanceKey])) {
-                $groups[$chanceKey] = [
-                    'label' => $chance === 1.0 ? 'Guaranteed' : ($chance !== null ? (($chance * 100).'% chance') : 'Unknown chance'),
-                    'chance' => $chance,
-                    'missions' => [],
-                ];
-            }
-
-            $title = $mission['title'] ?? 'Unknown mission';
-            $dedupKey = $title;
-
-            if (isset($groups[$chanceKey]['dedup'][$dedupKey])) {
-                $groups[$chanceKey]['missions'][$groups[$chanceKey]['dedup'][$dedupKey]]['count'] += 1;
-
-                continue;
-            }
-
-            $groups[$chanceKey]['dedup'][$dedupKey] = count($groups[$chanceKey]['missions']);
-            $groups[$chanceKey]['missions'][] = [
-                'title' => $title,
-                'reward_scope' => $mission['reward_scope'] ?? null,
-                'count' => 1,
-                'web_url' => $mission['web_url'] ?? null,
-            ];
-        }
-
-        return array_values(array_map(static function (array $group): array {
-            unset($group['dedup']);
-
-            return $group;
-        }, $groups));
-    }
-
-    /**
-     * @param  array<string, mixed>  $blueprint
      * @return array<int, mixed>
      */
     private function buildInitialSearchResults(
@@ -421,280 +301,37 @@ final class BlueprintShowViewData
     }
 
     /**
-     * @param  array<int, mixed>  $requirementGroups
-     * @return array{
-     *     aspects: array<int, array<string, mixed>>,
-     *     aspectGroups: array<int, array<string, mixed>>,
-     *     hasInteractiveAspects: bool
-     * }
+     * @return array{aspects: array<int, array<string, mixed>>, aspectGroups: array<int, array<string, mixed>>, hasInteractiveAspects: bool}
      */
-    private function buildAspectState(array $requirementGroups, ?string $resolvedVersionCode = null): array
+    private function resolveAspectState(array $normalizedBlueprint, bool $isEmptyMode): array
     {
-        $aspects = [];
-
-        foreach ($requirementGroups as $group) {
-            if (! is_array($group)) {
-                continue;
-            }
-
-            $groupName = self::resolveRequirementLabel(data_get($group, 'name'), data_get($group, 'key'), 'Aspect');
-            $groupKey = data_get($group, 'key');
-            $groupRequiredCount = is_numeric(data_get($group, 'required_count'))
-                ? (int) data_get($group, 'required_count')
-                : null;
-            $groupChildren = is_array(data_get($group, 'children')) ? data_get($group, 'children') : [];
-            $groupLeafOptionCount = $this->countRenderableLeaves($groupChildren);
-            $groupModifiers = $this->normalizeArrayList(data_get($group, 'modifiers'));
-            $topLevelSelectionGroup = null;
-
-            if ($groupRequiredCount !== null && $groupLeafOptionCount > 1 && $groupRequiredCount < $groupLeafOptionCount) {
-                $topLevelSelectionGroup = [
-                    'key' => $groupKey ?? Str::slug($groupName),
-                    'name' => $groupName,
-                    'required_count' => $groupRequiredCount,
-                    'option_count' => $groupLeafOptionCount,
-                ];
-            }
-
-            $aspects = [
-                ...$aspects,
-                ...$this->extractAspectNodes(
-                    $groupChildren,
-                    $groupModifiers,
-                    $groupName,
-                    $groupKey,
-                    $groupRequiredCount,
-                    $topLevelSelectionGroup,
-                    $resolvedVersionCode,
-                ),
+        if ($isEmptyMode) {
+            return [
+                'aspects' => [],
+                'aspectGroups' => [],
+                'hasInteractiveAspects' => false,
             ];
         }
 
-        $hasInteractiveAspects = false;
+        $aspectsData = data_get($normalizedBlueprint, 'aspects');
 
-        foreach ($aspects as $aspectIndex => $aspect) {
-            $modifiers = is_array($aspect['modifiers'] ?? null) ? $aspect['modifiers'] : [];
-            $sliderMin = max(0, (int) data_get($aspect, 'input.min_quality', 0));
-            $sliderMax = 1000;
-            $hasModifiers = $modifiers !== [];
-            $hasDynamicModifiers = false;
-
-            foreach ($modifiers as $modifier) {
-                $qualityMin = data_get($modifier, 'quality_range.min');
-                $qualityMax = data_get($modifier, 'quality_range.max');
-                $atMinQuality = data_get($modifier, 'modifier_range.at_min_quality');
-                $atMaxQuality = data_get($modifier, 'modifier_range.at_max_quality');
-
-                if (is_numeric($qualityMin)) {
-                    $sliderMin = max($sliderMin, (int) floor((float) $qualityMin));
-                }
-
-                if (is_numeric($qualityMax)) {
-                    $sliderMax = max($sliderMin, (int) ceil((float) $qualityMax));
-                }
-
-                if (is_numeric($atMinQuality) && is_numeric($atMaxQuality) && (float) $atMinQuality !== (float) $atMaxQuality) {
-                    $hasDynamicModifiers = true;
-                }
-            }
-
-            if ($sliderMax < $sliderMin) {
-                $sliderMax = $sliderMin;
-            }
-
-            $initialQuality = min(max(500, $sliderMin), $sliderMax);
-            $aspects[$aspectIndex] = [
-                ...$aspect,
-                'initial_quality' => $initialQuality,
-                'slider_min' => $sliderMin,
-                'slider_max' => $sliderMax,
-                'has_modifiers' => $hasModifiers,
-                'has_dynamic_modifiers' => $hasDynamicModifiers,
-            ];
-
-            if ($hasDynamicModifiers) {
-                $hasInteractiveAspects = true;
-            }
-        }
-
-        $aspectGroups = [];
-
-        foreach ($aspects as $aspectIndex => $aspect) {
-            $selectionGroup = is_array($aspect['selection_group'] ?? null) ? $aspect['selection_group'] : null;
-            $selectionKey = $selectionGroup !== null && is_string(data_get($selectionGroup, 'key'))
-                ? trim((string) data_get($selectionGroup, 'key'))
-                : '';
-            $selectionKey = $selectionKey !== '' ? $selectionKey : '__aspect_'.$aspectIndex;
-            $optionCount = $selectionGroup !== null && is_numeric(data_get($selectionGroup, 'option_count'))
-                ? max(1, (int) data_get($selectionGroup, 'option_count'))
-                : 1;
-            $requiredSelectionCount = $selectionGroup !== null && is_numeric(data_get($selectionGroup, 'required_count'))
-                ? max(1, min((int) data_get($selectionGroup, 'required_count'), $optionCount))
-                : 1;
-            $isChoiceGroup = $selectionGroup !== null && $requiredSelectionCount < $optionCount;
-
-            if (! array_key_exists($selectionKey, $aspectGroups)) {
-                $selectionGroupName = $isChoiceGroup
-                    ? self::resolveRequirementLabel(data_get($selectionGroup, 'name'), data_get($selectionGroup, 'key'), 'Input set')
-                    : (is_string($aspect['name'] ?? null) ? $aspect['name'] : 'Aspect');
-                $selectionGroupDisplayName = $isChoiceGroup && self::isGenericSelectionGroup(
-                    data_get($selectionGroup, 'name'),
-                    data_get($selectionGroup, 'key'),
-                )
-                    ? null
-                    : $selectionGroupName;
-
-                $aspectGroups[$selectionKey] = [
-                    'key' => $selectionKey,
-                    'name' => $selectionGroupName,
-                    'display_name' => $selectionGroupDisplayName,
-                    'required_count' => $requiredSelectionCount,
-                    'option_count' => $optionCount,
-                    'is_choice_group' => $isChoiceGroup,
-                    'selected_count' => 0,
-                    'aspects' => [],
-                ];
-            }
-
-            $isSelected = $aspectGroups[$selectionKey]['selected_count'] < $requiredSelectionCount;
-            $aspects[$aspectIndex]['is_selected'] = $isSelected;
-            $aspectGroups[$selectionKey]['selected_count'] += $isSelected ? 1 : 0;
-            $aspectGroups[$selectionKey]['aspects'][] = [
-                'index' => $aspectIndex,
-                ...$aspects[$aspectIndex],
+        if (is_array($aspectsData)
+            && array_key_exists('aspects', $aspectsData)
+            && array_key_exists('aspect_groups', $aspectsData)
+            && array_key_exists('has_interactive_aspects', $aspectsData)
+        ) {
+            return [
+                'aspects' => $aspectsData['aspects'],
+                'aspectGroups' => $aspectsData['aspect_groups'],
+                'hasInteractiveAspects' => $aspectsData['has_interactive_aspects'],
             ];
         }
 
         return [
-            'aspects' => array_values($aspects),
-            'aspectGroups' => array_values($aspectGroups),
-            'hasInteractiveAspects' => $hasInteractiveAspects,
+            'aspects' => [],
+            'aspectGroups' => [],
+            'hasInteractiveAspects' => false,
         ];
-    }
-
-    /**
-     * @param  array<int, mixed>  $nodes
-     * @param  array<int, array<string, mixed>>  $inheritedModifiers
-     * @return array<int, array<string, mixed>>
-     */
-    private function extractAspectNodes(
-        array $nodes,
-        array $inheritedModifiers = [],
-        ?string $aspectName = null,
-        ?string $aspectKey = null,
-        ?int $requiredCount = null,
-        ?array $selectionGroup = null,
-        ?string $resolvedVersionCode = null,
-    ): array {
-        $aspects = [];
-
-        foreach ($nodes as $node) {
-            if (! is_array($node)) {
-                continue;
-            }
-
-            $kind = (string) data_get($node, 'kind', '');
-            $nodeModifiers = $this->normalizeArrayList(data_get($node, 'modifiers'));
-            $combinedModifiers = [...$inheritedModifiers, ...$nodeModifiers];
-
-            if ($kind === 'group') {
-                $nestedName = data_get($node, 'name');
-                $nestedKey = data_get($node, 'key');
-                $nestedRequiredCount = data_get($node, 'required_count');
-                $children = is_array(data_get($node, 'children')) ? data_get($node, 'children') : [];
-                $resolvedAspectName = self::resolveRequirementLabel($nestedName, $nestedKey, $aspectName ?? 'Aspect');
-                $resolvedAspectKey = $nestedKey ?? $aspectKey;
-                $resolvedRequiredCount = is_numeric($nestedRequiredCount) ? (int) $nestedRequiredCount : $requiredCount;
-                $nextSelectionGroup = $selectionGroup;
-                $leafOptionCount = $this->countRenderableLeaves($children);
-
-                if ($leafOptionCount > 1 && $resolvedRequiredCount !== null && $resolvedRequiredCount < $leafOptionCount) {
-                    $selectionKey = $resolvedAspectKey ?? Str::slug($resolvedAspectName);
-
-                    $nextSelectionGroup = [
-                        'key' => $selectionKey !== '' ? $selectionKey : Str::slug($resolvedAspectName ?: 'input-set'),
-                        'name' => $resolvedAspectName,
-                        'required_count' => $resolvedRequiredCount,
-                        'option_count' => $leafOptionCount,
-                    ];
-                }
-
-                $aspects = [
-                    ...$aspects,
-                    ...$this->extractAspectNodes(
-                        $children,
-                        $combinedModifiers,
-                        $resolvedAspectName,
-                        $resolvedAspectKey,
-                        $resolvedRequiredCount,
-                        $nextSelectionGroup,
-                        $resolvedVersionCode,
-                    ),
-                ];
-
-                continue;
-            }
-
-            $inputName = data_get($node, 'name') ?? 'Unknown input';
-            $inputUuid = data_get($node, 'uuid');
-            $inputWebUrl = null;
-
-            if ($kind === 'resource' && is_string($inputUuid) && Str::isUuid($inputUuid)) {
-                $inputWebUrl = route('web.commodities.show', array_filter([
-                    'identifier' => $inputUuid,
-                    'version' => $resolvedVersionCode,
-                ]));
-            } elseif ($kind === 'item' && is_string($inputUuid) && Str::isUuid($inputUuid)) {
-                $inputWebUrl = route('web.items.show', array_filter([
-                    'item' => $inputUuid,
-                    'version' => $resolvedVersionCode,
-                ]));
-            }
-
-            $aspects[] = [
-                'key' => $aspectKey ?? data_get($node, 'key') ?? Str::slug((string) $inputName),
-                'name' => $aspectName ?? $inputName,
-                'required_count' => $requiredCount,
-                'selection_group' => $selectionGroup,
-                'input' => [
-                    'kind' => $kind !== '' ? $kind : 'input',
-                    'uuid' => $inputUuid,
-                    'name' => $inputName,
-                    'quantity' => is_numeric(data_get($node, 'quantity')) ? data_get($node, 'quantity') + 0 : null,
-                    'quantity_scu' => is_numeric(data_get($node, 'quantity_scu')) ? data_get($node, 'quantity_scu') + 0 : null,
-                    'min_quality' => is_numeric(data_get($node, 'min_quality')) ? (int) data_get($node, 'min_quality') : 0,
-                    'web_url' => $inputWebUrl,
-                ],
-                'modifiers' => $combinedModifiers,
-            ];
-        }
-
-        return $aspects;
-    }
-
-    /**
-     * @param  array<int, mixed>  $nodes
-     */
-    private function countRenderableLeaves(array $nodes): int
-    {
-        $count = 0;
-
-        foreach ($nodes as $node) {
-            if (! is_array($node)) {
-                continue;
-            }
-
-            if ((string) data_get($node, 'kind', '') === 'group') {
-                $children = is_array(data_get($node, 'children')) ? data_get($node, 'children') : [];
-                $count += $this->countRenderableLeaves($children);
-
-                continue;
-            }
-
-            $count++;
-        }
-
-        return $count;
     }
 
     /**
@@ -908,14 +545,5 @@ final class BlueprintShowViewData
         }
 
         return $fallback;
-    }
-
-    private static function isGenericSelectionGroup(mixed $name, mixed $key): bool
-    {
-        $normalizedKey = is_string($key) ? Str::upper(trim($key)) : '';
-        $resolvedName = Str::upper(self::resolveRequirementLabel($name, $key, ''));
-
-        return in_array($normalizedKey, ['ASPECT', 'ASPECTS'], true)
-            || in_array($resolvedName, ['ASPECT', 'ASPECTS'], true);
     }
 }

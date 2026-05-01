@@ -163,7 +163,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'tier_index', description: 'Zero-based index of this crafting tier', type: 'integer', nullable: true),
         new OA\Property(property: 'craft_time_seconds', description: 'Crafting duration in seconds for this tier', type: 'integer', nullable: true),
-        new OA\Property(property: 'requirements', description: 'Recursive requirement tree for this tier', ref: '#/components/schemas/blueprint_requirement_node', nullable: true),
+        new OA\Property(property: 'requirements', ref: '#/components/schemas/blueprint_requirement_node', description: 'Recursive requirement tree for this tier', nullable: true),
     ],
     type: 'object'
 )]
@@ -221,6 +221,129 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'blueprint_unlocking_missions_grouped_entry',
+    title: 'Blueprint Unlocking Missions Grouped Entry',
+    description: 'A grouped mission entry within unlocking_missions_grouped.',
+    properties: [
+        new OA\Property(property: 'title', description: 'Mission title', type: 'string'),
+        new OA\Property(property: 'reward_scope', description: 'Scope of the blueprint reward', type: 'string', nullable: true),
+        new OA\Property(property: 'count', description: 'Number of occurrences of this mission', type: 'integer'),
+        new OA\Property(property: 'web_url', description: 'Web URL for the mission detail page', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_unlocking_missions_grouped',
+    title: 'Blueprint Unlocking Missions Grouped',
+    description: 'Grouped unlocking missions by drop chance. Only included on blueprint detail responses.',
+    properties: [
+        new OA\Property(property: 'label', description: 'Human-readable chance label (e.g. Guaranteed, 50% chance)', type: 'string'),
+        new OA\Property(property: 'chance', description: 'Drop chance as a decimal', type: 'number', format: 'float', nullable: true),
+        new OA\Property(
+            property: 'missions',
+            description: 'Missions in this chance group',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_unlocking_missions_grouped_entry')
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_aspect_input',
+    title: 'Blueprint Aspect Input',
+    description: 'Input resource or item for a blueprint aspect.',
+    properties: [
+        new OA\Property(property: 'kind', description: 'Input kind', type: 'string'),
+        new OA\Property(property: 'uuid', description: 'UUID of the input resource or item', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'name', description: 'Display name of the input', type: 'string'),
+        new OA\Property(property: 'quantity', description: 'Discrete count (for items)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'quantity_scu', description: 'Quantity in Standard Cargo Units (for resources)', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'min_quality', description: 'Minimum quality tier', type: 'integer'),
+        new OA\Property(property: 'web_url', description: 'Web URL for the input detail page', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_aspect_selection_group',
+    title: 'Blueprint Aspect Selection Group',
+    description: 'Selection group metadata when multiple aspect options are available.',
+    properties: [
+        new OA\Property(property: 'key', description: 'Internal key of the selection group', type: 'string'),
+        new OA\Property(property: 'name', description: 'Display name of the selection group', type: 'string'),
+        new OA\Property(property: 'required_count', description: 'Number of options that must be selected', type: 'integer'),
+        new OA\Property(property: 'option_count', description: 'Total number of available options', type: 'integer'),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_aspect',
+    title: 'Blueprint Aspect',
+    description: 'A single interactive aspect with quality-dependent modifiers.',
+    properties: [
+        new OA\Property(property: 'key', description: 'Internal key of the aspect', type: 'string'),
+        new OA\Property(property: 'name', description: 'Display name of the aspect', type: 'string'),
+        new OA\Property(property: 'required_count', description: 'Required count from parent group', type: 'integer', nullable: true),
+        new OA\Property(property: 'selection_group', ref: '#/components/schemas/blueprint_aspect_selection_group', nullable: true),
+        new OA\Property(property: 'input', ref: '#/components/schemas/blueprint_aspect_input'),
+        new OA\Property(
+            property: 'modifiers',
+            description: 'Quality-dependent modifier effects',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_modifier')
+        ),
+        new OA\Property(property: 'initial_quality', description: 'Default quality slider position', type: 'integer'),
+        new OA\Property(property: 'slider_min', description: 'Minimum quality slider value', type: 'integer'),
+        new OA\Property(property: 'slider_max', description: 'Maximum quality slider value', type: 'integer'),
+        new OA\Property(property: 'has_modifiers', description: 'Whether this aspect has any modifiers', type: 'boolean'),
+        new OA\Property(property: 'has_dynamic_modifiers', description: 'Whether modifiers change with quality', type: 'boolean'),
+        new OA\Property(property: 'is_selected', description: 'Whether this aspect is selected by default', type: 'boolean'),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_aspect_group',
+    title: 'Blueprint Aspect Group',
+    description: 'A group of related aspects, potentially a choice group.',
+    properties: [
+        new OA\Property(property: 'key', description: 'Internal key of the aspect group', type: 'string'),
+        new OA\Property(property: 'name', description: 'Display name of the aspect group', type: 'string'),
+        new OA\Property(property: 'display_name', description: 'User-facing display name, null if generic', type: 'string', nullable: true),
+        new OA\Property(property: 'required_count', description: 'Number of aspects that must be selected', type: 'integer'),
+        new OA\Property(property: 'option_count', description: 'Total number of aspect options', type: 'integer'),
+        new OA\Property(property: 'is_choice_group', description: 'Whether this is a choice group (required < options)', type: 'boolean'),
+        new OA\Property(property: 'selected_count', description: 'Number of aspects selected by default', type: 'integer'),
+        new OA\Property(
+            property: 'aspect_indexes',
+            description: 'Indexes into the aspects array for this group',
+            type: 'array',
+            items: new OA\Items(type: 'integer')
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'blueprint_aspects',
+    title: 'Blueprint Aspects',
+    description: 'Interactive aspect tree for blueprint quality simulation. Only included on blueprint detail responses.',
+    properties: [
+        new OA\Property(
+            property: 'aspects',
+            description: 'Flat list of all aspects',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_aspect')
+        ),
+        new OA\Property(
+            property: 'aspect_groups',
+            description: 'Groups of related aspects',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_aspect_group')
+        ),
+        new OA\Property(property: 'has_interactive_aspects', description: 'Whether any aspect has dynamic quality modifiers', type: 'boolean'),
+    ],
+    type: 'object'
+)]
+
+#[OA\Schema(
     schema: 'blueprint',
     title: 'Blueprint',
     properties: [
@@ -273,6 +396,17 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/blueprint_unlocking_mission')
         ),
         new OA\Property(
+            property: 'unlocking_missions_grouped',
+            description: 'Only included on blueprint detail responses.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/blueprint_unlocking_missions_grouped')
+        ),
+        new OA\Property(
+            property: 'aspects',
+            ref: '#/components/schemas/blueprint_aspects',
+            description: 'Only included on blueprint detail responses.',
+        ),
+        new OA\Property(
             property: 'tiers',
             description: 'Only included on blueprint detail responses.',
             type: 'array',
@@ -288,9 +422,14 @@ class BlueprintResource extends AbstractBaseResource
 {
     private ?array $normalizedPayload = null;
 
+    private BlueprintRequirementNormalizer $requirementNormalizer;
+
     public function toArray(Request $request): array
     {
         $payload = $this->rawPayload();
+        $normalizer = $this->normalizer();
+        $requirementGroups = $normalizer->requirementGroups($payload);
+        $outputItemUuid = $this->nullableString($this->output_item_uuid);
 
         return [
             'uuid' => $this->blueprint->uuid,
@@ -303,18 +442,22 @@ class BlueprintResource extends AbstractBaseResource
             'craft_time_label' => FormatDuration::fromSeconds($this->craft_time_seconds),
             'is_available_by_default' => $this->is_available_by_default,
             'game_version' => $this->gameVersion?->code,
-            'ingredient_count' => $this->ingredientCount($payload),
+            'ingredient_count' => $this->ingredientCount($payload, $normalizer),
             'unlocking_missions_count' => (int) ($this->resource->missions_count ?? 0),
-            'ingredients' => $this->ingredients($payload, $request),
+            'ingredients' => $this->ingredients($request, $normalizer, $requirementGroups),
             'dismantle_returns' => $this->dismantleReturnsList($request),
             'output' => $this->outputPayload($request, $payload),
-            'web_url' => $this->webUrl($request),
-            'output_item_web_url' => $this->whenNotNull($this->outputItemWebUrl($request)),
+            'web_url' => $this->urlWithVersion(route('web.blueprints.show', ['blueprint' => $this->blueprint->slug ?? $this->blueprint->uuid]), $request),
+            'output_item_web_url' => $this->whenNotNull($outputItemUuid !== null && Str::isUuid($outputItemUuid)
+                ? $this->urlWithVersion(route('web.items.show', ['item' => $outputItemUuid]), $request)
+                : null),
             $this->mergeWhen($this->shouldIncludeDetailFields($request), [
                 'dismantle' => $this->dismantlePayload($payload),
-                'requirement_groups' => $this->requirementGroups($payload),
-                'summary_properties' => $this->summaryProperties($payload),
-                'unlocking_missions' => $this->unlockingMissions(),
+                'requirement_groups' => $requirementGroups,
+                'summary_properties' => $normalizer->summaryProperties($payload),
+                'unlocking_missions' => $this->unlockingMissions($request),
+                'unlocking_missions_grouped' => $this->groupedUnlockingMissions($request),
+                'aspects' => $this->buildAspectState($requirementGroups, $request),
             ]),
             'tiers' => $this->when(
                 $this->shouldIncludeDetailFields($request),
@@ -333,10 +476,22 @@ class BlueprintResource extends AbstractBaseResource
             || $this->resource->relationLoaded('missions');
     }
 
+    private function normalizer(): BlueprintRequirementNormalizer
+    {
+        return $this->requirementNormalizer ??= new BlueprintRequirementNormalizer;
+    }
+
+    private function buildAspectState(array $requirementGroups, Request $request): array
+    {
+        $makeUrl = fn (string $routeName, array $params, Request $req): string => $this->urlWithVersion(route($routeName, $params), $req);
+
+        return new BlueprintAspectState($makeUrl)->build($requirementGroups, $request);
+    }
+
     /**
      * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, chance: int|float|null, web_url: ?string}>
      */
-    private function unlockingMissions(): array
+    private function unlockingMissions(Request $request): array
     {
         $missions = $this->loadedRelation('missions');
 
@@ -349,9 +504,70 @@ class BlueprintResource extends AbstractBaseResource
             'reward_scope' => $this->nullableString($mission->reward_scope),
             'chance' => $this->nullableNumeric($mission->blueprint_drop_chance ?? null),
             'web_url' => $mission->relationLoaded('mission') && $mission->mission !== null
-                ? $this->urlWithVersion(route('web.missions.show', ['mission' => $mission->mission->uuid]), request())
+                ? $this->urlWithVersion(route('web.missions.show', ['mission' => $mission->mission->uuid]), $request)
                 : null,
         ])->sortBy('title', SORT_STRING | SORT_FLAG_CASE)->values()->all();
+    }
+
+    /**
+     * @return array<int, array{label: string, chance: int|float|null, missions: array<int, array{title: string, reward_scope: ?string, count: int, web_url: ?string}>}>
+     */
+    private function groupedUnlockingMissions(Request $request): array
+    {
+        $missions = $this->unlockingMissions($request);
+
+        if ($missions === []) {
+            return [];
+        }
+
+        usort($missions, static function (array $a, array $b): int {
+            $chanceA = $a['chance'] ?? 0;
+            $chanceB = $b['chance'] ?? 0;
+
+            if ($chanceB !== $chanceA) {
+                return $chanceB <=> $chanceA;
+            }
+
+            return strcasecmp($a['title'] ?? '', $b['title'] ?? '');
+        });
+
+        $groups = [];
+
+        foreach ($missions as $mission) {
+            $chance = $mission['chance'] ?? null;
+            $chanceKey = $chance !== null ? (string) $chance : '0';
+
+            if (! isset($groups[$chanceKey])) {
+                $groups[$chanceKey] = [
+                    'label' => $chance === 1.0 ? 'Guaranteed' : ($chance !== null ? (($chance * 100).'% chance') : 'Unknown chance'),
+                    'chance' => $chance,
+                    'missions' => [],
+                ];
+            }
+
+            $title = $mission['title'] ?? 'Unknown mission';
+            $dedupKey = $title;
+
+            if (isset($groups[$chanceKey]['dedup'][$dedupKey])) {
+                $groups[$chanceKey]['missions'][$groups[$chanceKey]['dedup'][$dedupKey]]['count'] += 1;
+
+                continue;
+            }
+
+            $groups[$chanceKey]['dedup'][$dedupKey] = count($groups[$chanceKey]['missions']);
+            $groups[$chanceKey]['missions'][] = [
+                'title' => $title,
+                'reward_scope' => $mission['reward_scope'] ?? null,
+                'count' => 1,
+                'web_url' => $mission['web_url'] ?? null,
+            ];
+        }
+
+        return array_values(array_map(static function (array $group): array {
+            unset($group['dedup']);
+
+            return $group;
+        }, $groups));
     }
 
     /**
@@ -472,47 +688,14 @@ class BlueprintResource extends AbstractBaseResource
             'name' => $this->nullableString($commodity->name),
             'resource_type_uuid' => $this->nullableString($commodity->uuid),
             'quantity_scu' => $this->nullableNumeric($commodity->pivot->quantity_scu ?? null),
-            ...$this->commodityLinks($commodity->uuid, $request),
+            'link' => $this->urlWithVersion(route('commodities.show', ['commodity' => $commodity->uuid]), $request),
+            'web_url' => $this->urlWithVersion(route('web.commodities.show', ['identifier' => $commodity->uuid]), $request),
         ];
     }
 
-    private function commodityLinks(string $uuid, Request $request): array
+    private function ingredientCount(array $payload, BlueprintRequirementNormalizer $normalizer): int
     {
-        return [
-            'link' => $this->urlWithVersion(
-                route('commodities.show', ['commodity' => $uuid]),
-                $request,
-            ),
-            'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $uuid]),
-                $request,
-            ),
-        ];
-    }
-
-    private function itemLinks(string $uuid, Request $request): array
-    {
-        return [
-            'link' => $this->urlWithVersion(
-                route('items.show', ['identifier' => $uuid]),
-                $request,
-            ),
-            'web_url' => $this->urlWithVersion(
-                route('web.items.show', ['item' => $uuid]),
-                $request,
-            ),
-        ];
-    }
-
-    private function ingredientCount(array $payload): int
-    {
-        $ingredientCount = 0;
-
-        foreach ($this->requirementGroups($payload) as $group) {
-            $ingredientCount += $this->countRequirementChildren(
-                is_array($group['children'] ?? null) ? $group['children'] : [],
-            );
-        }
+        $ingredientCount = $normalizer->ingredientCount($payload);
 
         if ($ingredientCount > 0) {
             return $ingredientCount;
@@ -524,19 +707,13 @@ class BlueprintResource extends AbstractBaseResource
     }
 
     /**
-     * @param  array<string, mixed>  $payload
      * @return array<int, array{name: ?string, resource_type_uuid: ?string, quantity_scu: int|float|null, link: ?string, web_url: ?string}>
      */
-    private function ingredients(array $payload, Request $request): array
+    private function ingredients(Request $request, BlueprintRequirementNormalizer $normalizer, array $requirementGroups): array
     {
         $ingredients = [];
 
-        foreach ($this->requirementGroups($payload) as $group) {
-            $this->collectIngredients(
-                is_array($group['children'] ?? null) ? $group['children'] : [],
-                $ingredients,
-            );
-        }
+        $normalizer->collectIngredients($requirementGroups, $ingredients);
 
         $loadedIngredients = $this->loadedRelation('ingredients')->keyBy('uuid');
 
@@ -578,13 +755,21 @@ class BlueprintResource extends AbstractBaseResource
                 $uuid = $ingredient['item_uuid'] ?? null;
 
                 if ($uuid !== null && Str::isUuid($uuid)) {
-                    $ingredient = [...$ingredient, ...$this->itemLinks($uuid, $request)];
+                    $ingredient = [
+                        ...$ingredient,
+                        'link' => $this->urlWithVersion(route('items.show', ['identifier' => $uuid]), $request),
+                        'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request),
+                    ];
                 }
             } else {
                 $uuid = $ingredient['resource_type_uuid'];
 
                 if ($uuid !== null && Str::isUuid($uuid)) {
-                    $ingredient = [...$ingredient, ...$this->commodityLinks($uuid, $request)];
+                    $ingredient = [
+                        ...$ingredient,
+                        'link' => $this->urlWithVersion(route('commodities.show', ['commodity' => $uuid]), $request),
+                        'web_url' => $this->urlWithVersion(route('web.commodities.show', ['identifier' => $uuid]), $request),
+                    ];
                 }
             }
 
@@ -592,375 +777,10 @@ class BlueprintResource extends AbstractBaseResource
         }, $ingredients));
     }
 
-    /**
-     * @param  array<string, mixed>  $payload
-     * @return array<int, array<string, mixed>>
-     */
-    private function requirementGroups(array $payload): array
-    {
-        $groups = [];
-
-        foreach ($this->rootRequirementChildren($payload) as $node) {
-            if (! is_array($node)) {
-                continue;
-            }
-
-            $groups[] = $this->normalizeRequirementGroup($node);
-        }
-
-        return $groups;
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     * @return array<int, array<string, mixed>>
-     */
-    private function summaryProperties(array $payload): array
-    {
-        $summaryProperties = [];
-
-        foreach ($this->requirementGroups($payload) as $group) {
-            $this->collectSummaryProperties($summaryProperties, $group['modifiers']);
-            $this->collectChildSummaryProperties($summaryProperties, $group['children']);
-        }
-
-        return array_values($summaryProperties);
-    }
-
-    private function webUrl(Request $request): string
-    {
-        return $this->urlWithVersion(route('web.blueprints.show', ['blueprint' => $this->blueprint->slug ?? $this->blueprint->uuid]), $request);
-    }
-
-    private function outputItemWebUrl(Request $request): ?string
-    {
-        $outputItemUuid = $this->nullableString($this->output_item_uuid);
-
-        if ($outputItemUuid === null || ! Str::isUuid($outputItemUuid)) {
-            return null;
-        }
-
-        return $this->urlWithVersion(route('web.items.show', ['item' => $outputItemUuid]), $request);
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     * @return array<int, mixed>
-     */
-    private function rootRequirementChildren(array $payload): array
-    {
-        $children = data_get($payload, 'tiers.0.requirements.children');
-
-        return is_array($children) ? $children : [];
-    }
-
-    /**
-     * @param  array<string, mixed>  $node
-     * @return array<string, mixed>
-     */
-    private function normalizeRequirementGroup(array $node): array
-    {
-        $kind = $this->arrayNullableString($node, 'kind');
-
-        if ($kind !== 'group') {
-            $child = $this->normalizeRequirementChild($node);
-
-            return [
-                'key' => $this->arrayNullableString($node, 'key'),
-                'name' => $this->arrayNullableString($node, 'name') ?? $child['name'],
-                'kind' => 'group',
-                'required_count' => 1,
-                'modifiers' => $child['modifiers'],
-                'children' => [$child],
-            ];
-        }
-
-        $children = [];
-
-        foreach ($node['children'] ?? [] as $childNode) {
-            if (! is_array($childNode)) {
-                continue;
-            }
-
-            $children[] = $this->normalizeRequirementChild($childNode);
-        }
-
-        return [
-            'key' => $this->arrayNullableString($node, 'key'),
-            'name' => $this->arrayNullableString($node, 'name'),
-            'kind' => 'group',
-            'required_count' => $this->arrayNullableInt($node, 'required_count'),
-            'modifiers' => $this->normalizeModifiers($node['modifiers'] ?? []),
-            'children' => $children,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $node
-     * @return array<string, mixed>
-     */
-    private function normalizeRequirementChild(array $node): array
-    {
-        $normalized = [
-            'key' => $this->arrayNullableString($node, 'key'),
-            'kind' => $this->arrayNullableString($node, 'kind'),
-            'uuid' => $this->arrayNullableString($node, 'uuid'),
-            'name' => $this->arrayNullableString($node, 'name'),
-            'required_count' => $this->arrayNullableInt($node, 'required_count'),
-            'quantity' => $this->nullableNumeric($node['quantity'] ?? null),
-            'quantity_scu' => $this->nullableNumeric($node['quantity_scu'] ?? null),
-            'min_quality' => $this->arrayNullableInt($node, 'min_quality'),
-            'modifiers' => $this->normalizeModifiers($node['modifiers'] ?? []),
-        ];
-
-        if (($normalized['kind'] ?? null) !== 'group') {
-            return $normalized;
-        }
-
-        $children = [];
-
-        foreach ($node['children'] ?? [] as $childNode) {
-            if (! is_array($childNode)) {
-                continue;
-            }
-
-            $children[] = $this->normalizeRequirementChild($childNode);
-        }
-
-        $normalized['children'] = $children;
-
-        return $normalized;
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $children
-     */
-    private function countRequirementChildren(array $children): int
-    {
-        $count = 0;
-
-        foreach ($children as $child) {
-            if (! is_array($child)) {
-                continue;
-            }
-
-            if (($child['kind'] ?? null) === 'group') {
-                $nestedChildren = $child['children'] ?? [];
-
-                if (is_array($nestedChildren)) {
-                    $count += $this->countRequirementChildren($nestedChildren);
-                }
-
-                continue;
-            }
-
-            $count++;
-        }
-
-        return $count;
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $children
-     * @param  array<string, array{name: ?string, kind: ?string, resource_type_uuid: ?string, item_uuid: ?string, quantity_scu: int|float|null, quantity: int|float|null, link: ?string, web_url: ?string}>  $ingredients
-     */
-    private function collectIngredients(array $children, array &$ingredients): void
-    {
-        foreach ($children as $child) {
-            if (! is_array($child)) {
-                continue;
-            }
-
-            if (($child['kind'] ?? null) === 'group') {
-                $nestedChildren = $child['children'] ?? [];
-
-                if (is_array($nestedChildren)) {
-                    $this->collectIngredients($nestedChildren, $ingredients);
-                }
-
-                continue;
-            }
-
-            $name = $this->nullableString($child['name'] ?? $child['key'] ?? null);
-            $kind = $this->nullableString($child['kind'] ?? null);
-            $uuid = $this->nullableString($child['uuid'] ?? null);
-            $ingredientKey = $uuid ?? $name;
-
-            if ($ingredientKey === null) {
-                continue;
-            }
-
-            $isResource = $kind === 'resource';
-            $isItem = $kind === 'item';
-
-            $quantityScu = $isResource ? $this->nullableNumeric($child['quantity_scu'] ?? null) : null;
-            $quantity = $isItem ? $this->nullableNumeric($child['quantity'] ?? null) : null;
-
-            if (isset($ingredients[$ingredientKey]) && $quantityScu !== null) {
-                $existing = $ingredients[$ingredientKey]['quantity_scu'];
-                if ($existing !== null) {
-                    $quantityScu = $existing + $quantityScu;
-                }
-            }
-
-            if (isset($ingredients[$ingredientKey]) && $quantity !== null) {
-                $existing = $ingredients[$ingredientKey]['quantity'];
-                if ($existing !== null) {
-                    $quantity = $existing + $quantity;
-                }
-            }
-
-            $ingredients[$ingredientKey] ??= [
-                'name' => $name,
-                'kind' => $kind,
-                'resource_type_uuid' => $isResource ? $uuid : null,
-                'item_uuid' => $isItem ? $uuid : null,
-                'quantity_scu' => null,
-                'quantity' => null,
-                'link' => null,
-                'web_url' => null,
-            ];
-
-            if ($quantityScu !== null) {
-                $ingredients[$ingredientKey]['quantity_scu'] = $quantityScu;
-            }
-
-            if ($quantity !== null) {
-                $ingredients[$ingredientKey]['quantity'] = $quantity;
-            }
-        }
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function normalizeModifiers(mixed $modifiers): array
-    {
-        if (! is_array($modifiers)) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($modifiers as $modifier) {
-            if (! is_array($modifier)) {
-                continue;
-            }
-
-            $propertyKey = $this->nullableString($modifier['property_key'] ?? $modifier['key'] ?? null);
-
-            if ($propertyKey === null) {
-                continue;
-            }
-
-            $normalized[] = [
-                'property_key' => $propertyKey,
-                'property_uuid' => $this->arrayNullableString($modifier, 'property_uuid'),
-                'label' => $this->modifierLabel($propertyKey),
-                'better_when' => $this->modifierBetterWhen($modifier),
-                'quality_range' => [
-                    'min' => $this->nullableNumeric(data_get($modifier, 'quality_range.min')),
-                    'max' => $this->nullableNumeric(data_get($modifier, 'quality_range.max')),
-                ],
-                'modifier_range' => [
-                    'at_min_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null),
-                    'at_max_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null),
-                ],
-            ];
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * @param  array<string, mixed>  $modifier
-     * @return array<string, mixed>
-     */
-    private function summaryProperty(array $modifier): array
-    {
-        return [
-            'property_key' => $modifier['property_key'],
-            'property_uuid' => $modifier['property_uuid'],
-            'label' => $modifier['label'],
-            'better_when' => $modifier['better_when'],
-        ];
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $summaryProperties
-     * @param  array<int, array<string, mixed>>  $children
-     */
-    private function collectChildSummaryProperties(array &$summaryProperties, array $children): void
-    {
-        foreach ($children as $child) {
-            if (! is_array($child)) {
-                continue;
-            }
-
-            $this->collectSummaryProperties(
-                $summaryProperties,
-                is_array($child['modifiers'] ?? null) ? $child['modifiers'] : [],
-            );
-
-            $nestedChildren = $child['children'] ?? [];
-
-            if (is_array($nestedChildren)) {
-                $this->collectChildSummaryProperties($summaryProperties, $nestedChildren);
-            }
-        }
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $summaryProperties
-     * @param  array<int, array<string, mixed>>  $modifiers
-     */
-    private function collectSummaryProperties(array &$summaryProperties, array $modifiers): void
-    {
-        foreach ($modifiers as $modifier) {
-            $propertyKey = $modifier['property_key'] ?? null;
-
-            if (is_string($propertyKey) && $propertyKey !== '' && ! isset($summaryProperties[$propertyKey])) {
-                $summaryProperties[$propertyKey] = $this->summaryProperty($modifier);
-            }
-        }
-    }
-
-    /**
-     * @param  array<string, mixed>  $modifier
-     */
-    private function modifierBetterWhen(array $modifier): string
-    {
-        $explicitDirection = $this->arrayNullableString($modifier, 'better_when');
-
-        if ($explicitDirection !== null) {
-            return $explicitDirection;
-        }
-
-        $atMinQuality = $this->nullableNumeric(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null);
-        $atMaxQuality = $this->nullableNumeric(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null);
-
-        if ($atMinQuality === null || $atMaxQuality === null || $atMinQuality === $atMaxQuality) {
-            return 'neutral';
-        }
-
-        return $atMaxQuality > $atMinQuality ? 'higher' : 'lower';
-    }
-
     private function loadedRelation(string $relation): Collection
     {
         return $this->resource->relationLoaded($relation)
             ? $this->resource->$relation
             : collect();
-    }
-
-    private function modifierLabel(string $propertyKey): string
-    {
-        $normalizedPropertyKey = str_replace(
-            ['temperaturemax', 'temperaturemin', 'damagemitigation'],
-            ['temperature max', 'temperature min', 'damage mitigation'],
-            $propertyKey,
-        );
-
-        return Str::headline(str_replace(['.', '_', '-'], ' ', $normalizedPropertyKey));
     }
 }

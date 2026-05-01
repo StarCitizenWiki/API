@@ -5149,6 +5149,190 @@ components:
           format: uri
           nullable: true
       type: object
+    blueprint_unlocking_missions_grouped_entry:
+      title: 'Blueprint Unlocking Missions Grouped Entry'
+      description: 'A grouped mission entry within unlocking_missions_grouped.'
+      properties:
+        title:
+          description: 'Mission title'
+          type: string
+        reward_scope:
+          description: 'Scope of the blueprint reward'
+          type: string
+          nullable: true
+        count:
+          description: 'Number of occurrences of this mission'
+          type: integer
+        web_url:
+          description: 'Web URL for the mission detail page'
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    blueprint_unlocking_missions_grouped:
+      title: 'Blueprint Unlocking Missions Grouped'
+      description: 'Grouped unlocking missions by drop chance. Only included on blueprint detail responses.'
+      properties:
+        label:
+          description: 'Human-readable chance label (e.g. Guaranteed, 50% chance)'
+          type: string
+        chance:
+          description: 'Drop chance as a decimal'
+          type: number
+          format: float
+          nullable: true
+        missions:
+          description: 'Missions in this chance group'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_unlocking_missions_grouped_entry'
+      type: object
+    blueprint_aspect_input:
+      title: 'Blueprint Aspect Input'
+      description: 'Input resource or item for a blueprint aspect.'
+      properties:
+        kind:
+          description: 'Input kind'
+          type: string
+        uuid:
+          description: 'UUID of the input resource or item'
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          description: 'Display name of the input'
+          type: string
+        quantity:
+          description: 'Discrete count (for items)'
+          type: number
+          format: float
+          nullable: true
+        quantity_scu:
+          description: 'Quantity in Standard Cargo Units (for resources)'
+          type: number
+          format: float
+          nullable: true
+        min_quality:
+          description: 'Minimum quality tier'
+          type: integer
+        web_url:
+          description: 'Web URL for the input detail page'
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    blueprint_aspect_selection_group:
+      title: 'Blueprint Aspect Selection Group'
+      description: 'Selection group metadata when multiple aspect options are available.'
+      properties:
+        key:
+          description: 'Internal key of the selection group'
+          type: string
+        name:
+          description: 'Display name of the selection group'
+          type: string
+        required_count:
+          description: 'Number of options that must be selected'
+          type: integer
+        option_count:
+          description: 'Total number of available options'
+          type: integer
+      type: object
+    blueprint_aspect:
+      title: 'Blueprint Aspect'
+      description: 'A single interactive aspect with quality-dependent modifiers.'
+      properties:
+        key:
+          description: 'Internal key of the aspect'
+          type: string
+        name:
+          description: 'Display name of the aspect'
+          type: string
+        required_count:
+          description: 'Required count from parent group'
+          type: integer
+          nullable: true
+        selection_group:
+          oneOf:
+            -
+              $ref: '#/components/schemas/blueprint_aspect_selection_group'
+          nullable: true
+        input:
+          $ref: '#/components/schemas/blueprint_aspect_input'
+        modifiers:
+          description: 'Quality-dependent modifier effects'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_modifier'
+        initial_quality:
+          description: 'Default quality slider position'
+          type: integer
+        slider_min:
+          description: 'Minimum quality slider value'
+          type: integer
+        slider_max:
+          description: 'Maximum quality slider value'
+          type: integer
+        has_modifiers:
+          description: 'Whether this aspect has any modifiers'
+          type: boolean
+        has_dynamic_modifiers:
+          description: 'Whether modifiers change with quality'
+          type: boolean
+        is_selected:
+          description: 'Whether this aspect is selected by default'
+          type: boolean
+      type: object
+    blueprint_aspect_group:
+      title: 'Blueprint Aspect Group'
+      description: 'A group of related aspects, potentially a choice group.'
+      properties:
+        key:
+          description: 'Internal key of the aspect group'
+          type: string
+        name:
+          description: 'Display name of the aspect group'
+          type: string
+        display_name:
+          description: 'User-facing display name, null if generic'
+          type: string
+          nullable: true
+        required_count:
+          description: 'Number of aspects that must be selected'
+          type: integer
+        option_count:
+          description: 'Total number of aspect options'
+          type: integer
+        is_choice_group:
+          description: 'Whether this is a choice group (required < options)'
+          type: boolean
+        selected_count:
+          description: 'Number of aspects selected by default'
+          type: integer
+        aspect_indexes:
+          description: 'Indexes into the aspects array for this group'
+          type: array
+          items:
+            type: integer
+      type: object
+    blueprint_aspects:
+      title: 'Blueprint Aspects'
+      description: 'Interactive aspect tree for blueprint quality simulation. Only included on blueprint detail responses.'
+      properties:
+        aspects:
+          description: 'Flat list of all aspects'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_aspect'
+        aspect_groups:
+          description: 'Groups of related aspects'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_aspect_group'
+        has_interactive_aspects:
+          description: 'Whether any aspect has dynamic quality modifiers'
+          type: boolean
+      type: object
     blueprint:
       title: Blueprint
       properties:
@@ -5225,6 +5409,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/blueprint_unlocking_mission'
+        unlocking_missions_grouped:
+          description: 'Only included on blueprint detail responses.'
+          type: array
+          items:
+            $ref: '#/components/schemas/blueprint_unlocking_missions_grouped'
+        aspects:
+          $ref: '#/components/schemas/blueprint_aspects'
         tiers:
           description: 'Only included on blueprint detail responses.'
           type: array
@@ -14664,6 +14855,10 @@ components:
           type: string
           example: UNDEFINED
           nullable: true
+        pilot_slaveable:
+          description: 'Whether the port can be slaved to a pilot.'
+          type: boolean
+          nullable: true
         item:
           oneOf:
             -
@@ -14942,6 +15137,73 @@ components:
                 items:
                   type: string
                   example: BEHR_LaserCannon_S4
+                nullable: true
+            type: object
+          nullable: true
+        dps_total:
+          description: 'Aggregate DPS for the turret.'
+          type: number
+          example: 166.7
+          nullable: true
+        sustained_dps_total:
+          description: 'Sustained DPS for the turret.'
+          type: number
+          example: 74.2
+          nullable: true
+        alpha_total:
+          description: 'Alpha (per-shot) damage for the turret.'
+          type: number
+          example: 10
+          nullable: true
+        is_pilot_slaveable:
+          description: 'Whether the turret can be slaved to pilot control.'
+          type: boolean
+          example: false
+          nullable: true
+        weapons:
+          description: 'Per-weapon breakdown with DPS and alpha data.'
+          type: array
+          items:
+            properties:
+              uuid:
+                description: 'Weapon UUID.'
+                type: string
+                example: 18b795c5-25f1-444a-86c0-b5edd7cf0118
+                nullable: true
+              class_name:
+                description: 'SC class name of the weapon.'
+                type: string
+                example: BEHR_LaserRepeater_PDC_S1
+                nullable: true
+              name:
+                description: 'Human-readable weapon name.'
+                type: string
+                example: 'M2C "Swarm"'
+                nullable: true
+              link:
+                description: 'API URL for the full item detail.'
+                type: string
+                format: uri
+                nullable: true
+              dps:
+                description: 'Weapon DPS.'
+                type: number
+                example: 166.7
+                nullable: true
+              sustained_dps:
+                description: 'Weapon sustained DPS.'
+                type: number
+                example: 74.2
+                nullable: true
+              alpha:
+                description: 'Weapon alpha damage.'
+                type: number
+                example: 10
+                nullable: true
+              is_pilot_slaveable:
+                description: 'Whether this weapon can be slaved to pilot control.'
+                type: boolean
+                example: false
                 nullable: true
             type: object
           nullable: true
@@ -15276,6 +15538,76 @@ components:
               description: 'Maximum electrical charge damage rate.'
               type: number
               example: 100
+              nullable: true
+            resistance:
+              description: 'Shield resistance values by damage type.'
+              properties:
+                physical:
+                  description: 'Physical shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                energy:
+                  description: 'Energy shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                distortion:
+                  description: 'Distortion shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                thermal:
+                  description: 'Thermal shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                biochemical:
+                  description: 'Biochemical shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                stun:
+                  description: 'Stun shield resistance.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+              type: object
+              nullable: true
+            absorption:
+              description: 'Shield absorption values by damage type.'
+              properties:
+                physical:
+                  description: 'Physical shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                energy:
+                  description: 'Energy shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                distortion:
+                  description: 'Distortion shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                thermal:
+                  description: 'Thermal shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                biochemical:
+                  description: 'Biochemical shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+                stun:
+                  description: 'Stun shield absorption.'
+                  properties: { minimum: { type: number, nullable: true }, maximum: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+              type: object
               nullable: true
           type: object
           nullable: true
@@ -15689,6 +16021,41 @@ components:
                   nullable: true
               type: object
               nullable: true
+            deflection:
+              description: 'Armor deflection values by damage type.'
+              properties:
+                physical:
+                  description: 'Physical deflection.'
+                  type: number
+                  example: 24
+                  nullable: true
+                energy:
+                  description: 'Energy deflection.'
+                  type: number
+                  example: 13
+                  nullable: true
+                distortion:
+                  description: 'Distortion deflection.'
+                  type: number
+                  example: 0
+                  nullable: true
+                thermal:
+                  description: 'Thermal deflection.'
+                  type: number
+                  example: 0
+                  nullable: true
+                biochemical:
+                  description: 'Biochemical deflection.'
+                  type: number
+                  example: 0
+                  nullable: true
+                stun:
+                  description: 'Stun deflection.'
+                  type: number
+                  example: 0
+                  nullable: true
+              type: object
+              nullable: true
             resistance_multipliers:
               description: 'Resistance multipliers by damage type.'
               properties:
@@ -15763,6 +16130,114 @@ components:
                   example: 0.001
                   nullable: true
               type: object
+              nullable: true
+          type: object
+          nullable: true
+        propulsion:
+          description: 'Vehicle propulsion thruster data.'
+          properties:
+            thrusters:
+              description: 'Array of thruster groups by type.'
+              type: array
+              items:
+                properties:
+                  type: { description: 'Thruster type (Main, Maneuver, Retro, etc).', type: string, example: Main }
+                  count: { description: 'Number of thrusters of this type.', type: integer, example: 1 }
+                  capacity: { description: 'Thruster capacity.', type: number, example: 8.65, nullable: true }
+                  g: { description: 'G-force rating.', type: number, example: 14.19, nullable: true }
+                type: object
+            thrust_capacity:
+              description: 'Directional thrust capacity values.'
+              properties:
+                main:
+                  description: 'Main engine thrust in Newtons.'
+                  type: number
+                  example: 3566000
+                  nullable: true
+                retro:
+                  description: 'Retro thruster thrust in Newtons.'
+                  type: number
+                  example: 890000
+                  nullable: true
+                vtol:
+                  description: 'VTOL thruster thrust in Newtons.'
+                  type: number
+                  example: 0
+                  nullable: true
+                maneuvering:
+                  description: 'Maneuvering thruster thrust in Newtons.'
+                  type: number
+                  example: 1200000
+                  nullable: true
+              type: object
+              nullable: true
+          type: object
+          nullable: true
+        weaponry:
+          description: 'Computed weapon DPS and damage statistics from scunpacked.'
+          properties:
+            pilot_dps:
+              description: 'Total pilot weapon DPS.'
+              type: number
+              example: 1200.5
+              nullable: true
+            pilot_alpha:
+              description: 'Total pilot weapon alpha damage.'
+              type: number
+              example: 350
+              nullable: true
+            pilot_sustained_dps:
+              description: 'Total pilot weapon sustained DPS.'
+              type: number
+              example: 980
+              nullable: true
+            turret_dps:
+              description: 'Total turret weapon DPS.'
+              type: number
+              nullable: true
+            turret_alpha:
+              description: 'Total turret weapon alpha damage.'
+              type: number
+              nullable: true
+            turret_sustained_dps:
+              description: 'Total turret weapon sustained DPS.'
+              type: number
+              nullable: true
+            fixed_weapons:
+              description: 'Fixed weapon aggregate stats.'
+              properties:
+                dps_total:
+                  type: number
+                  nullable: true
+                sustained_dps_total:
+                  type: number
+                  nullable: true
+                alpha_total:
+                  type: number
+                  nullable: true
+                weapons:
+                  type: array
+                  items: { properties: { name: { type: string, nullable: true }, dps: { type: number, nullable: true }, sustained_dps: { type: number, nullable: true }, alpha: { type: number, nullable: true } }, type: object }
+                  nullable: true
+              type: object
+              nullable: true
+            missiles:
+              description: 'Missile statistics.'
+              properties:
+                count:
+                  type: integer
+                  example: 4
+                  nullable: true
+                damage:
+                  properties: { physical: { type: number, nullable: true }, energy: { type: number, nullable: true }, distortion: { type: number, nullable: true }, thermal: { type: number, nullable: true }, biochemical: { type: number, nullable: true }, stun: { type: number, nullable: true }, total: { type: number, nullable: true } }
+                  type: object
+                  nullable: true
+              type: object
+              nullable: true
+            total_missile_damage:
+              description: 'Total missile damage.'
+              type: integer
+              example: 8
               nullable: true
           type: object
           nullable: true
