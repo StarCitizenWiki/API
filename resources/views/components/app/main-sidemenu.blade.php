@@ -23,51 +23,6 @@
     @endauth
 </x-app.sidemenu-group>
 
-<x-app.sidemenu-group title="Comm-Link">
-    <x-app.sidemenu-item
-        :route="'web.comm-links.index'"
-        :with-version="false"
-    >
-        <x-slot:icon>
-            <x-icon name="satellite" class="size-4" />
-        </x-slot:icon>
-        Comm-Links
-    </x-app.sidemenu-item>
-    <x-app.sidemenu-item
-        :route="'web.comm-links.search'"
-        route-is="web.comm-links.search"
-        :with-version="false"
-    >
-        <x-slot:icon>
-            <x-icon name="search" class="size-4" />
-        </x-slot:icon>
-        Search
-    </x-app.sidemenu-item>
-    <x-app.sidemenu-item
-        :route="'web.comm-links.images.index'"
-        route-is="web.comm-links.images.*"
-        :with-version="false"
-    >
-        <x-slot:icon>
-            <x-icon name="image" class="size-4" />
-        </x-slot:icon>
-        Comm-Link Images
-    </x-app.sidemenu-item>
-</x-app.sidemenu-group>
-
-<x-app.sidemenu-group title="Galactapedia">
-    <x-app.sidemenu-item
-        :route="'web.galactapedia.index'"
-        route-is="web.galactapedia.*"
-        :with-version="false"
-    >
-        <x-slot:icon>
-            <x-icon name="book-open" class="size-4" />
-        </x-slot:icon>
-        Galactapedia
-    </x-app.sidemenu-item>
-</x-app.sidemenu-group>
-
 <x-app.sidemenu-group title="Universe">
     <x-app.sidemenu-item
         :route="'web.vehicles.index'"
@@ -90,16 +45,16 @@
         Blueprints
     </x-app.sidemenu-item>
 
-{{--    <x-app.sidemenu-item--}}
-{{--        :route="'web.blueprints.search'"--}}
-{{--        route-is="web.blueprints.search"--}}
-{{--        test-id="blueprints-search-menu-link"--}}
-{{--    >--}}
-{{--        <x-slot:icon>--}}
-{{--            <x-icon name="search" class="size-4" />--}}
-{{--        </x-slot:icon>--}}
-{{--        Blueprint Search--}}
-{{--    </x-app.sidemenu-item>--}}
+    {{--    <x-app.sidemenu-item--}}
+    {{--        :route="'web.blueprints.search'"--}}
+    {{--        route-is="web.blueprints.search"--}}
+    {{--        test-id="blueprints-search-menu-link"--}}
+    {{--    >--}}
+    {{--        <x-slot:icon>--}}
+    {{--            <x-icon name="search" class="size-4" />--}}
+    {{--        </x-slot:icon>--}}
+    {{--        Blueprint Search--}}
+    {{--    </x-app.sidemenu-item>--}}
 
     <x-app.sidemenu-item
         :route="'web.locations.index'"
@@ -204,12 +159,12 @@
                 Weapon Attachments
             </x-app.sidemenu-item>
 
-{{--            <x-app.sidemenu-item :route="'web.items.type'">--}}
-{{--                <x-slot:icon>--}}
-{{--                    <x-icon name="shield" class="size-4" />--}}
-{{--                </x-slot:icon>--}}
-{{--                Armor--}}
-{{--            </x-app.sidemenu-item>--}}
+            {{--            <x-app.sidemenu-item :route="'web.items.type'">--}}
+            {{--                <x-slot:icon>--}}
+            {{--                    <x-icon name="shield" class="size-4" />--}}
+            {{--                </x-slot:icon>--}}
+            {{--                Armor--}}
+            {{--            </x-app.sidemenu-item>--}}
         </x-slot:children>
     </x-app.sidemenu-item>
 
@@ -511,6 +466,51 @@
 
 
         </x-slot:children>
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
+<x-app.sidemenu-group title="Comm-Link">
+    <x-app.sidemenu-item
+        :route="'web.comm-links.index'"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="satellite" class="size-4" />
+        </x-slot:icon>
+        Comm-Links
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        :route="'web.comm-links.search'"
+        route-is="web.comm-links.search"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="search" class="size-4" />
+        </x-slot:icon>
+        Search
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        :route="'web.comm-links.images.index'"
+        route-is="web.comm-links.images.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="image" class="size-4" />
+        </x-slot:icon>
+        Comm-Link Images
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
+<x-app.sidemenu-group title="Galactapedia">
+    <x-app.sidemenu-item
+        :route="'web.galactapedia.index'"
+        route-is="web.galactapedia.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="book-open" class="size-4" />
+        </x-slot:icon>
+        Galactapedia
     </x-app.sidemenu-item>
 </x-app.sidemenu-group>
 

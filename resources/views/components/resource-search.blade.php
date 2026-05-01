@@ -5,6 +5,7 @@
     'placeholder',
     'variant' => 'prominent',
     'apiEndpoint',
+    'helpText' => null,
 ])
 
 @if ($variant === 'minimal')
@@ -42,21 +43,26 @@
                     <p class="text-sm text-base-content/70">{{ $description }}</p>
                 @endif
             </div>
-            <div class="flex flex-col gap-3 sm:flex-row">
-                <label class="input input-bordered flex w-full items-center gap-2">
-                    <x-icon name="search" class="size-4 text-base-content/60" />
-                    <input
-                        type="search"
-                        name="filter[name]"
-                        class="w-full"
-                        placeholder="{{ $placeholder }}"
-                        data-live-search
-                        data-api-endpoint="{{ $apiEndpoint }}"
-                        autocomplete="off"
-                    />
-                </label>
-                <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>
-            </div>
+            <fieldset class="fieldset ">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <label class="input input-bordered flex w-full items-center gap-2">
+                        <x-icon name="search" class="size-4 text-base-content/60" />
+                        <input
+                            type="search"
+                            name="filter[name]"
+                            class="w-full"
+                            placeholder="{{ $placeholder }}"
+                            data-live-search
+                            data-api-endpoint="{{ $apiEndpoint }}"
+                            autocomplete="off"
+                        />
+                    </label>
+                    <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>
+                </div>
+                @if ($helpText)
+                    <p class="label text-xs">{!! $helpText !!}</p>
+                @endif
+            </fieldset>
         </form>
     </div>
 @endif

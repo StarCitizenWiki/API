@@ -30,6 +30,7 @@
                 :route="route('web.items.index')"
                 placeholder="Search ships, items, locations..."
                 apiEndpoint="/api/search"
+                helpText="Direct link: <code>/search/{name}</code>, <code>/search/{class_name}</code>, or <code>/search/{uuid}</code> resolves to the matching entity page."
             />
         </div>
 
