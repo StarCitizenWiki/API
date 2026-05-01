@@ -8,9 +8,7 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Services\Game\SlugService;
-use App\Services\Game\VehicleItemImporter;
 use App\Services\Game\VehicleMatchingService;
-use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,7 +31,6 @@ class ImportVehicleData implements ShouldQueue
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path,
-        private readonly ?Labels $labels = null,
         private readonly ?VehicleMatchingService $matcher = null
     ) {}
 
@@ -45,7 +42,6 @@ class ImportVehicleData implements ShouldQueue
     public function handle(): void
     {
         $payload = $this->readPayload();
-        $rawPayload = $this->readRawPayload();
 
         if (! isset($payload['UUID'])) {
             return;
@@ -69,7 +65,6 @@ class ImportVehicleData implements ShouldQueue
 
         $this->updateSlug($vehicle, $payload);
 
-        $this->importVehicleItem($payload, $rawPayload, $manufacturerId);
     }
 
     /**
@@ -80,38 +75,6 @@ class ImportVehicleData implements ShouldQueue
         $contents = Storage::disk('scunpacked')->get($this->path);
 
         return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function readRawPayload(): array
-    {
-        $rawPath = $this->buildRawPath();
-
-        if ($rawPath === null || Storage::disk('scunpacked')->missing($rawPath)) {
-            return [];
-        }
-
-        $contents = Storage::disk('scunpacked')->get($rawPath);
-        $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-
-        return is_array($payload) ? ($payload['Raw'] ?? []) : [];
-    }
-
-    private function buildRawPath(): ?string
-    {
-        if (! str_ends_with($this->path, '.json')) {
-            return null;
-        }
-
-        return preg_replace('/\\.json$/', '-raw.json', $this->path);
-    }
-
-    private function importVehicleItem(array $payload, array $rawPayload, int $manufacturerId): void
-    {
-        $importer = new VehicleItemImporter($this->labels);
-        $importer->importFromVehiclePayload($this->gameVersionId, $payload, $rawPayload, $manufacturerId);
     }
 
     private function resolveManufacturerId(array $payload): int

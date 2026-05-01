@@ -3,11 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ImportVehicleData;
-use App\Models\Game\GameLabel;
 use App\Models\Game\GameVersion;
-use App\Models\Game\Item;
-use App\Models\Game\ItemData;
-use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
@@ -17,8 +13,6 @@ use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
-use App\Models\System\Language;
-use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -173,111 +167,6 @@ it('imports vehicle data and upserts when re-run', function (): void {
     $data->refresh();
     expect(data_get($data->data, 'Mass'))->toBe(999)
         ->and(VehicleData::query()->where('vehicle_id', $vehicle->id)->where('game_version_id', $version->id)->count())->toBe(1);
-});
-
-it('imports vehicle item data from vehicle payload and raw data', function (): void {
-    Storage::fake('scunpacked');
-
-    GameLabel::factory()->asItemDescTest()->create();
-    $labels = new Labels;
-
-    $version = GameVersion::query()->create([
-        'code' => '3.24.0',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => false,
-    ]);
-
-    $manufacturerUuid = fake()->uuid();
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => $manufacturerUuid,
-        'name' => 'Test Manufacturer',
-        'code' => 'TST',
-    ]);
-
-    $vehicleUuid = fake()->uuid();
-    $payload = [
-        'UUID' => $vehicleUuid,
-        'ClassName' => 'TEST_Vehicle',
-        'Name' => 'Test Vehicle',
-        'Description' => 'English description',
-        'DescriptionText' => 'English description',
-        'DescriptionData' => [
-            'Manufacturer' => 'Test Manufacturer',
-            'Focus' => 'Test Focus',
-        ],
-        'Manufacturer' => [
-            'UUID' => $manufacturer->uuid,
-            'Name' => $manufacturer->name,
-        ],
-    ];
-
-    $rawPayload = [
-        'Raw' => [
-            'Entity' => [
-                '__ref' => $payload['UUID'],
-                'ClassName' => $payload['ClassName'],
-                'Components' => [
-                    'SAttachableComponentParams' => [
-                        'AttachDef' => [
-                            'Type' => 'NOITEM_Vehicle',
-                            'SubType' => 'Vehicle_Spaceship',
-                            'Size' => 2,
-                            'Grade' => 1,
-                            'Manufacturer' => [
-                                'Code' => $manufacturer->code,
-                                '__ref' => $manufacturer->uuid,
-                            ],
-                            'Localization' => [
-                                '__Description' => '@item_Desc_test',
-                                'English' => [
-                                    'Name' => $payload['Name'],
-                                    'Description' => 'English description',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/test.json', json_encode($payload, JSON_THROW_ON_ERROR));
-    Storage::disk('scunpacked')->put('ships/test-raw.json', json_encode($rawPayload, JSON_THROW_ON_ERROR));
-
-    (new ImportVehicleData($version->id, 'ships/test.json', $labels))->handle();
-
-    $item = Item::query()->firstWhere('uuid', $payload['UUID']);
-    expect($item)->not->toBeNull();
-
-    $itemData = ItemData::query()
-        ->where('item_id', $item->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($itemData)->not->toBeNull()
-        ->and($itemData->manufacturer_id)->toBe($manufacturer->id)
-        ->and($itemData->name)->toBe($payload['Name'])
-        ->and($itemData->class_name)->toBe($payload['ClassName'])
-        ->and($itemData->type)->toBe('NOITEM_Vehicle')
-        ->and($itemData->sub_type)->toBe('Vehicle_Spaceship')
-        ->and($itemData->size)->toBe(2)
-        ->and($itemData->grade)->toBe(1);
-
-    $descriptionData = ItemDescriptionData::query()
-        ->where('item_id', $item->id)
-        ->orderBy('name')
-        ->get();
-
-    expect($descriptionData)->toHaveCount(2)
-        ->and($descriptionData->first()->name)->toBe('Focus')
-        ->and($descriptionData->first()->value)->toBe('Test Focus')
-        ->and($descriptionData->last()->name)->toBe('Manufacturer')
-        ->and($descriptionData->last()->value)->toBe('Test Manufacturer')
-        ->and($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description')
-        ->and($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述')
-        ->and($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
-
 });
 
 it('matches shipmatrix vehicle using override name and manufacturer code', function (): void {
