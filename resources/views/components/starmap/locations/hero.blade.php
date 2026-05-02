@@ -25,7 +25,7 @@
     $imageSource = data_get(data_get($location, 'images', []), '0.source');
 @endphp
 
-<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow', 'data-testid' => 'starmap-location-hero']) }}>
+<section {{ $attributes->merge(['class' => 'card bg-base-100 shadow', 'data-testid' => 'starmap-location-hero']) }}>
     @if ($heroImage)
         <div class="relative overflow-hidden h-48 rounded-t-box sm:h-56">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">

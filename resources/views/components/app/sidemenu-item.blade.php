@@ -135,7 +135,7 @@
         }
     }
 
-    $iconClass = $isActive ? 'menu-active-fg' : 'text-subtle';
+    $iconClass = $isActive ? 'text-primary' : 'text-subtle';
 @endphp
 
 @if ($collapsible && isset($children) && !empty(trim((string) $children)))
@@ -145,7 +145,7 @@
                 @if ($testId)
                     data-testid="{{ $testId }}"
                 @endif
-                @class(['menu-item', 'menu-active' => $isActive, 'flex'])
+                @class(['menu-item', 'active' => $isActive, 'flex'])
             >
                 @isset($icon)
                     <span class="{{ $iconClass }}">
@@ -166,7 +166,7 @@
             @if ($testId)
                 data-testid="{{ $testId }}"
             @endif
-            @class(['menu-active' => $isActive])
+            @class(['active' => $isActive])
         >
             @isset($icon)
                 <span class="{{ $iconClass }}">

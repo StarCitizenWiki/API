@@ -28,7 +28,7 @@
     $workInProgress = data_get($resource, 'work_in_progress');
 @endphp
 
-<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow', 'data-testid' => 'mission-hero']) }}>
+<section {{ $attributes->merge(['class' => 'card bg-base-100 shadow', 'data-testid' => 'mission-hero']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-2">

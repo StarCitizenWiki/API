@@ -186,10 +186,10 @@ it('activates vehicle items menu for vehicle type filters', function (): void {
     $fpsMenuClasses = attributeForTestId($content, 'items-menu-fps-items', 'class');
     $allItemsMenuClasses = attributeForTestId($content, 'items-menu-all-items', 'class') ?? '';
 
-    expect($vehicleMenuClasses)->toContain('menu-active')
+    expect($vehicleMenuClasses)->toContain('active')
         ->and($fpsMenuClasses)->toContain('menu-item')
-        ->and($fpsMenuClasses)->not->toContain('menu-active')
-        ->and($allItemsMenuClasses)->not->toContain('menu-active');
+        ->and($fpsMenuClasses)->not->toContain('active')
+        ->and($allItemsMenuClasses)->not->toContain('active');
 });
 
 it('renders breadcrumbs for item filters', function (): void {

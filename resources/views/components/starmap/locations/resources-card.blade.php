@@ -44,7 +44,7 @@
                                 $resourceWebUrl = data_get($resource, 'web_url');
                             @endphp
 
-                            <section class="card border border-base-200 bg-base-50/50" data-testid="starmap-location-resource-card">
+                            <section class="card border border-base-200 bg-base-100/50" data-testid="starmap-location-resource-card">
                                 <div class="card-body gap-4 p-4 sm:p-5">
                                     <div class="flex flex-wrap items-center gap-2">
                                         @if ($resourceWebUrl)

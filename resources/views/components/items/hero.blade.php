@@ -141,7 +141,7 @@
     $isPortrait = true;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'w-full rounded-box border border-base-300 bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'item-hero']) }}>
+<section {{ $attributes->merge(['class' => 'card bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'item-hero']) }}>
     @if ($heroImage)
         <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">

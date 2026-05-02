@@ -23,7 +23,7 @@
     $portSizeMin = data_get($port, 'sizes.min');
     $portSizeMax = data_get($port, 'sizes.max');
     $portType = data_get($port, 'type');
-    $equippedCardClasses = '!border-0 !shadow-none bg-base-200 rounded-lg [&_.card-body]:gap-2 [&_.card-body]:p-3 [&_.card-title]:text-sm';
+    $equippedCardClasses = 'port-equipped-card';
 
     // Extract equipped item stats for summary display
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
