@@ -5,6 +5,7 @@
         "opencode",
         "phpstorm"
     ],
+    "cloud": false,
     "editors": [
         "claude_code",
         "codex",
