@@ -529,8 +529,12 @@ class MissionController extends Controller
 
                 $query->where('reward_max', '<=', (int) $value);
             }),
-            AllowedFilter::partial('title'),
-            AllowedFilter::partial('description'),
+            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
+                $query->whereRaw('LOWER(game_mission_data.title) LIKE ?', [sprintf('%%%s%%', mb_strtolower((string) $value))]);
+            }),
+            AllowedFilter::callback('description', static function (Builder $query, mixed $value): void {
+                $query->whereRaw('LOWER(game_mission_data.description) LIKE ?', [sprintf('%%%s%%', mb_strtolower((string) $value))]);
+            }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
@@ -538,9 +542,9 @@ class MissionController extends Controller
 
                 $query->where(static function (Builder $q) use ($value): void {
                     $normalized = mb_strtolower($value);
-                    $q->whereRaw('LOWER(title) LIKE ?', ["%{$normalized}%"])
-                        ->orWhereRaw('LOWER(description) LIKE ?', ["%{$normalized}%"])
-                        ->orWhereRaw('LOWER(debug_name) LIKE ?', ["%{$normalized}%"]);
+                    $q->whereRaw('LOWER(game_mission_data.title) LIKE ?', ["%{$normalized}%"])
+                        ->orWhereRaw('LOWER(game_mission_data.description) LIKE ?', ["%{$normalized}%"])
+                        ->orWhereRaw('LOWER(game_mission_data.debug_name) LIKE ?', ["%{$normalized}%"]);
                 });
             }),
             AllowedFilter::callback('reward_scope', static function (Builder $query, mixed $value): void {
