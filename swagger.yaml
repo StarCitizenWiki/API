@@ -8386,6 +8386,10 @@ components:
       title: 'Vehicle Armor'
       description: 'Armor characteristics for ship and vehicle hull plating. Signal multipliers affect detectability (values < 1.0 reduce signature for stealth, > 1.0 increase signature). Damage multipliers determine resistance to damage types (lower values = more resistant).'
       properties:
+        uuid:
+          description: 'Armor item UUID.'
+          type: string
+          nullable: true
         health:
           description: 'Armor health points from Durability system.'
           type: number
@@ -8562,8 +8566,18 @@ components:
               type: number
               format: double
               nullable: true
+            physical_change:
+              description: 'Physical resistance change from neutral (multiplier - 1).'
+              type: number
+              format: double
+              nullable: true
             energy:
               description: 'Energy resistance multiplier from Durability.'
+              type: number
+              format: double
+              nullable: true
+            energy_change:
+              description: 'Energy resistance change from neutral (multiplier - 1).'
               type: number
               format: double
               nullable: true
@@ -8572,8 +8586,18 @@ components:
               type: number
               format: double
               nullable: true
+            distortion_change:
+              description: 'Distortion resistance change from neutral (multiplier - 1).'
+              type: number
+              format: double
+              nullable: true
             thermal:
               description: 'Thermal resistance multiplier from Durability.'
+              type: number
+              format: double
+              nullable: true
+            thermal_change:
+              description: 'Thermal resistance change from neutral (multiplier - 1).'
               type: number
               format: double
               nullable: true
@@ -8582,8 +8606,53 @@ components:
               type: number
               format: double
               nullable: true
+            biochemical_change:
+              description: 'Biochemical resistance change from neutral (multiplier - 1).'
+              type: number
+              format: double
+              nullable: true
             stun:
               description: 'Stun resistance multiplier from Durability.'
+              type: number
+              format: double
+              nullable: true
+            stun_change:
+              description: 'Stun resistance change from neutral (multiplier - 1).'
+              type: number
+              format: double
+              nullable: true
+          type: object
+          nullable: true
+        deflection:
+          description: 'Deflection values determining how well armor deflects incoming rounds by type.'
+          properties:
+            physical:
+              description: 'Physical deflection value.'
+              type: number
+              format: double
+              nullable: true
+            energy:
+              description: 'Energy deflection value.'
+              type: number
+              format: double
+              nullable: true
+            distortion:
+              description: 'Distortion deflection value.'
+              type: number
+              format: double
+              nullable: true
+            thermal:
+              description: 'Thermal deflection value.'
+              type: number
+              format: double
+              nullable: true
+            biochemical:
+              description: 'Biochemical deflection value.'
+              type: number
+              format: double
+              nullable: true
+            stun:
+              description: 'Stun deflection value.'
               type: number
               format: double
               nullable: true
@@ -11182,6 +11251,23 @@ components:
           format: double
           nullable: true
       type: object
+    radar_aim_assist_block:
+      title: 'Radar Aim Assist Block'
+      description: 'Aim assist range parameters as provided by game data.'
+      properties:
+        distance_min_assignment:
+          type: number
+          format: double
+          nullable: true
+        distance_max_assignment:
+          type: number
+          format: double
+          nullable: true
+        outside_range_buffer_distance:
+          type: number
+          format: double
+          nullable: true
+      type: object
     radar:
       title: Radar
       description: 'Radar specification sourced from stdItem.Radar.'
@@ -11226,7 +11312,13 @@ components:
             -
               $ref: '#/components/schemas/radar_sensitivity_block'
           nullable: true
-          description: 'Signal “piercing” values (Radar.Piercing.*).'
+          description: 'Signal "piercing" values (Radar.Piercing.*).'
+        aim_assist:
+          oneOf:
+            -
+              $ref: '#/components/schemas/radar_aim_assist_block'
+          nullable: true
+          description: 'Aim assist range parameters (Radar.AimAssist.*).'
       type: object
     radiation_resistance:
       title: 'Radiation Resistance'
@@ -12663,7 +12755,7 @@ components:
           format: double
           nullable: true
         zoom_time_change:
-          description: 'Computed as `1 - zoom_time_scale`.'
+          description: 'Computed as `zoom_time_scale - 1`.'
           type: number
           format: double
           nullable: true
@@ -15909,230 +16001,11 @@ components:
           type: object
           nullable: true
         armor:
-          description: 'Vehicle armor, damage multipliers, and resistance data.'
-          properties:
-            uuid:
-              description: 'Armor item UUID.'
-              type: string
-              example: armor-uuid
-              nullable: true
-            health:
-              description: 'Armor health pool.'
-              type: number
-              example: 1000
-              nullable: true
-            signal_infrared:
-              description: 'Infrared signal multiplier (top-level, use signal_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            signal_electromagnetic:
-              description: 'Electromagnetic signal multiplier (top-level, use signal_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            signal_cross_section:
-              description: 'Cross-section signal multiplier (top-level, use signal_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            damage_physical:
-              description: 'Physical damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 0.62
-              nullable: true
-            damage_energy:
-              description: 'Energy damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            damage_distortion:
-              description: 'Distortion damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            damage_thermal:
-              description: 'Thermal damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            damage_biochemical:
-              description: 'Biochemical damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 1
-              nullable: true
-            damage_stun:
-              description: 'Stun damage multiplier (top-level, use damage_multipliers instead).'
-              type: number
-              example: 0
-              nullable: true
-            signal_multipliers:
-              description: 'Signal multipliers by type.'
-              properties:
-                cross_section:
-                  description: 'Cross-section signal multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                infrared:
-                  description: 'Infrared signal multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                electromagnetic:
-                  description: 'Electromagnetic signal multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-              type: object
-              nullable: true
-            damage_multipliers:
-              description: 'Damage multipliers by type.'
-              properties:
-                physical:
-                  description: 'Physical damage multiplier.'
-                  type: number
-                  example: 0.62
-                  nullable: true
-                energy:
-                  description: 'Energy damage multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                distortion:
-                  description: 'Distortion damage multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                thermal:
-                  description: 'Thermal damage multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                biochemical:
-                  description: 'Biochemical damage multiplier.'
-                  type: number
-                  example: 1
-                  nullable: true
-                stun:
-                  description: 'Stun damage multiplier.'
-                  type: number
-                  example: 0
-                  nullable: true
-              type: object
-              nullable: true
-            deflection:
-              description: 'Armor deflection values by damage type.'
-              properties:
-                physical:
-                  description: 'Physical deflection.'
-                  type: number
-                  example: 24
-                  nullable: true
-                energy:
-                  description: 'Energy deflection.'
-                  type: number
-                  example: 13
-                  nullable: true
-                distortion:
-                  description: 'Distortion deflection.'
-                  type: number
-                  example: 0
-                  nullable: true
-                thermal:
-                  description: 'Thermal deflection.'
-                  type: number
-                  example: 0
-                  nullable: true
-                biochemical:
-                  description: 'Biochemical deflection.'
-                  type: number
-                  example: 0
-                  nullable: true
-                stun:
-                  description: 'Stun deflection.'
-                  type: number
-                  example: 0
-                  nullable: true
-              type: object
-              nullable: true
-            resistance_multipliers:
-              description: 'Resistance multipliers by damage type.'
-              properties:
-                physical:
-                  description: 'Physical resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                energy:
-                  description: 'Energy resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                distortion:
-                  description: 'Distortion resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                thermal:
-                  description: 'Thermal resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                biochemical:
-                  description: 'Biochemical resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                stun:
-                  description: 'Stun resistance multiplier.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-              type: object
-              nullable: true
-            penetration_resistance:
-              description: 'Penetration resistance values by damage type.'
-              properties:
-                base:
-                  description: 'Base penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                physical:
-                  description: 'Physical penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                energy:
-                  description: 'Energy penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                distortion:
-                  description: 'Distortion penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                thermal:
-                  description: 'Thermal penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                biochemical:
-                  description: 'Biochemical penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-                stun:
-                  description: 'Stun penetration resistance.'
-                  type: number
-                  example: 0.001
-                  nullable: true
-              type: object
-              nullable: true
-          type: object
+          oneOf:
+            -
+              $ref: '#/components/schemas/vehicle_armor'
           nullable: true
+          description: 'Vehicle armor data from ArmorResource. Deprecated plural key aliases (signal_multipliers, damage_multipliers, resistance_multipliers) are emitted for backward compatibility.'
         propulsion:
           description: 'Vehicle propulsion thruster data.'
           properties:
