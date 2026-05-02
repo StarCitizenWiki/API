@@ -259,8 +259,7 @@ class SyncGameData extends Command
             return;
         }
 
-        $pendingBatch = Bus::batch($firstLoaderChunk->values())
-            ->allowFailure();
+        $pendingBatch = Bus::batch($firstLoaderChunk->values());
 
         if ($then !== null) {
             $lastLoaderJob = $loaderJobChunks->isEmpty()
