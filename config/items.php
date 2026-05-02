@@ -469,13 +469,11 @@ return [
                         [
                             'title' => 'Physical',
                             'field' => 'armor.deflection.physical',
-                            'formatter' => 'pct',
                             'headerSort' => false,
                         ],
                         [
                             'title' => 'Energy',
                             'field' => 'armor.deflection.energy',
-                            'formatter' => 'pct',
                             'headerSort' => false,
                         ],
                         // [
