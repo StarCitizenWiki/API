@@ -86,7 +86,7 @@ class HardpointItemResource extends ItemResource
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,
             $this->mergeWhen($this->isTurret($itemData), fn () => $this->addTurretData($itemData)),
-            $this->mergeWhen(...$this->addSpecification($this->resource, $itemData)),
+            $this->mergeWhen(...$this->addSpecification($itemData)),
             $this->mergeWhen($this->hasInStdItem($itemData, 'InventoryContainer'), [
                 'inventory' => new ItemInventoryResource($this->extractFromStdItem($itemData, 'InventoryContainer')),
             ]),
