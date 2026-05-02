@@ -40,7 +40,6 @@
         $uuid = data_get($item, 'uuid');
         $apiLink = data_get($item, 'link');
         $version = data_get($item, 'version');
-        $rawItemJson = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $ports = data_get($item, 'ports', []);
         $baseVariant = data_get($item, 'related_items.base_item');
@@ -226,13 +225,11 @@
                                 @endif
 
                                 @if (data_get($item, 'suit_armor'))
-                                    <x-items.suit-armor-card :suit-armor="data_get($item, 'suit_armor')" />
+                                    <x-items.suit-armor-card :suit-armor="data_get($item, 'suit_armor')" :temperature-resistance="data_get($item, 'temperature_resistance')" :inventory="data_get($item, 'inventory')" />
                                 @endif
-
-                                @if (data_get($item, 'temperature_resistance'))
-                                    <x-items.temperature-resistance-card :temperature-resistance="data_get($item, 'temperature_resistance')" />
+                                @if (data_get($item, 'clothing') && !data_get($item, 'suit_armor'))
+                                    <x-items.clothing-card :clothing="data_get($item, 'clothing')" :temperature-resistance="data_get($item, 'temperature_resistance')" :inventory="data_get($item, 'inventory')" />
                                 @endif
-
                                 @if (data_get($item, 'radiation_resistance'))
                                     <x-items.radiation-resistance-card :radiation-resistance="data_get($item, 'radiation_resistance')" />
                                 @endif
@@ -245,9 +242,6 @@
                                     <x-items.weapon-modifier-card :weapon-modifier="data_get($item, 'weapon_modifier')" />
                                 @endif
 
-                                @if (data_get($item, 'inventory') && data_get($item, 'inventory.unit') === 'µSCU')
-                                    <x-items.inventory-card :inventory="data_get($item, 'inventory')" />
-                                @endif
                             </div>
                         @endif
 
@@ -293,17 +287,10 @@
                                     <x-items.shield-card :shield="data_get($item, 'shield')" />
                                 @endif
 
-                                @if ($type === 'PowerPlant')
-                                    <x-items.power-plant-card :power-plant="data_get($item, 'power_plant')" />
-                                @endif
-
                                 @if ($type === 'QuantumDrive')
                                     <x-items.quantum-drive-card :quantum-drive="data_get($item, 'quantum_drive')" />
                                 @endif
 
-                                @if ($type === 'Cooler')
-                                    <x-items.cooler-card :cooler="data_get($item, 'cooler')" />
-                                @endif
 
                                 @if ($type === 'JumpDrive')
                                     <x-items.jump-drive-card :jump-drive="data_get($item, 'jump_drive')" />
@@ -380,15 +367,14 @@
 
             <x-technical-section :entries="$technicalEntries" testId="item-technical-card">
                 @if (is_array($entityTagMap) && $entityTagMap !== [])
-                    <div class="mt-5 pt-5 border-t border-base-300 space-y-1">
-                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">Entity Tag Map</dt>
-                        <dd class="text-sm font-semibold text-base-content">
+                    <div class="mt-5 pt-5 border-t border-base-300">
+                        <x-dt-dd label="Entity Tag Map" stacked>
                             <div class="flex flex-wrap gap-2">
                                 @foreach ($entityTagMap as $tag)
                                     <span class="badge badge-neutral" title="{{ $tag['uuid'] ?? '' }}">{{ $tag['name'] ?? 'Unknown' }}</span>
                                 @endforeach
                             </div>
-                        </dd>
+                        </x-dt-dd>
                     </div>
                 @endif
             </x-technical-section>

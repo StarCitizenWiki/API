@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @php use Illuminate\Support\Str; @endphp
 @props([
     'port',
@@ -15,7 +16,7 @@
     $portName = data_get($port, 'name');
     $portLabel = Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline();
     $portPosition = data_get($port, 'position');
-    $sizeRange = fmt_range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '');
+    $sizeRange = Format::range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '');
     $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
     $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
     $isLocked = is_bool($editable) ? !$editable : (data_get($port, 'editable') === true ? false : true);
@@ -87,8 +88,8 @@
             $typeSpecificLabel = 'Generation';
             $powerSegmentUsage = null;
             $typeSpecificIcon = 'power';
-        } elseif (data_get($equippedItem, 'cooler.coolant_segment_generation')) {
-            $typeSpecificStat = data_get($equippedItem, 'cooler.coolant_segment_generation');
+        } elseif (data_get($equippedItem, 'resource_network.generation.coolant')) {
+            $typeSpecificStat = data_get($equippedItem, 'resource_network.generation.coolant');
             $typeSpecificLabel = 'Generation';
             $coolantSegmentUsage = null;
             $typeSpecificIcon = 'fan';
@@ -168,7 +169,7 @@
                     @if ($powerSegmentUsage > 0)
                         <span class="badge badge-sm badge-soft" title="Power Segment Usage">
                             <x-icon name="zap" class="size-3"/>
-                            <span class="font-medium">{{ fmt_compact($powerSegmentUsage, 1) }}</span>
+                            <span class="font-medium">{{ Format::compact($powerSegmentUsage, 1) }}</span>
                             <span class="hidden sm:inline">Power Usage</span>
                             <span class="sm:hidden">Pwr</span>
                         </span>
@@ -176,7 +177,7 @@
                     @if ($coolantSegmentUsage > 0)
                         <span class="badge badge-sm badge-soft" title="Coolant Segment Usage">
                             <x-icon name="fan" class="size-3"/>
-                            <span class="font-medium">{{ fmt_compact($coolantSegmentUsage, 1) }}</span>
+                            <span class="font-medium">{{ Format::compact($coolantSegmentUsage, 1) }}</span>
                             <span class="hidden sm:inline">Coolant Usage</span>
                             <span class="sm:hidden">Cool</span>
                         </span>
@@ -186,7 +187,7 @@
                             @if ($typeSpecificIcon)
                                 <x-icon name="{{ $typeSpecificIcon }}" class="size-3"/>
                             @endif
-                            <span class="font-medium">{{ fmt_compact($typeSpecificStat, 0) }}</span>
+                            <span class="font-medium">{{ Format::compact($typeSpecificStat, 0) }}</span>
                             <span class="hidden sm:inline">{{ $typeSpecificLabel }}</span>
                         </span>
                     @endif
@@ -288,8 +289,8 @@
                                     :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($equippedItem, 'cooler'))
-                                <x-items.cooler-card :cooler="data_get($equippedItem, 'cooler')" :class="$equippedCardClasses"/>
+                            @if (data_get($equippedItem, 'resource_network'))
+                                <x-items.resource-network-card :resource-network="data_get($equippedItem, 'resource_network')" :item-type="data_get($equippedItem, 'type')" :class="$equippedCardClasses"/>
                             @endif
 
                             @if (data_get($equippedItem, 'counter_measure'))
@@ -399,12 +400,16 @@
                             @if (data_get($equippedItem, 'suit_armor'))
                                 <x-items.suit-armor-card
                                     :suit-armor="data_get($equippedItem, 'suit_armor')"
+                                    :temperature-resistance="data_get($equippedItem, 'temperature_resistance')"
+                                    :inventory="data_get($equippedItem, 'inventory')"
                                     :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($equippedItem, 'temperature_resistance'))
-                                <x-items.temperature-resistance-card
+                            @if (data_get($equippedItem, 'clothing') && !data_get($equippedItem, 'suit_armor'))
+                                <x-items.clothing-card
+                                    :clothing="data_get($equippedItem, 'clothing')"
                                     :temperature-resistance="data_get($equippedItem, 'temperature_resistance')"
+                                    :inventory="data_get($equippedItem, 'inventory')"
                                     :class="$equippedCardClasses"/>
                             @endif
 

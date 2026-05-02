@@ -1,141 +1,102 @@
+@use('App\Support\Format')
 @props([
     'suitArmor',
+    'temperatureResistance',
+    'inventory',
 ])
 
 @php
     $slot = data_get($suitArmor, 'slot');
 
     $damageResistanceMap = data_get($suitArmor, 'damage_resistance_map', []);
-    $drImpact = data_get($damageResistanceMap, 'impact');
-    $drImpactChange = data_get($damageResistanceMap, 'impact_change');
-    $drPhysical = data_get($damageResistanceMap, 'physical');
-    $drPhysicalChange = data_get($damageResistanceMap, 'physical_change');
-    $drEnergy = data_get($damageResistanceMap, 'energy');
-    $drEnergyChange = data_get($damageResistanceMap, 'energy_change');
-    $drDistortion = data_get($damageResistanceMap, 'distortion');
-    $drDistortionChange = data_get($damageResistanceMap, 'distortion_change');
-    $drThermal = data_get($damageResistanceMap, 'thermal');
-    $drThermalChange = data_get($damageResistanceMap, 'thermal_change');
-    $drBiochemical = data_get($damageResistanceMap, 'biochemical');
-    $drBiochemicalChange = data_get($damageResistanceMap, 'biochemical_change');
-    $drStun = data_get($damageResistanceMap, 'stun');
-    $drStunChange = data_get($damageResistanceMap, 'stun_change');
-
     $signature = data_get($suitArmor, 'signature', []);
-
     $radiationResistance = data_get($suitArmor, 'radiation_resistance', []);
-    $rrMaxCapacity = data_get($radiationResistance, 'maximum_radiation_capacity');
-    $rrDissipationRate = data_get($radiationResistance, 'radiation_dissipation_rate');
+    $temperatureResistance = $temperatureResistance ?? [];
+    $scuConverted = data_get($inventory, 'scu_converted');
+    $inventoryUnit = data_get($inventory, 'unit', 'SCU');
 
-    if (! function_exists('getChangeColorClass')) {
-        function getChangeColorClass($change) {
-            if ($change < 0) {
-                return 'text-success';
-            }
-            if ($change > 0) {
-                return 'text-warning';
-            }
+    // Damage change metrics — 6 types, rendered in Damage Resistance section
+    $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
-            return '';
-        }
-    }
+    $damageChangeMetrics = array_values(array_filter(
+        collect($damageTypes)->map(fn (string $type): array => [
+            'label' => Str::headline($type),
+            'value' => data_get($damageResistanceMap, $type . '_change'),
+        ])->all(),
+        static fn (array $m): bool => $m['value'] !== null,
+    ));
 
-    $hasDamageResistanceMap = collect($damageResistanceMap)->filter()->isNotEmpty();
-    $hasSignature = collect($signature)->isNotEmpty();
-    $hasRadiationResistance = collect($radiationResistance)->filter()->isNotEmpty();
+    // Signature metrics — dynamic key-value pairs
+    $signatureMetrics = collect($signature)
+        ->filter(static fn ($value): bool => $value !== null)
+        ->map(static fn ($value, $key): array => ['label' => $key, 'value' => $value])
+        ->values()
+        ->all();
+
+    // Radiation resistance metrics
+    $radiationResistanceMetrics = array_values(array_filter([
+        ['label' => 'Max Radiation Capacity', 'value' => data_get($radiationResistance, 'maximum_radiation_capacity')],
+        ['label' => 'Dissipation Rate', 'value' => data_get($radiationResistance, 'radiation_dissipation_rate')],
+    ], static fn (array $m): bool => $m['value'] !== null));
+
+    $hasTemperatureResistance = data_get($temperatureResistance, 'minimum') !== null || data_get($temperatureResistance, 'maximum') !== null;
+    $hasSections = $damageChangeMetrics !== [] || $signatureMetrics !== [] || $radiationResistanceMetrics !== [] || $hasTemperatureResistance;
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Suit Armor</h2>
 
-        @if ($slot !== null)
-            <div class="space-y-1 col-span-2">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Slot</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ $slot }}</dd>
-            </div>
-        @endif
+        <x-dl-container>
+            <x-slot:head>
+                @if ($slot !== null)
+                    <x-dt-dd label="Slot">{{ $slot }}</x-dt-dd>
+                @endif
+                @if ($scuConverted !== null)
+                    <x-dt-dd label="Capacity">{{ Format::valueWithUnit($scuConverted, $inventoryUnit, 1) }}</x-dt-dd>
+                @endif
+            </x-slot:head>
+            @if ($damageChangeMetrics !== [])
+                <x-dl-section title="Damage Resistance">
+                    @foreach ($damageChangeMetrics as $metric)
+                        <x-dt-dd :label="$metric['label']">
+                            <span class="{{ Format::colorClass($metric['value']) }}">{{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}</span>
+                        </x-dt-dd>
+                    @endforeach
+                </x-dl-section>
+            @endif
 
-        <details class="group" open>
-            <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                Damage
-            </summary>
-                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                    @if ($drPhysicalChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Physical</dt>
-                            <dd class="text-sm font-medium {{ color_class($drPhysicalChange) }}">
-                                {{ fmt_value_with_unit($drPhysicalChange * 100, '%', 1) }}
-                            </dd>
-                        </div>
+            @if ($signatureMetrics !== [])
+                <x-dl-section title="Signature">
+                    @foreach ($signatureMetrics as $metric)
+                        <x-dt-dd :label="$metric['label']">
+                            {{ Format::valueWithUnit($metric['value'], '', 2) }}
+                        </x-dt-dd>
+                    @endforeach
+                </x-dl-section>
+            @endif
+
+            @if ($hasTemperatureResistance)
+                <x-dl-section title="Temperature Resistance">
+                    @if (data_get($temperatureResistance, 'minimum') !== null)
+                        <x-dt-dd label="Min">{{ Format::valueWithUnit(data_get($temperatureResistance, 'minimum'), '°C', 1) }}</x-dt-dd>
                     @endif
-
-                    @if ($drEnergyChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Energy</dt>
-                            <dd class="text-sm font-medium {{ color_class($drEnergyChange) }}">
-                                {{ fmt_value_with_unit($drEnergyChange * 100, '%', 1) }}
-
-                            </dd>
-                        </div>
+                    @if (data_get($temperatureResistance, 'maximum') !== null)
+                        <x-dt-dd label="Max">{{ Format::valueWithUnit(data_get($temperatureResistance, 'maximum'), '°C', 1) }}</x-dt-dd>
                     @endif
+                </x-dl-section>
+            @endif
 
-                    @if ($drDistortionChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Distortion</dt>
-                            <dd class="text-sm font-medium {{ color_class($drDistortionChange) }}">
-                                {{ fmt_value_with_unit($drDistortionChange * 100, '%', 1) }}
-                            </dd>
-                        </div>
-                    @endif
+            @if ($radiationResistanceMetrics !== [])
+                <x-dl-section title="Radiation Resistance">
+                    @foreach ($radiationResistanceMetrics as $metric)
+                        <x-dt-dd :label="$metric['label']">
+                            {{ Format::valueWithUnit($metric['value'], '', 2) }}
+                        </x-dt-dd>
+                    @endforeach
+                </x-dl-section>
+            @endif
+        </x-dl-container>
 
-                    @if ($drThermalChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Thermal</dt>
-                            <dd class="text-sm font-medium {{ color_class($drThermalChange) }}">
-                                {{ fmt_value_with_unit($drThermalChange * 100, '%', 1) }}
-                            </dd>
-                        </div>
-                    @endif
-
-                    @if ($drBiochemicalChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Biochemical</dt>
-                            <dd class="text-sm font-medium {{ color_class($drBiochemicalChange) }}">
-                                {{ fmt_value_with_unit($drBiochemicalChange * 100, '%', 1) }}
-                            </dd>
-                        </div>
-                    @endif
-
-                    @if ($drStunChange !== null)
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stun</dt>
-                            <dd class="text-sm font-medium {{ color_class($drStunChange) }}">
-                                {{ fmt_value_with_unit($drStunChange * 100, '%', 1) }}
-                            </dd>
-                        </div>
-                    @endif
-                </dl>
-        </details>
-
-        @if ($hasSignature)
-            <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Signature
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @foreach ($signature as $key => $value)
-                            @if ($value !== null)
-                                <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $key }}</dt>
-                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($value, '', 2) }}</dd>
-                                </div>
-                            @endif
-                        @endforeach
-                    </dl>
-            </details>
-        @endif
     </div>
 </div>

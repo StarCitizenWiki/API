@@ -5,7 +5,7 @@
 @endphp
 
 @if ($areas !== [])
-    <div class="card border border-base-300 bg-base-100 shadow-sm" data-testid="starmap-location-area-boosts">
+    <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow-sm']) }} data-testid="starmap-location-area-boosts">
         <div class="card-body gap-3 p-5">
             <h3 class="text-base font-semibold tracking-tight">Area Boosts</h3>
             <p class="text-sm text-subtle">Areas with spawn rate multipliers affecting all resources in this zone.</p>

@@ -1466,26 +1466,17 @@
                             <div class="card-body gap-4">
                                 <h2 class="card-title text-base">Blueprint metadata</h2>
 
-                                <dl class="space-y-3 text-sm">
-                                    <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Blueprint UUID</dt>
-                                        <dd class="mt-1 break-all font-mono">{{ $blueprintUuid }}</dd>
-                                    </div>
+                                <x-dl-section dlClass="space-y-3 text-sm">
+                                    <x-dt-dd label="Blueprint UUID" ddClass="break-all font-mono">{{ $blueprintUuid }}</x-dt-dd>
 
                                     @if ($apiLink)
-                                        <div>
-                                            <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">API route</dt>
-                                            <dd class="mt-1 break-all font-mono">
-                                                <a class="link link-hover" href="{{ $apiLink }}">{{ $apiLink }}</a>
-                                            </dd>
-                                        </div>
+                                        <x-dt-dd label="API route" ddClass="break-all font-mono">
+                                            <a class="link link-hover" href="{{ $apiLink }}">{{ $apiLink }}</a>
+                                        </x-dt-dd>
                                     @endif
 
-                                    <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Availability</dt>
-                                        <dd class="mt-1">{{ $isAvailableByDefault ? 'Available by default' : 'Not available by default' }}</dd>
-                                    </div>
-                                </dl>
+                                    <x-dt-dd label="Availability">{{ $isAvailableByDefault ? 'Available by default' : 'Not available by default' }}</x-dt-dd>
+                                </x-dl-section>
 
                                 @if (! $isAvailableByDefault && $unlockingMissions === [])
                                     <div class="space-y-2">

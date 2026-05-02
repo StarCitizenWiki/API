@@ -1,15 +1,13 @@
 @props([
-    'title' => null,
-    'dlClass' => 'space-y-2',
+    'head' => null,
 ])
 
-@if($title)
-    <section {{ $attributes->merge(['class' => 'space-y-3']) }}>
-        <h3 class="font-semibold uppercase text-subtle">{{ $title }}</h3>
+@if($head)
+    <dl class="grid gap-x-8 grid-cols-1 sm:grid-cols-2">
+        {{ $head }}
+    </dl>
 @endif
-        <dl class="{{ $dlClass }}">
-            {{ $slot }}
-        </dl>
-@if($title)
-    </section>
-@endif
+
+<div {{ $attributes->merge(['class' => "grid gap-x-8 gap-y-2 xl:grid-cols-2"]) }}>
+    {{ $slot }}
+</div>

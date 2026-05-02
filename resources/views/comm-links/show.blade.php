@@ -170,46 +170,19 @@
                 <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <div class="card-body gap-4">
                         <h2 class="card-title text-base">Metadata</h2>
-                        <dl class="grid gap-4">
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">CIG ID
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $commLinkId ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Channel
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $channel ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
-                                    Category
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $category ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Series
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $series ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
-                                    Comments
-                                </dt>
-                                <dd class="text-sm font-medium">{{ $commentCount ?? 0 }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
-                                    Published
-                                </dt>
-                                <dd class="text-sm font-medium">
-                                    {{ $createdAtHuman ?? '-' }}
-                                    @if ($createdAt)
-                                        <span class="text-xs text-subtle">({{ $createdAt }})</span>
-                                    @endif
-                                </dd>
-                            </div>
-                        </dl>
+                        <x-dl-section dlClass="grid gap-4">
+                            <x-dt-dd label="CIG ID">{{ $commLinkId ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Channel">{{ $channel ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Category">{{ $category ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Series">{{ $series ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Comments">{{ $commentCount ?? 0 }}</x-dt-dd>
+                            <x-dt-dd label="Published">
+                                {{ $createdAtHuman ?? '-' }}
+                                @if ($createdAt)
+                                    <span class="text-xs text-subtle">({{ $createdAt }})</span>
+                                @endif
+                            </x-dt-dd>
+                        </x-dl-section>
                         <div class="flex flex-wrap gap-2">
                             @if ($rsiUrl)
                                 <a class="btn btn-outline btn-sm" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI

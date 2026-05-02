@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'fuelIntake',
 ])
@@ -11,15 +12,9 @@
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Fuel Intake</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fuel Push Rate</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($fuelPushRate, '/s', 2) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Minimum Rate</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($minimumRate, '/s', 2) }}</dd>
-            </div>
-        </dl>
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <x-dt-dd label="Fuel Push Rate">{{ Format::valueWithUnit($fuelPushRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Minimum Rate">{{ Format::valueWithUnit($minimumRate, '/s', 2) }}</x-dt-dd>
+        </x-dl-section>
     </div>
 </div>

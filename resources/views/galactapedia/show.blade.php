@@ -182,29 +182,17 @@
                     @endif
                     <div class="card-body gap-4">
                         <h2 class="card-title text-base">Metadata</h2>
-                        <dl class="grid gap-4">
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">CIG ID</dt>
-                                <dd class="text-sm font-medium">{{ $articleId ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Slug</dt>
-                                <dd class="text-sm font-medium">{{ $articleSlug ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Template</dt>
-                                <dd class="text-sm font-medium">{{ $template ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Published</dt>
-                                <dd class="text-sm font-medium">
-                                    {{ $createdAtHuman ?? '-' }}
-                                    @if ($createdAt)
-                                        <span class="text-xs text-subtle">({{ $createdAt }})</span>
-                                    @endif
-                                </dd>
-                            </div>
-                        </dl>
+                        <x-dl-section dlClass="grid gap-4">
+                            <x-dt-dd label="CIG ID">{{ $articleId ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Slug">{{ $articleSlug ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Template">{{ $template ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Published">
+                                {{ $createdAtHuman ?? '-' }}
+                                @if ($createdAt)
+                                    <span class="text-xs text-subtle">({{ $createdAt }})</span>
+                                @endif
+                            </x-dt-dd>
+                        </x-dl-section>
                         <div class="flex flex-wrap gap-2">
                             @if ($rsiUrl)
                                 <a class="btn btn-outline btn-sm" href="{{ config('services.rsi_url') }}{{ $rsiUrl }}" target="_blank" rel="noreferrer">RSI Article</a>

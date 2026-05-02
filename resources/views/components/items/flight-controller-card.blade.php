@@ -1,531 +1,184 @@
+@use('App\Support\Format')
 @props([
     'flightController',
 ])
 
 @php
-    $scmSpeed = data_get($flightController, 'scm_speed');
-    $boostSpeedForward = data_get($flightController, 'boost_speed_forward');
-    $boostSpeedBackward = data_get($flightController, 'boost_speed_backward');
-    $maxSpeed = data_get($flightController, 'max_speed');
+    $primaryMetrics = array_values(array_filter([
+        ['label' => 'SCM Speed', 'value' => data_get($flightController, 'scm_speed'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Boost Forward', 'value' => data_get($flightController, 'boost_speed_forward'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Max Speed', 'value' => data_get($flightController, 'max_speed'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Boost Backward', 'value' => data_get($flightController, 'boost_speed_backward'), 'unit' => 'm/s', 'precision' => 0],
+    ], static fn (array $metric): bool => $metric['value'] !== null));
 
-    $pitch = data_get($flightController, 'pitch');
-    $yaw = data_get($flightController, 'yaw');
-    $roll = data_get($flightController, 'roll');
+    $agilityMetrics = array_values(array_filter([
+        ['label' => 'Pitch', 'value' => data_get($flightController, 'pitch'), 'boosted' => data_get($flightController, 'pitch_boosted'), 'unit' => '°/s', 'precision' => 1],
+        ['label' => 'Yaw', 'value' => data_get($flightController, 'yaw'), 'boosted' => data_get($flightController, 'yaw_boosted'), 'unit' => '°/s', 'precision' => 1],
+        ['label' => 'Roll', 'value' => data_get($flightController, 'roll'), 'boosted' => data_get($flightController, 'roll_boosted'), 'unit' => '°/s', 'precision' => 1],
+    ], static fn (array $metric): bool => $metric['value'] !== null || $metric['boosted'] !== null));
 
-    $pitchBoosted = data_get($flightController, 'pitch_boosted');
-    $yawBoosted = data_get($flightController, 'yaw_boosted');
-    $rollBoosted = data_get($flightController, 'roll_boosted');
+    $boostSpeedMetrics = array_values(array_filter([
+        ['label' => 'Forward', 'value' => data_get($flightController, 'boost_speed_forward'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Backward', 'value' => data_get($flightController, 'boost_speed_backward'), 'unit' => 'm/s', 'precision' => 0],
+    ], static fn (array $metric): bool => $metric['value'] !== null));
 
     $boostCapacitor = data_get($flightController, 'boost_capacitor', []);
-    $bcCapacity = data_get($boostCapacitor, 'capacity');
-    $bcThresholdRatio = data_get($boostCapacitor, 'threshold_ratio');
-    $bcIdleCost = data_get($boostCapacitor, 'idle_cost');
-    $bcLinearCost = data_get($boostCapacitor, 'linear_cost');
-    $bcAngularCost = data_get($boostCapacitor, 'angular_cost');
-    $bcRegenPerSec = data_get($boostCapacitor, 'regen_per_sec');
-    $bcRegenDelay = data_get($boostCapacitor, 'regen_delay');
-    $bcRegenTime = data_get($boostCapacitor, 'regen_time');
+    $capacitorMetrics = array_values(array_filter([
+        ['label' => 'Regen Time', 'value' => data_get($boostCapacitor, 'regen_time'), 'unit' => 's', 'precision' => 1],
+        ['label' => 'Regen / sec', 'value' => data_get($boostCapacitor, 'regen_per_sec'), 'unit' => '/s', 'precision' => 2],
+        ['label' => 'Regen Delay', 'value' => data_get($boostCapacitor, 'regen_delay'), 'unit' => 's', 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $boostActivation = data_get($flightController, 'boost_activation', []);
-    $baPreDelayTime = data_get($boostActivation, 'pre_delay_time');
-    $baRampUpTime = data_get($boostActivation, 'ramp_up_time');
-    $baRampDownTime = data_get($boostActivation, 'ramp_down_time');
+    $activationMetrics = array_values(array_filter([
+        ['label' => 'Pre Delay Time', 'value' => data_get($boostActivation, 'pre_delay_time'), 'unit' => 's', 'precision' => 1],
+        ['label' => 'Ramp Up Time', 'value' => data_get($boostActivation, 'ramp_up_time'), 'unit' => 's', 'precision' => 1],
+        ['label' => 'Ramp Down Time', 'value' => data_get($boostActivation, 'ramp_down_time'), 'unit' => 's', 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $thrusterDecay = data_get($flightController, 'thruster_decay', []);
-    $tdLinearAccel = data_get($thrusterDecay, 'linear_accel');
-    $tdAngularAccel = data_get($thrusterDecay, 'angular_accel');
+    $thrusterDecayMetrics = array_values(array_filter([
+        ['label' => 'Linear Acceleration', 'value' => data_get($thrusterDecay, 'linear_accel'), 'precision' => 1],
+        ['label' => 'Angular Acceleration', 'value' => data_get($thrusterDecay, 'angular_accel'), 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $multiplier = data_get($flightController, 'multiplier', []);
-    $mTorqueImbalance = data_get($multiplier, 'torque_imbalance');
-    $mLift = data_get($multiplier, 'lift');
-    $mDrag = data_get($multiplier, 'drag');
-    $mScmMaxDrag = data_get($multiplier, 'scm_max_drag');
-    $mPrecisionLanding = data_get($multiplier, 'precision_landing');
-
-    $boostMultiplier = data_get($flightController, 'boost_multiplier', []);
-    $bmAccelX = data_get($boostMultiplier, 'accel_x', []);
-    $bmAccelXPos = data_get($bmAccelX, 'positive');
-    $bmAccelXNeg = data_get($bmAccelX, 'negative');
-    $bmAccelY = data_get($boostMultiplier, 'accel_y', []);
-    $bmAccelYPos = data_get($bmAccelY, 'positive');
-    $bmAccelYNeg = data_get($bmAccelY, 'negative');
-    $bmAccelZ = data_get($boostMultiplier, 'accel_z', []);
-    $bmAccelZPos = data_get($bmAccelZ, 'positive');
-    $bmAccelZNeg = data_get($bmAccelZ, 'negative');
-    $bmPitch = data_get($boostMultiplier, 'pitch');
-    $bmYaw = data_get($boostMultiplier, 'yaw');
-    $bmRoll = data_get($boostMultiplier, 'roll');
-    $bmPitchAccel = data_get($boostMultiplier, 'pitch_accel');
-    $bmYawAccel = data_get($boostMultiplier, 'yaw_accel');
-    $bmRollAccel = data_get($boostMultiplier, 'roll_accel');
+    $multiplierMetrics = array_values(array_filter([
+        ['label' => 'Torque Imbalance', 'value' => data_get($multiplier, 'torque_imbalance'), 'precision' => 1],
+        ['label' => 'Lift', 'value' => data_get($multiplier, 'lift'), 'precision' => 1],
+        ['label' => 'Drag', 'value' => data_get($multiplier, 'drag'), 'precision' => 1],
+        ['label' => 'SCM Max Drag', 'value' => data_get($multiplier, 'scm_max_drag'), 'precision' => 1],
+        ['label' => 'Precision Landing', 'value' => data_get($multiplier, 'precision_landing'), 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $precisionMode = data_get($flightController, 'precision_mode', []);
-    $pmMaxSpeedFullProximityAssist = data_get($precisionMode, 'max_speed_full_proximity_assist');
-    $pmMaxSpeedZeroProximityAssist = data_get($precisionMode, 'max_speed_zero_proximity_assist');
-    $pmMinDistance = data_get($precisionMode, 'min_distance');
-    $pmMaxDistance = data_get($precisionMode, 'max_distance');
-
-    $recallParams = data_get($flightController, 'recall_params', []);
-    $rpHoverHeight = data_get($recallParams, 'hover_height_at_destination');
-    $rpForwardOffset = data_get($recallParams, 'forward_offset');
-    $rpObstructionDetection = data_get($recallParams, 'obstruction_detection_range');
-    $rpDefaultPlatformDetection = data_get($recallParams, 'default_platform_detection_range');
-    $rpMinRecallDistance = data_get($recallParams, 'minimum_recall_distance');
-    $rpBrakingDistanceOffset = data_get($recallParams, 'braking_distance_offset');
+    $precisionModeMetrics = array_values(array_filter([
+        ['label' => 'Proximity Assist', 'value' => data_get($precisionMode, 'max_speed_full_proximity_assist'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Zero Proximity Assist', 'value' => data_get($precisionMode, 'max_speed_zero_proximity_assist'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Min Distance', 'value' => data_get($precisionMode, 'min_distance'), 'unit' => 'm', 'precision' => 0],
+        ['label' => 'Max Distance', 'value' => data_get($precisionMode, 'max_distance'), 'unit' => 'm', 'precision' => 0],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $collisionDetection = data_get($flightController, 'collision_detection', []);
-    $cdWarnSpeed = data_get($collisionDetection, 'collision_warn_speed');
-    $cdWarnTime = data_get($collisionDetection, 'collision_warn_time');
-    $cdDangerCloseWarnTime = data_get($collisionDetection, 'collision_danger_close_warn_time');
+    $collisionDetectionMetrics = array_values(array_filter([
+        ['label' => 'Warn Speed', 'value' => data_get($collisionDetection, 'collision_warn_speed'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Warn Time', 'value' => data_get($collisionDetection, 'collision_warn_time'), 'unit' => 's', 'precision' => 0],
+        ['label' => 'Danger Close Warn Time', 'value' => data_get($collisionDetection, 'collision_danger_close_warn_time'), 'unit' => 's', 'precision' => 0],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
     $gravlev = data_get($flightController, 'gravlev', []);
-    $gMaxSpeed = data_get($gravlev, 'max_speed');
-    $gTurnFriction = data_get($gravlev, 'turn_friction');
-    $gAirControllerMultiplier = data_get($gravlev, 'air_controller_multiplier');
-    $gAntiFallMultiplier = data_get($gravlev, 'anti_fall_multiplier');
-    $gLateralStrafeMultiplier = data_get($gravlev, 'lateral_strafe_multiplier');
+    $gravlevMetrics = array_values(array_filter([
+        ['label' => 'Max Speed', 'value' => data_get($gravlev, 'max_speed'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Turn Friction', 'value' => data_get($gravlev, 'turn_friction'), 'precision' => 1],
+        ['label' => 'Air Controller Multiplier', 'value' => data_get($gravlev, 'air_controller_multiplier'), 'precision' => 1],
+        ['label' => 'Anti Fall Multiplier', 'value' => data_get($gravlev, 'anti_fall_multiplier'), 'precision' => 1],
+        ['label' => 'Lateral Strafe Multiplier', 'value' => data_get($gravlev, 'lateral_strafe_multiplier'), 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
 
-    $hasBoostCapacitor = collect($boostCapacitor)->filter()->isNotEmpty();
-    $hasBoostActivation = collect($boostActivation)->filter()->isNotEmpty();
-    $hasThrusterDecay = collect($thrusterDecay)->filter()->isNotEmpty();
-    $hasMultiplier = collect($multiplier)->filter()->isNotEmpty();
-    $hasBoostMultiplier = collect($boostMultiplier)->filter()->isNotEmpty();
-    $hasPrecisionMode = collect($precisionMode)->filter()->isNotEmpty();
-    $hasRecallParams = $recallParams !== null;
-    $hasCollisionDetection = $collisionDetection !== null;
-    $hasGravlev = collect($gravlev)->filter()->isNotEmpty();
+    $recallParams = data_get($flightController, 'recall_params', []);
+    $recallParamsMetrics = array_values(array_filter([
+        ['label' => 'Hover Height', 'value' => data_get($recallParams, 'hover_height_at_destination'), 'unit' => 'm', 'precision' => 0],
+        ['label' => 'Forward Offset', 'value' => data_get($recallParams, 'forward_offset'), 'unit' => 'm', 'precision' => 0],
+        ['label' => 'Obstruction Detection Range', 'value' => data_get($recallParams, 'obstruction_detection_range'), 'unit' => 'm', 'precision' => 1],
+        ['label' => 'Platform Detection Range', 'value' => data_get($recallParams, 'default_platform_detection_range'), 'unit' => 'm', 'precision' => 0],
+        ['label' => 'Recall Distance', 'value' => data_get($recallParams, 'minimum_recall_distance'), 'unit' => 'm', 'precision' => 0],
+        ['label' => 'Braking Distance Offset', 'value' => data_get($recallParams, 'braking_distance_offset'), 'unit' => 'm', 'precision' => 0],
+    ], static fn (array $m): bool => $m['value'] !== null));
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Flight Controller</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">SCM Speed</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($scmSpeed, 'm/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Speed (Nav)</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($maxSpeed, 'm/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Boost Forward</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($boostSpeedForward, 'm/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Boost Backward</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($boostSpeedBackward, 'm/s', 0) }}</dd>
-            </div>
-        </dl>
+        <x-dl-container>
+            <x-slot:head>
+                @foreach ($primaryMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-slot:head>
 
-        <dl class="mt-2 grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pitch</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pitch, 'deg/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Yaw</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($yaw, 'deg/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Roll</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($roll, 'deg/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pitch Boosted</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pitchBoosted, 'deg/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Yaw Boosted</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($yawBoosted, 'deg/s', 0) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Roll Boosted</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rollBoosted, 'deg/s', 0) }}</dd>
-            </div>
-        </dl>
+            <x-dl-section title="Agility">
+                @foreach ($agilityMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                        <span class="text-muted">
+                            (boost {{ Format::valueWithUnit($metric['boosted'], $metric['unit'], $metric['precision']) }})
+                        </span>
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        {{-- Secondary Data (Collapsible, Default Open) --}}
-        @if ($hasBoostCapacitor)
-            <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Boost Capacitor
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($bcRegenTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($bcRegenTime, 's', 1) }}</dd>
-                            </div>
+            <x-dl-section title="Gravlev">
+                @foreach ($gravlevMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        @if (isset($metric['unit']))
+                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                        @else
+                            {{ Format::numberOrDash($metric['value'], $metric['precision']) }}
                         @endif
-                        @if ($bcRegenDelay !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Regen Delay</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($bcRegenDelay, 's', 1) }}</dd>
-                            </div>
-                        @endif
-                            @if ($baRampUpTime !== null)
-                                <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ramp Up Time</dt>
-                                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baRampUpTime, 's', 1) }}</dd>
-                                </div>
-                            @endif
-                    </dl>
-            </details>
-        @endif
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        @if ($hasBoostActivation)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Boost Activation
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($baPreDelayTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pre Delay Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baPreDelayTime, 's', 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($baRampUpTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ramp Up Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baRampUpTime, 's', 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($baRampDownTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ramp Down Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($baRampDownTime, 's', 1) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Boost Capacitor">
+                @foreach ($capacitorMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        @if ($hasThrusterDecay)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Thruster Decay
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($tdLinearAccel !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Linear Accel</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($tdLinearAccel, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($tdAngularAccel !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Angular Accel</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($tdAngularAccel, 1) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Boost Activation">
+                @foreach ($activationMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        @if ($hasMultiplier)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Multipliers
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($mTorqueImbalance !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Torque Imbalance</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($mTorqueImbalance, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($mLift !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Lift</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($mLift, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($mDrag !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Drag</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($mDrag, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($mScmMaxDrag !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">SCM Max Drag</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($mScmMaxDrag, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($mPrecisionLanding !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Precision Landing</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($mPrecisionLanding, 1) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Thruster Decay">
+                @foreach ($thrusterDecayMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'] ?? '', $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        {{-- Tertiary Data (Collapsible, Default Closed) --}}
-        @if ($hasBoostMultiplier)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Boost Multipliers
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($bmAccelXPos !== null || $bmAccelXNeg !== null)
-                            <div class="space-y-1 sm:col-span-2">
-                                <h4 class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Accel X</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                                    @if ($bmAccelXPos !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Positive</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelXPos, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                    @if ($bmAccelXNeg !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Negative</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelXNeg, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
-                        @endif
-                        @if ($bmAccelYPos !== null || $bmAccelYNeg !== null)
-                            <div class="space-y-1 sm:col-span-2">
-                                <h4 class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Accel Y</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                                    @if ($bmAccelYPos !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Positive</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelYPos, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                    @if ($bmAccelYNeg !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Negative</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelYNeg, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
-                        @endif
-                        @if ($bmAccelZPos !== null || $bmAccelZNeg !== null)
-                            <div class="space-y-1 sm:col-span-2">
-                                <h4 class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Accel Z</h4>
-                                <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                                    @if ($bmAccelZPos !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Positive</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelZPos, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                    @if ($bmAccelZNeg !== null)
-                                        <div class="space-y-1">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Negative</dt>
-                                            <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmAccelZNeg, 1) }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
-                        @endif
-                    </dl>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-4 pt-1 pb-2">
-                        @if ($bmPitch !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pitch</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmPitch, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bmYaw !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Yaw</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmYaw, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bmRoll !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Roll</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmRoll, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bmPitchAccel !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pitch Accel</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmPitchAccel, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bmYawAccel !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Yaw Accel</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmYawAccel, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($bmRollAccel !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Roll Accel</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($bmRollAccel, 1) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Multipliers">
+                @foreach ($multiplierMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::numberOrDash($metric['value'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
+        </x-dl-container>
 
-        @if ($hasPrecisionMode)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Precision Mode
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($pmMaxSpeedFullProximityAssist !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Speed Full Proximity Assist</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pmMaxSpeedFullProximityAssist, 'm/s', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($pmMaxSpeedZeroProximityAssist !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Speed Zero Proximity Assist</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pmMaxSpeedZeroProximityAssist, 'm/s', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($pmMinDistance !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Min Distance</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pmMinDistance, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($pmMaxDistance !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Distance</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($pmMaxDistance, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+        <x-dl-details title="Precision Mode / Collision Detection / Recall">
+            <x-dl-section title="Precision Mode">
+                @foreach ($precisionModeMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        @if ($hasRecallParams)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Recall Params
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($rpHoverHeight !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Hover Height at Destination</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpHoverHeight, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($rpForwardOffset !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Forward Offset</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpForwardOffset, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($rpObstructionDetection !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Obstruction Detection Range</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpObstructionDetection, 'm', 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($rpDefaultPlatformDetection !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Default Platform Detection Range</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpDefaultPlatformDetection, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($rpMinRecallDistance !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Minimum Recall Distance</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpMinRecallDistance, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($rpBrakingDistanceOffset !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Braking Distance Offset</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($rpBrakingDistanceOffset, 'm', 0) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Collision Detection">
+                @foreach ($collisionDetectionMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
 
-        @if ($hasCollisionDetection)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Collision Detection
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($cdWarnSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Collision Warn Speed</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($cdWarnSpeed, 'm/s', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($cdWarnTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Collision Warn Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($cdWarnTime, 's', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($cdDangerCloseWarnTime !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Collision Danger Close Warn Time</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($cdDangerCloseWarnTime, 's', 0) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
-
-        @if ($hasGravlev)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Gravlev
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($gMaxSpeed !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Speed</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($gMaxSpeed, 'm/s', 0) }}</dd>
-                            </div>
-                        @endif
-                        @if ($gTurnFriction !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Turn Friction</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($gTurnFriction, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($gAirControllerMultiplier !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Air Controller Multiplier</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($gAirControllerMultiplier, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($gAntiFallMultiplier !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Anti Fall Multiplier</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($gAntiFallMultiplier, 1) }}</dd>
-                            </div>
-                        @endif
-                        @if ($gLateralStrafeMultiplier !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Lateral Strafe Multiplier</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_or_dash($gLateralStrafeMultiplier, 1) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Recall">
+                @foreach ($recallParamsMetrics as $metric)
+                    <x-dt-dd :label="$metric['label']">
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    </x-dt-dd>
+                @endforeach
+            </x-dl-section>
+        </x-dl-details>
     </div>
 </div>

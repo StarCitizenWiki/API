@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'inventory',
  ])
@@ -19,25 +20,14 @@
         <h2 class="card-title text-base">Inventory</h2>
 
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($scuConverted !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Capacity</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($scuConverted, data_get($inventory, 'unit', 'SCU'), 1) }}</dd>
-                </div>
+                <x-dt-dd label="Capacity">{{ Format::valueWithUnit($scuConverted, data_get($inventory, 'unit', 'SCU'), 1) }}</x-dt-dd>
             @endif
             @if ($hasDimensions)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Dimensions</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($width, 'm', 1) }} × {{ fmt_value_with_unit($height, 'm', 1) }} × {{ fmt_value_with_unit($length, 'm', 1) }}</dd>
-                </div>
+                <x-dt-dd label="Dimensions">{{ Format::valueWithUnit($width, 'm', 1) }} × {{ Format::valueWithUnit($height, 'm', 1) }} × {{ Format::valueWithUnit($length, 'm', 1) }}</x-dt-dd>
             @endif
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Type</dt>
-                <dd class="text-sm font-semibold text-base-content">
-                    {{ $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-')) }}
-                </dd>
-            </div>
-        </dl>
+            <x-dt-dd label="Type">{{ $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-')) }}</x-dt-dd>
+        </x-dl-section>
     </div>
 </div>

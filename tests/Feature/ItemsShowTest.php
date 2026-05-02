@@ -808,7 +808,7 @@ it('shows variant state in the hero and base variant link in quick facts', funct
         ->create([
             'name' => 'Prototype Base Rifle',
             'class_name' => 'prototype_base_rifle',
-            'classification' => 'WeaponPersonal',
+            'classification' => 'FPS.WeaponPersonal',
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
             'data' => ['stdItem' => []],
@@ -825,7 +825,7 @@ it('shows variant state in the hero and base variant link in quick facts', funct
         ->create([
             'name' => 'Prototype Shadow Rifle',
             'class_name' => 'prototype_shadow_rifle',
-            'classification' => 'WeaponPersonal',
+            'classification' => 'FPS.WeaponPersonal',
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
             'base_id' => $baseItemData->id,

@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @php use Illuminate\Support\Str; @endphp
 @props([
     'port',
@@ -35,7 +36,7 @@
 
     $sizeMin = data_get($port, 'sizes.min');
     $sizeMax = data_get($port, 'sizes.max');
-    $sizeRange = fmt_range($sizeMin, $sizeMax, '');
+    $sizeRange = Format::range($sizeMin, $sizeMax, '');
 
     $portTypes = data_get($port, 'compatible_types', []) ?? [];
     $portTypeCount = is_array($portTypes) ? count($portTypes) : 0;
@@ -81,16 +82,16 @@
         <div id="{{ $portId }}-content" class="collapse-content">
             <dl class="grid gap-3 sm:grid-cols-2 tabular-nums">
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
+                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                         Equippable Item Size
                     </dt>
                     <dd class="text-sm">
-                        S{{ fmt_range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '') }}
+                        S{{ Format::range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '') }}
                     </dd>
                 </div>
 
                 <div class="space-y-1">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">
+                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                         Required Type + Sub Type
                     </dt>
                     <dd class="text-sm">
@@ -106,7 +107,7 @@
 
                 @unless(empty(data_get($port, 'equipped_item')))
                 <div class="space-y-1 col-span-full">
-                    <dt class="font-semibold text-sm uppercase tracking-wide">
+                    <dt class="font-light text-sm uppercase tracking-wide">
                         Equipped Item
                     </dt>
                     <dd class="text-sm">

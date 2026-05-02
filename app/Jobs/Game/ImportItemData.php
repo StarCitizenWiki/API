@@ -24,6 +24,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -61,7 +62,6 @@ class ImportItemData implements ShouldQueue
         if (! is_array($itemPayload)) {
             return;
         }
-
         $uuid = $this->extractUuid($itemPayload);
 
         if ($uuid === null) {
@@ -431,6 +431,13 @@ class ImportItemData implements ShouldQueue
     {
         if ($item->slug !== null && $item->slug !== '') {
             return;
+        }
+
+        $slugified = Str::slug($name);
+
+        // If the name produces a generic or empty slug, use the unique ID-based fallback
+        if ($slugified === '' || $slugified === 'placeholder') {
+            $name = "item-{$item->id}";
         }
 
         app(SlugService::class)->assignUniqueSlug($item, $name, "item-{$item->id}");

@@ -8,7 +8,7 @@
     $childGroups = is_array($childGroups) ? $childGroups : [];
 @endphp
 
-<div class="flex flex-col gap-4" data-testid="starmap-location-hierarchy">
+<div {{ $attributes->merge(['class' => 'flex flex-col gap-4']) }} data-testid="starmap-location-hierarchy">
     <section class="card border border-base-300 bg-base-100 shadow-sm">
         <div class="card-body gap-4 p-5">
             <div class="flex flex-wrap items-center justify-between gap-2">

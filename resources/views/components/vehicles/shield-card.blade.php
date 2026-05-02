@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -35,48 +36,32 @@
             <h2 class="card-title text-base">Shield</h2>
 
             <div class="grid gap-12 lg:grid-cols-2">
-                <section class="space-y-4">
-                    <div class="space-y-1">
-                        <h3 class="text-sm font-semibold text-base-content">Info</h3>
-                    </div>
+                <x-dl-section title="Info">
+                    @if ($faceType !== null)
+                        <x-dt-dd label="Face Type">{{ $faceType }}</x-dt-dd>
+                    @endif
 
-                    <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                        @if ($faceType !== null)
-                            <dt class="text-sm text-emphasis">Face Type</dt>
-                            <dd class="text-right text-sm font-semibold text-base-content">{{ $faceType }}</dd>
-                        @endif
+                    @if ($hp !== null)
+                        <x-dt-dd label="Hit Points">
+                            {{ $formatWholeNumber($hp) }} <span class="text-xs text-muted">HP</span>
+                        </x-dt-dd>
+                    @endif
 
-                        @if ($hp !== null)
-                            <dt class="text-sm text-emphasis">Hit Points</dt>
-                            <dd class="text-right text-sm font-semibold text-base-content">
-                                {{ $formatWholeNumber($hp) }} <span class="text-xs text-muted">HP</span>
-                            </dd>
-                        @endif
-
-                        @if ($regeneration !== null)
-                            <dt class="text-sm text-emphasis">Regeneration</dt>
-                            <dd class="text-right text-sm font-semibold text-base-content">
-                                {{ $formatWholeNumber($regeneration) }} <span class="text-xs text-muted">HP/s</span>
-                            </dd>
-                        @endif
-                    </dl>
-                </section>
+                    @if ($regeneration !== null)
+                        <x-dt-dd label="Regeneration">
+                            {{ $formatWholeNumber($regeneration) }} <span class="text-xs text-muted">HP/s</span>
+                        </x-dt-dd>
+                    @endif
+                </x-dl-section>
 
                 @if ($resistanceRows !== [])
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Resistance</h3>
-                        </div>
-
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            @foreach ($resistanceRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['maximum'], true) }}">
-                                    {{ $formatPercent($row['maximum']) }}
-                                </dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section title="Resistance">
+                        @foreach ($resistanceRows as $row)
+                            <x-dt-dd :label="$row['label']">
+                                <span class="{{ Format::colorClass($row['maximum'], true) }}">{{ $formatPercent($row['maximum']) }}</span>
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
             </div>
         </div>

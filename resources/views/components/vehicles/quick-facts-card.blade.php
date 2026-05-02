@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -33,23 +34,23 @@
     }
 
     $storageRows = [
-        ['label' => 'Cargo', 'value' => $cargoCapacity !== null ? fmt_value_with_unit($cargoCapacity, 'SCU', 0) : null],
-        ['label' => 'Stowage', 'value' => $stowage !== null ? fmt_value_with_unit($stowage, 'µSCU', 0) : null],
+        ['label' => 'Cargo', 'value' => $cargoCapacity !== null ? Format::valueWithUnit($cargoCapacity, 'SCU', 0) : null],
+        ['label' => 'Stowage', 'value' => $stowage !== null ? Format::valueWithUnit($stowage, 'µSCU', 0) : null],
     ];
 
     $speedRows = [
-        ['label' => 'SCM', 'value' => $scmSpeed !== null ? fmt_value_with_unit($scmSpeed, 'm/s', 0) : null],
-        ['label' => 'Max', 'value' => $maxSpeed !== null ? fmt_value_with_unit($maxSpeed, 'm/s', 0) : null],
+        ['label' => 'SCM', 'value' => $scmSpeed !== null ? Format::valueWithUnit($scmSpeed, 'm/s', 0) : null],
+        ['label' => 'Max', 'value' => $maxSpeed !== null ? Format::valueWithUnit($maxSpeed, 'm/s', 0) : null],
     ];
 
     $defenseRows = [
-        ['label' => 'HP', 'value' => $health !== null ? fmt_value_with_unit($health, 'HP', 0) : null],
-        ['label' => 'Shield', 'value' => $shieldHp !== null ? fmt_value_with_unit($shieldHp, 'HP', 0) : null],
+        ['label' => 'HP', 'value' => $health !== null ? Format::valueWithUnit($health, 'HP', 0) : null],
+        ['label' => 'Shield', 'value' => $shieldHp !== null ? Format::valueWithUnit($shieldHp, 'HP', 0) : null],
     ];
 
     $signatureRows = [
-        ['label' => 'IR', 'value' => $irShields !== null ? fmt_or_dash($irShields) : null],
-        ['label' => 'EM', 'value' => $emShields !== null ? fmt_or_dash($emShields) : null],
+        ['label' => 'IR', 'value' => $irShields !== null ? Format::numberOrDash($irShields) : null],
+        ['label' => 'EM', 'value' => $emShields !== null ? Format::numberOrDash($emShields) : null],
     ];
 
     $columns = [
@@ -61,8 +62,8 @@
                 'rows' => [
                     ['label' => 'Crew', 'value' => $crewValue],
                     ['label' => 'Dimensions', 'value' => $dimensionsValue],
-                    ['label' => 'Cross Section', 'value' => fmt_or_dash(data_get($vehicle, 'cross_section_max'))],
-                    ['label' => 'Mass', 'value' => fmt_value_with_unit($massTotal, 'kg', 0)],
+                    ['label' => 'Cross Section', 'value' => Format::numberOrDash(data_get($vehicle, 'cross_section_max'))],
+                    ['label' => 'Mass', 'value' => Format::valueWithUnit($massTotal, 'kg', 0)],
                 ],
             ],
         ],

@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -9,8 +10,6 @@
 
     $resistanceMultipliers = data_get($armor, 'resistance_multipliers', []);
     $signalMultipliers = data_get($armor, 'signal_multipliers', []);
-
-
 
     $damageRows = array_values(array_filter([
         ['label' => 'Physical', 'value' => data_get($resistanceMultipliers, 'physical')],
@@ -35,63 +34,45 @@
 
             <div class="grid gap-12 lg:grid-cols-3">
                 @if ($health !== null || $hasDeflection)
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Health & Deflection</h3>
-                        </div>
+                    <x-dl-section title="Health & Deflection">
+                        @if ($health !== null)
+                            <x-dt-dd label="Health">
+                                {{ Format::numberOrDash($health) }} <span class="text-xs text-muted">HP</span>
+                            </x-dt-dd>
+                        @endif
 
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
+                        @if ($deflectionPhysical !== null)
+                            <x-dt-dd label="Physical Def.">
+                                {{ Format::numberOrDash($deflectionPhysical) }}
+                            </x-dt-dd>
+                        @endif
 
-                            @if ($health !== null)
-                                <dt class="text-sm text-emphasis">Health</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ fmt_or_dash($health) }} <span class="text-xs text-muted">HP</span>
-                                </dd>
-                            @endif
-
-                            @if ($deflectionPhysical !== null)
-                                <dt class="text-sm text-emphasis">Physical Def.</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ fmt_or_dash($deflectionPhysical) }}</dd>
-                            @endif
-
-                            @if ($deflectionEnergy !== null)
-                                <dt class="text-sm text-emphasis">Energy Def.</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ fmt_or_dash($deflectionEnergy) }}</dd>
-                            @endif
-                        </dl>
-                    </section>
+                        @if ($deflectionEnergy !== null)
+                            <x-dt-dd label="Energy Def.">
+                                {{ Format::numberOrDash($deflectionEnergy) }}
+                            </x-dt-dd>
+                        @endif
+                    </x-dl-section>
                 @endif
 
                 @if ($damageRows !== [])
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Damage Multipliers</h3>
-                        </div>
-
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-
-                            @foreach ($damageRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['value']-1) }}">{{ fmt_signed_percent($row['value']) }}</dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section title="Damage Multipliers">
+                        @foreach ($damageRows as $row)
+                            <x-dt-dd :label="$row['label']">
+                                <span class="{{ Format::colorClass($row['value'] - 1) }}">{{ Format::signedPercent($row['value']) }}</span>
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
 
                 @if ($signalRows !== [])
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Signal Multipliers</h3>
-                        </div>
-
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-
-                            @foreach ($signalRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content {{ color_class($row['value']-1) }}">{{ fmt_signed_percent($row['value']) }}</dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section title="Signal Multipliers">
+                        @foreach ($signalRows as $row)
+                            <x-dt-dd :label="$row['label']">
+                                <span class="{{ Format::colorClass($row['value'] - 1) }}">{{ Format::signedPercent($row['value']) }}</span>
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
             </div>
         </div>

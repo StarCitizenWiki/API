@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @php
     use Illuminate\Support\Str;
 @endphp
@@ -25,7 +26,6 @@
     };
 
     $locationUuid = data_get($location, 'uuid');
-    $locationSlug = data_get($location, 'slug');
     $starName = data_get($location, 'star.name');
     $starSlug = data_get($location, 'star.slug');
     $starUuid = data_get($location, 'star.uuid');
@@ -80,83 +80,6 @@
         ];
     }
 
-    $quickFacts = [
-        [
-            'label' => 'Hierarchy',
-            'rows' => [
-                [
-                    'label' => 'Star',
-                    'value' => data_get($location, 'star.name', '-'),
-                    'url' => is_string($starUuid) && $starUuid !== '' && $starUuid !== $locationUuid
-                        ? $withVersion(route('web.locations.show', ['identifier' => $starSlug ?: $starUuid]))
-                        : null,
-                    'testid' => 'starmap-location-quick-facts-star-link',
-                ],
-                [
-                    'label' => 'System',
-                    'value' => data_get($location, 'system', '-'),
-                    'url' => null,
-                ],
-                [
-                    'label' => 'Parent',
-                    'value' => data_get($location, 'parent.name', '-'),
-                    'url' => is_string($parentUuid) && $parentUuid !== '' && $parentUuid !== $locationUuid
-                        ? $withVersion(route('web.locations.show', ['identifier' => $parentSlug ?: $parentUuid]))
-                        : null,
-                    'testid' => 'starmap-location-quick-facts-parent-link',
-                ],
-            ],
-        ],
-        [
-            'label' => 'Status',
-            'rows' => [
-                [
-                    'label' => 'Starmap',
-                    'value' => data_get($location, 'hide_in_starmap') ? 'Hidden' : 'Visible',
-                    'url' => null,
-                ],
-                [
-                    'label' => 'World',
-                    'value' => data_get($location, 'hide_in_world') ? 'Hidden' : 'Visible',
-                    'url' => null,
-                ],
-                [
-                    'label' => 'Scannable',
-                    'value' => data_get($location, 'is_scannable') ? 'Yes' : 'No',
-                    'url' => null,
-                ],
-                [
-                    'label' => 'Travel',
-                    'value' => data_get($location, 'block_travel') ? 'Blocked' : 'Allowed',
-                    'url' => null,
-                ],
-            ],
-        ],
-    ];
-
-    $stats = [
-        [
-            'label' => 'Children',
-            'value' => (string) data_get($location, 'child_count', 0),
-        ],
-        [
-            'label' => 'Missions',
-            'value' => (string) data_get($location, 'mission_count', 0),
-        ],
-        [
-            'label' => 'Respawn',
-            'value' => data_get($location, 'respawn_location_type', '-'),
-        ],
-        [
-            'label' => 'UUID',
-            'value' => $locationUuid ?? '-',
-        ],
-        [
-            'label' => 'Version',
-            'value' => data_get($location, 'version', '-'),
-        ],
-    ];
-
     $details = [
         [
             'label' => 'Type',
@@ -189,13 +112,13 @@
         [
             'label' => 'Base Fine',
             'value' => data_get($location, 'jurisdiction.base_fine') !== null
-                ? fmt_value_with_unit((float) data_get($location, 'jurisdiction.base_fine'), 'aUEC', 0)
+                ? Format::valueWithUnit((float) data_get($location, 'jurisdiction.base_fine'), 'aUEC', 0)
                 : '-',
         ],
         [
             'label' => 'Stolen Goods Limit',
             'value' => data_get($location, 'jurisdiction.max_stolen_goods_possession_scu') !== null
-                ? fmt_value_with_unit((float) data_get($location, 'jurisdiction.max_stolen_goods_possession_scu'), 'SCU', 0)
+                ? Format::valueWithUnit((float) data_get($location, 'jurisdiction.max_stolen_goods_possession_scu'), 'SCU', 0)
                 : '-',
         ],
     ];
@@ -261,59 +184,11 @@
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
             <x-starmap.locations.hero :location="$location" class="xl:col-span-7" />
-            <section class="card h-full border border-base-300 bg-base-100 shadow xl:col-span-5" data-testid="starmap-location-quick-facts">
-                <div class="card-body gap-5 p-5 sm:p-6">
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-5">
-                            @foreach ($quickFacts as $fact)
-                                <section class="min-w-0 space-y-3">
-                                    <div class="text-sm font-semibold text-subtle">
-                                        {{ $fact['label'] }}
-                                    </div>
-
-                                    <dl class="space-y-2">
-                                        @foreach ($fact['rows'] as $row)
-                                            <div class="grid grid-cols-2 items-start gap-x-3">
-                                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">
-                                                    {{ $row['label'] }}
-                                                </dt>
-                                                <dd class="min-w-0 text-right text-sm font-semibold text-base-content">
-                                                    @if (! empty($row['url']) && $row['value'] !== '-')
-                                                        <a
-                                                            href="{{ $row['url'] }}"
-                                                            class="inline-flex items-center justify-end rounded-sm text-right text-primary underline decoration-primary/45 underline-offset-3 transition hover:text-primary/80 hover:decoration-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
-                                                            @if (! empty($row['testid'])) data-testid="{{ $row['testid'] }}" @endif
-                                                        >{{ $row['value'] }}</a>
-                                                    @else
-                                                        {{ $row['value'] }}
-                                                    @endif
-                                                </dd>
-                                            </div>
-                                        @endforeach
-                                    </dl>
-                                </section>
-                            @endforeach
-                        </div>
-
-                        <section class="space-y-3 pt-4 md:border-t-0 md:pt-0 md:pl-5">
-                            <div class="text-sm font-semibold text-subtle">Overview</div>
-
-                            <dl class="space-y-3">
-                                @foreach ($stats as $stat)
-                                    <div class="grid grid-cols-2 items-start gap-x-3">
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-muted">
-                                            {{ $stat['label'] }}
-                                        </dt>
-                                        <dd class="text-right text-sm font-semibold text-base-content">
-                                            {{ $stat['value'] }}
-                                        </dd>
-                                    </div>
-                                @endforeach
-                            </dl>
-                        </section>
-                    </div>
-                </div>
-            </section>
+            <x-starmap.locations.quick-facts-card
+                :location="$location"
+                :resolved-version="$resolvedVersion"
+                class="xl:col-span-5"
+            />
         </div>
 
         <div class="flex flex-col gap-8">
@@ -363,17 +238,14 @@
 
                 <section class="card border border-base-300 bg-base-100 shadow" data-testid="starmap-location-details">
                     <div class="card-body gap-5 p-5 sm:p-6">
-                        <dl class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        <x-dl-section dlClass="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                             @foreach ($details as $detail)
-                                <div class="space-y-1">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $detail['label'] }}</dt>
-                                    <dd class="text-sm font-semibold text-base-content">{{ $detail['value'] }}</dd>
-                                </div>
+                                <x-dt-dd :label="$detail['label']">{{ $detail['value'] }}</x-dt-dd>
                             @endforeach
-                        </dl>
+                        </x-dl-section>
 
                         <div class="space-y-3">
-                            <h3 class="text-sm font-semibold text-emphasis">Amenities</h3>
+                            <h3 class="font-semibold uppercase text-subtle">Amenities</h3>
 
                             @if ($amenities !== [])
                                 <div class="flex flex-wrap gap-2">

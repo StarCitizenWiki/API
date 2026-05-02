@@ -22,6 +22,17 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'radar_aim_assist_block',
+    title: 'Radar Aim Assist Block',
+    description: 'Aim assist range parameters as provided by game data.',
+    properties: [
+        new OA\Property(property: 'distance_min_assignment', type: 'double', nullable: true),
+        new OA\Property(property: 'distance_max_assignment', type: 'double', nullable: true),
+        new OA\Property(property: 'outside_range_buffer_distance', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'radar',
     title: 'Radar',
     description: 'Radar specification sourced from stdItem.Radar.',
@@ -72,7 +83,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'piercing',
             ref: '#/components/schemas/radar_sensitivity_block',
-            description: 'Signal “piercing” values (Radar.Piercing.*).',
+            description: 'Signal "piercing" values (Radar.Piercing.*).',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'aim_assist',
+            ref: '#/components/schemas/radar_aim_assist_block',
+            description: 'Aim assist range parameters (Radar.AimAssist.*).',
             nullable: true
         ),
     ],
@@ -112,6 +129,11 @@ class RadarResource extends AbstractItemSpecificationResource
                 'electromagnetic' => Arr::get($radar, 'Piercing.EM'),
                 'resource' => Arr::get($radar, 'Piercing.RS'),
                 'db' => Arr::get($radar, 'Piercing.dB'),
+            ],
+            'aim_assist' => [
+                'distance_min_assignment' => Arr::get($radar, 'AimAssist.DistanceMinAssignment'),
+                'distance_max_assignment' => Arr::get($radar, 'AimAssist.DistanceMaxAssignment'),
+                'outside_range_buffer_distance' => Arr::get($radar, 'AimAssist.OutsideRangeBufferDistance'),
             ],
         ];
     }

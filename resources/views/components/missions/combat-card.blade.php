@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['resource'])
 
 @php
@@ -30,10 +31,10 @@
     <div class="flex items-center gap-3 flex-wrap">
         <h2 class="text-lg font-semibold tracking-tight">Combat</h2>
         @if ($totalMin !== null || $totalMax !== null)
-            <span class="badge badge-ghost badge-sm">{{ fmt_range($totalMin, $totalMax, '', 0) }} Total Enemies</span>
+            <span class="badge badge-ghost badge-sm">{{ Format::range($totalMin, $totalMax, '', 0) }} Total Enemies</span>
         @endif
         @foreach ($combatByGroup as $group)
-            <span class="badge badge-ghost badge-sm">{{ fmt_range(data_get($group, 'min'), data_get($group, 'max'), '', 0) }} {{ data_get($group, 'group_name', '-') }}</span>
+            <span class="badge badge-ghost badge-sm">{{ Format::range(data_get($group, 'min'), data_get($group, 'max'), '', 0) }} {{ data_get($group, 'group_name', '-') }}</span>
         @endforeach
         @if ($hasDefendObjective)
             <span class="badge badge-warning badge-sm">Defend Objective</span>
@@ -44,7 +45,7 @@
         <div class="card-body p-5 sm:p-6 space-y-6">
             @if ($aggregatedSpawns !== [])
                 <div>
-                    <h3 class="text-sm font-semibold text-subtle mb-3">Spawns</h3>
+                    <h3 class="font-semibold uppercase text-subtle mb-3">Spawns</h3>
                     <div class="overflow-x-auto">
                         <table class="table table-sm table-zebra">
                             <thead>
@@ -87,7 +88,7 @@
                                         </td>
                                         <td>
                                             @if ($spawn['concurrent_min'] !== null || $spawn['concurrent_max'] !== null)
-                                                {{ fmt_range($spawn['concurrent_min'], $spawn['concurrent_max'], '', 0) }}
+                                                {{ Format::range($spawn['concurrent_min'], $spawn['concurrent_max'], '', 0) }}
                                             @else
                                                 -
                                             @endif
@@ -102,7 +103,7 @@
 
             @if ($entitySpawns !== [])
                 <div>
-                    <h3 class="text-sm font-semibold text-subtle mb-3">Entity Spawns</h3>
+                    <h3 class="font-semibold uppercase text-subtle mb-3">Entity Spawns</h3>
                     <div class="overflow-x-auto">
                         <table class="table table-sm table-zebra">
                             <thead>

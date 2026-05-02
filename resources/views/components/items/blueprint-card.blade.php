@@ -78,24 +78,18 @@
                 </div>
             @endif
 
-            <dl class="space-y-4">
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Craft Time</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ $craftTimeLabel ?? '—' }}</dd>
-                </div>
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Availability</dt>
-                    <dd>
-                        @if ($isAvailableByDefault === true)
-                            <span class="badge badge-success badge-sm badge-outline">Default</span>
-                        @elseif ($isAvailableByDefault === false)
-                            <span class="badge badge-warning badge-sm badge-outline">Unlock required</span>
-                        @else
-                            <span class="text-sm font-semibold text-base-content">—</span>
-                        @endif
-                    </dd>
-                </div>
-            </dl>
+            <x-dl-section dlClass="space-y-4">
+                <x-dt-dd label="Craft Time">{{ $craftTimeLabel ?? '—' }}</x-dt-dd>
+                <x-dt-dd label="Availability">
+                    @if ($isAvailableByDefault === true)
+                        <span class="badge badge-success badge-sm badge-outline">Default</span>
+                    @elseif ($isAvailableByDefault === false)
+                        <span class="badge badge-warning badge-sm badge-outline">Unlock required</span>
+                    @else
+                        <span class="text-sm font-semibold text-base-content">—</span>
+                    @endif
+                </x-dt-dd>
+            </x-dl-section>
         </div>
     </div>
 </section>

@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['haulingOrders'])
 
 @php
@@ -21,7 +22,7 @@
     $regularOrders = array_values(array_filter($haulingOrders, static fn (array $order): bool => data_get($order, 'kind') !== 'Or'));
 @endphp
 
-<section class="space-y-4">
+<section {{ $attributes->merge(['class' => 'space-y-4']) }}>
     <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold tracking-tight">Hauling Orders</h2>
         <span class="badge badge-ghost badge-sm">{{ count($haulingOrders) }}</span>
@@ -77,15 +78,15 @@
                                             <div
                                                 class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-subtle">
                                                 @if ($hasScu)
-                                                    <span>SCU: {{ fmt_range(data_get($groupEntry, 'min_scu'), data_get($groupEntry, 'max_scu'), '', 0) }}</span>
+                                                    <span>SCU: {{ Format::range(data_get($groupEntry, 'min_scu'), data_get($groupEntry, 'max_scu'), '', 0) }}</span>
                                                 @endif
 
                                                 @if ($hasAmount)
-                                                    <span>Amount: {{ fmt_range(data_get($groupEntry, 'min_amount'), data_get($groupEntry, 'max_amount'), '', 0) }}</span>
+                                                    <span>Amount: {{ Format::range(data_get($groupEntry, 'min_amount'), data_get($groupEntry, 'max_amount'), '', 0) }}</span>
                                                 @endif
 
                                                 @if ((data_get($groupEntry, 'max_container_size') ?? 0) > 0)
-                                                    <span>Container: {{ fmt_container_size(data_get($groupEntry, 'max_container_size')) }}</span>
+                                                    <span>Container: {{ Format::containerSize(data_get($groupEntry, 'max_container_size')) }}</span>
                                                 @endif
                                             </div>
                                         @endif
@@ -144,7 +145,7 @@
                                     <div>
                                         <span class="text-muted">SCU:</span>
                                         <span
-                                            class="font-medium">{{ fmt_range(data_get($order, 'min_scu'), data_get($order, 'max_scu'), '', 0) }}</span>
+                                            class="font-medium">{{ Format::range(data_get($order, 'min_scu'), data_get($order, 'max_scu'), '', 0) }}</span>
                                     </div>
                                 @endif
 
@@ -152,7 +153,7 @@
                                     <div>
                                         <span class="text-muted">Amount:</span>
                                         <span
-                                            class="font-medium">{{ fmt_range(data_get($order, 'min_amount'), data_get($order, 'max_amount'), '', 0) }}</span>
+                                            class="font-medium">{{ Format::range(data_get($order, 'min_amount'), data_get($order, 'max_amount'), '', 0) }}</span>
                                     </div>
                                 @endif
 
@@ -160,7 +161,7 @@
                                     <div>
                                         <span class="text-muted">Container:</span>
                                         <span
-                                            class="font-medium">{{ fmt_container_size(data_get($order, 'max_container_size')) }}</span>
+                                            class="font-medium">{{ Format::containerSize(data_get($order, 'max_container_size')) }}</span>
                                     </div>
                                 @endif
                             </div>

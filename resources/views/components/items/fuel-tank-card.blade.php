@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'fuelTank',
 ])
@@ -13,19 +14,10 @@
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Fuel Tank</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Fill Rate</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($fillRate, '/s', 2) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Drain Rate</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($drainRate, '/s', 2) }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Capacity</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($capacity, 'SCU', 0) }}</dd>
-            </div>
-        </dl>
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <x-dt-dd label="Fill Rate">{{ Format::valueWithUnit($fillRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Drain Rate">{{ Format::valueWithUnit($drainRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Capacity">{{ Format::valueWithUnit($capacity, 'SCU', 0) }}</x-dt-dd>
+        </x-dl-section>
     </div>
 </div>

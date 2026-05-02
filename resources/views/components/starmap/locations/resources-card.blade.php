@@ -16,7 +16,7 @@
 @endphp
 
 @if ($groups->isNotEmpty())
-    <div class="flex flex-col gap-4" data-testid="starmap-location-resources">
+    <div {{ $attributes->merge(['class' => 'flex flex-col gap-4']) }} data-testid="starmap-location-resources">
         @foreach ($groups as $group)
             @php
                 $groupName = data_get($group, 'group_name', 'Unknown');
@@ -70,7 +70,7 @@
         @endforeach
     </div>
 @else
-    <div class="card border border-base-300 bg-base-100 shadow">
+    <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div class="text-sm text-subtle">No resource data available for this location.</div>
         </div>

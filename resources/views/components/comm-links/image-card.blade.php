@@ -112,18 +112,14 @@
             @endif
         </div>
 
-        <dl class="grid gap-2 text-xs text-subtle">
-            <div class="flex items-center justify-between">
-                <dt>Last Modified</dt>
-                <dd class="tooltip" data-tip="{{ $lastModifiedAbsolute }}">
-                    {{ $lastModifiedFormatted ?? '-' }}
-                </dd>
-            </div>
-            <div class="flex items-center justify-between">
-                <dt>Size</dt>
-                <dd>{{ $sizeFormatted ?? '-' }}</dd>
-            </div>
-        </dl>
+        <x-dl-section dlClass="grid gap-2 text-xs text-subtle">
+            <x-dt-dd label="Last Modified">
+                <span class="tooltip" data-tip="{{ $lastModifiedAbsolute }}">{{ $lastModifiedFormatted ?? '-' }}</span>
+            </x-dt-dd>
+            <x-dt-dd label="Size">
+                {{ $sizeFormatted ?? '-' }}
+            </x-dt-dd>
+        </x-dl-section>
 
         <div class="flex flex-wrap gap-2">
             @if ($rsiUrl)

@@ -30,7 +30,7 @@
         <div class="space-y-4 overflow-y-auto pr-1 sm:max-h-96">
             @if (is_array($setItems) && $setItems !== [])
                 <div class="space-y-2">
-                    <h3 class="text-sm font-semibold">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
+                    <h3 class="font-semibold uppercase text-subtle">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
                     <div class="grid gap-2 sm:hidden">
                         @foreach ($setItems as $setItem)
                             <div class="card border border-base-300 bg-base-100 shadow-sm">
@@ -82,7 +82,7 @@
 
             @if ($showsVariantSection)
                 <div class="space-y-2">
-                    <h3 class="text-sm font-semibold">Variants</h3>
+                    <h3 class="font-semibold uppercase text-subtle">Variants</h3>
                     <div class="overflow-x-auto">
                         <table class="table table-sm">
                             <caption class="sr-only">Variant items for this base item</caption>

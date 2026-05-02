@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -19,27 +20,27 @@
         [
             'label' => 'Dimensions',
             'rows' => [
-                ['label' => 'Length', 'value' => $length !== null ? fmt_value_with_unit($length, 'm', 1) : '-'],
-                ['label' => 'Width', 'value' => $width !== null ? fmt_value_with_unit($width, 'm', 1) : '-'],
-                ['label' => 'Height', 'value' => $height !== null ? fmt_value_with_unit($height, 'm', 1) : '-'],
+                ['label' => 'Length', 'value' => $length !== null ? Format::valueWithUnit($length, 'm', 1) : '-'],
+                ['label' => 'Width', 'value' => $width !== null ? Format::valueWithUnit($width, 'm', 1) : '-'],
+                ['label' => 'Height', 'value' => $height !== null ? Format::valueWithUnit($height, 'm', 1) : '-'],
             ],
             'render' => $length !== null || $width !== null || $height !== null,
         ],
         [
             'label' => 'Cross Section',
             'rows' => [
-                ['label' => 'Length', 'value' => fmt_or_dash($crossSectionLength)],
-                ['label' => 'Width', 'value' => fmt_or_dash($crossSectionWidth)],
-                ['label' => 'Height', 'value' => fmt_or_dash($crossSectionHeight)],
+                ['label' => 'Length', 'value' => Format::numberOrDash($crossSectionLength)],
+                ['label' => 'Width', 'value' => Format::numberOrDash($crossSectionWidth)],
+                ['label' => 'Height', 'value' => Format::numberOrDash($crossSectionHeight)],
             ],
             'render' => $crossSectionLength !== null || $crossSectionWidth !== null || $crossSectionHeight !== null,
         ],
         [
             'label' => 'Mass',
             'rows' => [
-                ['label' => 'Total', 'value' => $massTotal !== null ? fmt_value_with_unit($massTotal, 'kg', 0) : '-'],
-                ['label' => 'Hull', 'value' => $massHull !== null ? fmt_value_with_unit($massHull, 'kg', 0) : '-'],
-                ['label' => 'Loadout', 'value' => $massLoadout !== null ? fmt_value_with_unit($massLoadout, 'kg', 0) : '-'],
+                ['label' => 'Total', 'value' => $massTotal !== null ? Format::valueWithUnit($massTotal, 'kg', 0) : '-'],
+                ['label' => 'Hull', 'value' => $massHull !== null ? Format::valueWithUnit($massHull, 'kg', 0) : '-'],
+                ['label' => 'Loadout', 'value' => $massLoadout !== null ? Format::valueWithUnit($massLoadout, 'kg', 0) : '-'],
             ],
             'render' => $massTotal !== null || $massHull !== null || $massLoadout !== null,
         ],
@@ -55,24 +56,11 @@
 
             <div class="grid gap-12 lg:grid-cols-3">
                 @foreach ($sections as $section)
-                    <section class="min-w-0 space-y-3">
-                        <div class="text-sm font-semibold text-subtle">
-                            {{ $section['label'] }}
-                        </div>
-
-                        <dl class="space-y-2">
-                            @foreach ($section['rows'] as $row)
-                                <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
-                                        {{ $row['label'] }}
-                                    </dt>
-                                    <dd class="text-right text-sm font-semibold text-base-content">
-                                        {{ $row['value'] }}
-                                    </dd>
-                                </div>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section :title="$section['label']" class="min-w-0">
+                        @foreach ($section['rows'] as $row)
+                            <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endforeach
             </div>
         </div>

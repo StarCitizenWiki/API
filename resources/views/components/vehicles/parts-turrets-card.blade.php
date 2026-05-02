@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'vehicle',
     'section' => 'all',
@@ -118,7 +119,7 @@
 
                             <div class="shrink-0 text-right">
                                 <div class="text-sm font-medium text-base-content">
-                                    {{ fmt_or_dash($part['damage_max'], 0) }}
+                                    {{ Format::numberOrDash($part['damage_max'], 0) }}
                                 </div>
                             </div>
                         </div>

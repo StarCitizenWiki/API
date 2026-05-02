@@ -1,84 +1,41 @@
-@props(['profile' => []])
+@use('App\Support\Format')
+@props([
+    'profile' => [],
+])
 
-<dl class="grid gap-4 grid-cols-2 sm:grid-cols-2">
-    @if (data_get($profile, 'drive_speed'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Drive Speed</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'drive_speed'), 'm/s', 0) }}</dd>
-        </div>
-    @endif
+@php
+    $metrics = array_values(array_filter([
+        ['label' => 'Drive Speed', 'value' => data_get($profile, 'drive_speed'), 'unit' => 'm/s', 'precision' => 0],
+        ['label' => 'Cooldown Time', 'value' => data_get($profile, 'cooldown_time'), 'unit' => 's', 'precision' => 1],
+        ['label' => 'Stage One', 'value' => data_get($profile, 'stage_one_accel_rate'), 'unit' => 'm/s²', 'precision' => 0],
+        ['label' => 'Stage Two', 'value' => data_get($profile, 'stage_two_accel_rate'), 'unit' => 'm/s²', 'precision' => 0],
+        ['label' => 'Engage Speed', 'value' => data_get($profile, 'engage_speed'), 'type' => 'int_unit', 'unit' => 'm/s'],
+        ['label' => 'Interdiction Effect Time', 'value' => data_get($profile, 'interdiction_effect_time'), 'unit' => 's', 'precision' => 2],
+        ['label' => 'Calibration Rate', 'value' => data_get($profile, 'calibration_rate'), 'type' => 'int'],
+        ['label' => 'Calibration Requirement', 'value' => data_get($profile, 'min_calibration_requirement'), 'type' => 'range', 'max' => data_get($profile, 'max_calibration_requirement'), 'unit' => '', 'precision' => 0],
+        ['label' => 'Calibration Angle', 'value' => data_get($profile, 'calibration_process_angle_limit'), 'type' => 'range', 'max' => data_get($profile, 'calibration_warning_angle_limit'), 'unit' => 'deg', 'precision' => 1],
+        ['label' => 'Calibration Delay', 'value' => data_get($profile, 'calibration_delay_in_seconds'), 'unit' => 's', 'precision' => 1],
+        ['label' => 'Spool Up Time', 'value' => data_get($profile, 'spool_up_time'), 'unit' => 's', 'precision' => 1],
+    ], static fn (array $m): bool => $m['value'] !== null));
+@endphp
 
-    @if (data_get($profile, 'cooldown_time'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Cooldown Time</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'cooldown_time'), 's', 1) }}</dd>
-        </div>
-    @endif
+@foreach ($metrics as $metric)
+    <x-dt-dd :label="$metric['label']">
+        @switch($metric['type'] ?? 'unit')
+            @case('int_unit')
+                {{ (int) $metric['value'] }} {{ $metric['unit'] }}
+                @break
 
-    @if (data_get($profile, 'stage_one_accel_rate'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stage One Acceleration Rate
-            </dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'stage_one_accel_rate'), 'm/s²', 0) }}</dd>
-        </div>
-    @endif
+            @case('int')
+                {{ (int) $metric['value'] }}
+                @break
 
-    @if (data_get($profile, 'stage_two_accel_rate'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Stage Two Acceleration Rate
-            </dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'stage_two_accel_rate'), 'm/s²', 0) }}</dd>
-        </div>
-    @endif
+            @case('range')
+                {{ Format::range($metric['value'], $metric['max'], $metric['unit'], $metric['precision'] ?? 0) }}
+                @break
 
-    @if (data_get($profile, 'engage_speed'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Engage Speed</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ (int)data_get($profile, 'engage_speed') }} m/s</dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'interdiction_effect_time'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Interdiction Effect Time</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'interdiction_effect_time'), 's', 2) }}
-            </dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'calibration_rate'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Calibration Rate</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ (int)data_get($profile, 'calibration_rate') }}</dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'min_calibration_requirement'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Calibration Requirement</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_range(data_get($profile, 'min_calibration_requirement'), data_get($profile, 'max_calibration_requirement'), '', 0) }}</dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'calibration_process_angle_limit'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Calibration Angle</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_range(data_get($profile, 'calibration_process_angle_limit'), data_get($profile, 'calibration_warning_angle_limit'), 'deg', 1) }}</dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'calibration_delay_in_seconds'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Calibration Delay</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'calibration_delay_in_seconds'), 's', 1) }}
-            </dd>
-        </div>
-    @endif
-
-    @if (data_get($profile, 'spool_up_time'))
-        <div class="space-y-1">
-            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Spool Up Time</dt>
-            <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($profile, 'spool_up_time'), 's', 1) }}</dd>
-        </div>
-    @endif
-</dl>
+            @default
+                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision'] ?? 0) }}
+        @endswitch
+    </x-dt-dd>
+@endforeach

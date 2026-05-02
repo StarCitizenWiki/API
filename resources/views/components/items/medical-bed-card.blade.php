@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'medicalBed',
 ])
@@ -61,91 +62,54 @@
         <h2 class="card-title text-base">Medical Bed</h2>
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($inventoryCapacity !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Inventory Capacity</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($inventoryCapacity, $inventoryUnit, 0) }}</dd>
-                </div>
+                <x-dt-dd label="Inventory Capacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
             @endif
             @if ($inventoryWidth !== null && $inventoryHeight !== null && $inventoryDepth !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Dimensions</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($inventoryWidth, 'm', 2) }} × {{ fmt_value_with_unit($inventoryHeight, 'm', 2) }} × {{ fmt_value_with_unit($inventoryDepth, 'm', 2) }}</dd>
-                </div>
+                <x-dt-dd label="Dimensions">{{ Format::valueWithUnit($inventoryWidth, 'm', 2) }} × {{ Format::valueWithUnit($inventoryHeight, 'm', 2) }} × {{ Format::valueWithUnit($inventoryDepth, 'm', 2) }}</x-dt-dd>
             @endif
-        </dl>
+        </x-dl-section>
 
         {{-- Secondary Data (Collapsible, default open) --}}
         @if ($showSecondary)
-            <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Storage
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($resourceCapacitySCU !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Resource Capacity</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($resourceCapacitySCU, 'SCU', 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($inventoryCapacity !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Inventory Capacity</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($inventoryCapacity, $inventoryUnit, 0) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
+            <x-dl-details title="Storage" :open="true">
+                @if ($resourceCapacitySCU !== null)
+                    <x-dt-dd label="Resource Capacity">{{ Format::valueWithUnit($resourceCapacitySCU, 'SCU', 2) }}</x-dt-dd>
+                @endif
+                @if ($inventoryCapacity !== null)
+                    <x-dt-dd label="Inventory Capacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
+                @endif
+            </x-dl-details>
         @endif
 
         {{-- Tertiary Data (Collapsible, default closed) --}}
         @if ($showTertiary)
-            <details class="group">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Advanced
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if ($isImmutable !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Immutable</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ $isImmutable ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($isExternalContainer !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">External Container</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ $isExternalContainer ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($isClosedContainer !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Closed Container</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ $isClosedContainer ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if ($isOpenContainer !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Open Container</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ $isOpenContainer ? 'Yes' : 'No' }}</dd>
-                            </div>
-                        @endif
-                        @if (is_array($ports) && !empty($ports))
-                            <div class="space-y-1 sm:col-span-2">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ports</dt>
-                                <dd class="text-sm">
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach ($ports as $port)
-                                            <span class="badge badge-outline">{{ data_get($port, 'name', 'Unknown') }}</span>
-                                        @endforeach
-                                    </div>
-                                </dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
+            <x-dl-details title="Advanced">
+                @if ($isImmutable !== null)
+                    <x-dt-dd label="Immutable">{{ $isImmutable ? 'Yes' : 'No' }}</x-dt-dd>
+                @endif
+                @if ($isExternalContainer !== null)
+                    <x-dt-dd label="External Container">{{ $isExternalContainer ? 'Yes' : 'No' }}</x-dt-dd>
+                @endif
+                @if ($isClosedContainer !== null)
+                    <x-dt-dd label="Closed Container">{{ $isClosedContainer ? 'Yes' : 'No' }}</x-dt-dd>
+                @endif
+                @if ($isOpenContainer !== null)
+                    <x-dt-dd label="Open Container">{{ $isOpenContainer ? 'Yes' : 'No' }}</x-dt-dd>
+                @endif
+                @if (is_array($ports) && !empty($ports))
+                    <div class="sm:col-span-2">
+                        <x-dt-dd label="Ports">
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($ports as $port)
+                                <span class="badge badge-outline">{{ data_get($port, 'name', 'Unknown') }}</span>
+                            @endforeach
+                        </div>
+                    </x-dt-dd>
+                    </div>
+                @endif
+            </x-dl-details>
         @endif
     </div>
 </div>

@@ -205,4 +205,46 @@ JSON, true, 512, JSON_THROW_ON_ERROR
             ],
         ]);
     }
+
+    public function radar(): self|Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'Radar',
+            'sub_type' => 'UNDEFINED',
+            'classification' => 'Ship.Radar',
+            'data' => [
+                'stdItem' => [
+                    'Radar' => [
+                        'Cooldown' => 2.5,
+                        'Sensitivity' => [
+                            'IR' => 0.9,
+                            'CS' => 0.9,
+                            'EM' => 0.9,
+                            'RS' => 1,
+                            'dB' => 0,
+                        ],
+                        'GroundVehicleDetectionSensitivity' => [
+                            'IR' => 0.25,
+                            'CS' => 0.25,
+                            'EM' => 0.25,
+                            'RS' => 0.25,
+                            'dB' => 0.25,
+                        ],
+                        'Piercing' => [
+                            'IR' => 0.25,
+                            'CS' => 0.25,
+                            'EM' => 0.25,
+                            'RS' => 1,
+                            'dB' => 0.25,
+                        ],
+                        'AimAssist' => [
+                            'DistanceMinAssignment' => 845,
+                            'DistanceMaxAssignment' => 994.5,
+                            'OutsideRangeBufferDistance' => 60,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
 }

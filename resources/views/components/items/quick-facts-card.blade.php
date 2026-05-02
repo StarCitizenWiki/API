@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'item',
     'portsCount' => 0,
@@ -124,8 +125,8 @@
             [
                 'title' => 'Physical',
                 'rows' => [
-                    ['label' => 'Mass', 'value' => $mass !== null ? fmt_value_with_unit($mass, 'kg', 0) : '-'],
-                    ['label' => 'Volume', 'value' => $volume !== null ? fmt_value_with_unit($volume, $volumeUnit ?? '', 0) : '-'],
+                    ['label' => 'Mass', 'value' => $mass !== null ? Format::valueWithUnit($mass, 'kg', 0) : '-'],
+                    ['label' => 'Volume', 'value' => $volume !== null ? Format::valueWithUnit($volume, $volumeUnit ?? '', 0) : '-'],
                     [
                         'label' => 'Dimensions',
                         'value' => $dimensionsValue,

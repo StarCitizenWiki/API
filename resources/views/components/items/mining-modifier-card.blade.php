@@ -1,67 +1,51 @@
-@props(['miningModifier' => null])
+@use('App\Support\Format')
+@props([
+    'miningModifier' => null,
+])
+
+@php
+    $modifierMap = data_get($miningModifier, 'modifier_map', []);
+@endphp
 
 <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Mining Modifier</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Type</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ data_get($miningModifier, 'item_type') }} ({{ data_get($miningModifier, 'type') }})</dd>
-            </div>
+        <x-dl-container>
+            <x-slot:head>
+                <x-dt-dd label="Type">{{ data_get($miningModifier, 'item_type') }} ({{ data_get($miningModifier, 'type') }})</x-dt-dd>
 
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Charges</dt>
-                <dd class="text-sm font-semibold text-base-content">
+                <x-dt-dd label="Charges">
                     @if (data_get($miningModifier, 'charges') !== null)
-                        {{ fmt((int)data_get($miningModifier, 'charges'), 0) }}
+                        {{ Format::number((int)data_get($miningModifier, 'charges'), 0) }}
                     @else
                         Unlimited
                     @endif
-                </dd>
-            </div>
+                </x-dt-dd>
 
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Duration</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($miningModifier, 'duration'), 's', 2) }}</dd>
-            </div>
+                <x-dt-dd label="Duration">{{ Format::valueWithUnit(data_get($miningModifier, 'duration'), 's', 2) }}</x-dt-dd>
 
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Power Modifier</dt>
-                <dd class="text-sm font-semibold text-base-content">
+                <x-dt-dd label="Power Modifier">
                     @if (is_numeric(data_get($miningModifier, 'power_modifier')))
-                        {{ fmt_value_with_unit((float)data_get($miningModifier, 'power_modifier'), 'x', 2) }}
+                        {{ Format::valueWithUnit((float)data_get($miningModifier, 'power_modifier'), 'x', 2) }}
                     @else
-                        {{ fmt_or_dash(data_get($miningModifier, 'power_modifier')) }}
+                        {{ Format::numberOrDash(data_get($miningModifier, 'power_modifier')) }}
                     @endif
-                </dd>
-            </div>
-        </dl>
+                </x-dt-dd>
+            </x-slot:head>
 
-        @php
-            $modifierMap = data_get($miningModifier, 'modifier_map', []);
-            $hasModifiers = is_array($modifierMap) && $modifierMap !== [];
-        @endphp
-
-        @if ($hasModifiers)
-            <details class="group" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Modifiers
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @foreach ($modifierMap as $key => $value)
-                            @php
-                                $displayKey = \Illuminate\Support\Str::headline($key);
-                                $displayValue = is_numeric($value) ? fmt((float)$value, 0) : fmt_or_dash($value);
-                            @endphp
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $displayKey }}</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ $displayValue }}%</dd>
-                            </div>
-                        @endforeach
-                    </dl>
-            </details>
-        @endif
+            <x-dl-section title="Modifiers">
+                @foreach ($modifierMap as $key => $value)
+                    @php
+                        $displayKey = \Illuminate\Support\Str::headline($key);
+                        $displayValue = is_numeric($value) ? Format::number((float) $value, 0) : Format::numberOrDash($value);
+                        $ddClass = is_numeric($value)
+                            ? ((float) $value >= 0 ? 'text-success' : 'text-error')
+                            : '';
+                    @endphp
+                    <x-dt-dd label="{{ $displayKey }}" :ddClass="$ddClass">{{ $displayValue }}%</x-dt-dd>
+                @endforeach
+            </x-dl-section>
+        </x-dl-container>
     </div>
 </div>

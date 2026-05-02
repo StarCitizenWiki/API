@@ -9,10 +9,12 @@ use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemInventoryResource;
+use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
+use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
 use Illuminate\Http\Request;
@@ -309,59 +311,8 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'armor',
-            description: 'Vehicle armor, damage multipliers, and resistance data.',
-            properties: [
-                new OA\Property(property: 'uuid', description: 'Armor item UUID.', type: 'string', example: 'armor-uuid', nullable: true),
-                new OA\Property(property: 'health', description: 'Armor health pool.', type: 'number', example: 1000, nullable: true),
-                new OA\Property(property: 'signal_infrared', description: 'Infrared signal multiplier (top-level, use signal_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'signal_electromagnetic', description: 'Electromagnetic signal multiplier (top-level, use signal_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'signal_cross_section', description: 'Cross-section signal multiplier (top-level, use signal_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'damage_physical', description: 'Physical damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 0.62, nullable: true),
-                new OA\Property(property: 'damage_energy', description: 'Energy damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'damage_distortion', description: 'Distortion damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'damage_thermal', description: 'Thermal damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'damage_biochemical', description: 'Biochemical damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 1, nullable: true),
-                new OA\Property(property: 'damage_stun', description: 'Stun damage multiplier (top-level, use damage_multipliers instead).', type: 'number', example: 0, nullable: true),
-                new OA\Property(property: 'signal_multipliers', description: 'Signal multipliers by type.', properties: [
-                    new OA\Property(property: 'cross_section', description: 'Cross-section signal multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'infrared', description: 'Infrared signal multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'electromagnetic', description: 'Electromagnetic signal multiplier.', type: 'number', example: 1, nullable: true),
-                ], type: 'object', nullable: true),
-                new OA\Property(property: 'damage_multipliers', description: 'Damage multipliers by type.', properties: [
-                    new OA\Property(property: 'physical', description: 'Physical damage multiplier.', type: 'number', example: 0.62, nullable: true),
-                    new OA\Property(property: 'energy', description: 'Energy damage multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'distortion', description: 'Distortion damage multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'thermal', description: 'Thermal damage multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'biochemical', description: 'Biochemical damage multiplier.', type: 'number', example: 1, nullable: true),
-                    new OA\Property(property: 'stun', description: 'Stun damage multiplier.', type: 'number', example: 0, nullable: true),
-                ], type: 'object', nullable: true),
-                new OA\Property(property: 'deflection', description: 'Armor deflection values by damage type.', properties: [
-                    new OA\Property(property: 'physical', description: 'Physical deflection.', type: 'number', example: 24, nullable: true),
-                    new OA\Property(property: 'energy', description: 'Energy deflection.', type: 'number', example: 13, nullable: true),
-                    new OA\Property(property: 'distortion', description: 'Distortion deflection.', type: 'number', example: 0, nullable: true),
-                    new OA\Property(property: 'thermal', description: 'Thermal deflection.', type: 'number', example: 0, nullable: true),
-                    new OA\Property(property: 'biochemical', description: 'Biochemical deflection.', type: 'number', example: 0, nullable: true),
-                    new OA\Property(property: 'stun', description: 'Stun deflection.', type: 'number', example: 0, nullable: true),
-                ], type: 'object', nullable: true),
-                new OA\Property(property: 'resistance_multipliers', description: 'Resistance multipliers by damage type.', properties: [
-                    new OA\Property(property: 'physical', description: 'Physical resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'energy', description: 'Energy resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'distortion', description: 'Distortion resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'thermal', description: 'Thermal resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'biochemical', description: 'Biochemical resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'stun', description: 'Stun resistance multiplier.', type: 'number', example: 0.001, nullable: true),
-                ], type: 'object', nullable: true),
-                new OA\Property(property: 'penetration_resistance', description: 'Penetration resistance values by damage type.', properties: [
-                    new OA\Property(property: 'base', description: 'Base penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'physical', description: 'Physical penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'energy', description: 'Energy penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'distortion', description: 'Distortion penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'thermal', description: 'Thermal penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'biochemical', description: 'Biochemical penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                    new OA\Property(property: 'stun', description: 'Stun penetration resistance.', type: 'number', example: 0.001, nullable: true),
-                ], type: 'object', nullable: true),
-            ],
-            type: 'object',
+            description: 'Vehicle armor data from ArmorResource. Deprecated plural key aliases (signal_multipliers, damage_multipliers, resistance_multipliers) are emitted for backward compatibility.',
+            ref: '#/components/schemas/vehicle_armor',
             nullable: true
         ),
         new OA\Property(
@@ -818,6 +769,19 @@ class VehicleResource extends AbstractBaseResource
             'personal_inventory' => 'No replacement.',
 
             "{$portKey}[].equipped_item.$portKey" => "Use {$portKey}[].$portKey instead.",
+
+            'armor.signal_infrared' => 'Use armor.signal_multiplier.infrared instead.',
+            'armor.signal_electromagnetic' => 'Use armor.signal_multiplier.electromagnetic instead.',
+            'armor.signal_cross_section' => 'Use armor.signal_multiplier.cross_section instead.',
+            'armor.damage_physical' => 'Use armor.damage_multiplier.physical instead.',
+            'armor.damage_energy' => 'Use armor.damage_multiplier.energy instead.',
+            'armor.damage_distortion' => 'Use armor.damage_multiplier.distortion instead.',
+            'armor.damage_thermal' => 'Use armor.damage_multiplier.thermal instead.',
+            'armor.damage_biochemical' => 'Use armor.damage_multiplier.biochemical instead.',
+            'armor.damage_stun' => 'Use armor.damage_multiplier.stun instead.',
+            'armor.signal_multipliers' => 'Use armor.signal_multiplier instead.',
+            'armor.damage_multipliers' => 'Use armor.damage_multiplier instead.',
+            'armor.resistance_multipliers' => 'Use armor.resistance_multiplier instead.',
         ]);
 
         return [
@@ -1162,60 +1126,64 @@ class VehicleResource extends AbstractBaseResource
 
     private function buildArmor(VehicleData $vehicleData): array
     {
-        return [
-            'uuid' => $this->extractFromVehicleJson($vehicleData, 'Armor.UUID'),
-            'health' => $this->extractFromVehicleJson($vehicleData, 'Armor.Health'),
+        $armorUuid = $this->extractFromVehicleJson($vehicleData, 'Armor.UUID');
 
-            'signal_infrared' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.Infrared'),
-            'signal_electromagnetic' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.Electromagnetic'),
-            'signal_cross_section' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.CrossSection'),
+        if ($armorUuid === null) {
+            return [];
+        }
 
-            'damage_physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Physical'),
-            'damage_energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Energy'),
-            'damage_distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Distortion'),
-            'damage_thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Thermal'),
-            'damage_biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Biochemical'),
-            'damage_stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Stun'),
+        $item = $this->loadItemForVersion($armorUuid);
 
-            'signal_multipliers' => [
-                'cross_section' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.CrossSection'),
-                'infrared' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.Infrared'),
-                'electromagnetic' => $this->extractFromVehicleJson($vehicleData, 'Armor.SignalMultipliers.Electromagnetic'),
-            ],
-            'damage_multipliers' => [
-                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Physical'),
-                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Energy'),
-                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Distortion'),
-                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Thermal'),
-                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Biochemical'),
-                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.DamageMultipliers.Stun'),
-            ],
-            'resistance_multipliers' => [
-                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Physical'),
-                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Energy'),
-                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Distortion'),
-                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Thermal'),
-                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Biochemical'),
-                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.ResistanceMultipliers.Stun'),
-            ],
-            'penetration_resistance' => [
-                'base' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Base'),
-                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Physical'),
-                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Energy'),
-                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Distortion'),
-                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Thermal'),
-                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Biochemical'),
-                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.PenetrationResistance.Stun'),
-            ],
-            'deflection' => [
-                'physical' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Physical'),
-                'energy' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Energy'),
-                'distortion' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Distortion'),
-                'thermal' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Thermal'),
-                'biochemical' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Biochemical'),
-                'stun' => $this->extractFromVehicleJson($vehicleData, 'Armor.Deflection.Stun'),
-            ],
+        if ($item === null) {
+            return [];
+        }
+
+        $itemData = $item->data->first();
+
+        if ($itemData === null) {
+            return [];
+        }
+
+        return $this->buildArmorFromItemData($armorUuid, $itemData);
+    }
+
+    /**
+     * Build armor data from resolved ItemData using ArmorResource.
+     *
+     * Outputs canonical ArmorResource format with deprecated plural key aliases
+     * for backward compatibility during transition.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildArmorFromItemData(string $uuid, ItemData $itemData): array
+    {
+        $armor = (new ArmorResource($itemData))->resolve(request());
+        $armor['uuid'] = $uuid;
+
+        // Deprecated plural aliases for backward compatibility
+        $armor['signal_multipliers'] = [
+            'cross_section' => $armor['signal_multiplier']['cross_section'] ?? null,
+            'infrared' => $armor['signal_multiplier']['infrared'] ?? null,
+            'electromagnetic' => $armor['signal_multiplier']['electromagnetic'] ?? null,
         ];
+        $armor['damage_multipliers'] = [
+            'physical' => $armor['damage_multiplier']['physical'] ?? null,
+            'energy' => $armor['damage_multiplier']['energy'] ?? null,
+            'distortion' => $armor['damage_multiplier']['distortion'] ?? null,
+            'thermal' => $armor['damage_multiplier']['thermal'] ?? null,
+            'biochemical' => $armor['damage_multiplier']['biochemical'] ?? null,
+            'stun' => $armor['damage_multiplier']['stun'] ?? null,
+        ];
+        $armor['resistance_multipliers'] = [
+            'physical' => $armor['resistance_multiplier']['physical'] ?? null,
+            'energy' => $armor['resistance_multiplier']['energy'] ?? null,
+            'distortion' => $armor['resistance_multiplier']['distortion'] ?? null,
+            'thermal' => $armor['resistance_multiplier']['thermal'] ?? null,
+            'biochemical' => $armor['resistance_multiplier']['biochemical'] ?? null,
+            'stun' => $armor['resistance_multiplier']['stun'] ?? null,
+        ];
+
+        return $armor;
     }
 
     private function resolveShipMatrixData(VehicleData $vehicleData, Request $request): array

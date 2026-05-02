@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -25,19 +26,19 @@
         [
             'label' => 'Used',
             'shields' => data_get($cooling, 'used_segments_shields') !== null
-                ? fmt_value_with_unit(data_get($cooling, 'used_segments_shields'), 'Segments', 0)
+                ? Format::valueWithUnit(data_get($cooling, 'used_segments_shields'), 'Segments', 0)
                 : null,
             'quantum' => data_get($cooling, 'used_segments_quantum') !== null
-                ? fmt_value_with_unit(data_get($cooling, 'used_segments_quantum'), 'Segments', 0)
+                ? Format::valueWithUnit(data_get($cooling, 'used_segments_quantum'), 'Segments', 0)
                 : null,
         ],
         [
             'label' => 'Usage',
             'shields' => data_get($cooling, 'usage_shields_pct') !== null
-                ? fmt_value_with_unit(data_get($cooling, 'usage_shields_pct') * 100, '%', 1)
+                ? Format::valueWithUnit(data_get($cooling, 'usage_shields_pct') * 100, '%', 1)
                 : null,
             'quantum' => data_get($cooling, 'usage_quantum_pct') !== null
-                ? fmt_value_with_unit(data_get($cooling, 'usage_quantum_pct') * 100, '%', 1)
+                ? Format::valueWithUnit(data_get($cooling, 'usage_quantum_pct') * 100, '%', 1)
                 : null,
         ],
     ], static fn (array $row): bool => $row['shields'] !== null || $row['quantum'] !== null));
@@ -48,10 +49,10 @@
         [
             'label' => 'Used',
             'shields' => data_get($power, 'used_segments_shields') !== null
-                ? fmt_value_with_unit(data_get($power, 'used_segments_shields'), 'Segments', 0)
+                ? Format::valueWithUnit(data_get($power, 'used_segments_shields'), 'Segments', 0)
                 : null,
             'quantum' => data_get($power, 'used_segments_quantum') !== null
-                ? fmt_value_with_unit(data_get($power, 'used_segments_quantum'), 'Segments', 0)
+                ? Format::valueWithUnit(data_get($power, 'used_segments_quantum'), 'Segments', 0)
                 : null,
         ],
     ], static fn (array $row): bool => $row['shields'] !== null || $row['quantum'] !== null));
@@ -73,16 +74,16 @@
                 @if ($signatureSummaryRows !== [])
                     <section class="space-y-4">
                         <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Signature</h3>
+                            <h3 class="font-semibold uppercase text-subtle">Signature</h3>
                         </div>
 
                         <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                             <div></div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
+                            <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Shields</div>
+                            <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Quantum</div>
 
                             @foreach ($signatureSummaryRows as $row)
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">
+                                <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                                     {{ $row['label'] }}
                                 </dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
@@ -100,12 +101,12 @@
                     <section class="space-y-4">
                         <div class="flex items-start justify-between gap-3">
                             <div class="space-y-1">
-                                <h3 class="text-sm font-semibold text-base-content">Cooling</h3>
+                            <h3 class="font-semibold uppercase text-subtle">Cooling</h3>
                             </div>
 
                             @if ($coolingGeneration !== null)
                                 <div class="text-sm font-semibold text-base-content">
-                                    {{ fmt_value_with_unit($coolingGeneration, 'Segments', 0) }}
+                                    {{ Format::valueWithUnit($coolingGeneration, 'Segments', 0) }}
                                 </div>
                             @endif
                         </div>
@@ -113,11 +114,11 @@
                         @if ($coolingSummaryRows !== [])
                             <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                                 <div></div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
+                                <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Shields</div>
+                                <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Quantum</div>
 
                                 @foreach ($coolingSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
+                                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">
@@ -136,15 +137,15 @@
                     <section class="space-y-4">
                         <div class="flex items-start justify-between gap-3">
                             <div class="space-y-1">
-                                <h3 class="text-sm font-semibold text-base-content">Power</h3>
+                            <h3 class="font-semibold uppercase text-subtle">Power</h3>
                             </div>
 
                             @if ($powerGeneration !== null)
                                 <div class="text-sm font-semibold text-base-content">
-                                    {{ fmt_value_with_unit($powerGeneration, 'Segments', 0) }}
+                                    {{ Format::valueWithUnit($powerGeneration, 'Segments', 0) }}
 
                                     @if ($emPerSegment !== null)
-                                        <span class="text-xs text-secondary">/ {{ fmt_value_with_unit($emPerSegment, 'EM per Segment', 0) }}</span>
+                                        <span class="text-xs text-secondary">/ {{ Format::valueWithUnit($emPerSegment, 'EM per Segment', 0) }}</span>
                                     @endif
                                 </div>
                             @endif
@@ -153,11 +154,11 @@
                         @if ($powerSummaryRows !== [])
                             <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
                                 <div></div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
-                                <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
+                                <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Shields</div>
+                                <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Quantum</div>
 
                                 @foreach ($powerSummaryRows as $row)
-                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">
+                                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                                         {{ $row['label'] }}
                                     </dt>
                                     <dd class="text-right text-sm font-semibold text-base-content">

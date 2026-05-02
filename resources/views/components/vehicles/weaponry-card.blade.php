@@ -31,89 +31,63 @@
 
             <div class="grid gap-12 lg:grid-cols-3">
                 @if ($hasPilot)
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Pilot Weapons</h3>
-                        </div>
+                    <x-dl-section title="Pilot Weapons">
+                        @if ($pilotDps !== null)
+                            <x-dt-dd label="DPS">
+                                {{ $formatDps($pilotDps) }} <span class="text-xs text-muted">DPS</span>
+                            </x-dt-dd>
+                        @endif
 
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            @if ($pilotDps !== null)
-                                <dt class="text-sm text-emphasis">DPS</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($pilotDps) }} <span class="text-xs text-muted">DPS</span>
-                                </dd>
-                            @endif
+                        @if ($pilotAlpha !== null)
+                            <x-dt-dd label="Alpha">
+                                {{ $formatDps($pilotAlpha) }}
+                            </x-dt-dd>
+                        @endif
 
-                            @if ($pilotAlpha !== null)
-                                <dt class="text-sm text-emphasis">Alpha</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($pilotAlpha) }}
-                                </dd>
-                            @endif
-
-                            @if ($pilotSustainedDps !== null)
-                                <dt class="text-sm text-emphasis">Sustained DPS</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($pilotSustainedDps) }} <span class="text-xs text-muted">DPS</span>
-                                </dd>
-                            @endif
-                        </dl>
-                    </section>
+                        @if ($pilotSustainedDps !== null)
+                            <x-dt-dd label="Sustained DPS">
+                                {{ $formatDps($pilotSustainedDps) }} <span class="text-xs text-muted">DPS</span>
+                            </x-dt-dd>
+                        @endif
+                    </x-dl-section>
                 @endif
 
                 @if ($hasTurrets)
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Turrets</h3>
-                        </div>
+                    <x-dl-section title="Turrets">
+                        @if ($turretDps !== null)
+                            <x-dt-dd label="DPS">
+                                {{ $formatDps($turretDps) }} <span class="text-xs text-muted">DPS</span>
+                            </x-dt-dd>
+                        @endif
 
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            @if ($turretDps !== null)
-                                <dt class="text-sm text-emphasis">DPS</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($turretDps) }} <span class="text-xs text-muted">DPS</span>
-                                </dd>
-                            @endif
+                        @if ($turretAlpha !== null)
+                            <x-dt-dd label="Alpha">
+                                {{ $formatDps($turretAlpha) }}
+                            </x-dt-dd>
+                        @endif
 
-                            @if ($turretAlpha !== null)
-                                <dt class="text-sm text-emphasis">Alpha</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($turretAlpha) }}
-                                </dd>
-                            @endif
-
-                            @if ($turretSustainedDps !== null)
-                                <dt class="text-sm text-emphasis">Sustained DPS</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatDps($turretSustainedDps) }} <span class="text-xs text-muted">DPS</span>
-                                </dd>
-                            @endif
-                        </dl>
-                    </section>
+                        @if ($turretSustainedDps !== null)
+                            <x-dt-dd label="Sustained DPS">
+                                {{ $formatDps($turretSustainedDps) }} <span class="text-xs text-muted">DPS</span>
+                            </x-dt-dd>
+                        @endif
+                    </x-dl-section>
                 @endif
 
                 @if ($hasMissiles)
-                    <section class="space-y-4">
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-semibold text-base-content">Missiles</h3>
-                        </div>
+                    <x-dl-section title="Missiles">
+                        @if ($missileCount !== null)
+                            <x-dt-dd label="Count">
+                                {{ $formatWhole($missileCount) }}
+                            </x-dt-dd>
+                        @endif
 
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            @if ($missileCount !== null)
-                                <dt class="text-sm text-emphasis">Count</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatWhole($missileCount) }}
-                                </dd>
-                            @endif
-
-                            @if ($totalMissileDamage !== null)
-                                <dt class="text-sm text-emphasis">Total Damage</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $formatWhole($totalMissileDamage) }}
-                                </dd>
-                            @endif
-                        </dl>
-                    </section>
+                        @if ($totalMissileDamage !== null)
+                            <x-dt-dd label="Total Damage">
+                                {{ $formatWhole($totalMissileDamage) }}
+                            </x-dt-dd>
+                        @endif
+                    </x-dl-section>
                 @endif
             </div>
         </div>

@@ -14,6 +14,12 @@ use OpenApi\Attributes as OA;
     description: 'Armor characteristics for ship and vehicle hull plating. Signal multipliers affect detectability (values < 1.0 reduce signature for stealth, > 1.0 increase signature). Damage multipliers determine resistance to damage types (lower values = more resistant).',
     properties: [
         new OA\Property(
+            property: 'uuid',
+            description: 'Armor item UUID.',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'health',
             description: 'Armor health points from Durability system.',
             type: 'double',
@@ -130,11 +136,31 @@ use OpenApi\Attributes as OA;
             description: 'Durability-based resistance multipliers from stdItem.Durability.Resistance system.',
             properties: [
                 new OA\Property(property: 'physical', description: 'Physical resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'physical_change', description: 'Physical resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
                 new OA\Property(property: 'energy', description: 'Energy resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'energy_change', description: 'Energy resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
                 new OA\Property(property: 'distortion', description: 'Distortion resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'distortion_change', description: 'Distortion resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
                 new OA\Property(property: 'thermal', description: 'Thermal resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'thermal_change', description: 'Thermal resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
                 new OA\Property(property: 'biochemical', description: 'Biochemical resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'biochemical_change', description: 'Biochemical resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
                 new OA\Property(property: 'stun', description: 'Stun resistance multiplier from Durability.', type: 'double', nullable: true),
+                new OA\Property(property: 'stun_change', description: 'Stun resistance change from neutral (multiplier - 1).', type: 'double', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'deflection',
+            description: 'Deflection values determining how well armor deflects incoming rounds by type.',
+            properties: [
+                new OA\Property(property: 'physical', description: 'Physical deflection value.', type: 'double', nullable: true),
+                new OA\Property(property: 'energy', description: 'Energy deflection value.', type: 'double', nullable: true),
+                new OA\Property(property: 'distortion', description: 'Distortion deflection value.', type: 'double', nullable: true),
+                new OA\Property(property: 'thermal', description: 'Thermal deflection value.', type: 'double', nullable: true),
+                new OA\Property(property: 'biochemical', description: 'Biochemical deflection value.', type: 'double', nullable: true),
+                new OA\Property(property: 'stun', description: 'Stun deflection value.', type: 'double', nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -169,6 +195,7 @@ class ArmorResource extends AbstractItemSpecificationResource
         $damageMultipliers = Arr::get($armor, 'DamageMultipliers', []);
 
         return [
+            'uuid' => $this->resource->item?->uuid,
             'health' => Arr::get($stdItem, 'Durability.Health'),
 
             'signal_infrared' => Arr::get($signalMultipliers, 'Infrared'),
@@ -212,11 +239,18 @@ class ArmorResource extends AbstractItemSpecificationResource
             ],
             'resistance_multiplier' => [
                 'physical' => Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier'),
+                'physical_change' => round(Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier') - 1, 2),
+
                 'energy' => Arr::get($stdItem, 'Durability.Resistance.Energy.Multiplier'),
+                'energy_change' => round(Arr::get($stdItem, 'Durability.Resistance.Energy.Multiplier') - 1, 2),
                 'distortion' => Arr::get($stdItem, 'Durability.Resistance.Distortion.Multiplier'),
+                'distortion_change' => round(Arr::get($stdItem, 'Durability.Resistance.Distortion.Multiplier') - 1, 2),
                 'thermal' => Arr::get($stdItem, 'Durability.Resistance.Thermal.Multiplier'),
+                'thermal_change' => round(Arr::get($stdItem, 'Durability.Resistance.Thermal.Multiplier') - 1, 2),
                 'biochemical' => Arr::get($stdItem, 'Durability.Resistance.Biochemical.Multiplier'),
+                'biochemical_change' => round(Arr::get($stdItem, 'Durability.Resistance.Biochemical.Multiplier') - 1, 2),
                 'stun' => Arr::get($stdItem, 'Durability.Resistance.Stun.Multiplier'),
+                'stun_change' => round(Arr::get($stdItem, 'Durability.Resistance.Stun.Multiplier') - 1, 2),
             ],
             'penetration_resistance' => [
                 'base' => Arr::get($armor, 'PenetrationResistance.Base'),
@@ -226,6 +260,14 @@ class ArmorResource extends AbstractItemSpecificationResource
                 'thermal' => Arr::get($armor, 'PenetrationResistance.Thermal'),
                 'biochemical' => Arr::get($armor, 'PenetrationResistance.Biochemical'),
                 'stun' => Arr::get($armor, 'PenetrationResistance.Stun'),
+            ],
+            'deflection' => [
+                'physical' => Arr::get($armor, 'Deflection.Physical'),
+                'energy' => Arr::get($armor, 'Deflection.Energy'),
+                'distortion' => Arr::get($armor, 'Deflection.Distortion'),
+                'thermal' => Arr::get($armor, 'Deflection.Thermal'),
+                'biochemical' => Arr::get($armor, 'Deflection.Biochemical'),
+                'stun' => Arr::get($armor, 'Deflection.Stun'),
             ],
         ];
     }

@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'powerPlant',
 ])
@@ -11,11 +12,8 @@
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Power Plant</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Power Segment Generation</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($powerSegmentGeneration, 'Segments', 0) }}</dd>
-            </div>
-        </dl>
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <x-dt-dd label="Power Segment Generation">{{ Format::valueWithUnit($powerSegmentGeneration, 'Segments', 0) }}</x-dt-dd>
+        </x-dl-section>
     </div>
 </div>

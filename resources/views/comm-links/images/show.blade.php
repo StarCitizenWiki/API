@@ -85,34 +85,19 @@
                 <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <div class="card-body gap-4">
                         <h2 class="card-title text-base">Metadata</h2>
-                        <dl class="grid gap-4">
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">ID</dt>
-                                <dd class="text-sm font-medium">{{ $imageId ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Name</dt>
-                                <dd class="text-sm font-medium">{{ $name ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Mime Type</dt>
-                                <dd class="text-sm font-medium">{{ $mimeType ?? '-' }}</dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Size</dt>
-                                <dd class="text-sm font-medium">
-                                    @if ($sizeMb !== null)
-                                        {{ $sizeMb }} MB
-                                    @else
-                                        -
-                                    @endif
-                                </dd>
-                            </div>
-                            <div class="space-y-1">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">Last Modified</dt>
-                                <dd class="text-sm font-medium">{{ $lastModified ?? '-' }}</dd>
-                            </div>
-                        </dl>
+                        <x-dl-section dlClass="grid gap-4">
+                            <x-dt-dd label="ID">{{ $imageId ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Name">{{ $name ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Mime Type">{{ $mimeType ?? '-' }}</x-dt-dd>
+                            <x-dt-dd label="Size">
+                                @if ($sizeMb !== null)
+                                    {{ $sizeMb }} MB
+                                @else
+                                    -
+                                @endif
+                            </x-dt-dd>
+                            <x-dt-dd label="Last Modified">{{ $lastModified ?? '-' }}</x-dt-dd>
+                        </x-dl-section>
                     </div>
                 </div>
 

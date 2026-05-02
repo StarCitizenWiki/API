@@ -43,7 +43,7 @@
                                 <dl class="space-y-2">
                                     @foreach ($section['rows'] as $row)
                                         <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="font-light uppercase tracking-wide text-subtle">
+                                            <dt class="text-xs font-light uppercase tracking-wide text-subtle">
                                                 {{ $row['label'] }}
                                             </dt>
                                             <dd class="min-w-0 text-right font-semibold text-base-content">

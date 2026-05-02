@@ -88,7 +88,7 @@
         </div>
 
         @if (($searchType ?? null) === 'media-url')
-            <div class="card border border-base-200 bg-base-100 shadow" data-testid="comm-links-media-url-results">
+            <div class="card border border-base-200 bg-base-100 shadow-sm" data-testid="comm-links-media-url-results">
                 <div class="card-body gap-3">
                     <div class="flex flex-col gap-1">
                         <h2 class="card-title">Media URL Results</h2>

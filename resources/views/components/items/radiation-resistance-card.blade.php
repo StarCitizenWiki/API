@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'radiationResistance',
 ])
@@ -11,19 +12,13 @@
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Radiation Resistance</h2>
 
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @if ($maximumRadiationCapacity !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Maximum Radiation Capacity</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($maximumRadiationCapacity, 'REM', 0) }}</dd>
-                </div>
+                <x-dt-dd label="Maximum Radiation Capacity">{{ Format::valueWithUnit($maximumRadiationCapacity, 'REM', 0) }}</x-dt-dd>
             @endif
             @if ($radiationDissipationRate !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Radiation Dissipation Rate</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit($radiationDissipationRate, 'REM/s', 0) }}</dd>
-                </div>
+                <x-dt-dd label="Radiation Dissipation Rate">{{ Format::valueWithUnit($radiationDissipationRate, 'REM/s', 0) }}</x-dt-dd>
             @endif
-        </dl>
+        </x-dl-section>
     </div>
 </div>

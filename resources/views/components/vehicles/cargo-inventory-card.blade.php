@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -24,9 +25,9 @@
                     <tbody>
                     @foreach ($cargoGrids as $grid)
                         <tr>
-                            <td>{{ fmt_value_with_unit($grid['scu'], 'SCU', 0) }}</td>
+                            <td>{{ Format::valueWithUnit($grid['scu'], 'SCU', 0) }}</td>
                             <td>
-                                {{ fmt_value_with_unit(data_get($grid, 'width'), 'm', 1) }} × {{ fmt_value_with_unit(data_get($grid, 'height'), 'm', 1) }} × {{ fmt_value_with_unit(data_get($grid, 'length'), 'm', 1) }}
+                                {{ Format::valueWithUnit(data_get($grid, 'width'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'height'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'length'), 'm', 1) }}
                             </td>
                             <td>
                                 <div class="flex flex-wrap gap-1">

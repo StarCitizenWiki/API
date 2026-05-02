@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @php use Illuminate\Support\Carbon; @endphp
 @props(['vehicle'])
 
@@ -32,17 +33,17 @@
             'rows' => array_values(array_filter([
                 $claimTime !== null ? [
                     'label' => 'Claim',
-                    'value' => fmt_value_with_unit($claimTime, 'min', 1),
+                    'value' => Format::valueWithUnit($claimTime, 'min', 1),
                     'url' => null,
                 ] : null,
                 $expediteTime !== null ? [
                     'label' => 'Expedite',
-                    'value' => fmt_value_with_unit($expediteTime, 'min', 1),
+                    'value' => Format::valueWithUnit($expediteTime, 'min', 1),
                     'url' => null,
                 ] : null,
                 $expediteCost !== null ? [
                     'label' => 'Cost',
-                    'value' => fmt_value_with_unit($expediteCost, 'aUEC', 0),
+                    'value' => Format::valueWithUnit($expediteCost, 'aUEC', 0),
                     'url' => null,
                 ] : null,
             ])),
@@ -65,29 +66,18 @@
                 @if ($sections !== [])
                     <div class="space-y-6">
                         @foreach ($sections as $section)
-                            <section class="min-w-0 space-y-3">
-                                <div class="text-sm font-semibold text-subtle">
-                                    {{ $section['label'] }}
-                                </div>
-
-                                <dl class="space-y-2">
-                                    @foreach ($section['rows'] as $row)
-                                        <div class="grid grid-cols-2 items-start gap-x-3">
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">
-                                                {{ $row['label'] }}
-                                            </dt>
-                                            <dd class="text-right text-sm font-semibold text-base-content">
-                                                @if ($row['url'])
-                                                    <a href="{{ $row['url'] }}" class="link link-primary"
-                                                       target="_blank" rel="noopener">{{ $row['value'] }}</a>
-                                                @else
-                                                    {{ $row['value'] }}
-                                                @endif
-                                            </dd>
-                                        </div>
-                                    @endforeach
-                                </dl>
-                            </section>
+                            <x-dl-section :title="$section['label']" class="min-w-0">
+                                @foreach ($section['rows'] as $row)
+                                    <x-dt-dd :label="$row['label']">
+                                        @if ($row['url'])
+                                            <a href="{{ $row['url'] }}" class="link link-primary"
+                                               target="_blank" rel="noopener">{{ $row['value'] }}</a>
+                                        @else
+                                            {{ $row['value'] }}
+                                        @endif
+                                    </x-dt-dd>
+                                @endforeach
+                            </x-dl-section>
                         @endforeach
                     </div>
                 @endif
@@ -98,7 +88,7 @@
 
                         @if ($hasLoaners)
                             <section class="space-y-2">
-                                <div class="text-xs font-medium uppercase tracking-wide text-muted">Loaners
+                                <div class="text-xs font-light uppercase tracking-wide text-subtle">Loaners
                                 </div>
 
                                 <div class="overflow-x-auto">
@@ -131,7 +121,7 @@
 
                         @if ($hasSkus)
                             <section class="space-y-2">
-                                <div class="text-xs font-medium uppercase tracking-wide text-muted">SKUs</div>
+                                <div class="text-xs font-light uppercase tracking-wide text-subtle">SKUs</div>
 
                                 <div class="overflow-x-auto overflow-y-auto max-h-48">
                                     <table class="table table-auto table-sm" data-testid="purchase-variants-skus">
@@ -147,7 +137,7 @@
                                             <tr>
                                                 <td>{{ $sku['title'] ?? '-' }}</td>
                                                 <td>
-                                                    {{ fmt_value_with_unit(data_get($sku, 'price'), '$', 0) }}
+                                                    {{ Format::valueWithUnit(data_get($sku, 'price'), '$', 0) }}
                                                 </td>
                                                 <td class="hidden sm:table-cell">
                                                     {{ Carbon::createFromTimeString(data_get($sku, 'imported_at'))->diffForHumans() }}

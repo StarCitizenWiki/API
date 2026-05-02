@@ -34,7 +34,7 @@
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
-                <div class="card card-border border-base-200 bg-base-100 shadow-sm">
+                <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-title-form">
                         <input type="hidden" name="search" value="title" data-testid="comm-links-search-title-mode">
 
@@ -59,7 +59,7 @@
                     </form>
                 </div>
 
-                <div class="card card-border border-base-200 bg-base-100 shadow-sm">
+                <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-content-form">
                         <input type="hidden" name="search" value="content" data-testid="comm-links-search-content-mode">
 
@@ -85,7 +85,7 @@
                     </form>
                 </div>
 
-                <div class="card card-border border-base-200 bg-base-100 shadow-sm lg:col-span-2">
+                <div class="card border border-base-200 bg-base-100 shadow-sm lg:col-span-2">
                     <form method="GET" action="{{ route('web.comm-links.index') }}" class="card-body gap-4" data-testid="comm-links-search-media-url-form">
                         <input type="hidden" name="search" value="media-url" data-testid="comm-links-search-media-url-mode">
 
@@ -126,7 +126,7 @@
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
-                <div class="card card-border border-base-200 bg-base-100 shadow-sm">
+                <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4" data-testid="comm-links-search-media-name-form">
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media Name</h3>
@@ -149,7 +149,7 @@
                     </form>
                 </div>
 
-                <div class="card card-border border-base-200 bg-base-100 shadow-sm">
+                <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <form
                         method="POST"
                         action="{{ route('web.comm-links.images.reverse-search') }}"

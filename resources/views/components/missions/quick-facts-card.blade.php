@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['resource'])
 
 @php
@@ -65,10 +66,10 @@
             [
                 'title' => 'Timing',
                 'rows' => [
-                    ['label' => 'Duration', 'value' => $timeToComplete !== null ? fmt_value_with_unit($timeToComplete, 'min', 0) : null],
+                    ['label' => 'Duration', 'value' => $timeToComplete !== null ? Format::valueWithUnit($timeToComplete, 'min', 0) : null],
                     ['label' => 'Cooldown', 'value' => $cooldownLabel],
                     ['label' => 'Lifetime', 'value' => $lifetimeLabel],
-                    ['label' => 'Deadline', 'value' => $deadlineMinutes !== null ? fmt_value_with_unit($deadlineMinutes, 'min', 0) : null],
+                    ['label' => 'Deadline', 'value' => $deadlineMinutes !== null ? Format::valueWithUnit($deadlineMinutes, 'min', 0) : null],
                 ],
             ],
         ],
@@ -83,17 +84,17 @@
                         ? ['label' => 'Defend', 'value' => $hasDefendObjective ? 'Yes' : 'No']
                         : null,
                     $enemyMin !== null || $enemyMax !== null
-                        ? ['label' => 'Enemies', 'value' => fmt_range($enemyMin, $enemyMax, '', 0)]
+                        ? ['label' => 'Enemies', 'value' => Format::range($enemyMin, $enemyMax, '', 0)]
                         : null,
                     $minCrimeStat !== null || $maxCrimeStat !== null
-                        ? ['label' => 'Crime Stat', 'value' => fmt_range($minCrimeStat, $maxCrimeStat, '', 0)]
+                        ? ['label' => 'Crime Stat', 'value' => Format::range($minCrimeStat, $maxCrimeStat, '', 0)]
                         : null,
                 ],
             ],
             [
                 'title' => 'Details',
                 'rows' => [
-                    ['label' => 'Cost', 'value' => $cost !== null ? fmt_value_with_unit($cost, 'aUEC', 0, true) : null],
+                    ['label' => 'Cost', 'value' => $cost !== null ? Format::valueWithUnit($cost, 'aUEC', 0, true) : null],
                     ['label' => 'Max Players', 'value' => $maxPlayersPerInstance],
                     $starSystems !== []
                         ? ['label' => 'Systems', 'value' => implode(', ', $starSystems)]

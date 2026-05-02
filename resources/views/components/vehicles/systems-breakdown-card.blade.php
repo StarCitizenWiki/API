@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -49,7 +50,7 @@
 
         $powerBreakdownRows[] = [
             'label' => Str::headline((string) $system),
-            'value' => fmt_or_dash($group),
+            'value' => Format::numberOrDash($group),
         ];
     }
 
@@ -65,55 +66,43 @@
 
             <div class="grid gap-12 xl:grid-cols-3">
                 @if ($signatureBreakdownRows !== [])
-                    <section class="space-y-3">
-                        <div class="text-sm font-semibold text-subtle">EM Groups</div>
+                    <x-dl-section title="EM Groups" :dlClass="'grid grid-cols-3 gap-x-3 gap-y-2'">
+                        <div class="text-xs font-light uppercase tracking-wide text-subtle">System / EM</div>
+                        <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Shields</div>
+                        <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Quantum</div>
 
-                        <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System / EM</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
-
-                            @foreach ($signatureBreakdownRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                        @foreach ($signatureBreakdownRows as $row)
+                            <dt class="text-xs font-light uppercase tracking-wide text-subtle">{{ $row['label'] }}</dt>
+                            <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
+                            <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
 
                 @if ($coolingBreakdownRows !== [])
-                    <section class="space-y-3">
-                        <div class="text-sm font-semibold text-subtle">Cooling Groups</div>
+                    <x-dl-section title="Cooling Groups" :dlClass="'grid grid-cols-3 gap-x-3 gap-y-2'">
+                        <div class="text-xs font-light uppercase tracking-wide text-subtle">System / Segment</div>
+                        <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Shields</div>
+                        <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Quantum</div>
 
-                        <dl class="grid grid-cols-3 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System / Segment</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Shields</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Quantum</div>
-
-                            @foreach ($coolingBreakdownRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                        @foreach ($coolingBreakdownRows as $row)
+                            <dt class="text-xs font-light uppercase tracking-wide text-subtle">{{ $row['label'] }}</dt>
+                            <dd class="text-right text-sm font-semibold text-base-content">{{ $row['shields'] }}</dd>
+                            <dd class="text-right text-sm font-semibold text-base-content">{{ $row['quantum'] }}</dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
 
                 @if ($powerBreakdownRows !== [])
-                    <section class="space-y-3">
-                        <div class="text-sm font-semibold text-subtle">Power Groups</div>
+                    <x-dl-section title="Power Groups" :dlClass="'grid grid-cols-2 gap-x-3 gap-y-2'">
+                        <div class="text-xs font-light uppercase tracking-wide text-subtle">System</div>
+                        <div class="text-right text-xs font-light uppercase tracking-wide text-subtle">Segments</div>
 
-                        <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
-                            <div class="text-xs font-medium uppercase tracking-wide text-muted">System</div>
-                            <div class="text-right text-xs font-medium uppercase tracking-wide text-muted">Segments</div>
-
-                            @foreach ($powerBreakdownRows as $row)
-                                <dt class="text-sm text-emphasis">{{ $row['label'] }}</dt>
-                                <dd class="text-right text-sm font-semibold text-base-content">{{ $row['value'] }}</dd>
-                            @endforeach
-                        </dl>
-                    </section>
+                        @foreach ($powerBreakdownRows as $row)
+                            <dt class="text-xs font-light uppercase tracking-wide text-subtle">{{ $row['label'] }}</dt>
+                            <dd class="text-right text-sm font-semibold text-base-content">{{ $row['value'] }}</dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
             </div>
         </div>

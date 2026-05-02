@@ -105,7 +105,7 @@
                         @if ($rewardItems !== [])
                             <div class="card border border-base-300 bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
-                                    <h3 class="text-sm font-semibold text-subtle mb-3">Reward Items</h3>
+                                    <h3 class="font-semibold uppercase text-subtle mb-3">Reward Items</h3>
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm table-zebra">
                                             <thead>
@@ -139,7 +139,7 @@
                         @if ($blueprintItems !== [])
                             <div class="card border border-base-300 bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
-                                    <h3 class="text-sm font-semibold text-subtle mb-3">Blueprints</h3>
+                                    <h3 class="font-semibold uppercase text-subtle mb-3">Blueprints</h3>
                                     @if (data_get($blueprints, 'drop_chance'))
                                         <p class="text-xs text-subtle mb-3">
                                             One blueprint from this pool ({{ data_get($blueprints, 'drop_chance_percent') }}% drop chance)
@@ -185,7 +185,7 @@
                                     <div class="space-y-6">
                                         @if ($reputationGained !== [])
                                             <div>
-                                                <h3 class="text-sm font-semibold text-subtle mb-3">Reputation Gained</h3>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation Gained</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
@@ -219,7 +219,7 @@
 
                                         @if ($reputationLost !== [])
                                             <div>
-                                                <h3 class="text-sm font-semibold text-subtle mb-3">Reputation Lost</h3>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation Lost</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
@@ -286,8 +286,8 @@
                         <div class="card-body p-5 sm:p-6">
                             <div class="grid gap-6 {{ $hasLadder ? 'lg:grid-cols-2' : '' }}">
                                 <div>
-                                    <h3 class="text-sm font-semibold text-subtle mb-3">Overview</h3>
-                                    <dl class="space-y-2">
+                                    <h3 class="font-semibold uppercase text-subtle mb-3">Overview</h3>
+                                    <x-dl-section>
                                         @foreach ([
                                             ['label' => 'Type', 'value' => data_get($factionData, 'faction_type')],
                                             ['label' => 'Headquarters', 'value' => data_get($factionData, 'headquarters')],
@@ -297,18 +297,15 @@
                                             ['label' => 'Leadership', 'value' => data_get($factionData, 'leadership')],
                                         ] as $row)
                                             @if ($row['value'] !== null)
-                                                <div class="grid grid-cols-2 items-start gap-x-3">
-                                                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">{{ $row['label'] }}</dt>
-                                                    <dd class="text-right text-sm font-semibold text-base-content">{{ $row['value'] }}</dd>
-                                                </div>
+                                                <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
                                             @endif
                                         @endforeach
-                                    </dl>
+                                    </x-dl-section>
                                 </div>
 
                                 @if ($hasLadder)
                                     <div>
-                                        <h3 class="text-sm font-semibold text-subtle mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
+                                        <h3 class="font-semibold uppercase text-subtle mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
                                         <div class="overflow-x-auto">
                                             <table class="table table-sm table-zebra">
                                                 <thead>
@@ -425,7 +422,7 @@
             <x-technical-section :entries="$technicalEntries" testId="mission-technical-card">
                 @if ($completionTags !== [])
                     <div class="mt-5 pt-5 border-t border-base-300">
-                        <h3 class="text-sm font-semibold text-subtle mb-3">Completion Tags</h3>
+                        <h3 class="font-semibold uppercase text-subtle mb-3">Completion Tags</h3>
                         <div class="overflow-x-auto">
                             <table class="table table-sm table-zebra">
                                 <thead>

@@ -5,9 +5,9 @@
     'subtitleCallback' => null,
 ])
 
-<div class="card border border-base-300 bg-base-100 shadow">
+<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
     <div class="card-body p-5 sm:p-6">
-        <h3 class="text-sm font-semibold text-subtle mb-3">{{ $title }}</h3>
+        <h3 class="font-semibold uppercase text-subtle mb-3">{{ $title }}</h3>
         <div class="space-y-4">
             @foreach ($groups as $group)
                 <div>

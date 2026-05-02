@@ -32,7 +32,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'zoom_time_scale', type: 'double', nullable: true),
         new OA\Property(
             property: 'zoom_time_change',
-            description: 'Computed as `1 - zoom_time_scale`.',
+            description: 'Computed as `zoom_time_scale - 1`.',
             type: 'double',
             nullable: true
         ),
@@ -128,7 +128,7 @@ class WeaponAttachmentResource extends AbstractItemSpecificationResource
             'auto_zeroing_time' => Arr::get($ironSight, 'AutoZeroingTime'),
             'zoom_scale' => Arr::get($ironSight, 'ZoomScale'),
             'zoom_time_scale' => Arr::get($ironSight, 'ZoomTimeScale'),
-            'zoom_time_change' => 1 - Arr::get($ironSight, 'ZoomTimeScale', 1),
+            'zoom_time_change' => round((float) Arr::get($ironSight, 'ZoomTimeScale', 1) - 1, 2),
         ] : null;
 
         $magazine = Arr::get($weaponAttachment, 'Magazine', []);

@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -28,17 +29,17 @@
         [
             'label' => 'Speed',
             'value' => data_get($quantum, 'quantum_speed'),
-            'formatter' => static fn (mixed $value): string => fmt_compact($value, 0).' m/s',
+            'formatter' => static fn (mixed $value): string => Format::compact($value, 0).' m/s',
         ],
         [
             'label' => 'Spool Time',
             'value' => data_get($quantum, 'quantum_spool_time'),
-            'formatter' => static fn (mixed $value): string => fmt_value_with_unit($value, 's', 2),
+            'formatter' => static fn (mixed $value): string => Format::valueWithUnit($value, 's', 2),
         ],
         [
             'label' => 'Range',
             'value' => data_get($quantum, 'quantum_range'),
-            'formatter' => static fn (mixed $value): string => fmt_compact($value, 2).' m',
+            'formatter' => static fn (mixed $value): string => Format::compact($value, 2).' m',
         ],
     ];
 
@@ -55,35 +56,23 @@
 
             <div class="grid gap-6 lg:grid-cols-2">
                 @if ($capacityMetrics !== [])
-                    <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Capacity</h3>
-                        <dl class="space-y-2">
-                            @foreach ($capacityMetrics as $metric)
-                                <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
-                                    <dd class="text-right text-sm font-medium text-base-content">
-                                        {{ fmt_value_with_unit($metric['value'], $metric['unit'], $metric['precision']) }}
-                                    </dd>
-                                </div>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section title="Capacity">
+                        @foreach ($capacityMetrics as $metric)
+                            <x-dt-dd :label="$metric['label']">
+                                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
 
                 @if ($travelMetrics !== [])
-                    <section class="space-y-3">
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-subtle">Travel</h3>
-                        <dl class="space-y-2">
-                            @foreach ($travelMetrics as $metric)
-                                <div class="grid grid-cols-2 items-start gap-x-3">
-                                    <dt class="text-xs font-semibold uppercase tracking-wide text-subtle">{{ $metric['label'] }}</dt>
-                                    <dd class="text-right text-sm font-medium text-base-content">
-                                        {{ $metric['formatter']($metric['value']) }}
-                                    </dd>
-                                </div>
-                            @endforeach
-                        </dl>
-                    </section>
+                    <x-dl-section title="Travel">
+                        @foreach ($travelMetrics as $metric)
+                            <x-dt-dd :label="$metric['label']">
+                                {{ $metric['formatter']($metric['value']) }}
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
                 @endif
             </div>
         </div>

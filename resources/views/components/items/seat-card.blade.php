@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props([
     'seat',
 ])
@@ -45,86 +46,43 @@
         <h2 class="card-title text-base">Seat</h2>
 
         {{-- Primary Data (Always Visible) --}}
-        <dl class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Seat Type</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ $seatType }}</dd>
-            </div>
-            <div class="space-y-1">
-                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Has Ejection</dt>
-                <dd class="text-sm font-semibold text-base-content">{{ $hasEjectionData ? 'Yes' : 'No' }}</dd>
-            </div>
+        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <x-dt-dd label="Seat Type">{{ $seatType }}</x-dt-dd>
+            <x-dt-dd label="Has Ejection">{{ $hasEjectionData ? 'Yes' : 'No' }}</x-dt-dd>
             @if (data_get($ejection, 'ejection_loop_time') !== null)
-                <div class="space-y-1">
-                    <dt class="text-xs font-medium uppercase tracking-wide text-muted">Ejection Time</dt>
-                    <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($ejection, 'ejection_loop_time'), 's', 2) }}</dd>
-                </div>
+                <x-dt-dd label="Ejection Time">{{ Format::valueWithUnit(data_get($ejection, 'ejection_loop_time'), 's', 2) }}</x-dt-dd>
             @endif
-        </dl>
+        </x-dl-section>
 
         {{-- Secondary Data (Collapsible, default open) --}}
         @if ($hasYaw || $hasPitch)
-            <details class="group" data-testid="seat-card-axis-limits" open>
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Axis Limits
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        <div class="space-y-1">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-muted">Set Yaw/Pitch Limits</dt>
-                            <dd class="text-sm font-semibold text-base-content">{{ $setYawPitchLimits ? 'Yes' : 'No' }}</dd>
-                        </div>
-                        @if ($hasYaw)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Yaw</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_range($yawMin, $yawMax, 'deg', 2) }}</dd>
-                            </div>
-                        @endif
-                        @if ($hasPitch)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Pitch</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_range($pitchMin, $pitchMax, 'deg', 2) }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-            </details>
+            <x-dl-details title="Axis Limits" :open="true" testId="seat-card-axis-limits">
+                <x-dt-dd label="Set Yaw/Pitch Limits">{{ $setYawPitchLimits ? 'Yes' : 'No' }}</x-dt-dd>
+                @if ($hasYaw)
+                    <x-dt-dd label="Yaw">{{ Format::range($yawMin, $yawMax, 'deg', 2) }}</x-dt-dd>
+                @endif
+                @if ($hasPitch)
+                    <x-dt-dd label="Pitch">{{ Format::range($pitchMin, $pitchMax, 'deg', 2) }}</x-dt-dd>
+                @endif
+            </x-dl-details>
         @endif
 
         {{-- Tertiary Data (Collapsible, default closed) --}}
         @if ($hasEjection && $hasEjectionData && $showTertiary)
-            <details class="group" data-testid="seat-card-ejection">
-                <summary class="flex cursor-pointer items-center gap-2 py-2 text-sm font-semibold text-subtle list-none [&::-webkit-details-marker]:hidden">
-                    <x-icon name="chevron-right" class="size-3 shrink-0 transition-transform group-open:rotate-90" />
-                    Ejection
-                </summary>
-                    <dl class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 pt-1 pb-2">
-                        @if (data_get($ejection, 'max_linear_velocity') !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Linear Velocity</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($ejection, 'max_linear_velocity'), 'm/s', 2) }}</dd>
-                            </div>
-                        @endif
-                        @if (data_get($ejection, 'max_linear_acceleration') !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Linear Acceleration</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($ejection, 'max_linear_acceleration'), 'm/s²', 2) }}</dd>
-                            </div>
-                        @endif
-                        @if (data_get($ejection, 'max_angular_velocity') !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Angular Velocity</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($ejection, 'max_angular_velocity'), 'rad/s', 2) }}</dd>
-                            </div>
-                        @endif
-                        @if (data_get($ejection, 'max_angular_acceleration') !== null)
-                            <div class="space-y-1">
-                                <dt class="text-xs font-medium uppercase tracking-wide text-muted">Max Angular Acceleration</dt>
-                                <dd class="text-sm font-semibold text-base-content">{{ fmt_value_with_unit(data_get($ejection, 'max_angular_acceleration'), 'rad/s²', 2) }}</dd>
-                            </div>
-                        @endif
-
-                    </dl>
-            </details>
+            <x-dl-details title="Ejection" testId="seat-card-ejection">
+                @if (data_get($ejection, 'max_linear_velocity') !== null)
+                    <x-dt-dd label="Max Linear Velocity">{{ Format::valueWithUnit(data_get($ejection, 'max_linear_velocity'), 'm/s', 2) }}</x-dt-dd>
+                @endif
+                @if (data_get($ejection, 'max_linear_acceleration') !== null)
+                    <x-dt-dd label="Max Linear Acceleration">{{ Format::valueWithUnit(data_get($ejection, 'max_linear_acceleration'), 'm/s²', 2) }}</x-dt-dd>
+                @endif
+                @if (data_get($ejection, 'max_angular_velocity') !== null)
+                    <x-dt-dd label="Max Angular Velocity">{{ Format::valueWithUnit(data_get($ejection, 'max_angular_velocity'), 'rad/s', 2) }}</x-dt-dd>
+                @endif
+                @if (data_get($ejection, 'max_angular_acceleration') !== null)
+                    <x-dt-dd label="Max Angular Acceleration">{{ Format::valueWithUnit(data_get($ejection, 'max_angular_acceleration'), 'rad/s²', 2) }}</x-dt-dd>
+                @endif
+            </x-dl-details>
         @endif
     </div>
 </div>
