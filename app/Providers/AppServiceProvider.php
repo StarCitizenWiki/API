@@ -67,13 +67,20 @@ class AppServiceProvider extends ServiceProvider
         Nightwatch::rejectQueries(static function (Query $query) {
             return str_contains($query->sql, 'into "jobs"')
                 || str_contains($query->sql, 'from "jobs"')
-                || str_contains($query->sql, 'update "jobs"');
+                || str_contains($query->sql, 'from "job_batches"')
+                || str_contains($query->sql, 'update "jobs"')
+                || str_contains($query->sql, 'update "job_batches"');
         });
 
         Nightwatch::rejectQueries(static function (Query $query) {
             return str_contains($query->sql, 'from "cache"')
                 || str_contains($query->sql, 'into "cache"')
                 || str_contains($query->sql, 'from "game_versions"');
+        });
+
+        Nightwatch::rejectQueries(static function (Query $query) {
+            return $query->sql === 'select exists(select * from "game_starmap_locations" where "slug" = ?) as "exists"' ||
+                str_contains($query->sql, 'update "game_mission_data_starmap_location"');
         });
     }
 
