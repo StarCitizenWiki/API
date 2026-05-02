@@ -17,6 +17,6 @@ return [
 
     'postrocessors' => [
         RemoveHtmlTagsPostprocessor::class,
-        CollapseBlankLinesPostprocessor::class
-    ]
+        CollapseBlankLinesPostprocessor::class,
+    ],
 ];

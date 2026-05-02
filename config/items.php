@@ -169,30 +169,30 @@ return [
                             'formatter' => 'pct',
                             'headerSort' => false,
                         ],
-                        [
-                            'title' => 'Distortion',
-                            'field' => 'durability.resistance.distortion',
-                            'formatter' => 'pct',
-                            'headerSort' => false,
-                        ],
-                        [
-                            'title' => 'Thermal',
-                            'field' => 'durability.resistance.thermal',
-                            'formatter' => 'pct',
-                            'headerSort' => false,
-                        ],
-                        [
-                            'title' => 'Biochemical',
-                            'field' => 'durability.resistance.biochemical',
-                            'formatter' => 'pct',
-                            'headerSort' => false,
-                        ],
-                        [
-                            'title' => 'Stun',
-                            'field' => 'durability.resistance.stun',
-                            'formatter' => 'pct',
-                            'headerSort' => false,
-                        ],
+                        // [
+                        //     'title' => 'Distortion',
+                        //     'field' => 'durability.resistance.distortion',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Thermal',
+                        //     'field' => 'durability.resistance.thermal',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Biochemical',
+                        //     'field' => 'durability.resistance.biochemical',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Stun',
+                        //     'field' => 'durability.resistance.stun',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
                     ],
                 ],
             ],
@@ -464,6 +464,47 @@ return [
                     ],
                 ],
                 [
+                    'title' => 'Deflection',
+                    'columns' => [
+                        [
+                            'title' => 'Physical',
+                            'field' => 'armor.deflection.physical',
+                            'formatter' => 'pct',
+                            'headerSort' => false,
+                        ],
+                        [
+                            'title' => 'Energy',
+                            'field' => 'armor.deflection.energy',
+                            'formatter' => 'pct',
+                            'headerSort' => false,
+                        ],
+                        // [
+                        //     'title' => 'Distortion',
+                        //     'field' => 'armor.deflection.distortion',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Thermal',
+                        //     'field' => 'armor.deflection.thermal',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Biochemical',
+                        //     'field' => 'armor.deflection.biochemical',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                        // [
+                        //     'title' => 'Stun',
+                        //     'field' => 'armor.deflection.stun',
+                        //     'formatter' => 'pct',
+                        //     'headerSort' => false,
+                        // ],
+                    ],
+                ],
+                [
                     'title' => 'Penetration Resistance',
                     'columns' => [
                         [
@@ -501,6 +542,22 @@ return [
                             'field' => 'armor.penetration_resistance.stun',
                             'formatter' => 'pct',
                             'headerSort' => false,
+                        ],
+                    ],
+                ],
+            ],
+            'shared_overrides' => [
+                'durability' => [
+                    'columns' => [
+                        5 => [
+                            'columns' => [
+                                ['title' => 'Physical', 'field' => 'armor.resistance_multiplier.physical_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                                ['title' => 'Energy', 'field' => 'armor.resistance_multiplier.energy_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                                // ['title' => 'Distortion', 'field' => 'armor.resistance_multiplier.distortion_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                                // ['title' => 'Thermal', 'field' => 'armor.resistance_multiplier.thermal_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                                // ['title' => 'Biochemical', 'field' => 'armor.resistance_multiplier.biochemical_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                                // ['title' => 'Stun', 'field' => 'armor.resistance_multiplier.stun_change', 'formatter' => 'pctDelta', 'headerSort' => false],
+                            ],
                         ],
                     ],
                 ],
@@ -1480,6 +1537,26 @@ return [
                         [
                             'title' => 'dB',
                             'field' => 'radar.piercing.db',
+                        ],
+                    ],
+                ],
+                [
+                    'title' => 'Aim Assist',
+                    'columns' => [
+                        [
+                            'title' => 'Min Assignment',
+                            'field' => 'radar.aim_assist.distance_min_assignment',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Max Assignment',
+                            'field' => 'radar.aim_assist.distance_max_assignment',
+                            ...suffix('m'),
+                        ],
+                        [
+                            'title' => 'Outside Buffer',
+                            'field' => 'radar.aim_assist.outside_range_buffer_distance',
+                            ...suffix('m'),
                         ],
                     ],
                 ],
