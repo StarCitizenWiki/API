@@ -42,7 +42,7 @@
         ['label' => 'Thermal', 'value' => data_get($penetrationResist, 'thermal')],
         ['label' => 'Biochemical', 'value' => data_get($penetrationResist, 'biochemical')],
         ['label' => 'Stun', 'value' => data_get($penetrationResist, 'stun')],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
 
     $hasDeflection = $penetrationMetrics !== [];
 @endphp
