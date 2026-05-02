@@ -91,6 +91,65 @@ it('builds vehicle seo data with session version fallback and shared schema help
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(19);
 });
 
+it('normalizes vehicle production_status from translation map to string', function (): void {
+    $request = Request::create('/vehicles');
+    $request->setLaravelSession(app('session.store'));
+    $request->session()->put('game_version_code', '4.1.0-LIVE');
+
+    $vehicleUuid = 'veh-456';
+    $seo = app(VehicleShowSeoData::class)->build([
+        'uuid' => $vehicleUuid,
+        'name' => 'Gladius',
+        'manufacturer' => [
+            'name' => 'Anvil Aerospace',
+            'code' => 'ANVL',
+        ],
+        'size_class' => 2,
+        'career' => 'Combat',
+        'role' => 'Fighter',
+        'description' => ['en_EN' => 'A nimble fighter.'],
+        'crew' => ['min' => 1, 'max' => 1],
+        'production_status' => [
+            'en_EN' => 'Flight Ready',
+            'de_DE' => 'Flugbereit',
+        ],
+        'images' => [],
+    ], $request);
+
+    $productionStatusProp = collect(data_get($seo, 'structuredData.1.additionalProperty'))
+        ->first(fn (array $prop): bool => $prop['name'] === 'Production Status');
+
+    expect($seo['keywords'])->toContain('Flight Ready')
+        ->and($seo['keywords'])->not->toContain('Flugbereit')
+        ->and($seo['metaDescription'])->not->toBeEmpty()
+        ->and($productionStatusProp['value'])->toBe('Flight Ready');
+});
+
+it('falls back to first locale when en_EN and en are absent in production_status', function (): void {
+    $request = Request::create('/vehicles');
+    $request->setLaravelSession(app('session.store'));
+    $request->session()->put('game_version_code', '4.1.0-LIVE');
+
+    $seo = app(VehicleShowSeoData::class)->build([
+        'uuid' => 'veh-789',
+        'name' => 'Buccaneer',
+        'manufacturer' => ['name' => 'Drake Interplanetary', 'code' => 'DRAK'],
+        'size_class' => 2,
+        'career' => 'Combat',
+        'role' => 'Fighter',
+        'description' => ['en_EN' => 'A fighter.'],
+        'crew' => ['min' => 1, 'max' => 1],
+        'production_status' => [
+            'de_DE' => 'Flugbereit',
+            'fr_FR' => 'Pret au vol',
+        ],
+        'images' => [],
+    ], $request);
+
+    expect($seo['keywords'])->toContain('Flugbereit')
+        ->and($seo['keywords'])->not->toContain('fr_FR');
+});
+
 it('builds item seo data with localized description and type-specific breadcrumbs', function (): void {
     $request = Request::create('/items');
     $request->setLaravelSession(app('session.store'));

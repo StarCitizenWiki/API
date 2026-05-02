@@ -50,6 +50,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         $shieldHp = data_get($vehicle, 'shield.hp');
         $maxCrew = data_get($vehicle, 'crew.max');
         $productionStatus = data_get($vehicle, 'production_status');
+        if (is_array($productionStatus)) {
+            $productionStatus = $productionStatus['en_EN'] ?? $productionStatus['en'] ?? reset($productionStatus) ?: null;
+        }
         $quantumFuelCapacity = data_get($vehicle, 'quantum.quantum_fuel_capacity');
         $quantumRange = data_get($vehicle, 'quantum.quantum_range');
         $metaDescription = Str::limit(
