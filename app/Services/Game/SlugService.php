@@ -51,6 +51,15 @@ class SlugService
             }
         }
 
+        $model->$slugColumn = $fallback;
+
+        try {
+            DB::transaction(static fn () => $model->save());
+
+            return $fallback;
+        } catch (UniqueConstraintViolationException $e) {
+        }
+
         throw new RuntimeException(sprintf(
             'Could not generate a unique slug for %s after %d attempts.',
             $model::class,
