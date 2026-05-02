@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
-use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -54,7 +55,18 @@ HTML, [
 };
 
 $importCommLinks = function (): CommLink {
-    (new ImportCommLinks(-1))->handle();
+    $files = Storage::disk('comm_links')->files('12663');
+    sort($files);
+    $latestFile = Str::afterLast(end($files), '/');
+
+    (new ImportCommLink(12663, $latestFile))->handle();
+
+    CreateImageMetadata::dispatch([12663]);
+    DispatchImageHashes::dispatch([12663]);
+
+    if ((bool) config('services.comm_links.auto_translate_after_import', false) && filled(config('services.deepl.auth_key'))) {
+        TranslateCommLinks::dispatch([12663]);
+    }
 
     return CommLink::query()
         ->where('cig_id', 12663)

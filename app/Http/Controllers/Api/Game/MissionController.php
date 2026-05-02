@@ -321,14 +321,15 @@ class MissionController extends Controller
                     'sld.id',
                 );
 
+            $systemExpr = $this->stripSystemSuffix('sld.system');
             $starSystemRows = $starSystemQuery
                 ->select([
-                    DB::raw("regexp_replace(sld.system, ' System$', '') as value"),
+                    DB::raw("{$systemExpr} as value"),
                     DB::raw('count(distinct game_mission_data.id) as count'),
                 ])
                 ->whereNotNull('sld.system')
-                ->groupByRaw("regexp_replace(sld.system, ' System$', '')")
-                ->orderByRaw("regexp_replace(sld.system, ' System$', '')")
+                ->groupByRaw($systemExpr)
+                ->orderByRaw($systemExpr)
                 ->get();
 
             $out['star_system'] = FilterValues::fromRows($starSystemRows);
@@ -405,15 +406,17 @@ class MissionController extends Controller
             $repScopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
                 ->allowedFilters(...$this->allowedFilters());
 
+            $scopeExpr = $this->reputationScopeExpression();
+            $scopeFrom = $this->reputationScopeFromExpression();
             $repScopeRows = $repScopeQuery
                 ->select([
-                    DB::raw("elem->>'Scope' as value"),
+                    DB::raw("{$scopeExpr} as value"),
                     DB::raw('count(distinct game_mission_data.id) as count'),
                 ])
-                ->fromRaw('game_mission_data, jsonb_array_elements(game_mission_data.data->\'ReputationGained\') elem')
+                ->fromRaw($scopeFrom)
                 ->whereNotNull('game_mission_data.data')
-                ->groupByRaw("elem->>'Scope'")
-                ->orderByRaw("elem->>'Scope'")
+                ->groupByRaw($scopeExpr)
+                ->orderByRaw($scopeExpr)
                 ->get();
 
             $out['reputation_scope'] = FilterValues::fromRows($repScopeRows);
@@ -558,14 +561,21 @@ class MissionController extends Controller
                     });
                 });
             }),
-            AllowedFilter::callback('reputation_scope', static function (Builder $query, mixed $value): void {
+            AllowedFilter::callback('reputation_scope', function (Builder $query, mixed $value): void {
                 $values = is_array($value) ? $value : [$value];
                 $placeholders = implode(', ', array_fill(0, count($values), '?'));
 
-                $query->whereRaw(
-                    "EXISTS (SELECT 1 FROM jsonb_array_elements(game_mission_data.data->'ReputationGained') elem WHERE elem->>'Scope' IN ({$placeholders}))",
-                    $values,
-                );
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    $query->whereRaw(
+                        "EXISTS (SELECT 1 FROM json_each(game_mission_data.data, '$.ReputationGained') elem WHERE json_extract(elem.value, '$.Scope') IN ({$placeholders}))",
+                        $values,
+                    );
+                } else {
+                    $query->whereRaw(
+                        "EXISTS (SELECT 1 FROM jsonb_array_elements(game_mission_data.data->'ReputationGained') elem WHERE elem->>'Scope' IN ({$placeholders}))",
+                        $values,
+                    );
+                }
             }),
         ];
     }
@@ -582,14 +592,51 @@ class MissionController extends Controller
             'reward_min',
             'reward_max',
             'time_to_complete_minutes',
-            AllowedSort::callback('max_players_per_instance', static function (Builder $query, bool $descending): void {
+            AllowedSort::callback('max_players_per_instance', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
-                $query->orderByRaw("(data->>'MaxPlayersPerInstance')::numeric {$direction}");
+
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    $query->orderByRaw("CAST(json_extract(data, '$.MaxPlayersPerInstance') AS REAL) {$direction}");
+                } else {
+                    $query->orderByRaw("(data->>'MaxPlayersPerInstance')::numeric {$direction}");
+                }
             }),
-            AllowedSort::callback('reputation_amount', static function (Builder $query, bool $descending): void {
+            AllowedSort::callback('reputation_amount', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
-                $query->orderByRaw("(data->'ReputationGained'->0->>'Amount')::numeric {$direction} nulls last");
+
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    $query->orderByRaw("CAST(json_extract(data, '$.ReputationGained[0].Amount') AS REAL) IS NULL, CAST(json_extract(data, '$.ReputationGained[0].Amount') AS REAL) {$direction}");
+                } else {
+                    $query->orderByRaw("(data->'ReputationGained'->0->>'Amount')::numeric {$direction} nulls last");
+                }
             }),
         ];
+    }
+
+    private function stripSystemSuffix(string $column): string
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return "REPLACE({$column}, ' System', '')";
+        }
+
+        return "regexp_replace({$column}, ' System$', '')";
+    }
+
+    private function reputationScopeExpression(): string
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return "json_extract(elem.value, '$.Scope')";
+        }
+
+        return "elem->>'Scope'";
+    }
+
+    private function reputationScopeFromExpression(): string
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return "game_mission_data, json_each(game_mission_data.data, '$.ReputationGained') elem";
+        }
+
+        return "game_mission_data, jsonb_array_elements(game_mission_data.data->'ReputationGained') elem";
     }
 }
