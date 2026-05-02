@@ -339,6 +339,7 @@ class ImportMissionData implements ShouldQueue
         $poolUuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
 
         $blueprintUuids = [];
+        $itemUuids = [];
 
         foreach ($blueprintPayload['PoolContents'] ?? [] as $content) {
             if (! is_array($content)) {
@@ -365,7 +366,7 @@ class ImportMissionData implements ShouldQueue
             ->where('game_version_id', $this->gameVersionId)
             ->pluck('id', 'blueprint_id');
 
-        $itemIdLookup = Item::query()->whereIn('uuid', $itemUuids)->pluck('id', 'uuid');
+        $itemIdLookup = Item::query()->whereIn('uuid', array_values(array_unique($itemUuids)))->pluck('id', 'uuid');
 
         $itemDataLookup = ItemData::query()
             ->whereIn('item_id', $itemIdLookup->values())
