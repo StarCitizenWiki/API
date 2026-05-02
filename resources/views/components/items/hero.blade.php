@@ -1,9 +1,6 @@
-@props(['item'])
+@props(['item', 'translations' => null])
 
 @php
-    use Illuminate\Support\Arr;
-    use Illuminate\Support\Str;
-
     $itemName = data_get($item, 'name', 'Item');
     $manufacturerName = data_get($item, 'manufacturer.name');
     $itemType = data_get($item, 'type');
@@ -17,38 +14,40 @@
     $isCraftable = data_get($item, 'is_craftable') === true;
     $isFps = str_starts_with($classification, 'FPS.');
     $isBaseVariant = data_get($item, 'is_base_variant');
-    $description = data_get($item, 'description');
     $currentItemUuid = data_get($item, 'uuid');
     $baseVariant = data_get($item, 'related_items.base_item', []);
     $baseVariantUuid = data_get($baseVariant, 'uuid');
     $version = request()->query('version');
     $relatedVariants = data_get($item, 'related_items.variant_items', []);
 
-    if (is_array($description)) {
-        $descriptionTranslations = $description;
+    $translationEntries = [];
 
-        $description = collect([
-            data_get($descriptionTranslations, 'en'),
-            data_get($descriptionTranslations, 'en_EN'),
-        ])->first(static fn (mixed $value): bool => is_string($value) && trim($value) !== '');
+    if ($translations !== null) {
+        if (is_array($translations)) {
+            foreach ($translations as $locale => $translation) {
+                $translationEntries[] = [
+                    'label' => is_string($locale)
+                        ? (\App\Models\System\Language::LABEL_MAP[$locale] ?? 'Translation '.(count($translationEntries) + 1))
+                        : 'Translation '.(count($translationEntries) + 1),
+                    'locale' => is_string($locale) ? $locale : null,
+                    'text' => is_string($translation)
+                        ? trim(html_entity_decode($translation))
+                        : null,
+                ];
+            }
 
-        if ($description === null) {
-            $description = collect($descriptionTranslations)
-                ->filter(static fn (mixed $value, mixed $key): bool => is_string($key) && str_starts_with(strtolower($key), 'en') && is_string($value) && trim($value) !== '')
-                ->first();
+            // Filter out entries with empty text
+            $translationEntries = array_values(array_filter(
+                $translationEntries,
+                static fn (array $entry): bool => is_string($entry['text']) && trim($entry['text']) !== '',
+            ));
+        } elseif (is_string($translations) && trim($translations) !== '') {
+            $translationEntries[] = [
+                'label' => 'English',
+                'locale' => null,
+                'text' => trim(html_entity_decode($translations)),
+            ];
         }
-
-        if ($description === null) {
-            $description = Arr::first($descriptionTranslations, static fn (mixed $value): bool => is_string($value) && trim($value) !== '');
-        }
-    }
-
-    $description = is_string($description)
-        ? trim(html_entity_decode($description))
-        : null;
-
-    if ($description === '') {
-        $description = null;
     }
 
     $gradeLetter = match ($grade) {
@@ -224,10 +223,47 @@
             </div>
         @endif
 
-        @if ($description)
-            <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="item-hero-description">
-                {!! nl2br(e($description)) !!}
-            </div>
+        @if ($translationEntries !== [])
+            @if (count($translationEntries) === 1)
+                <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="item-hero-description">
+                    {!! nl2br(e($translationEntries[0]['text'])) !!}
+                </div>
+            @else
+                <div class="max-w-3xl" data-testid="item-hero-description">
+                    <div role="tablist" class="tabs tabs-bordered">
+                        @foreach ($translationEntries as $entry)
+                            <input
+                                type="radio"
+                                name="desc_tabs"
+                                role="tab"
+                                class="tab p-0 !pr-3"
+                                aria-label="{{ $entry['label'] }}"
+                                {{ $loop->first ? 'checked' : '' }}
+                            />
+                            <div role="tabpanel" class="tab-content">
+                                @if ($entry['text'])
+                                    {!! nl2br(e($entry['text'])) !!}
+
+                                    @if (in_array($entry['label'], ['German', 'Chinese'], true) && is_string($entry['locale']))
+                                        <div class="mt-3 text-xs text-subtle">
+                                            {{ $entry['label'] }} translation from
+                                            <a
+                                                class="link"
+                                                href="{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer nofollow"
+                                                referrerpolicy="no-referrer"
+                                            >{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}</a>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-subtle">No content available.</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 </section>

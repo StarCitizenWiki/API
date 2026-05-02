@@ -109,7 +109,7 @@
         $portsCount = is_array($ports) ? count($ports) : 0;
         $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
 
-        $hasDescriptionCard = (is_array($translations) && $translations !== []) || (is_string($translations) && trim($translations) !== '');
+
         $hasDescriptionDataCard = is_array($descriptionData) && $descriptionData !== [];
         $hasRelatedItemsCard = $relatedItemsCount > 0;
         $hasCompositionCard = is_array($defaultComposition) && $defaultComposition !== [];
@@ -134,7 +134,7 @@
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
-            <x-items.hero :item="$item" class="xl:col-span-7" />
+            <x-items.hero :item="$item" :translations="$translations" class="xl:col-span-7" />
             <x-items.quick-facts-card
                 :item="$item"
                 :ports-count="$portsCount"
@@ -149,7 +149,7 @@
             <section class="space-y-4">
                 <h2 class="text-lg font-semibold tracking-tight">Details & Availability</h2>
 
-                @if ($hasDescriptionDataCard || $hasRelatedItemsCard)
+                @if ($hasDescriptionDataCard || $hasRelatedItemsCard || $hasUexOrBlueprints)
                     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                         @if ($hasDescriptionDataCard)
                             <x-items.description-data-card
@@ -166,11 +166,7 @@
                                 :current-item-uuid="$uuid"
                             />
                         @endif
-                    </div>
-                @endif
 
-                @if ($hasUexOrBlueprints)
-                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                         @if ($uexPricesCount > 0)
                             <x-items.uex-prices-card :prices="$uexPrices" />
                         @endif
@@ -185,12 +181,6 @@
                     </div>
                 @endif
 
-                @if ($hasDescriptionCard)
-                    <x-items.description-card
-                        :translations="$translations"
-                        class="w-full"
-                    />
-                @endif
 
                 @if ($hasCompositionCard)
                     <x-items.commodity-composition-card
