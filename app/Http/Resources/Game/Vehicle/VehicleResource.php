@@ -776,21 +776,12 @@ class VehicleResource extends AbstractBaseResource
 
         $apiVersion = $this->getApiVersion($request);
 
-        $hardpoints = $apiVersion === 'v2'
-            ? HardpointResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []))
-            : PortResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []));
-
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
         $cargoGridPayload = $this->extractFromVehicleJson($vehicleData, 'CargoGrids', []);
         $cargoLimits = $this->calculateCargoGridSizeLimits($cargoGridPayload);
 
-        $weaponSnapshot = $this->extractFromVehicleJson($vehicleData, 'Loadout', []);
-        if (! empty($weaponSnapshot)) {
-            $weaponSnapshot = app(WeaponSnapshotService::class)->compute($weaponSnapshot);
-        } else {
-            $weaponSnapshot = null;
-        }
+        $weaponSnapshotLoadout = $this->extractFromVehicleJson($vehicleData, 'Loadout', []);
 
         $mannedTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'MannedTurrets', []), 'manned');
         $remoteTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'RemoteTurrets', []), 'remote');
@@ -894,8 +885,12 @@ class VehicleResource extends AbstractBaseResource
             ],
 
             $this->mergeWhen(
-                $weaponSnapshot !== null && $this->isVehicleShowRoute($request),
-                fn () => ['weapon_snapshot' => $weaponSnapshot]
+                ! empty($weaponSnapshotLoadout) && $this->isVehicleShowRoute($request),
+                function () use ($weaponSnapshotLoadout) {
+                    $weaponSnapshot = app(WeaponSnapshotService::class)->compute($weaponSnapshotLoadout);
+
+                    return ['weapon_snapshot' => $weaponSnapshot];
+                }
             ),
 
             'speed' => $this->buildSpeed($flight),
@@ -1012,7 +1007,13 @@ class VehicleResource extends AbstractBaseResource
             ],
             $this->mergeWhen(
                 $this->isVehicleShowRoute($request),
-                fn () => [$portKey => $hardpoints]
+                function () use ($vehicleData, $apiVersion, $portKey) {
+                    $hardpoints = $apiVersion === 'v2'
+                        ? HardpointResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []))
+                        : PortResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []));
+
+                    return [$portKey => $hardpoints];
+                }
             ),
             'parts' => PartResource::collection(Arr::get($payload, 'Parts', [])),
             'turrets' => [

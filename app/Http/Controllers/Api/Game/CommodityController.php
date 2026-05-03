@@ -160,10 +160,12 @@ class CommodityController extends Controller
                 'resourceData' => fn (BelongsToMany $relation) => $relation
                     ->forRequestedOrDefaultVersion($versionCode)
                     ->with([
+                        'resource',
                         'locations.starmapLocationData.location',
                         'locations.starmapLocationData.parent.location',
                         'locations.starmapLocationData.locationHierarchyEntityTag',
                         'locations.resourceData',
+                        'locations.commodity',
                         'locations.provider',
                         'commodities',
                     ]),

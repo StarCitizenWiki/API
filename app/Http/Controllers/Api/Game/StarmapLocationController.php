@@ -431,9 +431,10 @@ class StarmapLocationController extends Controller
                         $q->whereHas('resourceData', static fn (Builder $subQ) => $subQ->forRequestedOrDefaultVersion($versionCode))
                             ->with([
                                 'provider',
+                                'commodity',
                                 'resourceData' => static fn (BelongsTo $subQ) => $subQ
                                     ->forRequestedOrDefaultVersion($versionCode)
-                                    ->with('commodities'),
+                                    ->with(['resource', 'commodities']),
                             ]);
                     },
                 ])),

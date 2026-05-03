@@ -594,7 +594,7 @@ class ItemResource extends AbstractBaseResource
             'shops' => [],
             'images' => $this->item->images ?? [],
             'uex_prices' => $this->expandUexPrices($itemData),
-            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), [
+            $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
                 'base_variant' => new ItemLinkResource($itemData->baseVariant),
             ]),
             'variants' => $itemData->relationLoaded('variants')

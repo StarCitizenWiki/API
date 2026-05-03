@@ -221,6 +221,8 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
+        $this->batchLoadVehicleItems($vehicles->getCollection());
+
         return VehicleResource::collection($vehicles);
     }
 
@@ -366,7 +368,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.productionNote',
                 'shipMatrixVehicle.type',
                 'shipMatrixVehicle.size',
-                'shipMatrixVehicle.loaner',
+                'shipMatrixVehicle.loaner.sc.vehicle',
                 'shipMatrixVehicle.skus',
                 'shipMatrixVehicle.manufacturer',
                 'shipMatrixVehicle.components',
@@ -374,12 +376,6 @@ class VehicleController extends Controller
 
             $vehicleData->load($shipMatrixRelations);
 
-            $vehicleData->vehicle->load(['item' => function ($query) use ($vehicleData) {
-                $query->with(['data' => function ($q) use ($vehicleData) {
-                    $q->where('game_version_id', $vehicleData->game_version_id)
-                        ->with('descriptionData');
-                }]);
-            }]);
 
             $this->eagerLoadPortItems($vehicleData, $vehicleData->game_version_id);
         } catch (ModelNotFoundException) {
@@ -887,6 +883,10 @@ class VehicleController extends Controller
     private function eagerLoadPortItems(VehicleData $vehicleData, int $gameVersionId): void
     {
         $uuids = $this->extractPortUuids($vehicleData->data['Loadout'] ?? []);
+        $armorUuid = $vehicleData->data['Armor']['UUID'] ?? null;
+        if (is_string($armorUuid) && $armorUuid !== '') {
+            $uuids[] = $armorUuid;
+        }
 
         if ($uuids === []) {
             return;
@@ -896,7 +896,7 @@ class VehicleController extends Controller
             ->whereIn('uuid', $uuids)
             ->with(['data' => function ($query) use ($gameVersionId) {
                 $query->where('game_version_id', $gameVersionId)
-                    ->with(['manufacturer', 'gameVersion', 'descriptionData']);
+                    ->with(['item', 'manufacturer', 'gameVersion']);
             }])
             ->get()
             ->keyBy('uuid');
@@ -926,5 +926,44 @@ class VehicleController extends Controller
         }
 
         return array_unique(array_filter($uuids));
+    }
+
+    /**
+     * Batch-load items referenced by all vehicles in a collection.
+     *
+     * Extracts armor and port UUIDs from each vehicle's JSON data and preloads
+     * the corresponding items with their versioned data into request attributes,
+     * preventing N+1 queries when VehicleResource resolves.
+     *
+     * @param  Collection<int, VehicleData>  $vehicleDataCollection
+     */
+    private function batchLoadVehicleItems($vehicleDataCollection): void
+    {
+        $gameVersionId = $this->gameVersion()->id;
+        $uuids = [];
+
+        foreach ($vehicleDataCollection as $vehicleData) {
+            $armorUuid = $vehicleData->data['Armor']['UUID'] ?? null;
+            if (is_string($armorUuid) && $armorUuid !== '') {
+                $uuids[] = $armorUuid;
+            }
+        }
+
+        $uuids = array_unique(array_filter($uuids));
+
+        if ($uuids === []) {
+            return;
+        }
+
+        $items = Item::query()
+            ->whereIn('uuid', $uuids)
+            ->with(['data' => function ($query) use ($gameVersionId) {
+                $query->where('game_version_id', $gameVersionId)
+                    ->with(['item']);
+            }])
+            ->get()
+            ->keyBy('uuid');
+
+        request()->attributes->set('eager_loaded_port_items', $items);
     }
 }
