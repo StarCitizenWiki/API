@@ -413,12 +413,6 @@
                                     :class="$equippedCardClasses"/>
                             @endif
 
-                            @if (data_get($equippedItem, 'radiation_resistance'))
-                                <x-items.radiation-resistance-card
-                                    :radiation-resistance="data_get($equippedItem, 'radiation_resistance')"
-                                    :class="$equippedCardClasses"/>
-                            @endif
-
                             @if (data_get($equippedItem, 'ammunition'))
                                 <x-items.ammunition-card
                                     :ammunition="data_get($equippedItem, 'ammunition')"
