@@ -13,6 +13,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    VehicleMatchingService::resetState();
+});
+
 it('falls back to class-name parsing when the vehicle payload has no name', function (): void {
     $productionStatus = ProductionStatus::query()->create([
         'name' => 'In Production',

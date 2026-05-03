@@ -16,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use RuntimeException;
@@ -27,6 +28,12 @@ class ImportVehicleData implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    /** @var Collection<int, Manufacturer>|null UUID => Manufacturer */
+    private static ?Collection $manufacturerLookup = null;
+
+    /** @var array<string, Vehicle>|null UUID => Vehicle */
+    private static ?array $vehicleCache = null;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -47,7 +54,7 @@ class ImportVehicleData implements ShouldQueue
             return;
         }
 
-        $vehicle = Vehicle::query()->firstOrCreate(
+        $vehicle = self::$vehicleCache[$payload['UUID']] ??= Vehicle::query()->firstOrCreate(
             ['uuid' => $payload['UUID']],
             ['uuid' => $payload['UUID']]
         );
@@ -81,9 +88,21 @@ class ImportVehicleData implements ShouldQueue
     {
         $manufacturerUuid = Arr::get($payload, 'Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
 
-        $manufacturer = Manufacturer::query()
-            ->where('uuid', $manufacturerUuid)
-            ->first();
+        if (self::$manufacturerLookup === null) {
+            self::$manufacturerLookup = Manufacturer::query()
+                ->get(['id', 'uuid'])
+                ->keyBy('uuid');
+        }
+
+        $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
+
+        if ($manufacturer === null) {
+            // Lazy-reload: manufacturer may have been created after initial cache load (e.g. in tests)
+            self::$manufacturerLookup = Manufacturer::query()
+                ->get(['id', 'uuid'])
+                ->keyBy('uuid');
+            $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
+        }
 
         if ($manufacturer === null) {
             throw new RuntimeException(sprintf('Manufacturer with uuid %s does not exist for vehicle %s.', $manufacturerUuid, $payload['UUID']));

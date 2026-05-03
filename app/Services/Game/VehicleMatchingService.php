@@ -13,7 +13,24 @@ use Illuminate\Support\Str;
 
 class VehicleMatchingService
 {
-    private ?Collection $shipMatrixCache = null;
+    private static ?Collection $shipMatrixCache = null;
+
+    /** @var array<string, int>|null lowercase name_short/name => id */
+    private static ?array $manufacturerLookup = null;
+
+    /** @var array<string, ShipMatrixVehicle>|null slug => vehicle */
+    private static ?array $slugLookup = null;
+
+    /** @var array<string, ShipMatrixVehicle>|null lowercase name => vehicle */
+    private static ?array $lowerNameLookup = null;
+
+    public static function resetState(): void
+    {
+        self::$shipMatrixCache = null;
+        self::$manufacturerLookup = null;
+        self::$slugLookup = null;
+        self::$lowerNameLookup = null;
+    }
 
     /**
      * Find ship matrix vehicle ID for given game vehicle payload.
@@ -72,22 +89,24 @@ class VehicleMatchingService
 
     private function matchManufacturer(?string $code, ?string $name): ?int
     {
-        $query = ShipMatrixManufacturer::query();
-
-        if ($code !== null && $code !== '') {
-            $manufacturer = (clone $query)->whereRaw('LOWER(name_short) = ?', [mb_strtolower($code)])->first();
-
-            if ($manufacturer !== null) {
-                return $manufacturer->id;
+        if (self::$manufacturerLookup === null) {
+            self::$manufacturerLookup = [];
+            foreach (ShipMatrixManufacturer::query()->get() as $mfr) {
+                if ($mfr->name_short !== null) {
+                    self::$manufacturerLookup[mb_strtolower($mfr->name_short)] = $mfr->id;
+                }
+                if ($mfr->name !== null) {
+                    self::$manufacturerLookup[mb_strtolower($mfr->name)] = $mfr->id;
+                }
             }
         }
 
-        if ($name !== null && $name !== '') {
-            $manufacturer = (clone $query)->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
+        if ($code !== null && $code !== '') {
+            return self::$manufacturerLookup[mb_strtolower($code)] ?? null;
+        }
 
-            if ($manufacturer !== null) {
-                return $manufacturer->id;
-            }
+        if ($name !== null && $name !== '') {
+            return self::$manufacturerLookup[mb_strtolower($name)] ?? null;
         }
 
         return null;
@@ -102,7 +121,6 @@ class VehicleMatchingService
             $candidates[] = $payloadName;
         }
 
-        // possible manufacturer short names for prefix stripping
         $manufacturerShortNames = $this->getManufacturerShortNames($manufacturerName);
 
         foreach ($manufacturerShortNames as $shortName) {
@@ -219,29 +237,43 @@ class VehicleMatchingService
 
     private function findVehicle(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
     {
-        $baseQuery = ShipMatrixVehicle::query()
-            ->when($manufacturerId !== null, static fn ($query) => $query->where('manufacturer_id', $manufacturerId));
+        $this->ensureShipMatrixCache();
 
         $slug = Str::slug($candidate);
+        $lowerCandidate = mb_strtolower($candidate);
 
-        $match = (clone $baseQuery)->where('slug', $slug)->first();
-        if ($match !== null) {
+        $match = self::$slugLookup[$slug] ?? null;
+        if ($match !== null && ($manufacturerId === null || $match->manufacturer_id === $manufacturerId)) {
             return $match;
         }
 
-        $match = (clone $baseQuery)->where('name', $candidate)->first();
-        if ($match !== null) {
+        $match = self::$lowerNameLookup[$lowerCandidate] ?? null;
+        if ($match !== null && ($manufacturerId === null || $match->manufacturer_id === $manufacturerId)) {
             return $match;
         }
 
-        $match = (clone $baseQuery)->whereRaw('LOWER(name) = ?', [mb_strtolower($candidate)])->first();
-        if ($match !== null) {
-            return $match;
+        $filtered = self::$shipMatrixCache;
+        if ($manufacturerId !== null) {
+            $filtered = $filtered->where('manufacturer_id', $manufacturerId);
         }
 
-        $match = (clone $baseQuery)->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower($candidate).'%'])->first();
+        $match = $filtered->first(fn (ShipMatrixVehicle $v) => str_contains(mb_strtolower($v->name), $lowerCandidate));
 
         return $match ?? $this->fuzzyMatch($candidate, $manufacturerId);
+    }
+
+    private function ensureShipMatrixCache(): void
+    {
+        if (self::$shipMatrixCache === null) {
+            self::$shipMatrixCache = ShipMatrixVehicle::with('manufacturer')->get();
+
+            self::$slugLookup = [];
+            self::$lowerNameLookup = [];
+            foreach (self::$shipMatrixCache as $vehicle) {
+                self::$slugLookup[$vehicle->slug] = $vehicle;
+                self::$lowerNameLookup[mb_strtolower($vehicle->name)] = $vehicle;
+            }
+        }
     }
 
     /**
@@ -311,17 +343,15 @@ class VehicleMatchingService
      */
     private function fuzzyMatch(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
     {
-        if ($this->shipMatrixCache === null) {
-            $this->shipMatrixCache = ShipMatrixVehicle::with('manufacturer')->get();
-        }
+        $this->ensureShipMatrixCache();
 
-        $filtered = $this->shipMatrixCache;
+        $filtered = self::$shipMatrixCache;
 
         if ($manufacturerId !== null) {
             $filtered = $filtered->where('manufacturer_id', $manufacturerId);
         }
 
-        return $filtered->first(function ($vehicle) use ($candidate) {
+        return $filtered->first(function (ShipMatrixVehicle $vehicle) use ($candidate) {
             $distance = levenshtein(
                 mb_strtolower($candidate),
                 mb_strtolower($vehicle->name)

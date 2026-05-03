@@ -14,6 +14,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    VehicleMatchingService::resetState();
+
     // Create required reference data for ship matrix vehicles
     $this->productionStatus = ProductionStatus::query()->create([
         'name' => 'In Production',

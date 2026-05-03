@@ -36,16 +36,24 @@ class ImportItemData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private ?Labels $labels = null;
+    private static ?Labels $labels = null;
 
-    private ?Collection $entityTagsLookup = null;
+    private static ?Collection $entityTagsLookup = null;
+
+    private static ?Collection $manufacturerLookup = null;
+
+    private static array $itemCache = [];
+
+    private static ?array $commodityUuidCache = null;
 
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path,
         ?Labels $labels = null
     ) {
-        $this->labels = $labels;
+        if ($labels !== null) {
+            self::$labels = $labels;
+        }
     }
 
     /**
@@ -68,7 +76,7 @@ class ImportItemData implements ShouldQueue
             return;
         }
 
-        $item = Item::query()->firstOrCreate(
+        $item = self::$itemCache[$uuid] ??= Item::query()->firstOrCreate(
             ['uuid' => $uuid],
             ['uuid' => $uuid]
         );
@@ -122,9 +130,21 @@ class ImportItemData implements ShouldQueue
     {
         $manufacturerUuid = Arr::get($itemPayload, 'stdItem.Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
 
-        $manufacturer = Manufacturer::query()
-            ->where('uuid', $manufacturerUuid)
-            ->first();
+        if (self::$manufacturerLookup === null) {
+            self::$manufacturerLookup = Manufacturer::query()
+                ->get(['id', 'uuid'])
+                ->keyBy('uuid');
+        }
+
+        $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
+
+        if ($manufacturer === null) {
+            // Lazy-reload: manufacturer may have been created after initial cache load (e.g. in tests)
+            self::$manufacturerLookup = Manufacturer::query()
+                ->get(['id', 'uuid'])
+                ->keyBy('uuid');
+            $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
+        }
 
         if ($manufacturer === null) {
             throw new RuntimeException(sprintf('Manufacturer with uuid %s does not exist for item %s.', $manufacturerUuid, $uuid));
@@ -290,22 +310,22 @@ class ImportItemData implements ShouldQueue
 
     private function getLabels(): Labels
     {
-        if ($this->labels === null) {
-            $this->labels = new Labels;
+        if (self::$labels === null) {
+            self::$labels = new Labels;
         }
 
-        return $this->labels;
+        return self::$labels;
     }
 
     private function getEntityTagsLookup(): Collection
     {
-        if ($this->entityTagsLookup === null) {
-            $this->entityTagsLookup = EntityTag::query()
+        if (self::$entityTagsLookup === null) {
+            self::$entityTagsLookup = EntityTag::query()
                 ->get(['id', 'uuid', 'name'])
                 ->keyBy('uuid');
         }
 
-        return $this->entityTagsLookup;
+        return self::$entityTagsLookup;
     }
 
     private function nullableInt(mixed $value): ?int
@@ -384,7 +404,7 @@ class ImportItemData implements ShouldQueue
                 ['name', 'updated_at']
             );
 
-            $this->entityTagsLookup = null;
+            self::$entityTagsLookup = null;
         }
 
         $tagIds = $validTags
@@ -419,12 +439,29 @@ class ImportItemData implements ShouldQueue
             return;
         }
 
-        $commodityIds = Commodity::query()
-            ->whereIn('uuid', $commodityUuids)
-            ->pluck('id')
-            ->all();
+        $commodityIds = $this->resolveCommodityIds($commodityUuids);
 
         $itemData->commodities()->sync($commodityIds);
+    }
+
+    private function resolveCommodityIds(array $uuids): array
+    {
+        if (self::$commodityUuidCache === null) {
+            self::$commodityUuidCache = Commodity::query()
+                ->pluck('id', 'uuid')
+                ->mapWithKeys(fn ($id, $uuid) => [(string) $uuid => (int) $id])
+                ->all();
+        }
+
+        $ids = [];
+        foreach ($uuids as $uuid) {
+            $id = self::$commodityUuidCache[$uuid] ?? null;
+            if ($id !== null) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     private function updateSlug(Item $item, string $name): void
