@@ -42,6 +42,10 @@ class RelatedItemsResource extends JsonResource
         $variants = $groupItems
             ->filter(fn ($gi): bool => $gi->item_data_id !== $itemData->id
                 && $gi->item_data_id !== $baseId)
+            ->when(
+                str_starts_with($itemData->classification ?? '', 'Ship.'),
+                fn ($c) => $c->sortBy(fn ($gi) => $gi->itemData->size ?? PHP_INT_MAX),
+            )
             ->map(fn ($gi): array => $this->formatRelatedLink($gi->itemData, $gi->variant_name ?? 'Base', false, $itemData->gameVersion->code))
             ->values()
             ->all();
@@ -82,6 +86,9 @@ class RelatedItemsResource extends JsonResource
             'is_base_variant' => $isBase,
             'manufacturer' => $this->expandManufacturerLink($manufacturer),
             'size' => $itemData->size,
+            'grade' => $itemData->grade,
+            'grade_label' => $this->formatGradeLabel($itemData),
+            'class' => $itemData->class,
             'link' => route('items.show', ['identifier' => $uuid]),
             'web_url' => route('web.items.show', ['item' => $itemData->item->slug ?? $uuid]),
             'version' => $versionCode,
@@ -159,5 +166,20 @@ class RelatedItemsResource extends JsonResource
             ...$manufacturer,
             'link' => route('manufacturers.show', ['manufacturer' => $manufacturer['code'] ?? 'UNKN']),
         ];
+    }
+
+    private function formatGradeLabel(ItemData $itemData): mixed
+    {
+        if (! str_starts_with($itemData->classification ?? '', 'Ship.')) {
+            return $itemData->grade;
+        }
+
+        return match ($itemData->grade) {
+            1 => 'A',
+            2 => 'B',
+            3 => 'C',
+            4 => 'D',
+            default => $itemData->grade,
+        };
     }
 }

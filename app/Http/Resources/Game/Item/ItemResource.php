@@ -438,6 +438,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'link', type: 'string'),
         new OA\Property(property: 'web_url', type: 'string'),
         new OA\Property(property: 'size', type: 'integer', nullable: true),
+        new OA\Property(property: 'grade', type: 'integer', nullable: true),
+        new OA\Property(property: 'grade_label', description: 'Human-readable grade (A/B/C/D for Ship items)', type: 'string', nullable: true),
+        new OA\Property(property: 'class', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
