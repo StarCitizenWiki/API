@@ -89,7 +89,7 @@
             apiEndpoint="/api/missions"
         />
 
-        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
+        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
             <x-missions.hero :resource="$resource" class="xl:col-span-7" />
             <x-missions.quick-facts-card :resource="$resource" class="xl:col-span-5" />
         </div>

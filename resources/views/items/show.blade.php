@@ -133,7 +133,7 @@
             apiEndpoint="/api/items"
         />
 
-        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
+        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
             <x-items.hero :item="$item" :translations="$translations" class="xl:col-span-7" />
             <x-items.quick-facts-card
                 :item="$item"
