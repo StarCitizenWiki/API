@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nightwatch\Facades\Nightwatch;
 use Laravel\Nightwatch\Records\Query;
+use Laravel\Nightwatch\Records\QueuedJob;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -81,6 +82,10 @@ class AppServiceProvider extends ServiceProvider
         Nightwatch::rejectQueries(static function (Query $query) {
             return $query->sql === 'select exists(select * from "game_starmap_locations" where "slug" = ?) as "exists"' ||
                 str_contains($query->sql, 'update "game_mission_data_starmap_location"');
+        });
+
+        Nightwatch::rejectQueuedJobs(static function (QueuedJob $job) {
+            return str_starts_with($job->name, 'App\Jobs\Game\Import');
         });
     }
 
