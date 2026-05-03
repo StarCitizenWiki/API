@@ -22,7 +22,7 @@
 
     $capacityMetrics = array_values(array_filter(
         $capacityMetrics,
-        static fn (array $metric): bool => $metric['value'] !== null
+        static fn (array $metric): bool => $metric['value'] !== null && $metric['value'] > 0
     ));
 
     $travelMetrics = [

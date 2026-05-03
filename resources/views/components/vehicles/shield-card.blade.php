@@ -27,7 +27,7 @@
         ['label' => 'Distortion', 'maximum' => data_get($resistance, 'distortion.maximum')],
     ], static fn (array $row): bool => $row['maximum'] !== null));
 
-    $hasShieldData = $hp !== null || $regeneration !== null || $faceType !== null || $resistanceRows !== [];
+    $hasShieldData = ! empty($hp) || ! empty($regeneration) || $faceType !== null || $resistanceRows !== [];
 @endphp
 
 @if ($hasShieldData)
