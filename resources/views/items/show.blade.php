@@ -164,6 +164,7 @@
                                 :variants="$variants"
                                 :base-variant="$baseVariant"
                                 :current-item-uuid="$uuid"
+                                :classification="$classification"
                             />
                         @endif
 

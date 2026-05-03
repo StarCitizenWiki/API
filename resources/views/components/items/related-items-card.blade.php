@@ -4,6 +4,7 @@
     'variants',
     'baseVariant',
     'currentItemUuid',
+    'classification',
 ])
 
 @php
@@ -16,6 +17,7 @@
     $showsVariantSection = $showBaseVariant || (is_array($variants) && $variants !== []);
     $baseVariantCount = $showBaseVariant ? 1 : 0;
     $totalItemsCount = $setItemCount + $variantCount + $baseVariantCount;
+    $isShipItem = is_string($classification) && str_starts_with($classification, 'Ship.');
 @endphp
 
 <section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-related-items-card']) }}>
@@ -82,47 +84,95 @@
 
             @if ($showsVariantSection)
                 <div class="space-y-2">
-                    <h3 class="font-semibold uppercase text-subtle">Variants</h3>
-                    <div class="overflow-x-auto">
-                        <table class="table table-sm">
-                            <caption class="sr-only">Variant items for this base item</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Variant</th>
-                                    <th scope="col">Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if ($showBaseVariant)
+                    @if ($isShipItem)
+                        <h3 class="font-semibold uppercase text-subtle">Component Family</h3>
+                        <p class="text-xs text-subtle">Items from the same family, typically differing by size or grade.</p>
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm">
+                                <caption class="sr-only">Component family items sharing the same base model</caption>
+                                <thead>
                                     <tr>
-                                        <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
-                                        <td>Base Item</td>
-                                        <td>
-                                            @if (! empty($baseVariant['uuid']))
-                                                <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Size</th>
+                                        <th scope="col">Grade</th>
+                                        <th scope="col">Link</th>
                                     </tr>
-                                @endif
-                                @foreach ($variants as $variant)
+                                </thead>
+                                <tbody>
+                                    @if ($showBaseVariant)
+                                        <tr>
+                                            <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
+                                            <td>{{ $baseVariant['size'] ?? '-' }}</td>
+                                            <td>{{ $baseVariant['grade_label'] ?? '-' }}</td>
+                                            <td>
+                                                @if (! empty($baseVariant['uuid']))
+                                                    <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    @foreach ($variants as $variant)
+                                        <tr>
+                                            <td class="whitespace-nowrap">{{ $variant['name'] ?? '-' }}</td>
+                                            <td>{{ $variant['size'] ?? '-' }}</td>
+                                            <td>{{ $variant['grade_label'] ?? '-' }}</td>
+                                            <td>
+                                                @if (! empty($variant['uuid']))
+                                                    <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <h3 class="font-semibold uppercase text-subtle">Variants</h3>
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm">
+                                <caption class="sr-only">Variant items for this base item</caption>
+                                <thead>
                                     <tr>
-                                        <td class="whitespace-nowrap">{{ $variant['name'] ?? '-' }}</td>
-                                        <td>{{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}</td>
-                                        <td>
-                                            @if (! empty($variant['uuid']))
-                                                <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Variant</th>
+                                        <th scope="col">Link</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @if ($showBaseVariant)
+                                        <tr>
+                                            <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
+                                            <td>Base Item</td>
+                                            <td>
+                                                @if (! empty($baseVariant['uuid']))
+                                                    <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    @foreach ($variants as $variant)
+                                        <tr>
+                                            <td class="whitespace-nowrap">{{ $variant['name'] ?? '-' }}</td>
+                                            <td>{{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}</td>
+                                            <td>
+                                                @if (! empty($variant['uuid']))
+                                                    <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             @elseif ($setItemCount === 0)
                 <div class="text-sm text-subtle">No related items available.</div>
