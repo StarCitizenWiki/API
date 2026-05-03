@@ -43,7 +43,7 @@
                     <p class="text-sm text-subtle">{{ $description }}</p>
                 @endif
             </div>
-            <fieldset class="fieldset ">
+            <fieldset class="fieldset">
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <label class="input input-bordered flex w-full items-center gap-2">
                         <x-icon name="search" class="size-4 text-subtle" />
@@ -60,7 +60,7 @@
                     <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>
                 </div>
                 @if ($helpText)
-                    <p class="label text-xs">{!! $helpText !!}</p>
+                    <p class="text-xs text-accent-content/40">{!! $helpText !!}</p>
                 @endif
             </fieldset>
         </form>
