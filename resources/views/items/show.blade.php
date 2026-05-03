@@ -217,11 +217,9 @@
                                 @if (data_get($item, 'suit_armor'))
                                     <x-items.suit-armor-card :suit-armor="data_get($item, 'suit_armor')" :temperature-resistance="data_get($item, 'temperature_resistance')" :inventory="data_get($item, 'inventory')" />
                                 @endif
+
                                 @if (data_get($item, 'clothing') && !data_get($item, 'suit_armor'))
                                     <x-items.clothing-card :clothing="data_get($item, 'clothing')" :temperature-resistance="data_get($item, 'temperature_resistance')" :inventory="data_get($item, 'inventory')" />
-                                @endif
-                                @if (data_get($item, 'radiation_resistance'))
-                                    <x-items.radiation-resistance-card :radiation-resistance="data_get($item, 'radiation_resistance')" />
                                 @endif
 
                                 @if (data_get($item, 'ammunition'))
