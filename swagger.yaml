@@ -7560,6 +7560,16 @@ components:
         size:
           type: integer
           nullable: true
+        grade:
+          type: integer
+          nullable: true
+        grade_label:
+          description: 'Human-readable grade (A/B/C/D for Ship items)'
+          type: string
+          nullable: true
+        class:
+          type: string
+          nullable: true
       type: object
     item_related_link_ext:
       title: 'Related Item Link (Extended)'
@@ -15997,6 +16007,81 @@ components:
               description: 'Reference fuel usage from Port Olisar to ArcCorp.'
               type: number
               example: 410.888040486
+              nullable: true
+          type: object
+          nullable: true
+        drive:
+          description: 'Ground vehicle drive characteristics (speed, wheels, agility). Only present for wheeled/tracked ground vehicles.'
+          properties:
+            max_speed_kph:
+              description: 'Maximum speed in km/h.'
+              type: number
+              example: 295.77
+              nullable: true
+            max_speed_ms:
+              description: 'Maximum speed in m/s.'
+              type: number
+              example: 82.16
+              nullable: true
+            reverse_speed_kph:
+              description: 'Reverse speed in km/h.'
+              type: number
+              example: 25.2
+              nullable: true
+            reverse_speed_ms:
+              description: 'Reverse speed in m/s.'
+              type: number
+              example: 7
+              nullable: true
+            is_tracked:
+              description: 'Whether the vehicle uses tracks instead of wheels.'
+              type: boolean
+              example: false
+              nullable: true
+            wheels:
+              description: 'Wheel configuration summary.'
+              properties:
+                count:
+                  description: 'Total number of wheels.'
+                  type: integer
+                  example: 4
+                  nullable: true
+                driving_count:
+                  description: 'Number of driven wheels.'
+                  type: integer
+                  example: 4
+                  nullable: true
+                steering_count:
+                  description: 'Number of steered wheels.'
+                  type: integer
+                  example: 2
+                  nullable: true
+                drive_type:
+                  description: 'Drive configuration (e.g. AWD, RWD, Unknown).'
+                  type: string
+                  example: AWD
+                  nullable: true
+              type: object
+              nullable: true
+            agility:
+              description: 'Handling, grip, and acceleration scores (0–1 scale).'
+              properties:
+                handling:
+                  description: 'Handling score (0–1).'
+                  type: number
+                  example: 0.5
+                  nullable: true
+                grip:
+                  description: 'Grip score (0–1).'
+                  type: number
+                  example: 0.1875
+                  nullable: true
+                acceleration:
+                  description: 'Acceleration score (0–1).'
+                  type: number
+                  example: 1
+                  nullable: true
+              type: object
               nullable: true
           type: object
           nullable: true
