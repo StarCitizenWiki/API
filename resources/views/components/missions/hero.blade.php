@@ -8,8 +8,8 @@
     $rewardScope = data_get($resource, 'reward_scope');
 
     $headlineLinks = array_values(array_filter([
-        $factionName ? ['label' => $factionName, 'url' => null] : null,
-        $rewardScope ? ['label' => $rewardScope, 'url' => null] : null,
+        $factionName ? ['label' => $factionName, 'url' => route('web.missions.index', ['filter' => ['faction' => $factionName]])] : null,
+        $rewardScope ? ['label' => $rewardScope, 'url' => route('web.missions.index', ['filter' => ['reward_scope' => $rewardScope]])] : null,
     ]));
 
     $iconName = match ($rewardScope) {
@@ -26,6 +26,7 @@
 
     $notForRelease = data_get($resource, 'not_for_release');
     $workInProgress = data_get($resource, 'work_in_progress');
+    $wikiUrl = 'https://starcitizen.tools/' . str_replace(' ', '_', $title);
 @endphp
 
 <section {{ $attributes->merge(['class' => 'card bg-base-100 shadow', 'data-testid' => 'mission-hero']) }}>
@@ -58,7 +59,13 @@
                                 <span aria-hidden="true" class="text-base-content/35">|</span>
                             @endif
 
-                            <span>{{ $entry['label'] }}</span>
+                            @if ($entry['url'])
+                                <a href="{{ $entry['url'] }}" class="link link-hover font-semibold text-subtle">
+                                    {{ $entry['label'] }}
+                                </a>
+                            @else
+                                <span>{{ $entry['label'] }}</span>
+                            @endif
                         @endforeach
                     </div>
                 @endif
@@ -85,5 +92,9 @@
                 {!! nl2br(e($description)) !!}
             </div>
         @endif
+        <div class="card-actions justify-end pt-4">
+            <span class="text-xs text-muted font-semibold">Find on</span>
+            <a href="{{ $wikiUrl }}" class="link link-hover link-primary text-xs" target="_blank" rel="noopener noreferrer">starcitizen.tools</a>
+        </div>
     </div>
 </section>

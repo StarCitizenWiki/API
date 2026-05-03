@@ -2,6 +2,7 @@
 
 @php
     $locationName = data_get($location, 'name', 'Starmap Location');
+    $wikiUrl = 'https://starcitizen.tools/' . str_replace(' ', '_', $locationName);
     $typeName = data_get($location, 'type.name', data_get($location, 'type_name'));
     $description = data_get($location, 'description');
     $respawnLocationType = data_get($location, 'respawn_location_type');
@@ -27,17 +28,16 @@
 
 <section {{ $attributes->merge(['class' => 'card bg-base-100 shadow', 'data-testid' => 'starmap-location-hero']) }}>
     @if ($heroImage)
-        <div class="relative overflow-hidden h-48 rounded-t-box sm:h-56">
+        <figure class="relative">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ $heroImage }}" alt="{{ $locationName }}" class="h-full w-full object-cover" loading="lazy" />
+                <img src="{{ $heroImage }}" alt="{{ $locationName }}" class="size-full object-cover max-h-96" loading="lazy" />
             </a>
-            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100/60 to-transparent"></div>
             @if ($imageSource)
-                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 backdrop-blur-sm">
+                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 w-auto h-auto">
                     Image from {{ $imageSource }}
                 </span>
             @endif
-        </div>
+        </figure>
     @endif
 
     <div class="card-body gap-4 p-5 sm:p-6">
@@ -76,5 +76,9 @@
                 {!! nl2br(e($description)) !!}
             </div>
         @endif
+        <div class="card-actions justify-end pt-4">
+            <span class="text-xs text-muted font-semibold">Find on</span>
+            <a href="{{ $wikiUrl }}" class="link link-hover link-primary text-xs" target="_blank" rel="noopener noreferrer">starcitizen.tools</a>
+        </div>
     </div>
 </section>

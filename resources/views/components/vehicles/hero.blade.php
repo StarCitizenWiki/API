@@ -1,25 +1,41 @@
-@props(['vehicle'])
+@props(['vehicle', 'translations' => null])
 
 @php
-    use Illuminate\Support\Arr;
-
     $vehicleName = data_get($vehicle, 'name', 'Vehicle');
+    $wikiUrl = 'https://starcitizen.tools/' . str_replace(' ', '_', $vehicleName);
     $manufacturerName = data_get($vehicle, 'manufacturer.name');
     $sizeClass = data_get($vehicle, 'size_class');
     $maxMedicalTier = data_get($vehicle, 'max_medical_tier');
     $career = data_get($vehicle, 'career');
     $role = data_get($vehicle, 'role');
-    $description = data_get($vehicle, 'description.en');
 
-    if (is_array($description)) {
-        $description = Arr::first($description, static fn (mixed $value): bool => is_string($value) && $value !== '');
-    }
+    $translationEntries = [];
 
-    if ($description === null || $description === '') {
-        $description = data_get($vehicle, 'description');
+    if ($translations !== null) {
+        if (is_array($translations)) {
+            foreach ($translations as $locale => $translation) {
+                $translationEntries[] = [
+                    'label' => is_string($locale)
+                        ? (\App\Models\System\Language::LABEL_MAP[$locale] ?? 'Translation '.(count($translationEntries) + 1))
+                        : 'Translation '.(count($translationEntries) + 1),
+                    'locale' => is_string($locale) ? $locale : null,
+                    'text' => is_string($translation)
+                        ? trim(html_entity_decode($translation))
+                        : null,
+                ];
+            }
 
-        if (is_array($description)) {
-            $description = Arr::first($description, static fn (mixed $value): bool => is_string($value) && $value !== '');
+            // Filter out entries with empty text
+            $translationEntries = array_values(array_filter(
+                $translationEntries,
+                static fn (array $entry): bool => is_string($entry['text']) && trim($entry['text']) !== '',
+            ));
+        } elseif (is_string($translations) && trim($translations) !== '') {
+            $translationEntries[] = [
+                'label' => 'English',
+                'locale' => null,
+                'text' => trim(html_entity_decode($translations)),
+            ];
         }
     }
 
@@ -34,11 +50,6 @@
         ?? data_get(data_get($vehicle, 'images', []), '0.original_url');
     $fullImageUrl = data_get(data_get($vehicle, 'images', []), '0.original_url');
     $imageSource = data_get(data_get($vehicle, 'images', []), '0.source');
-    $imageWidth = data_get(data_get($vehicle, 'images', []), '0.thumbnail_width')
-        ?? data_get(data_get($vehicle, 'images', []), '0.original_width');
-    $imageHeight = data_get(data_get($vehicle, 'images', []), '0.thumbnail_height')
-        ?? data_get(data_get($vehicle, 'images', []), '0.original_height');
-    $isPortrait = $imageWidth !== null && $imageHeight !== null && $imageHeight > $imageWidth;
 
     if ($isGravlev) {
         $vehicleTypeIcon = 'drone';
@@ -54,22 +65,21 @@
     $isPortrait = true;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'vehicle-hero']) }}>
+<section {{ $attributes->merge(['class' => 'card sm:card-side bg-base-100 shadow', 'data-testid' => 'vehicle-hero']) }}>
     @if ($heroImage)
-        <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
+        <figure class="relative">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ $heroImage }}" alt="{{ $vehicleName }}" class="h-full w-full object-cover" loading="lazy" />
+                <img src="{{ $heroImage }}" alt="{{ $vehicleName }}" class="size-full object-cover max-h-96" loading="lazy" />
             </a>
-            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100/60 to-transparent"></div>
             @if ($imageSource)
-                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 backdrop-blur-sm">
+                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 w-auto h-auto">
                     Image from {{ $imageSource }}
                 </span>
             @endif
-        </div>
+        </figure>
     @endif
 
-    <div class="card-body gap-4 p-5 sm:p-6 {{ $isPortrait ? 'flex-1 min-w-0' : '' }}">
+    <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-1">
                 <div class="flex items-center gap-3">
@@ -138,10 +148,51 @@
             @endif
         </div>
 
-        @if ($description)
-            <div class="max-w-3xl text-sm leading-6 whitespace-pre-line text-subtle sm:text-base">
-                {!! nl2br(e((string) $description)) !!}
-            </div>
+        @if ($translationEntries !== [])
+            @if (count($translationEntries) === 1)
+                <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="vehicle-hero-description">
+                    {!! nl2br(e($translationEntries[0]['text'])) !!}
+                </div>
+            @else
+                <div class="max-w-3xl" data-testid="vehicle-hero-description">
+                    <div role="tablist" class="tabs tabs-bordered">
+                        @foreach ($translationEntries as $entry)
+                            <input
+                                type="radio"
+                                name="desc_tabs"
+                                role="tab"
+                                class="tab p-0 !pr-3"
+                                aria-label="{{ $entry['label'] }}"
+                                {{ $loop->first ? 'checked' : '' }}
+                            />
+                            <div role="tabpanel" class="tab-content">
+                                @if ($entry['text'])
+                                    {!! nl2br(e($entry['text'])) !!}
+
+                                    @if (in_array($entry['label'], ['German', 'Chinese'], true) && is_string($entry['locale']))
+                                        <div class="mt-3 text-xs text-subtle">
+                                            {{ $entry['label'] }} translation from
+                                            <a
+                                                class="link"
+                                                href="{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer nofollow"
+                                                referrerpolicy="no-referrer"
+                                            >{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}</a>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-subtle">No content available.</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         @endif
+        <div class="card-actions justify-end pt-4">
+            <span class="text-xs text-muted font-semibold">Find on</span>
+            <a href="{{ $wikiUrl }}" class="link link-hover link-primary text-xs" target="_blank" rel="noopener noreferrer">starcitizen.tools</a>
+        </div>
     </div>
 </section>

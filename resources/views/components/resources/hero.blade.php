@@ -13,17 +13,16 @@
 
 <section {{ $attributes->merge(['class' => 'card bg-base-100 shadow', 'data-testid' => 'resource-hero']) }}>
     @if ($heroImage)
-        <div class="relative overflow-hidden h-48 rounded-t-box sm:h-56">
+        <figure class="relative">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ $heroImage }}" alt="{{ $name }}" class="h-full w-full object-cover" loading="lazy" />
+                <img src="{{ $heroImage }}" alt="{{ $name }}" class="size-full object-cover max-h-96" loading="lazy" />
             </a>
-            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100/60 to-transparent"></div>
             @if ($imageSource)
-                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 backdrop-blur-sm">
+                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 w-auto h-auto">
                     Image from {{ $imageSource }}
                 </span>
             @endif
-        </div>
+        </figure>
     @endif
 
     <div class="card-body gap-4 p-5 sm:p-6">

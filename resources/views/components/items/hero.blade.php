@@ -2,6 +2,7 @@
 
 @php
     $itemName = data_get($item, 'name', 'Item');
+    $wikiUrl = 'https://starcitizen.tools/' . str_replace(' ', '_', $itemName);
     $manufacturerName = data_get($item, 'manufacturer.name');
     $itemType = data_get($item, 'type');
     $itemTypeLabel = data_get($item, 'type_label') ?? $itemType;
@@ -90,11 +91,6 @@
         ?? data_get(data_get($item, 'images', []), '0.original_url');
     $fullImageUrl = data_get(data_get($item, 'images', []), '0.original_url');
     $imageSource = data_get(data_get($item, 'images', []), '0.source');
-    $imageWidth = data_get(data_get($item, 'images', []), '0.thumbnail_width')
-        ?? data_get(data_get($item, 'images', []), '0.original_width');
-    $imageHeight = data_get(data_get($item, 'images', []), '0.thumbnail_height')
-        ?? data_get(data_get($item, 'images', []), '0.original_height');
-    $isPortrait = $imageWidth !== null && $imageHeight !== null && $imageHeight > $imageWidth;
 
     $iconName = match (true) {
         $itemType === 'PowerPlant' => 'power',
@@ -141,22 +137,21 @@
     $isPortrait = true;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card bg-base-100 shadow flex ' . ($isPortrait ? 'flex-col sm:flex-row' : 'flex-col'), 'data-testid' => 'item-hero']) }}>
+<section {{ $attributes->merge(['class' => 'card sm:card-side bg-base-100 shadow', 'data-testid' => 'item-hero']) }}>
     @if ($heroImage)
-        <div class="relative overflow-hidden {{ $isPortrait ? 'h-48 w-full sm:h-auto sm:w-64 sm:shrink-0 rounded-t-box sm:rounded-l-box sm:rounded-tr-none' : 'h-48 rounded-t-box sm:h-56' }}">
+        <figure class="relative">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="h-full w-full object-cover" loading="lazy" />
+                <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="size-full object-cover max-h-96" loading="lazy" />
             </a>
-            <div class="pointer-events-none absolute inset-0"></div>
             @if ($imageSource)
-                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70">
+                <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 w-auto h-auto">
                     Image from {{ $imageSource }}
                 </span>
             @endif
-        </div>
+        </figure>
     @endif
 
-    <div class="card-body gap-4 p-5 sm:p-6 {{ $isPortrait ? 'flex-1 min-w-0' : '' }}">
+    <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-2">
                 <div class="flex items-center gap-3">
@@ -265,5 +260,9 @@
                 </div>
             @endif
         @endif
+        <div class="card-actions justify-end pt-4">
+            <span class="text-xs text-muted font-semibold">Find on</span>
+            <a href="{{ $wikiUrl }}" class="link link-hover link-primary text-xs" target="_blank" rel="noopener noreferrer">starcitizen.tools</a>
+        </div>
     </div>
 </section>
