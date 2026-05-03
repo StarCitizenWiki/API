@@ -206,7 +206,7 @@
         <x-slot:icon>
             <x-icon name="cpu" class="size-4" />
         </x-slot:icon>
-        Vehicle-Items
+        Vehicle Components
 
         <x-slot:children>
             <x-app.sidemenu-item
