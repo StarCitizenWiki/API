@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
+use App\Services\Game\VehicleMatchingService;
+
+beforeEach(function (): void {
+    VehicleMatchingService::resetState();
+});
 
 it('fails when the game version does not exist', function (): void {
     $this->artisan('game:import-vehicles', ['version' => 'missing'])
