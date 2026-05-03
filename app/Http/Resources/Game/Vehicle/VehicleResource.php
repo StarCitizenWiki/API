@@ -309,10 +309,47 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
+
+        new OA\Property(
+            property: 'drive',
+            description: 'Ground vehicle drive characteristics (speed, wheels, agility). Only present for wheeled/tracked ground vehicles.',
+            properties: [
+                new OA\Property(property: 'max_speed_kph', description: 'Maximum speed in km/h.', type: 'number', example: 295.77, nullable: true),
+                new OA\Property(property: 'max_speed_ms', description: 'Maximum speed in m/s.', type: 'number', example: 82.16, nullable: true),
+                new OA\Property(property: 'reverse_speed_kph', description: 'Reverse speed in km/h.', type: 'number', example: 25.2, nullable: true),
+                new OA\Property(property: 'reverse_speed_ms', description: 'Reverse speed in m/s.', type: 'number', example: 7.0, nullable: true),
+                new OA\Property(property: 'is_tracked', description: 'Whether the vehicle uses tracks instead of wheels.', type: 'boolean', example: false, nullable: true),
+                new OA\Property(
+                    property: 'wheels',
+                    description: 'Wheel configuration summary.',
+                    properties: [
+                        new OA\Property(property: 'count', description: 'Total number of wheels.', type: 'integer', example: 4, nullable: true),
+                        new OA\Property(property: 'driving_count', description: 'Number of driven wheels.', type: 'integer', example: 4, nullable: true),
+                        new OA\Property(property: 'steering_count', description: 'Number of steered wheels.', type: 'integer', example: 2, nullable: true),
+                        new OA\Property(property: 'drive_type', description: 'Drive configuration (e.g. AWD, RWD, Unknown).', type: 'string', example: 'AWD', nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'agility',
+                    description: 'Handling, grip, and acceleration scores (0–1 scale).',
+                    properties: [
+                        new OA\Property(property: 'handling', description: 'Handling score (0–1).', type: 'number', example: 0.5, nullable: true),
+                        new OA\Property(property: 'grip', description: 'Grip score (0–1).', type: 'number', example: 0.1875, nullable: true),
+                        new OA\Property(property: 'acceleration', description: 'Acceleration score (0–1).', type: 'number', example: 1.0, nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object',
+            nullable: true
+        ),
         new OA\Property(
             property: 'armor',
-            description: 'Vehicle armor data from ArmorResource. Deprecated plural key aliases (signal_multipliers, damage_multipliers, resistance_multipliers) are emitted for backward compatibility.',
             ref: '#/components/schemas/vehicle_armor',
+            description: 'Vehicle armor data from ArmorResource. Deprecated plural key aliases (signal_multipliers, damage_multipliers, resistance_multipliers) are emitted for backward compatibility.',
             nullable: true
         ),
         new OA\Property(
@@ -885,6 +922,11 @@ class VehicleResource extends AbstractBaseResource
             'propulsion' => $this->buildPropulsion($vehicleData),
             'quantum' => $this->buildQuantum($vehicleData),
 
+            $this->mergeWhen(
+                $this->buildDriveCharacteristics($vehicleData) !== null,
+                fn () => ['drive' => $this->buildDriveCharacteristics($vehicleData)]
+            ),
+
             'agility' => $this->buildAgility($flight),
 
             'armor' => $this->buildArmor($vehicleData),
@@ -1077,6 +1119,74 @@ class VehicleResource extends AbstractBaseResource
             'port_olisar_to_arccorp_time' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.PortOlisarToArcCorpTime'),
             'port_olisar_to_arccorp_fuel' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.PortOlisarToArcCorpFuel'),
         ];
+    }
+
+    private function buildDriveCharacteristics(VehicleData $vehicleData): ?array
+    {
+        $speed = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Speed');
+
+        // Backwards compat <= 4.7.2
+        $maxSpeedKph = Arr::get($speed, 'WheelMaxSpeedKph')
+            ?? Arr::get($speed, 'TopSpeedKph')
+            ?? Arr::get($speed, 'TrackMaxSpeedKph');
+
+        $maxSpeedMs = Arr::get($speed, 'WheelMaxSpeedMs')
+            ?? Arr::get($speed, 'TopSpeedMs')
+            ?? Arr::get($speed, 'TrackMaxSpeedMs');
+
+        $reverseSpeedKph = Arr::get($speed, 'ReverseSpeedKph');
+        $reverseSpeedMs = Arr::get($speed, 'ReverseSpeedMs');
+
+        $wheels = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Wheels');
+        $agility = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Agility');
+
+        $isTracked = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.IsTracked')
+            ?? $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Tracks.IsTracked');
+
+        $driveCharacteristics = array_filter([
+            'max_speed_kph' => $maxSpeedKph,
+            'max_speed_ms' => $maxSpeedMs,
+            'reverse_speed_kph' => $reverseSpeedKph,
+            'reverse_speed_ms' => $reverseSpeedMs,
+            'is_tracked' => $isTracked,
+            'wheels' => is_array($wheels) ? array_filter([
+                'count' => Arr::get($wheels, 'Count'),
+                'driving_count' => Arr::get($wheels, 'DrivingCount'),
+                'steering_count' => Arr::get($wheels, 'SteeringCount'),
+                'drive_type' => Arr::get($wheels, 'DriveType'),
+            ], static fn (mixed $value): bool => $value !== null) : null,
+            'agility' => is_array($agility) ? array_filter([
+                'handling' => Arr::get($agility, 'HandlingScore'),
+                'grip' => Arr::get($agility, 'GripScore'),
+                'acceleration' => Arr::get($agility, 'AccelerationScore'),
+            ], static fn (mixed $value): bool => $value !== null) : null,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        $stanceSpeed = $this->buildStanceSpeed($vehicleData);
+
+        if ($stanceSpeed !== null) {
+            $driveCharacteristics['stance_speed'] = $stanceSpeed;
+        }
+
+        return $driveCharacteristics !== [] ? $driveCharacteristics : null;
+    }
+
+    private function buildStanceSpeed(VehicleData $vehicleData): ?array
+    {
+        $raw = $this->extractFromVehicleJson($vehicleData, 'StanceSpeed');
+
+        if (! is_array($raw)) {
+            return null;
+        }
+
+        $sprintKph = Arr::get($raw, 'SprintSpeedKph');
+
+        return array_filter([
+            'walk_kph' => Arr::get($raw, 'WalkSpeedKph'),
+            'sprint_kph' => $sprintKph > 0 ? $sprintKph : null,
+            'acceleration' => Arr::get($raw, 'Acceleration'),
+            'rotation_speed' => Arr::get($raw, 'RotationSpeed'),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     private function buildPowerPools(VehicleData $vehicleData): array

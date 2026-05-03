@@ -11,6 +11,9 @@
     $quantum = data_get($vehicle, 'quantum', []);
     $hasQuantumDrive = data_get($quantum, 'quantum_speed') !== null;
 
+    $drive = data_get($vehicle, 'drive');
+    $hasDriveData = $drive !== null && $drive !== [];
+
     $insurance = data_get($vehicle, 'insurance', []);
     $hasInsuranceData = $insurance !== [];
 
@@ -67,8 +70,8 @@
             apiEndpoint="/api/vehicles"
         />
 
-        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12 xl:items-stretch">
-            <x-vehicles.hero :vehicle="$vehicle" class="xl:col-span-6" />
+        <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
+            <x-vehicles.hero :vehicle="$vehicle" :translations="data_get($vehicle, 'description')" class="xl:col-span-6" />
             <x-vehicles.quick-facts-card :vehicle="$vehicle" class="xl:col-span-6" />
         </div>
 
@@ -78,7 +81,13 @@
 
                 <div class="grid grid-cols-1 gap-4 2xl:grid-cols-3">
                     <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
+                @if ($isSpaceship || $hasQuantumDrive)
                     <x-vehicles.propulsion-card :vehicle="$vehicle" />
+                @endif
+                @if ($hasDriveData)
+                    <x-vehicles.drive-characteristics-card :vehicle="$vehicle" />
+                @endif
+
                     <x-vehicles.thruster-summary-card :vehicle="$vehicle" />
                 </div>
             </section>
