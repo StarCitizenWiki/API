@@ -72,10 +72,8 @@
     }
 
     $columns = [
-        [
-            ['title' => 'Properties', 'rows' => $propertiesRows],
-        ],
-        $rightSections,
+        ['title' => 'Properties', 'rows' => $propertiesRows],
+        ...$rightSections,
     ];
 
     $uuidApiUrl = $uuid !== null ? route('commodities.show', $uuid) : null;

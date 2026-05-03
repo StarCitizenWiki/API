@@ -54,23 +54,20 @@
     ];
 
     $columns = [
+        ['title' => 'Storage', 'rows' => $storageRows],
+        ['title' => 'Signature', 'rows' => $signatureRows],
         [
-            ['title' => 'Storage', 'rows' => $storageRows],
-            ['title' => 'Signature', 'rows' => $signatureRows],
-            [
-                'title' => 'Stats',
-                'rows' => [
-                    ['label' => 'Crew', 'value' => $crewValue],
-                    ['label' => 'Dimensions', 'value' => $dimensionsValue],
-                    ['label' => 'Cross Section', 'value' => Format::numberOrDash(data_get($vehicle, 'cross_section_max'))],
-                    ['label' => 'Mass', 'value' => Format::valueWithUnit($massTotal, 'kg', 0)],
-                ],
+            'title' => 'Stats',
+            'rows' => [
+                ['label' => 'Crew', 'value' => $crewValue],
+                ['label' => 'Dimensions', 'value' => $dimensionsValue],
+                ['label' => 'Cross Section', 'value' => Format::numberOrDash(data_get($vehicle, 'cross_section_max'))],
+                ['label' => 'Mass', 'value' => Format::valueWithUnit($massTotal, 'kg', 0)],
             ],
         ],
-        [
-            ['title' => 'Speed', 'rows' => $speedRows],
-            ['title' => 'Defense', 'rows' => $defenseRows],
-        ],
+
+        ['title' => 'Speed', 'rows' => $speedRows],
+        ['title' => 'Defense', 'rows' => $defenseRows],
     ];
 
     $className = data_get($vehicle, 'class_name');

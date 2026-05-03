@@ -33,36 +33,32 @@
 
     $columns = [
         [
-            [
-                'title' => 'Hierarchy',
-                'rows' => [
-                    $starUrl !== null
-                        ? ['label' => 'Star', 'value' => $starName ?? '-', 'type' => 'link', 'url' => $starUrl, 'test_id' => 'starmap-location-quick-facts-star-link']
-                        : ['label' => 'Star', 'value' => $starName ?? '-'],
-                    ['label' => 'System', 'value' => data_get($location, 'system', '-')],
-                    $parentUrl !== null
-                        ? ['label' => 'Parent', 'value' => $parentName ?? '-', 'type' => 'link', 'url' => $parentUrl, 'test_id' => 'starmap-location-quick-facts-parent-link']
-                        : ['label' => 'Parent', 'value' => $parentName ?? '-'],
-                ],
-            ],
-            [
-                'title' => 'Status',
-                'rows' => [
-                    ['label' => 'Starmap', 'value' => data_get($location, 'hide_in_starmap') ? 'Hidden' : 'Visible'],
-                    ['label' => 'World', 'value' => data_get($location, 'hide_in_world') ? 'Hidden' : 'Visible'],
-                    ['label' => 'Scannable', 'value' => data_get($location, 'is_scannable') ? 'Yes' : 'No'],
-                    ['label' => 'Travel', 'value' => data_get($location, 'block_travel') ? 'Blocked' : 'Allowed'],
-                ],
+            'title' => 'Hierarchy',
+            'rows' => [
+                $starUrl !== null
+                    ? ['label' => 'Star', 'value' => $starName ?? '-', 'type' => 'link', 'url' => $starUrl, 'test_id' => 'starmap-location-quick-facts-star-link']
+                    : ['label' => 'Star', 'value' => $starName ?? '-'],
+                ['label' => 'System', 'value' => data_get($location, 'system', '-')],
+                $parentUrl !== null
+                    ? ['label' => 'Parent', 'value' => $parentName ?? '-', 'type' => 'link', 'url' => $parentUrl, 'test_id' => 'starmap-location-quick-facts-parent-link']
+                    : ['label' => 'Parent', 'value' => $parentName ?? '-'],
             ],
         ],
         [
-            [
-                'title' => 'Overview',
-                'rows' => [
-                    ['label' => 'Children', 'value' => (string) data_get($location, 'child_count', 0)],
-                    ['label' => 'Missions', 'value' => (string) data_get($location, 'mission_count', 0)],
-                    ['label' => 'Respawn', 'value' => data_get($location, 'respawn_location_type', '-')],
-                ],
+            'title' => 'Status',
+            'rows' => [
+                ['label' => 'Starmap', 'value' => data_get($location, 'hide_in_starmap') ? 'Hidden' : 'Visible'],
+                ['label' => 'World', 'value' => data_get($location, 'hide_in_world') ? 'Hidden' : 'Visible'],
+                ['label' => 'Scannable', 'value' => data_get($location, 'is_scannable') ? 'Yes' : 'No'],
+                ['label' => 'Travel', 'value' => data_get($location, 'block_travel') ? 'Blocked' : 'Allowed'],
+            ],
+        ],
+        [
+            'title' => 'Overview',
+            'rows' => [
+                ['label' => 'Children', 'value' => (string) data_get($location, 'child_count', 0)],
+                ['label' => 'Missions', 'value' => (string) data_get($location, 'mission_count', 0)],
+                ['label' => 'Respawn', 'value' => data_get($location, 'respawn_location_type', '-')],
             ],
         ],
     ];

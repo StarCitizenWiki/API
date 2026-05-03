@@ -50,59 +50,55 @@
 
     $columns = [
         [
-            [
-                'title' => 'Overview',
-                'rows' => [
-                    ['label' => 'Rank', 'value' => $rankIndex],
-                    ['label' => 'Faction', 'value' => $factionName],
-                    ['label' => 'Type', 'value' => $rewardScope],
-                    ['label' => 'Blueprints', 'value' => $hasBlueprints ? 'Yes' : null],
-                    ['label' => 'Illegal', 'value' => $illegal ? 'Yes' : null],
-                    ['label' => 'Shareable', 'value' => $shareable ? 'Yes' : null],
-                    ['label' => 'Prison', 'value' => $availableInPrison ? 'Yes' : null],
-                    ['label' => 'Once Only', 'value' => $onceOnly ? 'Yes' : null],
-                ],
-            ],
-            [
-                'title' => 'Timing',
-                'rows' => [
-                    ['label' => 'Duration', 'value' => $timeToComplete !== null ? Format::valueWithUnit($timeToComplete, 'min', 0) : null],
-                    ['label' => 'Cooldown', 'value' => $cooldownLabel],
-                    ['label' => 'Lifetime', 'value' => $lifetimeLabel],
-                    ['label' => 'Deadline', 'value' => $deadlineMinutes !== null ? Format::valueWithUnit($deadlineMinutes, 'min', 0) : null],
-                ],
+            'title' => 'Overview',
+            'rows' => [
+                ['label' => 'Rank', 'value' => $rankIndex],
+                ['label' => 'Faction', 'value' => $factionName],
+                ['label' => 'Type', 'value' => $rewardScope],
+                ['label' => 'Blueprints', 'value' => $hasBlueprints ? 'Yes' : null],
+                ['label' => 'Illegal', 'value' => $illegal ? 'Yes' : null],
+                ['label' => 'Shareable', 'value' => $shareable ? 'Yes' : null],
+                ['label' => 'Prison', 'value' => $availableInPrison ? 'Yes' : null],
+                ['label' => 'Once Only', 'value' => $onceOnly ? 'Yes' : null],
             ],
         ],
         [
-            [
-                'title' => 'Combat',
-                'rows' => [
-                    $hasCombat !== null
-                        ? ['label' => 'Combat', 'value' => $hasCombat ? 'Yes' : 'No']
-                        : null,
-                    $hasDefendObjective !== null
-                        ? ['label' => 'Defend', 'value' => $hasDefendObjective ? 'Yes' : 'No']
-                        : null,
-                    $enemyMin !== null || $enemyMax !== null
-                        ? ['label' => 'Enemies', 'value' => Format::range($enemyMin, $enemyMax, '', 0)]
-                        : null,
-                    $minCrimeStat !== null || $maxCrimeStat !== null
-                        ? ['label' => 'Crime Stat', 'value' => Format::range($minCrimeStat, $maxCrimeStat, '', 0)]
-                        : null,
-                ],
+            'title' => 'Timing',
+            'rows' => [
+                ['label' => 'Duration', 'value' => $timeToComplete !== null ? Format::valueWithUnit($timeToComplete, 'min', 0) : null],
+                ['label' => 'Cooldown', 'value' => $cooldownLabel],
+                ['label' => 'Lifetime', 'value' => $lifetimeLabel],
+                ['label' => 'Deadline', 'value' => $deadlineMinutes !== null ? Format::valueWithUnit($deadlineMinutes, 'min', 0) : null],
             ],
-            [
-                'title' => 'Details',
-                'rows' => [
-                    ['label' => 'Cost', 'value' => $cost !== null ? Format::valueWithUnit($cost, 'aUEC', 0, true) : null],
-                    ['label' => 'Max Players', 'value' => $maxPlayersPerInstance],
-                    $starSystems !== []
-                        ? ['label' => 'Systems', 'value' => implode(', ', $starSystems)]
-                        : null,
-                    $reacceptParts !== []
-                        ? ['label' => 'Reaccept', 'value' => implode(' · ', $reacceptParts)]
-                        : null,
-                ],
+        ],
+        [
+            'title' => 'Combat',
+            'rows' => [
+                $hasCombat !== null
+                    ? ['label' => 'Combat', 'value' => $hasCombat ? 'Yes' : 'No']
+                    : null,
+                $hasDefendObjective !== null
+                    ? ['label' => 'Defend', 'value' => $hasDefendObjective ? 'Yes' : 'No']
+                    : null,
+                $enemyMin !== null || $enemyMax !== null
+                    ? ['label' => 'Enemies', 'value' => Format::range($enemyMin, $enemyMax, '', 0)]
+                    : null,
+                $minCrimeStat !== null || $maxCrimeStat !== null
+                    ? ['label' => 'Crime Stat', 'value' => Format::range($minCrimeStat, $maxCrimeStat, '', 0)]
+                    : null,
+            ],
+        ],
+        [
+            'title' => 'Details',
+            'rows' => [
+                ['label' => 'Cost', 'value' => $cost !== null ? Format::valueWithUnit($cost, 'aUEC', 0, true) : null],
+                ['label' => 'Max Players', 'value' => $maxPlayersPerInstance],
+                $starSystems !== []
+                    ? ['label' => 'Systems', 'value' => implode(', ', $starSystems)]
+                    : null,
+                $reacceptParts !== []
+                    ? ['label' => 'Reaccept', 'value' => implode(' · ', $reacceptParts)]
+                    : null,
             ],
         ],
     ];

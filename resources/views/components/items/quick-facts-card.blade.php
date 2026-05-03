@@ -109,35 +109,32 @@
 
     $columns = [
         [
-            [
-                'title' => 'Fitment',
-                'rows' => [
-                    ['label' => 'Grade', 'value' => $gradeLetter ?? '-'],
-                    ['label' => 'Size', 'value' => $size !== null ? (string) $size : '-'],
-                ],
-            ],
-            [
-                'title' => 'Links',
-                'rows' => $linksRows,
+            'title' => 'Fitment',
+            'rows' => [
+                ['label' => 'Grade', 'value' => $gradeLetter ?? '-'],
+                ['label' => 'Size', 'value' => $size !== null ? (string) $size : '-'],
             ],
         ],
         [
-            [
-                'title' => 'Physical',
-                'rows' => [
-                    ['label' => 'Mass', 'value' => $mass !== null ? Format::valueWithUnit($mass, 'kg', 0) : '-'],
-                    ['label' => 'Volume', 'value' => $volume !== null ? Format::valueWithUnit($volume, $volumeUnit ?? '', 0) : '-'],
-                    [
-                        'label' => 'Dimensions',
-                        'value' => $dimensionsValue,
-                        ...($dimensionsTitle !== null ? ['title' => $dimensionsTitle] : []),
-                    ],
+            'title' => 'Links',
+            'rows' => $linksRows,
+        ],
+
+        [
+            'title' => 'Physical',
+            'rows' => [
+                ['label' => 'Mass', 'value' => $mass !== null ? Format::valueWithUnit($mass, 'kg', 0) : '-'],
+                ['label' => 'Volume', 'value' => $volume !== null ? Format::valueWithUnit($volume, $volumeUnit ?? '', 0) : '-'],
+                [
+                    'label' => 'Dimensions',
+                    'value' => $dimensionsValue,
+                    ...($dimensionsTitle !== null ? ['title' => $dimensionsTitle] : []),
                 ],
             ],
-            [
-                'title' => 'Stats',
-                'rows' => $statsRows,
-            ],
+        ],
+        [
+            'title' => 'Stats',
+            'rows' => $statsRows,
         ],
     ];
 
