@@ -52,6 +52,8 @@
         $entityTagMap = data_get($item, 'entity_tag_map', []);
         $defaultComposition = data_get($item, 'resource_container.default_composition', []);
         $versionQuery = request()->query('version');
+        $vehicles = data_get($item, 'vehicles', []);
+        $hasVehiclesCard = is_array($vehicles) && $vehicles !== [];
 
         $technicalEntries = array_values(array_filter([
             ['label' => 'Classification', 'value' => $classification ?? '-', 'url' => null],
@@ -347,6 +349,10 @@
 
                                 @if (data_get($item, 'resource_network'))
                                     <x-items.resource-network-card :resource-network="data_get($item, 'resource_network')" :item-type="data_get($item, 'type')" />
+                                @endif
+
+                                @if ($hasVehiclesCard)
+                                    <x-items.standard-loadout-card :vehicles="$vehicles" />
                                 @endif
                             </div>
                         @endif

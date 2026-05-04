@@ -66,7 +66,7 @@ class ItemController extends Controller
     public function show(Request $request, string $item): View|RedirectResponse
     {
         $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
-        $include = array_values(array_unique(array_merge($include, ['related_items', 'blueprints'])));
+        $include = array_values(array_unique(array_merge($include, ['related_items', 'blueprints', 'vehicles'])));
 
         $apiRequest = $request->duplicate();
         $apiRequest->query->set('include', implode(',', $include));

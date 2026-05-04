@@ -379,6 +379,31 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
 
+        new OA\Property(
+            property: 'vehicles',
+            description: 'Only returned when `include=vehicles` is requested. Vehicles that have this item installed.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'uuid', description: 'Vehicle UUID', type: 'string', nullable: true),
+                    new OA\Property(property: 'name', type: 'string'),
+                    new OA\Property(property: 'career', type: 'string', nullable: true),
+                    new OA\Property(property: 'role', type: 'string', nullable: true),
+                    new OA\Property(
+                        property: 'manufacturer',
+                        properties: [
+                            new OA\Property(property: 'code', type: 'string', nullable: true),
+                            new OA\Property(property: 'name', type: 'string', nullable: true),
+                        ],
+                        type: 'object',
+                        nullable: true
+                    ),
+                    new OA\Property(property: 'web_url', description: 'Web URL for vehicle detail page', type: 'string', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true
+        ),
         new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string'),
         new OA\Property(property: 'link', description: 'API URL for item detail endpoint', type: 'string'),
 
@@ -607,6 +632,26 @@ class ItemResource extends AbstractBaseResource
                 $itemData->relationLoaded('setItems'),
                 fn () => [
                     'related_items' => new RelatedItemsResource($itemData),
+                ]
+            ),
+            $this->mergeWhen(
+                $itemData->relationLoaded('installedOnVehicles'),
+                fn () => [
+                    'vehicles' => $itemData->installedOnVehicles
+                        ->sortBy([
+                            fn ($vd) => $vd->manufacturer?->name ?? '',
+                            fn ($vd) => $vd->display_name ?? $vd->name,
+                        ])
+                        ->map(fn ($vd) => [
+                            'uuid' => $vd->vehicle?->uuid,
+                            'name' => $vd->display_name ?? $vd->name,
+                            'career' => $vd->career,
+                            'role' => $vd->role,
+                            'manufacturer' => $vd->relationLoaded('manufacturer') && $vd->manufacturer !== null
+                                ? ['code' => $vd->manufacturer->code, 'name' => $vd->manufacturer->name]
+                                : null,
+                            'web_url' => $vd->vehicle ? route('web.vehicles.show', $vd->vehicle->uuid) : null,
+                        ])->values()->all(),
                 ]
             ),
             'web_url' => $this->buildWebUrl($request),

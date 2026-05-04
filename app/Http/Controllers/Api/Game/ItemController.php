@@ -68,6 +68,7 @@ class ItemController extends Controller
                     'baseVariant.item',
                 ])),
                 AllowedInclude::custom('blueprints', new CustomEagerLoadInclude),
+                AllowedInclude::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer'])),
             ]
         );
     }
@@ -323,7 +324,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/items',
-        description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)',
+        description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, vehicles, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)',
         summary: 'In-Game Item Overview',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -391,7 +392,7 @@ class ItemController extends Controller
 
     #[OA\Get(
         path: '/api/weapons/{identifier}',
-        description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Weapon Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -406,7 +407,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/weapon-attachments/{identifier}',
-        description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Weapon Attachment Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -421,7 +422,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/clothes/{identifier}',
-        description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Clothing Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -436,7 +437,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/armor/{identifier}',
-        description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Armor Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -451,7 +452,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/food/{identifier}',
-        description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Food Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -466,7 +467,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-weapons/{identifier}',
-        description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Vehicle Weapon Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -481,7 +482,7 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicle-items/{identifier}',
-        description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, shops.items.',
+        description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.',
         summary: 'In-Game Vehicle Item Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
@@ -496,14 +497,14 @@ class ItemController extends Controller
     )]
     #[OA\Get(
         path: '/api/items/{identifier}',
-        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.',
+        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.',
         summary: 'In-Game Item Detail',
         tags: ['In-Game', 'Items'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(
                 name: 'include',
-                description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), shops (shop availability data), shops.items (shop items).',
+                description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), vehicles (vehicles this item is installed on), shops (shop availability data), shops.items (shop items).',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', example: 'blueprints')
             ),

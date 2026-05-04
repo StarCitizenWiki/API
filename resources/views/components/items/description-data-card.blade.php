@@ -7,22 +7,7 @@
         <h2 class="card-title text-base">Description Data</h2>
 
         @if (is_array($descriptionData) && $descriptionData !== [])
-            <div class="grid gap-2 sm:hidden">
-                @foreach ($descriptionData as $datum)
-                    <div class="card border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body gap-2 p-3">
-                            <div class="text-xs font-medium uppercase tracking-wide text-muted">
-                                {{ $datum['name'] ?? '-' }}
-                            </div>
-                            <div class="text-sm font-medium wrap-break-word">
-                                {{ $datum['value'] ?? '-' }}
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            <div class="hidden overflow-x-auto sm:block">
+            <div class="overflow-x-auto">
                 <table class="table table-sm">
                     <caption class="sr-only">Structured description data</caption>
                     <thead>

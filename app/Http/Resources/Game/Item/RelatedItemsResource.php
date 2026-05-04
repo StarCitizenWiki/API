@@ -44,7 +44,10 @@ class RelatedItemsResource extends JsonResource
                 && $gi->item_data_id !== $baseId)
             ->when(
                 str_starts_with($itemData->classification ?? '', 'Ship.'),
-                fn ($c) => $c->sortBy(fn ($gi) => $gi->itemData->size ?? PHP_INT_MAX),
+                fn ($collection) => $collection->sortBy([
+                    fn ($gameItem) => $gameItem->itemData->size ?? PHP_INT_MAX,
+                    fn ($gameItem) => $gameItem->itemData->grade ?? PHP_INT_MAX,
+                ]),
             )
             ->map(fn ($gi): array => $this->formatRelatedLink($gi->itemData, $gi->variant_name ?? 'Base', false, $itemData->gameVersion->code))
             ->values()
