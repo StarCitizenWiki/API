@@ -221,11 +221,6 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
-        $vehicles->getCollection()->load([
-            'installedItems' => fn ($q) => $q->with(['item']),
-        ]);
-        $this->buildBatchPortItemMap($vehicles->getCollection());
-
         return VehicleResource::collection($vehicles);
     }
 

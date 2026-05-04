@@ -41,6 +41,7 @@ class ItemData extends Model
         'manufacturer_id',
         'base_id',
         'data',
+        'rarity',
         'uex_prices',
     ];
 

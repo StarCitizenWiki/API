@@ -173,6 +173,7 @@ class ImportItemData implements ShouldQueue
             'size' => $this->nullableInt($itemPayload['size'] ?? null),
             'grade' => $this->nullableInt($itemPayload['grade'] ?? null),
             'class' => $itemClass,
+            'rarity' => Arr::get($itemPayload, 'stdItem.Rarity'),
             'base_id' => null,
 
             'data' => $itemPayload,

@@ -99,7 +99,7 @@ class ItemController extends Controller
                     'classification',
                     AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                     AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-                    $this->jsonSort('rarity', 'stdItem.Rarity', 'text'),
+                    AllowedSort::field('rarity'),
                 ],
                 $this->allowedJsonSorts()
             ))
@@ -157,7 +157,7 @@ class ItemController extends Controller
             AllowedFilter::exact('grade'),
             AllowedFilter::exact('class'),
             AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'stdItem.Rarity', $value);
+                $this->applyColumnFilter($query, 'game_item_data.rarity', $value);
             }),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
@@ -771,7 +771,7 @@ class ItemController extends Controller
                     'cast' => null,
                 ],
                 'rarity' => [
-                    'expr' => $this->jsonExpression('stdItem.Rarity'),
+                    'expr' => 'game_item_data.rarity',
                     'cast' => null,
                 ],
                 'manufacturer' => [

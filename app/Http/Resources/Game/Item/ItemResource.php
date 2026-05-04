@@ -536,8 +536,8 @@ class ItemResource extends AbstractBaseResource
             'description' => $this->getTranslation($itemData->item, $request),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Rarity'), [
-                'rarity' => $this->extractString($itemData, 'Rarity'),
+            $this->mergeWhen($itemData->rarity !== null, [
+                'rarity' => $itemData->rarity,
             ]),
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,

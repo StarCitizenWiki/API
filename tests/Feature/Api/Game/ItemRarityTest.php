@@ -34,6 +34,7 @@ it('includes rarity in item response when present in stdItem', function (): void
                     'Rarity' => 'Rare',
                 ],
             ],
+            'rarity' => 'Rare',
         ]);
 
     $response = $this->getJson('/api/items');
@@ -100,6 +101,7 @@ it('filters items by rarity', function (): void {
                     'Rarity' => 'Rare',
                 ],
             ],
+            'rarity' => 'Rare',
         ]);
 
     $commonItem = Item::factory()->create();
@@ -116,6 +118,7 @@ it('filters items by rarity', function (): void {
                     'Rarity' => 'Common',
                 ],
             ],
+            'rarity' => 'Common',
         ]);
 
     $response = $this->getJson('/api/items?filter[rarity]=Rare');
@@ -148,6 +151,7 @@ it('includes rarity facet in filters endpoint', function (): void {
                         'Rarity' => $rarity,
                     ],
                 ],
+                'rarity' => $rarity,
             ]);
     }
 

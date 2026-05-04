@@ -19,7 +19,6 @@ use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -771,21 +770,21 @@ class VehicleResource extends AbstractBaseResource
 
         $vehicleData = $this->resource;
 
-        $payload = $vehicleData->data ?? [];
-        $flight = $this->extractFromVehicleJson($vehicleData, 'FlightCharacteristics', []);
+        $payload = ($vehicleData->data ?? collect())->toArray();
+        $flight = Arr::get($payload, 'FlightCharacteristics', []);
 
         $apiVersion = $this->getApiVersion($request);
 
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
-        $cargoGridPayload = $this->extractFromVehicleJson($vehicleData, 'CargoGrids', []);
+        $cargoGridPayload = Arr::get($payload, 'CargoGrids', []);
         $cargoLimits = $this->calculateCargoGridSizeLimits($cargoGridPayload);
 
-        $weaponSnapshotLoadout = $this->extractFromVehicleJson($vehicleData, 'Loadout', []);
+        $weaponSnapshotLoadout = Arr::get($payload, 'Loadout', []);
 
-        $mannedTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'MannedTurrets', []), 'manned');
-        $remoteTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'RemoteTurrets', []), 'remote');
-        $pdcTurrets = $this->decorateTurretEntries($this->extractFromVehicleJson($vehicleData, 'PdcTurrets', []), 'pdc');
+        $mannedTurrets = $this->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
+        $remoteTurrets = $this->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
+        $pdcTurrets = $this->decorateTurretEntries(Arr::get($payload, 'PdcTurrets', []), 'pdc');
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -857,16 +856,20 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => null,
             ],
 
-            'max_medical_tier' => $this->resolveMaxMedicalTier($vehicleData),
+            'max_medical_tier' => $this->resolveMaxMedicalTier($payload),
 
-            'seating' => [
-                'crew_stations' => $this->extractFromVehicleJson($vehicleData, 'Seating.CrewStations', 0),
-                'ejection_seats' => $this->extractFromVehicleJson($vehicleData, 'Seating.EjectionSeats', 0),
-                'escape_pods' => $this->extractFromVehicleJson($vehicleData, 'Seating.EscapePods'),
-                'jump_seats' => $this->extractFromVehicleJson($vehicleData, 'Seating.JumpSeats'),
-                'beds' => $this->extractFromVehicleJson($vehicleData, 'Seating.TotalBeds', 0),
-                'medical_beds' => $this->resolveMedicalBeds($vehicleData),
-            ],
+            'seating' => (function () use ($payload) {
+                $seating = Arr::get($payload, 'Seating', []);
+
+                return [
+                    'crew_stations' => Arr::get($seating, 'CrewStations', 0),
+                    'ejection_seats' => Arr::get($seating, 'EjectionSeats', 0),
+                    'escape_pods' => Arr::get($seating, 'EscapePods'),
+                    'jump_seats' => Arr::get($seating, 'JumpSeats'),
+                    'beds' => Arr::get($seating, 'TotalBeds', 0),
+                    'medical_beds' => $this->resolveMedicalBeds($payload),
+                ];
+            })(),
 
             'health' => Arr::get($payload, 'Health', 0),
 
@@ -880,8 +883,8 @@ class VehicleResource extends AbstractBaseResource
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
                 'max_electrical_charge_damage_rate' => Arr::get($payload, 'ShieldController.MaxElectricalChargeDamageRate'),
-                'resistance' => $this->buildDamageTypeRange($vehicleData, 'ShieldsTotal.Resistance'),
-                'absorption' => $this->buildDamageTypeRange($vehicleData, 'ShieldsTotal.Absorption'),
+                'resistance' => $this->buildDamageTypeRange($payload, 'ShieldsTotal.Resistance'),
+                'absorption' => $this->buildDamageTypeRange($payload, 'ShieldsTotal.Absorption'),
             ],
 
             $this->mergeWhen(
@@ -913,24 +916,22 @@ class VehicleResource extends AbstractBaseResource
                 'regen_delay' => Arr::get($flight, 'Afterburner.CapacitorRegenDelayAfterUse'),
             ],
 
-            'fuel' => $this->buildFuel($vehicleData, $payload),
-            'propulsion' => $this->buildPropulsion($vehicleData),
-            'quantum' => $this->buildQuantum($vehicleData),
+            'fuel' => $this->buildFuel($vehicleData, $propulsion = Arr::get($payload, 'Propulsion', [])),
+            'propulsion' => $this->buildPropulsion($propulsion),
+            'quantum' => $this->buildQuantum($payload),
 
             $this->mergeWhen(
-                $this->buildDriveCharacteristics($vehicleData) !== null,
-                fn () => ['drive' => $this->buildDriveCharacteristics($vehicleData)]
+                ($drive = $this->buildDriveCharacteristics($payload)) !== null,
+                fn () => ['drive' => $drive]
             ),
 
             'agility' => $this->buildAgility($flight),
 
-            'armor' => $this->buildArmor($vehicleData),
+            'armor' => $this->buildArmor($vehicleData, $payload),
 
             $this->mergeWhen(
-                $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotDps') !== null
-                || $this->extractFromVehicleJson($vehicleData, 'Weaponry.FixedWeapons') !== null
-                || $this->extractFromVehicleJson($vehicleData, 'Weaponry.Missiles') !== null,
-                fn () => ['weaponry' => $this->buildWeaponry($vehicleData)]
+                ($weaponry = $this->buildWeaponry($payload)) !== [],
+                fn () => ['weaponry' => $weaponry]
             ),
 
             'manufacturer' => new ManufacturerLinkResource($vehicleData->manufacturer),
@@ -988,7 +989,7 @@ class VehicleResource extends AbstractBaseResource
 
             $this->mergeWhen(
                 ! empty(Arr::get($payload, 'PowerPools')),
-                fn () => ['power_pools' => $this->buildPowerPools($vehicleData)]
+                fn () => ['power_pools' => $this->buildPowerPools($payload)]
             ),
 
             'penetration_multiplier' => [
@@ -1007,10 +1008,11 @@ class VehicleResource extends AbstractBaseResource
             ],
             $this->mergeWhen(
                 $this->isVehicleShowRoute($request),
-                function () use ($vehicleData, $apiVersion, $portKey) {
+                function () use ($payload, $apiVersion, $portKey) {
+                    $loadout = Arr::get($payload, 'Loadout', []);
                     $hardpoints = $apiVersion === 'v2'
-                        ? HardpointResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []))
-                        : PortResource::collection($this->extractFromVehicleJson($vehicleData, 'Loadout', []));
+                        ? HardpointResource::collection($loadout)
+                        : PortResource::collection($loadout);
 
                     return [$portKey => $hardpoints];
                 }
@@ -1096,35 +1098,40 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function buildFuel(VehicleData $vehicleData, Collection $payload): array
+    private function buildFuel(VehicleData $vehicleData, array $propulsion): array
     {
+        $usage = Arr::get($propulsion, 'FuelUsage', []);
+
         return [
-            'capacity' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelCapacity', 0) / 1000,
-            'intake_rate' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelIntakeRate'),
+            'capacity' => (float) (Arr::get($propulsion, 'FuelCapacity', 0)) / 1000,
+            'intake_rate' => Arr::get($propulsion, 'FuelIntakeRate'),
             'usage' => [
-                'main' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelUsage.Main'),
-                'retro' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelUsage.Retro'),
-                'vtol' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelUsage.Vtol'),
-                'maneuvering' => $this->extractFromVehicleJson($vehicleData, 'Propulsion.FuelUsage.Maneuvering'),
+                'main' => Arr::get($usage, 'Main'),
+                'retro' => Arr::get($usage, 'Retro'),
+                'vtol' => Arr::get($usage, 'Vtol'),
+                'maneuvering' => Arr::get($usage, 'Maneuvering'),
             ],
         ];
     }
 
-    private function buildQuantum(VehicleData $vehicleData): array
+    private function buildQuantum(array $payload): array
     {
+        $qt = Arr::get($payload, 'QuantumTravel', []);
+
         return [
-            'quantum_speed' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.Speed'),
-            'quantum_spool_time' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.SpoolTime'),
-            'quantum_fuel_capacity' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.FuelCapacity', 0) / 1000,
-            'quantum_range' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.Range'),
-            'port_olisar_to_arccorp_time' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.PortOlisarToArcCorpTime'),
-            'port_olisar_to_arccorp_fuel' => $this->extractFromVehicleJson($vehicleData, 'QuantumTravel.PortOlisarToArcCorpFuel'),
+            'quantum_speed' => Arr::get($qt, 'Speed'),
+            'quantum_spool_time' => Arr::get($qt, 'SpoolTime'),
+            'quantum_fuel_capacity' => (float) (Arr::get($qt, 'FuelCapacity', 0)) / 1000,
+            'quantum_range' => Arr::get($qt, 'Range'),
+            'port_olisar_to_arccorp_time' => Arr::get($qt, 'PortOlisarToArcCorpTime'),
+            'port_olisar_to_arccorp_fuel' => Arr::get($qt, 'PortOlisarToArcCorpFuel'),
         ];
     }
 
-    private function buildDriveCharacteristics(VehicleData $vehicleData): ?array
+    private function buildDriveCharacteristics(array $payload): ?array
     {
-        $speed = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Speed');
+        $dc = Arr::get($payload, 'DriveCharacteristics', []);
+        $speed = Arr::get($dc, 'Speed');
 
         // Backwards compat <= 4.7.2
         $maxSpeedKph = Arr::get($speed, 'WheelMaxSpeedKph')
@@ -1138,11 +1145,11 @@ class VehicleResource extends AbstractBaseResource
         $reverseSpeedKph = Arr::get($speed, 'ReverseSpeedKph');
         $reverseSpeedMs = Arr::get($speed, 'ReverseSpeedMs');
 
-        $wheels = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Wheels');
-        $agility = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Agility');
+        $wheels = Arr::get($dc, 'Wheels');
+        $agility = Arr::get($dc, 'Agility');
 
-        $isTracked = $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.IsTracked')
-            ?? $this->extractFromVehicleJson($vehicleData, 'DriveCharacteristics.Tracks.IsTracked');
+        $isTracked = Arr::get($dc, 'IsTracked')
+            ?? Arr::get($dc, 'Tracks.IsTracked');
 
         $driveCharacteristics = array_filter([
             'max_speed_kph' => $maxSpeedKph,
@@ -1163,7 +1170,7 @@ class VehicleResource extends AbstractBaseResource
             ], static fn (mixed $value): bool => $value !== null) : null,
         ], static fn (mixed $value): bool => $value !== null);
 
-        $stanceSpeed = $this->buildStanceSpeed($vehicleData);
+        $stanceSpeed = $this->buildStanceSpeed($payload);
 
         if ($stanceSpeed !== null) {
             $driveCharacteristics['stance_speed'] = $stanceSpeed;
@@ -1172,9 +1179,9 @@ class VehicleResource extends AbstractBaseResource
         return $driveCharacteristics !== [] ? $driveCharacteristics : null;
     }
 
-    private function buildStanceSpeed(VehicleData $vehicleData): ?array
+    private function buildStanceSpeed(array $payload): ?array
     {
-        $raw = $this->extractFromVehicleJson($vehicleData, 'StanceSpeed');
+        $raw = Arr::get($payload, 'StanceSpeed');
 
         if (! is_array($raw)) {
             return null;
@@ -1190,9 +1197,9 @@ class VehicleResource extends AbstractBaseResource
         ], static fn (mixed $value): bool => $value !== null);
     }
 
-    private function buildPowerPools(VehicleData $vehicleData): array
+    private function buildPowerPools(array $payload): array
     {
-        $powerPools = $this->extractFromVehicleJson($vehicleData, 'PowerPools', []);
+        $powerPools = Arr::get($payload, 'PowerPools', []);
 
         return array_map(static fn ($poolData) => [
             'type' => Arr::get($poolData, 'Type'),
@@ -1235,9 +1242,9 @@ class VehicleResource extends AbstractBaseResource
         );
     }
 
-    private function buildArmor(VehicleData $vehicleData): array
+    private function buildArmor(VehicleData $vehicleData, array $payload): array
     {
-        $armorUuid = $this->extractFromVehicleJson($vehicleData, 'Armor.UUID');
+        $armorUuid = Arr::get($payload, 'Armor.UUID');
 
         if ($armorUuid === null) {
             return [];
@@ -1468,17 +1475,17 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function resolveMaxMedicalTier(VehicleData $vehicleData): ?string
+    private function resolveMaxMedicalTier(array $payload): ?string
     {
-        return collect($this->extractFromVehicleJson($vehicleData, 'Seating.MedicalBeds'))
+        return collect(Arr::get($payload, 'Seating.MedicalBeds'))
             ->pluck('Tier')
             ->sortByDesc(static fn (string $tier): int => (int) ltrim($tier, 'T'))
             ->first();
     }
 
-    private function resolveMedicalBeds(VehicleData $vehicleData): ?array
+    private function resolveMedicalBeds(array $payload): ?array
     {
-        $medicalBeds = $this->extractFromVehicleJson($vehicleData, 'Seating.MedicalBeds');
+        $medicalBeds = Arr::get($payload, 'Seating.MedicalBeds');
 
         if ($medicalBeds === null || $medicalBeds === []) {
             return null;
@@ -1493,26 +1500,28 @@ class VehicleResource extends AbstractBaseResource
      *
      * @return array<string, array{minimum: mixed, maximum: mixed}>
      */
-    private function buildDamageTypeRange(VehicleData $vehicleData, string $path): array
+    private function buildDamageTypeRange(array $payload, string $path): array
     {
         $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
 
+        $parent = Arr::get($payload, $path, []);
+
         $result = [];
         foreach ($damageTypes as $type) {
+            $entry = Arr::get($parent, $type);
             $result[strtolower($type)] = [
-                'minimum' => $this->extractFromVehicleJson($vehicleData, "{$path}.{$type}.Minimum"),
-                'maximum' => $this->extractFromVehicleJson($vehicleData, "{$path}.{$type}.Maximum"),
+                'minimum' => Arr::get($entry, 'Minimum'),
+                'maximum' => Arr::get($entry, 'Maximum'),
             ];
         }
 
         return $result;
     }
 
-    private function buildPropulsion(VehicleData $vehicleData): array
+    private function buildPropulsion(array $propulsion): array
     {
-        $thrusters = $this->extractFromVehicleJson($vehicleData, 'Propulsion.Thrusters', []);
-
-        $thrustCapacityRaw = $this->extractFromVehicleJson($vehicleData, 'Propulsion.ThrustCapacity');
+        $thrusters = Arr::get($propulsion, 'Thrusters', []);
+        $thrustCapacityRaw = Arr::get($propulsion, 'ThrustCapacity');
         $thrustCapacity = null;
         if (is_array($thrustCapacityRaw)) {
             $thrustCapacity = array_filter([
@@ -1538,18 +1547,20 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function buildWeaponry(VehicleData $vehicleData): array
+    private function buildWeaponry(array $payload): array
     {
+        $weaponry = Arr::get($payload, 'Weaponry', []);
+
         $result = array_filter([
-            'pilot_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotDps'),
-            'pilot_alpha' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotAlpha'),
-            'pilot_sustained_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.PilotSustainedDps'),
-            'turret_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretDps'),
-            'turret_alpha' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretAlpha'),
-            'turret_sustained_dps' => $this->extractFromVehicleJson($vehicleData, 'Weaponry.TurretSustainedDps'),
+            'pilot_dps' => Arr::get($weaponry, 'PilotDps'),
+            'pilot_alpha' => Arr::get($weaponry, 'PilotAlpha'),
+            'pilot_sustained_dps' => Arr::get($weaponry, 'PilotSustainedDps'),
+            'turret_dps' => Arr::get($weaponry, 'TurretDps'),
+            'turret_alpha' => Arr::get($weaponry, 'TurretAlpha'),
+            'turret_sustained_dps' => Arr::get($weaponry, 'TurretSustainedDps'),
         ], static fn (mixed $value): bool => $value !== null);
 
-        $fixedWeapons = $this->extractFromVehicleJson($vehicleData, 'Weaponry.FixedWeapons');
+        $fixedWeapons = Arr::get($weaponry, 'FixedWeapons');
         if (is_array($fixedWeapons)) {
             $result['fixed_weapons'] = [
                 'dps_total' => Arr::get($fixedWeapons, 'DpsTotal'),
@@ -1564,7 +1575,7 @@ class VehicleResource extends AbstractBaseResource
             ];
         }
 
-        $missiles = $this->extractFromVehicleJson($vehicleData, 'Weaponry.Missiles');
+        $missiles = Arr::get($weaponry, 'Missiles');
         if (is_array($missiles)) {
             $result['missiles'] = [
                 'count' => Arr::get($missiles, 'Count'),
@@ -1580,7 +1591,7 @@ class VehicleResource extends AbstractBaseResource
             ];
         }
 
-        $totalMissiles = $this->extractFromVehicleJson($vehicleData, 'Weaponry.TotalMissiles');
+        $totalMissiles = Arr::get($weaponry, 'TotalMissiles');
         if ($totalMissiles !== null) {
             $result['total_missile_damage'] = $totalMissiles;
         }
