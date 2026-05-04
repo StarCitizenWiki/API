@@ -222,6 +222,16 @@ class ItemData extends Model
         );
     }
 
+    public function installedOnVehicles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            VehicleData::class,
+            'game_item_data_vehicle_data',
+            'item_data_id',
+            'vehicle_data_id'
+        );
+    }
+
     public function scopeForCategory(Builder $query, string $category): Builder
     {
         return match ($category) {

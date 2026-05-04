@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
 class VehicleData extends Model
@@ -68,6 +69,16 @@ class VehicleData extends Model
     public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);
+    }
+
+    public function installedItems(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ItemData::class,
+            'game_item_data_vehicle_data',
+            'vehicle_data_id',
+            'item_data_id'
+        );
     }
 
     public function shipMatrixVehicle(): BelongsTo

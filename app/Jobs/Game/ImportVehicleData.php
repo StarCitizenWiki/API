@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
@@ -62,13 +63,15 @@ class ImportVehicleData implements ShouldQueue
         $manufacturerId = $this->resolveManufacturerId($payload);
         $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
 
-        VehicleData::query()->updateOrCreate(
+        $vehicleData = VehicleData::query()->updateOrCreate(
             [
                 'vehicle_id' => $vehicle->id,
                 'game_version_id' => $this->gameVersionId,
             ],
             $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId)
         );
+
+        $this->syncInstalledItems($vehicleData, $payload);
 
         $this->updateSlug($vehicle, $payload);
 
@@ -222,6 +225,49 @@ class ImportVehicleData implements ShouldQueue
         }
 
         return $normalized;
+    }
+
+    /**
+     * Sync installed item pivot records based on port UUIDs from the Loadout JSON.
+     */
+    private function syncInstalledItems(VehicleData $vehicleData, array $payload): void
+    {
+        $portUuids = $this->extractPortUuids($payload['Loadout'] ?? []);
+
+        if ($portUuids !== []) {
+            $itemDataIds = ItemData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->whereHas('item', fn ($q) => $q->whereIn('uuid', $portUuids))
+                ->pluck('id');
+
+            $vehicleData->installedItems()->sync($itemDataIds);
+        } else {
+            $vehicleData->installedItems()->sync([]);
+        }
+    }
+
+    /**
+     * Recursively extract all item UUIDs from the Loadout structure.
+     *
+     * @return array<int, string>
+     */
+    private function extractPortUuids(array $loadout): array
+    {
+        $uuids = [];
+
+        foreach ($loadout as $port) {
+            $uuid = $port['UUID'] ?? null;
+
+            if (is_string($uuid) && $uuid !== '') {
+                $uuids[] = $uuid;
+            }
+
+            if (isset($port['Loadout']) && is_array($port['Loadout'])) {
+                $uuids = array_merge($uuids, $this->extractPortUuids($port['Loadout']));
+            }
+        }
+
+        return array_unique(array_filter($uuids));
     }
 
     private function updateSlug(Vehicle $vehicle, array $payload): void

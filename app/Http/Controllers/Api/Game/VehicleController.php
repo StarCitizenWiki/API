@@ -12,7 +12,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
-use App\Models\Game\Item;
+use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Support\Filters\FilterCache;
@@ -221,7 +221,10 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
-        $this->batchLoadVehicleItems($vehicles->getCollection());
+        $vehicles->getCollection()->load([
+            'installedItems' => fn ($q) => $q->with(['item']),
+        ]);
+        $this->buildBatchPortItemMap($vehicles->getCollection());
 
         return VehicleResource::collection($vehicles);
     }
@@ -376,8 +379,10 @@ class VehicleController extends Controller
 
             $vehicleData->load($shipMatrixRelations);
 
-
-            $this->eagerLoadPortItems($vehicleData, $vehicleData->game_version_id);
+            $vehicleData->load([
+                'installedItems' => fn ($q) => $q->with(['item', 'manufacturer', 'gameVersion']),
+            ]);
+            $this->buildPortItemMap($vehicleData);
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
@@ -869,100 +874,48 @@ class VehicleController extends Controller
     }
 
     /**
-     * Transform VehicleData collection to Vehicles for resources.
-     *
-     * VehicleLinkResource expects Vehicle models with loaded data relationship.
-     * This method transforms the VehicleData query results back to Vehicle models.
+     * Build UUID->Item lookup from loaded installedItems pivot for PortResource.
      */
-    /**
-     * Eager load all port items from the vehicle's Loadout data.
-     *
-     * Extracts all item UUIDs from the nested Loadout structure and loads
-     * them with their relationships to prevent N+1 queries in PortResource.
-     */
-    private function eagerLoadPortItems(VehicleData $vehicleData, int $gameVersionId): void
+    private function buildPortItemMap(VehicleData $vehicleData): void
     {
-        $uuids = $this->extractPortUuids($vehicleData->data['Loadout'] ?? []);
-        $armorUuid = $vehicleData->data['Armor']['UUID'] ?? null;
-        if (is_string($armorUuid) && $armorUuid !== '') {
-            $uuids[] = $armorUuid;
-        }
-
-        if ($uuids === []) {
+        if (! $vehicleData->relationLoaded('installedItems')) {
             return;
         }
 
-        $items = Item::query()
-            ->whereIn('uuid', $uuids)
-            ->with(['data' => function ($query) use ($gameVersionId) {
-                $query->where('game_version_id', $gameVersionId)
-                    ->with(['item', 'manufacturer', 'gameVersion']);
-            }])
-            ->get()
-            ->keyBy('uuid');
+        $items = $vehicleData->installedItems->mapWithKeys(function (ItemData $itemData) {
+            $item = $itemData->item;
+            if ($item === null) {
+                return [];
+            }
+            $item->setRelation('data', collect([$itemData]));
+
+            return [$item->uuid => $item];
+        });
 
         request()->attributes->set('eager_loaded_port_items', $items);
     }
 
     /**
-     * Recursively extract all item UUIDs from the Loadout structure.
-     *
-     * @return array<string>
+     * Build merged UUID->Item lookup for a collection of VehicleData.
      */
-    private function extractPortUuids(array $loadout): array
+    private function buildBatchPortItemMap(Collection $vehicleDataCollection): void
     {
-        $uuids = [];
-
-        foreach ($loadout as $port) {
-            $uuid = $port['UUID'] ?? null;
-
-            if (is_string($uuid) && $uuid !== '') {
-                $uuids[] = $uuid;
-            }
-
-            if (isset($port['Loadout']) && is_array($port['Loadout'])) {
-                $uuids = array_merge($uuids, $this->extractPortUuids($port['Loadout']));
-            }
-        }
-
-        return array_unique(array_filter($uuids));
-    }
-
-    /**
-     * Batch-load items referenced by all vehicles in a collection.
-     *
-     * Extracts armor and port UUIDs from each vehicle's JSON data and preloads
-     * the corresponding items with their versioned data into request attributes,
-     * preventing N+1 queries when VehicleResource resolves.
-     *
-     * @param  Collection<int, VehicleData>  $vehicleDataCollection
-     */
-    private function batchLoadVehicleItems($vehicleDataCollection): void
-    {
-        $gameVersionId = $this->gameVersion()->id;
-        $uuids = [];
+        $items = collect();
 
         foreach ($vehicleDataCollection as $vehicleData) {
-            $armorUuid = $vehicleData->data['Armor']['UUID'] ?? null;
-            if (is_string($armorUuid) && $armorUuid !== '') {
-                $uuids[] = $armorUuid;
+            if (! $vehicleData->relationLoaded('installedItems')) {
+                continue;
+            }
+
+            foreach ($vehicleData->installedItems as $itemData) {
+                $item = $itemData->item;
+                if ($item === null || $items->has($item->uuid)) {
+                    continue;
+                }
+                $item->setRelation('data', collect([$itemData]));
+                $items[$item->uuid] = $item;
             }
         }
-
-        $uuids = array_unique(array_filter($uuids));
-
-        if ($uuids === []) {
-            return;
-        }
-
-        $items = Item::query()
-            ->whereIn('uuid', $uuids)
-            ->with(['data' => function ($query) use ($gameVersionId) {
-                $query->where('game_version_id', $gameVersionId)
-                    ->with(['item']);
-            }])
-            ->get()
-            ->keyBy('uuid');
 
         request()->attributes->set('eager_loaded_port_items', $items);
     }
