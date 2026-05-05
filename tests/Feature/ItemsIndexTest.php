@@ -105,8 +105,8 @@ it('filters items by type on the web route', function (): void {
         ])
         ->assertSee('data-testid="items-index-heading"', false)
         ->assertSeeText('Widget Items')
-        ->assertSeeText('Widget One')
-        ->assertDontSeeText('Gadget One');
+        ->assertSee('Widget One')
+        ->assertDontSee('Gadget One');
 });
 
 it('filters items by category on the web route', function (): void {
@@ -157,8 +157,8 @@ it('filters items by category on the web route', function (): void {
         ->assertViewHas('initialFilters', [])
         ->assertSee('data-testid="items-index-heading"', false)
         ->assertSeeText('Food & Drinks')
-        ->assertSeeText('Trail Mix')
-        ->assertDontSeeText('Pulse Pistol');
+        ->assertSee('Trail Mix')
+        ->assertDontSee('Pulse Pistol');
 
     $config = tabulatorConfigPayloadByTestId($response->getContent(), 'tabulator-config-items-table');
 

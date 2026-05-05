@@ -916,7 +916,7 @@ it('includes has_resources on child summaries in show response', function (): vo
         ->assertJsonPath('data.children.1.has_resources', true);
 });
 
-it('does not allow include children on the starmap index response', function (): void {
+it('ignores include children on the starmap index response', function (): void {
     $systemLocation = StarmapLocation::factory()->create();
     createStarmapLocationData($this->defaultVersion, [
         'name' => 'Stanton',
@@ -926,7 +926,8 @@ it('does not allow include children on the starmap index response', function ():
     ], $systemLocation);
 
     $this->getJson('/api/locations?include=children')
-        ->assertStatus(400);
+        ->assertSuccessful()
+        ->assertJsonMissingPath('data.0.children');
 });
 
 it('shows a star as child on the detailed solar system response when imported hierarchy links it', function (): void {
