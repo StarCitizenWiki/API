@@ -102,11 +102,11 @@ use OpenApi\Attributes as OA;
     title: 'Game Starmap Location Quantum Travel',
     description: 'Quantum travel parameters defining how ships interact with this location during quantum travel.',
     properties: [
-        new OA\Property(property: 'ObstructionRadius', description: 'Radius around the location that obstructs quantum travel.', type: 'number'),
-        new OA\Property(property: 'ArrivalRadius', description: 'Radius at which a ship exits quantum travel near this location.', type: 'number'),
-        new OA\Property(property: 'ArrivalPointDetectionOffset', description: 'Positional offset for detecting the quantum travel arrival point.', type: 'number'),
-        new OA\Property(property: 'AdoptionRadius', description: 'Radius within which child locations are adopted into the quantum travel zone.', type: 'number'),
-        new OA\Property(property: 'SubPointRadiusMultiplier', description: 'Multiplier applied to the sub-point radius for quantum travel calculations.', type: 'number'),
+        new OA\Property(property: 'obstruction_radius', description: 'Radius around the location that obstructs quantum travel.', type: 'number'),
+        new OA\Property(property: 'arrival_radius', description: 'Radius at which a ship exits quantum travel near this location.', type: 'number'),
+        new OA\Property(property: 'arrival_point_detection_offset', description: 'Positional offset for detecting the quantum travel arrival point.', type: 'number'),
+        new OA\Property(property: 'adoption_radius', description: 'Radius within which child locations are adopted into the quantum travel zone.', type: 'number'),
+        new OA\Property(property: 'sub_point_radius_multiplier', description: 'Multiplier applied to the sub-point radius for quantum travel calculations.', type: 'number'),
     ],
     type: 'object'
 )]
@@ -115,11 +115,11 @@ use OpenApi\Attributes as OA;
     title: 'Game Starmap Location Asteroid Ring',
     description: 'Asteroid ring configuration for locations that have an asteroid belt, defining density, size, and dimensional parameters.',
     properties: [
-        new OA\Property(property: 'DensityScale', description: 'Scale factor controlling asteroid density within the ring.', type: 'number'),
-        new OA\Property(property: 'SizeScale', description: 'Scale factor controlling individual asteroid size.', type: 'number'),
-        new OA\Property(property: 'InnerRadius', description: 'Inner boundary radius of the asteroid ring.', type: 'number'),
-        new OA\Property(property: 'OuterRadius', description: 'Outer boundary radius of the asteroid ring.', type: 'number'),
-        new OA\Property(property: 'Depth', description: 'Vertical depth or thickness of the asteroid ring.', type: 'number'),
+        new OA\Property(property: 'density_scale', description: 'Scale factor controlling asteroid density within the ring.', type: 'number'),
+        new OA\Property(property: 'size_scale', description: 'Scale factor controlling individual asteroid size.', type: 'number'),
+        new OA\Property(property: 'inner_radius', description: 'Inner boundary radius of the asteroid ring.', type: 'number'),
+        new OA\Property(property: 'outer_radius', description: 'Outer boundary radius of the asteroid ring.', type: 'number'),
+        new OA\Property(property: 'depth', description: 'Vertical depth or thickness of the asteroid ring.', type: 'number'),
     ],
     type: 'object'
 )]
@@ -312,10 +312,10 @@ class StarmapLocationResource extends AbstractBaseResource
             'hide_in_world' => (bool) Arr::get($payload, 'HideInWorld', false),
             'block_travel' => (bool) $locationData->block_travel,
             'quantum_travel' => is_array(Arr::get($payload, 'QuantumTravel')) && Arr::get($payload, 'QuantumTravel') !== []
-                ? Arr::get($payload, 'QuantumTravel')
+                ? $this->toSnakeCaseKeys(Arr::get($payload, 'QuantumTravel'))
                 : null,
             'asteroid_ring' => is_array(Arr::get($payload, 'AsteroidRing')) && Arr::get($payload, 'AsteroidRing') !== []
-                ? Arr::get($payload, 'AsteroidRing')
+                ? $this->toSnakeCaseKeys(Arr::get($payload, 'AsteroidRing'))
                 : null,
             'system' => $locationData->system,
             'star' => $this->buildStarSummary($locationData),
@@ -723,5 +723,21 @@ class StarmapLocationResource extends AbstractBaseResource
             ->sortBy('purpose', SORT_STRING | SORT_FLAG_CASE)
             ->values()
             ->all();
+    }
+
+    /**
+     * Recursively convert all keys in an array to snake_case.
+     */
+    private function toSnakeCaseKeys(array $data): array
+    {
+        $result = [];
+        foreach ($data as $key => $value) {
+            $snakeKey = is_string($key) ? str($key)->snake()->value() : $key;
+            $result[$snakeKey] = is_array($value)
+                ? $this->toSnakeCaseKeys($value)
+                : $value;
+        }
+
+        return $result;
     }
 }

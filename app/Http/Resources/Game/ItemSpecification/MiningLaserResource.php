@@ -14,8 +14,10 @@ use OpenApi\Attributes as OA;
     title: 'Mining Laser Power Band',
     description: 'Minimum/maximum laser power values as provided by stdItem.MiningLaser.',
     properties: [
-        new OA\Property(property: 'minimum', description: 'Minimum power transfer (MinPowerTransfer).', type: 'double', example: 420.0, nullable: true),
-        new OA\Property(property: 'maximum', description: 'Maximum power transfer (PowerTransfer).', type: 'double', example: 2100.0, nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum power transfer (MinPowerTransfer).', type: 'double', example: 420.0, nullable: true),
+        new OA\Property(property: 'max', description: 'Maximum power transfer (PowerTransfer).', type: 'double', example: 2100.0, nullable: true),
+        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', example: 420.0, nullable: true, deprecated: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', example: 2100.0, nullable: true, deprecated: true),
     ],
     type: 'object'
 )]
@@ -150,8 +152,10 @@ class MiningLaserResource extends AbstractItemSpecificationResource
 
         return [
             'laser_power' => [
-                'minimum' => Arr::get($miningLaser, 'MinPowerTransfer'),
-                'maximum' => Arr::get($miningLaser, 'PowerTransfer'),
+                'min' => Arr::get($miningLaser, 'MinPowerTransfer'),
+                'max' => Arr::get($miningLaser, 'PowerTransfer'),
+                'minimum' => Arr::get($miningLaser, 'MinPowerTransfer'),  // deprecated: use min
+                'maximum' => Arr::get($miningLaser, 'PowerTransfer'),  // deprecated: use max
             ],
 
             'modifiers' => collect($modifierBlock)

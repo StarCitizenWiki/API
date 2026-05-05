@@ -6,8 +6,8 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
+use App\Support\Formatting\FormatDuration;
 use App\Support\Formatting\FormatMissionTitle;
-use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -247,7 +247,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'amount', type: 'integer', nullable: true),
         new OA\Property(property: 'send_to_home', type: 'boolean', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -336,7 +336,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'system', type: 'string', nullable: true),
         new OA\Property(property: 'type', type: 'string', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -360,7 +360,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
         new OA\Property(property: 'title', type: 'string', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -394,7 +394,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'min_amount', type: 'integer', nullable: true),
         new OA\Property(property: 'max_container_size', type: 'integer', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
         new OA\Property(
             property: 'or_options',
             type: 'array',
@@ -414,7 +414,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', type: 'string', nullable: true),
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -484,7 +484,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -495,7 +495,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_link', type: 'string', format: 'uri', nullable: true),
+        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -604,7 +604,7 @@ class MissionResource extends AbstractBaseResource
             'reputation_gained' => $this->mapReputation($data?->get('ReputationGained')),
             'reputation_lost' => $this->mapReputation($data?->get('ReputationLost')),
             'hauling_orders' => $this->mapHaulingOrders($data, $request),
-            'cost' => $data?->has('Cost') ? (int) $data->get('Cost') : null,
+            'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
             'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
             'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')),
             'min_standing' => $this->mapStanding($data?->get('MinStanding')),
@@ -664,7 +664,7 @@ class MissionResource extends AbstractBaseResource
 
         return [
             'label' => is_numeric($personalSeconds) && $personalSeconds > 0
-                ? (string) CarbonInterval::seconds((int) $personalSeconds)->cascade()->forHumans()
+                ? FormatDuration::fromSeconds($personalSeconds)
                 : null,
             'personal_seconds' => $personalSeconds,
             'abandoned_seconds' => $cooldown['AbandonedSeconds'] ?? null,
@@ -686,7 +686,7 @@ class MissionResource extends AbstractBaseResource
 
         return [
             'label' => $respawnTimeSeconds !== null && $respawnTimeSeconds > 0
-                ? (string) CarbonInterval::seconds($respawnTimeSeconds)->cascade()->forHumans()
+                ? FormatDuration::fromSeconds($respawnTimeSeconds)
                 : null,
             'respawn_time_seconds' => $respawnTimeSeconds,
             'max_instances' => $lifetime['MaxInstances'] ?? null,
@@ -861,7 +861,7 @@ class MissionResource extends AbstractBaseResource
                     $request,
                 )
                 : null,
-            'web_link' => $itemData->item?->uuid !== null
+            'web_url' => $itemData->item?->uuid !== null
                 ? route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid])
                 : null,
         ])->values()->all();
@@ -967,7 +967,7 @@ class MissionResource extends AbstractBaseResource
                                     $request,
                                 )
                                 : null,
-                            'web_link' => isset($m['UUID'])
+                            'web_url' => isset($m['UUID'])
                                 ? route('web.missions.show', ['mission' => $m['UUID']])
                                 : null,
                         ];
@@ -1066,7 +1066,7 @@ class MissionResource extends AbstractBaseResource
                             'name' => $item['Name'] ?? null,
                             'uuid' => $itemUuid,
                             'link' => $this->haulingLink($itemUuid, $kind, $request),
-                            'web_link' => $this->haulingWebLink($itemUuid, $kind),
+                            'web_url' => $this->haulingWebUrl($itemUuid, $kind),
                         ];
                     })->values()->all(),
                     'max_scu' => max((int) ($entry['MinScu'] ?? 0), (int) ($entry['MaxScu'] ?? 0)) ?: null,
@@ -1075,7 +1075,7 @@ class MissionResource extends AbstractBaseResource
                     'min_amount' => min((int) ($entry['MinAmount'] ?? 0), (int) ($entry['MaxAmount'] ?? 0)) ?: null,
                     'max_container_size' => $entry['MaxContainerSize'] ?? null,
                     'link' => $this->haulingLink($uuid, $kind, $request),
-                    'web_link' => $this->haulingWebLink($uuid, $kind),
+                    'web_url' => $this->haulingWebUrl($uuid, $kind),
                 ];
             }
 
@@ -1108,7 +1108,7 @@ class MissionResource extends AbstractBaseResource
         return null;
     }
 
-    private function haulingWebLink(?string $uuid, ?string $kind): ?string
+    private function haulingWebUrl(?string $uuid, ?string $kind): ?string
     {
         if ($uuid === null) {
             return null;
@@ -1179,7 +1179,7 @@ class MissionResource extends AbstractBaseResource
                     $request,
                 )
                 : null,
-            'web_link' => $uuid !== null
+            'web_url' => $uuid !== null
                 ? route('web.locations.show', ['identifier' => $uuid])
                 : null,
         ];
@@ -1230,7 +1230,7 @@ class MissionResource extends AbstractBaseResource
                         $request,
                     )
                     : null,
-                'web_link' => $linked?->mission?->uuid !== null
+                'web_url' => $linked?->mission?->uuid !== null
                     ? route('web.missions.show', ['mission' => $linked->mission->slug ?? $linked->mission->uuid])
                     : null,
             ];
@@ -1247,7 +1247,7 @@ class MissionResource extends AbstractBaseResource
                 $variants = $group->skip(1)->map(fn (array $m): array => [
                     'uuid' => $m['uuid'],
                     'link' => $m['link'],
-                    'web_link' => $m['web_link'],
+                    'web_url' => $m['web_url'],
                 ])->values()->all();
 
                 $result = collect($representative)->forget('raw_title')->all();

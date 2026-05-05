@@ -64,7 +64,15 @@ trait ResolvesGameVersion
         $eagerLoaded = request()->attributes->get('eager_loaded_port_items');
 
         if ($eagerLoaded !== null && $eagerLoaded->has($uuid)) {
-            return $eagerLoaded->get($uuid);
+            $cached = $eagerLoaded->get($uuid);
+
+            // The eager-loaded cache stores ItemData instances (keyed by item UUID).
+            // Extract the underlying Item relation instead of returning the wrong type.
+            if ($cached instanceof ItemData) {
+                return $cached->item;
+            }
+
+            return $cached;
         }
 
         return Item::query()

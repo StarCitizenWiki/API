@@ -127,7 +127,7 @@ class TurretResource extends AbstractItemSpecificationResource
                 'speed' => Arr::get($pitch, 'PitchAxis.Speed'),
                 'time_to_full_speed' => Arr::get($pitch, 'PitchAxis.AccelerationTimeToFullSpeed'),
                 'acceleration_decay' => Arr::get($pitch, 'PitchAxis.AccelerationDecay'),
-                $this->mergeWhen(Arr::get($yaw, 'PitchAxis.RestrictTargetAngles') === 1, [
+                $this->mergeWhen(Arr::get($pitch, 'PitchAxis.RestrictTargetAngles') === 1, [
                     'angle_limit_min' => Arr::get($pitch, 'PitchAxis.AngleLimits.0.LowestAngle'),
                     'angle_limit_max' => Arr::get($pitch, 'PitchAxis.AngleLimits.0.HighestAngle'),
                 ]),

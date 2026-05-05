@@ -31,7 +31,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'editable_children', description: 'Whether child ports can be modified in-game.', type: 'boolean', nullable: true),
         new OA\Property(property: 'equipped_item_uuid', description: 'UUID of the item currently equipped in this port.', type: 'string', nullable: true),
         new OA\Property(property: 'type', description: 'Port type (e.g. WeaponGun, Shield, PowerPlant).', type: 'string', example: 'LifeSupportGenerator', nullable: true),
-        new OA\Property(property: 'subtype', description: 'Port sub-type identifier.', type: 'string', example: 'UNDEFINED', nullable: true),
+        new OA\Property(property: 'sub_type', description: 'Port sub-type identifier.', type: 'string', example: 'UNDEFINED', nullable: true),
+        new OA\Property(property: 'subtype', description: 'Deprecated: Use sub_type.', type: 'string', example: 'UNDEFINED', nullable: true, deprecated: true),
         new OA\Property(property: 'category_label', description: 'Human-readable category label. Only present on parent ports (e.g. Weapons, Shields, Thrusters).', type: 'string', example: 'Weapons', nullable: true),
         new OA\Property(
             property: 'compatible_types',
@@ -91,6 +92,7 @@ class PortResource extends AbstractBaseResource
             'editable_children' => Arr::get($this, 'EditableChildren'),
             'equipped_item_uuid' => Arr::get($this->resource, 'UUID'),
             'type' => $type,
+            'sub_type' => $subtype,
             'subtype' => $subtype,
         ];
 

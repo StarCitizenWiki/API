@@ -55,10 +55,17 @@ use OpenApi\Attributes as OA;
             nullable: true,
         ),
         new OA\Property(
-            property: 'uneditable',
-            description: 'Whether the port is locked',
+            property: 'editable',
+            description: 'Whether the port can be modified in-game.',
             type: 'boolean',
             nullable: true,
+        ),
+        new OA\Property(
+            property: 'uneditable',
+            description: 'Deprecated: Use editable (inverted value).',
+            type: 'boolean',
+            nullable: true,
+            deprecated: true,
         ),
         new OA\Property(
             property: 'equipped_item_uuid',
@@ -98,6 +105,7 @@ class ItemPortResource extends AbstractBaseResource
             'tags' => Arr::get($this, 'Tags', []),
             'required_tags' => Arr::get($this, 'RequiredTags', []),
             'flags' => Arr::get($this, 'Flags', []),
+            'editable' => ! Arr::get($this, 'Uneditable'),
             'uneditable' => Arr::get($this, 'Uneditable'),
             'equipped_item_uuid' => Arr::get($this, 'EquippedItem'),
             $this->mergeWhen($itemData !== null, [

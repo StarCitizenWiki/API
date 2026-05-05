@@ -44,7 +44,8 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'dps_total', type: 'double', example: 1150.0, nullable: true),
         new OA\Property(property: 'alpha_total', type: 'double', example: 11.5, nullable: true),
-        new OA\Property(property: 'maximum', description: 'Maximum damage per magazine (Damage.MaxPerMag).', type: 'double', example: 575.0, nullable: true),
+        new OA\Property(property: 'max', description: 'Maximum damage per magazine (Damage.MaxPerMag).', type: 'double', example: 575.0, nullable: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', example: 575.0, nullable: true, deprecated: true),
         new OA\Property(property: 'dps', ref: '#/components/schemas/personal_weapon_damage_vector', nullable: true),
         new OA\Property(property: 'alpha', ref: '#/components/schemas/personal_weapon_damage_vector', nullable: true),
     ],
@@ -55,8 +56,10 @@ use OpenApi\Attributes as OA;
     title: 'Personal Weapon Spread',
     description: 'Spread configuration. Only present when spread data exists in the source.',
     properties: [
-        new OA\Property(property: 'minimum', type: 'double', example: 0.1, nullable: true),
-        new OA\Property(property: 'maximum', type: 'double', example: 1.2, nullable: true),
+        new OA\Property(property: 'min', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'max', type: 'double', example: 1.2, nullable: true),
+        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', example: 0.1, nullable: true, deprecated: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', example: 1.2, nullable: true, deprecated: true),
         new OA\Property(property: 'first_attack', type: 'double', example: 0.2, nullable: true),
         new OA\Property(property: 'per_attack', type: 'double', example: 0.05, nullable: true),
         new OA\Property(property: 'decay', type: 'double', example: 0.3, nullable: true),
@@ -259,7 +262,8 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
             'damage' => [
                 'dps_total' => Arr::get($damage, 'DpsTotal'),
                 'alpha_total' => Arr::get($damage, 'AlphaTotal'),
-                'maximum' => Arr::get($damage, 'MaxPerMag'),
+                'max' => Arr::get($damage, 'MaxPerMag'),
+                'maximum' => Arr::get($damage, 'MaxPerMag'),  // deprecated: use max
                 'dps' => [
                     'physical' => Arr::get($weapon, 'Damage.Dps.Physical'),
                     'energy' => Arr::get($weapon, 'Damage.Dps.Energy'),
@@ -280,15 +284,19 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Spread.Minimum') !== null, [
                 'spread' => [
-                    'minimum' => Arr::get($weapon, 'Spread.Minimum'),
-                    'maximum' => Arr::get($weapon, 'Spread.Maximum'),
+                    'min' => Arr::get($weapon, 'Spread.Minimum'),
+                    'max' => Arr::get($weapon, 'Spread.Maximum'),
+                    'minimum' => Arr::get($weapon, 'Spread.Minimum'),  // deprecated: use min
+                    'maximum' => Arr::get($weapon, 'Spread.Maximum'),  // deprecated: use max
                     'first_attack' => Arr::get($weapon, 'Spread.FirstAttack'),
                     'per_attack' => Arr::get($weapon, 'Spread.Attack'),
                     'decay' => Arr::get($weapon, 'Spread.Decay'),
                 ],
                 'ads_spread' => [
-                    'minimum' => Arr::get($weapon, 'AdsSpread.Minimum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),
-                    'maximum' => Arr::get($weapon, 'AdsSpread.Maximum') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),
+                    'min' => Arr::get($weapon, 'AdsSpread.Min') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),
+                    'max' => Arr::get($weapon, 'AdsSpread.Max') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),
+                    'minimum' => Arr::get($weapon, 'AdsSpread.Min') == 0 ? null : Arr::get($weapon, 'AdsSpread.Min'),  // deprecated: use min
+                    'maximum' => Arr::get($weapon, 'AdsSpread.Max') == 0 ? null : Arr::get($weapon, 'AdsSpread.Max'),  // deprecated: use max
                     'first_attack' => Arr::get($weapon, 'AdsSpread.FirstAttack') == 0 ? null : Arr::get($weapon, 'AdsSpread.FirstAttack'),
                     'per_attack' => Arr::get($weapon, 'AdsSpread.Attack') == 0 ? null : Arr::get($weapon, 'AdsSpread.Attack'),
                     'decay' => Arr::get($weapon, 'AdsSpread.Decay') == 0 ? null : Arr::get($weapon, 'AdsSpread.Decay'),

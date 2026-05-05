@@ -6,8 +6,8 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
+use App\Support\Formatting\FormatDuration;
 use App\Support\Formatting\FormatMissionTitle;
-use Carbon\CarbonInterval;
 use Exception;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -144,18 +144,21 @@ class MissionIndexResource extends AbstractBaseResource
         $lifetime = $data?->get('Lifetime');
         $cooldown = $data?->get('Cooldown');
 
-        if (isset($this->resource->grouped_star_systems)) {
+        $groupedStarSystems = $this->resource->grouped_star_systems;
+        if (is_string($groupedStarSystems)) {
             try {
-                $this->resource->grouped_star_systems = json_decode($this->resource->grouped_star_systems, true, 512, JSON_THROW_ON_ERROR);
+                $groupedStarSystems = json_decode($groupedStarSystems, true, 512, JSON_THROW_ON_ERROR);
             } catch (Exception) {
-
+                $groupedStarSystems = null;
             }
         }
 
-        if (isset($this->resource->variant_uuids)) {
+        $variantUuids = $this->resource->variant_uuids;
+        $variantLinks = null;
+        if (is_string($variantUuids)) {
             try {
-                $variants = json_decode($this->resource->variant_uuids, true, 512, JSON_THROW_ON_ERROR);
-                $this->resource->variant_uuids = collect($variants)->map(fn (string $uuid): array => [
+                $decoded = json_decode($variantUuids, true, 512, JSON_THROW_ON_ERROR);
+                $variantLinks = collect($decoded)->map(fn (string $uuid): array => [
                     'uuid' => $uuid,
                     'link' => $this->urlWithVersion(
                         route('missions.show', ['mission' => $uuid]),
@@ -163,7 +166,7 @@ class MissionIndexResource extends AbstractBaseResource
                     ),
                 ])->values()->all();
             } catch (Exception) {
-                $this->resource->variant_uuids = null;
+                $variantLinks = null;
             }
         }
 
@@ -194,9 +197,9 @@ class MissionIndexResource extends AbstractBaseResource
             'reward_max' => $this->resource->reward_max,
             'reward_currency' => $this->resource->reward_currency,
             'time_to_complete_minutes' => $this->resource->time_to_complete_minutes,
-            'star_systems' => $this->resource->grouped_star_systems ?? $this->resource->star_systems,
+            'star_systems' => $groupedStarSystems ?? $this->resource->star_systems,
             'variant_count' => $this->whenNotNull($this->resource->variant_count),
-            'variants' => $this->whenNotNull($this->resource->variant_uuids),
+            'variants' => $this->whenNotNull($variantLinks),
             'has_blueprints' => $this->resource->blueprints->isNotEmpty(),
             'blueprint_drop_chance' => $this->resource->blueprint_drop_chance,
             'blueprints' => $this->when(
@@ -207,7 +210,7 @@ class MissionIndexResource extends AbstractBaseResource
             'has_hauling' => is_iterable($haulingOrders) && count($haulingOrders) > 0,
             'min_standing_name' => is_array($minStanding) ? ($minStanding['Name'] ?? null) : null,
             'max_standing_name' => is_array($maxStanding) ? ($maxStanding['Name'] ?? null) : null,
-            'cost' => $data?->has('Cost') ? (int) $data->get('Cost') : null,
+            'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
             'min_crime_stat' => $this->resource->min_crime_stat,
             'max_crime_stat' => $this->resource->max_crime_stat,
             'available_in_prison' => $this->resource->available_in_prison,
@@ -219,7 +222,7 @@ class MissionIndexResource extends AbstractBaseResource
             'max_instances_per_player' => is_array($lifetime) ? ($lifetime['MaxInstancesPerPlayer'] ?? null) : null,
             'cooldown_seconds' => is_array($cooldown) ? ($cooldown['PersonalSeconds'] ?? null) : null,
             'cooldown_label' => is_array($cooldown) && isset($cooldown['PersonalSeconds']) && is_numeric($cooldown['PersonalSeconds']) && $cooldown['PersonalSeconds'] > 0
-                ? (string) CarbonInterval::seconds((int) $cooldown['PersonalSeconds'])->cascade()->forHumans()
+                ? FormatDuration::fromSeconds($cooldown['PersonalSeconds'])
                 : null,
             'reaccept_after_abandoning' => (bool) ($data?->get('ReacceptAfterAbandoning') ?? false),
             'reaccept_after_failing' => (bool) ($data?->get('ReacceptAfterFailing') ?? false),

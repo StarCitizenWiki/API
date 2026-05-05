@@ -307,7 +307,7 @@ class WeaponModifierResource extends AbstractItemSpecificationResource
                 ],
             ]),
 
-            $this->mergeWhen(! collect($regen)->reject(fn ($val) => $val == 0)->every(fn ($val) => (float) $val === 1.0), [
+            $this->mergeWhen(! collect($salvage)->reject(fn ($val) => $val == 0)->every(fn ($val) => (float) $val === 1.0), [
                 'salvage' => [
                     'salvage_speed_multiplier' => Arr::get($salvage, 'SalvageSpeedMultiplier'),
                     'radius_multiplier' => Arr::get($salvage, 'RadiusMultiplier'),

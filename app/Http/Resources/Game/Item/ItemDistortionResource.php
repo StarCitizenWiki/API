@@ -16,7 +16,8 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'decay_rate', type: 'double', nullable: true),
         new OA\Property(property: 'decay_delay', type: 'double', nullable: true),
-        new OA\Property(property: 'maximum', type: 'double', nullable: true),
+        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'overload_ratio', description: 'Deprecated, does not exist anymore.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'warning_ratio', type: 'double', nullable: true),
         new OA\Property(property: 'recovery_ratio', type: 'double', nullable: true),
@@ -34,7 +35,8 @@ class ItemDistortionResource extends AbstractBaseResource
         return [
             'decay_rate' => round(Arr::get($this, 'DecayRate', 0), 2),
             'decay_delay' => Arr::get($this, 'DecayDelay'),
-            'maximum' => Arr::get($this, 'Maximum'),
+            'max' => Arr::get($this, 'Maximum'),
+            'maximum' => Arr::get($this, 'Maximum'),  // deprecated: use max
             'overload_ratio' => Arr::get($this, 'OverloadRatio'),
             'warning_ratio' => Arr::get($this, 'WarningRatio'),
             'recovery_ratio' => Arr::get($this, 'RecoveryRatio'),

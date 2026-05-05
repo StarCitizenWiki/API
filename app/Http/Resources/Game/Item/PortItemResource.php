@@ -86,7 +86,7 @@ class PortItemResource extends ItemResource
             'uuid' => $this->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'type' => $itemData->type,
+            'type' => str_replace('NOITEM_', '', $itemData->type ?? ''),
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,

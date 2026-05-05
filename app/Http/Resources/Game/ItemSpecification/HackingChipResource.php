@@ -50,7 +50,7 @@ class HackingChipResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
-        $chip = Arr::get($data, 'HackingChip', []);
+        $chip = Arr::get($data, 'stdItem.HackingChip', []);
 
         return [
             'max_charges' => Arr::get($chip, 'MaxCharges'),

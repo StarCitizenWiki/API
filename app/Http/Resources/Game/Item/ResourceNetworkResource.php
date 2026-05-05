@@ -112,8 +112,10 @@ use OpenApi\Attributes as OA;
                     property: 'power',
                     description: 'Power usage range.',
                     properties: [
-                        new OA\Property(property: 'minimum', description: 'Minimum power usage (game units, typically 2-5).', type: 'double', nullable: true),
-                        new OA\Property(property: 'maximum', description: 'Maximum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                        new OA\Property(property: 'min', description: 'Minimum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                        new OA\Property(property: 'max', description: 'Maximum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
+                        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
                     ],
                     type: 'object',
                     nullable: true
@@ -122,8 +124,10 @@ use OpenApi\Attributes as OA;
                     property: 'coolant',
                     description: 'Coolant usage range.',
                     properties: [
-                        new OA\Property(property: 'minimum', description: 'Minimum coolant usage.', type: 'double', nullable: true),
-                        new OA\Property(property: 'maximum', description: 'Maximum coolant usage.', type: 'double', nullable: true),
+                        new OA\Property(property: 'min', description: 'Minimum coolant usage.', type: 'double', nullable: true),
+                        new OA\Property(property: 'max', description: 'Maximum coolant usage.', type: 'double', nullable: true),
+                        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
+                        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
                     ],
                     type: 'object',
                     nullable: true
@@ -187,12 +191,16 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
             ],
             'usage' => [
                 'power' => [
-                    'minimum' => Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0),
-                    'maximum' => Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0),
+                    'min' => Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0),
+                    'max' => Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0),
+                    'minimum' => Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0),  // deprecated: use min
+                    'maximum' => Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0),  // deprecated: use max
                 ],
                 'coolant' => [
-                    'minimum' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),
-                    'maximum' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),
+                    'min' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),
+                    'max' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),
+                    'minimum' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),  // deprecated: use min
+                    'maximum' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),  // deprecated: use max
                 ],
             ],
             'generation' => [

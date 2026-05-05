@@ -23,7 +23,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'class', description: 'Internal class identifier of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'type', description: 'Type category of the crafted item (e.g. WeaponPersonal, Char_Armor_Torso)', type: 'string', nullable: true),
         new OA\Property(property: 'type_label', description: 'Human-readable label for the type', type: 'string', nullable: true),
-        new OA\Property(property: 'subtype', description: 'Sub-type classification of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type', description: 'Sub-type classification of the crafted item', type: 'string', nullable: true),
+        new OA\Property(property: 'subtype', description: 'Deprecated: Use sub_type.', type: 'string', nullable: true, deprecated: true),
         new OA\Property(property: 'grade', description: 'Grade or quality tier of the crafted item', type: 'string', nullable: true),
         new OA\Property(property: 'item_web_url', description: 'Web URL for the crafted item detail page', type: 'string', format: 'uri', nullable: true),
     ],
@@ -645,6 +646,7 @@ class BlueprintResource extends AbstractBaseResource
             'class' => $this->arrayNullableString($output, 'Class') ?? $this->arrayNullableString($output, 'class') ?? $this->nullableString($this->output_class),
             'type' => $type,
             'type_label' => ItemFilterLabel::resolveType($type, null),
+            'sub_type' => $this->arrayNullableString($output, 'Subtype') ?? $this->arrayNullableString($output, 'subtype'),
             'subtype' => $this->arrayNullableString($output, 'Subtype') ?? $this->arrayNullableString($output, 'subtype'),
             'grade' => $this->arrayNullableString($output, 'Grade') ?? $this->arrayNullableString($output, 'grade'),
             'item_web_url' => $uuid !== null && Str::isUuid($uuid)

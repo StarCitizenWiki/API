@@ -14,18 +14,34 @@ use OpenApi\Attributes as OA;
     description: 'Area of effect radii in meters.',
     properties: [
         new OA\Property(
-            property: 'minimum',
+            property: 'min',
             description: 'Minimum effective/lethal radius in meters.',
             type: 'double',
             example: 4.0,
             nullable: true
         ),
         new OA\Property(
-            property: 'maximum',
+            property: 'max',
             description: 'Maximum effective/lethal radius in meters.',
             type: 'double',
             example: 5.5,
             nullable: true
+        ),
+        new OA\Property(
+            property: 'minimum',
+            description: 'Deprecated: Use min.',
+            type: 'double',
+            example: 4.0,
+            nullable: true,
+            deprecated: true
+        ),
+        new OA\Property(
+            property: 'maximum',
+            description: 'Deprecated: Use max.',
+            type: 'double',
+            example: 5.5,
+            nullable: true,
+            deprecated: true
         ),
     ],
     type: 'object'
@@ -80,8 +96,10 @@ class GrenadeResource extends AbstractItemSpecificationResource
             'damage' => Arr::get($grenade, 'Damage'),
 
             'aoe' => [
-                'minimum' => Arr::get($grenade, 'MinAreaOfEffect'),
-                'maximum' => $areaOfEffectMax,
+                'min' => Arr::get($grenade, 'MinAreaOfEffect'),
+                'max' => $areaOfEffectMax,
+                'minimum' => Arr::get($grenade, 'MinAreaOfEffect'),  // deprecated: use min
+                'maximum' => $areaOfEffectMax,  // deprecated: use max
             ],
 
             'area_of_effect' => $areaOfEffectMax,

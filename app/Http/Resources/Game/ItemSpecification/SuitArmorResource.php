@@ -180,19 +180,19 @@ class SuitArmorResource extends AbstractItemSpecificationResource
             ],
             'damage_resistance_map' => [
                 'impact' => Arr::get($armor, 'DamageResistance.Impact'),
-                'impact_change' => Arr::get($armor, 'DamageResistance.Impact', 1) - 1,
+                'impact_change' => round(Arr::get($armor, 'DamageResistance.Impact', 1) - 1, 2),
                 'physical' => Arr::get($this->mapTypeResistance($armor, 'Physical'), 'multiplier'),
-                'physical_change' => Arr::get($this->mapTypeResistance($armor, 'Physical'), 'multiplier', 1) - 1,
+                'physical_change' => round(Arr::get($this->mapTypeResistance($armor, 'Physical'), 'multiplier', 1) - 1, 2),
                 'energy' => Arr::get($this->mapTypeResistance($armor, 'Energy'), 'multiplier'),
-                'energy_change' => Arr::get($this->mapTypeResistance($armor, 'Energy'), 'multiplier', 1) - 1,
+                'energy_change' => round(Arr::get($this->mapTypeResistance($armor, 'Energy'), 'multiplier', 1) - 1, 2),
                 'distortion' => Arr::get($this->mapTypeResistance($armor, 'Distortion'), 'multiplier'),
-                'distortion_change' => Arr::get($this->mapTypeResistance($armor, 'Distortion'), 'multiplier', 1) - 1,
+                'distortion_change' => round(Arr::get($this->mapTypeResistance($armor, 'Distortion'), 'multiplier', 1) - 1, 2),
                 'thermal' => Arr::get($this->mapTypeResistance($armor, 'Thermal'), 'multiplier'),
-                'thermal_change' => Arr::get($this->mapTypeResistance($armor, 'Thermal'), 'multiplier', 1) - 1,
+                'thermal_change' => round(Arr::get($this->mapTypeResistance($armor, 'Thermal'), 'multiplier', 1) - 1, 2),
                 'biochemical' => Arr::get($this->mapTypeResistance($armor, 'Biochemical'), 'multiplier'),
-                'biochemical_change' => Arr::get($this->mapTypeResistance($armor, 'Biochemical'), 'multiplier', 1) - 1,
+                'biochemical_change' => round(Arr::get($this->mapTypeResistance($armor, 'Biochemical'), 'multiplier', 1) - 1, 2),
                 'stun' => Arr::get($this->mapTypeResistance($armor, 'Stun'), 'multiplier'),
-                'stun_change' => Arr::get($this->mapTypeResistance($armor, 'Stun'), 'multiplier', 1) - 1,
+                'stun_change' => round(Arr::get($this->mapTypeResistance($armor, 'Stun'), 'multiplier', 1) - 1, 2),
             ],
             'protected_body_parts' => Arr::get($armor, 'ProtectedBodyParts', []),
             'signature' => collect(Arr::get($armor, 'Signature', []))
@@ -200,8 +200,8 @@ class SuitArmorResource extends AbstractItemSpecificationResource
                     Str::snake($key) => $value,
                 ])
                 ->toArray(),
-            'temp_resistance_min' => Arr::get($stdItem, 'data.stdItem.TemperatureResistance.Minimum'),
-            'temp_resistance_max' => Arr::get($stdItem, 'data.stdItem.TemperatureResistance.Maximum'),
+            'temp_resistance_min' => Arr::get($data, 'stdItem.TemperatureResistance.Minimum'),
+            'temp_resistance_max' => Arr::get($data, 'stdItem.TemperatureResistance.Maximum'),
             'radiation_resistance' => Arr::has($stdItem, 'RadiationResistance')
                 ? (new RadiationResistanceResource(Arr::get($stdItem, 'RadiationResistance')))->toArray($request)
                 : null,

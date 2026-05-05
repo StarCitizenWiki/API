@@ -56,8 +56,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'sustained_60s', type: 'double', nullable: true),
         new OA\Property(property: 'burst', type: 'double', nullable: true),
         new OA\Property(property: 'alpha_total', type: 'double', nullable: true),
-        new OA\Property(property: 'maximum', type: 'double', nullable: true),
-        new OA\Property(property: 'dps', ref: '#/components/schemas/vehicle_weapon_damage_types', nullable: true),
+        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'alpha', ref: '#/components/schemas/vehicle_weapon_damage_types', nullable: true),
     ],
     type: 'object'
@@ -66,8 +66,10 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_spread',
     title: 'Vehicle Weapon Spread',
     properties: [
-        new OA\Property(property: 'minimum', type: 'double', nullable: true),
-        new OA\Property(property: 'maximum', type: 'double', nullable: true),
+        new OA\Property(property: 'min', type: 'double', nullable: true),
+        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'first_attack', type: 'double', nullable: true),
         new OA\Property(property: 'per_attack', type: 'double', nullable: true),
         new OA\Property(property: 'decay', type: 'double', nullable: true),
@@ -272,7 +274,8 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
                 'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s'),
                 'burst' => Arr::get($weapon, 'Damage.Burst'),
                 'alpha_total' => Arr::get($weapon, 'Damage.AlphaTotal'),
-                'maximum' => Arr::get($weapon, 'Damage.Maximum'),
+                'max' => Arr::get($weapon, 'Damage.Maximum'),
+                'maximum' => Arr::get($weapon, 'Damage.Maximum'),  // deprecated: use max
                 'dps' => [
                     'physical' => Arr::get($mode, 'DpsPhysical'),
                     'energy' => Arr::get($mode, 'DpsEnergy'),
@@ -293,8 +296,10 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Spread') !== null, [
                 'spread' => [
-                    'minimum' => Arr::get($mode, 'Spread.Minimum'),
-                    'maximum' => Arr::get($mode, 'Spread.Maximum'),
+                    'min' => Arr::get($mode, 'Spread.Minimum'),
+                    'max' => Arr::get($mode, 'Spread.Maximum'),
+                    'minimum' => Arr::get($mode, 'Spread.Minimum'),  // deprecated: use min
+                    'maximum' => Arr::get($mode, 'Spread.Maximum'),  // deprecated: use max
                     'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
                     'per_attack' => Arr::get($mode, 'Spread.Attack'),
                     'decay' => Arr::get($mode, 'Spread.Decay'),
