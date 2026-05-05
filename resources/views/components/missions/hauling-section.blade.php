@@ -61,8 +61,8 @@
                                         class="badge {{ $entryBadge }} badge-sm mt-0.5 shrink-0">{{ $entryLabel }}</span>
 
                                     <div class="flex-1 min-w-0">
-                                        @if (data_get($groupEntry, 'web_link'))
-                                            <a href="{{ data_get($groupEntry, 'web_link') }}"
+                                        @if (data_get($groupEntry, 'web_url'))
+                                            <a href="{{ data_get($groupEntry, 'web_url') }}"
                                                class="link link-primary text-sm font-medium">{{ data_get($groupEntry, 'name', '—') }}</a>
                                         @else
                                             <span
@@ -94,8 +94,8 @@
                                         @if ($entryItems !== [])
                                             <div class="flex flex-wrap gap-1.5 mt-2">
                                                 @foreach ($entryItems as $item)
-                                                    @if (data_get($item, 'web_link'))
-                                                        <a href="{{ data_get($item, 'web_link') }}"
+                                                    @if (data_get($item, 'web_url'))
+                                                        <a href="{{ data_get($item, 'web_url') }}"
                                                            class="badge badge-outline badge-sm link link-primary">{{ data_get($item, 'name', 'Item') }}</a>
                                                     @else
                                                         <span
@@ -131,8 +131,8 @@
                         <div class="flex items-center gap-2 mb-3">
                             <span class="badge {{ $badge }} badge-sm">{{ $label }}</span>
 
-                            @if (data_get($order, 'web_link'))
-                                <a href="{{ data_get($order, 'web_link') }}"
+                            @if (data_get($order, 'web_url'))
+                                <a href="{{ data_get($order, 'web_url') }}"
                                    class="link link-primary text-sm font-semibold">{{ data_get($order, 'name', '—') }}</a>
                             @else
                                 <span class="text-sm font-semibold">{{ data_get($order, 'name', '—') }}</span>
@@ -174,8 +174,8 @@
                                 </div>
                                 <div class="flex flex-wrap gap-1.5">
                                     @foreach ($orderItems as $item)
-                                        @if (data_get($item, 'web_link'))
-                                            <a href="{{ data_get($item, 'web_link') }}"
+                                        @if (data_get($item, 'web_url'))
+                                            <a href="{{ data_get($item, 'web_url') }}"
                                                class="badge badge-outline badge-sm link-primary">{{ data_get($item, 'name', 'Item') }}</a>
                                         @else
                                             <span

@@ -119,8 +119,8 @@
                                                 @foreach ($rewardItems as $item)
                                                     <tr>
                                                         <td>
-                                                            @if (data_get($item, 'web_link'))
-                                                                <a href="{{ data_get($item, 'web_link') }}" class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
+                                                            @if (data_get($item, 'web_url'))
+                                                                <a href="{{ data_get($item, 'web_url') }}" class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
                                                             @else
                                                                 {{ data_get($item, 'name', '-') }}
                                                             @endif
@@ -364,7 +364,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                                     @foreach ($visibleLocations as $location)
                                         <a
-                                            href="{{ data_get($location, 'web_link', '#') }}"
+                                            href="{{ data_get($location, 'web_url', '#') }}"
                                             class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                         >
                                             <div class="min-w-0 space-y-1.5">
@@ -392,7 +392,7 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
                                             @foreach ($hiddenLocations as $location)
                                                 <a
-                                                    href="{{ data_get($location, 'web_link', '#') }}"
+                                                    href="{{ data_get($location, 'web_url', '#') }}"
                                                     class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                                 >
                                                     <div class="min-w-0 space-y-1.5">
