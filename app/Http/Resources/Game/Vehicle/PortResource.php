@@ -62,7 +62,7 @@ class PortResource extends AbstractBaseResource
     use ProcessesHardpointData;
     use ResolvesGameVersion;
 
-    public function __construct($resource, private bool $isChild = false)
+    public function __construct($resource, int|string|null $key = null, private readonly bool $isChild = false)
     {
         parent::__construct($resource);
     }

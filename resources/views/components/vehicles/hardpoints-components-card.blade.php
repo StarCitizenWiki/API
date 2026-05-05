@@ -22,15 +22,16 @@
         'Coolers',
         'Power Plants',
         'Quantum Drives',
-        'Radar',
+        'Radars',
+        'Cargo Grids',
         'Counter Measures',
         'Flight Controller',
         'Life Support',
         'Thrusters',
         'Fuel',
         'Customization',
+        'Paints',
         'Armor',
-        'ShieldController',
         'Other',
     ];
 @endphp

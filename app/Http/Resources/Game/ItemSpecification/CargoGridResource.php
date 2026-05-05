@@ -29,6 +29,7 @@ class CargoGridResource extends AbstractItemSpecificationResource
         $grid = Arr::get($stdItem, 'CargoGrid', []);
 
         return [
+            'scu' => Arr::get($container, 'SCU'),
             'x' => Arr::get($grid, 'Dimensions.X', Arr::get($container, 'x')),
             'y' => Arr::get($grid, 'Dimensions.Y', Arr::get($container, 'y')),
             'z' => Arr::get($grid, 'Dimensions.Z', Arr::get($container, 'z')),
