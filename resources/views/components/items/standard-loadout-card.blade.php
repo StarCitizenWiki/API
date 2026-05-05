@@ -22,10 +22,22 @@
                             <th scope="col">Manufacturer</th>
                             <th scope="col">Career</th>
                             <th scope="col">Role</th>
+                            <th scope="col">Size</th>
+                            <th scope="col">Type</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($vehicles as $vehicle)
+                            @php
+                                $typeLabel = null;
+                                if (data_get($vehicle, 'is_gravlev') === true) {
+                                    $typeLabel = 'Gravlev vehicle';
+                                } elseif (data_get($vehicle, 'is_spaceship') === true) {
+                                    $typeLabel = 'Ship';
+                                } elseif (data_get($vehicle, 'is_vehicle') === true) {
+                                    $typeLabel = 'Ground vehicle';
+                                }
+                            @endphp
                             <tr>
                                 <td class="whitespace-nowrap">
                                     @if ($vehicle['uuid'] ?? null)
@@ -43,6 +55,8 @@
                                 </td>
                                 <td>{{ $vehicle['career'] ?? '-' }}</td>
                                 <td>{{ $vehicle['role'] ?? '-' }}</td>
+                                <td>{{ ($vehicle['size_class'] ?? null) !== null ? 'S' . $vehicle['size_class'] : '-' }}</td>
+                                <td>{{ $typeLabel ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

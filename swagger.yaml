@@ -7547,30 +7547,7 @@ components:
           description: 'Only returned when `include=vehicles` is requested. Vehicles that have this item installed.'
           type: array
           items:
-            properties:
-              uuid:
-                description: 'Vehicle UUID'
-                type: string
-                nullable: true
-              name:
-                type: string
-              career:
-                type: string
-                nullable: true
-              role:
-                type: string
-                nullable: true
-              manufacturer:
-                properties:
-                  code: { type: string, nullable: true }
-                  name: { type: string, nullable: true }
-                type: object
-                nullable: true
-              web_url:
-                description: 'Web URL for vehicle detail page'
-                type: string
-                nullable: true
-            type: object
+            $ref: '#/components/schemas/vehicle_link'
           nullable: true
         web_url:
           description: 'Web URL for item detail page'
@@ -15066,95 +15043,6 @@ components:
             $ref: '#/components/schemas/game_starmap_location_mission_group'
           nullable: true
       type: object
-    game_vehicle_cargo_grid:
-      title: 'Vehicle Cargo Grid'
-      description: 'Cargo grid slots from ship data, presented as-is.'
-      properties:
-        uuid:
-          description: 'Unique cargo grid identifier.'
-          type: string
-          example: 102867b1-be6b-4a66-b228-4d2ab2f1c414
-          nullable: true
-        class_name:
-          description: 'SC class name of the cargo grid.'
-          type: string
-          example: AEGS_Avenger_CargoGrid_Titan
-          nullable: true
-        scu:
-          description: 'Capacity in Standard Cargo Units.'
-          type: number
-          example: 8
-        capacity:
-          description: 'Raw capacity value.'
-          type: number
-          example: 8
-        capacity_name:
-          description: 'Unit label for capacity (e.g. SCU).'
-          type: string
-          example: SCU
-          nullable: true
-        is_open:
-          description: 'Whether this is an open container grid.'
-          type: boolean
-          example: true
-          nullable: true
-        is_external:
-          description: 'Whether this grid is externally accessible.'
-          type: boolean
-          example: false
-          nullable: true
-        is_closed:
-          description: 'Whether this is a closed container grid.'
-          type: boolean
-          example: false
-          nullable: true
-        x:
-          description: 'Grid dimension on the X axis.'
-          type: number
-          example: 2.5
-        'y':
-          description: 'Grid dimension on the Y axis.'
-          type: number
-          example: 5
-        z:
-          description: 'Grid dimension on the Z axis.'
-          type: number
-          example: 1.25
-        min_size:
-          description: 'Minimum cargo box dimensions.'
-          properties:
-            x:
-              description: 'Minimum size on X axis.'
-              type: number
-              example: 1.25
-            'y':
-              description: 'Minimum size on Y axis.'
-              type: number
-              example: 1.25
-            z:
-              description: 'Minimum size on Z axis.'
-              type: number
-              example: 1.25
-          type: object
-          nullable: true
-        max_size:
-          description: 'Maximum cargo box dimensions.'
-          properties:
-            x:
-              description: 'Maximum size on X axis.'
-              type: number
-              example: 2.5
-            'y':
-              description: 'Maximum size on Y axis.'
-              type: number
-              example: 2.5
-            z:
-              description: 'Maximum size on Z axis.'
-              type: number
-              example: 1.25
-          type: object
-          nullable: true
-      type: object
     game_vehicle_hardpoint_item:
       title: 'Vehicle Hardpoint Item v2'
       description: 'Deprecated: Trimmed down version of item resource, used for hardpoints in v2 API.'
@@ -15292,6 +15180,10 @@ components:
           items:
             $ref: '#/components/schemas/game_vehicle_hardpoint'
           nullable: true
+        version:
+          description: 'Game version code for this data.'
+          type: string
+          nullable: true
       type: object
       deprecated: true
     game_vehicle_part:
@@ -15316,6 +15208,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/game_vehicle_part'
+          nullable: true
+        version:
+          description: 'Game version code for this data.'
+          type: string
           nullable: true
       type: object
     game_vehicle_port:
@@ -15418,6 +15314,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/game_vehicle_port'
+          nullable: true
+        version:
+          description: 'Game version code for this data.'
+          type: string
           nullable: true
       type: object
     game_vehicle_turret:
@@ -15633,6 +15533,10 @@ components:
                 example: false
                 nullable: true
             type: object
+          nullable: true
+        version:
+          description: 'Game version code for this data.'
+          type: string
           nullable: true
       type: object
     vehicle_link:
