@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Game;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
+use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
@@ -695,6 +696,8 @@ class VehicleController extends Controller
             AllowedInclude::relationship('shipMatrixVehicle', 'shipMatrixVehicle'),
             AllowedInclude::relationship('components', 'shipMatrixVehicle.components'),
             AllowedInclude::relationship('shipmatrixvehicle.components', 'shipMatrixVehicle.components'),
+            AllowedInclude::custom('hardpoints', new CustomEagerLoadInclude),
+            AllowedInclude::custom('ports', new CustomEagerLoadInclude),
         ];
     }
 
