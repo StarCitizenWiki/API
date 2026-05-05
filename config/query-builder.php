@@ -48,7 +48,7 @@ return [
      * By default the package will throw an `InvalidIncludeQuery` exception when an include in the
      * URL is not allowed in the `allowedIncludes()` method.
      */
-    'disable_invalid_includes_query_exception' => true,
+    'disable_invalid_include_query_exception' => true,
 
     /*
      * By default, the package expects relationship names to be snake case plural when using fields[relationship].
