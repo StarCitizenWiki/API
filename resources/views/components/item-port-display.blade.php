@@ -53,7 +53,7 @@
             aria-controls="{{ $portIdentifier }}-content"
         >
             <span class="flex items-center gap-2">
-                @if(data_get($port, 'uneditable'))
+                @if(! data_get($port, 'editable'))
                     <x-icon name="lock" class="size-3"/>
                 @endif
                 {{ $displayPortLabel ?? 'Port' }}

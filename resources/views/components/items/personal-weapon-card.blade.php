@@ -61,7 +61,8 @@
         ['key' => 'first_attack', 'label' => 'First Attack'],
         ['key' => 'per_attack', 'label' => 'Per Attack'],
         ['key' => 'decay', 'label' => 'Decay'],
-        ['key' => 'minimum', 'label' => 'Minimum'],
+        ['key' => 'min', 'label' => 'Minimum'],
+        ['key' => 'max', 'label' => 'Maximum'],
         ['key' => 'maximum', 'label' => 'Maximum'],
     ];
 

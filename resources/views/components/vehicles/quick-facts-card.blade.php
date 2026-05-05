@@ -13,7 +13,7 @@
     $crew = data_get($vehicle, 'crew', []);
     $crewMinimum = data_get($crew, 'min');
     $crewMaximum = data_get($crew, 'max');
-    $massTotal = data_get($vehicle, 'mass_total', data_get($vehicle, 'mass'));
+    $massTotal = data_get($vehicle, 'mass_total');
     $dimension = data_get($vehicle, 'dimension', []);
     $length = data_get($dimension, 'length');
     $width = data_get($dimension, 'width');

@@ -12,7 +12,7 @@
     $crossSectionWidth = data_get($crossSection, 'width');
     $crossSectionHeight = data_get($crossSection, 'height');
 
-    $massTotal = data_get($vehicle, 'mass_total', data_get($vehicle, 'mass'));
+    $massTotal = data_get($vehicle, 'mass_total');
     $massHull = data_get($vehicle, 'mass_hull');
     $massLoadout = data_get($vehicle, 'mass_loadout');
 

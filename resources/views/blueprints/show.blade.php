@@ -319,7 +319,7 @@
                     const isSelected = state.currentBlueprintUuid !== null && resultUuid === state.currentBlueprintUuid;
                     const title = stringValue(result?.output_name, "Unknown blueprint");
                     const outputClass = stringValue(result?.output_class);
-                    const typeLabel = [stringValue(result?.output?.type), stringValue(result?.output?.subtype)]
+                    const typeLabel = [stringValue(result?.output?.type), stringValue(result?.output?.sub_type)]
                         .filter(Boolean)
                         .join(" / ");
                     const inputCount = numberValue(result?.ingredient_count, 0);

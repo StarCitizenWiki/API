@@ -23,7 +23,7 @@
     $searchResultTitle = data_get($searchResult, 'output_name', 'Unknown blueprint');
     $searchResultClass = data_get($searchResult, 'output_class');
     $searchResultType = data_get($searchResult, 'output.type');
-    $searchResultSubtype = data_get($searchResult, 'output.subtype');
+    $searchResultSubtype = data_get($searchResult, 'output.sub_type');
     $searchResultTypeLabel = collect([$searchResultType, $searchResultSubtype])
         ->filter(static fn (mixed $value): bool => is_string($value) && trim($value) !== '')
         ->implode(' / ');

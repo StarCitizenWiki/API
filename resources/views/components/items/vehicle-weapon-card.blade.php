@@ -145,7 +145,8 @@
                 @endforeach
             </x-dl-section>
             <x-dl-section title="Spread">
-                @if (data_get($spread, 'minimum') !== null)
+                @if (data_get($spread, 'min') !== null)
+                    <x-dt-dd label="Min/Max">{{ Format::range(data_get($spread, 'min'), data_get($spread, 'max'), 'deg', 0) }}</x-dt-dd>
                     <x-dt-dd label="Min/Max">{{ Format::range(data_get($spread, 'minimum'), data_get($spread, 'maximum'), 'deg', 0) }}</x-dt-dd>
                 @endif
                 @foreach ($spreadMetrics as $metric)
