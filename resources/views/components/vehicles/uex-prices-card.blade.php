@@ -20,7 +20,7 @@
 
 @if ($hasPrices)
     <section
-        data-testid="uex-prices-card" {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+        data-testid="uex-prices-card" {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body max-h-96 overflow-y-auto p-5 sm:p-6">
             <div class="space-y-6">
                 @if ($purchaseCount > 0)

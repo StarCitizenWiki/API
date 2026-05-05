@@ -26,7 +26,7 @@
     $footer = is_array($footer) ? array_values(array_filter($footer)) : null;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }} @if($testId) data-testid="{{ $testId }}" @endif>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }} @if($testId) data-testid="{{ $testId }}" @endif>
     <div class="card-body p-5 sm:p-6">
         <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-8">
             @foreach ($columns as $section)

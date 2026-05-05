@@ -40,7 +40,7 @@
             </div>
 
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <div class="card border border-base-300 bg-base-100 shadow">
+                <div class="card card-border bg-base-100 shadow">
                     <div class="card-body gap-4">
                         <h3 class="card-title text-base">Universe <span class="badge badge-primary badge-sm ml-auto">In-Game Data</span></h3>
                         <div class="grid grid-cols-2 gap-x-2">
@@ -87,7 +87,7 @@
                     </div>
                 </div>
 
-                <div class="card border border-base-300 bg-base-100 shadow">
+                <div class="card card-border bg-base-100 shadow">
                     <div class="card-body ">
                         <h3 class="card-title text-base">Communication <span class="badge badge-secondary badge-sm ml-auto">Website Data</span></h3>
                         <div class="flex flex-wrap">
@@ -119,7 +119,7 @@
                     </div>
                 </div>
 
-                <div class="card border border-base-300 bg-base-100 shadow">
+                <div class="card card-border bg-base-100 shadow">
                     <div class="card-body gap-4">
                         <h3 class="card-title text-base">Lore</h3>
                         <div class="flex flex-wrap gap-2">
@@ -142,7 +142,7 @@
                     </div>
                 </div>
 
-                <div class="card border border-base-300 bg-base-100 shadow">
+                <div class="card card-border bg-base-100 shadow">
                     <div class="card-body gap-4">
                         <h3 class="card-title text-base">Explore</h3>
                         <div class="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@
                 </div>
 
                 @can('access-admin')
-                    <div class="card border border-base-300 bg-base-100 shadow" data-testid="welcome-admin-card">
+                    <div class="card card-border bg-base-100 shadow" data-testid="welcome-admin-card">
                         <div class="card-body gap-4">
                             <h3 class="card-title text-base">Home</h3>
                             <div class="flex flex-wrap gap-2">

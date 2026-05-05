@@ -50,7 +50,7 @@
                         Rarity
                     </div>
                     <div class="mt-1.5">
-                        <x-resources.rarity-badge :tier="$tier" class="badge-md" />
+                        <x-resources.rarity-badge :tier="$tier" class="" />
                     </div>
                 </div>
             @endif

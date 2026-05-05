@@ -52,7 +52,7 @@
                                 : null;
                         @endphp
 
-                        <section class="card border border-base-300 bg-base-100 shadow" data-testid="resource-location-card">
+                        <section class="card card-border bg-base-100 shadow" data-testid="resource-location-card">
                             <div class="card-body gap-4 p-5 sm:p-6">
                                 <div class="flex flex-wrap items-center gap-3">
                                     @if ($locationShowUrl)
@@ -95,7 +95,7 @@
         @endforeach
     </div>
 @else
-    <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+    <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div class="text-sm text-subtle">No location data available for this resource.</div>
         </div>

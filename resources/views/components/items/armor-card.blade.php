@@ -47,7 +47,7 @@
     $hasDeflection = $penetrationMetrics !== [];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow'])}}>
+<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
     <div class="card-body gap-4">
         <h2 class="card-title text-base">Armor</h2>
 

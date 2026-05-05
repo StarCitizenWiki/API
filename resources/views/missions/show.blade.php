@@ -103,7 +103,7 @@
 
                     <div class="grid gap-4 lg:grid-cols-2">
                         @if ($rewardItems !== [])
-                            <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card card-border bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
                                     <h3 class="font-semibold uppercase text-subtle mb-3">Reward Items</h3>
                                     <div class="overflow-x-auto">
@@ -137,7 +137,7 @@
                         @endif
 
                         @if ($blueprintItems !== [])
-                            <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card card-border bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
                                     <h3 class="font-semibold uppercase text-subtle mb-3">Blueprints</h3>
                                     @if (data_get($blueprints, 'drop_chance'))
@@ -180,7 +180,7 @@
                         @endif
 
                         @if ($reputationGained !== [] || $reputationLost !== [])
-                            <div class="card border border-base-300 bg-base-100 shadow">
+                            <div class="card card-border bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
                                     <div class="space-y-6">
                                         @if ($reputationGained !== [])
@@ -282,7 +282,7 @@
                         <span class="text-base text-subtle">{{ data_get($factionData, 'name') }}</span>
                     </div>
 
-                    <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card card-border bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
                             <div class="grid gap-6 {{ $hasLadder ? 'lg:grid-cols-2' : '' }}">
                                 <div>
@@ -351,7 +351,7 @@
                             $startOpen = $groupLabel !== 'Availability';
                         @endphp
 
-                        <details class="collapse collapse-arrow card border border-base-300 bg-base-100 shadow" @if ($startOpen) open @endif data-testid="mission-location-group-{{ Str::slug($groupLabel) }}">
+                        <details class="collapse collapse-arrow card card-border bg-base-100 shadow" @if ($startOpen) open @endif data-testid="mission-location-group-{{ Str::slug($groupLabel) }}">
                             <summary class="collapse-title min-h-11 text-sm font-semibold flex items-center gap-3">
                                 {{ $groupLabel }}
                                 <span class="badge badge-outline badge-sm">{{ $groupCount }}</span>

@@ -34,7 +34,7 @@
             $orOptions = data_get($order, 'or_options') ?? [];
         @endphp
 
-        <div class="card border border-base-300 bg-base-100 shadow">
+        <div class="card card-border bg-base-100 shadow">
             <div class="card-body p-5 sm:p-6">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="badge {{ $badge }} badge-sm">Choice</span>
@@ -126,7 +126,7 @@
                     $orderItems = data_get($order, 'items') ?? [];
                 @endphp
 
-                <div class="card border border-base-300 bg-base-100 shadow">
+                <div class="card card-border bg-base-100 shadow">
                     <div class="card-body p-5 sm:p-6">
                         <div class="flex items-center gap-2 mb-3">
                             <span class="badge {{ $badge }} badge-sm">{{ $label }}</span>

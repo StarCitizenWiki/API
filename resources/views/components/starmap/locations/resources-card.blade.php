@@ -27,7 +27,7 @@
                 $groupProbMax = data_get($group, 'group_probability_max_percent');
             @endphp
 
-            <details class="collapse collapse-arrow card border border-base-300 bg-base-100 shadow" @if($groupCount <= 2) open @endif data-testid="starmap-location-resource-group">
+            <details class="collapse collapse-arrow card card-border bg-base-100 shadow" @if($groupCount <= 2) open @endif data-testid="starmap-location-resource-group">
                 <summary class="collapse-title min-h-11 text-sm font-semibold flex items-center gap-3">
                     {{ $groupLabel }}
                     @if ($groupProbMin !== null)
@@ -70,7 +70,7 @@
         @endforeach
     </div>
 @else
-    <div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+    <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div class="text-sm text-subtle">No resource data available for this location.</div>
         </div>

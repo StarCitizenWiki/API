@@ -52,7 +52,7 @@
 @endphp
 
 
-<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card']) }}>
+<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card']) }}>
     <div class="relative">
         @if ($previewTag)
             <span class="badge badge-neutral absolute left-3 top-3 z-10">

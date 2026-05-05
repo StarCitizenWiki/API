@@ -8,7 +8,7 @@
     $entryCount = count($entries);
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Default Composition</h2>
@@ -30,7 +30,7 @@
                             $commodityUrl = url()->query($commodityUrl, ['version' => $versionQuery]);
                         }
                     @endphp
-                    <div class="card border border-base-300 bg-base-100 shadow-sm">
+                    <div class="card card-border bg-base-100 shadow-sm">
                         <div class="card-body gap-2 p-3">
                             <div class="text-sm font-semibold">
                                 @if ($commodityUrl)

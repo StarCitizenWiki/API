@@ -12,7 +12,7 @@
 @endphp
 
 @if (!empty($config['externalFilters']))
-    <div class="card card-border border-base-300 bg-base-100" data-testid="tabulator-external-filters-{{ $id }}">
+    <div class="card card-border bg-base-100" data-testid="tabulator-external-filters-{{ $id }}>
         <div class="flex flex-wrap items-end gap-3 px-4 pt-4" data-testid="tabulator-external-filters-bar-{{ $id }}">
             @foreach ($config['externalFilters'] as $filter)
                 <label class="form-control">
@@ -61,7 +61,7 @@
 
 
 @if ($showApiUrl && $apiUrlTargetId)
-    <div class="card card-border border-base-300 bg-base-100" data-testid="tabulator-api-url-card-{{ $id }}">
+    <div class="card card-border bg-base-100" data-testid="tabulator-api-url-card-{{ $id }}>
         <div class="card-body gap-3 p-4">
             <label class="label p-0" for="{{ $apiUrlTargetId }}" data-testid="tabulator-api-url-label-{{ $id }}">
                 <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">

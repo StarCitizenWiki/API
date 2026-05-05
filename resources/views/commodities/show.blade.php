@@ -90,7 +90,7 @@
                         <span class="badge badge-ghost badge-sm">{{ count($blueprints) }}</span>
                     </div>
 
-                    <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card card-border bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
                             <div class="overflow-x-auto overflow-y-auto max-h-96">
                                 <table class="table table-zebra">
@@ -130,7 +130,7 @@
                         <span class="badge badge-ghost badge-sm">{{ count($items) }}</span>
                     </div>
 
-                    <div class="card border border-base-300 bg-base-100 shadow">
+                    <div class="card card-border bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
                             <div class="overflow-x-auto overflow-y-auto max-h-96">
                                 <table class="table table-zebra">

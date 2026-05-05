@@ -75,7 +75,7 @@
                     </span>
                 @endif
                 @if ($sizeRange !== '-')
-                    <span class="badge badge-soft badge-sm">S{{ $sizeRange }}</span>
+                    <span class="badge badge-ghost badge-sm">S{{ $sizeRange }}</span>
                 @endif
             </span>
         </summary>

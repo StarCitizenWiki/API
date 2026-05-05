@@ -668,7 +668,7 @@
                 });
                 const selectionGroups = new Map();
                 const selectionGroupViews = new Map();
-                const activeAspectCardClass = "card border border-base-300 bg-base-200/60 shadow-sm";
+                const activeAspectCardClass = "card card-border bg-base-200/60 shadow-sm";
                 const inactiveAspectCardClass = "card border border-dashed border-base-300 bg-base-100 opacity-70 shadow-sm";
                 const activeSelectionButtonClass = "btn btn-primary btn-xs";
                 const inactiveSelectionButtonClass = "btn btn-outline btn-xs border-base-300 bg-base-100 text-subtle";
@@ -1117,7 +1117,7 @@
     @endif
     <div class="flex flex-col gap-6" data-blueprint-show>
         @if ($isEmptyMode)
-            <div class="card border border-base-300 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <div class="card-body gap-5">
                     <div class="flex flex-wrap items-center gap-2 text-xs">
                         <span class="badge badge-primary badge-sm">Blueprint Search</span>
@@ -1131,7 +1131,7 @@
                 </div>
             </div>
         @else
-            <div class="card border border-base-300 bg-base-100 shadow-sm">
+            <div class="card card-border bg-base-100 shadow-sm">
                 <div class="card-body p-0">
                     <details class="collapse collapse-arrow rounded-box border-0 bg-base-100/80" @if ($searchQuery !== '') open @endif>
                         <summary class="collapse-title min-h-0 py-4 pr-10">
@@ -1158,13 +1158,13 @@
         @endif
 
         @if ($isEmptyMode)
-            <div class="card border border-base-300 bg-base-100 shadow">
+            <div class="card card-border bg-base-100 shadow">
                 <div class="card-body gap-3">
                     <h2 class="text-lg font-semibold tracking-tight">Crafting breakdown</h2>
                 </div>
             </div>
         @else
-            <div class="card border border-base-300 bg-base-100 shadow" id="blueprint-recipe-flow">
+            <div class="card card-border bg-base-100 shadow" id="blueprint-recipe-flow">
                 <div class="card-body gap-6">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div class="space-y-2">
@@ -1371,7 +1371,7 @@
             @if ($unlockingMissions !== [] || $hasDismantleData || (! $isAvailableByDefault && $unlockingMissions === []))
                 <div class="grid gap-6 lg:grid-cols-2">
                     @if ($unlockingMissions !== [])
-                        <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card card-border bg-base-100 shadow">
                             <div class="card-body gap-4">
                                 <h2 class="text-base font-semibold tracking-tight">Unlocking missions</h2>
 
@@ -1404,7 +1404,7 @@
                             </div>
                         </div>
                     @elseif (! $isAvailableByDefault)
-                        <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card card-border bg-base-100 shadow">
                             <div class="card-body gap-4">
                                 <h2 class="text-base font-semibold tracking-tight">Unlocking missions</h2>
                                 <p class="text-sm text-subtle">No missions available for this blueprint yet.</p>
@@ -1413,7 +1413,7 @@
                     @endif
 
                     @if ($hasDismantleData)
-                        <div class="card border border-base-300 bg-base-100 shadow">
+                        <div class="card card-border bg-base-100 shadow">
                             <div class="card-body gap-3">
                                 <h2 class="text-base font-semibold tracking-tight">Dismantle</h2>
 
@@ -1462,7 +1462,7 @@
                 <summary class="collapse-title min-h-11 py-3 font-semibold">Technical details</summary>
                 <div class="collapse-content pt-0">
                     <div class="grid gap-4 border-t border-base-300 pt-4 xl:grid-cols-3">
-                        <section class="card border border-base-300 bg-base-100 shadow-sm">
+                        <section class="card card-border bg-base-100 shadow-sm">
                             <div class="card-body gap-4">
                                 <h2 class="card-title text-base">Blueprint metadata</h2>
 
@@ -1490,7 +1490,7 @@
                             </div>
                         </section>
 
-                        <section class="card border border-base-300 bg-base-100 shadow-sm xl:col-span-2">
+                        <section class="card card-border bg-base-100 shadow-sm xl:col-span-2">
                             <div class="card-body gap-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <h2 class="card-title text-base">Requirement groups</h2>
@@ -1548,7 +1548,7 @@
                             </div>
                         </section>
 
-                        <section class="card border border-base-300 bg-base-100 shadow-sm xl:col-span-3">
+                        <section class="card card-border bg-base-100 shadow-sm xl:col-span-3">
                             <div class="card-body gap-3">
                                 <h2 class="card-title text-base">Raw Blueprint Payload</h2>
                                 <pre class="overflow-x-auto rounded-box bg-base-200 p-4 text-xs">{{ $rawBlueprintJson }}</pre>

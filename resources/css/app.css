@@ -237,21 +237,19 @@
         @apply bg-base-content/15;
     }
 
-    .port-equipped-card {
-        &:where(.card) {
-            border: 0;
-            box-shadow: none;
-            background-color: var(--color-base-200);
-            border-radius: var(--radius-lg);
+    .port-equipped-card:where(.card) {
+        --card-border: 0;
+        --card-shadow: none;
+        background-color: var(--color-base-200);
+        border-radius: var(--radius-lg);
 
-            .card-body {
-                gap: 0.5rem;
-                padding: 0.75rem;
-            }
+        .card-body {
+            gap: 0.5rem;
+            padding: 0.75rem;
+        }
 
-            .card-title {
-                font-size: var(--text-sm);
-            }
+        .card-title {
+            font-size: var(--text-sm);
         }
     }
 }

@@ -47,7 +47,7 @@
             $visibleMissions = $dedupedMissions->take(9);
         @endphp
 
-        <details class="collapse collapse-arrow card border border-base-300 bg-base-100 shadow" @if($groupCount <= 3) open @endif data-testid="starmap-location-mission-group">
+        <details class="collapse collapse-arrow card card-border bg-base-100 shadow" @if($groupCount <= 3) open @endif data-testid="starmap-location-mission-group">
             <summary class="collapse-title min-h-11 text-sm font-semibold flex items-center gap-3">
                 {{ $label }}
                 <span class="badge badge-outline badge-sm">{{ $groupMissionCount }}</span>

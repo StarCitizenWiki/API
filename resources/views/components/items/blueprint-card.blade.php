@@ -24,7 +24,7 @@
     $hasIngredients = $ingredients->isNotEmpty();
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-blueprint-card']) }}>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => 'item-blueprint-card']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <h2 class="card-title text-base">
             @if (is_string($blueprintUrl) && $blueprintUrl !== '')

@@ -35,7 +35,7 @@
         </form>
     </div>
 @else
-    <div data-remove {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+    <div data-remove {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <form method="GET" action="{{ $route }}" class="card-body gap-4">
             <div class="flex flex-col gap-2">
                 <h2 class="card-title text-base">{{ $title }}</h2>

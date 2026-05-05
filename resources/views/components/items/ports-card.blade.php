@@ -6,7 +6,7 @@
     $portsCount = is_array($ports) ? count($ports) : 0;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-ports-card']) }}>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => 'item-ports-card']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Ports</h2>

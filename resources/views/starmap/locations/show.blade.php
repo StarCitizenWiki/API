@@ -236,7 +236,7 @@
             <section class="space-y-4">
                 <h2 class="text-lg font-semibold tracking-tight">Location Details</h2>
 
-                <section class="card border border-base-300 bg-base-100 shadow" data-testid="starmap-location-details">
+                <section class="card card-border bg-base-100 shadow" data-testid="starmap-location-details">
                     <div class="card-body gap-5 p-5 sm:p-6">
                         <x-dl-section dlClass="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                             @foreach ($details as $detail)

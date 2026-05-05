@@ -18,7 +18,7 @@
     $inputQuantityScu = $input['quantity_scu'] ?? null;
     $inputWebUrl = is_string($input['web_url'] ?? null) && trim($input['web_url']) !== '' ? trim($input['web_url']) : null;
     $cardClasses = $isSelected
-        ? 'card border border-base-300 bg-base-200/60 shadow-sm'
+        ? 'card card-border bg-base-200/60 shadow-sm'
         : 'card border border-dashed border-base-300 bg-base-100 opacity-70 shadow-sm';
     $selectionButtonClasses = $isSelected
         ? 'btn btn-primary btn-xs'

@@ -41,7 +41,7 @@
         @endif
     </div>
 
-    <div class="card border border-base-300 bg-base-100 shadow">
+    <div class="card card-border bg-base-100 shadow">
         <div class="card-body p-5 sm:p-6 space-y-6">
             @if ($aggregatedSpawns !== [])
                 <div>

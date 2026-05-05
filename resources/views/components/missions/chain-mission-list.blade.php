@@ -5,7 +5,7 @@
     'subtitleCallback' => null,
 ])
 
-<div {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow']) }}>
+<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
     <div class="card-body p-5 sm:p-6">
         <h3 class="font-semibold uppercase text-subtle mb-3">{{ $title }}</h3>
         <div class="space-y-4">

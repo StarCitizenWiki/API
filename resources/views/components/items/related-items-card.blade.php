@@ -20,7 +20,7 @@
     $isShipItem = is_string($classification) && str_starts_with($classification, 'Ship.');
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card border border-base-300 bg-base-100 shadow', 'data-testid' => 'item-related-items-card']) }}>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => 'item-related-items-card']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Related Items</h2>
@@ -35,7 +35,7 @@
                     <h3 class="font-semibold uppercase text-subtle">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
                     <div class="grid gap-2 sm:hidden">
                         @foreach ($setItems as $setItem)
-                            <div class="card border border-base-300 bg-base-100 shadow-sm">
+                            <div class="card card-border bg-base-100 shadow-sm">
                                 <div class="card-body gap-2 p-3">
                                     <div class="text-sm font-semibold">{{ $setItem['name'] ?? '-' }}</div>
                                     <div class="text-xs text-subtle">
