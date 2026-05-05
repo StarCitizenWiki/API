@@ -14,7 +14,7 @@ declare(strict_types=1);
  */
 function namingResourceFiles(): array
 {
-    $dir = dirname(__DIR__, 4) . '/app/Http/Resources/Game';
+    $dir = dirname(__DIR__, 4).'/app/Http/Resources/Game';
     $files = [];
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -67,6 +67,7 @@ function namingExtractOutputKeys(string $filePath): array
 
         if ($depth <= 0 && preg_match('/}\s*$/', $line)) {
             $inToArray = false;
+
             continue;
         }
 
@@ -86,7 +87,7 @@ function namingExtractOutputKeys(string $filePath): array
 
             $keys[] = [
                 'key' => $matches[1],
-                'file' => basename(dirname($filePath)) . '/' . basename($filePath),
+                'file' => basename(dirname($filePath)).'/'.basename($filePath),
                 'line' => $lineIndex,
             ];
         }
@@ -116,7 +117,7 @@ it('resource output keys use snake_case', function (string $file): void {
     }
 
     expect($violations)->toBeEmpty(
-        "Non-snake_case output keys found:\n  " . implode("\n  ", $violations),
+        "Non-snake_case output keys found:\n  ".implode("\n  ", $violations),
     );
 })->with(fn () => namingResourceFiles())->group('naming');
 
@@ -134,7 +135,7 @@ it('no resource uses web_link key (must be web_url)', function (): void {
     }
 
     expect($violations)->toBeEmpty(
-        "Found 'web_link' key — use 'web_url' instead:\n  " . implode("\n  ", $violations),
+        "Found 'web_link' key — use 'web_url' instead:\n  ".implode("\n  ", $violations),
     );
 })->group('naming');
 
@@ -156,7 +157,7 @@ it('no resource uses uneditable without editable companion', function (): void {
     }
 
     expect($violations)->toBeEmpty(
-        "Found 'uneditable' without 'editable' companion:\n  " . implode("\n  ", $violations),
+        "Found 'uneditable' without 'editable' companion:\n  ".implode("\n  ", $violations),
     );
 })->group('naming');
 
@@ -178,7 +179,7 @@ it('sub-type key is sub_type not bare subtype', function (): void {
     }
 
     expect($violations)->toBeEmpty(
-        "Found 'subtype' without 'sub_type' companion:\n  " . implode("\n  ", $violations),
+        "Found 'subtype' without 'sub_type' companion:\n  ".implode("\n  ", $violations),
     );
 })->group('naming');
 
@@ -206,12 +207,12 @@ it('min/max keys use prefix_min/prefix_max or bare min/max, not minimum/maximum'
     }
 
     expect($violations)->toBeEmpty(
-        "Bare 'minimum'/'maximum' without canonical 'min'/'max' or '*_min'/'*_max':\n  " . implode("\n  ", $violations),
+        "Bare 'minimum'/'maximum' without canonical 'min'/'max' or '*_min'/'*_max':\n  ".implode("\n  ", $violations),
     );
 })->group('naming');
 
 it('VehicleLinkResource uses size_class', function (): void {
-    $file = dirname(__DIR__, 4) . '/app/Http/Resources/Game/Vehicle/VehicleLinkResource.php';
+    $file = dirname(__DIR__, 4).'/app/Http/Resources/Game/Vehicle/VehicleLinkResource.php';
     $source = file_get_contents($file);
 
     expect($source)->toContain("'size_class'");
