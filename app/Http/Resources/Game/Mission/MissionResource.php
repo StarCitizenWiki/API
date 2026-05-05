@@ -6,7 +6,6 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
-use App\Support\Formatting\FormatDuration;
 use App\Support\Formatting\FormatMissionTitle;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -183,31 +182,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'has_combat_section', type: 'boolean'),
         new OA\Property(property: 'has_locations', type: 'boolean'),
         new OA\Property(property: 'has_chain', type: 'boolean'),
+        new OA\Property(property: 'has_blueprints', type: 'boolean'),
+        new OA\Property(property: 'released', description: 'Whether this mission is released (not marked as not_for_release or work_in_progress).', type: 'boolean'),
         new OA\Property(property: 'link', type: 'string', format: 'uri'),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_cooldown',
-    title: 'Mission Cooldown',
-    properties: [
-        new OA\Property(property: 'label', type: 'string', nullable: true),
-        new OA\Property(property: 'personal_seconds', type: 'integer'),
-        new OA\Property(property: 'abandoned_seconds', type: 'integer'),
-        new OA\Property(property: 'personal_variation_seconds', type: 'integer'),
-        new OA\Property(property: 'abandoned_variation_seconds', type: 'integer'),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_lifetime',
-    title: 'Mission Lifetime',
-    properties: [
-        new OA\Property(property: 'label', type: 'string', nullable: true),
-        new OA\Property(property: 'respawn_time_seconds', type: 'integer'),
-        new OA\Property(property: 'max_instances', type: 'integer'),
-        new OA\Property(property: 'respawn_time_variation_seconds', type: 'integer'),
-        new OA\Property(property: 'max_instances_per_player', type: 'integer'),
     ],
     type: 'object'
 )]
@@ -252,119 +229,6 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
-    schema: 'mission_combat',
-    title: 'Mission Combat',
-    properties: [
-        new OA\Property(
-            property: 'summary',
-            properties: [
-                new OA\Property(
-                    property: 'total',
-                    properties: [
-                        new OA\Property(property: 'min', type: 'integer'),
-                        new OA\Property(property: 'max', type: 'integer'),
-                    ],
-                    type: 'object'
-                ),
-                new OA\Property(
-                    property: 'by_group',
-                    type: 'array',
-                    items: new OA\Items(
-                        properties: [
-                            new OA\Property(property: 'group_name', type: 'string'),
-                            new OA\Property(property: 'min', type: 'integer'),
-                            new OA\Property(property: 'max', type: 'integer'),
-                        ],
-                        type: 'object'
-                    )
-                ),
-            ],
-            type: 'object'
-        ),
-        new OA\Property(
-            property: 'spawns',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'role', type: 'string', nullable: true),
-                    new OA\Property(property: 'weight', type: 'integer', nullable: true),
-                    new OA\Property(property: 'group_name', type: 'string', nullable: true),
-                    new OA\Property(property: 'spawn_kind', type: 'string', nullable: true),
-                    new OA\Property(property: 'concurrent_amount', type: 'integer', nullable: true),
-                ],
-                type: 'object'
-            )
-        ),
-        new OA\Property(
-            property: 'aggregated_spawns',
-            description: 'Spawns grouped by role, group_name, and spawn_kind with aggregated concurrent ranges',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'role', type: 'string'),
-                    new OA\Property(property: 'group_name', type: 'string', nullable: true),
-                    new OA\Property(property: 'spawn_kind', type: 'string', nullable: true),
-                    new OA\Property(property: 'concurrent_min', type: 'integer', nullable: true),
-                    new OA\Property(property: 'concurrent_max', type: 'integer', nullable: true),
-                    new OA\Property(property: 'weight', type: 'integer', nullable: true),
-                ],
-                type: 'object'
-            )
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_starmap_location_group',
-    title: 'Mission Starmap Location Group',
-    properties: [
-        new OA\Property(property: 'purpose', type: 'string'),
-        new OA\Property(
-            property: 'locations',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_starmap_location')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_starmap_location',
-    title: 'Mission Starmap Location',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'system', type: 'string', nullable: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_completion_tag',
-    title: 'Mission Completion Tag',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(
-            property: 'unlocks_missions',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_completion_tag_mission')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_completion_tag_mission',
-    title: 'Mission Completion Tag Mission',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'title', type: 'string', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
     schema: 'mission_reputation',
     title: 'Mission Reputation',
     properties: [
@@ -373,129 +237,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'amount', type: 'integer', nullable: true),
         new OA\Property(property: 'faction', type: 'string', nullable: true),
         new OA\Property(property: 'faction_uuid', type: 'string', format: 'uuid', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_hauling_order',
-    title: 'Mission Hauling Order',
-    properties: [
-        new OA\Property(property: 'kind', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(
-            property: 'items',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_hauling_order_item')
-        ),
-        new OA\Property(property: 'max_scu', type: 'integer', nullable: true),
-        new OA\Property(property: 'min_scu', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_amount', type: 'integer', nullable: true),
-        new OA\Property(property: 'min_amount', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_container_size', type: 'integer', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(
-            property: 'or_options',
-            type: 'array',
-            items: new OA\Items(
-                type: 'array',
-                items: new OA\Items(ref: '#/components/schemas/mission_hauling_order')
-            ),
-            nullable: true
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_hauling_order_item',
-    title: 'Mission Hauling Order Item',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_prerequisite_group',
-    title: 'Mission Prerequisite Group',
-    properties: [
-        new OA\Property(property: 'required_count', type: 'integer', nullable: true),
-        new OA\Property(
-            property: 'required_tags',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'name', type: 'string', nullable: true),
-                    new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-                ],
-                type: 'object'
-            )
-        ),
-        new OA\Property(
-            property: 'excluded_tags',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'name', type: 'string', nullable: true),
-                    new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-                ],
-                type: 'object'
-            )
-        ),
-        new OA\Property(
-            property: 'missions',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_chain_link')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_unlock_group',
-    title: 'Mission Unlock Group',
-    description: 'A completion tag group that unlocks missions when this mission is completed.',
-    properties: [
-        new OA\Property(property: 'tag_name', type: 'string', nullable: true),
-        new OA\Property(property: 'tag_uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(
-            property: 'missions',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_chain_link')
-        ),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_chain_link',
-    title: 'Mission Chain Link',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'title', type: 'string', nullable: true),
-        new OA\Property(property: 'mission_type', type: 'string', nullable: true),
-        new OA\Property(property: 'variant_count', description: 'Number of mission variants with the same title. Only present when greater than 1.', type: 'integer', nullable: true),
-        new OA\Property(
-            property: 'variants',
-            description: 'Additional mission variants sharing the same title. Only present when variant_count > 1.',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/mission_chain_variant'),
-            nullable: true
-        ),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
-    ],
-    type: 'object'
-)]
-#[OA\Schema(
-    schema: 'mission_chain_variant',
-    title: 'Mission Chain Variant',
-    description: 'A variant of a mission chain link, sharing the same title but a different UUID.',
-    properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
-        new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
     ],
     type: 'object'
 )]
@@ -524,16 +265,6 @@ use OpenApi\Attributes as OA;
 )]
 class MissionResource extends AbstractBaseResource
 {
-    private const ROLE_ORDER = ['enemy', 'defend_target', 'escort_target'];
-
-    private const ROLE_SORT = ['enemy' => 0, 'defend_target' => 1, 'escort_target' => 2, 'other' => 3];
-
-    private const PURPOSE_GROUP_MAP = [
-        'Destinations' => ['Destination', 'Destination1', 'Destination2', 'Destination3', 'Destination4', 'DropoffDestination1', 'Dropoff1', 'GoToLocation'],
-        'Locations' => ['Location', 'Location1', 'Location2', 'Location3', 'Location4', 'NearbyLocation', 'NeabyLocation', 'SubLocation'],
-        'Availability' => ['availability', null],
-    ];
-
     public static function validIncludes(): array
     {
         return ['faction', 'starmapLocations', 'prerequisiteGroups', 'unlockGroups', 'blueprints', 'rewardItems'];
@@ -543,6 +274,13 @@ class MissionResource extends AbstractBaseResource
     {
         $mission = $this->resource->mission;
         $data = $this->resource->data;
+
+        $makeApiUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
+        $makeWebUrl = fn (string $route, array $params): string => route($route, $params);
+
+        $haulingResource = new MissionHaulingResource(null, $makeApiUrl, $makeWebUrl);
+        $chainResource = new MissionChainResource(null, $makeApiUrl, $makeWebUrl);
+        $locationResource = new MissionLocationResource(null, $makeApiUrl, $makeWebUrl);
 
         return [
             'uuid' => $mission?->uuid,
@@ -590,8 +328,8 @@ class MissionResource extends AbstractBaseResource
             'reward_currency' => $this->resource->reward_currency,
             'time_to_complete_minutes' => $this->resource->time_to_complete_minutes,
             'star_systems' => $this->resource->star_systems,
-            'cooldown' => $this->mapCooldown($data),
-            'lifetime' => $this->mapLifetime($data),
+            'cooldown' => ($c = $data?->get('Cooldown')) !== null ? (new MissionCooldownResource($c))->toArray($request) : null,
+            'lifetime' => ($l = $data?->get('Lifetime')) !== null ? (new MissionLifetimeResource($l))->toArray($request) : null,
             'reaccept_after_failing' => $this->parseNullableBool($data?->get('ReacceptAfterFailing')),
             'reaccept_after_abandoning' => $this->parseNullableBool($data?->get('ReacceptAfterAbandoning')),
             'blueprints' => $this->mapBlueprints($request),
@@ -599,21 +337,21 @@ class MissionResource extends AbstractBaseResource
                 $this->resource->relationLoaded('rewardItems'),
                 fn (): ?array => $this->mapRewardItemsFromRelation($request),
             ),
-            'combat' => $this->mapCombat($data),
-            'completion_tags' => $this->mapCompletionTags($data, $request),
+            'combat' => (new MissionCombatResource($data))->toArray($request),
+            'completion_tags' => $chainResource->mapCompletionTags($data, $request),
             'reputation_gained' => $this->mapReputation($data?->get('ReputationGained')),
             'reputation_lost' => $this->mapReputation($data?->get('ReputationLost')),
-            'hauling_orders' => $this->mapHaulingOrders($data, $request),
+            'hauling_orders' => $haulingResource->mapHaulingOrders($data, $request),
             'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
             'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
             'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')),
-            'min_standing' => $this->mapStanding($data?->get('MinStanding')),
-            'max_standing' => $this->mapStanding($data?->get('MaxStanding')),
-            'mission_tokens' => $this->mapMissionTokens($data?->get('MissionTokens')),
-            'deadline' => $this->mapDeadline($data?->get('Deadline')),
-            'broker_reputation_prerequisites' => $this->mapBrokerReputationPrerequisites($data?->get('BrokerReputationPrerequisites')),
-            'item_counts' => $this->mapItemCounts($data?->get('ItemCounts')),
-            'entity_spawns' => $this->mapEntitySpawns($data?->get('EntitySpawns')),
+            'min_standing' => MissionDataBlockResource::mapStanding($data?->get('MinStanding')),
+            'max_standing' => MissionDataBlockResource::mapStanding($data?->get('MaxStanding')),
+            'mission_tokens' => MissionDataBlockResource::mapMissionTokens($data?->get('MissionTokens')),
+            'deadline' => MissionDataBlockResource::mapDeadline($data?->get('Deadline')),
+            'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites($data?->get('BrokerReputationPrerequisites')),
+            'item_counts' => MissionDataBlockResource::mapItemCounts($data?->get('ItemCounts')),
+            'entity_spawns' => MissionDataBlockResource::mapEntitySpawns($data?->get('EntitySpawns')),
             'hidden_in_mobiglas' => $this->parseNullableBool($data?->get('HiddenInMobiglas')),
             'notify_on_available' => $this->parseNullableBool($data?->get('NotifyOnAvailable')),
             'reward_scope' => $this->resource->reward_scope,
@@ -621,26 +359,28 @@ class MissionResource extends AbstractBaseResource
             'game_version' => $this->resource->gameVersion?->code,
             'starmap_locations' => $this->when(
                 $this->resource->relationLoaded('starmapLocations'),
-                fn (): array => $this->mapStarmapLocations($request),
+                fn (): array => $locationResource->mapStarmapLocations($this->resource->starmapLocations, $request),
             ),
             'prerequisite_groups' => $this->when(
                 $this->resource->relationLoaded('prerequisiteGroups'),
-                fn (): array => $this->mapPrerequisiteGroups($request),
+                fn (): array => $chainResource->mapPrerequisiteGroups($this->resource->prerequisiteGroups, $request),
             ),
             'unlock_groups' => $this->when(
                 $this->resource->relationLoaded('unlockGroups'),
-                fn (): array => $this->mapUnlockGroups($request),
+                fn (): array => $chainResource->mapUnlockGroups($this->resource->unlockGroups, $request),
             ),
 
             'merged_locations' => $this->when(
                 $this->resource->relationLoaded('starmapLocations'),
-                fn (): array => $this->mapMergedLocations($request),
+                fn (): array => $locationResource->mapMergedLocations($this->resource->starmapLocations, $request),
             ),
             'has_rewards' => $this->computeHasRewards($data),
             'has_combat_section' => $this->computeHasCombatSection($data),
             'has_locations' => $this->resource->relationLoaded('starmapLocations')
                 && ($this->resource->starmapLocations?->isNotEmpty() ?? false),
             'has_chain' => $this->computeHasChain(),
+            'has_blueprints' => $this->resource->blueprints->isNotEmpty(),
+            'released' => ! $this->resource->not_for_release && ! $this->resource->work_in_progress,
             'link' => $this->urlWithVersion(
                 route('missions.show', ['mission' => $mission?->uuid]),
                 $request,
@@ -652,51 +392,6 @@ class MissionResource extends AbstractBaseResource
         ];
     }
 
-    private function mapCooldown($data): ?array
-    {
-        $cooldown = $data?->get('Cooldown');
-
-        if (! is_array($cooldown)) {
-            return null;
-        }
-
-        $personalSeconds = $cooldown['PersonalSeconds'] ?? null;
-
-        return [
-            'label' => is_numeric($personalSeconds) && $personalSeconds > 0
-                ? FormatDuration::fromSeconds($personalSeconds)
-                : null,
-            'personal_seconds' => $personalSeconds,
-            'abandoned_seconds' => $cooldown['AbandonedSeconds'] ?? null,
-            'personal_variation_seconds' => $cooldown['PersonalVariationSeconds'] ?? null,
-            'abandoned_variation_seconds' => $cooldown['AbandonedVariationSeconds'] ?? null,
-        ];
-    }
-
-    private function mapLifetime($data): ?array
-    {
-        $lifetime = $data?->get('Lifetime');
-
-        if (! is_array($lifetime)) {
-            return null;
-        }
-
-        $respawnTimeMinutes = $lifetime['RespawnTime'] ?? null;
-        $respawnTimeSeconds = is_numeric($respawnTimeMinutes) ? (int) $respawnTimeMinutes * 60 : null;
-
-        return [
-            'label' => $respawnTimeSeconds !== null && $respawnTimeSeconds > 0
-                ? FormatDuration::fromSeconds($respawnTimeSeconds)
-                : null,
-            'respawn_time_seconds' => $respawnTimeSeconds,
-            'max_instances' => $lifetime['MaxInstances'] ?? null,
-            'respawn_time_variation_seconds' => isset($lifetime['RespawnTimeVariation']) && is_numeric($lifetime['RespawnTimeVariation'])
-                ? (int) $lifetime['RespawnTimeVariation'] * 60
-                : null,
-            'max_instances_per_player' => $lifetime['MaxInstancesPerPlayer'] ?? null,
-        ];
-    }
-
     private function parseNullableBool(mixed $value): ?bool
     {
         if ($value === null) {
@@ -704,104 +399,6 @@ class MissionResource extends AbstractBaseResource
         }
 
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-    }
-
-    private function mapStanding($standing): ?array
-    {
-        if (! is_array($standing)) {
-            return null;
-        }
-
-        return [
-            'name' => $standing['Name'] ?? null,
-            'min_reputation' => $standing['MinReputation'] ?? null,
-        ];
-    }
-
-    private function mapMissionTokens($tokens): ?array
-    {
-        if (! is_array($tokens) || empty($tokens)) {
-            return null;
-        }
-
-        $destinations = $tokens['Destination'] ?? [];
-
-        if (! is_array($destinations) || empty($destinations)) {
-            return null;
-        }
-
-        return [
-            'destinations' => $destinations,
-        ];
-    }
-
-    private function mapDeadline($deadline): ?array
-    {
-        if (! is_array($deadline)) {
-            return null;
-        }
-
-        return [
-            'auto_end' => $deadline['AutoEnd'] ?? null,
-            'end_reason' => $deadline['EndReason'] ?? null,
-            'completion_time_minutes' => $deadline['CompletionTime'] ?? null,
-            'result_after_timer' => $deadline['ResultAfterTimer'] ?? null,
-        ];
-    }
-
-    private function mapBrokerReputationPrerequisites($prerequisites): ?array
-    {
-        if (! is_array($prerequisites)) {
-            return null;
-        }
-
-        return [
-            'max_wanted_level' => $prerequisites['MaxWantedLevel'] ?? null,
-            'min_wanted_level' => $prerequisites['MinWantedLevel'] ?? null,
-        ];
-    }
-
-    private function mapItemCounts($counts): ?array
-    {
-        if (! is_array($counts)) {
-            return null;
-        }
-
-        return [
-            'max_items' => $counts['MaxItems'] ?? null,
-            'min_items' => $counts['MinItems'] ?? null,
-        ];
-    }
-
-    private function mapEntitySpawns($spawns): ?array
-    {
-        if (! is_array($spawns) || empty($spawns)) {
-            return null;
-        }
-
-        return array_map(static function (array $spawn): array {
-            $tags = $spawn['Tags'] ?? [];
-            $markupTags = $spawn['MarkupTags'] ?? [];
-
-            $tagNames = array_filter(array_map(
-                static fn (array $tag): ?string => $tag['Name'] ?? null,
-                is_array($tags) ? $tags : [],
-            ));
-            $markupTagNames = array_filter(array_map(
-                static fn (array $tag): ?string => $tag['Name'] ?? null,
-                is_array($markupTags) ? $markupTags : [],
-            ));
-
-            return [
-                'tags' => $tags,
-                'amount' => $spawn['Amount'] ?? null,
-                'weight' => $spawn['Weight'] ?? null,
-                'group_name' => $spawn['GroupName'] ?? null,
-                'markup_tags' => $markupTags,
-                'negative_tags' => $spawn['NegativeTags'] ?? null,
-                'merged_tags' => array_values(array_unique(array_merge($tagNames, $markupTagNames))),
-            ];
-        }, $spawns);
     }
 
     private function mapBlueprints(Request $request): ?array
@@ -867,115 +464,6 @@ class MissionResource extends AbstractBaseResource
         ])->values()->all();
     }
 
-    private function mapCombat($data): ?array
-    {
-        $summary = $data?->get('CombatSummary');
-        $spawns = $data?->get('Combat');
-
-        $hasSummary = is_array($summary) && isset($summary['Total']);
-        $hasSpawns = is_array($spawns) && ! empty($spawns);
-
-        if (! $hasSummary && ! $hasSpawns) {
-            return null;
-        }
-
-        $result = [];
-
-        if ($hasSummary) {
-            $total = $summary['Total'] ?? [];
-
-            $byGroup = collect($summary['ByGroup'] ?? [])->map(fn (array $group): array => [
-                'group_name' => $group['GroupName'] ?? null,
-                'min' => $group['Min'] ?? null,
-                'max' => $group['Max'] ?? null,
-            ])->values()->all();
-
-            $result['summary'] = [
-                'total' => [
-                    'min' => $total['Min'] ?? null,
-                    'max' => $total['Max'] ?? null,
-                ],
-                'by_group' => $byGroup,
-            ];
-        }
-
-        if ($hasSpawns) {
-            $mappedSpawns = collect($spawns)->map(fn (array $spawn): array => [
-                'role' => $spawn['Role'] ?? null,
-                'weight' => $spawn['Weight'] ?? null,
-                'group_name' => $spawn['GroupName'] ?? null,
-                'spawn_kind' => $spawn['SpawnKind'] ?? null,
-                'concurrent_amount' => $spawn['ConcurrentAmount'] ?? null,
-            ])->values()->all();
-
-            $result['spawns'] = $mappedSpawns;
-            $result['aggregated_spawns'] = $this->computeAggregatedSpawns($mappedSpawns);
-        }
-
-        return $result;
-    }
-
-    private function computeAggregatedSpawns(array $spawns): array
-    {
-        return collect($spawns)
-            ->map(function (array $spawn): array {
-                $role = $spawn['role'];
-                $spawn['_role'] = in_array($role, self::ROLE_ORDER, true) ? $role : 'other';
-
-                return $spawn;
-            })
-            ->groupBy(fn (array $s): string => $s['_role'].'|'.($s['group_name'] ?? '-').'|'.($s['spawn_kind'] ?? '-'))
-            ->map(function ($group): array {
-                $first = $group->first();
-                $concurrent = $group->map(fn (array $s) => $s['concurrent_amount'])->filter();
-                $weights = $group->map(fn (array $s) => $s['weight'])->filter(fn (?int $v): bool => $v !== null && $v > 0);
-
-                return [
-                    'role' => $first['_role'],
-                    'group_name' => $first['group_name'],
-                    'spawn_kind' => $first['spawn_kind'],
-                    'concurrent_min' => $concurrent->min(),
-                    'concurrent_max' => $concurrent->max(),
-                    'weight' => $weights->isNotEmpty() ? $weights->max() : null,
-                ];
-            })
-            ->sortBy(fn (array $item): int => self::ROLE_SORT[$item['role']] ?? 99)
-            ->values()
-            ->all();
-    }
-
-    private function mapCompletionTags($data, Request $request): ?array
-    {
-        $tags = $data?->get('CompletionTags');
-
-        if (! is_array($tags) || empty($tags)) {
-            return null;
-        }
-
-        return collect($tags)
-            ->filter(fn (array $tag): bool => ! empty($tag['UnlocksMissions']))
-            ->map(function (array $tag) use ($request): array {
-                return [
-                    'name' => $tag['Name'] ?? null,
-                    'unlocks_missions' => collect($tag['UnlocksMissions'] ?? [])->map(function (array $m) use ($request): array {
-                        return [
-                            'uuid' => $m['UUID'] ?? null,
-                            'title' => $m['Title'] ?? null,
-                            'link' => isset($m['UUID'])
-                                ? $this->urlWithVersion(
-                                    route('missions.show', ['mission' => $m['UUID']]),
-                                    $request,
-                                )
-                                : null,
-                            'web_url' => isset($m['UUID'])
-                                ? route('web.missions.show', ['mission' => $m['UUID']])
-                                : null,
-                        ];
-                    })->values()->all(),
-                ];
-            })->values()->all();
-    }
-
     private function mapReputation($entries): ?array
     {
         if (! is_array($entries) || empty($entries)) {
@@ -1021,246 +509,6 @@ class MissionResource extends AbstractBaseResource
         }
 
         return $raw;
-    }
-
-    private function mapHaulingOrders($data, Request $request): ?array
-    {
-        $orders = $data?->get('HaulingOrders');
-
-        if (! is_array($orders) || empty($orders)) {
-            return null;
-        }
-
-        return $this->mapHaulingOrderEntries($orders, $request);
-    }
-
-    private function mapHaulingOrderEntries(array $entries, Request $request): array
-    {
-        $result = [];
-
-        foreach ($entries as $entry) {
-            if (! is_array($entry)) {
-                continue;
-            }
-
-            $kind = $entry['Kind'] ?? $entry['ItemKind'] ?? null;
-
-            if ($kind === 'Or') {
-                $mapped = [
-                    'kind' => $kind,
-                    'or_options' => collect($entry['OrOptions'] ?? [])
-                        ->map(fn (array $group): array => $this->mapHaulingOrderEntries($group, $request))
-                        ->values()
-                        ->all(),
-                ];
-            } else {
-                $uuid = $entry['UUID'] ?? null;
-                $mapped = [
-                    'kind' => $kind,
-                    'name' => $entry['Name'] ?? null,
-                    'uuid' => $uuid,
-                    'items' => collect($entry['Items'] ?? [])->map(function (array $item) use ($kind, $request): array {
-                        $itemUuid = $item['UUID'] ?? $item['ItemUUID'] ?? null;
-
-                        return [
-                            'name' => $item['Name'] ?? null,
-                            'uuid' => $itemUuid,
-                            'link' => $this->haulingLink($itemUuid, $kind, $request),
-                            'web_url' => $this->haulingWebUrl($itemUuid, $kind),
-                        ];
-                    })->values()->all(),
-                    'max_scu' => max((int) ($entry['MinScu'] ?? 0), (int) ($entry['MaxScu'] ?? 0)) ?: null,
-                    'min_scu' => min((int) ($entry['MinScu'] ?? 0), (int) ($entry['MaxScu'] ?? 0)) ?: null,
-                    'max_amount' => max((int) ($entry['MinAmount'] ?? 0), (int) ($entry['MaxAmount'] ?? 0)) ?: null,
-                    'min_amount' => min((int) ($entry['MinAmount'] ?? 0), (int) ($entry['MaxAmount'] ?? 0)) ?: null,
-                    'max_container_size' => $entry['MaxContainerSize'] ?? null,
-                    'link' => $this->haulingLink($uuid, $kind, $request),
-                    'web_url' => $this->haulingWebUrl($uuid, $kind),
-                ];
-            }
-
-            $result[] = $mapped;
-        }
-
-        return $result;
-    }
-
-    private function haulingLink(?string $uuid, ?string $kind, Request $request): ?string
-    {
-        if ($uuid === null) {
-            return null;
-        }
-
-        if ($kind === 'Resource') {
-            return $this->urlWithVersion(
-                route('commodities.show', ['commodity' => $uuid]),
-                $request,
-            );
-        }
-
-        if ($kind === 'Entity' || $kind === 'Entities' || $kind === 'MissionItem') {
-            return $this->urlWithVersion(
-                route('items.show', ['identifier' => $uuid]),
-                $request,
-            );
-        }
-
-        return null;
-    }
-
-    private function haulingWebUrl(?string $uuid, ?string $kind): ?string
-    {
-        if ($uuid === null) {
-            return null;
-        }
-
-        if ($kind === 'Resource') {
-            return route('web.commodities.show', ['identifier' => $uuid]);
-        }
-
-        if ($kind === 'Entity' || $kind === 'Entities' || $kind === 'MissionItem') {
-            return route('web.items.show', ['item' => $uuid]);
-        }
-
-        return null;
-    }
-
-    private function mapStarmapLocations(Request $request): array
-    {
-        $grouped = [];
-
-        foreach ($this->resource->starmapLocations as $location) {
-            $purpose = $location->pivot->purpose ?? null;
-            $uuid = $location->location?->uuid;
-
-            $grouped[$purpose][] = $this->buildLocationData($location, $uuid, $request);
-        }
-
-        return collect($grouped)->map(fn (array $locations, ?string $purpose): array => [
-            'purpose' => $purpose ?: 'Availability',
-            'locations' => $locations,
-        ])->values()->all();
-    }
-
-    private function mapMergedLocations(Request $request): array
-    {
-        $merged = [];
-
-        foreach ($this->resource->starmapLocations as $location) {
-            $purpose = $location->pivot->purpose ?? null;
-            $matchedGroup = null;
-
-            foreach (self::PURPOSE_GROUP_MAP as $label => $purposes) {
-                if (in_array($purpose, $purposes, true)) {
-                    $matchedGroup = $label;
-                    break;
-                }
-            }
-
-            $matchedGroup ??= ucfirst((string) ($purpose ?? 'Unknown'));
-
-            $uuid = $location->location?->uuid;
-            $merged[$matchedGroup][] = $this->buildLocationData($location, $uuid, $request);
-        }
-
-        return $merged;
-    }
-
-    private function buildLocationData($location, ?string $uuid, Request $request): array
-    {
-        return [
-            'uuid' => $uuid,
-            'name' => $location->name,
-            'system' => $location->system,
-            'type' => $location->type_name,
-            'link' => $uuid !== null
-                ? $this->urlWithVersion(
-                    route('locations.show', ['identifier' => $uuid]),
-                    $request,
-                )
-                : null,
-            'web_url' => $uuid !== null
-                ? route('web.locations.show', ['identifier' => $uuid])
-                : null,
-        ];
-    }
-
-    private function mapPrerequisiteGroups(Request $request): array
-    {
-        return $this->resource->prerequisiteGroups->map(function ($group) use ($request): array {
-            return [
-                'required_count' => $group->required_count,
-                'required_tags' => $group->tags->where('type', 'required')->values()->map(fn ($tag): array => [
-                    'name' => $tag->tag_name,
-                    'uuid' => $tag->tag_uuid,
-                ])->all(),
-                'excluded_tags' => $group->tags->where('type', 'excluded')->values()->map(fn ($tag): array => [
-                    'name' => $tag->tag_name,
-                    'uuid' => $tag->tag_uuid,
-                ])->all(),
-                'missions' => $this->groupChainMissions($group->missions, $request),
-            ];
-        })->values()->all();
-    }
-
-    private function mapUnlockGroups(Request $request): array
-    {
-        return $this->resource->unlockGroups->map(function ($group) use ($request): array {
-            return [
-                'tag_name' => $group->tag_name,
-                'tag_uuid' => $group->tag_uuid,
-                'missions' => $this->groupChainMissions($group->missions, $request),
-            ];
-        })->values()->all();
-    }
-
-    private function groupChainMissions($missions, Request $request): array
-    {
-        $mapped = $missions->map(function ($groupMission) use ($request): array {
-            $linked = $groupMission->linkedMissionData;
-
-            return [
-                'uuid' => $linked?->mission?->uuid,
-                'title' => FormatMissionTitle::format($linked?->title, $linked?->debug_name),
-                'raw_title' => $linked?->title,
-                'mission_type' => $linked?->mission_type,
-                'link' => $linked?->mission?->uuid !== null
-                    ? $this->urlWithVersion(
-                        route('missions.show', ['mission' => $linked->mission->uuid]),
-                        $request,
-                    )
-                    : null,
-                'web_url' => $linked?->mission?->uuid !== null
-                    ? route('web.missions.show', ['mission' => $linked->mission->slug ?? $linked->mission->uuid])
-                    : null,
-            ];
-        })->values()->all();
-
-        return collect($mapped)
-            ->groupBy(fn (array $m): string => $m['raw_title'] ?? '__ungrouped__')
-            ->flatMap(function ($group, string $title): array {
-                if ($title === '__ungrouped__' || blank($title)) {
-                    return $group->map(fn (array $m) => collect($m)->forget('raw_title')->all())->all();
-                }
-
-                $representative = $group->first();
-                $variants = $group->skip(1)->map(fn (array $m): array => [
-                    'uuid' => $m['uuid'],
-                    'link' => $m['link'],
-                    'web_url' => $m['web_url'],
-                ])->values()->all();
-
-                $result = collect($representative)->forget('raw_title')->all();
-
-                if ($group->count() > 1) {
-                    $result['variant_count'] = $group->count();
-                    $result['variants'] = $variants;
-                }
-
-                return [$result];
-            })
-            ->values()
-            ->all();
     }
 
     private function computeHasRewards($data): bool

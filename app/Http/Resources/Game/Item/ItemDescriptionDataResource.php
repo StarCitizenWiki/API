@@ -19,6 +19,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param object $resource Description data entry with ->name and ->value properties */
 class ItemDescriptionDataResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

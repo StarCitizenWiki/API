@@ -22,6 +22,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw durability data from stdItem.Durability sub-array */
 class ItemDurabilityResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

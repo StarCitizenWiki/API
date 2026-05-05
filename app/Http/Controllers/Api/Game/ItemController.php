@@ -68,7 +68,7 @@ class ItemController extends Controller
                     'baseVariant.item',
                 ])),
                 AllowedInclude::custom('blueprints', new CustomEagerLoadInclude),
-                AllowedInclude::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer'])),
+                AllowedInclude::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer', 'installedOnVehicles.gameVersion'])),
             ]
         );
     }

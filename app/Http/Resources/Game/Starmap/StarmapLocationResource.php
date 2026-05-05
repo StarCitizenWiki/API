@@ -253,6 +253,24 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'updated_at', description: 'Timestamp of the last data update.', type: 'string', format: 'date-time', nullable: true),
         new OA\Property(property: 'version', description: 'Game data version code.', type: 'string', nullable: true),
         new OA\Property(
+            property: 'images',
+            description: 'Images from external sources for this location.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'source', description: 'Image source identifier', type: 'string', nullable: true),
+                    new OA\Property(property: 'thumbnail_url', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'thumbnail_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'thumbnail_height', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_url', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'original_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_height', type: 'integer', nullable: true),
+                ],
+                type: 'object'
+            ),
+            nullable: true,
+        ),
+        new OA\Property(
             property: 'area_boosts',
             description: 'Areas with boosted deposit spawn rates. Only included when requested via `include=resources`.',
             type: 'array',

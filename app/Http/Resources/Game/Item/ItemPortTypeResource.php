@@ -23,6 +23,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Individual CompatibleTypes entry from an item port */
 class ItemPortTypeResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

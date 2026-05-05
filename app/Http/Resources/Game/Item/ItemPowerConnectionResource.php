@@ -29,6 +29,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw power connection data from stdItem.PowerConnection sub-array */
 class ItemPowerConnectionResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

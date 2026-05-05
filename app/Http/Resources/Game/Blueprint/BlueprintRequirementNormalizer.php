@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Blueprint;
 
+use App\Http\Resources\Game\Concerns\NormalizesValues;
 use Illuminate\Support\Str;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Support\Str;
  */
 final class BlueprintRequirementNormalizer
 {
+    use NormalizesValues;
+
     /**
      * @param  array<string, mixed>  $payload
      * @return array<int, array<string, mixed>>
@@ -391,57 +394,5 @@ final class BlueprintRequirementNormalizer
                 $summaryProperties[$propertyKey] = $this->summaryProperty($modifier);
             }
         }
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function arrayNullableString(array $data, string $key): ?string
-    {
-        $value = $data[$key] ?? null;
-
-        if (! is_scalar($value)) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        return $normalized === '' ? null : $normalized;
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function arrayNullableInt(array $data, string $key): ?int
-    {
-        $value = $data[$key] ?? null;
-
-        return is_numeric($value) ? (int) $value : null;
-    }
-
-    private function nullableString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
-    }
-
-    private function nullableNumeric(mixed $value): int|float|null
-    {
-        if (! is_numeric($value)) {
-            return null;
-        }
-
-        $numericValue = $value + 0;
-
-        if (is_float($numericValue) && floor($numericValue) === $numericValue) {
-            return (int) $numericValue;
-        }
-
-        return $numericValue;
     }
 }

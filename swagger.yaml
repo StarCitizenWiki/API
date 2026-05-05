@@ -1031,7 +1031,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Item Overview'
-      description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)'
+      description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, vehicles, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)'
       operationId: caa5b59cdee8fe4be0e7aba773065367
       parameters:
         -
@@ -1164,7 +1164,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Weapon Detail'
-      description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: ecb91fcd4ebcf2c6388c86afad2830e0
       parameters:
         -
@@ -1194,7 +1194,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Weapon Attachment Detail'
-      description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: ff43a6f9de05c894d5e118a4b27538f9
       parameters:
         -
@@ -1224,7 +1224,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Clothing Detail'
-      description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: b76d2e2ab63022697b5ab8e75db172dd
       parameters:
         -
@@ -1254,7 +1254,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Armor Detail'
-      description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: 25dc767f00b2199b559dc5c0db8e36dc
       parameters:
         -
@@ -1284,7 +1284,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Food Detail'
-      description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: f49f3308c4628c4032bbfa5377e76c97
       parameters:
         -
@@ -1314,7 +1314,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Vehicle Weapon Detail'
-      description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: 5ad08d8da9119000f7a8b95d2ce69a52
       parameters:
         -
@@ -1344,7 +1344,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Vehicle Item Detail'
-      description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, shops.items.'
+      description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
       operationId: 149203a08dc06efc7e0a5b57754edf68
       parameters:
         -
@@ -1374,7 +1374,7 @@ paths:
         - In-Game
         - Items
       summary: 'In-Game Item Detail'
-      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.'
+      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.'
       operationId: cc74abcb9fb80ecbe534d6aea93df75c
       parameters:
         -
@@ -1382,7 +1382,7 @@ paths:
         -
           name: include
           in: query
-          description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), shops (shop availability data), shops.items (shop items).'
+          description: 'Comma-separated relationships to include. Available: blueprints (full crafting blueprint data including ingredients, missions, tiers), variants (item variants), related_items (related items from variant groups and sets), vehicles (vehicles this item is installed on), shops (shop availability data), shops.items (shop items).'
           schema:
             type: string
             example: blueprints
@@ -4772,10 +4772,15 @@ components:
           description: 'Human-readable label for the type'
           type: string
           nullable: true
-        subtype:
+        sub_type:
           description: 'Sub-type classification of the crafted item'
           type: string
           nullable: true
+        subtype:
+          description: 'Deprecated: Use sub_type.'
+          type: string
+          nullable: true
+          deprecated: true
         grade:
           description: 'Grade or quality tier of the crafted item'
           type: string
@@ -5617,6 +5622,33 @@ components:
           description: "Frontend URL for this commodity's page."
           type: string
           format: uri
+        images:
+          description: 'Images from external sources for this commodity.'
+          type: array
+          items:
+            properties:
+              source:
+                description: 'Image source identifier'
+                type: string
+              thumbnail_url:
+                type: string
+                nullable: true
+              thumbnail_width:
+                type: integer
+                nullable: true
+              thumbnail_height:
+                type: integer
+                nullable: true
+              original_url:
+                type: string
+                nullable: true
+              original_width:
+                type: integer
+                nullable: true
+              original_height:
+                type: integer
+                nullable: true
+            type: object
       type: object
     commodity_deposit_group:
       title: 'Commodity Deposit Group'
@@ -6227,153 +6259,168 @@ components:
     faction:
       title: Faction
       description: 'Full faction detail including reputation ladder when the faction has a reputation system.'
-      properties:
-        uuid:
-          description: 'Unique faction identifier.'
-          type: string
-          format: uuid
-          example: 4e429470-4d4e-4c2b-a4ac-4de42ada16e0
-        name:
-          description: 'Display name of the faction.'
-          type: string
-          example: 'Aciedo Communications'
-        description:
-          description: 'Lore description of the faction.'
-          type: string
-          nullable: true
-        default_reaction:
-          description: 'Default reaction towards the player. One of: Friendly, Hostile, Neutral.'
-          type: string
-          example: Neutral
-        faction_type:
-          description: 'Category of the faction. One of: Lawful, Unlawful, LawEnforcement, PrivateSecurity.'
-          type: string
-          example: Lawful
-        able_to_arrest:
-          description: 'Whether the faction can arrest players.'
-          type: boolean
-          example: false
-        polices_lawful_trespass:
-          description: 'Whether the faction enforces trespass violations against lawful characters.'
-          type: boolean
-          example: false
-        polices_criminality:
-          description: 'Whether the faction actively polices criminal activity.'
-          type: boolean
-          example: false
-        no_legal_rights:
-          description: 'Whether the faction operates without legal protections.'
-          type: boolean
-          example: false
-        has_reputation:
-          description: 'Whether the faction tracks player reputation.'
-          type: boolean
-          example: true
-        headquarters:
-          description: "Location of the faction's headquarters."
-          type: string
-          nullable: true
-        founded:
-          description: 'Founding date or era of the faction.'
-          type: string
-          nullable: true
-        leadership:
-          description: 'Current leadership of the faction.'
-          type: string
-          nullable: true
-        area:
-          description: 'Primary area of operations.'
-          type: string
-          nullable: true
-        focus:
-          description: 'Primary focus or industry of the faction.'
-          type: string
-          nullable: true
-        lawful:
-          description: 'Whether the faction is considered lawful.'
-          type: boolean
-          nullable: true
-        sort_order_scope:
-          description: 'Scope key used for sort ordering within reputation tiers.'
-          type: string
-          nullable: true
-        is_npc:
-          description: 'Whether the faction is NPC-controlled.'
-          type: boolean
-          example: false
-        reputation_ladder:
-          oneOf:
-            -
-              $ref: '#/components/schemas/faction_reputation_ladder'
-          nullable: true
-          description: 'Reputation ladder with standings. Requires ?include=reputationLadder.'
-        link:
-          description: 'API URL for this faction.'
-          type: string
-          format: uri
       type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/faction_index'
+        -
+          properties:
+            uuid:
+              description: 'Unique faction identifier.'
+              type: string
+              format: uuid
+              example: 4e429470-4d4e-4c2b-a4ac-4de42ada16e0
+            name:
+              description: 'Display name of the faction.'
+              type: string
+              example: 'Aciedo Communications'
+            description:
+              description: 'Lore description of the faction.'
+              type: string
+              nullable: true
+            default_reaction:
+              description: 'Default reaction towards the player. One of: Friendly, Hostile, Neutral.'
+              type: string
+              example: Neutral
+            faction_type:
+              description: 'Category of the faction. One of: Lawful, Unlawful, LawEnforcement, PrivateSecurity.'
+              type: string
+              example: Lawful
+            able_to_arrest:
+              description: 'Whether the faction can arrest players.'
+              type: boolean
+              example: false
+            polices_lawful_trespass:
+              description: 'Whether the faction enforces trespass violations against lawful characters.'
+              type: boolean
+              example: false
+            polices_criminality:
+              description: 'Whether the faction actively polices criminal activity.'
+              type: boolean
+              example: false
+            no_legal_rights:
+              description: 'Whether the faction operates without legal protections.'
+              type: boolean
+              example: false
+            has_reputation:
+              description: 'Whether the faction tracks player reputation.'
+              type: boolean
+              example: true
+            headquarters:
+              description: "Location of the faction's headquarters."
+              type: string
+              nullable: true
+            founded:
+              description: 'Founding date or era of the faction.'
+              type: string
+              nullable: true
+            leadership:
+              description: 'Current leadership of the faction.'
+              type: string
+              nullable: true
+            area:
+              description: 'Primary area of operations.'
+              type: string
+              nullable: true
+            focus:
+              description: 'Primary focus or industry of the faction.'
+              type: string
+              nullable: true
+            lawful:
+              description: 'Whether the faction is considered lawful.'
+              type: boolean
+              nullable: true
+            sort_order_scope:
+              description: 'Scope key used for sort ordering within reputation tiers.'
+              type: string
+              nullable: true
+            is_npc:
+              description: 'Whether the faction is NPC-controlled.'
+              type: boolean
+              example: false
+            reputation_ladder:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/faction_reputation_ladder'
+              nullable: true
+              description: 'Reputation ladder with standings. Requires ?include=reputationLadder.'
+            link:
+              description: 'API URL for this faction.'
+              type: string
+              format: uri
+          type: object
     faction_reputation_ladder:
       title: 'Faction Reputation Ladder'
       description: 'Reputation ladder defining standings and thresholds for a faction.'
-      properties:
-        scope_name:
-          description: 'Internal scope name for the reputation system.'
-          type: string
-          example: FactionReputation
-        display_name:
-          description: 'Human-readable label for the reputation scope.'
-          type: string
-          example: Standing
-          nullable: true
-        reputation_ceiling:
-          description: 'Maximum attainable reputation value.'
-          type: integer
-          example: 95250
-        initial_reputation:
-          description: 'Starting reputation value for new players.'
-          type: integer
-          example: 0
-        standings:
-          description: 'Ordered list of reputation tiers from highest to lowest.'
-          type: array
-          items:
-            $ref: '#/components/schemas/faction_standing'
       type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/faction_index'
+        -
+          properties:
+            scope_name:
+              description: 'Internal scope name for the reputation system.'
+              type: string
+              example: FactionReputation
+            display_name:
+              description: 'Human-readable label for the reputation scope.'
+              type: string
+              example: Standing
+              nullable: true
+            reputation_ceiling:
+              description: 'Maximum attainable reputation value.'
+              type: integer
+              example: 95250
+            initial_reputation:
+              description: 'Starting reputation value for new players.'
+              type: integer
+              example: 0
+            standings:
+              description: 'Ordered list of reputation tiers from highest to lowest.'
+              type: array
+              items:
+                $ref: '#/components/schemas/faction_standing'
+          type: object
     faction_standing:
       title: 'Faction Standing'
       description: "A single reputation tier within a faction's reputation ladder."
-      properties:
-        uuid:
-          description: 'Unique standing identifier.'
-          type: string
-          format: uuid
-          example: bcd1f776-9a6e-4ffd-85c4-6df64f4cf2ed
-        name:
-          description: 'Internal standing name.'
-          type: string
-          example: Affinity_Good_100_Exalted
-        display_name:
-          description: 'Human-readable standing name.'
-          type: string
-          example: Exalted
-          nullable: true
-        min_reputation:
-          description: 'Minimum reputation required for this standing.'
-          type: integer
-          example: 10000
-        drift_reputation:
-          description: 'Reputation change applied per drift cycle.'
-          type: integer
-          example: 0
-        drift_time_hours:
-          description: 'Hours between drift cycles.'
-          type: integer
-          example: 0
-        gated:
-          description: 'Whether this standing is gated and cannot be reached through normal progression.'
-          type: boolean
-          example: false
       type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/faction_index'
+        -
+          properties:
+            uuid:
+              description: 'Unique standing identifier.'
+              type: string
+              format: uuid
+              example: bcd1f776-9a6e-4ffd-85c4-6df64f4cf2ed
+            name:
+              description: 'Internal standing name.'
+              type: string
+              example: Affinity_Good_100_Exalted
+            display_name:
+              description: 'Human-readable standing name.'
+              type: string
+              example: Exalted
+              nullable: true
+            min_reputation:
+              description: 'Minimum reputation required for this standing.'
+              type: integer
+              example: 10000
+            drift_reputation:
+              description: 'Reputation change applied per drift cycle.'
+              type: integer
+              example: 0
+            drift_time_hours:
+              description: 'Hours between drift cycles.'
+              type: integer
+              example: 0
+            gated:
+              description: 'Whether this standing is gated and cannot be reached through normal progression.'
+              type: boolean
+              example: false
+          type: object
     game_version:
       title: 'Game Version'
       properties:
@@ -6432,6 +6479,14 @@ components:
           format: double
           example: 0.11
           nullable: true
+        volume_converted:
+          description: 'Converted volume value from game data (e.g. in cSCU).'
+          type: number
+          nullable: true
+        volume_converted_unit:
+          description: 'Unit of the converted volume (e.g. "cSCU").'
+          type: string
+          nullable: true
         true_dimension:
           description: 'Raw dimensions from the game data in meters prior to overrides. Added only when the UI values differ from the canonical measurements.'
           properties:
@@ -6472,10 +6527,16 @@ components:
           type: number
           format: double
           nullable: true
-        maximum:
+        max:
           type: number
           format: double
           nullable: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          nullable: true
+          deprecated: true
         overload_ratio:
           description: 'Deprecated, does not exist anymore.'
           type: number
@@ -6821,10 +6882,15 @@ components:
           items:
             type: string
           nullable: true
-        uneditable:
-          description: 'Whether the port is locked'
+        editable:
+          description: 'Whether the port can be modified in-game.'
           type: boolean
           nullable: true
+        uneditable:
+          description: 'Deprecated: Use editable (inverted value).'
+          type: boolean
+          nullable: true
+          deprecated: true
         equipped_item_uuid:
           description: 'UUID of the equipped item'
           type: string
@@ -6913,6 +6979,10 @@ components:
       properties:
         uuid:
           type: string
+        slug:
+          description: 'URL-friendly slug for the item.'
+          type: string
+          nullable: true
         name:
           type: string
         class_name:
@@ -7473,6 +7543,35 @@ components:
                 nullable: true
             type: object
           nullable: true
+        vehicles:
+          description: 'Only returned when `include=vehicles` is requested. Vehicles that have this item installed.'
+          type: array
+          items:
+            properties:
+              uuid:
+                description: 'Vehicle UUID'
+                type: string
+                nullable: true
+              name:
+                type: string
+              career:
+                type: string
+                nullable: true
+              role:
+                type: string
+                nullable: true
+              manufacturer:
+                properties:
+                  code: { type: string, nullable: true }
+                  name: { type: string, nullable: true }
+                type: object
+                nullable: true
+              web_url:
+                description: 'Web URL for vehicle detail page'
+                type: string
+                nullable: true
+            type: object
+          nullable: true
         web_url:
           description: 'Web URL for item detail page'
           type: string
@@ -7604,6 +7703,10 @@ components:
       title: 'Item Temperature'
       description: 'Calculated temperature information, generated from Temperature attributes.'
       properties:
+        unit:
+          description: 'Temperature unit (e.g. "K" for Kelvin).'
+          type: string
+          nullable: true
         cooling_threshold:
           description: 'Calculated cooling threshold'
           type: number
@@ -7619,6 +7722,12 @@ components:
           type: number
           format: double
           nullable: true
+        overheat_temperature:
+          description: 'Deprecated: Use overheat_threshold.'
+          type: number
+          format: double
+          nullable: true
+          deprecated: true
         max_temperature:
           description: 'Calculated maximum temperature'
           type: number
@@ -7956,31 +8065,55 @@ components:
             power:
               description: 'Power usage range.'
               properties:
-                minimum:
+                min:
                   description: 'Minimum power usage (game units, typically 2-5).'
                   type: number
                   format: double
                   nullable: true
-                maximum:
+                max:
                   description: 'Maximum power usage (game units, typically 2-5).'
                   type: number
                   format: double
                   nullable: true
+                minimum:
+                  description: 'Deprecated: Use min.'
+                  type: number
+                  format: double
+                  nullable: true
+                  deprecated: true
+                maximum:
+                  description: 'Deprecated: Use max.'
+                  type: number
+                  format: double
+                  nullable: true
+                  deprecated: true
               type: object
               nullable: true
             coolant:
               description: 'Coolant usage range.'
               properties:
-                minimum:
+                min:
                   description: 'Minimum coolant usage.'
                   type: number
                   format: double
                   nullable: true
-                maximum:
+                max:
                   description: 'Maximum coolant usage.'
                   type: number
                   format: double
                   nullable: true
+                minimum:
+                  description: 'Deprecated: Use min.'
+                  type: number
+                  format: double
+                  nullable: true
+                  deprecated: true
+                maximum:
+                  description: 'Deprecated: Use max.'
+                  type: number
+                  format: double
+                  nullable: true
+                  deprecated: true
               type: object
               nullable: true
           type: object
@@ -9584,29 +9717,49 @@ components:
           format: double
           example: 10
           nullable: true
-        discharge_rate:
-          description: 'Configured discharge rate; most tanks use 0.'
+        capacity:
+          description: 'Maximum fuel capacity in standard resource units.'
           type: number
           format: double
-          example: 0
+          example: 5000
           nullable: true
+        discharge_rate:
+          description: 'Deprecated: Use capacity.'
+          type: number
+          format: double
+          nullable: true
+          deprecated: true
       type: object
     grenade_aoe:
       title: 'Grenade Area of Effect'
       description: 'Area of effect radii in meters.'
       properties:
-        minimum:
+        min:
           description: 'Minimum effective/lethal radius in meters.'
           type: number
           format: double
           example: 4
           nullable: true
-        maximum:
+        max:
           description: 'Maximum effective/lethal radius in meters.'
           type: number
           format: double
           example: 5.5
           nullable: true
+        minimum:
+          description: 'Deprecated: Use min.'
+          type: number
+          format: double
+          example: 4
+          nullable: true
+          deprecated: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          example: 5.5
+          nullable: true
+          deprecated: true
       type: object
     grenade:
       title: Grenade
@@ -9869,18 +10022,32 @@ components:
       title: 'Mining Laser Power Band'
       description: 'Minimum/maximum laser power values as provided by stdItem.MiningLaser.'
       properties:
-        minimum:
+        min:
           description: 'Minimum power transfer (MinPowerTransfer).'
           type: number
           format: double
           example: 420
           nullable: true
-        maximum:
+        max:
           description: 'Maximum power transfer (PowerTransfer).'
           type: number
           format: double
           example: 2100
           nullable: true
+        minimum:
+          description: 'Deprecated: Use min.'
+          type: number
+          format: double
+          example: 420
+          nullable: true
+          deprecated: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          example: 2100
+          nullable: true
+          deprecated: true
       type: object
     mining_laser_modifier:
       title: 'Mining Laser Modifier'
@@ -10608,12 +10775,19 @@ components:
           format: double
           example: 11.5
           nullable: true
-        maximum:
+        max:
           description: 'Maximum damage per magazine (Damage.MaxPerMag).'
           type: number
           format: double
           example: 575
           nullable: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          example: 575
+          nullable: true
+          deprecated: true
         dps:
           oneOf:
             -
@@ -10629,16 +10803,30 @@ components:
       title: 'Personal Weapon Spread'
       description: 'Spread configuration. Only present when spread data exists in the source.'
       properties:
-        minimum:
+        min:
           type: number
           format: double
           example: 0.1
           nullable: true
-        maximum:
+        max:
           type: number
           format: double
           example: 1.2
           nullable: true
+        minimum:
+          description: 'Deprecated: Use min.'
+          type: number
+          format: double
+          example: 0.1
+          nullable: true
+          deprecated: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          example: 1.2
+          nullable: true
+          deprecated: true
         first_attack:
           type: number
           format: double
@@ -11369,14 +11557,26 @@ components:
       title: 'Item Seat Axis Limits'
       description: 'Minimum and maximum values for a yaw or pitch axis.'
       properties:
+        min:
+          type: number
+          format: double
+          nullable: true
+        max:
+          type: number
+          format: double
+          nullable: true
         minimum:
+          description: 'Deprecated: Use min.'
           type: number
           format: double
           nullable: true
+          deprecated: true
         maximum:
+          description: 'Deprecated: Use max.'
           type: number
           format: double
           nullable: true
+          deprecated: true
       type: object
     seat_ejection:
       title: 'Item Seat Ejection'
@@ -11882,16 +12082,28 @@ components:
       title: 'Temperature Resistance'
       description: 'Temperature resistance range shared by clothing and armor.'
       properties:
-        minimum:
+        min:
           description: 'Minimum temperature supported.'
           type: number
           format: double
           nullable: true
-        maximum:
+        max:
           description: 'Maximum temperature supported.'
           type: number
           format: double
           nullable: true
+        minimum:
+          description: 'Deprecated: Use min.'
+          type: number
+          format: double
+          nullable: true
+          deprecated: true
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
+          nullable: true
+          deprecated: true
       type: object
     thruster_performance:
       title: 'Thruster Performance'
@@ -12416,11 +12628,18 @@ components:
           type: string
           example: rapid
           nullable: true
-        rounds_per_minute:
+        rpm:
           type: number
           format: double
           example: 925
           nullable: true
+        rounds_per_minute:
+          description: 'Deprecated: Use rpm.'
+          type: number
+          format: double
+          example: 925
+          nullable: true
+          deprecated: true
         ammo_per_shot:
           type: integer
           example: 1
@@ -12480,15 +12699,16 @@ components:
           type: number
           format: double
           nullable: true
-        maximum:
+        max:
           type: number
           format: double
           nullable: true
-        dps:
-          oneOf:
-            -
-              $ref: '#/components/schemas/vehicle_weapon_damage_types'
+        maximum:
+          description: 'Deprecated: Use max.'
+          type: number
+          format: double
           nullable: true
+          deprecated: true
         alpha:
           oneOf:
             -
@@ -12498,14 +12718,26 @@ components:
     vehicle_weapon_spread:
       title: 'Vehicle Weapon Spread'
       properties:
+        min:
+          type: number
+          format: double
+          nullable: true
+        max:
+          type: number
+          format: double
+          nullable: true
         minimum:
+          description: 'Deprecated: Use min.'
           type: number
           format: double
           nullable: true
+          deprecated: true
         maximum:
+          description: 'Deprecated: Use max.'
           type: number
           format: double
           nullable: true
+          deprecated: true
         first_attack:
           type: number
           format: double
@@ -13275,13 +13507,296 @@ components:
       type: object
     manufacturer:
       title: 'In game manufacturer'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/manufacturer_link'
+        -
+          properties:
+            name:
+              type: string
+            code:
+              type: string
+            uuid:
+              type: string
+            link:
+              type: string
+          type: object
+    mission_completion_tag:
+      title: 'Mission Completion Tag'
       properties:
         name:
           type: string
-        code:
-          type: string
+          nullable: true
+        unlocks_missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_completion_tag_mission'
+      type: object
+    mission_completion_tag_mission:
+      title: 'Mission Completion Tag Mission'
+      properties:
         uuid:
           type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_prerequisite_group:
+      title: 'Mission Prerequisite Group'
+      properties:
+        required_count:
+          type: integer
+          nullable: true
+        required_tags:
+          type: array
+          items:
+            properties:
+              name:
+                type: string
+                nullable: true
+              uuid:
+                type: string
+                format: uuid
+                nullable: true
+            type: object
+        excluded_tags:
+          type: array
+          items:
+            properties:
+              name:
+                type: string
+                nullable: true
+              uuid:
+                type: string
+                format: uuid
+                nullable: true
+            type: object
+        missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_chain_link'
+      type: object
+    mission_unlock_group:
+      title: 'Mission Unlock Group'
+      description: 'A completion tag group that unlocks missions when this mission is completed.'
+      properties:
+        tag_name:
+          type: string
+          nullable: true
+        tag_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        missions:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_chain_link'
+      type: object
+    mission_chain_link:
+      title: 'Mission Chain Link'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        mission_type:
+          type: string
+          nullable: true
+        variant_count:
+          description: 'Number of mission variants with the same title. Only present when greater than 1.'
+          type: integer
+          nullable: true
+        variants:
+          description: 'Additional mission variants sharing the same title. Only present when variant_count > 1.'
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_chain_variant'
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_chain_variant:
+      title: 'Mission Chain Variant'
+      description: 'A variant of a mission chain link, sharing the same title but a different UUID.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_combat:
+      title: 'Mission Combat'
+      properties:
+        summary:
+          properties:
+            total:
+              properties:
+                min:
+                  type: integer
+                max:
+                  type: integer
+              type: object
+            by_group:
+              type: array
+              items:
+                properties:
+                  group_name: { type: string }
+                  min: { type: integer }
+                  max: { type: integer }
+                type: object
+          type: object
+        spawns:
+          type: array
+          items:
+            properties:
+              role:
+                type: string
+                nullable: true
+              weight:
+                type: integer
+                nullable: true
+              group_name:
+                type: string
+                nullable: true
+              spawn_kind:
+                type: string
+                nullable: true
+              concurrent_amount:
+                type: integer
+                nullable: true
+            type: object
+        aggregated_spawns:
+          description: 'Spawns grouped by role, group_name, and spawn_kind with aggregated concurrent ranges'
+          type: array
+          items:
+            properties:
+              role:
+                type: string
+              group_name:
+                type: string
+                nullable: true
+              spawn_kind:
+                type: string
+                nullable: true
+              concurrent_min:
+                type: integer
+                nullable: true
+              concurrent_max:
+                type: integer
+                nullable: true
+              weight:
+                type: integer
+                nullable: true
+            type: object
+      type: object
+    mission_cooldown:
+      title: 'Mission Cooldown'
+      properties:
+        label:
+          type: string
+          nullable: true
+        personal_seconds:
+          type: integer
+        abandoned_seconds:
+          type: integer
+        personal_variation_seconds:
+          type: integer
+        abandoned_variation_seconds:
+          type: integer
+      type: object
+    mission_hauling_order:
+      title: 'Mission Hauling Order'
+      properties:
+        kind:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_hauling_order_item'
+        max_scu:
+          type: integer
+          nullable: true
+        min_scu:
+          type: integer
+          nullable: true
+        max_amount:
+          type: integer
+          nullable: true
+        min_amount:
+          type: integer
+          nullable: true
+        max_container_size:
+          type: integer
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
+        or_options:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/mission_hauling_order'
+          nullable: true
+      type: object
+    mission_hauling_order_item:
+      title: 'Mission Hauling Order Item'
+      properties:
+        name:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
+          type: string
+          format: uri
+          nullable: true
       type: object
     mission_index:
       title: 'Mission Summary'
@@ -13383,16 +13898,44 @@ components:
           items:
             $ref: '#/components/schemas/mission_index_blueprint'
           nullable: true
-        has_prerequisites:
+        has_chain:
           type: boolean
+        has_prerequisites:
+          description: 'Deprecated: Use has_chain.'
+          type: boolean
+          deprecated: true
         has_hauling:
           type: boolean
+        min_standing:
+          properties:
+            name:
+              type: string
+              nullable: true
+            min_reputation:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
+        max_standing:
+          properties:
+            name:
+              type: string
+              nullable: true
+            min_reputation:
+              type: integer
+              nullable: true
+          type: object
+          nullable: true
         min_standing_name:
+          description: 'Deprecated: Use min_standing.name.'
           type: string
           nullable: true
+          deprecated: true
         max_standing_name:
+          description: 'Deprecated: Use max_standing.name.'
           type: string
           nullable: true
+          deprecated: true
         cost:
           type: integer
           nullable: true
@@ -13415,7 +13958,14 @@ components:
               faction:
                 type: string
                 nullable: true
+              faction_uuid:
+                type: string
+                format: uuid
+                nullable: true
               scope:
+                type: string
+                nullable: true
+              tier:
                 type: string
                 nullable: true
               amount:
@@ -13429,12 +13979,21 @@ components:
         max_instances_per_player:
           type: integer
           nullable: true
+        cooldown:
+          oneOf:
+            -
+              $ref: '#/components/schemas/mission_cooldown'
+          nullable: true
         cooldown_seconds:
+          description: 'Deprecated: Use cooldown.personal_seconds.'
           type: integer
           nullable: true
+          deprecated: true
         cooldown_label:
+          description: 'Deprecated: Use cooldown.label.'
           type: string
           nullable: true
+          deprecated: true
         reaccept_after_abandoning:
           type: boolean
         reaccept_after_failing:
@@ -13483,6 +14042,56 @@ components:
           format: uuid
           nullable: true
         link:
+          type: string
+          format: uri
+          nullable: true
+      type: object
+    mission_lifetime:
+      title: 'Mission Lifetime'
+      properties:
+        label:
+          type: string
+          nullable: true
+        respawn_time_seconds:
+          type: integer
+        max_instances:
+          type: integer
+        respawn_time_variation_seconds:
+          type: integer
+        max_instances_per_player:
+          type: integer
+      type: object
+    mission_starmap_location_group:
+      title: 'Mission Starmap Location Group'
+      properties:
+        purpose:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_starmap_location'
+      type: object
+    mission_starmap_location:
+      title: 'Mission Starmap Location'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        system:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        link:
+          type: string
+          format: uri
+          nullable: true
+        web_url:
           type: string
           format: uri
           nullable: true
@@ -13804,39 +14413,14 @@ components:
           type: boolean
         has_chain:
           type: boolean
+        has_blueprints:
+          type: boolean
+        released:
+          description: 'Whether this mission is released (not marked as not_for_release or work_in_progress).'
+          type: boolean
         link:
           type: string
           format: uri
-      type: object
-    mission_cooldown:
-      title: 'Mission Cooldown'
-      properties:
-        label:
-          type: string
-          nullable: true
-        personal_seconds:
-          type: integer
-        abandoned_seconds:
-          type: integer
-        personal_variation_seconds:
-          type: integer
-        abandoned_variation_seconds:
-          type: integer
-      type: object
-    mission_lifetime:
-      title: 'Mission Lifetime'
-      properties:
-        label:
-          type: string
-          nullable: true
-        respawn_time_seconds:
-          type: integer
-        max_instances:
-          type: integer
-        respawn_time_variation_seconds:
-          type: integer
-        max_instances_per_player:
-          type: integer
       type: object
     mission_blueprints:
       title: 'Mission Blueprints'
@@ -13900,136 +14484,7 @@ components:
           type: string
           format: uri
           nullable: true
-        web_link:
-          type: string
-          format: uri
-          nullable: true
-      type: object
-    mission_combat:
-      title: 'Mission Combat'
-      properties:
-        summary:
-          properties:
-            total:
-              properties:
-                min:
-                  type: integer
-                max:
-                  type: integer
-              type: object
-            by_group:
-              type: array
-              items:
-                properties:
-                  group_name: { type: string }
-                  min: { type: integer }
-                  max: { type: integer }
-                type: object
-          type: object
-        spawns:
-          type: array
-          items:
-            properties:
-              role:
-                type: string
-                nullable: true
-              weight:
-                type: integer
-                nullable: true
-              group_name:
-                type: string
-                nullable: true
-              spawn_kind:
-                type: string
-                nullable: true
-              concurrent_amount:
-                type: integer
-                nullable: true
-            type: object
-        aggregated_spawns:
-          description: 'Spawns grouped by role, group_name, and spawn_kind with aggregated concurrent ranges'
-          type: array
-          items:
-            properties:
-              role:
-                type: string
-              group_name:
-                type: string
-                nullable: true
-              spawn_kind:
-                type: string
-                nullable: true
-              concurrent_min:
-                type: integer
-                nullable: true
-              concurrent_max:
-                type: integer
-                nullable: true
-              weight:
-                type: integer
-                nullable: true
-            type: object
-      type: object
-    mission_starmap_location_group:
-      title: 'Mission Starmap Location Group'
-      properties:
-        purpose:
-          type: string
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_starmap_location'
-      type: object
-    mission_starmap_location:
-      title: 'Mission Starmap Location'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        name:
-          type: string
-          nullable: true
-        system:
-          type: string
-          nullable: true
-        type:
-          type: string
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
-          type: string
-          format: uri
-          nullable: true
-      type: object
-    mission_completion_tag:
-      title: 'Mission Completion Tag'
-      properties:
-        name:
-          type: string
-          nullable: true
-        unlocks_missions:
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_completion_tag_mission'
-      type: object
-    mission_completion_tag_mission:
-      title: 'Mission Completion Tag Mission'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-        title:
-          type: string
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
+        web_url:
           type: string
           format: uri
           nullable: true
@@ -14052,173 +14507,6 @@ components:
         faction_uuid:
           type: string
           format: uuid
-          nullable: true
-      type: object
-    mission_hauling_order:
-      title: 'Mission Hauling Order'
-      properties:
-        kind:
-          type: string
-          nullable: true
-        name:
-          type: string
-          nullable: true
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_hauling_order_item'
-        max_scu:
-          type: integer
-          nullable: true
-        min_scu:
-          type: integer
-          nullable: true
-        max_amount:
-          type: integer
-          nullable: true
-        min_amount:
-          type: integer
-          nullable: true
-        max_container_size:
-          type: integer
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
-          type: string
-          format: uri
-          nullable: true
-        or_options:
-          type: array
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/mission_hauling_order'
-          nullable: true
-      type: object
-    mission_hauling_order_item:
-      title: 'Mission Hauling Order Item'
-      properties:
-        name:
-          type: string
-          nullable: true
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
-          type: string
-          format: uri
-          nullable: true
-      type: object
-    mission_prerequisite_group:
-      title: 'Mission Prerequisite Group'
-      properties:
-        required_count:
-          type: integer
-          nullable: true
-        required_tags:
-          type: array
-          items:
-            properties:
-              name:
-                type: string
-                nullable: true
-              uuid:
-                type: string
-                format: uuid
-                nullable: true
-            type: object
-        excluded_tags:
-          type: array
-          items:
-            properties:
-              name:
-                type: string
-                nullable: true
-              uuid:
-                type: string
-                format: uuid
-                nullable: true
-            type: object
-        missions:
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_chain_link'
-      type: object
-    mission_unlock_group:
-      title: 'Mission Unlock Group'
-      description: 'A completion tag group that unlocks missions when this mission is completed.'
-      properties:
-        tag_name:
-          type: string
-          nullable: true
-        tag_uuid:
-          type: string
-          format: uuid
-          nullable: true
-        missions:
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_chain_link'
-      type: object
-    mission_chain_link:
-      title: 'Mission Chain Link'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        title:
-          type: string
-          nullable: true
-        mission_type:
-          type: string
-          nullable: true
-        variant_count:
-          description: 'Number of mission variants with the same title. Only present when greater than 1.'
-          type: integer
-          nullable: true
-        variants:
-          description: 'Additional mission variants sharing the same title. Only present when variant_count > 1.'
-          type: array
-          items:
-            $ref: '#/components/schemas/mission_chain_variant'
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
-          type: string
-          format: uri
-          nullable: true
-      type: object
-    mission_chain_variant:
-      title: 'Mission Chain Variant'
-      description: 'A variant of a mission chain link, sharing the same title but a different UUID.'
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          nullable: true
-        link:
-          type: string
-          format: uri
-          nullable: true
-        web_link:
-          type: string
-          format: uri
           nullable: true
       type: object
     mission_faction_reputation_scope:
@@ -14430,19 +14718,19 @@ components:
       title: 'Game Starmap Location Quantum Travel'
       description: 'Quantum travel parameters defining how ships interact with this location during quantum travel.'
       properties:
-        ObstructionRadius:
+        obstruction_radius:
           description: 'Radius around the location that obstructs quantum travel.'
           type: number
-        ArrivalRadius:
+        arrival_radius:
           description: 'Radius at which a ship exits quantum travel near this location.'
           type: number
-        ArrivalPointDetectionOffset:
+        arrival_point_detection_offset:
           description: 'Positional offset for detecting the quantum travel arrival point.'
           type: number
-        AdoptionRadius:
+        adoption_radius:
           description: 'Radius within which child locations are adopted into the quantum travel zone.'
           type: number
-        SubPointRadiusMultiplier:
+        sub_point_radius_multiplier:
           description: 'Multiplier applied to the sub-point radius for quantum travel calculations.'
           type: number
       type: object
@@ -14450,19 +14738,19 @@ components:
       title: 'Game Starmap Location Asteroid Ring'
       description: 'Asteroid ring configuration for locations that have an asteroid belt, defining density, size, and dimensional parameters.'
       properties:
-        DensityScale:
+        density_scale:
           description: 'Scale factor controlling asteroid density within the ring.'
           type: number
-        SizeScale:
+        size_scale:
           description: 'Scale factor controlling individual asteroid size.'
           type: number
-        InnerRadius:
+        inner_radius:
           description: 'Inner boundary radius of the asteroid ring.'
           type: number
-        OuterRadius:
+        outer_radius:
           description: 'Outer boundary radius of the asteroid ring.'
           type: number
-        Depth:
+        depth:
           description: 'Vertical depth or thickness of the asteroid ring.'
           type: number
       type: object
@@ -14728,6 +15016,37 @@ components:
         version:
           description: 'Game data version code.'
           type: string
+          nullable: true
+        images:
+          description: 'Images from external sources for this location.'
+          type: array
+          items:
+            properties:
+              source:
+                description: 'Image source identifier'
+                type: string
+                nullable: true
+              thumbnail_url:
+                type: string
+                format: uri
+                nullable: true
+              thumbnail_width:
+                type: integer
+                nullable: true
+              thumbnail_height:
+                type: integer
+                nullable: true
+              original_url:
+                type: string
+                format: uri
+                nullable: true
+              original_width:
+                type: integer
+                nullable: true
+              original_height:
+                type: integer
+                nullable: true
+            type: object
           nullable: true
         area_boosts:
           description: 'Areas with boosted deposit spawn rates. Only included when requested via `include=resources`.'
@@ -15054,11 +15373,17 @@ components:
           type: string
           example: LifeSupportGenerator
           nullable: true
-        subtype:
+        sub_type:
           description: 'Port sub-type identifier.'
           type: string
           example: UNDEFINED
           nullable: true
+        subtype:
+          description: 'Deprecated: Use sub_type.'
+          type: string
+          example: UNDEFINED
+          nullable: true
+          deprecated: true
         category_label:
           description: 'Human-readable category label. Only present on parent ports (e.g. Weapons, Shields, Thrusters).'
           type: string
@@ -15332,9 +15657,13 @@ components:
             role:
               description: 'Vehicle role (e.g. Stealth Fighter, Heavy Freight).'
               type: string
-            size:
+            size_class:
               description: 'Vehicle size class (1–6).'
               type: integer
+            size:
+              description: 'Deprecated: Use size_class.'
+              type: integer
+              deprecated: true
             is_vehicle:
               description: 'Whether this is a ground vehicle.'
               type: boolean

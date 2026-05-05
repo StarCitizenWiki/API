@@ -22,6 +22,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw emission data from stdItem.Emission sub-array */
 class ItemEmissionResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

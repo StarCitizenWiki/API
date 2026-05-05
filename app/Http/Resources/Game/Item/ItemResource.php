@@ -9,53 +9,16 @@ use App\Http\Resources\Game\Blueprint\BlueprintResource;
 use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
-use App\Http\Resources\Game\ItemSpecification\AmmunitionResource;
-use App\Http\Resources\Game\ItemSpecification\ArmorResource;
-use App\Http\Resources\Game\ItemSpecification\BombResource;
-use App\Http\Resources\Game\ItemSpecification\ClothingResource;
-use App\Http\Resources\Game\ItemSpecification\CoolerResource;
-use App\Http\Resources\Game\ItemSpecification\CounterMeasureResource;
-use App\Http\Resources\Game\ItemSpecification\EmpResource;
-use App\Http\Resources\Game\ItemSpecification\FlightControllerResource;
-use App\Http\Resources\Game\ItemSpecification\FoodResource;
-use App\Http\Resources\Game\ItemSpecification\FuelIntakeResource;
-use App\Http\Resources\Game\ItemSpecification\FuelTankResource;
-use App\Http\Resources\Game\ItemSpecification\GrenadeResource;
-use App\Http\Resources\Game\ItemSpecification\HackingChipResource;
-use App\Http\Resources\Game\ItemSpecification\JumpDriveResource;
-use App\Http\Resources\Game\ItemSpecification\MedicineResource;
-use App\Http\Resources\Game\ItemSpecification\MeleeWeaponResource;
-use App\Http\Resources\Game\ItemSpecification\MiningLaserResource;
-use App\Http\Resources\Game\ItemSpecification\MiningModifierResource;
-use App\Http\Resources\Game\ItemSpecification\MiningModuleResource;
-use App\Http\Resources\Game\ItemSpecification\MissileRackResource;
-use App\Http\Resources\Game\ItemSpecification\MissileResource;
-use App\Http\Resources\Game\ItemSpecification\PersonalWeaponResource;
-use App\Http\Resources\Game\ItemSpecification\PowerPlantResource;
-use App\Http\Resources\Game\ItemSpecification\QuantumDriveResource;
-use App\Http\Resources\Game\ItemSpecification\QuantumInterdictionGeneratorResource;
-use App\Http\Resources\Game\ItemSpecification\RadarResource;
 use App\Http\Resources\Game\ItemSpecification\RadiationResistanceResource;
-use App\Http\Resources\Game\ItemSpecification\SalvageModifierResource;
-use App\Http\Resources\Game\ItemSpecification\SeatResource;
-use App\Http\Resources\Game\ItemSpecification\SelfDestructResource;
-use App\Http\Resources\Game\ItemSpecification\ShieldControllerResource;
-use App\Http\Resources\Game\ItemSpecification\ShieldResource;
-use App\Http\Resources\Game\ItemSpecification\SuitArmorResource;
+use App\Http\Resources\Game\ItemSpecification\SpecificationRegistry;
 use App\Http\Resources\Game\ItemSpecification\TemperatureResistanceResource;
-use App\Http\Resources\Game\ItemSpecification\ThrusterResource;
-use App\Http\Resources\Game\ItemSpecification\TractorBeamResource;
-use App\Http\Resources\Game\ItemSpecification\TurretResource;
-use App\Http\Resources\Game\ItemSpecification\VehicleWeaponResource;
-use App\Http\Resources\Game\ItemSpecification\WeaponAttachmentResource;
-use App\Http\Resources\Game\ItemSpecification\WeaponModifierResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Http\Resources\Game\Vehicle\VehicleLinkResource;
 use App\Http\Resources\TranslationResolver;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -64,6 +27,7 @@ use OpenApi\Attributes as OA;
     description: 'An item in Star Citizen, based on EntityClassDefinition XML files.',
     properties: [
         new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'slug', description: 'URL-friendly slug for the item.', type: 'string', nullable: true),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'class_name', type: 'string'),
         new OA\Property(
@@ -383,25 +347,7 @@ use OpenApi\Attributes as OA;
             property: 'vehicles',
             description: 'Only returned when `include=vehicles` is requested. Vehicles that have this item installed.',
             type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'uuid', description: 'Vehicle UUID', type: 'string', nullable: true),
-                    new OA\Property(property: 'name', type: 'string'),
-                    new OA\Property(property: 'career', type: 'string', nullable: true),
-                    new OA\Property(property: 'role', type: 'string', nullable: true),
-                    new OA\Property(
-                        property: 'manufacturer',
-                        properties: [
-                            new OA\Property(property: 'code', type: 'string', nullable: true),
-                            new OA\Property(property: 'name', type: 'string', nullable: true),
-                        ],
-                        type: 'object',
-                        nullable: true
-                    ),
-                    new OA\Property(property: 'web_url', description: 'Web URL for vehicle detail page', type: 'string', nullable: true),
-                ],
-                type: 'object'
-            ),
+            items: new OA\Items(ref: '#/components/schemas/vehicle_link'),
             nullable: true
         ),
         new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string'),
@@ -642,16 +588,9 @@ class ItemResource extends AbstractBaseResource
                             fn ($vd) => $vd->manufacturer?->name ?? '',
                             fn ($vd) => $vd->display_name ?? $vd->name,
                         ])
-                        ->map(fn ($vd) => [
-                            'uuid' => $vd->vehicle?->uuid,
-                            'name' => $vd->display_name ?? $vd->name,
-                            'career' => $vd->career,
-                            'role' => $vd->role,
-                            'manufacturer' => $vd->relationLoaded('manufacturer') && $vd->manufacturer !== null
-                                ? ['code' => $vd->manufacturer->code, 'name' => $vd->manufacturer->name]
-                                : null,
-                            'web_url' => $vd->vehicle ? route('web.vehicles.show', $vd->vehicle->uuid) : null,
-                        ])->values()->all(),
+                        ->map(fn ($vd) => (new VehicleLinkResource($vd))->resolve())
+                        ->values()
+                        ->all(),
                 ]
             ),
             'web_url' => $this->buildWebUrl($request),
@@ -746,330 +685,19 @@ class ItemResource extends AbstractBaseResource
 
     protected function addSpecification(ItemData $itemData): array
     {
-        $specifications = [];
-        $hasMatch = false;
+        $result = SpecificationRegistry::make()->resolve($itemData);
 
-        // FPS Clothing
-        if (str_starts_with($itemData->classification ?? '', 'FPS.Clothing.')) {
-            $hasMatch = true;
-            $specifications['clothing'] = static fn () => new ClothingResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'clothing' => [
-                    'clothing_type' => 'Use type instead.',
-                    'temp_resistance_min' => 'Use temperature_resistance from root.',
-                    'temp_resistance_max' => 'Use temperature_resistance from root.',
-                ],
-            ]);
-        }
-
-        // FPS Armor
-        if (str_starts_with($itemData->classification ?? '', 'FPS.Armor.')) {
-            $hasMatch = true;
-            $specifications['clothing'] = static fn () => new SuitArmorResource($itemData);
-            $specifications['suit_armor'] = static fn () => new SuitArmorResource($itemData);
-        }
-
-        // Ship Armor
-        if (str_starts_with($itemData->classification ?? '', 'Ship.Armor.')) {
-            $hasMatch = true;
-            $specifications['armor'] = static fn () => new ArmorResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'armor' => [
-                    'signal_infrared' => 'Use signal_multiplier.infrared instead.',
-                    'signal_electromagnetic' => 'Use signal_multiplier.electromagnetic instead.',
-                    'signal_cross_section' => 'Use signal_multiplier.cross_section instead.',
-                    'damage_physical' => 'Use damage_multiplier.physical instead.',
-                    'damage_energy' => 'Use damage_multiplier.energy instead.',
-                    'damage_distortion' => 'Use damage_multiplier.distortion instead.',
-                    'damage_thermal' => 'Use damage_multiplier.thermal instead.',
-                    'damage_biochemical' => 'Use damage_multiplier.biochemical instead.',
-                    'damage_stun' => 'Use damage_multiplier.stun instead.',
-                ],
-            ]);
-        }
-
-        // Thrusters
-        if (str_starts_with($itemData->classification ?? '', 'Ship.MainThruster') ||
-            str_starts_with($itemData->classification ?? '', 'Ship.ManneuverThruster')) {
-            $hasMatch = true;
-            $specifications['thruster'] = static fn () => new ThrusterResource($itemData);
-        }
-
-        // Flight Controller
-        if ($itemData->type === 'FlightController') {
-            $hasMatch = true;
-            $specifications['flight_controller'] = static fn () => new FlightControllerResource($itemData);
-        }
-
-        // Fuel Tanks
-        if (in_array($itemData->type, ['FuelTank', 'QuantumFuelTank', 'ExternalFuelTank'], true)) {
-            $hasMatch = true;
-            $specifications['fuel_tank'] = static fn () => new FuelTankResource($itemData);
-        }
-
-        // Hacking Chip
-        if ($itemData->sub_type === 'Hacking') {
-            $hasMatch = true;
-            $specifications['hacking_chip'] = static fn () => new HackingChipResource($itemData);
-        }
-
-        // Mining Laser
-        if ($itemData->type === 'WeaponMining') {
-            $hasMatch = true;
-            $specifications['mining_laser'] = static fn () => new MiningLaserResource($itemData);
-        }
-
-        // Mining Module/Modifier
-        if ($itemData->type === 'MiningModifier') {
-            $hasMatch = true;
-            $specifications['mining_module'] = static fn () => new MiningModuleResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'mining_module' => 'Use mining_modifier instead.',
-            ]);
-        }
-
-        // Mining Gadget
-        if ($itemData->type === 'Gadget' && $this->extractFromStdItem($itemData, 'MiningModule') !== null) {
-            $hasMatch = true;
-            $specifications['mining_gadget'] = static fn () => new MiningModuleResource($itemData);
-        }
-
-        // Quantum Drive
-        if ($itemData->type === 'QuantumDrive') {
-            $hasMatch = true;
-            $specifications['quantum_drive'] = static fn () => new QuantumDriveResource($itemData);
-        }
-
-        // Quantum Interdiction Generator
-        if ($itemData->type === 'QuantumInterdictionGenerator') {
-            $hasMatch = true;
-            $specifications['quantum_interdiction_generator'] = static fn () => new QuantumInterdictionGeneratorResource($itemData);
-        }
-
-        // Self Destruct
-        if ($itemData->type === 'SelfDestruct') {
-            $hasMatch = true;
-            $specifications['self_destruct'] = static fn () => new SelfDestructResource($itemData);
-        }
-
-        // Bombs
-        if ($itemData->type === 'Bomb') {
-            $hasMatch = true;
-            $specifications['bomb'] = static fn () => new BombResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'bomb' => [
-                    'explosion_safety_distance' => 'Use explosion.safety_distance instead.',
-                    'explosion_radius_min' => 'Use explosion.radius_min instead.',
-                    'explosion_radius_max' => 'Use explosion.radius_max instead.',
-                    'damage' => 'Use damage_total instead.',
-                    'damages' => 'Use damage_map instead.',
-                ],
-            ]);
-        }
-
-        // Missiles/Torpedoes
-        if ($itemData->type === 'Torpedo' || $itemData->type === 'Missile') {
-            $hasMatch = true;
-            $specifications['missile'] = static fn () => new MissileResource($itemData);
-        }
-
-        // EMP
-        if ($itemData->type === 'EMP') {
-            $hasMatch = true;
-            $specifications['emp'] = static fn () => new EmpResource($itemData);
-        }
-
-        // Cooler
-        if ($itemData->type === 'Cooler') {
-            $hasMatch = true;
-            $specifications['cooler'] = static fn () => new CoolerResource($itemData);
-        }
-
-        // Turet
-        if ($itemData->type === 'Turret') {
-            $hasMatch = true;
-            $specifications['turret'] = static fn () => new TurretResource($itemData);
-        }
-
-        // Tractor/Towing Beam
-        if (in_array($itemData->type, ['TractorBeam', 'TowingBeam'], true)) {
-            $hasMatch = true;
-            $specifications['tractor_beam'] = static fn () => new TractorBeamResource($itemData);
-        }
-
-        // Shield
-        if ($itemData->type === 'Shield') {
-            $hasMatch = true;
-            $specifications['shield'] = static fn () => new ShieldResource($itemData);
-        }
-
-        // Shield Controller
-        if ($itemData->type === 'ShieldController') {
-            $hasMatch = true;
-            $specifications['shield_controller'] = static fn () => new ShieldControllerResource($itemData);
-        }
-
-        // Jump Drive
-        if ($itemData->type === 'JumpDrive') {
-            $hasMatch = true;
-            $specifications['jump_drive'] = static fn () => new JumpDriveResource($itemData);
-        }
-
-        // Grenade (has both grenade and personal_weapon specs)
-        if ($itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Grenade') {
-            $hasMatch = true;
-            $specifications['grenade'] = static fn () => new GrenadeResource($itemData);
-            $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
-
-        }
-
-        // Knife/Melee Weapon
-        if ($itemData->type === 'WeaponPersonal' && $itemData->sub_type === 'Knife') {
-            $hasMatch = true;
-            $specifications['melee_weapon'] = static fn () => new MeleeWeaponResource($itemData);
-            $specifications['knife'] = static fn () => new MeleeWeaponResource($itemData);
-        }
-
-        // Personal Weapon (general - after specific grenade/knife checks)
-        if (($itemData->type === 'WeaponPersonal' || str_starts_with($itemData->classification ?? '', 'FPS.Weapon.')) &&
-            ! isset($specifications['grenade']) && ! isset($specifications['melee_weapon'])) {
-            $hasMatch = true;
-            $specifications['personal_weapon'] = static fn () => new PersonalWeaponResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'personal_weapon' => [
-                    'rof' => 'Use rpm instead',
-                    'effective_range' => 'Use range instead',
-                    'magazine_size' => 'Use capacity instead',
-                    'damage_per_shot' => 'Use damage.alpha_total instead',
-                ],
-            ]);
-        }
-
-        // Salvage Modifier
-        if ($this->hasInStdItem($itemData, 'SalvageModifier')) {
-            $hasMatch = true;
-            $specifications['salvage_modifier'] = static fn () => new SalvageModifierResource($itemData);
-        }
-
-        // Weapon Modifier
-        if ($this->hasInStdItem($itemData, 'WeaponModifier')) {
-            $hasMatch = true;
-            $specifications['weapon_modifier'] = static fn () => new WeaponModifierResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'weapon_modifier' => [
-                    'fire_rate_multiplier' => 'use `base.fire_rate_multiplier` instead.',
-                    'damage_multiplier' => 'use `base.damage_multiplier` instead.',
-                    'damage_over_time_multiplier' => 'use `base.damage_over_time_multiplier` instead.',
-                    'projectile_speed_multiplier' => 'use `base.projectile_speed_multiplier` instead.',
-                    'ammo_cost_multiplier' => 'use `base.ammo_cost_multiplier` instead.',
-                    'heat_generation_multiplier' => 'use `base.heat_generation_multiplier` instead.',
-                    'sound_radius_multiplier' => 'use `base.sound_radius_multiplier` instead.',
-                    'charge_time_multiplier' => 'use `base.charge_time_multiplier` instead.',
-                ],
-            ]);
-        }
-
-        // Weapon Attachment
-        if ($itemData->type === 'WeaponAttachment' || $this->hasInStdItem($itemData, 'WeaponAttachment')) {
-            $hasMatch = true;
-
-            $attachment = (new WeaponAttachmentResource($itemData))->resolve();
-
-            foreach ($attachment as $key => $data) {
-                $specifications[$key] = static fn () => $data;
-            }
-        }
-
-        // Food/Drink
-        if (in_array($itemData->type, ['Food', 'Bottle', 'Drink'], true) || $this->hasInStdItem($itemData, 'Food')) {
-            $hasMatch = true;
-            $specifications['food'] = static fn () => new FoodResource($itemData);
-        }
-
-        // Medicine
-        if ($this->hasInStdItem($itemData, 'Medical')) {
-            $hasMatch = true;
-            $specifications['medical'] = static fn () => new MedicineResource($itemData);
-        }
-
-        // Countermeasures
-        if ($itemData->type === 'WeaponDefensive' || str_contains($itemData->classification ?? '', 'WeaponDefensive')) {
-            $hasMatch = true;
-            $specifications['counter_measure'] = static fn () => new CounterMeasureResource($itemData);
-        }
-
-        // Missile Rack
-        if (($itemData->type === 'MissileLauncher' && $itemData->sub_type === 'MissileRack') ||
-            str_contains($itemData->classification ?? '', 'MissileRack')) {
-            $hasMatch = true;
-            $specifications['missile_rack'] = static fn () => new MissileRackResource($itemData);
-        }
-
-        // Fuel Intake
-        if ($itemData->type === 'FuelIntake' || $this->hasInStdItem($itemData, 'FuelIntake')) {
-            $hasMatch = true;
-            $specifications['fuel_intake'] = static fn () => new FuelIntakeResource($itemData);
-        }
-
-        // Power Plant
-        if ($itemData->type === 'PowerPlant' || str_contains($itemData->classification ?? '', 'PowerPlant')) {
-            $hasMatch = true;
-            $specifications['power_plant'] = static fn () => new PowerPlantResource($itemData);
-        }
-
-        // Radar
-        if ($itemData->type === 'Radar' || str_contains($itemData->classification ?? '', 'Radar')) {
-            $hasMatch = true;
-            $specifications['radar'] = static fn () => new RadarResource($itemData);
-        }
-
-        // Cargo Grid
-        if ($itemData->type === 'CargoGrid' || str_contains($itemData->classification ?? '', 'CargoGrid')) {
-            $hasMatch = true;
-            $specifications['cargo_grid'] = static fn () => new ItemInventoryResource($itemData);
-        }
-
-        // Vehicle Weapon
-        if ($this->hasVehicleWeapon($itemData)) {
-            $hasMatch = true;
-            $specifications['vehicle_weapon'] = static fn () => new VehicleWeaponResource($itemData);
-        }
-
-        if ($this->hasInStdItem($itemData, 'Seat')) {
-            $hasMatch = true;
-            $specifications['seat'] = static fn () => new SeatResource($itemData);
-        }
-
-        if ($this->hasInStdItem($itemData, 'Ammunition')) {
-            $hasMatch = true;
-            $specifications['ammunition'] = static fn () => new AmmunitionResource($itemData);
-
-            $this->addMetadata('deprecated_fields', [
-                'ammunition' => [
-                    'impact_damage' => 'Use impact_damage_map instead.',
-                    'detonation_damage' => 'Use detonation_damage_map instead.',
-                ],
-            ]);
-        }
-
-        if ($this->hasInStdItem($itemData, 'MiningModule')) {
-            $hasMatch = true;
-            $specifications['mining_modifier'] = static fn () => new MiningModifierResource($itemData);
-        }
-
-        if (! $hasMatch) {
+        if (! $result['has_match']) {
             return [false, []];
+        }
+
+        foreach ($result['deprecated'] as $deprecated) {
+            $this->addMetadata('deprecated_fields', $deprecated);
         }
 
         return [
             true,
-            fn () => $this->resolveSpecifications($specifications),
+            fn () => $this->resolveSpecifications($result['specifications']),
         ];
     }
 
@@ -1135,15 +763,6 @@ class ItemResource extends AbstractBaseResource
     private function getTranslation(Item $item, Request $request): array|string|null
     {
         return TranslationResolver::resolve($item, $request);
-    }
-
-    private function hasVehicleWeapon(ItemData $itemData): bool
-    {
-        if ($itemData->type === 'WeaponPersonal' || str_starts_with($itemData->classification ?? '', 'FPS.Weapon.')) {
-            return false;
-        }
-
-        return Arr::has($itemData->data, 'stdItem.Weapon');
     }
 
     private function buildWebUrl(Request $request): string

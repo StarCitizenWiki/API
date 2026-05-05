@@ -37,6 +37,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw heat connection data from stdItem.HeatConnection sub-array */
 class ItemHeatConnectionResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

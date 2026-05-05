@@ -29,6 +29,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw radiation resistance data from stdItem.RadiationResistance sub-array */
 class RadiationResistanceResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

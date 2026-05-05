@@ -110,6 +110,23 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'link', description: 'API link to this commodity\'s full details.', type: 'string', format: 'uri'),
         new OA\Property(property: 'web_url', description: 'Frontend URL for this commodity\'s page.', type: 'string', format: 'uri'),
+        new OA\Property(
+            property: 'images',
+            description: 'Images from external sources for this commodity.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'source', description: 'Image source identifier', type: 'string'),
+                    new OA\Property(property: 'thumbnail_url', type: 'string', nullable: true),
+                    new OA\Property(property: 'thumbnail_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'thumbnail_height', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_url', type: 'string', nullable: true),
+                    new OA\Property(property: 'original_width', type: 'integer', nullable: true),
+                    new OA\Property(property: 'original_height', type: 'integer', nullable: true),
+                ],
+                type: 'object'
+            ),
+        ),
     ],
     type: 'object'
 )]
@@ -117,7 +134,7 @@ class CommodityIndexResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
-        $resourceDataCollection = $this->resourceData ?? collect();
+        $resourceDataCollection = $this->resource->resourceData ?? collect();
         $locations = $this->buildLocations($resourceDataCollection);
         $groupNames = $this->extractGroupNames($resourceDataCollection);
         ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
@@ -125,33 +142,33 @@ class CommodityIndexResource extends AbstractBaseResource
         $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
         return [
-            'uuid' => $this->uuid,
-            'key' => $this->key,
-            'name' => $this->name,
-            'slug' => $this->slug,
-            'description' => $this->description,
-            'tier' => $this->tier,
-            'refined_version' => $this->when($this->refinedVersion, fn () => [
-                'name' => $this->refined_version_name,
-                'uuid' => $this->refinedVersion->uuid,
+            'uuid' => $this->resource->uuid,
+            'key' => $this->resource->key,
+            'name' => $this->resource->name,
+            'slug' => $this->resource->slug,
+            'description' => $this->resource->description,
+            'tier' => $this->resource->tier,
+            'refined_version' => $this->when($this->resource->refinedVersion, fn () => [
+                'name' => $this->resource->refined_version_name,
+                'uuid' => $this->resource->refinedVersion->uuid,
                 'web_url' => $this->urlWithVersion(
                     route(
                         'web.commodities.show',
-                        ['identifier' => $this->refinedVersion->slug ?? $this->refinedVersion->uuid]
+                        ['identifier' => $this->resource->refinedVersion->slug ?? $this->resource->refinedVersion->uuid]
                     ),
                     $request,
                 ),
                 'link' => $this->urlWithVersion(
-                    route('commodities.show', ['commodity' => $this->refinedVersion->uuid]),
+                    route('commodities.show', ['commodity' => $this->resource->refinedVersion->uuid]),
                     $request,
                 ),
             ]),
-            'density_g_per_cc' => $this->formatDecimal($this->density_g_per_cc, 2),
-            'instability' => $this->formatDecimal($this->instability, 0),
-            'resistance' => $this->formatDecimal($this->resistance, 2),
-            'box_sizes_scu' => $this->box_sizes_scu ?? [],
-            'validate_default_cargo_box' => $this->validate_default_cargo_box,
-            'has_default_cargo_containers' => $this->has_default_cargo_containers,
+            'density_g_per_cc' => $this->formatDecimal($this->resource->density_g_per_cc, 2),
+            'instability' => $this->formatDecimal($this->resource->instability, 0),
+            'resistance' => $this->formatDecimal($this->resource->resistance, 2),
+            'box_sizes_scu' => $this->resource->box_sizes_scu ?? [],
+            'validate_default_cargo_box' => $this->resource->validate_default_cargo_box,
+            'has_default_cargo_containers' => $this->resource->has_default_cargo_containers,
 
             'is_mineable' => $resourceDataCollection->isNotEmpty(),
             'has_ship_mineables' => $hasShip,
@@ -167,14 +184,14 @@ class CommodityIndexResource extends AbstractBaseResource
             'locations' => $locations,
 
             'link' => $this->urlWithVersion(
-                route('commodities.show', ['commodity' => $this->uuid]),
+                route('commodities.show', ['commodity' => $this->resource->uuid]),
                 $request,
             ),
             'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $this->slug ?? $this->uuid]),
+                route('web.commodities.show', ['identifier' => $this->resource->slug ?? $this->resource->uuid]),
                 $request,
             ),
-            'images' => $this->images ?? [],
+            'images' => $this->resource->images ?? [],
         ];
     }
 

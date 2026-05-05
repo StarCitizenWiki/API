@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -72,11 +73,14 @@ use OpenApi\Attributes as OA;
             ),
             nullable: true
         ),
+        new OA\Property(property: 'version', description: 'Game version code for this data.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
 class TurretSummaryResource extends AbstractBaseResource
 {
+    use ResolvesGameVersion;
+
     public static function validIncludes(): array
     {
         return [];
@@ -108,6 +112,7 @@ class TurretSummaryResource extends AbstractBaseResource
             'alpha_total' => Arr::get($this->resource, 'AlphaTotal'),
             'is_pilot_slaveable' => Arr::get($this->resource, 'IsPilotSlaveable'),
             'weapons' => $this->weaponRows(),
+            'version' => $this->gameVersionCode(),
         ];
     }
 

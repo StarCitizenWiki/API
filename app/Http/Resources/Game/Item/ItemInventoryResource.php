@@ -45,6 +45,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw inventory container data from stdItem.InventoryContainer sub-array */
 class ItemInventoryResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

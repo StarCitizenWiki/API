@@ -13,8 +13,10 @@ use OpenApi\Attributes as OA;
     title: 'Item Seat Axis Limits',
     description: 'Minimum and maximum values for a yaw or pitch axis.',
     properties: [
-        new OA\Property(property: 'minimum', type: 'double', nullable: true),
-        new OA\Property(property: 'maximum', type: 'double', nullable: true),
+        new OA\Property(property: 'min', type: 'double', nullable: true),
+        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
     ],
     type: 'object',
 )]
@@ -71,8 +73,10 @@ class SeatResource extends AbstractItemSpecificationResource
         }
 
         return [
-            'minimum' => Arr::get($axis, 'Minimum'),
-            'maximum' => Arr::get($axis, 'Maximum'),
+            'min' => Arr::get($axis, 'Minimum'),
+            'max' => Arr::get($axis, 'Maximum'),
+            'minimum' => Arr::get($axis, 'Minimum'),  // deprecated: use min
+            'maximum' => Arr::get($axis, 'Maximum'),  // deprecated: use max
         ];
     }
 

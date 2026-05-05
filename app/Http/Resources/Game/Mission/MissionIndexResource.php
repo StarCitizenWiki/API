@@ -66,10 +66,29 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/mission_index_blueprint'),
             nullable: true
         ),
-        new OA\Property(property: 'has_prerequisites', type: 'boolean'),
+        new OA\Property(property: 'has_chain', type: 'boolean'),
+        new OA\Property(property: 'has_prerequisites', description: 'Deprecated: Use has_chain.', type: 'boolean', deprecated: true),
         new OA\Property(property: 'has_hauling', type: 'boolean'),
-        new OA\Property(property: 'min_standing_name', type: 'string', nullable: true),
-        new OA\Property(property: 'max_standing_name', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'min_standing',
+            properties: [
+                new OA\Property(property: 'name', type: 'string', nullable: true),
+                new OA\Property(property: 'min_reputation', type: 'integer', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'max_standing',
+            properties: [
+                new OA\Property(property: 'name', type: 'string', nullable: true),
+                new OA\Property(property: 'min_reputation', type: 'integer', nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(property: 'min_standing_name', description: 'Deprecated: Use min_standing.name.', type: 'string', nullable: true, deprecated: true),
+        new OA\Property(property: 'max_standing_name', description: 'Deprecated: Use max_standing.name.', type: 'string', nullable: true, deprecated: true),
         new OA\Property(property: 'cost', type: 'integer', nullable: true),
         new OA\Property(property: 'min_crime_stat', type: 'integer', nullable: true),
         new OA\Property(property: 'max_crime_stat', type: 'integer', nullable: true),
@@ -82,7 +101,9 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(
                 properties: [
                     new OA\Property(property: 'faction', type: 'string', nullable: true),
+                    new OA\Property(property: 'faction_uuid', type: 'string', format: 'uuid', nullable: true),
                     new OA\Property(property: 'scope', type: 'string', nullable: true),
+                    new OA\Property(property: 'tier', type: 'string', nullable: true),
                     new OA\Property(property: 'amount', type: 'integer', nullable: true),
                 ],
                 type: 'object'
@@ -91,8 +112,9 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'max_players_per_instance', type: 'integer', nullable: true),
         new OA\Property(property: 'max_instances_per_player', type: 'integer', nullable: true),
-        new OA\Property(property: 'cooldown_seconds', type: 'integer', nullable: true),
-        new OA\Property(property: 'cooldown_label', type: 'string', nullable: true),
+        new OA\Property(property: 'cooldown', ref: '#/components/schemas/mission_cooldown', nullable: true),
+        new OA\Property(property: 'cooldown_seconds', description: 'Deprecated: Use cooldown.personal_seconds.', type: 'integer', nullable: true, deprecated: true),
+        new OA\Property(property: 'cooldown_label', description: 'Deprecated: Use cooldown.label.', type: 'string', nullable: true, deprecated: true),
         new OA\Property(property: 'reaccept_after_abandoning', type: 'boolean'),
         new OA\Property(property: 'reaccept_after_failing', type: 'boolean'),
         new OA\Property(property: 'fail_if_became_criminal', type: 'boolean'),
@@ -143,6 +165,10 @@ class MissionIndexResource extends AbstractBaseResource
         $maxStanding = $data?->get('MaxStanding');
         $lifetime = $data?->get('Lifetime');
         $cooldown = $data?->get('Cooldown');
+
+        $minStandingData = $this->mapStanding($minStanding);
+        $maxStandingData = $this->mapStanding($maxStanding);
+        $cooldownData = $this->mapCooldown($cooldown);
 
         $groupedStarSystems = $this->resource->grouped_star_systems;
         if (is_string($groupedStarSystems)) {
@@ -206,10 +232,13 @@ class MissionIndexResource extends AbstractBaseResource
                 $this->resource->relationLoaded('blueprints') && $this->resource->blueprints->isNotEmpty(),
                 fn (): array => $this->mapBlueprints($request),
             ),
-            'has_prerequisites' => ($this->resource->prerequisite_groups_count ?? 0) > 0,
+            'has_chain' => ($this->resource->prerequisite_groups_count ?? 0) > 0,
+            'has_prerequisites' => ($this->resource->prerequisite_groups_count ?? 0) > 0,  // deprecated: use has_chain
             'has_hauling' => is_iterable($haulingOrders) && count($haulingOrders) > 0,
-            'min_standing_name' => is_array($minStanding) ? ($minStanding['Name'] ?? null) : null,
-            'max_standing_name' => is_array($maxStanding) ? ($maxStanding['Name'] ?? null) : null,
+            'min_standing' => $minStandingData,
+            'max_standing' => $maxStandingData,
+            'min_standing_name' => $minStandingData['name'] ?? null,  // deprecated: use min_standing.name
+            'max_standing_name' => $maxStandingData['name'] ?? null,  // deprecated: use max_standing.name
             'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
             'min_crime_stat' => $this->resource->min_crime_stat,
             'max_crime_stat' => $this->resource->max_crime_stat,
@@ -220,13 +249,13 @@ class MissionIndexResource extends AbstractBaseResource
             'reputation_gained' => $this->mapReputationGained($data),
             'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
             'max_instances_per_player' => is_array($lifetime) ? ($lifetime['MaxInstancesPerPlayer'] ?? null) : null,
-            'cooldown_seconds' => is_array($cooldown) ? ($cooldown['PersonalSeconds'] ?? null) : null,
-            'cooldown_label' => is_array($cooldown) && isset($cooldown['PersonalSeconds']) && is_numeric($cooldown['PersonalSeconds']) && $cooldown['PersonalSeconds'] > 0
-                ? FormatDuration::fromSeconds($cooldown['PersonalSeconds'])
-                : null,
-            'reaccept_after_abandoning' => (bool) ($data?->get('ReacceptAfterAbandoning') ?? false),
-            'reaccept_after_failing' => (bool) ($data?->get('ReacceptAfterFailing') ?? false),
-            'fail_if_became_criminal' => (bool) ($data?->get('FailIfBecameCriminal') ?? false),
+            'cooldown' => $cooldownData,
+            'cooldown_seconds' => $cooldownData['personal_seconds'] ?? null,  // deprecated: use cooldown.personal_seconds
+            'cooldown_label' => $cooldownData['label'] ?? null,  // deprecated: use cooldown.label
+
+            'reaccept_after_abandoning' => $this->parseNullableBool($data?->get('ReacceptAfterAbandoning')) ?? false,
+            'reaccept_after_failing' => $this->parseNullableBool($data?->get('ReacceptAfterFailing')) ?? false,
+            'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')) ?? false,
             'hauling_summary' => $this->mapHaulingSummary($haulingOrders),
             'reward_scope' => $this->resource->reward_scope,
             'reputation_amount' => $this->extractFirstReputationAmount($data),
@@ -272,7 +301,9 @@ class MissionIndexResource extends AbstractBaseResource
                     ? $entry['Faction']
                     : ($factionNames[$entry['FactionUUID'] ?? ''] ?? $entry['Faction'] ?? null)
             ))(),
+            'faction_uuid' => $entry['FactionUUID'] ?? null,
             'scope' => $entry['Scope'] ?? null,
+            'tier' => $entry['Tier'] ?? null,
             'amount' => isset($entry['Amount']) && is_numeric($entry['Amount']) ? (int) $entry['Amount'] : null,
         ], $reputation);
     }
@@ -340,5 +371,45 @@ class MissionIndexResource extends AbstractBaseResource
                 'max_amount' => max($minAmount, $maxAmount) ?: null,
             ];
         }, $haulingOrders);
+    }
+
+    private function mapCooldown($cooldown): ?array
+    {
+        if (! is_array($cooldown)) {
+            return null;
+        }
+
+        $personalSeconds = $cooldown['PersonalSeconds'] ?? null;
+
+        return [
+            'label' => is_numeric($personalSeconds) && $personalSeconds > 0
+                ? FormatDuration::fromSeconds($personalSeconds)
+                : null,
+            'personal_seconds' => $personalSeconds,
+            'abandoned_seconds' => $cooldown['AbandonedSeconds'] ?? null,
+            'personal_variation_seconds' => $cooldown['PersonalVariationSeconds'] ?? null,
+            'abandoned_variation_seconds' => $cooldown['AbandonedVariationSeconds'] ?? null,
+        ];
+    }
+
+    private function mapStanding($standing): ?array
+    {
+        if (! is_array($standing)) {
+            return null;
+        }
+
+        return [
+            'name' => $standing['Name'] ?? null,
+            'min_reputation' => $standing['MinReputation'] ?? null,
+        ];
+    }
+
+    private function parseNullableBool(mixed $value): ?bool
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

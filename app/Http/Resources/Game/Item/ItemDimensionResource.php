@@ -44,6 +44,18 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'volume_converted',
+            description: 'Converted volume value from game data (e.g. in cSCU).',
+            type: 'number',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'volume_converted_unit',
+            description: 'Unit of the converted volume (e.g. "cSCU").',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'true_dimension',
             description: 'Raw dimensions from the game data in meters prior to overrides. Added only when the UI values differ from the canonical measurements.',
             properties: [

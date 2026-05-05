@@ -9,12 +9,14 @@ use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemInventoryResource;
-use App\Http\Resources\Game\ItemSpecification\ArmorResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Http\Resources\Game\Vehicle\Builders\VehicleArmorBuilder;
+use App\Http\Resources\Game\Vehicle\Builders\VehicleDriveBuilder;
+use App\Http\Resources\Game\Vehicle\Builders\VehicleFlightBuilder;
+use App\Http\Resources\Game\Vehicle\Builders\VehicleWeaponryBuilder;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
-use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
 use Illuminate\Http\Request;
@@ -753,6 +755,14 @@ class VehicleResource extends AbstractBaseResource
     use ExtractsJsonData;
     use ResolvesGameVersion;
 
+    private VehicleFlightBuilder $flightBuilder;
+
+    private VehicleDriveBuilder $driveBuilder;
+
+    private VehicleWeaponryBuilder $weaponryBuilder;
+
+    private VehicleArmorBuilder $armorBuilder;
+
     public static function validIncludes(): array
     {
         return [
@@ -760,6 +770,16 @@ class VehicleResource extends AbstractBaseResource
             'hardpoints',
             'components',
         ];
+    }
+
+    public function __construct($resource)
+    {
+        parent::__construct($resource);
+
+        $this->flightBuilder = new VehicleFlightBuilder;
+        $this->driveBuilder = new VehicleDriveBuilder;
+        $this->weaponryBuilder = new VehicleWeaponryBuilder;
+        $this->armorBuilder = new VehicleArmorBuilder(fn (string $uuid) => $this->loadItemForVersion($uuid));
     }
 
     public function toArray(Request $request): array
@@ -782,9 +802,9 @@ class VehicleResource extends AbstractBaseResource
 
         $weaponSnapshotLoadout = Arr::get($payload, 'Loadout', []);
 
-        $mannedTurrets = $this->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
-        $remoteTurrets = $this->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
-        $pdcTurrets = $this->decorateTurretEntries(Arr::get($payload, 'PdcTurrets', []), 'pdc');
+        $mannedTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
+        $remoteTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
+        $pdcTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'PdcTurrets', []), 'pdc');
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -883,8 +903,8 @@ class VehicleResource extends AbstractBaseResource
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
                 'max_electrical_charge_damage_rate' => Arr::get($payload, 'ShieldController.MaxElectricalChargeDamageRate'),
-                'resistance' => $this->buildDamageTypeRange($payload, 'ShieldsTotal.Resistance'),
-                'absorption' => $this->buildDamageTypeRange($payload, 'ShieldsTotal.Absorption'),
+                'resistance' => $this->weaponryBuilder->buildDamageTypeRange($payload, 'ShieldsTotal.Resistance'),
+                'absorption' => $this->weaponryBuilder->buildDamageTypeRange($payload, 'ShieldsTotal.Absorption'),
             ],
 
             $this->mergeWhen(
@@ -896,7 +916,7 @@ class VehicleResource extends AbstractBaseResource
                 }
             ),
 
-            'speed' => $this->buildSpeed($flight),
+            'speed' => $this->flightBuilder->buildSpeed($flight),
 
             'afterburner' => [
                 'pitch_boost_multiplier' => Arr::get($flight, 'Afterburner.AngularAccelerationMultiplier.Pitch'),
@@ -916,21 +936,21 @@ class VehicleResource extends AbstractBaseResource
                 'regen_delay' => Arr::get($flight, 'Afterburner.CapacitorRegenDelayAfterUse'),
             ],
 
-            'fuel' => $this->buildFuel($vehicleData, $propulsion = Arr::get($payload, 'Propulsion', [])),
-            'propulsion' => $this->buildPropulsion($propulsion),
-            'quantum' => $this->buildQuantum($payload),
+            'fuel' => $this->flightBuilder->buildFuel($propulsion = Arr::get($payload, 'Propulsion', [])),
+            'propulsion' => $this->flightBuilder->buildPropulsion($propulsion),
+            'quantum' => $this->flightBuilder->buildQuantum($payload),
 
             $this->mergeWhen(
-                ($drive = $this->buildDriveCharacteristics($payload)) !== null,
+                ($drive = $this->driveBuilder->buildDriveCharacteristics($payload)) !== null,
                 fn () => ['drive' => $drive]
             ),
 
-            'agility' => $this->buildAgility($flight),
+            'agility' => $this->flightBuilder->buildAgility($flight),
 
-            'armor' => $this->buildArmor($vehicleData, $payload),
+            'armor' => $this->armorBuilder->buildArmor($payload),
 
             $this->mergeWhen(
-                ($weaponry = $this->buildWeaponry($payload)) !== [],
+                ($weaponry = $this->weaponryBuilder->buildWeaponry($payload)) !== [],
                 fn () => ['weaponry' => $weaponry]
             ),
 
@@ -989,7 +1009,7 @@ class VehicleResource extends AbstractBaseResource
 
             $this->mergeWhen(
                 ! empty(Arr::get($payload, 'PowerPools')),
-                fn () => ['power_pools' => $this->buildPowerPools($payload)]
+                fn () => ['power_pools' => $this->weaponryBuilder->buildPowerPools($payload)]
             ),
 
             'penetration_multiplier' => [
@@ -1060,170 +1080,6 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function buildSpeed(array $flight): array
-    {
-        return [
-            'scm' => Arr::get($flight, 'Speeds.Scm'),
-            'max' => Arr::get($flight, 'Speeds.Max'),
-            'boost_forward' => Arr::get($flight, 'Speeds.BoostForward'),
-            'boost_backward' => Arr::get($flight, 'Speeds.BoostBackward'),
-            'zero_to_scm' => Arr::get($flight, 'Timing.ZeroToScm'),
-            'zero_to_max' => Arr::get($flight, 'Timing.ZeroToMax'),
-            'scm_to_zero' => Arr::get($flight, 'Timing.ScmToZero'),
-            'max_to_zero' => Arr::get($flight, 'Timing.MaxToZero'),
-        ];
-    }
-
-    private function buildAgility(array $flight): array
-    {
-        return [
-            'pitch' => Arr::get($flight, 'AngularRates.Pitch'),
-            'yaw' => Arr::get($flight, 'AngularRates.Yaw'),
-            'roll' => Arr::get($flight, 'AngularRates.Roll'),
-            'pitch_boosted' => Arr::get($flight, 'AngularRatesBoosted.Pitch'),
-            'yaw_boosted' => Arr::get($flight, 'AngularRatesBoosted.Yaw'),
-            'roll_boosted' => Arr::get($flight, 'AngularRatesBoosted.Roll'),
-
-            'acceleration' => array_filter([
-                'main' => Arr::get($flight, 'Acceleration.Raw.Forward'),
-                'retro' => Arr::get($flight, 'Acceleration.Raw.Backward'),
-                'vtol' => Arr::get($flight, 'Acceleration.Raw.Vtol'),
-                'maneuvering' => Arr::get($flight, 'Acceleration.Raw.Maneuvering'),
-
-                'main_g' => Arr::get($flight, 'Acceleration.RawG.Forward'),
-                'retro_g' => Arr::get($flight, 'Acceleration.RawG.Backward'),
-                'vtol_g' => Arr::get($flight, 'Acceleration.RawG.Vtol'),
-                'maneuvering_g' => Arr::get($flight, 'Acceleration.RawG.Maneuvering'),
-            ], static fn ($value) => $value !== null),
-        ];
-    }
-
-    private function buildFuel(VehicleData $vehicleData, array $propulsion): array
-    {
-        $usage = Arr::get($propulsion, 'FuelUsage', []);
-
-        return [
-            'capacity' => (float) (Arr::get($propulsion, 'FuelCapacity', 0)) / 1000,
-            'intake_rate' => Arr::get($propulsion, 'FuelIntakeRate'),
-            'usage' => [
-                'main' => Arr::get($usage, 'Main'),
-                'retro' => Arr::get($usage, 'Retro'),
-                'vtol' => Arr::get($usage, 'Vtol'),
-                'maneuvering' => Arr::get($usage, 'Maneuvering'),
-            ],
-        ];
-    }
-
-    private function buildQuantum(array $payload): array
-    {
-        $qt = Arr::get($payload, 'QuantumTravel', []);
-
-        return [
-            'quantum_speed' => Arr::get($qt, 'Speed'),
-            'quantum_spool_time' => Arr::get($qt, 'SpoolTime'),
-            'quantum_fuel_capacity' => (float) (Arr::get($qt, 'FuelCapacity', 0)) / 1000,
-            'quantum_range' => Arr::get($qt, 'Range'),
-            'port_olisar_to_arccorp_time' => Arr::get($qt, 'PortOlisarToArcCorpTime'),
-            'port_olisar_to_arccorp_fuel' => Arr::get($qt, 'PortOlisarToArcCorpFuel'),
-        ];
-    }
-
-    private function buildDriveCharacteristics(array $payload): ?array
-    {
-        $dc = Arr::get($payload, 'DriveCharacteristics', []);
-        $speed = Arr::get($dc, 'Speed');
-
-        // Backwards compat <= 4.7.2
-        $maxSpeedKph = Arr::get($speed, 'WheelMaxSpeedKph')
-            ?? Arr::get($speed, 'TopSpeedKph')
-            ?? Arr::get($speed, 'TrackMaxSpeedKph');
-
-        $maxSpeedMs = Arr::get($speed, 'WheelMaxSpeedMs')
-            ?? Arr::get($speed, 'TopSpeedMs')
-            ?? Arr::get($speed, 'TrackMaxSpeedMs');
-
-        $reverseSpeedKph = Arr::get($speed, 'ReverseSpeedKph');
-        $reverseSpeedMs = Arr::get($speed, 'ReverseSpeedMs');
-
-        $wheels = Arr::get($dc, 'Wheels');
-        $agility = Arr::get($dc, 'Agility');
-
-        $isTracked = Arr::get($dc, 'IsTracked')
-            ?? Arr::get($dc, 'Tracks.IsTracked');
-
-        $driveCharacteristics = array_filter([
-            'max_speed_kph' => $maxSpeedKph,
-            'max_speed_ms' => $maxSpeedMs,
-            'reverse_speed_kph' => $reverseSpeedKph,
-            'reverse_speed_ms' => $reverseSpeedMs,
-            'is_tracked' => $isTracked,
-            'wheels' => is_array($wheels) ? array_filter([
-                'count' => Arr::get($wheels, 'Count'),
-                'driving_count' => Arr::get($wheels, 'DrivingCount'),
-                'steering_count' => Arr::get($wheels, 'SteeringCount'),
-                'drive_type' => Arr::get($wheels, 'DriveType'),
-            ], static fn (mixed $value): bool => $value !== null) : null,
-            'agility' => is_array($agility) ? array_filter([
-                'handling' => Arr::get($agility, 'HandlingScore'),
-                'grip' => Arr::get($agility, 'GripScore'),
-                'acceleration' => Arr::get($agility, 'AccelerationScore'),
-            ], static fn (mixed $value): bool => $value !== null) : null,
-        ], static fn (mixed $value): bool => $value !== null);
-
-        $stanceSpeed = $this->buildStanceSpeed($payload);
-
-        if ($stanceSpeed !== null) {
-            $driveCharacteristics['stance_speed'] = $stanceSpeed;
-        }
-
-        return $driveCharacteristics !== [] ? $driveCharacteristics : null;
-    }
-
-    private function buildStanceSpeed(array $payload): ?array
-    {
-        $raw = Arr::get($payload, 'StanceSpeed');
-
-        if (! is_array($raw)) {
-            return null;
-        }
-
-        $sprintKph = Arr::get($raw, 'SprintSpeedKph');
-
-        return array_filter([
-            'walk_kph' => Arr::get($raw, 'WalkSpeedKph'),
-            'sprint_kph' => $sprintKph > 0 ? $sprintKph : null,
-            'acceleration' => Arr::get($raw, 'Acceleration'),
-            'rotation_speed' => Arr::get($raw, 'RotationSpeed'),
-        ], static fn (mixed $value): bool => $value !== null);
-    }
-
-    private function buildPowerPools(array $payload): array
-    {
-        $powerPools = Arr::get($payload, 'PowerPools', []);
-
-        return array_map(static fn ($poolData) => [
-            'type' => Arr::get($poolData, 'Type'),
-            'item_type' => Arr::get($poolData, 'ItemType'),
-            'size' => Arr::get($poolData, 'Size'),
-        ], $powerPools);
-    }
-
-    /**
-     * @param  array<int, mixed>  $entries
-     * @return array<int, array<string, mixed>>
-     */
-    private function decorateTurretEntries(array $entries, string $category): array
-    {
-        return collect($entries)
-            ->filter(static fn (mixed $entry): bool => is_array($entry))
-            ->map(static fn (array $entry): array => [
-                ...$entry,
-                'Category' => $category,
-            ])
-            ->values()
-            ->all();
-    }
-
     private function buildWebUrl(Request $request): string
     {
         return $this->urlWithVersion(
@@ -1240,68 +1096,6 @@ class VehicleResource extends AbstractBaseResource
             route('vehicles.show', ['vehicle' => $identifier]),
             $request,
         );
-    }
-
-    private function buildArmor(VehicleData $vehicleData, array $payload): array
-    {
-        $armorUuid = Arr::get($payload, 'Armor.UUID');
-
-        if ($armorUuid === null) {
-            return [];
-        }
-
-        $item = $this->loadItemForVersion($armorUuid);
-
-        if ($item === null) {
-            return [];
-        }
-
-        $itemData = $item->data->first();
-
-        if ($itemData === null) {
-            return [];
-        }
-
-        return $this->buildArmorFromItemData($armorUuid, $itemData);
-    }
-
-    /**
-     * Build armor data from resolved ItemData using ArmorResource.
-     *
-     * Outputs canonical ArmorResource format with deprecated plural key aliases
-     * for backward compatibility during transition.
-     *
-     * @return array<string, mixed>
-     */
-    private function buildArmorFromItemData(string $uuid, ItemData $itemData): array
-    {
-        $armor = (new ArmorResource($itemData))->resolve(request());
-        $armor['uuid'] = $uuid;
-
-        // Deprecated plural aliases for backward compatibility
-        $armor['signal_multipliers'] = [
-            'cross_section' => $armor['signal_multiplier']['cross_section'] ?? null,
-            'infrared' => $armor['signal_multiplier']['infrared'] ?? null,
-            'electromagnetic' => $armor['signal_multiplier']['electromagnetic'] ?? null,
-        ];
-        $armor['damage_multipliers'] = [
-            'physical' => $armor['damage_multiplier']['physical'] ?? null,
-            'energy' => $armor['damage_multiplier']['energy'] ?? null,
-            'distortion' => $armor['damage_multiplier']['distortion'] ?? null,
-            'thermal' => $armor['damage_multiplier']['thermal'] ?? null,
-            'biochemical' => $armor['damage_multiplier']['biochemical'] ?? null,
-            'stun' => $armor['damage_multiplier']['stun'] ?? null,
-        ];
-        $armor['resistance_multipliers'] = [
-            'physical' => $armor['resistance_multiplier']['physical'] ?? null,
-            'energy' => $armor['resistance_multiplier']['energy'] ?? null,
-            'distortion' => $armor['resistance_multiplier']['distortion'] ?? null,
-            'thermal' => $armor['resistance_multiplier']['thermal'] ?? null,
-            'biochemical' => $armor['resistance_multiplier']['biochemical'] ?? null,
-            'stun' => $armor['resistance_multiplier']['stun'] ?? null,
-        ];
-
-        return $armor;
     }
 
     private function resolveShipMatrixData(VehicleData $vehicleData, Request $request): array
@@ -1492,110 +1286,5 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return collect($medicalBeds)->pluck('Count', 'Tier')->all();
-    }
-
-    /**
-     * Build damage-type range data (minimum/maximum per type).
-     * Used for shield resistance and absorption.
-     *
-     * @return array<string, array{minimum: mixed, maximum: mixed}>
-     */
-    private function buildDamageTypeRange(array $payload, string $path): array
-    {
-        $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
-
-        $parent = Arr::get($payload, $path, []);
-
-        $result = [];
-        foreach ($damageTypes as $type) {
-            $entry = Arr::get($parent, $type);
-            $result[strtolower($type)] = [
-                'minimum' => Arr::get($entry, 'Minimum'),
-                'maximum' => Arr::get($entry, 'Maximum'),
-            ];
-        }
-
-        return $result;
-    }
-
-    private function buildPropulsion(array $propulsion): array
-    {
-        $thrusters = Arr::get($propulsion, 'Thrusters', []);
-        $thrustCapacityRaw = Arr::get($propulsion, 'ThrustCapacity');
-        $thrustCapacity = null;
-        if (is_array($thrustCapacityRaw)) {
-            $thrustCapacity = array_filter([
-                'main' => Arr::get($thrustCapacityRaw, 'Main'),
-                'retro' => Arr::get($thrustCapacityRaw, 'Retro'),
-                'vtol' => Arr::get($thrustCapacityRaw, 'Vtol'),
-                'maneuvering' => Arr::get($thrustCapacityRaw, 'Maneuvering'),
-            ], static fn (mixed $value): bool => $value !== null);
-
-            if ($thrustCapacity === []) {
-                $thrustCapacity = null;
-            }
-        }
-
-        return [
-            'thrusters' => array_map(static fn (array $thruster): array => [
-                'type' => Arr::get($thruster, 'Type'),
-                'count' => Arr::get($thruster, 'Count'),
-                'capacity' => Arr::get($thruster, 'Capacity'),
-                'g' => Arr::get($thruster, 'G'),
-            ], $thrusters),
-            'thrust_capacity' => $thrustCapacity,
-        ];
-    }
-
-    private function buildWeaponry(array $payload): array
-    {
-        $weaponry = Arr::get($payload, 'Weaponry', []);
-
-        $result = array_filter([
-            'pilot_dps' => Arr::get($weaponry, 'PilotDps'),
-            'pilot_alpha' => Arr::get($weaponry, 'PilotAlpha'),
-            'pilot_sustained_dps' => Arr::get($weaponry, 'PilotSustainedDps'),
-            'turret_dps' => Arr::get($weaponry, 'TurretDps'),
-            'turret_alpha' => Arr::get($weaponry, 'TurretAlpha'),
-            'turret_sustained_dps' => Arr::get($weaponry, 'TurretSustainedDps'),
-        ], static fn (mixed $value): bool => $value !== null);
-
-        $fixedWeapons = Arr::get($weaponry, 'FixedWeapons');
-        if (is_array($fixedWeapons)) {
-            $result['fixed_weapons'] = [
-                'dps_total' => Arr::get($fixedWeapons, 'DpsTotal'),
-                'sustained_dps_total' => Arr::get($fixedWeapons, 'SustainedDpsTotal'),
-                'alpha_total' => Arr::get($fixedWeapons, 'AlphaTotal'),
-                'weapons' => array_map(static fn (array $weapon): array => [
-                    'name' => Arr::get($weapon, 'Name'),
-                    'dps' => Arr::get($weapon, 'Dps'),
-                    'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
-                    'alpha' => Arr::get($weapon, 'Alpha'),
-                ], Arr::get($fixedWeapons, 'Weapons', [])),
-            ];
-        }
-
-        $missiles = Arr::get($weaponry, 'Missiles');
-        if (is_array($missiles)) {
-            $result['missiles'] = [
-                'count' => Arr::get($missiles, 'Count'),
-                'damage' => [
-                    'physical' => Arr::get($missiles, 'Damage.Physical'),
-                    'energy' => Arr::get($missiles, 'Damage.Energy'),
-                    'distortion' => Arr::get($missiles, 'Damage.Distortion'),
-                    'thermal' => Arr::get($missiles, 'Damage.Thermal'),
-                    'biochemical' => Arr::get($missiles, 'Damage.Biochemical'),
-                    'stun' => Arr::get($missiles, 'Damage.Stun'),
-                    'total' => Arr::get($missiles, 'Damage.Total'),
-                ],
-            ];
-        }
-
-        $totalMissiles = Arr::get($weaponry, 'TotalMissiles');
-        if ($totalMissiles !== null) {
-            $result['total_missile_damage'] = $totalMissiles;
-        }
-
-        return $result;
     }
 }

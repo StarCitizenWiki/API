@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -25,11 +26,15 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_part'),
             nullable: true
         ),
+        new OA\Property(property: 'version', description: 'Game version code for this data.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
+/** @param array $resource Structural part entry from vehicle JSON data */
 class PartResource extends AbstractBaseResource
 {
+    use ResolvesGameVersion;
+
     public static function validIncludes(): array
     {
         return [];
@@ -46,6 +51,7 @@ class PartResource extends AbstractBaseResource
             $this->mergeWhen(Arr::has($this->resource, 'Children'), [
                 'children' => self::collection(Arr::get($this->resource, 'Children', [])),
             ]),
+            'version' => $this->gameVersionCode(),
         ];
     }
 

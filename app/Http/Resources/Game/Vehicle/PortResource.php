@@ -52,6 +52,7 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_port'),
             nullable: true
         ),
+        new OA\Property(property: 'version', description: 'Game version code for this data.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
@@ -60,6 +61,11 @@ class PortResource extends AbstractBaseResource
     use ExtractsJsonData;
     use ProcessesHardpointData;
     use ResolvesGameVersion;
+
+    public function __construct($resource, private bool $isChild = false)
+    {
+        parent::__construct($resource);
+    }
 
     public static function validIncludes(): array
     {
@@ -84,7 +90,7 @@ class PortResource extends AbstractBaseResource
         $minSize = Arr::get($this, 'MinSize');
         $maxSize = Arr::get($this, 'MaxSize');
 
-        $data = [
+        return [
             'name' => Arr::get($this, 'HardpointName'),
             'position' => Arr::get($this, 'Position'),
             'class_name' => Arr::get($this, 'ClassName'),
@@ -101,11 +107,10 @@ class PortResource extends AbstractBaseResource
             'compatible_types' => $compatibleTypes !== [] ? $compatibleTypes : null,
             'health' => $health,
             'equipped_item' => $resolvedItem !== null ? new PortItemResource($resolvedItem) : null,
-            'ports' => $this->shouldIncludeChildren() ? ChildPortResource::collection($this->getChildrenArray()) : null,
-            'category_label' => ! ($this instanceof ChildPortResource) ? $this->categorize() : null,
+            'ports' => $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
+            'category_label' => ! $this->isChild ? $this->categorize() : null,
+            'version' => $this->gameVersionCode(),
         ];
-
-        return $data;
     }
 
     private function categorize(): string

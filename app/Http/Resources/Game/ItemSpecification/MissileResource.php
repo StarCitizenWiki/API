@@ -225,7 +225,6 @@ class MissileResource extends AbstractItemSpecificationResource
         $damageData = Arr::get($missile, 'Damage', []);
 
         $damages = $this->buildDamageArray($damageData);
-        $totalDamage = $this->calculateTotalDamage($damageData);
         $damageMap = array_filter([
             'physical' => Arr::get($damageData, 'Physical'),
             'energy' => Arr::get($damageData, 'Energy'),

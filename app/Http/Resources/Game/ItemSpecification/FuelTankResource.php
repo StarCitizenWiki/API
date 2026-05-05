@@ -28,11 +28,18 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
-            property: 'discharge_rate',
-            description: 'Configured discharge rate; most tanks use 0.',
+            property: 'capacity',
+            description: 'Maximum fuel capacity in standard resource units.',
             type: 'double',
-            example: 0,
+            example: 5000,
             nullable: true
+        ),
+        new OA\Property(
+            property: 'discharge_rate',
+            description: 'Deprecated: Use capacity.',
+            type: 'double',
+            nullable: true,
+            deprecated: true
         ),
 
     ],
@@ -49,6 +56,7 @@ class FuelTankResource extends AbstractItemSpecificationResource
             'fill_rate' => Arr::get($stdItem, 'ResourceNetwork.States.0.Deltas.0.GenerateRate'),
             'drain_rate' => Arr::get($stdItem, 'ResourceNetwork.States.0.Deltas.0.Discharge'),
             'capacity' => Arr::get($stdItem, 'FuelTank.Capacity'),
+            'discharge_rate' => Arr::get($stdItem, 'FuelTank.Capacity'),  // deprecated: use capacity
         ];
     }
 }

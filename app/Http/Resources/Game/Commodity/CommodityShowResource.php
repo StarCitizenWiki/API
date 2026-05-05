@@ -219,15 +219,15 @@ class CommodityShowResource extends CommodityIndexResource
 
     public function toArray(Request $request): array
     {
-        $resourceDataCollection = $this->resourceData ?? collect();
-        $locations = $this->buildDetailedLocations($resourceDataCollection, $this->id);
+        $resourceDataCollection = $this->resource->resourceData ?? collect();
+        $locations = $this->buildDetailedLocations($resourceDataCollection, $this->resource->id);
 
         return array_merge(parent::toArray($request), [
             'locations' => $locations,
             'systems' => $this->buildSystems($locations),
             'systems_grouped' => $this->buildSystemsGrouped($locations),
 
-            'raw_versions' => $this->whenLoaded('rawVersions', fn (): array => $this->rawVersions
+            'raw_versions' => $this->whenLoaded('rawVersions', fn (): array => $this->resource->rawVersions
                 ->map(fn (Commodity $raw): array => [
                     'name' => $raw->name,
                     'uuid' => $raw->uuid,
@@ -241,7 +241,7 @@ class CommodityShowResource extends CommodityIndexResource
                     ),
                 ])->values()->all(), []),
 
-            'blueprints' => $this->whenLoaded('blueprints', fn () => $this->blueprints
+            'blueprints' => $this->whenLoaded('blueprints', fn () => $this->resource->blueprints
                 ->map(fn ($blueprintData): array => [
                     'key' => $blueprintData->key,
                     'output_name' => $blueprintData->output_name,
@@ -257,7 +257,7 @@ class CommodityShowResource extends CommodityIndexResource
                     ),
                 ])->values()->all(), []),
 
-            'items' => $this->whenLoaded('items', fn () => $this->items
+            'items' => $this->whenLoaded('items', fn () => $this->resource->items
                 ->map(fn ($itemData): array => [
                     'name' => $itemData->name,
                     'uuid' => $itemData->item?->uuid,

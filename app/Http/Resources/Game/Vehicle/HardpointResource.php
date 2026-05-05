@@ -34,6 +34,7 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_hardpoint'),
             nullable: true
         ),
+        new OA\Property(property: 'version', description: 'Game version code for this data.', type: 'string', nullable: true),
     ],
     type: 'object',
     deprecated: true
@@ -75,6 +76,7 @@ class HardpointResource extends AbstractBaseResource
             'pilot_slaveable' => Arr::get($this, 'IsPilotSlaveable'),
             'item' => $resolvedItem !== null ? new HardpointItemResource($resolvedItem) : null,
             'children' => $this->shouldIncludeChildren() ? self::collection($this->getChildrenArray()) : null,
+            'version' => $this->gameVersionCode(),
         ];
     }
 }

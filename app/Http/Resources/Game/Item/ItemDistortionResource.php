@@ -28,6 +28,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw distortion data from stdItem.Distortion sub-array */
 class ItemDistortionResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array

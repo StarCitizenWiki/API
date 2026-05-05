@@ -14,14 +14,17 @@ use OpenApi\Attributes as OA;
     title: 'Item Temperature',
     description: 'Calculated temperature information, generated from Temperature attributes.',
     properties: [
+        new OA\Property(property: 'unit', description: 'Temperature unit (e.g. "K" for Kelvin).', type: 'string', nullable: true),
         new OA\Property(property: 'cooling_threshold', description: 'Calculated cooling threshold', type: 'double', nullable: true),
         new OA\Property(property: 'ir_threshold', description: 'Calculated IR threshold', type: 'double', nullable: true),
         new OA\Property(property: 'overheat_threshold', description: 'Calculated overheat threshold', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_temperature', description: 'Deprecated: Use overheat_threshold.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'max_temperature', description: 'Calculated maximum temperature', type: 'double', nullable: true),
         new OA\Property(property: 'recovery_temperature', description: 'Calculated recovery temperature', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
+/** @param array $resource Raw temperature data from stdItem.Temperature sub-array */
 class ItemTemperatureResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
@@ -30,7 +33,8 @@ class ItemTemperatureResource extends AbstractBaseResource
             'unit' => Arr::get($this, 'Calculated.Unit'),
             'cooling_threshold' => Arr::get($this, 'Calculated.CoolingThreshold'),
             'ir_threshold' => Arr::get($this, 'Calculated.IrThreshold'),
-            'overheat_temperature' => Arr::get($this, 'Calculated.Overheat'),
+            'overheat_threshold' => Arr::get($this, 'Calculated.Overheat'),
+            'overheat_temperature' => Arr::get($this, 'Calculated.Overheat'),  // deprecated: use overheat_threshold
             'max_temperature' => Arr::get($this, 'Calculated.Maximum'),
             'recovery_temperature' => Arr::get($this, 'Calculated.Recovery'),
         ];

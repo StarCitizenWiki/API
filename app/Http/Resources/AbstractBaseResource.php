@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Game\Concerns\NormalizesValues;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class AbstractBaseResource extends JsonResource
 {
+    use NormalizesValues;
+
     public function __construct($resource)
     {
         parent::__construct($resource);
@@ -70,32 +73,6 @@ abstract class AbstractBaseResource extends JsonResource
     /**
      * @param  array<string, mixed>  $data
      */
-    protected function arrayNullableString(array $data, string $key): ?string
-    {
-        $value = $data[$key] ?? null;
-
-        if (! is_scalar($value)) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-
-        return $normalized === '' ? null : $normalized;
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    protected function arrayNullableInt(array $data, string $key): ?int
-    {
-        $value = $data[$key] ?? null;
-
-        return is_numeric($value) ? (int) $value : null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
     protected function arrayNullableFloat(array $data, string $key): ?float
     {
         $value = $data[$key] ?? null;
@@ -103,35 +80,9 @@ abstract class AbstractBaseResource extends JsonResource
         return is_numeric($value) ? (float) $value : null;
     }
 
-    protected function nullableString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
-    }
-
     protected function nullableInt(mixed $value): ?int
     {
         return is_numeric($value) ? (int) $value : null;
-    }
-
-    protected function nullableNumeric(mixed $value): int|float|null
-    {
-        if (! is_numeric($value)) {
-            return null;
-        }
-
-        $numericValue = $value + 0;
-
-        if (is_float($numericValue) && floor($numericValue) === $numericValue) {
-            return (int) $numericValue;
-        }
-
-        return $numericValue;
     }
 
     protected function stripItemTypePrefix(?string $type): ?string

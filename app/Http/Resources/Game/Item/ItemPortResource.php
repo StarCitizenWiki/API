@@ -78,6 +78,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Individual port entry from stdItem.Ports array */
 class ItemPortResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;

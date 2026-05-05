@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Models\Game\VehicleData;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -40,23 +41,30 @@ class VehicleLinkResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->data->first();
+        /** @var VehicleData $vehicleData */
+        $vehicleData = $this->resource;
 
         return [
-            'uuid' => $this->uuid,
-            'name' => $data->name,
-            'class_name' => $data->class_name,
-            'career' => $data->career,
-            'role' => $data->role,
-            'size_class' => $data->size,
-            'size' => $data->size,
-            'is_vehicle' => $data->is_vehicle,
-            'is_gravlev' => $data->is_gravlev,
-            'is_spaceship' => $data->is_spaceship,
-            'manufacturer' => new ManufacturerLinkResource($data->manufacturer),
-            'link' => route('vehicles.show', ['vehicle' => $this->uuid ?? $data->name]),
-            'updated_at' => $this->updated_at,
-            'version' => $data->gameVersion->code,
+            'uuid' => $vehicleData->vehicle?->uuid,
+            'name' => $vehicleData->display_name ?? $vehicleData->name,
+            'class_name' => $vehicleData->class_name,
+            'career' => $vehicleData->career,
+            'role' => $vehicleData->role,
+            'size_class' => $vehicleData->size,
+            'size' => $vehicleData->size,
+            'is_vehicle' => $vehicleData->is_vehicle,
+            'is_gravlev' => $vehicleData->is_gravlev,
+            'is_spaceship' => $vehicleData->is_spaceship,
+            'manufacturer' => $vehicleData->relationLoaded('manufacturer') && $vehicleData->manufacturer !== null
+                ? new ManufacturerLinkResource($vehicleData->manufacturer)
+                : null,
+            'link' => $vehicleData->vehicle
+                ? route('vehicles.show', ['vehicle' => $vehicleData->vehicle->uuid])
+                : null,
+            'updated_at' => $vehicleData->vehicle?->updated_at,
+            'version' => $vehicleData->relationLoaded('gameVersion')
+                ? $vehicleData->gameVersion?->code
+                : null,
         ];
     }
 }

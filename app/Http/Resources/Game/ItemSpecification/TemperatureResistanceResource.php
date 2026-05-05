@@ -43,6 +43,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+/** @param array $resource Raw temperature resistance data from stdItem.TemperatureResistance sub-array */
 class TemperatureResistanceResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
