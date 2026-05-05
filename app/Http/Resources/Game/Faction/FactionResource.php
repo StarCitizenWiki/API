@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Faction;
 
-use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -74,7 +73,7 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class FactionResource extends AbstractBaseResource
+class FactionResource extends FactionIndexResource
 {
     public static function validIncludes(): array
     {
@@ -83,34 +82,24 @@ class FactionResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        return [
-            'uuid' => $this->resource->uuid,
-            'name' => $this->resource->name,
+        return array_merge(parent::toArray($request), [
             'description' => $this->resource->description,
             'default_reaction' => $this->resource->default_reaction,
-            'faction_type' => $this->resource->faction_type,
             'able_to_arrest' => $this->resource->able_to_arrest,
             'polices_lawful_trespass' => $this->resource->polices_lawful_trespass,
             'polices_criminality' => $this->resource->polices_criminality,
             'no_legal_rights' => $this->resource->no_legal_rights,
-            'has_reputation' => $this->resource->has_reputation,
             'headquarters' => $this->resource->headquarters,
             'founded' => $this->resource->founded,
             'leadership' => $this->resource->leadership,
             'area' => $this->resource->area,
             'focus' => $this->resource->focus,
-            'lawful' => $this->resource->lawful,
             'sort_order_scope' => $this->resource->sort_order_scope,
-            'is_npc' => $this->resource->is_npc,
             'reputation_ladder' => $this->when(
                 $this->resource->relationLoaded('reputationRef') && $this->resource->reputationRef !== null,
                 fn (): ?array => $this->mapReputationLadder(),
             ),
-            'link' => $this->urlWithVersion(
-                route('factions.show', ['faction' => $this->resource->uuid]),
-                $request,
-            ),
-        ];
+        ]);
     }
 
     private function mapReputationLadder(): ?array

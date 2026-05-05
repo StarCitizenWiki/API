@@ -221,48 +221,10 @@ class CommodityShowResource extends CommodityIndexResource
     {
         $resourceDataCollection = $this->resourceData ?? collect();
         $locations = $this->buildDetailedLocations($resourceDataCollection, $this->id);
-        $groupNames = $this->extractGroupNames($resourceDataCollection);
-        ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
-        $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
-        return [
-            'uuid' => $this->uuid,
-            'key' => $this->key,
-            'name' => $this->name,
-            'slug' => $this->slug,
-            'description' => $this->description,
-            'tier' => $this->tier,
-            'refined_version' => $this->when($this->refinedVersion, fn () => [
-                'name' => $this->refined_version_name,
-                'uuid' => $this->refinedVersion->uuid,
-                'web_url' => $this->urlWithVersion(
-                    route('web.commodities.show', ['identifier' => $this->refinedVersion->slug ?? $this->refinedVersion->uuid]),
-                    $request,
-                ),
-                'link' => $this->urlWithVersion(
-                    route('commodities.show', ['commodity' => $this->refinedVersion->uuid]),
-                    $request,
-                ),
-            ]),
-            'density_g_per_cc' => $this->formatDecimal($this->density_g_per_cc, 2),
-            'instability' => $this->formatDecimal($this->instability, 0),
-            'resistance' => $this->formatDecimal($this->resistance, 2),
-            'box_sizes_scu' => $this->box_sizes_scu ?? [],
-            'validate_default_cargo_box' => $this->validate_default_cargo_box,
-            'has_default_cargo_containers' => $this->has_default_cargo_containers,
-
-            'is_mineable' => $resourceDataCollection->isNotEmpty(),
-            'has_ship_mineables' => $hasShip,
-            'has_ground_vehicle_mineables' => $hasGround,
-            'has_fps_mineables' => $hasFps,
-            'has_harvestables' => $hasHarvestable,
-            'has_salvage' => $hasSalvage,
-
-            'signature' => ($sig = $resourceDataCollection->first()?->signature) !== null && $sig > 0 ? $sig : null,
-            'kind' => empty($kind) ? null : $kind,
-            'methods' => $this->buildMethodsFromFlags($hasShip, $hasGround, $hasFps, $hasHarvestable, $hasSalvage),
-            'systems' => $this->buildSystems($locations),
+        return array_merge(parent::toArray($request), [
             'locations' => $locations,
+            'systems' => $this->buildSystems($locations),
             'systems_grouped' => $this->buildSystemsGrouped($locations),
 
             'raw_versions' => $this->whenLoaded('rawVersions', fn (): array => $this->rawVersions
@@ -317,16 +279,7 @@ class CommodityShowResource extends CommodityIndexResource
                         )
                         : null,
                 ])->values()->all(), []),
-
-            'link' => $this->urlWithVersion(
-                route('commodities.show', ['commodity' => $this->uuid]),
-                $request,
-            ),
-            'web_url' => $this->urlWithVersion(
-                route('web.commodities.show', ['identifier' => $this->slug ?? $this->uuid]),
-                $request,
-            ),
-        ];
+        ]);
     }
 
     private function buildDetailedLocations(Collection $resourceDataCollection, int $currentCommodityId): array

@@ -80,7 +80,7 @@ class RelatedItemsResource extends JsonResource
             'uuid' => $uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'type' => $itemData->type,
+            'type' => $this->stripItemTypePrefix($itemData->type),
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,
@@ -90,7 +90,7 @@ class RelatedItemsResource extends JsonResource
             'manufacturer' => $this->expandManufacturerLink($manufacturer),
             'size' => $itemData->size,
             'grade' => $itemData->grade,
-            'grade_label' => $this->formatGradeLabel($itemData),
+            'grade_label' => ItemData::formatGrade($itemData->grade, $itemData->classification),
             'class' => $itemData->class,
             'link' => route('items.show', ['identifier' => $uuid]),
             'web_url' => route('web.items.show', ['item' => $itemData->item->slug ?? $uuid]),
@@ -115,7 +115,7 @@ class RelatedItemsResource extends JsonResource
                 'uuid' => $setItemData->item->uuid,
                 'name' => $setItemData->name,
                 'class_name' => $setItemData->class_name,
-                'type' => $setItemData->type,
+                'type' => $this->stripItemTypePrefix($setItemData->type),
                 'type_label' => $setItemData->type_label,
                 'sub_type' => $setItemData->sub_type,
                 'sub_type_label' => $setItemData->sub_type_label,
@@ -171,18 +171,12 @@ class RelatedItemsResource extends JsonResource
         ];
     }
 
-    private function formatGradeLabel(ItemData $itemData): mixed
+    private function stripItemTypePrefix(?string $type): ?string
     {
-        if (! str_starts_with($itemData->classification ?? '', 'Ship.')) {
-            return $itemData->grade;
+        if ($type === null) {
+            return null;
         }
 
-        return match ($itemData->grade) {
-            1 => 'A',
-            2 => 'B',
-            3 => 'C',
-            4 => 'D',
-            default => $itemData->grade,
-        };
+        return str_replace('NOITEM_', '', $type);
     }
 }

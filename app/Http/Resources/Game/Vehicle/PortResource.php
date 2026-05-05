@@ -94,41 +94,18 @@ class PortResource extends AbstractBaseResource
             'type' => $type,
             'sub_type' => $subtype,
             'subtype' => $subtype,
-        ];
-
-        if ($minSize !== null || $maxSize !== null) {
-            $data['sizes'] = [
+            'sizes' => ($minSize !== null || $maxSize !== null) ? [
                 'min' => $minSize,
                 'max' => $maxSize,
-            ];
-        }
+            ] : null,
+            'compatible_types' => $compatibleTypes !== [] ? $compatibleTypes : null,
+            'health' => $health,
+            'equipped_item' => $resolvedItem !== null ? new PortItemResource($resolvedItem) : null,
+            'ports' => $this->shouldIncludeChildren() ? ChildPortResource::collection($this->getChildrenArray()) : null,
+            'category_label' => ! ($this instanceof ChildPortResource) ? $this->categorize() : null,
+        ];
 
-        if ($compatibleTypes !== []) {
-            $data['compatible_types'] = $compatibleTypes;
-        }
-
-        if ($health !== null) {
-            $data['health'] = $health;
-        }
-
-        if ($resolvedItem !== null) {
-            $data['equipped_item'] = new PortItemResource($resolvedItem);
-        }
-
-        if ($this->shouldIncludeChildren()) {
-            $data['ports'] = ChildPortResource::collection($this->getChildrenArray());
-        }
-
-        if (! ($this instanceof ChildPortResource)) {
-            $category = $this->categorize();
-            $data['category_label'] = $category;
-        }
-
-        return array_filter(
-            $data,
-            static fn ($value) => $value !== null && $value !== [],
-            ARRAY_FILTER_USE_BOTH
-        );
+        return $data;
     }
 
     private function categorize(): string

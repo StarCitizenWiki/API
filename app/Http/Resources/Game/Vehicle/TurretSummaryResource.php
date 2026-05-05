@@ -86,7 +86,7 @@ class TurretSummaryResource extends AbstractBaseResource
     {
         $mounts = $this->mountRows();
 
-        return array_filter([
+        return [
             'category' => Arr::get($this->resource, 'Category'),
             'display_name' => Arr::get($this->resource, 'DisplayName', Arr::get($this->resource, 'Name')),
             'hardpoint_name' => Arr::get($this->resource, 'HardpointName'),
@@ -108,7 +108,7 @@ class TurretSummaryResource extends AbstractBaseResource
             'alpha_total' => Arr::get($this->resource, 'AlphaTotal'),
             'is_pilot_slaveable' => Arr::get($this->resource, 'IsPilotSlaveable'),
             'weapons' => $this->weaponRows(),
-        ], static fn ($value) => $value !== null && $value !== []);
+        ];
     }
 
     /**
@@ -117,7 +117,7 @@ class TurretSummaryResource extends AbstractBaseResource
     private function mountRows(): array
     {
         return collect($this->rawMounts())
-            ->map(static fn (array $mount): array => array_filter([
+            ->map(static fn (array $mount): array => [
                 'display_name' => Arr::get($mount, 'DisplayName', Arr::get($mount, 'Name')),
                 'hardpoint_name' => Arr::get($mount, 'HardpointName'),
                 'mount_type' => Arr::get($mount, 'MountType', Arr::get($mount, 'Type')),
@@ -127,7 +127,7 @@ class TurretSummaryResource extends AbstractBaseResource
                 'payload_sizes' => Arr::get($mount, 'PayloadSizes'),
                 'payload_types' => Arr::get($mount, 'PayloadTypes'),
                 'payload_class_names' => Arr::get($mount, 'PayloadClassNames'),
-            ], static fn ($value) => $value !== null && $value !== []))
+            ])
             ->filter(static fn (array $mount): bool => $mount !== [])
             ->values()
             ->all();
@@ -167,7 +167,7 @@ class TurretSummaryResource extends AbstractBaseResource
         return collect(Arr::get($this->resource, 'Weapons', []))
             ->filter(static fn (mixed $weapon): bool => is_array($weapon))
             ->map(function (array $weapon): array {
-                return array_filter([
+                return [
                     'uuid' => Arr::get($weapon, 'UUID'),
                     'class_name' => Arr::get($weapon, 'ClassName'),
                     'name' => Arr::get($weapon, 'Name'),
@@ -178,7 +178,7 @@ class TurretSummaryResource extends AbstractBaseResource
                     'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
                     'alpha' => Arr::get($weapon, 'Alpha'),
                     'is_pilot_slaveable' => Arr::get($weapon, 'IsPilotSlaveable'),
-                ], static fn ($value) => $value !== null && $value !== []);
+                ];
             })
             ->filter(static fn (array $weapon): bool => $weapon !== [])
             ->values()

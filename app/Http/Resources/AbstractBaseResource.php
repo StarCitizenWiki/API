@@ -133,4 +133,13 @@ abstract class AbstractBaseResource extends JsonResource
 
         return $numericValue;
     }
+
+    protected function stripItemTypePrefix(?string $type): ?string
+    {
+        if ($type === null) {
+            return null;
+        }
+
+        return str_replace('NOITEM_', '', $type);
+    }
 }

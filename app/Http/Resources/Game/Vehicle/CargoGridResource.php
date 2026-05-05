@@ -47,7 +47,7 @@ class CargoGridResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        return array_filter([
+        return [
             'uuid' => Arr::get($this->resource, 'UUID'),
             'class_name' => Arr::get($this->resource, 'Class'),
             'scu' => Arr::get($this->resource, 'SCU'),
@@ -61,7 +61,7 @@ class CargoGridResource extends AbstractBaseResource
             'z' => Arr::get($this->resource, 'Z'),
             'min_size' => $this->sizeBlock('MinSize'),
             'max_size' => $this->sizeBlock('MaxSize'),
-        ], static fn ($value) => $value !== null && $value !== []);
+        ];
     }
 
     private function sizeBlock(string $key): ?array

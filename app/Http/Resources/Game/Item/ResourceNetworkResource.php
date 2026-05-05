@@ -156,7 +156,7 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
 
         $resourceNetwork = $this->extractFromStdItem($this->resource, 'ResourceNetwork');
 
-        return array_filter([
+        return [
             'is_networked' => Arr::get($resourceNetwork, 'IsNetworked'),
             'is_relay' => Arr::get($resourceNetwork, 'IsRelay'),
             'default_priority' => Arr::get($resourceNetwork, 'DefaultPriority'),
@@ -207,6 +207,6 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
                 'coolant' => Arr::get($resourceNetwork, 'Generation.Coolant'),
                 'power' => Arr::get($resourceNetwork, 'Generation.Power'),
             ],
-        ], static fn ($value) => $value !== null && $value !== []);
+        ];
     }
 }

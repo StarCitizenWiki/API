@@ -312,10 +312,10 @@ class StarmapLocationResource extends AbstractBaseResource
             'hide_in_world' => (bool) Arr::get($payload, 'HideInWorld', false),
             'block_travel' => (bool) $locationData->block_travel,
             'quantum_travel' => is_array(Arr::get($payload, 'QuantumTravel')) && Arr::get($payload, 'QuantumTravel') !== []
-                ? $this->toSnakeCaseKeys(Arr::get($payload, 'QuantumTravel'))
+                ? collect(Arr::get($payload, 'QuantumTravel'))->mapWithKeys(fn (mixed $value, string|int $key) => [str((string) $key)->snake()->value() => $value])->all()
                 : null,
             'asteroid_ring' => is_array(Arr::get($payload, 'AsteroidRing')) && Arr::get($payload, 'AsteroidRing') !== []
-                ? $this->toSnakeCaseKeys(Arr::get($payload, 'AsteroidRing'))
+                ? collect(Arr::get($payload, 'AsteroidRing'))->mapWithKeys(fn (mixed $value, string|int $key) => [str((string) $key)->snake()->value() => $value])->all()
                 : null,
             'system' => $locationData->system,
             'star' => $this->buildStarSummary($locationData),
@@ -723,21 +723,5 @@ class StarmapLocationResource extends AbstractBaseResource
             ->sortBy('purpose', SORT_STRING | SORT_FLAG_CASE)
             ->values()
             ->all();
-    }
-
-    /**
-     * Recursively convert all keys in an array to snake_case.
-     */
-    private function toSnakeCaseKeys(array $data): array
-    {
-        $result = [];
-        foreach ($data as $key => $value) {
-            $snakeKey = is_string($key) ? str($key)->snake()->value() : $key;
-            $result[$snakeKey] = is_array($value)
-                ? $this->toSnakeCaseKeys($value)
-                : $value;
-        }
-
-        return $result;
     }
 }

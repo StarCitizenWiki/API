@@ -522,7 +522,7 @@ class ItemResource extends AbstractBaseResource
 
         $itemData = $this->resource;
 
-        $type = str_replace('NOITEM_', '', ($itemData->type ?? ''));
+        $type = $this->stripItemTypePrefix($itemData->type);
 
         $this->eagerLoadPortEquippedItems($itemData, $request);
 
@@ -547,7 +547,7 @@ class ItemResource extends AbstractBaseResource
                     : $this->buildBlueprintPayload($itemData, $request),
             ]),
             $this->mergeWhen(str_starts_with($itemData->classification ?? '', 'Ship.'), [
-                'grade' => $this->formatGrade($itemData),
+                'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification),
                 'class' => $itemData->class,
             ]),
             'description_data' => ItemDescriptionDataResource::collection($itemData->descriptionData),
@@ -1158,9 +1158,9 @@ class ItemResource extends AbstractBaseResource
         return url()->query($url, ['version' => $version]);
     }
 
-    private function buildTypeWebUrl(string $type, Request $request): ?string
+    private function buildTypeWebUrl(?string $type, Request $request): ?string
     {
-        if ($type === '') {
+        if ($type === null || $type === '') {
             return null;
         }
 
@@ -1172,21 +1172,6 @@ class ItemResource extends AbstractBaseResource
         }
 
         return url()->query($url, ['version' => $version]);
-    }
-
-    private function formatGrade(ItemData $itemData): mixed
-    {
-        if (! str_starts_with($itemData->classification ?? '', 'Ship.')) {
-            return $itemData->grade;
-        }
-
-        return match ($itemData->grade) {
-            1 => 'A',
-            2 => 'B',
-            3 => 'C',
-            4 => 'D',
-            default => $itemData->grade,
-        };
     }
 
     private function expandUexPrices(ItemData $itemData): array

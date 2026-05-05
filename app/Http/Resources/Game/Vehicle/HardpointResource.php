@@ -63,7 +63,7 @@ class HardpointResource extends AbstractBaseResource
         $health = $this->extractHealth($resolvedItem);
         [$type, $subtype] = $this->extractTypeAndSubtype();
 
-        $data = [
+        return [
             'name' => Arr::get($this, 'HardpointName'),
             'position' => Arr::get($this, 'Position'),
             'class_name' => Arr::get($this, 'ClassName'),
@@ -73,20 +73,8 @@ class HardpointResource extends AbstractBaseResource
             'type' => $type,
             'sub_type' => $subtype,
             'pilot_slaveable' => Arr::get($this, 'IsPilotSlaveable'),
+            'item' => $resolvedItem !== null ? new HardpointItemResource($resolvedItem) : null,
+            'children' => $this->shouldIncludeChildren() ? self::collection($this->getChildrenArray()) : null,
         ];
-
-        if ($resolvedItem !== null) {
-            $data['item'] = new HardpointItemResource($resolvedItem);
-        }
-
-        if ($this->shouldIncludeChildren()) {
-            $data['children'] = self::collection($this->getChildrenArray());
-        }
-
-        return array_filter(
-            $data,
-            static fn ($value) => $value !== null && $value !== [],
-            ARRAY_FILTER_USE_BOTH
-        );
     }
 }

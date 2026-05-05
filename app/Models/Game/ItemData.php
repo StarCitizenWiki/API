@@ -501,4 +501,23 @@ class ItemData extends Model
 
         return $candidate !== '' ? $candidate : null;
     }
+
+    public static function formatGrade(?int $grade, ?string $classification = null): string|int|null
+    {
+        if ($grade === null) {
+            return null;
+        }
+
+        if (! str_starts_with($classification ?? '', 'Ship.')) {
+            return $grade;
+        }
+
+        return match ($grade) {
+            1 => 'A',
+            2 => 'B',
+            3 => 'C',
+            4 => 'D',
+            default => $grade,
+        };
+    }
 }

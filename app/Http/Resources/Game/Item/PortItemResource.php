@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -86,20 +87,16 @@ class PortItemResource extends ItemResource
             'uuid' => $this->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'type' => str_replace('NOITEM_', '', $itemData->type ?? ''),
+            'type' => $this->stripItemTypePrefix($itemData->type),
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,
             'link' => route('items.show', ['identifier' => $this->uuid]),
             'size' => $itemData->size,
             'mass' => $this->extractFromStdItem($itemData, 'Mass'),
-            'grade' => match ($itemData->grade) {
-                1 => 'A',
-                2 => 'B',
-                3 => 'C',
-                4 => 'D',
-                default => $this->extractFromStdItem($itemData, 'DescriptionData.Grade') ?? $itemData->grade,
-            },
+            'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification)
+                ?? $this->extractFromStdItem($itemData, 'DescriptionData.Grade')
+                ?? $itemData->grade,
             'class' => $itemData->class ?? $this->extractFromStdItem($itemData, 'DescriptionData.Class'),
 
             $this->mergeWhen($itemData->manufacturer !== null, [

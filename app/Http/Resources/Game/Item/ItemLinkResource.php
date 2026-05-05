@@ -57,7 +57,7 @@ class ItemLinkResource extends AbstractBaseResource
             'uuid' => $item->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'type' => $itemData->type,
+            'type' => $this->stripItemTypePrefix($itemData->type),
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,

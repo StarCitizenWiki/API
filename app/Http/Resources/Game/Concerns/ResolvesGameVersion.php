@@ -75,9 +75,15 @@ trait ResolvesGameVersion
             return $cached;
         }
 
+        $version = $this->gameVersion();
+
         return Item::query()
             ->where('uuid', $uuid)
-            ->withDataForVersion($this->gameVersionCode())
+            ->with([
+                'data' => static function ($builder) use ($version): void {
+                    $builder->where('game_version_id', $version->id);
+                },
+            ])
             ->first();
     }
 
@@ -95,8 +101,10 @@ trait ResolvesGameVersion
             return $eagerLoaded->get($uuid);
         }
 
+        $version = $this->gameVersion();
+
         return ItemData::query()
-            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->where('game_version_id', $version->id)
             ->whereHas('item', fn (Builder $query) => $query->where('uuid', $uuid))
             ->with(['item', 'manufacturer', 'gameVersion'])
             ->first();

@@ -8,6 +8,7 @@ use App\Http\Resources\Game\Item\ItemInventoryResource;
 use App\Http\Resources\Game\Item\ItemPortResource;
 use App\Http\Resources\Game\Item\ItemResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
+use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -72,16 +73,10 @@ class HardpointItemResource extends ItemResource
             'link' => route('items.show', ['identifier' => $this->uuid]),
             'size' => $itemData->size,
             'mass' => $this->extractNumeric($itemData, 'Mass'),
-            'grade' => match ($itemData->grade) {
-                1 => 'A',
-                2 => 'B',
-                3 => 'C',
-                4 => 'D',
-                default => $itemData->grade,
-            },
+            'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification),
             'class' => $itemData->class,
             'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),
-            'type' => str_replace('NOITEM_', '', ($itemData->type ?? '')),
+            'type' => $this->stripItemTypePrefix($itemData->type),
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,
