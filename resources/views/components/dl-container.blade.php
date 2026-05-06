@@ -1,9 +1,14 @@
 @props([
     'head' => null,
+    'headCols' => null
 ])
 
 @if($head?->hasActualContent())
-    <dl class="grid gap-x-8 grid-cols-1 sm:grid-cols-2">
+    <dl @class([
+        "grid gap-x-8 grid-cols-1",
+        "grid-cols-{$headCols}" => $headCols,
+        "sm:grid-cols-2" => !$headCols
+    ])>
         {{ $head }}
     </dl>
 @endif
