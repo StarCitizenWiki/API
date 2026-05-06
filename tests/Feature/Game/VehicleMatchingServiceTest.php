@@ -258,3 +258,72 @@ it('uses config override for hornet heartseeker variant', function (): void {
 
     expect($result)->toBe($vehicle->id);
 });
+
+it('falls back to class-name parsing when the vehicle payload has no name', function (): void {
+    $vehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 42,
+        'name' => 'Retaliator Bomber',
+        'slug' => 'retaliator-bomber',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 42,
+    ]);
+
+    $result = $this->service->findMatch([
+        'UUID' => fake()->uuid(),
+        'ClassName' => 'ANV_Retaliator_Bomber',
+        'Manufacturer' => [
+            'Name' => 'Anvil Aerospace',
+            'Code' => 'ANV',
+        ],
+    ]);
+
+    expect($result)->toBe($vehicle->id);
+});
+
+it('uses configured vehicle name overrides before matching', function (): void {
+    $manufacturer = ShipMatrixManufacturer::query()->create([
+        'cig_id' => 50,
+        'name' => 'Aegis Dynamics',
+        'name_short' => 'AEGS',
+        'slug' => 'aegis-dynamics',
+    ]);
+
+    $vehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 43,
+        'name' => 'Retaliator Bomber',
+        'slug' => 'retaliator-bomber',
+        'manufacturer_id' => $manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 43,
+    ]);
+
+    $originalOverrides = config('game.vehicle_name_overrides', []);
+
+    try {
+        config()->set('game.vehicle_name_overrides', [
+            ...$originalOverrides,
+            'Aegis Retaliator' => 'Retaliator Bomber',
+        ]);
+
+        $result = $this->service->findMatch([
+            'UUID' => fake()->uuid(),
+            'Name' => 'Aegis Retaliator',
+            'ClassName' => 'AEGS_Retaliator',
+            'Manufacturer' => [
+                'Name' => 'Aegis Dynamics',
+                'Code' => 'AEGS',
+            ],
+        ]);
+
+        expect($result)->toBe($vehicle->id);
+    } finally {
+        config()->set('game.vehicle_name_overrides', $originalOverrides);
+    }
+});

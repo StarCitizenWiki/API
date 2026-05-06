@@ -1870,3 +1870,53 @@ it('returns 404 for non-existent UUID', function (): void {
     $this->getJson('/api/locations/00000000-0000-0000-0000-000000000000')
         ->assertNotFound();
 });
+
+describe('query filter', function (): void {
+    it('filters locations by query matching name', function (): void {
+        $matchLocation = StarmapLocation::factory()->create();
+        StarmapLocationData::factory()
+            ->for($matchLocation, 'location')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'name' => 'ArcCorp',
+                'system' => 'Stanton',
+                'type_name' => 'Planet',
+                'data' => [],
+            ]);
+
+        $otherLocation = StarmapLocation::factory()->create();
+        StarmapLocationData::factory()
+            ->for($otherLocation, 'location')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'name' => 'MicroTech',
+                'system' => 'Stanton',
+                'type_name' => 'Planet',
+                'data' => [],
+            ]);
+
+        $response = $this->getJson('/api/locations?filter[query]=ArcCorp');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $matchLocation->uuid);
+    });
+
+    it('returns empty when query matches nothing', function (): void {
+        $location = StarmapLocation::factory()->create();
+        StarmapLocationData::factory()
+            ->for($location, 'location')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'name' => 'Existing Location',
+                'system' => 'Stanton',
+                'type_name' => 'Planet',
+                'data' => [],
+            ]);
+
+        $response = $this->getJson('/api/locations?filter[query]=zzznonexistent');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+});

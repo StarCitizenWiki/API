@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
+use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -309,4 +310,48 @@ it('returns pagination metadata and a correctly sorted subset for -grade', funct
             'Grade Three',
             'Grade Two',
         ]);
+});
+
+it('sorts items by manufacturer name', function (): void {
+    $alphaManufacturer = Manufacturer::factory()->create([
+        'name' => 'Alpha Corp',
+        'code' => 'ALPHA',
+    ]);
+
+    $betaManufacturer = Manufacturer::factory()->create([
+        'name' => 'Beta Corp',
+        'code' => 'BETA',
+    ]);
+
+    $alphaItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($alphaItem)
+        ->for($this->defaultVersion, 'gameVersion')
+        ->for($alphaManufacturer)
+        ->create([
+            'name' => 'Alpha Item',
+            'type' => 'Widget',
+            'class_name' => 'alpha_item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $betaItem = Item::factory()->create();
+    ItemData::factory()
+        ->for($betaItem)
+        ->for($this->defaultVersion, 'gameVersion')
+        ->for($betaManufacturer)
+        ->create([
+            'name' => 'Beta Item',
+            'type' => 'Widget',
+            'class_name' => 'beta_item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/items?sort=manufacturer.name');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $alphaItem->uuid)
+        ->assertJsonPath('data.1.uuid', $betaItem->uuid);
 });

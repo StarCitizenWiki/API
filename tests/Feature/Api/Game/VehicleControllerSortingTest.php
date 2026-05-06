@@ -14,6 +14,25 @@ beforeEach(function () {
     $this->defaultVersion = GameVersion::factory()->create(['is_default' => true]);
 });
 
+it('returns the vehicle list without error', function (): void {
+    $vehicle = Vehicle::factory()->create();
+    VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'class_name' => 'TestVehicle_Class',
+        'name' => 'Test Vehicle',
+        'display_name' => null,
+        'data' => [],
+    ]);
+
+    $response = $this->getJson(route('vehicles.index'));
+
+    $response->assertOk();
+    expect($response->json('meta.total'))->toBe(1)
+        ->and($response->json('data.0.uuid'))->toBe($vehicle->uuid)
+        ->and($response->json('data.0.name'))->toBe('Test Vehicle');
+});
+
 it('sorts vehicles by display name ascending', function (): void {
     foreach (['Avenger', 'Cutlass', 'Freelancer', 'Hornet', 'Mustang'] as $name) {
         $vehicle = Vehicle::factory()->create();
@@ -367,6 +386,34 @@ it('sorts by cross section dimensions', function () {
     $returned = collect($response->json('data'))->pluck('cross_section.length')->toArray();
     expect($returned)->toBe([10, 15, 20]);
 });
+
+it('sorts vehicles by json length', function (): void {
+    $shortVehicle = Vehicle::factory()->create();
+    VehicleData::factory()
+        ->for($shortVehicle)
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'data' => [
+                'Length' => 10,
+            ],
+        ]);
+
+    $longVehicle = Vehicle::factory()->create();
+    VehicleData::factory()
+        ->for($longVehicle)
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'data' => [
+                'Length' => 20,
+            ],
+        ]);
+
+    $response = $this->getJson('/api/vehicles?sort=Length');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.uuid', $shortVehicle->uuid)
+        ->assertJsonPath('data.1.uuid', $longVehicle->uuid);
+})->group('db-pgsql');
 
 it('sorts by emission signature', function () {
     $emissions = [500, 1000, 750];

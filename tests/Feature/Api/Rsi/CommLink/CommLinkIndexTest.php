@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\GameVersion;
 use App\Models\Rsi\CommLink\Category;
 use App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\CommLink;
@@ -10,136 +11,232 @@ use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
 use App\Models\System\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
-it('sorts by images and links count and filters by publication date', function (): void {
-    $category = Category::factory()->create();
-    $channel = Channel::factory()->create();
-    $series = Series::factory()->create();
+describe('index', function (): void {
+    it('sorts by images and links count and filters by publication date', function (): void {
+        $category = Category::factory()->create();
+        $channel = Channel::factory()->create();
+        $series = Series::factory()->create();
 
-    $baseAttributes = [
-        'category_id' => $category->id,
-        'channel_id' => $channel->id,
-        'series_id' => $series->id,
-    ];
+        $baseAttributes = [
+            'category_id' => $category->id,
+            'channel_id' => $channel->id,
+            'series_id' => $series->id,
+        ];
 
-    $commLink2024May = CommLink::factory()->create($baseAttributes + [
-        'created_at' => '2024-05-01 12:00:00',
-    ]);
+        $commLink2024May = CommLink::factory()->create($baseAttributes + [
+            'created_at' => '2024-05-01 12:00:00',
+        ]);
 
-    $commLink2024MayTwo = CommLink::factory()->create($baseAttributes + [
-        'created_at' => '2024-05-02 12:00:00',
-    ]);
+        $commLink2024MayTwo = CommLink::factory()->create($baseAttributes + [
+            'created_at' => '2024-05-02 12:00:00',
+        ]);
 
-    $commLink2024June = CommLink::factory()->create($baseAttributes + [
-        'created_at' => '2024-06-01 12:00:00',
-    ]);
+        $commLink2024June = CommLink::factory()->create($baseAttributes + [
+            'created_at' => '2024-06-01 12:00:00',
+        ]);
 
-    $commLink2023 = CommLink::factory()->create($baseAttributes + [
-        'created_at' => '2023-06-01 12:00:00',
-    ]);
+        $commLink2023 = CommLink::factory()->create($baseAttributes + [
+            'created_at' => '2023-06-01 12:00:00',
+        ]);
 
-    $images = Image::factory()->count(2)->create();
-    $commLink2024May->images()->attach($images->pluck('id'));
-    $commLink2024May->update(['images_count' => 2]);
+        $images = Image::factory()->count(2)->create();
+        $commLink2024May->images()->attach($images->pluck('id'));
+        $commLink2024May->update(['images_count' => 2]);
 
-    $linkOne = Link::factory()->create();
-    $linkTwo = Link::factory()->create();
+        $linkOne = Link::factory()->create();
+        $linkTwo = Link::factory()->create();
 
-    $commLink2023->links()->attach([$linkOne->id]);
-    $commLink2023->update(['links_count' => 1]);
+        $commLink2023->links()->attach([$linkOne->id]);
+        $commLink2023->update(['links_count' => 1]);
 
-    $commLink2024May->links()->attach([$linkOne->id, $linkTwo->id]);
-    $commLink2024May->update(['links_count' => 2]);
+        $commLink2024May->links()->attach([$linkOne->id, $linkTwo->id]);
+        $commLink2024May->update(['links_count' => 2]);
 
-    $this->getJson(route('comm-links.index', ['sort' => '-images_count']))
-        ->assertSuccessful()
-        ->assertJsonPath('data.0.id', $commLink2024May->cig_id);
+        $this->getJson(route('comm-links.index', ['sort' => '-images_count']))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.id', $commLink2024May->cig_id);
 
-    $this->getJson(route('comm-links.index', ['sort' => '-links_count']))
-        ->assertSuccessful()
-        ->assertJsonPath('data.0.id', $commLink2024May->cig_id);
+        $this->getJson(route('comm-links.index', ['sort' => '-links_count']))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.id', $commLink2024May->cig_id);
 
-    $yearResponse = $this->getJson(route('comm-links.index', [
-        'filter' => [
-            'created_at' => '2024',
-        ],
-    ]));
+        $yearResponse = $this->getJson(route('comm-links.index', [
+            'filter' => [
+                'created_at' => '2024',
+            ],
+        ]));
 
-    $yearResponse->assertSuccessful();
+        $yearResponse->assertSuccessful();
 
-    $yearIds = collect($yearResponse->json('data'))->pluck('id');
+        $yearIds = collect($yearResponse->json('data'))->pluck('id');
 
-    expect($yearIds)->toContain($commLink2024May->cig_id)
-        ->toContain($commLink2024June->cig_id)
-        ->not->toContain($commLink2023->cig_id);
+        expect($yearIds)->toContain($commLink2024May->cig_id)
+            ->toContain($commLink2024June->cig_id)
+            ->not->toContain($commLink2023->cig_id);
 
-    $monthResponse = $this->getJson(route('comm-links.index', [
-        'filter' => [
-            'created_at' => '2024-05',
-        ],
-    ]));
+        $monthResponse = $this->getJson(route('comm-links.index', [
+            'filter' => [
+                'created_at' => '2024-05',
+            ],
+        ]));
 
-    $monthResponse->assertSuccessful();
+        $monthResponse->assertSuccessful();
 
-    $monthIds = collect($monthResponse->json('data'))->pluck('id');
+        $monthIds = collect($monthResponse->json('data'))->pluck('id');
 
-    expect($monthIds)->toContain($commLink2024May->cig_id)
-        ->toContain($commLink2024MayTwo->cig_id)
-        ->not->toContain($commLink2024June->cig_id);
+        expect($monthIds)->toContain($commLink2024May->cig_id)
+            ->toContain($commLink2024MayTwo->cig_id)
+            ->not->toContain($commLink2024June->cig_id);
 
-    $dateResponse = $this->getJson(route('comm-links.index', [
-        'filter' => [
-            'created_at' => '2024-05-01',
-        ],
-    ]));
+        $dateResponse = $this->getJson(route('comm-links.index', [
+            'filter' => [
+                'created_at' => '2024-05-01',
+            ],
+        ]));
 
-    $dateResponse->assertSuccessful();
+        $dateResponse->assertSuccessful();
 
-    $dateIds = collect($dateResponse->json('data'))->pluck('id');
+        $dateIds = collect($dateResponse->json('data'))->pluck('id');
 
-    expect($dateIds)->toContain($commLink2024May->cig_id)
-        ->not->toContain($commLink2024MayTwo->cig_id)
-        ->not->toContain($commLink2024June->cig_id);
+        expect($dateIds)->toContain($commLink2024May->cig_id)
+            ->not->toContain($commLink2024MayTwo->cig_id)
+            ->not->toContain($commLink2024June->cig_id);
+    });
+
+    it('filters comm-links by article content', function (): void {
+        $category = Category::factory()->create();
+        $channel = Channel::factory()->create([
+            'name' => 'News',
+            'slug' => 'news',
+        ]);
+        $series = Series::factory()->create();
+
+        $attributes = [
+            'category_id' => $category->id,
+            'channel_id' => $channel->id,
+            'series_id' => $series->id,
+        ];
+
+        $matchingCommLink = CommLink::factory()->create($attributes + [
+            'title' => 'Quantum Systems Update',
+        ]);
+        $matchingCommLink->setTranslation('translation', Language::ENGLISH, 'The latest quantum jump drive calibration guide.');
+        $matchingCommLink->save();
+
+        $nonMatchingCommLink = CommLink::factory()->create($attributes + [
+            'title' => 'Cargo and Trade Update',
+        ]);
+        $nonMatchingCommLink->setTranslation('translation', Language::ENGLISH, 'Cargo manifests and trade lane updates.');
+        $nonMatchingCommLink->save();
+
+        $response = $this->getJson(route('comm-links.index', [
+            'filter' => [
+                'content' => 'quantum jump drive',
+            ],
+        ]));
+
+        $response->assertSuccessful();
+
+        $ids = collect($response->json('data'))->pluck('id');
+
+        expect($ids)->toContain($matchingCommLink->cig_id)
+            ->not->toContain($nonMatchingCommLink->cig_id);
+    });
 });
 
-it('filters comm-links by article content', function (): void {
-    $category = Category::factory()->create();
-    $channel = Channel::factory()->create([
-        'name' => 'News',
-        'slug' => 'news',
-    ]);
-    $series = Series::factory()->create();
+describe('filters endpoint', function (): void {
+    beforeEach(function (): void {
+        app()->instance('env', 'production');
+        app('cache')->setDefaultDriver('array');
+        app()->forgetInstance('cache');
+        app('cache')->forgetDriver(['array', 'database']);
+        Cache::store('array')->flush();
+    });
 
-    $attributes = [
-        'category_id' => $category->id,
-        'channel_id' => $channel->id,
-        'series_id' => $series->id,
-    ];
+    it('returns comm-link filter values with counts', function (): void {
+        GameVersion::factory()->create([
+            'code' => '3.25.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
 
-    $matchingCommLink = CommLink::factory()->create($attributes + [
-        'title' => 'Quantum Systems Update',
-    ]);
-    $matchingCommLink->setTranslation('translation', Language::ENGLISH, 'The latest quantum jump drive calibration guide.');
-    $matchingCommLink->save();
+        $category = Category::factory()->create(['name' => 'Updates']);
+        $channel = Channel::factory()->create(['name' => 'News']);
+        $series = Series::factory()->create(['name' => 'Ship Shape']);
 
-    $nonMatchingCommLink = CommLink::factory()->create($attributes + [
-        'title' => 'Cargo and Trade Update',
-    ]);
-    $nonMatchingCommLink->setTranslation('translation', Language::ENGLISH, 'Cargo manifests and trade lane updates.');
-    $nonMatchingCommLink->save();
+        CommLink::factory()->create([
+            'category_id' => $category->id,
+            'channel_id' => $channel->id,
+            'series_id' => $series->id,
+        ]);
 
-    $response = $this->getJson(route('comm-links.index', [
-        'filter' => [
-            'content' => 'quantum jump drive',
-        ],
-    ]));
+        CommLink::factory()->create([
+            'category_id' => $category->id,
+            'channel_id' => $channel->id,
+            'series_id' => $series->id,
+        ]);
 
-    $response->assertSuccessful();
+        $this->getJson(route('comm-links.filters'))
+            ->assertOk()
+            ->assertExactJson([
+                'filters' => [
+                    'category' => [
+                        ['value' => 'Updates', 'label' => 'Updates', 'count' => 2],
+                    ],
+                    'channel' => [
+                        ['value' => 'News', 'label' => 'News', 'count' => 2],
+                    ],
+                    'series' => [
+                        ['value' => 'Ship Shape', 'label' => 'Ship Shape', 'count' => 2],
+                    ],
+                ],
+            ]);
+    });
 
-    $ids = collect($response->json('data'))->pluck('id');
+    it('returns filtered comm-link facet values without caching the filtered response', function (): void {
+        $updates = Category::factory()->create(['name' => 'Updates']);
+        $guides = Category::factory()->create(['name' => 'Guides']);
+        $news = Channel::factory()->create(['name' => 'News']);
+        $spectrum = Channel::factory()->create(['name' => 'Spectrum']);
+        $shipShape = Series::factory()->create(['name' => 'Ship Shape']);
+        $monthly = Series::factory()->create(['name' => 'Monthly Report']);
 
-    expect($ids)->toContain($matchingCommLink->cig_id)
-        ->not->toContain($nonMatchingCommLink->cig_id);
+        CommLink::factory()->create([
+            'category_id' => $updates->id,
+            'channel_id' => $news->id,
+            'series_id' => $shipShape->id,
+        ]);
+
+        CommLink::factory()->create([
+            'category_id' => $guides->id,
+            'channel_id' => $spectrum->id,
+            'series_id' => $monthly->id,
+        ]);
+
+        $response = $this->getJson(route('comm-links.filters', [
+            'filter' => ['channel' => 'News'],
+        ]));
+
+        $response->assertOk()
+            ->assertExactJson([
+                'filters' => [
+                    'category' => [
+                        ['value' => 'Updates', 'label' => 'Updates', 'count' => 1],
+                    ],
+                    'channel' => [
+                        ['value' => 'News', 'label' => 'News', 'count' => 1],
+                    ],
+                    'series' => [
+                        ['value' => 'Ship Shape', 'label' => 'Ship Shape', 'count' => 1],
+                    ],
+                ],
+            ]);
+
+        expect(Cache::get('filters:index:comm-links'))->toBeNull();
+    });
 });

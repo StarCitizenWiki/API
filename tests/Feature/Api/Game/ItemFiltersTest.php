@@ -414,3 +414,45 @@ it('resolves classification labels correctly', function (): void {
             ->and($entry['label'])->toBe($c['expected_label'], "Label for {$c['classification']}");
     }
 });
+
+it('includes rarity facet in filters endpoint', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '3.25.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+
+    foreach (['Common', 'Rare', 'Rare'] as $rarity) {
+        ItemData::factory()
+            ->for(Item::factory(), 'item')
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => fake()->word(),
+                'type' => 'Weapon',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Rarity' => $rarity,
+                    ],
+                ],
+                'rarity' => $rarity,
+            ]);
+    }
+
+    $response = $this->getJson(route('items.filters'));
+    $response->assertOk();
+
+    $rarityFilters = collect($response->json('filters.rarity'));
+
+    $common = $rarityFilters->first(fn (array $f) => $f['value'] === 'Common');
+    $rare = $rarityFilters->first(fn (array $f) => $f['value'] === 'Rare');
+
+    expect($common)->not->toBeNull()
+        ->and($common['count'])->toBe(1)
+        ->and($rare)->not->toBeNull()
+        ->and($rare['count'])->toBe(2);
+});

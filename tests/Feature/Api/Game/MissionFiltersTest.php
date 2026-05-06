@@ -19,7 +19,7 @@ beforeEach(function (): void {
     ]);
 });
 
-it('returns 200 when using query filter with faction-linked missions', function (): void {
+it('returns filters matching query-filtered faction missions', function (): void {
     $faction = Faction::factory()->create(['name' => 'Nine Tails']);
 
     $mission = Mission::factory()->create();
@@ -32,12 +32,27 @@ it('returns 200 when using query filter with faction-linked missions', function 
             'faction_id' => $faction->id,
         ]);
 
-    $response = $this->getJson('/api/missions/filters?filter[query]=red+ar');
+    // Without filter: verify faction appears in facets
+    $response = $this->getJson('/api/missions/filters');
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonStructure(['filters']);
+    $factionFilters = collect($response->json('filters.faction'));
+    $matched = $factionFilters->first(fn (array $f) => $f['value'] === 'Nine Tails');
+    expect($matched)->not->toBeNull()
+        ->and($matched['count'])->toBe(1);
+
+    // With query filter: endpoint returns results narrowed by the query
+    $filtered = $this->getJson('/api/missions/filters?filter[query]=red%20al');
+    $filtered->assertSuccessful()
+        ->assertJsonStructure(['filters']);
+    $filteredFacets = collect($filtered->json('filters.faction'));
+    $filteredMatch = $filteredFacets->first(fn (array $f) => $f['value'] === 'Nine Tails');
+    expect($filteredMatch)->not->toBeNull()
+        ->and($filteredMatch['count'])->toBe(1);
 });
 
-it('returns 200 when using title filter with faction-linked missions', function (): void {
+it('returns filters with title filter applied', function (): void {
     $faction = Faction::factory()->create(['name' => 'Outlaws']);
 
     $mission = Mission::factory()->create();
@@ -49,12 +64,23 @@ it('returns 200 when using title filter with faction-linked missions', function 
             'faction_id' => $faction->id,
         ]);
 
-    $response = $this->getJson('/api/missions/filters?filter[title]=Delivery');
+    // Without filter: verify faction appears in facets
+    $response = $this->getJson('/api/missions/filters');
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonStructure(['filters']);
+    $factionFilters = collect($response->json('filters.faction'));
+    $matched = $factionFilters->first(fn (array $f) => $f['value'] === 'Outlaws');
+    expect($matched)->not->toBeNull()
+        ->and($matched['count'])->toBe(1);
+
+    // With title filter: endpoint returns narrowed results without error
+    $filtered = $this->getJson('/api/missions/filters?filter[title]=Delivery');
+    $filtered->assertSuccessful()
+        ->assertJsonStructure(['filters']);
 });
 
-it('returns 200 when using description filter with faction-linked missions', function (): void {
+it('returns filters with description filter applied', function (): void {
     $faction = Faction::factory()->create(['name' => 'Bounty Hunters']);
 
     $mission = Mission::factory()->create();
@@ -66,7 +92,18 @@ it('returns 200 when using description filter with faction-linked missions', fun
             'faction_id' => $faction->id,
         ]);
 
-    $response = $this->getJson('/api/missions/filters?filter[description]=target');
+    // Without filter: verify faction appears in facets
+    $response = $this->getJson('/api/missions/filters');
 
-    $response->assertSuccessful();
+    $response->assertSuccessful()
+        ->assertJsonStructure(['filters']);
+    $factionFilters = collect($response->json('filters.faction'));
+    $matched = $factionFilters->first(fn (array $f) => $f['value'] === 'Bounty Hunters');
+    expect($matched)->not->toBeNull()
+        ->and($matched['count'])->toBe(1);
+
+    // With description filter: endpoint returns narrowed results without error
+    $filtered = $this->getJson('/api/missions/filters?filter[description]=target');
+    $filtered->assertSuccessful()
+        ->assertJsonStructure(['filters']);
 });

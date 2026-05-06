@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;

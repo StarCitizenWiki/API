@@ -14,8 +14,7 @@ it('groups locations by system', function (): void {
 
     $resource = Resource::factory()->create();
     $showResource = new CommodityShowResource($resource);
-    $method = new ReflectionMethod($showResource, 'buildSystemsGrouped');
-    $result = $method->invoke($showResource, $locations);
+    $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(2)
         ->and($result[0]['name'])->toBe('Pyro')
@@ -34,8 +33,7 @@ it('handles locations without a system', function (): void {
 
     $resource = Resource::factory()->create();
     $showResource = new CommodityShowResource($resource);
-    $method = new ReflectionMethod($showResource, 'buildSystemsGrouped');
-    $result = $method->invoke($showResource, $locations);
+    $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(1)
         ->and($result[0]['name'])->toBe('Unknown System')
@@ -45,8 +43,7 @@ it('handles locations without a system', function (): void {
 it('returns empty array for no locations', function (): void {
     $resource = Resource::factory()->create();
     $showResource = new CommodityShowResource($resource);
-    $method = new ReflectionMethod($showResource, 'buildSystemsGrouped');
-    $result = $method->invoke($showResource, []);
+    $result = $showResource->buildSystemsGrouped([]);
 
     expect($result)->toBe([]);
 });
@@ -60,8 +57,7 @@ it('sorts systems alphabetically', function (): void {
 
     $resource = Resource::factory()->create();
     $showResource = new CommodityShowResource($resource);
-    $method = new ReflectionMethod($showResource, 'buildSystemsGrouped');
-    $result = $method->invoke($showResource, $locations);
+    $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(3)
         ->and($result[0]['name'])->toBe('Castra')
@@ -81,8 +77,7 @@ it('sorts locations by designation then name within each system', function (): v
 
     $resource = Resource::factory()->create();
     $showResource = new CommodityShowResource($resource);
-    $method = new ReflectionMethod($showResource, 'buildSystemsGrouped');
-    $result = $method->invoke($showResource, $locations);
+    $result = $showResource->buildSystemsGrouped($locations);
 
     $names = collect($result[0]['locations'])->pluck('name')->all();
 

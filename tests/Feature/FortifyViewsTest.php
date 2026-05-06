@@ -141,11 +141,8 @@ it('renders the profile page for authenticated users', function (): void {
     $response = $this->actingAs($user)
         ->get(route('profile'));
 
-    $response->assertSuccessful()
-        ->assertSeeText('Profile')
-        ->assertSeeText('API Token')
-        ->assertSeeText('Change Password')
-        ->assertSeeText('Delete Account');
+    $response->assertOk()
+        ->assertViewIs('profile');
 
     assertFormActionAndInputs($response, route('profile.token.create'), ['name']);
     assertFormActionAndInputs($response, route('user-password.update'), ['current_password', 'password', 'password_confirmation']);

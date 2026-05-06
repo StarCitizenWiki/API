@@ -10,19 +10,21 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('filters items by type and manufacturer', function (): void {
-    $version = GameVersion::factory()->create([
+beforeEach(function (): void {
+    $this->gameVersion = GameVersion::factory()->create([
         'code' => '3.24.0-LIVE',
         'channel' => 'live',
         'is_default' => true,
         'released_at' => now(),
     ]);
 
-    $manufacturer = Manufacturer::factory()->create([
+    $this->manufacturer = Manufacturer::factory()->create([
         'name' => 'Acme',
         'code' => 'ACME',
     ]);
+});
 
+it('filters items by type and manufacturer', function (): void {
     $otherManufacturer = Manufacturer::factory()->create([
         'name' => 'Other',
         'code' => 'OTHER',
@@ -31,8 +33,8 @@ it('filters items by type and manufacturer', function (): void {
     $match = Item::factory()->create();
     ItemData::factory()
         ->for($match)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Widget One',
             'type' => 'Widget',
@@ -44,7 +46,7 @@ it('filters items by type and manufacturer', function (): void {
     $typeOnly = Item::factory()->create();
     ItemData::factory()
         ->for($typeOnly)
-        ->for($version, 'gameVersion')
+        ->for($this->gameVersion, 'gameVersion')
         ->for($otherManufacturer)
         ->create([
             'name' => 'Widget Two',
@@ -57,8 +59,8 @@ it('filters items by type and manufacturer', function (): void {
     $manufacturerOnly = Item::factory()->create();
     ItemData::factory()
         ->for($manufacturerOnly)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Gadget One',
             'type' => 'Gadget',
@@ -81,23 +83,11 @@ it('filters items by type and manufacturer', function (): void {
 });
 
 it('filters items by variants flag', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.24.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Variants Co',
-        'code' => 'VARIANTS',
-    ]);
-
     $baseItem = Item::factory()->create();
     $baseData = ItemData::factory()
         ->for($baseItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Base Widget',
             'type' => 'Widget',
@@ -109,8 +99,8 @@ it('filters items by variants flag', function (): void {
     $variantItem = Item::factory()->create();
     ItemData::factory()
         ->for($variantItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Variant Widget',
             'type' => 'Widget',
@@ -128,23 +118,11 @@ it('filters items by variants flag', function (): void {
 });
 
 it('filters items by category', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.24.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Category Co',
-        'code' => 'CATEGORY',
-    ]);
-
     $foodItem = Item::factory()->create();
     ItemData::factory()
         ->for($foodItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Fruit Snack',
             'type' => 'Food',
@@ -156,8 +134,8 @@ it('filters items by category', function (): void {
     $weaponItem = Item::factory()->create();
     ItemData::factory()
         ->for($weaponItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Laser Pistol',
             'type' => 'WeaponPersonal',
@@ -174,23 +152,11 @@ it('filters items by category', function (): void {
 });
 
 it('ignores unknown filters', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.24.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Unknown Co',
-        'code' => 'UNKNOWN',
-    ]);
-
     $item = Item::factory()->create();
     ItemData::factory()
         ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Unknown Widget',
             'type' => 'Widget',
@@ -207,23 +173,11 @@ it('ignores unknown filters', function (): void {
 });
 
 it('filters items by name and class_name', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.24.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Filter Co',
-        'code' => 'FILTER',
-    ]);
-
     $match = Item::factory()->create();
     ItemData::factory()
         ->for($match)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Alpha Widget',
             'type' => 'Widget',
@@ -235,8 +189,8 @@ it('filters items by name and class_name', function (): void {
     $other = Item::factory()->create();
     ItemData::factory()
         ->for($other)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
         ->create([
             'name' => 'Beta Widget',
             'type' => 'Widget',
@@ -258,53 +212,135 @@ it('filters items by name and class_name', function (): void {
         ->assertJsonPath('data.0.uuid', $other->uuid);
 });
 
-it('sorts items by manufacturer name', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.24.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
+describe('query filter', function (): void {
+    it('filters items by query matching name', function (): void {
+        $match = Item::factory()->create();
+        ItemData::factory()
+            ->for($match)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Alpha Widget',
+                'type' => 'Widget',
+                'class_name' => 'alpha_widget_class',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
 
-    $alphaManufacturer = Manufacturer::factory()->create([
-        'name' => 'Alpha Corp',
-        'code' => 'ALPHA',
-    ]);
+        $other = Item::factory()->create();
+        ItemData::factory()
+            ->for($other)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Beta Widget',
+                'type' => 'Widget',
+                'class_name' => 'beta_widget_class',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
 
-    $betaManufacturer = Manufacturer::factory()->create([
-        'name' => 'Beta Corp',
-        'code' => 'BETA',
-    ]);
+        $response = $this->getJson('/api/items?filter[query]=Alpha');
 
-    $alphaItem = Item::factory()->create();
-    ItemData::factory()
-        ->for($alphaItem)
-        ->for($version, 'gameVersion')
-        ->for($alphaManufacturer)
-        ->create([
-            'name' => 'Alpha Item',
-            'type' => 'Widget',
-            'class_name' => 'alpha_item',
-            'classification' => 'Test',
-            'data' => [],
-        ]);
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $match->uuid);
+    });
 
-    $betaItem = Item::factory()->create();
-    ItemData::factory()
-        ->for($betaItem)
-        ->for($version, 'gameVersion')
-        ->for($betaManufacturer)
-        ->create([
-            'name' => 'Beta Item',
-            'type' => 'Widget',
-            'class_name' => 'beta_item',
-            'classification' => 'Test',
-            'data' => [],
-        ]);
+    it('filters items by query matching class_name', function (): void {
+        $match = Item::factory()->create();
+        ItemData::factory()
+            ->for($match)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Gamma Widget',
+                'type' => 'Widget',
+                'class_name' => 'gamma_class',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
 
-    $response = $this->getJson('/api/items?sort=manufacturer.name');
+        $other = Item::factory()->create();
+        ItemData::factory()
+            ->for($other)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Delta Widget',
+                'type' => 'Widget',
+                'class_name' => 'delta_class',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
 
-    $response->assertSuccessful()
-        ->assertJsonPath('data.0.uuid', $alphaItem->uuid)
-        ->assertJsonPath('data.1.uuid', $betaItem->uuid);
+        $response = $this->getJson('/api/items?filter[query]=gamma_class');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $match->uuid);
+    });
+
+    it('returns empty when query matches nothing', function (): void {
+        $item = Item::factory()->create();
+        ItemData::factory()
+            ->for($item)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Existing Item',
+                'type' => 'Widget',
+                'class_name' => 'existing_class',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
+
+        $response = $this->getJson('/api/items?filter[query]=zzznonexistent');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+});
+
+describe('rarity filter', function (): void {
+    it('filters items by rarity', function (): void {
+        $rareItem = Item::factory()->create();
+        ItemData::factory()
+            ->for($rareItem)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Rare Item',
+                'type' => 'Weapon',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Rarity' => 'Rare',
+                    ],
+                ],
+                'rarity' => 'Rare',
+            ]);
+
+        $commonItem = Item::factory()->create();
+        ItemData::factory()
+            ->for($commonItem)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Common Item',
+                'type' => 'Weapon',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Rarity' => 'Common',
+                    ],
+                ],
+                'rarity' => 'Common',
+            ]);
+
+        $response = $this->getJson('/api/items?filter[rarity]=Rare');
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $rareItem->uuid);
+    });
 });

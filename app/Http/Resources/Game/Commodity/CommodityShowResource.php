@@ -346,7 +346,7 @@ class CommodityShowResource extends CommodityIndexResource
             ->all();
     }
 
-    private function buildSystemsGrouped(array $locations): array
+    public function buildSystemsGrouped(array $locations): array
     {
         return collect($locations)
             ->groupBy(static fn (array $location): string => $location['system'] ?? 'Unknown System')
