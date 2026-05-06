@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\ItemSpecification;
 
+use App\Http\Resources\Game\Item\ItemInventoryResource;
 use App\Models\Game\ItemData;
 use Illuminate\Support\Arr;
 
@@ -422,7 +423,7 @@ final class SpecificationRegistry
         $registry->register(
             predicate: fn (ItemData $d): bool => $d->type === 'CargoGrid' || str_contains($d->classification ?? '', 'CargoGrid'),
             specKey: 'cargo_grid',
-            resourceClass: CargoGridResource::class,
+            resourceClass: ItemInventoryResource::class,
         );
 
         // 37. Vehicle Weapon (excludes WeaponPersonal and FPS.Weapon)

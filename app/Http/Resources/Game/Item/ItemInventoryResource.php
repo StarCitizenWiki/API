@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -45,30 +46,46 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-/** @param array $resource Raw inventory container data from stdItem.InventoryContainer sub-array */
+/** @param array|ItemData $resource Raw inventory container data or an ItemData model */
 class ItemInventoryResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
+        if ($this->resource instanceof ItemData) {
+            $data = $this->resource->data;
+            $container = Arr::get($data, 'Item.stdItem.InventoryContainer')
+                ?? Arr::get($data, 'stdItem.InventoryContainer')
+                ?? [];
+
+            return $this->formatContainer($container);
+        }
+
+        return $this->formatContainer($this->resource instanceof \ArrayAccess
+            ? $this->resource->toArray()
+            : (array) $this->resource);
+    }
+
+    private function formatContainer(array $container): array
+    {
         return [
-            'uuid' => Arr::get($this, 'UUID'),
-            'width' => Arr::get($this, 'X'),
-            'height' => Arr::get($this, 'Z'),
-            'length' => Arr::get($this, 'Y'),
-            'volume' => Arr::has($this, ['X', 'Z', 'Y'])
-                ? Arr::get($this, 'X') * Arr::get($this, 'Z') * Arr::get($this, 'Y')
+            'uuid' => Arr::get($container, 'UUID'),
+            'width' => Arr::get($container, 'X'),
+            'height' => Arr::get($container, 'Z'),
+            'length' => Arr::get($container, 'Y'),
+            'volume' => Arr::has($container, ['X', 'Z', 'Y'])
+                ? Arr::get($container, 'X') * Arr::get($container, 'Z') * Arr::get($container, 'Y')
                 : null,
-            'scu' => Arr::get($this, 'SCU'),
-            'scu_converted' => Arr::has($this, ['SCU', 'Unit'])
-                ? Arr::get($this, 'SCU') * (10 ** Arr::get($this, 'Unit'))
+            'scu' => Arr::get($container, 'SCU'),
+            'scu_converted' => Arr::has($container, ['SCU', 'Unit'])
+                ? Arr::get($container, 'SCU') * (10 ** Arr::get($container, 'Unit'))
                 : null,
-            'unit' => Arr::get($this, 'UnitName'),
-            $this->mergeWhen(Arr::get($this, 'Unit') === 0, fn () => [
-                'micro_scu' => Arr::get($this, 'SCU') * (10 ** 6),
+            'unit' => Arr::get($container, 'UnitName'),
+            $this->mergeWhen(Arr::get($container, 'Unit') === 0, fn () => [
+                'micro_scu' => Arr::get($container, 'SCU') * (10 ** 6),
             ]),
-            'open' => Arr::get($this, 'IsOpenContainer'),
-            'external' => Arr::get($this, 'IsExternalContainer'),
-            'closed' => Arr::get($this, 'IsClosedContainer'),
+            'open' => Arr::get($container, 'IsOpenContainer'),
+            'external' => Arr::get($container, 'IsExternalContainer'),
+            'closed' => Arr::get($container, 'IsClosedContainer'),
         ];
     }
 }
