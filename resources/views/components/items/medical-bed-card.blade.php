@@ -24,92 +24,38 @@
     $isClosedContainer = data_get($inventoryContainer, 'IsClosedContainer');
     $isOpenContainer = data_get($inventoryContainer, 'IsOpenContainer');
 
-    // Count secondary fields
-    $secondaryFieldCount = 0;
-    if ($resourceCapacitySCU !== null) {
-        $secondaryFieldCount++;
-    }
-    if ($inventoryCapacity !== null) {
-        $secondaryFieldCount++;
-    }
-    if ($inventoryWidth !== null || $inventoryHeight !== null || $inventoryDepth !== null) {
-        $secondaryFieldCount++;
-    }
-    $showSecondary = $secondaryFieldCount > 0;
-
-    // Count tertiary fields
-    $tertiaryFieldCount = 0;
-    if ($isImmutable !== null) {
-        $tertiaryFieldCount++;
-    }
-    if ($isExternalContainer !== null) {
-        $tertiaryFieldCount++;
-    }
-    if ($isClosedContainer !== null) {
-        $tertiaryFieldCount++;
-    }
-    if ($isOpenContainer !== null) {
-        $tertiaryFieldCount++;
-    }
-    if (is_array($ports) && !empty($ports)) {
-        $tertiaryFieldCount++;
-    }
-    $showTertiary = $tertiaryFieldCount >= 2;
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Medical Bed</h2>
+<x-item-card title="Medical Bed">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Inventory Capacity" :value="$inventoryCapacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
+            <x-dt-dd label="Dimensions" :value="$inventoryWidth">
+                {{ Format::valueWithUnit($inventoryWidth, 'm', 2) }} × {{ Format::valueWithUnit($inventoryHeight, 'm', 2) }} × {{ Format::valueWithUnit($inventoryDepth, 'm', 2) }}
+            </x-dt-dd>
+        </x-slot:head>
 
-        {{-- Primary Data (Always Visible) --}}
-        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            @if ($inventoryCapacity !== null)
-                <x-dt-dd label="Inventory Capacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
-            @endif
-            @if ($inventoryWidth !== null && $inventoryHeight !== null && $inventoryDepth !== null)
-                <x-dt-dd label="Dimensions">{{ Format::valueWithUnit($inventoryWidth, 'm', 2) }} × {{ Format::valueWithUnit($inventoryHeight, 'm', 2) }} × {{ Format::valueWithUnit($inventoryDepth, 'm', 2) }}</x-dt-dd>
-            @endif
-        </x-dl-section>
+        <x-dl-details title="Storage" :open="true">
+            <x-dt-dd label="Resource Capacity" :value="$resourceCapacitySCU">{{ Format::valueWithUnit($resourceCapacitySCU, 'SCU', 2) }}</x-dt-dd>
+            <x-dt-dd label="Inventory Capacity" :value="$inventoryCapacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
+        </x-dl-details>
 
-        {{-- Secondary Data (Collapsible, default open) --}}
-        @if ($showSecondary)
-            <x-dl-details title="Storage" :open="true">
-                @if ($resourceCapacitySCU !== null)
-                    <x-dt-dd label="Resource Capacity">{{ Format::valueWithUnit($resourceCapacitySCU, 'SCU', 2) }}</x-dt-dd>
-                @endif
-                @if ($inventoryCapacity !== null)
-                    <x-dt-dd label="Inventory Capacity">{{ Format::valueWithUnit($inventoryCapacity, $inventoryUnit, 0) }}</x-dt-dd>
-                @endif
-            </x-dl-details>
-        @endif
-
-        {{-- Tertiary Data (Collapsible, default closed) --}}
-        @if ($showTertiary)
-            <x-dl-details title="Advanced">
-                @if ($isImmutable !== null)
-                    <x-dt-dd label="Immutable">{{ $isImmutable ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($isExternalContainer !== null)
-                    <x-dt-dd label="External Container">{{ $isExternalContainer ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($isClosedContainer !== null)
-                    <x-dt-dd label="Closed Container">{{ $isClosedContainer ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($isOpenContainer !== null)
-                    <x-dt-dd label="Open Container">{{ $isOpenContainer ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if (is_array($ports) && !empty($ports))
-                    <div class="sm:col-span-2">
-                        <x-dt-dd label="Ports">
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($ports as $port)
-                                <span class="badge badge-outline">{{ data_get($port, 'name', 'Unknown') }}</span>
-                            @endforeach
-                        </div>
-                    </x-dt-dd>
+        <x-dl-details title="Advanced">
+            <x-dt-dd label="Immutable" :value="$isImmutable">{{ $isImmutable ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="External Container" :value="$isExternalContainer">{{ $isExternalContainer ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Closed Container" :value="$isClosedContainer">{{ $isClosedContainer ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Open Container" :value="$isOpenContainer">{{ $isOpenContainer ? 'Yes' : 'No' }}</x-dt-dd>
+            @if (is_array($ports) && !empty($ports))
+                <div class="sm:col-span-2">
+                    <x-dt-dd label="Ports">
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($ports as $port)
+                            <span class="badge badge-outline">{{ data_get($port, 'name', 'Unknown') }}</span>
+                        @endforeach
                     </div>
-                @endif
-            </x-dl-details>
-        @endif
-    </div>
-</div>
+                </x-dt-dd>
+                </div>
+            @endif
+        </x-dl-details>
+    </x-dl-container>
+</x-item-card>

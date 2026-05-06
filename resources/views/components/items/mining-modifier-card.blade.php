@@ -1,51 +1,53 @@
-@use('App\Support\Format')
+@use('App\Support\Format;use Illuminate\Support\Str')
 @props([
     'miningModifier' => null,
 ])
 
 @php
     $modifierMap = data_get($miningModifier, 'modifier_map', []);
+    $itemType = data_get($miningModifier, 'item_type');
+    $type = data_get($miningModifier, 'type');
+    $charges = data_get($miningModifier, 'charges');
+    $duration = data_get($miningModifier, 'duration');
+    $powerModifier = data_get($miningModifier, 'power_modifier');
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Mining Modifier</h2>
+<x-item-card title="Mining Modifier">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Type" :value="$itemType ?? $type">{{ $itemType }} ({{ $type }})</x-dt-dd>
 
-        <x-dl-container>
-            <x-slot:head>
-                <x-dt-dd label="Type">{{ data_get($miningModifier, 'item_type') }} ({{ data_get($miningModifier, 'type') }})</x-dt-dd>
+            <x-dt-dd label="Charges" :value="$charges ?? true">
+                @if ($charges !== null)
+                    {{ Format::number((int) $charges, 0) }}
+                @else
+                    Unlimited
+                @endif
+            </x-dt-dd>
 
-                <x-dt-dd label="Charges">
-                    @if (data_get($miningModifier, 'charges') !== null)
-                        {{ Format::number((int)data_get($miningModifier, 'charges'), 0) }}
-                    @else
-                        Unlimited
-                    @endif
-                </x-dt-dd>
+            <x-dt-dd label="Duration" :value="$duration">{{ Format::valueWithUnit($duration, 's', 2) }}</x-dt-dd>
 
-                <x-dt-dd label="Duration">{{ Format::valueWithUnit(data_get($miningModifier, 'duration'), 's', 2) }}</x-dt-dd>
+            <x-dt-dd label="Power Modifier" :value="$powerModifier">
+                @if (is_numeric($powerModifier))
+                    {{ Format::valueWithUnit((float) $powerModifier, 'x', 2) }}
+                @else
+                    {{ Format::numberOrDash($powerModifier) }}
+                @endif
+            </x-dt-dd>
+        </x-slot:head>
 
-                <x-dt-dd label="Power Modifier">
-                    @if (is_numeric(data_get($miningModifier, 'power_modifier')))
-                        {{ Format::valueWithUnit((float)data_get($miningModifier, 'power_modifier'), 'x', 2) }}
-                    @else
-                        {{ Format::numberOrDash(data_get($miningModifier, 'power_modifier')) }}
-                    @endif
-                </x-dt-dd>
-            </x-slot:head>
-
-            <x-dl-section title="Modifiers">
-                @foreach ($modifierMap as $key => $value)
-                    @php
-                        $displayKey = \Illuminate\Support\Str::headline($key);
-                        $displayValue = is_numeric($value) ? Format::number((float) $value, 0) : Format::numberOrDash($value);
-                        $ddClass = is_numeric($value)
-                            ? ((float) $value >= 0 ? 'text-success' : 'text-error')
-                            : '';
-                    @endphp
-                    <x-dt-dd label="{{ $displayKey }}" :ddClass="$ddClass">{{ $displayValue }}%</x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+        <x-dl-section title="Modifiers">
+            @foreach ($modifierMap as $key => $value)
+                @php
+                    $displayKey = Str::headline($key);
+                    $displayValue = is_numeric($value) ? Format::number((float) $value, 0) : Format::numberOrDash($value);
+                    $ddClass = is_numeric($value)
+                        ? ((float) $value >= 0 ? 'text-success' : 'text-error')
+                        : '';
+                @endphp
+                <x-dt-dd label="{{ $displayKey }}" :ddClass="$ddClass">{{ $displayValue }}%</x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

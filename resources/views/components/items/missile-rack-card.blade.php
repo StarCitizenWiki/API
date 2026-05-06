@@ -4,24 +4,20 @@
 ])
 
 @php
-    $primaryMetrics = array_values(array_filter([
+    $primaryMetrics = [
         ['label' => 'Missile Count', 'value' => data_get($missileRack, 'missile_count'), 'precision' => 0, 'prefix' => ''],
         ['label' => 'Missile Size', 'value' => data_get($missileRack, 'missile_size'), 'precision' => 0, 'prefix' => 'S'],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Missile Rack</h2>
-
-        <x-dl-container>
-            <x-slot:head>
-                @foreach ($primaryMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ $metric['prefix'] }}{{ Format::numberOrDash($metric['value'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-slot:head>
-        </x-dl-container>
-    </div>
-</div>
+<x-item-card title="Missile Rack">
+    <x-dl-container>
+        <x-slot:head>
+            @foreach ($primaryMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ $metric['prefix'] }}{{ Format::numberOrDash($metric['value'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-slot:head>
+    </x-dl-container>
+</x-item-card>

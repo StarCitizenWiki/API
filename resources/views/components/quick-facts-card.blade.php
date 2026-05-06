@@ -28,15 +28,15 @@
 
 <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }} @if($testId) data-testid="{{ $testId }}" @endif>
     <div class="card-body p-5 sm:p-6">
-        <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-8">
+        <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-6">
             @foreach ($columns as $section)
-                <section class="min-w-0 space-y-3">
+                <section class="min-w-0">
                     <div class="font-semibold text-accent">
                         {{ $section['title'] }}
                     </div>
 
                     @if (($section['rows'] ?? []) !== [])
-                        <dl class="space-y-2">
+                        <dl>
                             @foreach ($section['rows'] as $row)
                                 <div class="grid grid-cols-2 items-start gap-x-3">
                                     <dt class="text-xs font-light uppercase tracking-wide text-subtle">

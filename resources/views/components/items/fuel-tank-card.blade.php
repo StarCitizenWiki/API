@@ -8,16 +8,15 @@
     $fillRate = data_get($fuelTank, 'fill_rate');
     $drainRate = data_get($fuelTank, 'drain_rate');
     $capacity = data_get($fuelTank, 'capacity');
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Fuel Tank</h2>
-
-        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <x-dt-dd label="Fill Rate">{{ Format::valueWithUnit($fillRate, '/s', 2) }}</x-dt-dd>
-            <x-dt-dd label="Drain Rate">{{ Format::valueWithUnit($drainRate, '/s', 2) }}</x-dt-dd>
-            <x-dt-dd label="Capacity">{{ Format::valueWithUnit($capacity, 'SCU', 0) }}</x-dt-dd>
-        </x-dl-section>
-    </div>
-</div>
+<x-item-card title="Fuel Tank">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Fill Rate" :value="$fillRate">{{ Format::valueWithUnit($fillRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Drain Rate" :value="$drainRate">{{ Format::valueWithUnit($drainRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Capacity" :value="$capacity">{{ Format::valueWithUnit($capacity, 'SCU', 0) }}</x-dt-dd>
+        </x-slot:head>
+    </x-dl-container>
+</x-item-card>

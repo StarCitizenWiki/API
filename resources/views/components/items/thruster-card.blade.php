@@ -26,65 +26,34 @@
 
     $handling = data_get($thruster, 'handling', []);
     $strengthSmoothing = data_get($handling, 'strength_smoothing');
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Thruster</h2>
+<x-item-card title="Thruster">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Role" :value="$role">{{ $role }}</x-dt-dd>
+            <x-dt-dd label="VTOL Only" :value="$vtolOnly">{{ $vtolOnly ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Thrust Capacity" :value="$thrustCapacity">{{ Format::valueWithUnit($thrustCapacity, 'N', 0, true) }}</x-dt-dd>
+        </x-slot:head>
 
-        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            @if ($role !== null)
-                <x-dt-dd label="Role">{{ $role }}</x-dt-dd>
-            @endif
-            @if ($vtolOnly !== null)
-                <x-dt-dd label="VTOL Only">{{ $vtolOnly ? 'Yes' : 'No' }}</x-dt-dd>
-            @endif
-            <x-dt-dd label="Thrust Capacity">{{ Format::valueWithUnit($thrustCapacity, 'N', 0, true) }}</x-dt-dd>
-        </x-dl-section>
+        <x-dl-details title="Performance" :open="true">
+            <x-dt-dd label="Max Atmospheric Efficiency" :value="$maxAtmosphericEfficiency">{{ Format::valueWithUnit($maxAtmosphericEfficiency, '', 2) }}</x-dt-dd>
+            <x-dt-dd label="Min Health Thrust Multiplier" :value="$minHealthThrustMultiplier">{{ Format::valueWithUnit($minHealthThrustMultiplier, '', 2) }}</x-dt-dd>
+            <x-dt-dd label="Burn Rate per 10k N" :value="$burnRatePer10kNewton">{{ Format::valueWithUnit($burnRatePer10kNewton, '', 3) }}</x-dt-dd>
+        </x-dl-details>
 
-        @if ($maxAtmosphericEfficiency !== null || $minHealthThrustMultiplier !== null || $burnRatePer10kNewton !== null)
-            <x-dl-details title="Performance" :open="true">
-                @if ($maxAtmosphericEfficiency !== null)
-                    <x-dt-dd label="Max Atmospheric Efficiency">{{ Format::valueWithUnit($maxAtmosphericEfficiency, '', 2) }}</x-dt-dd>
-                @endif
-                @if ($minHealthThrustMultiplier !== null)
-                    <x-dt-dd label="Min Health Thrust Multiplier">{{ Format::valueWithUnit($minHealthThrustMultiplier, '', 2) }}</x-dt-dd>
-                @endif
-                @if ($burnRatePer10kNewton !== null)
-                    <x-dt-dd label="Burn Rate per 10k N">{{ Format::valueWithUnit($burnRatePer10kNewton, '', 3) }}</x-dt-dd>
-                @endif
-            </x-dl-details>
-        @endif
+        <x-dl-details title="Backwash">
+            <x-dt-dd label="Enabled" :value="$backwashEnabled">{{ $backwashEnabled ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Automate Size" :value="$backwashAutomateSize">{{ $backwashAutomateSize ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Max Speed" :value="$backwashMaxSpeed">{{ Format::valueWithUnit($backwashMaxSpeed, 'm/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Max Density" :value="$backwashMaxDensity">{{ Format::valueWithUnit($backwashMaxDensity, '', 2) }}</x-dt-dd>
+            <x-dt-dd label="Max Resistance" :value="$backwashMaxResistance">{{ Format::valueWithUnit($backwashMaxResistance, '', 2) }}</x-dt-dd>
+            <x-dt-dd label="Afterburner Multiplier" :value="$backwashAfterburnerMultiplier">{{ Format::valueWithUnit($backwashAfterburnerMultiplier, '', 2) }}</x-dt-dd>
+        </x-dl-details>
 
-        @if ($backwashEnabled !== null || $backwashAutomateSize !== null || $backwashMaxSpeed !== null || $backwashMaxDensity !== null || $backwashMaxResistance !== null || $backwashAfterburnerMultiplier !== null)
-            <x-dl-details title="Backwash">
-                @if ($backwashEnabled !== null)
-                    <x-dt-dd label="Enabled">{{ $backwashEnabled ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($backwashAutomateSize !== null)
-                    <x-dt-dd label="Automate Size">{{ $backwashAutomateSize ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($backwashMaxSpeed !== null)
-                    <x-dt-dd label="Max Speed">{{ Format::valueWithUnit($backwashMaxSpeed, 'm/s', 2) }}</x-dt-dd>
-                @endif
-                @if ($backwashMaxDensity !== null)
-                    <x-dt-dd label="Max Density">{{ Format::valueWithUnit($backwashMaxDensity, '', 2) }}</x-dt-dd>
-                @endif
-                @if ($backwashMaxResistance !== null)
-                    <x-dt-dd label="Max Resistance">{{ Format::valueWithUnit($backwashMaxResistance, '', 2) }}</x-dt-dd>
-                @endif
-                @if ($backwashAfterburnerMultiplier !== null)
-                    <x-dt-dd label="Afterburner Multiplier">{{ Format::valueWithUnit($backwashAfterburnerMultiplier, '', 2) }}</x-dt-dd>
-                @endif
-            </x-dl-details>
-        @endif
-
-        @if ($strengthSmoothing !== null)
-            <x-dl-details title="Handling">
-                @if ($strengthSmoothing !== null)
-                    <x-dt-dd label="Strength Smoothing">{{ Format::valueWithUnit($strengthSmoothing, '', 2) }}</x-dt-dd>
-                @endif
-            </x-dl-details>
-        @endif
-    </div>
-</div>
+        <x-dl-details title="Handling">
+            <x-dt-dd label="Strength Smoothing" :value="$strengthSmoothing">{{ Format::valueWithUnit($strengthSmoothing, '', 2) }}</x-dt-dd>
+        </x-dl-details>
+    </x-dl-container>
+</x-item-card>

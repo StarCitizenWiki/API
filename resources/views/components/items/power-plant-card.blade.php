@@ -6,14 +6,13 @@
 @php
     $powerOutput = data_get($powerPlant, 'power_output');
     $powerSegmentGeneration = data_get($powerPlant, 'power_segment_generation');
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Power Plant</h2>
-
-        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <x-dt-dd label="Power Segment Generation">{{ Format::valueWithUnit($powerSegmentGeneration, 'Segments', 0) }}</x-dt-dd>
-        </x-dl-section>
-    </div>
-</div>
+<x-item-card title="Power Plant">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Power Segment Generation" :value="$powerSegmentGeneration">{{ Format::valueWithUnit($powerSegmentGeneration, 'Segments', 0) }}</x-dt-dd>
+        </x-slot:head>
+    </x-dl-container>
+</x-item-card>

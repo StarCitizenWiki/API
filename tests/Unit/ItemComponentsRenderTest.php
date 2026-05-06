@@ -256,8 +256,6 @@ it('renders the shield card with primary stats and omits empty sections', functi
         'Shield',
         'Max Health',
         '1,000 HP',
-        'Regen Rate',
-        'Regen Time',
     ]);
 
     expect($crawler->filter('details')->count())->toBe(0);
@@ -286,25 +284,12 @@ it('renders the shield controller card with full data', function (): void {
     ]);
 });
 
-it('renders the shield controller card with null data showing fallbacks', function (): void {
+it('hides the shield controller card when all data is null', function (): void {
     $view = $this->blade('<x-items.shield-controller-card :shield-controller="$data" />', [
         'data' => [],
     ]);
-    $crawler = new Crawler((string) $view);
 
-    $view->assertSeeText('Shield Controller');
-
-    $view->assertSeeTextInOrder([
-        'Shield Controller',
-        'Face Type',
-        '—',
-        'Reconfiguration Cooldown',
-        '-',
-        'Max Reallocation',
-        '-',
-        'Electrical Charge Dmg',
-        '-',
-    ]);
+    $view->assertDontSeeText('Shield Controller');
 });
 
 it('renders item breadcrumbs linked to the item index', function (): void {
@@ -349,14 +334,10 @@ it('renders the weapon attachment card with iron sight and compensator data', fu
     ]);
 });
 
-it('renders the weapon attachment card with empty data and hides empty sections', function (): void {
+it('hides the weapon attachment card when all data is null', function (): void {
     $view = $this->blade('<x-items.weapon-attachment-card :weapon-attachment="$data" />', [
         'data' => [],
     ]);
-    $crawler = new Crawler((string) $view);
 
-    $view->assertSeeText('Weapon Attachment');
-
-    // Empty sections should be auto-hidden by x-dl-section
-    expect($crawler->filter('details')->count())->toBe(0);
+    $view->assertDontSeeText('Weapon Attachment');
 });

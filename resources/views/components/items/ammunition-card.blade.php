@@ -1,4 +1,4 @@
-@use('App\Support\Format')
+@use('App\Support\Format;use Illuminate\Support\Str')
 @props([
     'ammunition',
 ])
@@ -23,20 +23,20 @@
     $bulletElectron = data_get($ammunition, 'bullet_electron');
 
     // Stats metrics (Size, Speed, Lifetime, Initial Capacity)
-    $statsMetrics = array_values(array_filter([
+    $statsMetrics = [
         ['label' => 'Size', 'value' => $size, 'unit' => '', 'precision' => 0],
         ['label' => 'Speed', 'value' => $speed, 'unit' => 'm/s', 'precision' => 0],
         ['label' => 'Lifetime', 'value' => $lifetime, 'unit' => 's', 'precision' => 2],
         ['label' => 'Initial Capacity', 'value' => $initialCapacity, 'unit' => '', 'precision' => 0],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     // Penetration metrics
-    $penetrationMetrics = array_values(array_filter([
+    $penetrationMetrics = [
         ['label' => 'Base Distance', 'value' => data_get($penetration, 'base_distance'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Near Radius', 'value' => data_get($penetration, 'near_radius'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Far Radius', 'value' => data_get($penetration, 'far_radius'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Angle', 'value' => data_get($penetration, 'angle'), 'unit' => 'deg', 'precision' => 1],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     // Damage breakdowns — 6 damage types
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
@@ -91,115 +91,102 @@ $damageDropPerMeterMetrics = array_values(array_filter(
         static fn (array $m): bool => $m['value'] !== null && $m['value'] > 0,
     ));
 
-    // Explosion radius — special case with fmt_range
-    $hasExplosionRadius = is_array($explosionRadius)
-        && (data_get($explosionRadius, 'min') !== null || data_get($explosionRadius, 'max') !== null);
-
     // Bullet impulse falloff metrics
-    $impulseFalloffMetrics = array_values(array_filter([
+    $impulseFalloffMetrics = [
         ['label' => 'Min Distance', 'value' => data_get($bulletImpulseFalloff, 'min_distance'), 'unit' => '', 'precision' => 0],
         ['label' => 'Drop Falloff', 'value' => data_get($bulletImpulseFalloff, 'drop_falloff'), 'unit' => '', 'precision' => 0],
         ['label' => 'Max Falloff', 'value' => data_get($bulletImpulseFalloff, 'max_falloff'), 'unit' => '', 'precision' => 0],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     // Bullet electron metrics
-    $bulletElectronMetrics = array_values(array_filter([
+    $bulletElectronMetrics = [
         ['label' => 'Jump Range', 'value' => data_get($bulletElectron, 'jump_range'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Maximum Jumps', 'value' => data_get($bulletElectron, 'maximum_jumps'), 'unit' => '', 'precision' => 0],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Ammunition</h2>
+<x-item-card title="Ammunition">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Range" :value="$range">{{ Format::valueWithUnit($range, 'm', 0) }}</x-dt-dd>
+            <x-dt-dd label="Capacity" :value="$capacity">{{ Format::numberOrDash($capacity, 0) }}</x-dt-dd>
+            @foreach ($impactBreakdown as $metric)
+                <x-dt-dd :label="$metric['label']">{{ Format::valueWithUnit($metric['value'], '', 0) }}</x-dt-dd>
+            @endforeach
+        </x-slot:head>
+        <x-dl-section title="Penetration">
+            @foreach ($penetrationMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-        <x-dl-container>
-            <x-slot:head>
-                @if ($range !== null)
-                    <x-dt-dd label="Range">{{ Format::valueWithUnit($range, 'm', 0) }}</x-dt-dd>
-                @endif
-                @if ($capacity !== null)
-                    <x-dt-dd label="Capacity">{{ Format::numberOrDash($capacity, 0) }}</x-dt-dd>
-                @endif
-                @foreach ($impactBreakdown as $metric)
-                    <x-dt-dd :label="$metric['label']">{{ Format::valueWithUnit($metric['value'], '', 0) }}</x-dt-dd>
-                @endforeach
-            </x-slot:head>
-            <x-dl-section title="Penetration">
-                @foreach ($penetrationMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
+        <x-dl-section title="Detonation Damage">
+            @foreach ($detonationBreakdown as $metric)
+                <x-dt-dd :label="$metric['label']">
+                    {{ Format::valueWithUnit($metric['value'], '', 0) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Explosion Radius">
+            <x-dt-dd label="Radius">
+                {{ Format::range(data_get($explosionRadius, 'min'), data_get($explosionRadius, 'max'), 'm', 0) }}
+            </x-dt-dd>
+        </x-dl-section>
+
+        <x-dl-section title="Damage Drop: Min Distance">
+            @foreach ($damageDropMinDistMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Damage Drop: Per Meter">
+            @foreach ($damageDropPerMeterMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Damage Drop: Min Damage">
+            @foreach ($damageDropMinDamageMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Bullet Impulse Falloff">
+            @foreach ($impulseFalloffMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Bullet Electron">
+            @foreach ($bulletElectronMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Stats">
+            @foreach ($statsMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if ($metric['unit'] !== '')
                         {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Detonation Damage">
-                @foreach ($detonationBreakdown as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], '', 0) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            @if ($hasExplosionRadius)
-                <x-dl-section title="Explosion Radius">
-                    <x-dt-dd label="Radius">
-                        {{ Format::range(data_get($explosionRadius, 'min'), data_get($explosionRadius, 'max'), 'm', 0) }}
-                    </x-dt-dd>
-                </x-dl-section>
-            @endif
-
-            <x-dl-section title="Damage Drop: Min Distance">
-                @foreach ($damageDropMinDistMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Damage Drop: Per Meter">
-                @foreach ($damageDropPerMeterMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Damage Drop: Min Damage">
-                @foreach ($damageDropMinDamageMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Bullet Impulse Falloff">
-                @foreach ($impulseFalloffMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Bullet Electron">
-                @foreach ($bulletElectronMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Stats">
-                @foreach ($statsMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if ($metric['unit'] !== '')
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @else
-                            {{ Format::numberOrDash($metric['value'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+                    @else
+                        {{ Format::numberOrDash($metric['value'], $metric['precision']) }}
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

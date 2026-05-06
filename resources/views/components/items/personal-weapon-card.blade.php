@@ -25,17 +25,17 @@
     $pelletsPerShot = data_get($personalWeapon, 'pellets_per_shot');
 
     // Damage metrics
-    $damageMetrics = array_values(array_filter([
+    $damageMetrics = [
         ['label' => 'DPS Total', 'value' => $dpsTotal, 'unit' => '', 'precision' => 0],
         ['label' => 'Alpha Total', 'value' => $alphaTotal, 'unit' => '', 'precision' => 0],
         ['label' => 'Maximum', 'value' => $maximum !== null ? $maximum . ' per magazine' : null, 'unit' => '', 'precision' => 0],
-    ], static fn (array $m): bool => data_get($m, 'value') !== null));
+    ];
 
     // Fire rate metrics
-    $fireRateMetrics = array_values(array_filter([
+    $fireRateMetrics = [
         ['label' => 'RPM', 'value' => $rpm, 'unit' => '/min', 'precision' => 0],
         ['label' => 'Pellets per Shot', 'value' => $pelletsPerShot, 'unit' => '', 'precision' => 0],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     // DPS / Alpha breakdown — same 6 damage types
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
@@ -83,93 +83,89 @@
     ));
 
     // Charge metrics
-    $chargeMetrics = array_values(array_filter([
+    $chargeMetrics = [
         ['label' => 'Time', 'value' => data_get($charge, 'time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Overcharge Time', 'value' => data_get($charge, 'overcharge_time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Overcharged Time', 'value' => data_get($charge, 'overcharged_time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Cooldown Time', 'value' => data_get($charge, 'cooldown_time'), 'unit' => 's', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
-    $chargeModMetrics = array_values(array_filter([
+    $chargeModMetrics = [
         ['label' => 'Damage', 'value' => data_get($chargeModifier, 'damage'), 'unit' => '', 'precision' => 2],
         ['label' => 'Fire Rate', 'value' => data_get($chargeModifier, 'fire_rate'), 'unit' => '', 'precision' => 2],
         ['label' => 'Ammo Speed', 'value' => data_get($chargeModifier, 'ammo_speed'), 'unit' => '', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Personal Weapon</h2>
+<x-item-card title="Personal Weapon">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Class" :value="$class ?? $type">{{ $class }} {{ $type }}</x-dt-dd>
+            <x-dt-dd label="Range" :value="$range">{{ Format::valueWithUnit($range, 'm', 0) }}</x-dt-dd>
+            <x-dt-dd label="Capacity" :value="$capacity">{{ Format::valueWithUnit($capacity, 'rounds', 0) }}</x-dt-dd>
+            <x-dt-dd label="Fire Mode" :value="$fireMode">{{ $fireMode }}</x-dt-dd>
+        </x-slot:head>
 
-        <x-dl-container>
-            <x-slot:head>
-                <x-dt-dd label="Class">{{ $class ?? '—' }} {{ $type ?? '—' }}</x-dt-dd>
-                <x-dt-dd label="Range">{{ Format::valueWithUnit($range, 'm', 0) }}</x-dt-dd>
-                <x-dt-dd label="Capacity">{{ Format::valueWithUnit($capacity, 'rounds', 0) }}</x-dt-dd>
-                <x-dt-dd label="Fire Mode">{{ $fireMode ?? '—' }}</x-dt-dd>
-            </x-slot:head>
-
-            <x-dl-section title="Damage">
-                @foreach ($damageMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if ($metric['label'] === 'Maximum')
-                            {{ $metric['value'] }}
-                        @else
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Fire Rate">
-                @foreach ($fireRateMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
+        <x-dl-section title="Damage">
+            @foreach ($damageMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if ($metric['label'] === 'Maximum')
+                        {{ $metric['value'] }}
+                    @else
                         {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="DPS Breakdown">
-                @foreach ($dpsBreakdown as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], '', 0) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Alpha Breakdown">
-                @foreach ($alphaBreakdown as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], '', 0) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Hip-fire Spread">
-                @foreach ($hipSpreadMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], 'deg', 1) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="ADS Spread">
-                @foreach ($adsSpreadMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], 'deg', 1) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Charge Timings">
-                @foreach ($chargeMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Charge Modifiers">
-                @foreach ($chargeModMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="Fire Rate">
+            @foreach ($fireRateMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="DPS Breakdown">
+            @foreach ($dpsBreakdown as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], '', 0) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="Alpha Breakdown">
+            @foreach ($alphaBreakdown as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], '', 0) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="Hip-fire Spread">
+            @foreach ($hipSpreadMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], 'deg', 1) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="ADS Spread">
+            @foreach ($adsSpreadMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], 'deg', 1) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="Charge Timings">
+            @foreach ($chargeMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+        <x-dl-section title="Charge Modifiers">
+            @foreach ($chargeModMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

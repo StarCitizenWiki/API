@@ -79,14 +79,12 @@
             @endif
 
             <x-dl-section dlClass="space-y-4">
-                <x-dt-dd label="Craft Time">{{ $craftTimeLabel ?? '—' }}</x-dt-dd>
-                <x-dt-dd label="Availability">
+                <x-dt-dd label="Craft Time" :value="$craftTimeLabel">{{ $craftTimeLabel }}</x-dt-dd>
+                <x-dt-dd label="Availability" :value="$isAvailableByDefault">
                     @if ($isAvailableByDefault === true)
                         <span class="badge badge-success badge-sm badge-outline">Default</span>
-                    @elseif ($isAvailableByDefault === false)
-                        <span class="badge badge-warning badge-sm badge-outline">Unlock required</span>
                     @else
-                        <span class="text-sm font-semibold text-base-content">—</span>
+                        <span class="badge badge-warning badge-sm badge-outline">Unlock required</span>
                     @endif
                 </x-dt-dd>
             </x-dl-section>

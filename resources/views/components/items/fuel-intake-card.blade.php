@@ -6,15 +6,14 @@
 @php
     $fuelPushRate = data_get($fuelIntake, 'fuel_push_rate');
     $minimumRate = data_get($fuelIntake, 'minimum_rate');
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Fuel Intake</h2>
-
-        <x-dl-section dlClass="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <x-dt-dd label="Fuel Push Rate">{{ Format::valueWithUnit($fuelPushRate, '/s', 2) }}</x-dt-dd>
-            <x-dt-dd label="Minimum Rate">{{ Format::valueWithUnit($minimumRate, '/s', 2) }}</x-dt-dd>
-        </x-dl-section>
-    </div>
-</div>
+<x-item-card title="Fuel Intake">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Fuel Push Rate" :value="$fuelPushRate">{{ Format::valueWithUnit($fuelPushRate, '/s', 2) }}</x-dt-dd>
+            <x-dt-dd label="Minimum Rate" :value="$minimumRate">{{ Format::valueWithUnit($minimumRate, '/s', 2) }}</x-dt-dd>
+        </x-slot:head>
+    </x-dl-container>
+</x-item-card>

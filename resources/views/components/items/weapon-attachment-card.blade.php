@@ -19,10 +19,10 @@
 
     // Laser Pointer
     $laserPointer = data_get($weaponAttachment, 'laser_pointer', []);
-    $laserPointerMetrics = array_values(array_filter([
+    $laserPointerMetrics = [
         ['label' => 'Range', 'value' => data_get($laserPointer, 'range'), 'unit' => 'm', 'precision' => 2],
         ['label' => 'Color', 'value' => data_get($laserPointer, 'color_css'), 'type' => 'color'],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     // Flashlight
     $flashlightRaw = data_get($weaponAttachment, 'flashlight', []);
@@ -32,12 +32,12 @@
             continue;
         }
         $sectionTitle = 'Flashlight: ' . Str::headline($profileType);
-        $flashlightSections[$sectionTitle] = array_values(array_filter([
+        $flashlightSections[$sectionTitle] = [
             ['label' => 'Light Radius', 'value' => data_get($profile, 'light_radius'), 'unit' => 'm', 'precision' => 2],
             ['label' => 'Color', 'value' => data_get($profile, 'color_css'), 'type' => 'color'],
             ['label' => 'Light Type', 'value' => data_get($profile, 'light_type')],
             ['label' => 'Intensity', 'value' => data_get($profile, 'intensity'), 'unit' => '', 'precision' => 2],
-        ], static fn (array $m): bool => $m['value'] !== null));
+        ];
     }
 
     // Magazine
@@ -77,92 +77,89 @@
             ->values()
             ->all(),
     ], static fn (?array $m): bool => $m !== null));
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Weapon Attachment</h2>
+<x-item-card title="Weapon Attachment">
+    <x-dl-container>
+        <x-dl-section title="Iron Sight">
+            @foreach ($ironSightMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if (($metric['colored'] ?? false))
+                        <span class="{{ Format::colorClass($metric['value'] * ($metric['factor'] ?? 1)) }}">{{ Format::valueWithUnit($metric['value'] * ($metric['factor'] ?? 1), $metric['unit'], $metric['precision']) }}</span>
+                    @else
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-        <x-dl-container>
-            <x-dl-section title="Iron Sight">
-                @foreach ($ironSightMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if (($metric['colored'] ?? false))
-                            <span class="{{ Format::colorClass($metric['value'] * ($metric['factor'] ?? 1)) }}">{{ Format::valueWithUnit($metric['value'] * ($metric['factor'] ?? 1), $metric['unit'], $metric['precision']) }}</span>
-                        @else
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Laser Pointer">
+            @foreach ($laserPointerMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if (($metric['type'] ?? null) === 'color')
+                        <div class="flex items-center gap-2">
+                            <div class="size-8 rounded border border-base-300"
+                                 style="background-color: {{ $metric['value'] }};"></div>
+                            <span>{{ $metric['value'] }}</span>
+                        </div>
+                    @else
+                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Laser Pointer">
-                @foreach ($laserPointerMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
+        @foreach ($flashlightSections as $sectionTitle => $metrics)
+            <x-dl-section :title="$sectionTitle">
+                @foreach ($metrics as $metric)
+                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
                         @if (($metric['type'] ?? null) === 'color')
                             <div class="flex items-center gap-2">
-                                <div class="size-8 rounded border border-base-300"
+                                <div class="size-4 rounded border border-base-300"
                                      style="background-color: {{ $metric['value'] }};"></div>
                                 <span>{{ $metric['value'] }}</span>
                             </div>
-                        @else
+                        @elseif (isset($metric['unit']))
                             {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                        @else
+                            {{ $metric['value'] }}
                         @endif
                     </x-dt-dd>
                 @endforeach
             </x-dl-section>
+        @endforeach
 
-            @foreach ($flashlightSections as $sectionTitle => $metrics)
-                <x-dl-section :title="$sectionTitle">
-                    @foreach ($metrics as $metric)
-                        <x-dt-dd :label="$metric['label']">
-                            @if (($metric['type'] ?? null) === 'color')
-                                <div class="flex items-center gap-2">
-                                    <div class="size-4 rounded border border-base-300"
-                                         style="background-color: {{ $metric['value'] }};"></div>
-                                    <span>{{ $metric['value'] }}</span>
-                                </div>
-                            @elseif (isset($metric['unit']))
-                                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                            @else
-                                {{ $metric['value'] }}
-                            @endif
-                        </x-dt-dd>
-                    @endforeach
-                </x-dl-section>
+        <x-dl-section title="Magazine">
+            @foreach ($magazineMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
             @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Magazine">
-                @foreach ($magazineMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Compensator">
+            @foreach ($compensatorMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if (is_string($metric['value']))
+                        {{ $metric['value'] }}
+                    @else
+                        <span class="{{ Format::colorClass($metric['value']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Compensator">
-                @foreach ($compensatorMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if (is_string($metric['value']))
-                            {{ $metric['value'] }}
-                        @else
-                            <span class="{{ Format::colorClass($metric['value']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Flash Hider">
-                @foreach ($flashHiderMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if (is_string($metric['value']))
-                            {{ $metric['value'] }}
-                        @else
-                            <span class="{{ Format::colorClass($metric['value']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+        <x-dl-section title="Flash Hider">
+            @foreach ($flashHiderMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if (is_string($metric['value']))
+                        {{ $metric['value'] }}
+                    @else
+                        <span class="{{ Format::colorClass($metric['value']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

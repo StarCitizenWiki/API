@@ -83,12 +83,12 @@
             'invert' => $m['invert'],
         ])->values()->all();
 
-    $aimStandaloneMetrics = array_values(array_filter([
+    $aimStandaloneMetrics = [
         ['label' => 'Zoom Scale', 'value' => data_get($aim, 'zoom_scale'), 'unit' => '', 'precision' => 2],
         ['label' => 'Second Zoom Scale', 'value' => data_get($aim, 'second_zoom_scale'), 'unit' => '', 'precision' => 2],
         ['label' => 'Hide Weapon In ADS', 'value' => data_get($aim, 'hide_weapon_in_ads') !== null ? (data_get($aim, 'hide_weapon_in_ads') ? 'Yes' : 'No') : null, 'unit' => '', 'precision' => 0],
         ['label' => 'F-Stop', 'value' => data_get($aim, 'fstop_multiplier'), 'unit' => '', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     $aimMetrics = array_merge($aimChangeMetrics, $aimStandaloneMetrics);
 
@@ -116,83 +116,76 @@
         ['label' => 'Range Increment', 'value' => data_get($zeroing, 'range_increment'), 'unit' => 'm', 'precision' => 2],
         ['label' => 'Auto Zeroing Time', 'value' => data_get($zeroing, 'auto_zeroing_time'), 'unit' => 's', 'precision' => 2],
     ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Weapon Modifier</h2>
+<x-item-card title="Weapon Modifier">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Activate On Attach" :value="$activateOnAttach">{{ $activateOnAttach ? 'Yes' : 'No' }}</x-dt-dd>
+            <x-dt-dd label="Ignore Wear" :value="$ignoreWear">{{ $ignoreWear ? 'Yes' : 'No' }}</x-dt-dd>
+        </x-slot:head>
 
-        <x-dl-container>
-            <x-slot:head>
-                @if ($activateOnAttach !== null)
-                    <x-dt-dd label="Activate On Attach">{{ $activateOnAttach ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-                @if ($ignoreWear !== null)
-                    <x-dt-dd label="Ignore Wear">{{ $ignoreWear ? 'Yes' : 'No' }}</x-dt-dd>
-                @endif
-            </x-slot:head>
+        <x-dl-section title="Base">
+            @foreach ($baseMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Base">
-                @foreach ($baseMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
+        <x-dl-section title="Recoil">
+            @foreach ($recoilMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Spread">
+            @foreach ($spreadMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Aim">
+            @foreach ($aimMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    @if (isset($metric['invert']))
                         <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Recoil">
-                @foreach ($recoilMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Spread">
-                @foreach ($spreadMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Aim">
-                @foreach ($aimMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        @if (isset($metric['invert']))
-                            <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                        @elseif ($metric['label'] === 'Hide Weapon In ADS')
-                            {{ $metric['value'] }}
-                        @else
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Regen">
-                @foreach ($regenMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
+                    @elseif ($metric['label'] === 'Hide Weapon In ADS')
+                        {{ $metric['value'] }}
+                    @else
                         {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+                    @endif
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Salvage">
-                @foreach ($salvageMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Regen">
+            @foreach ($regenMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Zeroing">
-                @foreach ($zeroingMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+        <x-dl-section title="Salvage">
+            @foreach ($salvageMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="Zeroing">
+            @foreach ($zeroingMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

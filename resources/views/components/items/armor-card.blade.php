@@ -44,55 +44,45 @@
         ['label' => 'Stun', 'value' => data_get($penetrationResist, 'stun')],
     ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
 
-    $hasDeflection = $penetrationMetrics !== [];
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Armor</h2>
+<x-item-card title="Armor">
+    <x-dl-container>
+        <x-slot:head>
+            <x-dt-dd label="Health" :value="$health">{{ Format::valueWithUnit($health, 'HP', 0) }}</x-dt-dd>
+        </x-slot:head>
 
-        <x-dl-container>
-            <x-slot:head>
-                <x-dt-dd label="Health">{{ Format::valueWithUnit($health, 'HP', 0) }}</x-dt-dd>
-            </x-slot:head>
+        <x-dl-section title="Deflection">
+            @foreach ($penetrationMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::numberOrDash($metric['value'], 2) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Deflection">
-                @foreach ($penetrationMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::numberOrDash($metric['value'], 2) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Detection Signal">
+            @foreach ($signalMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['change'])">
+                    {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            @if ($signalMetrics !== [])
-                <x-dl-section title="Detection Signal">
-                    @foreach ($signalMetrics as $metric)
-                        <x-dt-dd :label="$metric['label']" :dd-class="Format::colorClass($metric['change'])">
-                            {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
-                        </x-dt-dd>
-                    @endforeach
-                </x-dl-section>
-            @endif
+        <x-dl-section title="Resistance">
+            @foreach ($resistanceMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['value'], true)">
+                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            @if ($resistanceMetrics !== [])
-                <x-dl-section title="Resistance">
-                    @foreach ($resistanceMetrics as $metric)
-                        <x-dt-dd :label="$metric['label']" :dd-class="Format::colorClass($metric['value'], true)">
-                            {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                        </x-dt-dd>
-                    @endforeach
-                </x-dl-section>
-            @endif
-
-            @if ($damageMetrics !== [])
-                <x-dl-section title="Damage Multipliers">
-                    @foreach ($damageMetrics as $metric)
-                        <x-dt-dd :label="$metric['label']" :dd-class="Format::colorClass($metric['change'])">
-                            {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
-                        </x-dt-dd>
-                    @endforeach
-                </x-dl-section>
-            @endif
-        </x-dl-container>
-    </div>
-</div>
+        <x-dl-section title="Damage Multipliers">
+            @foreach ($damageMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['change'])">
+                    {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

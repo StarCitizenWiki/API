@@ -4,6 +4,12 @@
     'ddClass' => null,
 ])
 
+@php
+    $shouldRender = ! $attributes->has('value') || $attributes->get('value') !== null;
+    $attributes = $attributes->except('value');
+@endphp
+
+@if ($shouldRender)
 <div @class([
     'flex items-baseline justify-between gap-3' => ! $stacked,
     'space-y-1' => $stacked,
@@ -17,3 +23,4 @@
         {{ $slot }}
     </dd>
 </div>
+@endif

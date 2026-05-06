@@ -10,17 +10,17 @@
     ];
 
     $reservePool = data_get($shield, 'reserve_pool', []);
-    $reservePoolMetrics = array_values(array_filter([
+    $reservePoolMetrics = [
         ['label' => 'Regen Rate', 'value' => data_get($reservePool, 'regen_rate'), 'unit' => 'HP/s', 'precision' => 0],
         ['label' => 'Regen Time', 'value' => data_get($reservePool, 'regen_time'), 'unit' => 's', 'precision' => 1],
         ['label' => 'Drain Rate Ratio', 'value' => data_get($reservePool, 'drain_rate_ratio'), 'unit' => '', 'precision' => 1],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     $regenDelay = data_get($shield, 'regen_delay', []);
-    $regenDelayMetrics = array_values(array_filter([
+    $regenDelayMetrics = [
         ['label' => 'Downed', 'value' => data_get($regenDelay, 'downed'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Damage', 'value' => data_get($regenDelay, 'damage'), 'unit' => 's', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null));
+    ];
 
     $absorptionRaw = data_get($shield, 'absorption', []);
     $absorptionMetrics = is_array($absorptionRaw) && $absorptionRaw !== []
@@ -45,52 +45,49 @@
             ->values()
             ->all()
         : [];
+
 @endphp
 
-<div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow'])}}>
-    <div class="card-body gap-4">
-        <h2 class="card-title text-base">Shield</h2>
+<x-item-card title="Shield">
+    <x-dl-container>
+        <x-slot:head>
+            @foreach ($primaryMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-slot:head>
 
-        <x-dl-container>
-            <x-slot:head>
-                @foreach ($primaryMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-slot:head>
+        <x-dl-section title="Reserve Pool">
+            @foreach ($reservePoolMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Reserve Pool">
-                @foreach ($reservePoolMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Regen Delay">
+            @foreach ($regenDelayMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Regen Delay">
-                @foreach ($regenDelayMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
+        <x-dl-section title="Absorption">
+            @foreach ($absorptionMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
+                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
 
-            <x-dl-section title="Absorption">
-                @foreach ($absorptionMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']">
-                        {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Resistance">
-                @foreach ($resistanceMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :dd-class="Format::colorClass($metric['value'], true)">
-                        {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-container>
-    </div>
-</div>
+        <x-dl-section title="Resistance">
+            @foreach ($resistanceMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['value'], true)">
+                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
+                </x-dt-dd>
+            @endforeach
+        </x-dl-section>
+    </x-dl-container>
+</x-item-card>

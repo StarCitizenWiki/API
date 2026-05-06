@@ -5,6 +5,7 @@
     'group' => null,
 ])
 
+@if($slot->hasActualContent())
 <details
     class="col-span-full collapse-arrow collapse{{ $group ? "/" . $group : "" }}"
     @if($testId) data-testid="{{ $testId }}" @endif
@@ -20,3 +21,4 @@
         </x-dl-container>
     </div>
 </details>
+@endif
