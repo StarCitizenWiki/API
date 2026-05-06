@@ -1,8 +1,11 @@
 @use('App\Support\Format')
+@use('App\Support\ScuBox')
 @props(['vehicle'])
 
 @php
     $cargoGrids = data_get($vehicle, 'cargo_grids', []);
+    $cargoLimits = data_get($vehicle, 'cargo_limits');
+    $maxScuBox = data_get($cargoLimits, 'max_scu_box');
 @endphp
 
 @if (is_array($cargoGrids) && $cargoGrids !== [])
@@ -19,16 +22,23 @@
                     <tr>
                         <th>Capacity</th>
                         <th>Dimensions</th>
+                        <th>Max Box Size</th>
                         <th>Type</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach ($cargoGrids as $grid)
+                        @php
+                            $gridMaxScuBox = data_get($grid, 'max_size') !== null
+                                ? ScuBox::largestThatFits(data_get($grid, 'max_size'))
+                                : null;
+                        @endphp
                         <tr>
                             <td>{{ Format::valueWithUnit($grid['scu'], 'SCU', 0) }}</td>
                             <td>
                                 {{ Format::valueWithUnit(data_get($grid, 'width'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'height'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'length'), 'm', 1) }}
                             </td>
+                            <td>{{ $gridMaxScuBox !== null ? Format::valueWithUnit($gridMaxScuBox, 'SCU', 0) : '-' }}</td>
                             <td>
                                 <div class="flex flex-wrap gap-1">
                                     @if (data_get($grid, 'open') === true)

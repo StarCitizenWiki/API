@@ -43,6 +43,16 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'open', description: 'IsOpenContainer', type: 'boolean', nullable: true),
         new OA\Property(property: 'external', description: 'IsExternalContainer', type: 'boolean', nullable: true),
         new OA\Property(property: 'closed', description: 'IsClosedContainer', type: 'boolean', nullable: true),
+        new OA\Property(property: 'min_size', description: 'Minimum item dimensions accepted by this container.', properties: [
+            new OA\Property(property: 'x', type: 'number', nullable: true),
+            new OA\Property(property: 'y', type: 'number', nullable: true),
+            new OA\Property(property: 'z', type: 'number', nullable: true),
+        ], type: 'object', nullable: true),
+        new OA\Property(property: 'max_size', description: 'Maximum item dimensions accepted by this container.', properties: [
+            new OA\Property(property: 'x', type: 'number', nullable: true),
+            new OA\Property(property: 'y', type: 'number', nullable: true),
+            new OA\Property(property: 'z', type: 'number', nullable: true),
+        ], type: 'object', nullable: true),
     ],
     type: 'object'
 )]
@@ -86,6 +96,32 @@ class ItemInventoryResource extends AbstractBaseResource
             'open' => Arr::get($container, 'IsOpenContainer'),
             'external' => Arr::get($container, 'IsExternalContainer'),
             'closed' => Arr::get($container, 'IsClosedContainer'),
+            $this->mergeWhen(Arr::has($container, 'MinSize'), fn () => [
+                'min_size' => $this->formatSizeBlock(Arr::get($container, 'MinSize')),
+            ]),
+            $this->mergeWhen(Arr::has($container, 'MaxSize'), fn () => [
+                'max_size' => $this->formatSizeBlock(Arr::get($container, 'MaxSize')),
+            ]),
         ];
+    }
+
+    /**
+     * @return array{x: float|int, y: float|int, z: float|int}|null
+     */
+    private function formatSizeBlock(mixed $block): ?array
+    {
+        if (! is_array($block)) {
+            return null;
+        }
+
+        $x = Arr::get($block, 'X', Arr::get($block, 'x'));
+        $y = Arr::get($block, 'Y', Arr::get($block, 'y'));
+        $z = Arr::get($block, 'Z', Arr::get($block, 'z'));
+
+        if ($x === null || $y === null || $z === null) {
+            return null;
+        }
+
+        return ['x' => $x, 'y' => $y, 'z' => $z];
     }
 }

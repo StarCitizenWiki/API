@@ -19,6 +19,7 @@ use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
+use App\Support\ScuBox;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -85,6 +86,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
             ], type: 'object', nullable: true),
         ], type: 'object', nullable: true),
+        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64…', type: 'integer', example: 8, nullable: true),
         new OA\Property(property: 'vehicle_inventory', description: 'Vehicle stowage in micro SCU', type: 'number', example: 0, nullable: true),
         new OA\Property(property: 'inventory_containers', description: 'Personal inventory containers (stowage) from ship data.', type: 'array', items: new OA\Items(ref: '#/components/schemas/item_inventory'), nullable: true),
         new OA\Property(
@@ -1221,9 +1223,12 @@ class VehicleResource extends AbstractBaseResource
             ->sortByDesc(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
             ->first();
 
+        $maxScuBox = $maxSize !== null ? ScuBox::largestThatFits($maxSize) : null;
+
         $limits = array_filter([
             'min_size' => $minSize,
             'max_size' => $maxSize,
+            'max_scu_box' => $maxScuBox,
         ], static fn ($value) => $value !== null);
 
         return $limits === [] ? null : $limits;

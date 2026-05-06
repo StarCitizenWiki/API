@@ -124,6 +124,7 @@ it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): 
     expect($response->json('data.cargo_limits'))->toBe([
         'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
         'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
+        'max_scu_box' => 8,
     ]);
 });
 
@@ -150,6 +151,7 @@ it('returns cargo limits when accessing api/v3/vehicles endpoint', function (): 
     expect($response->json('data.cargo_limits'))->toBe([
         'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
         'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
+        'max_scu_box' => 8,
     ]);
 });
 

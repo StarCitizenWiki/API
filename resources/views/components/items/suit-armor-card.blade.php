@@ -47,7 +47,7 @@
     <x-dl-container>
         <x-slot:head>
             <x-dt-dd label="Slot" :value="$slot">{{ $slot }}</x-dt-dd>
-            <x-dt-dd label="Capacity" :value="$scuConverted">{{ Format::valueWithUnit($scuConverted, $inventoryUnit, 1) }}</x-dt-dd>
+            <x-dt-dd label="Inventory" :value="$scuConverted">{{ Format::valueWithUnit($scuConverted, $inventoryUnit, 1) }}</x-dt-dd>
         </x-slot:head>
         <x-dl-section title="Damage Resistance">
             @foreach ($damageChangeMetrics as $metric)
