@@ -99,6 +99,7 @@
             data_get($item, 'fuel_tank') ||
             data_get($item, 'fuel_intake') ||
             data_get($item, 'mining_modifier') ||
+            data_get($item, 'resource_network') ||
             data_get($item, 'cargo_grid')
         );
 
