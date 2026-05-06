@@ -17,10 +17,4 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class ManufacturerResource extends ManufacturerLinkResource
-{
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-}
+class ManufacturerResource extends ManufacturerLinkResource {}

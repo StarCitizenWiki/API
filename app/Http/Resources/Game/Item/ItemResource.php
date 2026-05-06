@@ -451,11 +451,6 @@ class ItemResource extends AbstractBaseResource
     use ExtractsJsonData;
     use ResolvesGameVersion;
 
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         if ($this->item?->uuid === null) {

@@ -212,11 +212,6 @@ class CommodityShowResource extends CommodityIndexResource
 {
     use HasDepositFormatting;
 
-    public static function validIncludes(): array
-    {
-        return ['blueprints', 'items'];
-    }
-
     public function toArray(Request $request): array
     {
         $resourceDataCollection = $this->resource->resourceData ?? collect();

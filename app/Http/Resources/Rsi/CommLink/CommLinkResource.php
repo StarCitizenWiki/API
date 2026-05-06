@@ -46,15 +46,6 @@ use OpenApi\Attributes as OA;
 )]
 class CommLinkResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [
-            'images',
-            'links',
-            'translations',
-        ];
-    }
-
     public function toArray(Request $request): array
     {
         return [

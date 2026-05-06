@@ -297,15 +297,6 @@ class StarmapLocationResource extends AbstractBaseResource
 {
     use HasDepositFormatting;
 
-    public static function validIncludes(): array
-    {
-        return [
-            'children',
-            'resources',
-            'missions',
-        ];
-    }
-
     public function toArray(Request $request): array
     {
         $locationData = $this->resource;

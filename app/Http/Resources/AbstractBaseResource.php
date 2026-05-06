@@ -19,13 +19,20 @@ abstract class AbstractBaseResource extends JsonResource
 
         $this->additional['meta'] = [
             'processed_at' => Carbon::now()->toDateTimeString(),
-            'valid_relations' => static::validIncludes(),
         ];
     }
 
-    public static function validIncludes(): array
+    /**
+     * Set the valid_relations metadata for this resource.
+     * Called by controllers after construction to inject include names.
+     *
+     * @param  array<int, string>  $includes
+     */
+    public function setValidIncludes(array $includes): static
     {
-        return [];
+        $this->additional['meta']['valid_relations'] = $includes;
+
+        return $this;
     }
 
     public function addMetadata(mixed $key, mixed $value = null): void

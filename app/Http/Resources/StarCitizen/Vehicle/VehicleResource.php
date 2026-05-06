@@ -135,13 +135,6 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [
-            'components',
-        ];
-    }
-
     public function toArray(Request $request): array
     {
         $includes = collect(explode(',', $request->get('include', '')))

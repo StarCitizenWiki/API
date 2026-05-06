@@ -132,7 +132,7 @@ it('returns vehicle with correct structure', function (): void {
         ->assertJsonPath('data.manufacturer.name', 'Aegis Dynamics')
         ->assertJsonPath('data.link', route('shipmatrix.vehicles.show', 'avenger'))
         ->assertJsonPath('data.updated_at', $vehicle->fresh()->updated_at?->toJSON())
-        ->assertJsonPath('meta.valid_relations', ['components'])
+        ->assertJsonPath('meta.valid_relations', ['components', 'loaner', 'skus'])
         ->assertJsonPath('meta.deprecated_fields.sizes', 'Use length, width, and height properties from dimension instead');
 });
 

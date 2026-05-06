@@ -45,11 +45,6 @@ class HardpointResource extends AbstractBaseResource
     use ProcessesHardpointData;
     use ResolvesGameVersion;
 
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         $resolvedItem = null;

@@ -61,6 +61,5 @@ it('returns the comm-link show response contract', function (): void {
         ->assertJsonPath('meta.prev_id', -1)
         ->assertJsonPath('meta.next_id', -1)
         ->assertJsonPath('meta.valid_relations.0', 'images')
-        ->assertJsonPath('meta.valid_relations.1', 'links')
-        ->assertJsonPath('meta.valid_relations.2', 'translations');
+        ->assertJsonPath('meta.valid_relations.1', 'links');
 });

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
@@ -28,7 +29,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -49,28 +49,33 @@ class ItemController extends Controller
     }
 
     /**
-     * Get allowed includes with custom handlers.
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::custom('shops', new CustomEagerLoadInclude),
+            IncludeDefinition::custom('shops.items', new CustomEagerLoadInclude),
+            IncludeDefinition::custom('variants', new CustomEagerLoadInclude([
+                'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
+            ])),
+            IncludeDefinition::custom('related_items', new CustomEagerLoadInclude([
+                'variantGroupItem.variantGroup.items.itemData.item',
+                'setItems.item',
+                'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
+                'baseVariant.item',
+            ])),
+            IncludeDefinition::custom('blueprints', new CustomEagerLoadInclude),
+            IncludeDefinition::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer', 'installedOnVehicles.gameVersion'])),
+        ];
+    }
+
+    /**
+     * Get allowed includes derived from include definitions.
      */
     private function allowedIncludes(): array
     {
-        return array_merge(
-            ItemResource::validIncludes(),
-            [
-                AllowedInclude::custom('shops', new CustomEagerLoadInclude),
-                AllowedInclude::custom('shops.items', new CustomEagerLoadInclude),
-                AllowedInclude::custom('variants', new CustomEagerLoadInclude([
-                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
-                ])),
-                AllowedInclude::custom('related_items', new CustomEagerLoadInclude([
-                    'variantGroupItem.variantGroup.items.itemData.item',
-                    'setItems.item',
-                    'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
-                    'baseVariant.item',
-                ])),
-                AllowedInclude::custom('blueprints', new CustomEagerLoadInclude),
-                AllowedInclude::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer', 'installedOnVehicles.gameVersion'])),
-            ]
-        );
+        return IncludeDefinition::toSpatieIncludes($this->includeDefinitions());
     }
 
     /**
@@ -387,7 +392,8 @@ class ItemController extends Controller
 
         ItemData::loadCraftingBlueprints($items->getCollection());
 
-        return ItemResource::collection($items);
+        return ItemResource::collection($items)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -589,7 +595,8 @@ class ItemController extends Controller
             return redirect(sprintf('/api/vehicles/%s', $itemData->item->uuid));
         }
 
-        return new ItemResource($itemData);
+        return (new ItemResource($itemData))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(

@@ -525,8 +525,6 @@ paths:
             type: string
             format: uuid
             example: 4e429470-4d4e-4c2b-a4ac-4de42ada16e0
-        -
-          $ref: '#/components/parameters/include'
       responses:
         '200':
           description: 'Faction detail'
@@ -1750,8 +1748,6 @@ paths:
         -
           $ref: '#/components/parameters/version'
         -
-          $ref: '#/components/parameters/include'
-        -
           name: sort
           in: query
           description: 'Sort field. Prefix with "-" for descending. Supported: title, mission_giver, rank_index, reward_min, reward_max, time_to_complete_minutes, max_players_per_instance, reputation_amount.'
@@ -1928,8 +1924,6 @@ paths:
             type: string
         -
           $ref: '#/components/parameters/version'
-        -
-          $ref: '#/components/parameters/include'
       responses:
         '200':
           description: 'Mission detail'
@@ -2938,7 +2932,7 @@ paths:
         - In-Game
         - Vehicles
       summary: 'In-Game Vehicles Overview'
-      description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components.'
+      description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components, hardpoints, ports.'
       operationId: 64acf0fa3be1afd1fa9ee22c03f755bc
       parameters:
         -
@@ -3533,7 +3527,7 @@ paths:
         - Comm-Links
         - RSI-Website
       summary: 'Comm-Links Overview'
-      description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed translations, images, or links.'
+      description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed images or links.'
       operationId: 2204c384d22cb7168f6dd5830328c4dd
       parameters:
         -
@@ -4181,11 +4175,10 @@ paths:
             items:
               type: string
               enum:
-                - translations
-                - tags
                 - categories
-                - related_articles
                 - properties
+                - tags
+                - related
       responses:
         '200':
           description: 'A singular Article'
@@ -4266,7 +4259,7 @@ paths:
         -
           name: include
           in: query
-          description: 'Include additional relationships (affiliation, starsystem).'
+          description: 'Include additional relationships (affiliation, starsystem, jumppoints).'
           explode: false
           allowReserved: true
           schema:
@@ -4299,7 +4292,7 @@ paths:
         -
           name: include
           in: query
-          description: 'Include additional relationships (affiliation, starsystem).'
+          description: 'Include additional relationships (affiliation, starsystem, jumppoints).'
           explode: false
           allowReserved: true
           schema:
@@ -4403,7 +4396,7 @@ paths:
         -
           name: include
           in: query
-          description: 'Include additional relationships (affiliation, celestialObjects).'
+          description: 'Include additional relationships (affiliation, celestialObjects, jumppoints).'
           explode: false
           allowReserved: true
           schema:
@@ -4436,7 +4429,7 @@ paths:
         -
           name: include
           in: query
-          description: 'Include additional relationships (affiliation, celestialObjects).'
+          description: 'Include additional relationships (affiliation, celestialObjects, jumppoints).'
           explode: false
           allowReserved: true
           schema:
@@ -17687,7 +17680,6 @@ components:
         items:
           type: string
           enum:
-            - translations
             - images
             - links
     page:

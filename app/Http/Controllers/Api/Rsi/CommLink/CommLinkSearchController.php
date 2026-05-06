@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
@@ -28,6 +29,17 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CommLinkSearchController extends Controller
 {
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('images'),
+            IncludeDefinition::relationship('links'),
+        ];
+    }
+
     #[OA\Post(
         path: '/api/comm-links/search',
         description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.',
@@ -98,7 +110,7 @@ class CommLinkSearchController extends Controller
                     $builder->orWhere('cig_id', (int) $query);
                 }
             })
-            ->allowedIncludes(...CommLinkResource::validIncludes())
+            ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(AllowedFilter::exact('category', 'category.name'), AllowedFilter::exact('series', 'series.name'), AllowedFilter::exact('channel', 'channel.name')
 
             )
@@ -106,7 +118,7 @@ class CommLinkSearchController extends Controller
             ->appends(request()->query());
 
         return CommLinkResource::collection($commLinks)->additional([
-            'meta' => ['deprecated' => true],
+            'meta' => ['deprecated' => true, 'valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())],
         ])->response()->header('Deprecated', 'true');
     }
 

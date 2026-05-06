@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
@@ -25,6 +26,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VehicleController extends Controller
 {
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('components'),
+            IncludeDefinition::relationship('loaner'),
+            IncludeDefinition::relationship('skus'),
+        ];
+    }
+
     /**
      * @return array<int, AllowedFilter>
      */
@@ -100,7 +113,8 @@ class VehicleController extends Controller
             ->with(['skus', 'loaner']);
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection($vehicles);
+        return VehicleResource::collection($vehicles)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -246,14 +260,15 @@ class VehicleController extends Controller
     {
         try {
             $vehicle = QueryBuilder::for(Vehicle::class, $request)
-                ->allowedIncludes('components', 'loaner', 'skus')
+                ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
                 ->where('slug', urldecode($slug))
                 ->firstOrFail();
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified slug found.');
         }
 
-        return new VehicleResource($vehicle);
+        return (new VehicleResource($vehicle))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(

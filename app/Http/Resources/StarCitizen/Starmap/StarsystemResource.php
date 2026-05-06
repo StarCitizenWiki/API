@@ -94,15 +94,6 @@ use OpenApi\Attributes as OA;
 )]
 class StarsystemResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [
-            'affiliation',
-            'celestialObjects',
-            'jumppoints',
-        ];
-    }
-
     public function toArray(Request $request): array
     {
         return [

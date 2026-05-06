@@ -75,11 +75,6 @@ use OpenApi\Attributes as OA;
 )]
 class FactionResource extends FactionIndexResource
 {
-    public static function validIncludes(): array
-    {
-        return ['reputationLadder'];
-    }
-
     public function toArray(Request $request): array
     {
         return array_merge(parent::toArray($request), [

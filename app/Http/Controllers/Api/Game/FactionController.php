@@ -61,7 +61,8 @@ class FactionController extends Controller
             ->jsonPaginate()
             ->appends($request->query());
 
-        return FactionIndexResource::collection($factions);
+        return FactionIndexResource::collection($factions)
+            ->additional(['meta' => ['valid_relations' => []]]);
     }
 
     #[OA\Get(
@@ -81,7 +82,6 @@ class FactionController extends Controller
                     example: '4e429470-4d4e-4c2b-a4ac-4de42ada16e0',
                 ),
             ),
-            new OA\Parameter(ref: '#/components/parameters/include'),
         ],
         responses: [
             new OA\Response(
@@ -106,7 +106,8 @@ class FactionController extends Controller
             throw new NotFoundHttpException('No Faction found with the specified UUID.');
         }
 
-        return new FactionResource($factionModel);
+        return (new FactionResource($factionModel))
+            ->setValidIncludes([]);
     }
 
     /**

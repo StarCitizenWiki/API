@@ -35,11 +35,6 @@ class PartResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;
 
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         $name = Arr::get($this->resource, 'Name');

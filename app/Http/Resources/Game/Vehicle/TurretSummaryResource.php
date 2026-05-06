@@ -81,11 +81,6 @@ class TurretSummaryResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;
 
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         $mounts = $this->mountRows();

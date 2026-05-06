@@ -65,7 +65,7 @@ class GameVersionController extends Controller
         return GameVersionResource::collection($query)->additional([
             'meta' => [
                 'processed_at' => now()->toDateTimeString(),
-                'valid_relations' => GameVersionResource::validIncludes(),
+                'valid_relations' => [],
             ],
         ]);
     }

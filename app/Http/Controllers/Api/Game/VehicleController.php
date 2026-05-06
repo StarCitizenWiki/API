@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
@@ -28,7 +29,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -158,7 +158,7 @@ class VehicleController extends Controller
     )]
     #[OA\Get(
         path: '/api/vehicles',
-        description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components.',
+        description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components, hardpoints, ports.',
         summary: 'In-Game Vehicles Overview',
         tags: ['In-Game', 'Vehicles'],
         parameters: [
@@ -222,7 +222,8 @@ class VehicleController extends Controller
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection($vehicles);
+        return VehicleResource::collection($vehicles)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -383,7 +384,8 @@ class VehicleController extends Controller
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
 
-        return new VehicleResource($vehicleData);
+        return (new VehicleResource($vehicleData))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(
@@ -688,17 +690,25 @@ class VehicleController extends Controller
     }
 
     /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('shipMatrixVehicle'),
+            IncludeDefinition::relationship('components', 'shipMatrixVehicle.components'),
+            IncludeDefinition::relationship('shipmatrixvehicle.components', 'shipMatrixVehicle.components'),
+            IncludeDefinition::custom('hardpoints', new CustomEagerLoadInclude),
+            IncludeDefinition::custom('ports', new CustomEagerLoadInclude),
+        ];
+    }
+
+    /**
      * Query builder includes for vehicles.
      */
     private function allowedIncludes(): array
     {
-        return [
-            AllowedInclude::relationship('shipMatrixVehicle', 'shipMatrixVehicle'),
-            AllowedInclude::relationship('components', 'shipMatrixVehicle.components'),
-            AllowedInclude::relationship('shipmatrixvehicle.components', 'shipMatrixVehicle.components'),
-            AllowedInclude::custom('hardpoints', new CustomEagerLoadInclude),
-            AllowedInclude::custom('ports', new CustomEagerLoadInclude),
-        ];
+        return IncludeDefinition::toSpatieIncludes($this->includeDefinitions());
     }
 
     /**

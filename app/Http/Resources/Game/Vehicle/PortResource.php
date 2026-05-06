@@ -67,11 +67,6 @@ class PortResource extends AbstractBaseResource
         parent::__construct($resource);
     }
 
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         $resolvedItem = null;

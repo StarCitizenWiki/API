@@ -39,7 +39,6 @@ class MissionController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(
                 name: 'sort',
                 description: 'Sort field. Prefix with "-" for descending. Supported: title, mission_giver, rank_index, reward_min, reward_max, time_to_complete_minutes, max_players_per_instance, reputation_amount.',
@@ -112,7 +111,8 @@ class MissionController extends Controller
             );
         }
 
-        return MissionIndexResource::collection($missions);
+        return MissionIndexResource::collection($missions)
+            ->additional(['meta' => ['valid_relations' => []]]);
     }
 
     #[OA\Get(
@@ -131,7 +131,6 @@ class MissionController extends Controller
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(ref: '#/components/parameters/include'),
         ],
         responses: [
             new OA\Response(
@@ -176,7 +175,8 @@ class MissionController extends Controller
             throw new NotFoundHttpException('No Mission found for the requested game version.');
         }
 
-        return new MissionResource($missionData);
+        return (new MissionResource($missionData))
+            ->setValidIncludes([]);
     }
 
     #[OA\Get(

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
@@ -27,6 +28,19 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GalactapediaController extends Controller
 {
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('categories'),
+            IncludeDefinition::relationship('properties'),
+            IncludeDefinition::relationship('tags'),
+            IncludeDefinition::relationship('related'),
+        ];
+    }
+
     /**
      * @return array<int, AllowedFilter>
      */
@@ -107,7 +121,8 @@ class GalactapediaController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return ArticleResource::collection($query);
+        return ArticleResource::collection($query)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -240,11 +255,10 @@ class GalactapediaController extends Controller
                     items: new OA\Items(
                         type: 'string',
                         enum: [
-                            'translations',
-                            'tags',
                             'categories',
-                            'related_articles',
                             'properties',
+                            'tags',
+                            'related',
                         ]
                     ),
                 ),
@@ -280,13 +294,14 @@ class GalactapediaController extends Controller
         try {
             $model = QueryBuilder::for(Article::class, $request)
                 ->where('cig_id', $identifier)
-                ->allowedIncludes(...ArticleResource::validIncludes())
+                ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Article with specified ID found.');
         }
 
-        return new ArticleResource($model);
+        return (new ArticleResource($model))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(

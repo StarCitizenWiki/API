@@ -21,11 +21,6 @@ use OpenApi\Attributes as OA;
 )]
 class GameVersionResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     public function toArray(Request $request): array
     {
         return [

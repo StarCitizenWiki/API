@@ -58,15 +58,6 @@ use OpenApi\Attributes as OA;
 )]
 class CelestialObjectResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [
-            'affiliation',
-            'starsystem',
-            'jumppoints',
-        ];
-    }
-
     public function toArray($request): array
     {
         $jumppoint = $this->whenLoaded('jumppointEntry') ?? $this->whenLoaded('jumppointExit') ?? $this->jumppoint();

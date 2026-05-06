@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Game;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CustomEagerLoadInclude;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Starmap\StarmapLocationResource;
 use App\Models\Game\StarmapLocationData;
@@ -23,7 +24,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -374,7 +374,7 @@ class StarmapLocationController extends Controller
     {
         return StarmapLocationResource::collection(
             $this->buildBaseQuery($request)->jsonPaginate()
-        );
+        )->additional(['meta' => ['valid_relations' => ['amenities']]]);
     }
 
     #[OA\Get(
@@ -425,8 +425,8 @@ class StarmapLocationController extends Controller
             ->withCount($this->childCountRelation($gameVersionId))
             ->withCount('missions as mission_count')
             ->allowedIncludes(
-                AllowedInclude::custom('children', new CustomEagerLoadInclude($childSummaryRelation)),
-                AllowedInclude::custom('resources', new CustomEagerLoadInclude([
+                IncludeDefinition::custom('children', new CustomEagerLoadInclude($childSummaryRelation))->toSpatieInclude(),
+                IncludeDefinition::custom('resources', new CustomEagerLoadInclude([
                     'resourceLocations' => static function (BelongsToMany $q) use ($versionCode): void {
                         $q->whereHas('resourceData', static fn (Builder $subQ) => $subQ->forRequestedOrDefaultVersion($versionCode))
                             ->with([
@@ -437,12 +437,12 @@ class StarmapLocationController extends Controller
                                     ->with(['resource', 'commodities']),
                             ]);
                     },
-                ])),
-                AllowedInclude::custom('missions', new CustomEagerLoadInclude([
+                ]))->toSpatieInclude(),
+                IncludeDefinition::custom('missions', new CustomEagerLoadInclude([
                     'missions' => static function (BelongsToMany $q): void {
                         $q->with(['mission', 'faction']);
                     },
-                ])),
+                ]))->toSpatieInclude(),
             )
             ->first();
 
@@ -450,7 +450,8 @@ class StarmapLocationController extends Controller
             throw new NotFoundHttpException('No starmap location found for the specified identifier.');
         }
 
-        return new StarmapLocationResource($location);
+        return (new StarmapLocationResource($location))
+            ->setValidIncludes(['children', 'resources', 'missions']);
     }
 
     #[OA\Get(

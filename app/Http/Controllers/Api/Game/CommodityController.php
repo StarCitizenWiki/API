@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\CommodityIndexRequest;
 use App\Http\Resources\Game\Commodity\CommodityIndexResource;
 use App\Http\Resources\Game\Commodity\CommodityShowResource;
@@ -23,7 +24,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -31,6 +31,17 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class CommodityController extends Controller
 {
     use ResolvesGameVersion;
+
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::alwaysLoaded('blueprints'),
+            IncludeDefinition::alwaysLoaded('items'),
+        ];
+    }
 
     private const string GROUP_SHIP = 'SpaceShip_Mineables';
 
@@ -147,12 +158,12 @@ class CommodityController extends Controller
             ->when(Str::isUuid($commodity), fn (Builder $q) => $q->where('uuid', $commodity))
             ->unless(Str::isUuid($commodity), fn (Builder $q) => $q->where('slug', $commodity))
             ->allowedIncludes(
-                AllowedInclude::callback('blueprints', fn (BelongsToMany $query) => $query
+                IncludeDefinition::callback('blueprints', fn (BelongsToMany $query) => $query
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->with(['blueprint', 'gameVersion', 'ingredients'])),
-                AllowedInclude::callback('items', fn (BelongsToMany $query) => $query
+                    ->with(['blueprint', 'gameVersion', 'ingredients']))->toSpatieInclude(),
+                IncludeDefinition::callback('items', fn (BelongsToMany $query) => $query
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->with(['item', 'gameVersion'])),
+                    ->with(['item', 'gameVersion']))->toSpatieInclude(),
             )
             ->with([
                 'refinedVersion',
@@ -176,7 +187,8 @@ class CommodityController extends Controller
             throw new NotFoundHttpException('No commodity found with the given identifier.');
         }
 
-        return new CommodityShowResource($commodityModel);
+        return (new CommodityShowResource($commodityModel))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Get(

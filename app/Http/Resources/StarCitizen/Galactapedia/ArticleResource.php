@@ -65,16 +65,6 @@ use OpenApi\Attributes as OA;
 )]
 class ArticleResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [
-            'categories',
-            'properties',
-            'tags',
-            'related',
-        ];
-    }
-
     public function toArray(Request $request): array
     {
         $template = $this->templates->isEmpty() ? null : $this->templates[0]->template;

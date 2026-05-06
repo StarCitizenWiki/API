@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CustomEagerLoadInclude;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
 use App\Models\StarCitizen\Starmap\Starsystem;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class StarsystemController extends Controller
@@ -42,14 +42,22 @@ class StarsystemController extends Controller
     /**
      * Build base query with filters and sorts for starsystems.
      */
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('affiliation'),
+            IncludeDefinition::relationship('celestialObjects'),
+            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
+        ];
+    }
+
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(Starsystem::class, $request)
-            ->allowedIncludes(
-                'affiliation',
-                'celestialObjects',
-                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
-            )
+            ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...[
                 'name',
@@ -81,7 +89,7 @@ class StarsystemController extends Controller
             new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'include',
-                description: 'Include additional relationships (affiliation, celestialObjects).',
+                description: 'Include additional relationships (affiliation, celestialObjects, jumppoints).',
                 in: 'query',
                 schema: new OA\Schema(type: 'string'),
                 explode: false,
@@ -105,7 +113,8 @@ class StarsystemController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return StarsystemResource::collection($collection);
+        return StarsystemResource::collection($collection)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -125,7 +134,7 @@ class StarsystemController extends Controller
             ),
             new OA\Parameter(
                 name: 'include',
-                description: 'Include additional relationships (affiliation, celestialObjects).',
+                description: 'Include additional relationships (affiliation, celestialObjects, jumppoints).',
                 in: 'query',
                 schema: new OA\Schema(type: 'string'),
                 explode: false,
@@ -160,14 +169,11 @@ class StarsystemController extends Controller
         $starsystem = QueryBuilder::for(Starsystem::class, $request)
             ->where('code', $code)
             ->orWhere('name', 'LIKE', "%$code%")
-            ->allowedIncludes(
-                'affiliation',
-                'celestialObjects',
-                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
-            )
+            ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->firstOrFail();
 
-        return new StarsystemResource($starsystem);
+        return (new StarsystemResource($starsystem))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(

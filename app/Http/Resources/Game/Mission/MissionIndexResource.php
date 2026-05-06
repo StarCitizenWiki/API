@@ -151,11 +151,6 @@ use OpenApi\Attributes as OA;
 )]
 class MissionIndexResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return ['faction', 'blueprints'];
-    }
-
     public function toArray(Request $request): array
     {
         $mission = $this->resource->mission;

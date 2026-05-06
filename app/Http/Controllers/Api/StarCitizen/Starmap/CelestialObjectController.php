@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
@@ -19,7 +20,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -29,14 +29,22 @@ class CelestialObjectController extends Controller
     /**
      * Build base query with filters and sorts for celestial objects.
      */
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('affiliation'),
+            IncludeDefinition::relationship('starsystem'),
+            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude(['jumppointEntry', 'jumppointExit'])),
+        ];
+    }
+
     private function buildBaseQuery(Request $request, ?string $code = null): QueryBuilder
     {
         $query = QueryBuilder::for(CelestialObject::class, $request)
-            ->allowedIncludes(
-                'affiliation',
-                'starsystem',
-                AllowedInclude::custom('jumppoints', new CustomEagerLoadInclude(['jumppointEntry', 'jumppointExit'])),
-            )
+            ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(...[
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
                 AllowedFilter::partial('name'),
@@ -81,7 +89,7 @@ class CelestialObjectController extends Controller
             new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'include',
-                description: 'Include additional relationships (affiliation, starsystem).',
+                description: 'Include additional relationships (affiliation, starsystem, jumppoints).',
                 in: 'query',
                 schema: new OA\Schema(type: 'string'),
                 explode: false,
@@ -105,7 +113,8 @@ class CelestialObjectController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return CelestialObjectResource::collection($query);
+        return CelestialObjectResource::collection($query)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -125,7 +134,7 @@ class CelestialObjectController extends Controller
             ),
             new OA\Parameter(
                 name: 'include',
-                description: 'Include additional relationships (affiliation, starsystem).',
+                description: 'Include additional relationships (affiliation, starsystem, jumppoints).',
                 in: 'query',
                 schema: new OA\Schema(type: 'string'),
                 explode: false,
@@ -164,7 +173,8 @@ class CelestialObjectController extends Controller
             throw new NotFoundHttpException('No Celestial Object with specified code found.');
         }
 
-        return new CelestialObjectResource($celestialObject);
+        return (new CelestialObjectResource($celestialObject))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(

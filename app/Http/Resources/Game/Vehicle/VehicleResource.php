@@ -763,15 +763,6 @@ class VehicleResource extends AbstractBaseResource
 
     private VehicleArmorBuilder $armorBuilder;
 
-    public static function validIncludes(): array
-    {
-        return [
-            'ports',
-            'hardpoints',
-            'components',
-        ];
-    }
-
     public function __construct($resource)
     {
         parent::__construct($resource);

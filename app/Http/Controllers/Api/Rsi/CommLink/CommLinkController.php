@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Rsi\CommLink;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
 use App\Http\Filters\SortByRelation;
+use App\Http\Includes\IncludeDefinition;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
@@ -35,7 +36,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
         items: new OA\Items(
             type: 'string',
             enum: [
-                'translations',
                 'images',
                 'links',
             ]
@@ -46,6 +46,17 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 )]
 class CommLinkController extends Controller
 {
+    /**
+     * @return array<int, IncludeDefinition>
+     */
+    private function includeDefinitions(): array
+    {
+        return [
+            IncludeDefinition::relationship('images'),
+            IncludeDefinition::relationship('links'),
+        ];
+    }
+
     /**
      * @return array<int, AllowedFilter>
      */
@@ -89,16 +100,14 @@ class CommLinkController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(CommLink::class, $request)
-            ->allowedIncludes(...CommLinkResource::validIncludes())
+            ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(...$this->allowedFilters())
-            ->allowedSorts(AllowedSort::field('id', 'cig_id'), 'title', 'images_count', 'links_count', AllowedSort::custom('channel', new SortByRelation, 'channel.name'), AllowedSort::custom('category', new SortByRelation, 'category.name'), AllowedSort::custom('series', new SortByRelation, 'series.name'), 'created_at'
-
-            );
+            ->allowedSorts(AllowedSort::field('id', 'cig_id'), 'title', 'images_count', 'links_count', AllowedSort::custom('channel', new SortByRelation, 'channel.name'), AllowedSort::custom('category', new SortByRelation, 'category.name'), AllowedSort::custom('series', new SortByRelation, 'series.name'), 'created_at');
     }
 
     #[OA\Get(
         path: '/api/comm-links',
-        description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed translations, images, or links.',
+        description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed images or links.',
         summary: 'Comm-Links Overview',
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
@@ -145,7 +154,8 @@ class CommLinkController extends Controller
             ->jsonPaginate()
             ->appends($request->query());
 
-        return CommLinkResource::collection($query);
+        return CommLinkResource::collection($query)
+            ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
 
     #[OA\Get(
@@ -295,7 +305,7 @@ class CommLinkController extends Controller
         try {
             $commLink = QueryBuilder::for(CommLink::class)
                 ->where('cig_id', $commLink)
-                ->allowedIncludes(...CommLinkResource::validIncludes())
+                ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
                 ->with(['images.hash', 'images.metadata'])
                 ->withNavigation()
                 ->firstOrFail();
@@ -303,7 +313,8 @@ class CommLinkController extends Controller
             throw new NotFoundHttpException('No Comm-Link with specified ID found.');
         }
 
-        $resource = new CommLinkResource($commLink);
+        $resource = (new CommLinkResource($commLink))
+            ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
         $resource->addMetadata([
             'prev_id' => $commLink->prev_id ?? -1,
             'next_id' => $commLink->next_id ?? -1,
