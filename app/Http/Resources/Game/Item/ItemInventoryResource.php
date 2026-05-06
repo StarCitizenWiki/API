@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
+use App\Support\ScuBox;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -53,6 +54,8 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'y', type: 'number', nullable: true),
             new OA\Property(property: 'z', type: 'number', nullable: true),
         ], type: 'object', nullable: true),
+        new OA\Property(property: 'min_scu_box', description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32', type: 'number', example: 1, nullable: true),
+        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32', type: 'number', example: 8, nullable: true),
     ],
     type: 'object'
 )]
@@ -96,12 +99,33 @@ class ItemInventoryResource extends AbstractBaseResource
             'open' => Arr::get($container, 'IsOpenContainer'),
             'external' => Arr::get($container, 'IsExternalContainer'),
             'closed' => Arr::get($container, 'IsClosedContainer'),
-            $this->mergeWhen(Arr::has($container, 'MinSize'), fn () => [
-                'min_size' => $this->formatSizeBlock(Arr::get($container, 'MinSize')),
-            ]),
-            $this->mergeWhen(Arr::has($container, 'MaxSize'), fn () => [
-                'max_size' => $this->formatSizeBlock(Arr::get($container, 'MaxSize')),
-            ]),
+            $this->mergeWhen(Arr::has($container, 'MinSize'), function () use ($container) {
+                $minSize = $this->formatSizeBlock(Arr::get($container, 'MinSize'));
+                $minScuBox = $minSize !== null ? ScuBox::smallestThatFits($minSize) : null;
+
+                return [
+                    'min_size' => $minSize,
+                    ...($minScuBox !== null && $minScuBox !== 1 ? ['min_scu_box' => $minScuBox] : []),
+                ];
+            }),
+            $this->mergeWhen(Arr::has($container, 'MaxSize'), function () use ($container) {
+                $maxSize = $this->formatSizeBlock(Arr::get($container, 'MaxSize'));
+
+                $interior = Arr::has($container, ['X', 'Y', 'Z'])
+                    ? ['x' => Arr::get($container, 'X'), 'y' => Arr::get($container, 'Y'), 'z' => Arr::get($container, 'Z')]
+                    : null;
+
+                $maxScuBox = match (true) {
+                    $maxSize === null => null,
+                    $interior !== null => ScuBox::largestThatFitsInGrid($interior, $maxSize),
+                    default => ScuBox::largestThatFits($maxSize),
+                };
+
+                return [
+                    'max_size' => $maxSize,
+                    'max_scu_box' => $maxScuBox,
+                ];
+            }),
         ];
     }
 

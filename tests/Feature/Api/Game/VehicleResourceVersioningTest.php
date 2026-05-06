@@ -123,6 +123,7 @@ it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): 
 
     expect($response->json('data.cargo_limits'))->toBe([
         'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
+        'min_scu_box' => 1,
         'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
         'max_scu_box' => 8,
     ]);
@@ -150,6 +151,7 @@ it('returns cargo limits when accessing api/v3/vehicles endpoint', function (): 
 
     expect($response->json('data.cargo_limits'))->toBe([
         'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
+        'min_scu_box' => 1,
         'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
         'max_scu_box' => 8,
     ]);
@@ -273,4 +275,26 @@ it('does not include version in web url when version is not requested in vehicle
     $response->assertSuccessful();
 
     expect($response->json('data.web_url'))->not->toContain('version=');
+});
+
+describe('ore_capacity', function (): void {
+    it('returns ore_capacity when present in ship data', function (): void {
+        $this->vehicleData->update([
+            'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
+                'OreCapacity' => 96,
+            ]),
+        ]);
+
+        $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
+
+        $response->assertSuccessful();
+        expect($response->json('data.ore_capacity'))->toBe(96);
+    });
+
+    it('returns null for ore_capacity when not present in ship data', function (): void {
+        $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
+
+        $response->assertSuccessful();
+        expect($response->json('data.ore_capacity'))->toBeNull();
+    });
 });

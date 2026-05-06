@@ -67,6 +67,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'mass_loadout', description: 'Equipped loadout mass in kg.', type: 'number', example: 0, nullable: true),
         new OA\Property(property: 'mass_total', description: 'Total mass (hull + loadout) in kg.', type: 'number', example: 53531.0, nullable: true),
         new OA\Property(property: 'cargo_capacity', description: 'Cargo capacity in SCU.', type: 'number', example: 8, nullable: true),
+        new OA\Property(property: 'ore_capacity', description: 'Ore storage capacity in SCU.', type: 'number', example: 96, nullable: true),
         new OA\Property(
             property: 'cargo_grids',
             description: 'Cargo grid containers from ship data.',
@@ -80,11 +81,13 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'y', type: 'number', example: 1.25, nullable: true),
                 new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
             ], type: 'object', nullable: true),
+            new OA\Property(property: 'min_scu_box', description: 'Smallest standard SCU box satisfying the min item size.', type: 'number', example: 1, nullable: true),
             new OA\Property(property: 'max', properties: [
                 new OA\Property(property: 'x', type: 'number', example: 2.5, nullable: true),
                 new OA\Property(property: 'y', type: 'number', example: 2.5, nullable: true),
                 new OA\Property(property: 'z', type: 'number', example: 1.25, nullable: true),
             ], type: 'object', nullable: true),
+            new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size.', type: 'number', example: 8, nullable: true),
         ], type: 'object', nullable: true),
         new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64…', type: 'integer', example: 8, nullable: true),
         new OA\Property(property: 'vehicle_inventory', description: 'Vehicle stowage in micro SCU', type: 'number', example: 0, nullable: true),
@@ -854,6 +857,7 @@ class VehicleResource extends AbstractBaseResource
             'mass_total' => $vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'),
 
             'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
+            'ore_capacity' => Arr::get($payload, 'OreCapacity'),
             'cargo_grids' => ItemInventoryResource::collection(Arr::get($payload, 'CargoGrids', [])),
             $this->mergeWhen(
                 ! empty($cargoLimits),
@@ -1223,10 +1227,32 @@ class VehicleResource extends AbstractBaseResource
             ->sortByDesc(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
             ->first();
 
-        $maxScuBox = $maxSize !== null ? ScuBox::largestThatFits($maxSize) : null;
+        // Compute per-grid max_scu_box (constrained by both interior & max_size), take the largest
+        $maxScuBox = collect($cargoGrids)
+            ->map(function (array $grid) {
+                $x = Arr::get($grid, 'X');
+                $y = Arr::get($grid, 'Y');
+                $z = Arr::get($grid, 'Z');
+                $maxSize = $this->extractSizeBlock($grid, 'MaxSize', 'max_size');
+
+                if ($maxSize === null) {
+                    return null;
+                }
+
+                if ($x !== null && $y !== null && $z !== null) {
+                    return ScuBox::largestThatFitsInGrid(['x' => $x, 'y' => $y, 'z' => $z], $maxSize);
+                }
+
+                return ScuBox::largestThatFits($maxSize);
+            })
+            ->filter()
+            ->max();
+
+        $minScuBox = $minSize !== null ? ScuBox::smallestThatFits($minSize) : null;
 
         $limits = array_filter([
             'min_size' => $minSize,
+            'min_scu_box' => $minScuBox,
             'max_size' => $maxSize,
             'max_scu_box' => $maxScuBox,
         ], static fn ($value) => $value !== null);

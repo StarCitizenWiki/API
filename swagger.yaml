@@ -6764,6 +6764,44 @@ components:
           description: IsClosedContainer
           type: boolean
           nullable: true
+        min_size:
+          description: 'Minimum item dimensions accepted by this container.'
+          properties:
+            x:
+              type: number
+              nullable: true
+            'y':
+              type: number
+              nullable: true
+            z:
+              type: number
+              nullable: true
+          type: object
+          nullable: true
+        max_size:
+          description: 'Maximum item dimensions accepted by this container.'
+          properties:
+            x:
+              type: number
+              nullable: true
+            'y':
+              type: number
+              nullable: true
+            z:
+              type: number
+              nullable: true
+          type: object
+          nullable: true
+        min_scu_box:
+          description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32'
+          type: number
+          example: 1
+          nullable: true
+        max_scu_box:
+          description: 'Largest standard SCU box that fits within the max item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32'
+          type: number
+          example: 8
+          nullable: true
       type: object
     item_link:
       title: 'Item Link'
@@ -15691,6 +15729,11 @@ components:
           type: number
           example: 8
           nullable: true
+        ore_capacity:
+          description: 'Ore storage capacity in SCU.'
+          type: number
+          example: 96
+          nullable: true
         cargo_grids:
           description: 'Cargo grid containers from ship data.'
           type: array
@@ -15716,6 +15759,11 @@ components:
                   nullable: true
               type: object
               nullable: true
+            min_scu_box:
+              description: 'Smallest standard SCU box satisfying the min item size.'
+              type: number
+              example: 1
+              nullable: true
             max:
               properties:
                 x:
@@ -15732,7 +15780,17 @@ components:
                   nullable: true
               type: object
               nullable: true
+            max_scu_box:
+              description: 'Largest standard SCU box that fits within the max item size.'
+              type: number
+              example: 8
+              nullable: true
           type: object
+          nullable: true
+        max_scu_box:
+          description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64…'
+          type: integer
+          example: 8
           nullable: true
         vehicle_inventory:
           description: 'Vehicle stowage in micro SCU'

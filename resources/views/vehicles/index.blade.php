@@ -80,6 +80,7 @@
                     'title' => 'Cargo',
                     'columns' => [
                         ['title' => 'Cargo', 'field' => 'cargo_capacity', 'sorter' => 'number', 'sortField' => 'Cargo', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 120],
+                        ['title' => 'Ore', 'field' => 'ore_capacity', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' SCU', 'precision' => false], 'headerSort' => false, 'hozAlign' => 'right', 'width' => 100],
                         ['title' => 'Stowage', 'field' => 'vehicle_inventory', 'sorter' => 'number', 'sortField' => 'Stowage', 'formatter' => 'money', 'formatterParams' => ['symbolAfter' => true, 'symbol' => ' μSCU', 'precision' => false], 'headerSort' => true, 'hozAlign' => 'right', 'width' => 150],
                     ],
                 ],
