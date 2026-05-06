@@ -115,6 +115,10 @@ class ComputeImageHash implements ShouldQueue
                 'pdq_quality' => $hashResult->quality,
             ]
         );
+
+        ComputeSimilarImageIds::dispatch($record->id)
+            ->onConnection('database')
+            ->onQueue('expensive');
     }
 
     private function resolveImageUrl(string $src, bool $local, string $dir): string
