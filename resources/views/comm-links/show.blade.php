@@ -1,4 +1,3 @@
-@php use App\Models\System\Language; @endphp
 @extends('layouts.app')
 
 @php
@@ -79,34 +78,7 @@
                 <div class="card border border-base-200 bg-base-100 shadow-sm">
                     <div class="card-body gap-4">
                         <h2 class="card-title text-base">Content</h2>
-                        @if ($translations !== [])
-                            <div class="space-y-3">
-                                @foreach ($translations as $locale => $translation)
-                                    @php
-                                        $label = is_string($locale) ? Language::LABEL_MAP[$locale] : 'Translation '.$loop->iteration;
-                                        $translationText = is_string($translation)
-                                            ? $translation
-                                            : json_encode($translation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-                                    @endphp
-                                    <div {{ $label !== 'English' ? 'data-remove' : '' }} class="collapse collapse-arrow border border-base-200 bg-base-100">
-                                        <input type="checkbox"/>
-                                        <div class="collapse-title text-sm font-semibold">{{ $label }}</div>
-                                        <div class="collapse-content">
-                                            @if ($translationText)
-                                                <div
-                                                    class="text-sm leading-relaxed text-emphasis whitespace-pre-line">
-                                                    {!! nl2br(e($translationText)) !!}
-                                                </div>
-                                            @else
-                                                <div class="text-sm text-subtle">No content available.</div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-sm text-subtle">No translations available.</div>
-                        @endif
+                        <x-translations-content :translations="$translations" :remove-non-english="true" />
                     </div>
                 </div>
 

@@ -9,36 +9,6 @@
     $career = data_get($vehicle, 'career');
     $role = data_get($vehicle, 'role');
 
-    $translationEntries = [];
-
-    if ($translations !== null) {
-        if (is_array($translations)) {
-            foreach ($translations as $locale => $translation) {
-                $translationEntries[] = [
-                    'label' => is_string($locale)
-                        ? (\App\Models\System\Language::LABEL_MAP[$locale] ?? 'Translation '.(count($translationEntries) + 1))
-                        : 'Translation '.(count($translationEntries) + 1),
-                    'locale' => is_string($locale) ? $locale : null,
-                    'text' => is_string($translation)
-                        ? trim(html_entity_decode($translation))
-                        : null,
-                ];
-            }
-
-            // Filter out entries with empty text
-            $translationEntries = array_values(array_filter(
-                $translationEntries,
-                static fn (array $entry): bool => is_string($entry['text']) && trim($entry['text']) !== '',
-            ));
-        } elseif (is_string($translations) && trim($translations) !== '') {
-            $translationEntries[] = [
-                'label' => 'English',
-                'locale' => null,
-                'text' => trim(html_entity_decode($translations)),
-            ];
-        }
-    }
-
     $msrp = data_get($vehicle, 'msrp');
     $isSpaceship = data_get($vehicle, 'is_spaceship') === true;
     $isGravlev = data_get($vehicle, 'is_gravlev') === true;
@@ -148,48 +118,7 @@
             @endif
         </div>
 
-        @if ($translationEntries !== [])
-            @if (count($translationEntries) === 1)
-                <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="vehicle-hero-description">
-                    {!! nl2br(e($translationEntries[0]['text'])) !!}
-                </div>
-            @else
-                <div class="max-w-3xl" data-testid="vehicle-hero-description">
-                    <div role="tablist" class="tabs tabs-bordered">
-                        @foreach ($translationEntries as $entry)
-                            <input
-                                type="radio"
-                                name="desc_tabs"
-                                role="tab"
-                                class="tab p-0 !pr-3"
-                                aria-label="{{ $entry['label'] }}"
-                                {{ $loop->first ? 'checked' : '' }}
-                            />
-                            <div role="tabpanel" class="tab-content">
-                                @if ($entry['text'])
-                                    {!! nl2br(e($entry['text'])) !!}
-
-                                    @if (in_array($entry['label'], ['German', 'Chinese'], true) && is_string($entry['locale']))
-                                        <div class="mt-3 text-xs text-subtle">
-                                            {{ $entry['label'] }} translation from
-                                            <a
-                                                class="link"
-                                                href="{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}"
-                                                target="_blank"
-                                                rel="noopener noreferrer nofollow"
-                                                referrerpolicy="no-referrer"
-                                            >{{ config('translations.sources_git.'.substr($entry['locale'], 0, 2)) }}</a>
-                                        </div>
-                                    @endif
-                                @else
-                                    <div class="text-sm text-subtle">No content available.</div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        @endif
+        <x-translations-content :translations="$translations" :attribution-links="true" data-testid="vehicle-hero-description" class="max-w-3xl" />
         <div class="card-actions justify-end pt-4">
             <span class="text-xs text-muted font-semibold">Find on</span>
             <a href="{{ $wikiUrl }}" class="link link-hover link-primary text-xs" target="_blank" rel="noopener noreferrer">starcitizen.tools</a>
