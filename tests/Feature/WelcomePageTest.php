@@ -23,6 +23,16 @@ function assertWelcomeLinks(TestResponse $response, array $expectedUrls): void
     }
 }
 
+it('renders the global search bar in the header', function (): void {
+    $response = $this->get(route('home'));
+    $crawler = welcomePageCrawler($response);
+
+    $input = $crawler->filter('[data-testid="header-search-input"]');
+    expect($input->count())->toBe(1)
+        ->and($input->attr('data-live-search'))->not()->toBeNull()
+        ->and($input->attr('data-api-endpoint'))->toBe('/api/search');
+});
+
 it('renders the welcome page categories for guests', function (): void {
     $response = $this->get(route('home'));
     $crawler = welcomePageCrawler($response);
