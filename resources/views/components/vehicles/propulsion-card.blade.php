@@ -50,7 +50,7 @@
 @endphp
 
 @if ($capacityMetrics !== [] || $travelMetrics !== [])
-    <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
+    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Fuel & Quantum</h2>
 
@@ -76,5 +76,5 @@
                 @endif
             </div>
         </div>
-    </div>
+    </section>
 @endif

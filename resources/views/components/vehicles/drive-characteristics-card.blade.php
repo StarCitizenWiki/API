@@ -78,7 +78,7 @@
 @endphp
 
 @if ($drive !== [])
-    <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
+    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Drive Characteristics</h2>
 
@@ -120,5 +120,5 @@
                 <span class="label text-xs col-span-2">Calculated based on the vehicles engine internals, they may not reflect actual in-game values.</span>
             </div>
         </div>
-    </div>
+    </section>
 @endif

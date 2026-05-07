@@ -59,7 +59,7 @@
             </button>
         </div>
 
-        <div class="mt-4 grid gap-2 sm:grid-cols-2 2xl:grid-cols-3" data-resource-filter-options>
+        <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3" data-resource-filter-options>
             <div class="rounded-box border border-dashed border-base-300 bg-base-200 px-3 py-4 text-sm text-subtle">
                 Loading resource filters...
             </div>

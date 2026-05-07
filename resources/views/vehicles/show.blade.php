@@ -14,6 +14,7 @@
     $drive = data_get($vehicle, 'drive');
     $hasDriveData = $drive !== null && $drive !== [];
 
+
     $insurance = data_get($vehicle, 'insurance', []);
     $hasInsuranceData = $insurance !== [];
 
@@ -82,32 +83,28 @@
                 <div class="flex flex-col gap-4">
                     <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
 
-                <div class="grid grid-cols-1 gap-4 2xl:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <x-vehicles.armor-card :vehicle="$vehicle" />
                     <x-vehicles.shield-card :vehicle="$vehicle" />
                     <x-vehicles.weaponry-card :vehicle="$vehicle" />
                 </div>
 
-                    <div class="grid grid-cols-1 gap-4 2xl:grid-cols-2">
-                        <x-vehicles.systems-signatures-card :vehicle="$vehicle" />
-                        <x-vehicles.systems-breakdown-card :vehicle="$vehicle" />
-                    </div>
+                    <x-vehicles.systems-signatures-card :vehicle="$vehicle" />
+                    <x-vehicles.systems-breakdown-card :vehicle="$vehicle" />
 
                     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                         <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="parts" />
                         <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                        <x-vehicles.crew-medical-card :vehicle="$vehicle" />
-                    </div>
+                    <x-vehicles.crew-medical-card :vehicle="$vehicle" />
                 </div>
             </section>
 
             <section class="space-y-4">
                 <h2 class="text-lg font-semibold tracking-tight">Flight & Mobility</h2>
 
-                <div class="grid grid-cols-1 gap-4 2xl:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <x-vehicles.flight-characteristics-card :vehicle="$vehicle" />
                     @if ($isSpaceship || $hasQuantumDrive)
                         <x-vehicles.propulsion-card :vehicle="$vehicle" />

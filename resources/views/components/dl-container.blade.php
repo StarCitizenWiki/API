@@ -14,7 +14,7 @@
 @endif
 
 @if($slot->hasActualContent())
-<div {{ $attributes->merge(['class' => "grid gap-x-8 gap-y-2 xl:grid-cols-2"]) }}>
+<div {{ $attributes->merge(['class' => "grid gap-x-8 gap-y-2 lg:grid-cols-2"]) }}>
     {{ $slot }}
 </div>
 @endif

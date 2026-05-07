@@ -49,6 +49,19 @@ class Format
     }
 
     /**
+     * Format a value as a percentage string, or return a dash if null.
+     * Multiplies the value by 100.
+     */
+    public static function percentOrDash(float|int|null $value, int $decimals = 1): string
+    {
+        if ($value === null) {
+            return '-';
+        }
+
+        return number_format((float) $value * 100, $decimals).'%';
+    }
+
+    /**
      * Format a number in compact form with suffixes for large (k/M/B/T)
      * and small (m/μ/n) values.
      */

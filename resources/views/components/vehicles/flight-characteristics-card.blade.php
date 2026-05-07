@@ -57,11 +57,11 @@
 @endphp
 
 @if ($boostMetrics !== [] || $agilityMetrics !== [])
-    <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
+    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Flight Characteristics</h2>
 
-            <div class="grid gap-6 xl:grid-cols-2">
+            <div class="grid gap-6 lg:grid-cols-2">
                 @if ($boostMetrics !== [])
                     <x-dl-section title="Boost">
                         @foreach ($boostMetrics as $metric)
@@ -107,5 +107,5 @@
                 @endif
             </div>
         </div>
-    </div>
+    </section>
 @endif

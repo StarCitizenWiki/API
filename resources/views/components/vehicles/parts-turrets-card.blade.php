@@ -59,9 +59,6 @@
             'subtitle' => $subtitle,
         ];
     };
-    $formatDps = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 1);
-    $formatWhole = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
-
     $turretSections = [
         'Manned' => [
             'items' => $mannedTurrets,
@@ -174,10 +171,10 @@
                                                     <div class="text-xs text-subtle">{{ $label['subtitle'] }}</div>
                                                 @endif
                                             </td>
-                                            <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }} @if($mountCount) (x{{$formatWhole($mountCount)}}) @endif</td>
-                                            <td class="text-right font-semibold">{{ $formatDps($dpsTotal) }}</td>
-                                            <td class="text-right font-semibold">{{ $formatDps($sustainedDpsTotal) }}</td>
-                                            <td class="text-right font-semibold">{{ $formatDps($alphaTotal) }}</td>
+                                            <td class="font-medium">{{ isset($turret['size']) ? 'S'.$turret['size'] : '-' }} @if($mountCount) (x{{Format::numberOrDash($mountCount)}}) @endif</td>
+                                            <td class="text-right font-semibold">{{ Format::numberOrDash($dpsTotal, 1) }}</td>
+                                            <td class="text-right font-semibold">{{ Format::numberOrDash($sustainedDpsTotal, 1) }}</td>
+                                            <td class="text-right font-semibold">{{ Format::numberOrDash($alphaTotal, 1) }}</td>
                                         </tr>
                                         @if ($hasSubRow)
                                         <tr>
@@ -204,7 +201,7 @@
                                                                                 {{ $weapon['name'] ?? $weapon['class_name'] ?? '-' }}
                                                                             @endif
                                                                             @if (isset($weapon['dps']))
-                                                                                <span class="text-xs text-subtle"> ({{ $formatDps($weapon['dps']) }} dps)</span>
+                                                                                <span class="text-xs text-subtle"> ({{ Format::numberOrDash($weapon['dps'], 1) }} dps)</span>
                                                                             @endif
                                                                         </span>
                                                                     @endforeach

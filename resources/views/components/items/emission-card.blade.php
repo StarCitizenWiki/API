@@ -24,17 +24,16 @@
 
 <x-item-card title="Emission">
     <x-dl-container>
-        <div class="grid gap-8 grid-cols-1 sm:grid-cols-2">
-            <x-dl-section title="IR">
-                @foreach ($irMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">{{ $metric['value'] }}</x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="EM">
-                @foreach ($emMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">{{ $metric['value'] }}</x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </div>
+        <x-dl-section title="IR">
+            @foreach ($irMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">{{ $metric['value'] }}</x-dt-dd>
+            @endforeach
+        </x-dl-section>
+
+        <x-dl-section title="EM">
+            @foreach ($emMetrics as $metric)
+                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">{{ $metric['value'] }}</x-dt-dd>
+            @endforeach
+        </x-dl-section>
     </x-dl-container>
 </x-item-card>

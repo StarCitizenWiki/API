@@ -6,8 +6,6 @@
     $cooling = data_get($vehicle, 'cooling', []);
     $power = data_get($vehicle, 'power', []);
 
-    $formatWholeNumber = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
-
     $signatureSummaryRows = array_values(array_filter([
         [
             'label' => 'IR',
@@ -70,7 +68,7 @@
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Resource Network</h2>
 
-            <div class="grid gap-12 lg:grid-cols-3">
+            <div class="grid gap-12 xl:grid-cols-3">
                 @if ($signatureSummaryRows !== [])
                     <section class="space-y-4">
                         <div class="space-y-1">
@@ -87,10 +85,10 @@
                                     {{ $row['label'] }}
                                 </dt>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $row['shields'] !== null ? $formatWholeNumber($row['shields']) : '-' }}
+                                    {{ Format::numberOrDash($row['shields']) }}
                                 </dd>
                                 <dd class="text-right text-sm font-semibold text-base-content">
-                                    {{ $row['quantum'] !== null ? $formatWholeNumber($row['quantum']) : '-' }}
+                                    {{ Format::numberOrDash($row['quantum']) }}
                                 </dd>
                             @endforeach
                         </dl>

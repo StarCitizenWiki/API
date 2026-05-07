@@ -8,9 +8,7 @@
     $cooling = data_get($vehicle, 'cooling', []);
     $power = data_get($vehicle, 'power', []);
 
-    $formatWholeNumber = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
-
-    $buildStateComparisonRows = static function (array $shieldsGroups, array $quantumGroups) use ($formatWholeNumber): array {
+    $buildStateComparisonRows = static function (array $shieldsGroups, array $quantumGroups): array {
         $systems = array_values(array_unique(array_merge(array_keys($shieldsGroups), array_keys($quantumGroups))));
         $rows = [];
 
@@ -24,8 +22,8 @@
 
             $rows[] = [
                 'label' => Str::headline((string) $system),
-                'shields' => $shieldsValue !== null ? $formatWholeNumber($shieldsValue) : '-',
-                'quantum' => $quantumValue !== null ? $formatWholeNumber($quantumValue) : '-',
+                'shields' => $shieldsValue !== null ? Format::numberOrDash($shieldsValue) : '-',
+                'quantum' => $quantumValue !== null ? Format::numberOrDash($quantumValue) : '-',
             ];
         }
 

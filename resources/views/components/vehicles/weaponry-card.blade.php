@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -13,9 +14,6 @@
 
     $missileCount = data_get($weaponry, 'missiles.count');
     $totalMissileDamage = data_get($weaponry, 'total_missile_damage');
-
-    $formatDps = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 1);
-    $formatWhole = static fn (mixed $value): string => $value === null ? '-' : number_format((float) $value, 0);
 
     $hasPilot = $pilotDps !== null || $pilotAlpha !== null || $pilotSustainedDps !== null;
     $hasTurrets = $turretDps !== null || $turretAlpha !== null || $turretSustainedDps !== null;
@@ -34,19 +32,19 @@
                     <x-dl-section title="Pilot Weapons">
                         @if ($pilotDps !== null)
                             <x-dt-dd label="DPS">
-                                {{ $formatDps($pilotDps) }} <span class="text-xs text-muted">DPS</span>
+                                {{ Format::numberOrDash($pilotDps, 1) }} <span class="text-xs text-muted">DPS</span>
                             </x-dt-dd>
                         @endif
 
                         @if ($pilotAlpha !== null)
                             <x-dt-dd label="Alpha">
-                                {{ $formatDps($pilotAlpha) }}
+                                {{ Format::numberOrDash($pilotAlpha, 1) }}
                             </x-dt-dd>
                         @endif
 
                         @if ($pilotSustainedDps !== null)
                             <x-dt-dd label="Sustained DPS">
-                                {{ $formatDps($pilotSustainedDps) }} <span class="text-xs text-muted">DPS</span>
+                                {{ Format::numberOrDash($pilotSustainedDps, 1) }} <span class="text-xs text-muted">DPS</span>
                             </x-dt-dd>
                         @endif
                     </x-dl-section>
@@ -56,19 +54,19 @@
                     <x-dl-section title="Turrets">
                         @if ($turretDps !== null)
                             <x-dt-dd label="DPS">
-                                {{ $formatDps($turretDps) }} <span class="text-xs text-muted">DPS</span>
+                                {{ Format::numberOrDash($turretDps, 1) }} <span class="text-xs text-muted">DPS</span>
                             </x-dt-dd>
                         @endif
 
                         @if ($turretAlpha !== null)
                             <x-dt-dd label="Alpha">
-                                {{ $formatDps($turretAlpha) }}
+                                {{ Format::numberOrDash($turretAlpha, 1) }}
                             </x-dt-dd>
                         @endif
 
                         @if ($turretSustainedDps !== null)
                             <x-dt-dd label="Sustained DPS">
-                                {{ $formatDps($turretSustainedDps) }} <span class="text-xs text-muted">DPS</span>
+                                {{ Format::numberOrDash($turretSustainedDps, 1) }} <span class="text-xs text-muted">DPS</span>
                             </x-dt-dd>
                         @endif
                     </x-dl-section>
@@ -78,13 +76,13 @@
                     <x-dl-section title="Missiles">
                         @if ($missileCount !== null)
                             <x-dt-dd label="Count">
-                                {{ $formatWhole($missileCount) }}
+                                {{ Format::numberOrDash($missileCount) }}
                             </x-dt-dd>
                         @endif
 
                         @if ($totalMissileDamage !== null)
                             <x-dt-dd label="Total Damage">
-                                {{ $formatWhole($totalMissileDamage) }}
+                                {{ Format::numberOrDash($totalMissileDamage) }}
                             </x-dt-dd>
                         @endif
                     </x-dl-section>

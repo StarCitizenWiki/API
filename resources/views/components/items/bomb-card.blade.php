@@ -1,4 +1,5 @@
-@use('App\Support\Format;use Illuminate\Support\Str')
+@use('App\Support\Format')
+@php use Illuminate\Support\Str; @endphp
 @props([
     'bomb',
 ])
