@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\StarCitizen;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
 use App\Http\Includes\IncludeDefinition;
@@ -26,6 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[CacheTag('galactapedia')]
 class GalactapediaController extends Controller
 {
     /**

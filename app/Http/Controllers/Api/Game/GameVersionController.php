@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\GameVersionResource;
 use App\Models\Game\GameVersion;
@@ -16,6 +17,7 @@ use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[CacheTag('gameversions')]
 class GameVersionController extends Controller
 {
     /**

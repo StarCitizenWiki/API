@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 // use App\Http\Filters\ImageTagFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
@@ -16,6 +17,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[CacheTag('comm-links')]
 class ImageController extends Controller
 {
     #[OA\Get(

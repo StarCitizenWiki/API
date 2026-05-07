@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Includes\IncludeDefinition;
@@ -22,6 +23,7 @@ use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
+#[CacheTag('starmap')]
 class StarsystemController extends Controller
 {
     /**

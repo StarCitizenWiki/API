@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddCloudflareCacheTags;
 use App\Http\Middleware\Api\Game\ResolveGameVersion;
 use App\Http\Middleware\MigrateLimitParameter;
 use App\Http\Middleware\PersistSelectedGameVersion;
@@ -35,6 +36,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             PersistSelectedGameVersion::class,
+            AddCloudflareCacheTags::class,
+        ]);
+
+        $middleware->api(append: [
+            AddCloudflareCacheTags::class,
         ]);
 
         $middleware->alias([

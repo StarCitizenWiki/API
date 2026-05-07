@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
@@ -20,6 +21,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[CacheTag('manufacturers')]
 class ManufacturerController extends Controller
 {
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
 use App\Http\Filters\SortByRelation;
@@ -44,6 +45,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
     explode: false,
     allowReserved: true
 )]
+#[CacheTag('comm-links')]
 class CommLinkController extends Controller
 {
     /**

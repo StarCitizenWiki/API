@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Game;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\Game\Blueprint;
 use App\Services\ApiJsonRequest;
@@ -17,6 +18,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
+#[CacheTag('blueprints')]
 class BlueprintController extends Controller
 {
     use NormalizesFilterParams;

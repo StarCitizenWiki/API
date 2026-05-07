@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Rsi;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
@@ -19,6 +20,7 @@ use Illuminate\View\View;
 use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+#[CacheTag('comm-links')]
 class CommLinkController extends Controller
 {
     public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}

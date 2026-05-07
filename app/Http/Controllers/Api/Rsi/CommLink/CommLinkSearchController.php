@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
@@ -27,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+#[CacheTag('comm-links')]
 class CommLinkSearchController extends Controller
 {
     /**

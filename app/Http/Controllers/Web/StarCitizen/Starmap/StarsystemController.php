@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Services\ApiJsonRequest;
@@ -13,6 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
+#[CacheTag('starmap')]
 class StarsystemController extends Controller
 {
     public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}

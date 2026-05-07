@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Game;
 
+use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\Game\StarmapLocation;
 use App\Services\ApiJsonRequest;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
+#[CacheTag('missions')]
 class MissionController extends Controller
 {
     use NormalizesFilterParams;
