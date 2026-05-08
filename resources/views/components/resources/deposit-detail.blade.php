@@ -104,7 +104,7 @@
                 <tr>
                     <th>Material</th>
                     <th>Range</th>
-                    <th title="The raw quality range the server rolls from. Each rock gets one roll within this range, then the result is mapped to the nearest fixed value in the Received column.">
+                    <th title="Since version 4.8: The raw quality range the server rolls from. Each rock gets one roll within this range, then the result is mapped to the nearest fixed value in the Received column.">
                         <span class="flex items-center gap-1">
                             Quality
                             <x-icon name="info" class="size-3.5 opacity-50" />
