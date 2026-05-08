@@ -3521,6 +3521,78 @@ paths:
                 properties:
                   filters: { properties: { manufacturer: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_vehicle: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_gravlev: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_spaceship: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, role: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, career: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, shield.face_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+  '/api/game-versions/{version}/changelog':
+    get:
+      tags:
+        - In-Game
+        - 'Game Version'
+      summary: 'Get Version Changelog'
+      description: 'Returns the changelog summary between the specified version and its predecessor.'
+      operationId: 714b128595cfa5df27438df4514a6273
+      parameters:
+        -
+          name: version
+          in: path
+          description: 'Version code'
+          schema:
+            type: string
+            example: 4.7.0-LIVE.11518367
+      responses:
+        '200':
+          description: 'Version changelog summary'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/version_changelog'
+        '404':
+          description: 'Version not found or no previous version'
+  '/api/game-versions/{version}/changelog/changes':
+    get:
+      tags:
+        - In-Game
+        - 'Game Version'
+      summary: 'Get Version Changelog Changes'
+      description: 'Returns paginated diff entries for a version changelog. Filter by entity_type and change_type.'
+      operationId: 3d5e74217808c4b3c3cc65bfb717fda7
+      parameters:
+        -
+          name: version
+          in: path
+          description: 'Version code'
+          schema:
+            type: string
+            example: 4.7.0-LIVE.11518367
+        -
+          name: 'filter[entity_type]'
+          in: query
+          description: 'Filter by entity type (item, vehicle)'
+          schema:
+            type: string
+            example: item
+        -
+          name: 'filter[change_type]'
+          in: query
+          description: 'Filter by change type (added, removed, modified)'
+          schema:
+            type: string
+            example: modified
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+      responses:
+        '200':
+          description: 'Paginated list of changes'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/version_diff_entry'
+        '404':
+          description: 'Version not found or no previous version'
   /api/comm-links:
     get:
       tags:
@@ -6104,6 +6176,35 @@ components:
         relative_probability_percent:
           description: 'Relative probability expressed as a percentage (0–100).'
           type: number
+        quality_quantized_values:
+          description: "The discrete set of quantized quality values a player can actually receive, filtered by the material's quality range. Each value corresponds to one reachable quantization band."
+          type: array
+          items:
+            type: integer
+          example:
+            - 521
+            - 664
+            - 710
+            - 874
+            - 907
+            - 970
+            - 1000
+          nullable: true
+        quality_quantization:
+          description: 'All possible quantized quality values for this material from the source data. Use quality_quantized_values for the filtered set reachable on this specific deposit.'
+          type: array
+          items:
+            type: integer
+          example:
+            - 348
+            - 523
+            - 686
+            - 717
+            - 861
+            - 916
+            - 975
+            - 1000
+          nullable: true
       type: object
     harvestable_setup:
       title: 'Harvestable Setup'
@@ -7246,6 +7347,12 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/radiation_resistance'
+          nullable: true
+        gforce_resistance:
+          description: 'G-force tolerance modifier. Positive values increase tolerance, negative values reduce it. 0 = neutral.'
+          type: number
+          format: double
+          example: 0.9
           nullable: true
         armor:
           oneOf:
@@ -9086,6 +9193,12 @@ components:
           example:
             maximum_radiation_capacity: 0
             radiation_dissipation_rate: 0
+        gforce_resistance:
+          description: 'G-force tolerance modifier from root. Positive increases tolerance, negative reduces it.'
+          type: number
+          format: double
+          example: -0.125
+          nullable: true
       type: object
     cooler:
       title: Cooler
@@ -12085,6 +12198,12 @@ components:
           example:
             maximum_radiation_capacity: 26400
             radiation_dissipation_rate: 145.8
+        gforce_resistance:
+          description: 'G-force tolerance modifier from root. Positive increases tolerance, negative reduces it.'
+          type: number
+          format: double
+          example: 0.9
+          nullable: true
       type: object
     temperature_resistance:
       title: 'Temperature Resistance'
@@ -16896,6 +17015,48 @@ components:
           description: 'Game version code this data applies to.'
           type: string
           example: 4.4.0-LIVE.12340123
+      type: object
+    version_changelog:
+      title: 'Version Changelog'
+      properties:
+        from_version:
+          $ref: '#/components/schemas/game_version'
+        to_version:
+          $ref: '#/components/schemas/game_version'
+        summary:
+          description: 'Change counts keyed by entity type (item, vehicle, blueprint, mission, starmap_location)'
+          type: object
+          additionalProperties:
+            properties:
+              added:
+                type: integer
+                example: 47
+              removed:
+                type: integer
+                example: 12
+              modified:
+                type: integer
+                example: 234
+            type: object
+      type: object
+    version_diff_entry:
+      title: 'Version Diff Entry'
+      properties:
+        entity_type:
+          type: string
+          example: item
+        entity_id:
+          type: integer
+          example: 42
+        change_type:
+          type: string
+          example: modified
+        column_changes:
+          type: object
+          example: '{"name": {"old": "Old Name", "new": "New Name"}}'
+        data_changes:
+          type: object
+          example: '{"stdItem.Mass": {"old": 5, "new": 7}}'
       type: object
     weapon_damage:
       title: 'Weapon Damage'

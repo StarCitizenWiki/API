@@ -174,6 +174,16 @@
                     </div>
                 </nav>
 
+                @if ($gameVersions->isNotEmpty() && $selectedGameVersion && ! $selectedGameVersion->is_default)
+                    <div role="alert" class="alert alert-warning alert-soft text-xs text-center p-1 justify-center">
+                        <span>
+                            You are viewing data from version
+                            <strong>{{ $selectedGameVersion->code }}</strong>,
+                            which may be outdated.
+                        </span>
+                    </div>
+                @endif
+
                 <main class="flex-1 px-4 py-6 sm:px-6 lg:px-10">
                     @yield('content')
                 </main>

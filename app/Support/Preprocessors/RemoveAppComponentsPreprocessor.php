@@ -2,9 +2,9 @@
 
 namespace App\Support\Preprocessors;
 
-use Spatie\MarkdownResponse\Preprocessors\Preprocessor;
+//use Spatie\MarkdownResponse\Preprocessors\Preprocessor;
 
-class RemoveAppComponentsPreprocessor implements Preprocessor
+class RemoveAppComponentsPreprocessor //implements Preprocessor
 {
     public function __invoke(string $html): string
     {

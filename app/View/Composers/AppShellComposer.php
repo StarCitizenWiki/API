@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\View\Composers;
 
 use App\Models\Game\GameVersion;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 
@@ -30,18 +31,22 @@ class AppShellComposer
 
             $selectedGameVersionCode = $selectedGameVersion?->code;
 
+            $changelogVersionCode = $sessionCode ?? $selectedGameVersionCode ?? $gameVersions->firstWhere('is_default', true)?->code;
+
             $view->with([
                 'gameVersions' => $gameVersions,
                 'selectedGameVersion' => $selectedGameVersion,
                 'selectedGameVersionCode' => $selectedGameVersionCode,
+                'changelogVersionCode' => $changelogVersionCode,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // If the game_versions table doesn't exist (e.g., in tests),
             // provide empty values to avoid breaking the view
             $view->with([
                 'gameVersions' => collect(),
                 'selectedGameVersion' => null,
                 'selectedGameVersionCode' => null,
+                'changelogVersionCode' => null,
             ]);
         }
     }

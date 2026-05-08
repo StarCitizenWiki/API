@@ -1,9 +1,20 @@
+@props(['changelogVersionCode' => null])
 <x-app.sidemenu-group >
     <x-app.sidemenu-item :route="'home'">
         <x-slot:icon>
             <x-icon name="home" class="size-4" />
         </x-slot:icon>
         Home
+    </x-app.sidemenu-item>
+    <x-app.sidemenu-item
+        href="{{ $changelogVersionCode ? route('web.changelog.show', ['version' => $changelogVersionCode]) : '#' }}"
+        route-is="web.changelog.*"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="git-compare" class="size-4" />
+        </x-slot:icon>
+        What's New
     </x-app.sidemenu-item>
     @auth
         <x-app.sidemenu-item :route="'profile'" :with-version="false">

@@ -40,6 +40,12 @@ class GameVersion extends Model
         return static::requestedOrDefault($code)->firstOrFail();
     }
 
+    /** Find a version by code (case-insensitive). Pass fail=true to throw 404. */
+    public static function findByCode(string $code, bool $fail = false): ?self
+    {
+        return static::where('code', strtoupper($code))->{$fail ? 'firstOrFail' : 'first'}();
+    }
+
     public function findPreviousVersion(): ?self
     {
         return $this->findPreviousPatchVersion() ?? $this->findPreviousMinorVersion();

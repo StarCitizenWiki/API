@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Game\MissionController;
 use App\Http\Controllers\Api\Game\StarmapLocationController;
 use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\Api\Game\VehicleController;
+use App\Http\Controllers\Api\Game\VersionChangelogController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkSearchController;
 use App\Http\Controllers\Api\Rsi\CommLink\ImageController;
@@ -217,3 +218,7 @@ Route::get('game-versions/default', [GameVersionController::class, 'default'])
     ->name('game-versions.default');
 Route::get('game-versions/{identifier}', [GameVersionController::class, 'show'])
     ->name('game-versions.show');
+Route::get('game-versions/{version}/changelog', [VersionChangelogController::class, 'show'])
+    ->name('game-versions.changelog');
+Route::get('game-versions/{version}/changelog/changes', [VersionChangelogController::class, 'changes'])
+    ->name('game-versions.changelog.changes');

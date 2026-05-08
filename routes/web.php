@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
+use App\Http\Controllers\Web\Game\ChangelogController;
 use App\Http\Controllers\Web\Game\CommodityController;
 use App\Http\Controllers\Web\Game\ItemController;
 use App\Http\Controllers\Web\Game\MissionController;
@@ -24,7 +25,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', static function () {
     return view('welcome');
 })->name('home');
-
 
 Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
 Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');
@@ -67,6 +67,8 @@ Route::get('/commodities/{identifier}', [CommodityController::class, 'show'])->n
 Route::get('/missions', [MissionController::class, 'index'])->name('web.missions.index');
 Route::get('/missions/{mission}', [MissionController::class, 'show'])
     ->name('web.missions.show');
+
+Route::get('/changelog/{version}', [ChangelogController::class, 'show'])->name('web.changelog.show');
 
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');

@@ -148,6 +148,41 @@ it('hides hidden versions from the selector', function (): void {
     assertSelectedGameVersion($response, $visibleVersion->code, [$visibleVersion->code]);
 });
 
+it('shows a version hint banner when a non-default version is selected', function (): void {
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+    ]);
+
+    $olderVersion = GameVersion::factory()->create([
+        'code' => '4.6.0-LIVE.1',
+        'is_default' => false,
+    ]);
+
+    $response = $this->get(route('home', ['version' => $olderVersion->code]));
+
+    $response->assertSuccessful();
+    $response->assertSeeText('You are viewing data from version');
+    $response->assertSeeText($olderVersion->code);
+});
+
+it('does not show a version hint banner when the default version is selected', function (): void {
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '4.7.0-LIVE.1',
+        'is_default' => true,
+    ]);
+
+    GameVersion::factory()->create([
+        'code' => '4.6.0-LIVE.1',
+        'is_default' => false,
+    ]);
+
+    $response = $this->get(route('home'));
+
+    $response->assertSuccessful();
+    $response->assertDontSeeText('You are viewing data from version');
+});
+
 it('keeps hidden versions in session while rendering the default visible version', function (): void {
     $defaultVersion = GameVersion::factory()->create([
         'code' => '4.7.0-LIVE.1',
