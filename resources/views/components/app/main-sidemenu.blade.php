@@ -7,7 +7,7 @@
         Home
     </x-app.sidemenu-item>
     <x-app.sidemenu-item
-        href="{{ $changelogVersionCode ? route('web.changelog.show', ['version' => $changelogVersionCode]) : '#' }}"
+        href="{{ route('web.changelog.show', $changelogVersionCode ?? '#') }}"
         route-is="web.changelog.*"
         :with-version="false"
     >
