@@ -164,58 +164,64 @@ class ComputeVersionDiff extends Command
      */
     private function computeEntityDiff(string $dataModel, string $foreignKey, string $entityModel, array $columns, int $fromVersionId, int $toVersionId): int
     {
-        $oldEntities = $dataModel::where('game_version_id', $fromVersionId)
-            ->get()
-            ->keyBy($foreignKey);
+        $entityIds = $dataModel::where('game_version_id', $fromVersionId)
+            ->orWhere('game_version_id', $toVersionId)
+            ->pluck($foreignKey)
+            ->unique()
+            ->values();
 
-        $newEntities = $dataModel::where('game_version_id', $toVersionId)
-            ->get()
-            ->keyBy($foreignKey);
-
-        $allKeys = $oldEntities->keys()->merge($newEntities->keys())->unique();
         $count = 0;
-
         $batch = [];
 
-        foreach ($allKeys as $entityId) {
-            $old = $oldEntities->get($entityId);
-            $new = $newEntities->get($entityId);
+        foreach ($entityIds->chunk(1000) as $chunk) {
+            $oldEntities = $dataModel::where('game_version_id', $fromVersionId)
+                ->whereIn($foreignKey, $chunk)
+                ->get()
+                ->keyBy($foreignKey);
 
-            if ($old === null && $new !== null) {
-                $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'added', null, null);
+            $newEntities = $dataModel::where('game_version_id', $toVersionId)
+                ->whereIn($foreignKey, $chunk)
+                ->get()
+                ->keyBy($foreignKey);
+
+            foreach ($chunk as $entityId) {
+                $old = $oldEntities->get($entityId);
+                $new = $newEntities->get($entityId);
+
+                if ($old === null && $new !== null) {
+                    $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'added', null, null);
+                    $count++;
+
+                    continue;
+                }
+
+                if ($old !== null && $new === null) {
+                    $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'removed', null, null);
+                    $count++;
+
+                    continue;
+                }
+
+                $columnChanges = DeepDiff::diffColumns($old->toArray(), $new->toArray(), $columns);
+                $dataChanges = DeepDiff::diff($old->data, $new->data);
+
+                $dataChanges = array_filter(
+                    $dataChanges,
+                    fn (string $path) => ! in_array(Str::of($path)->afterLast('.')->toString(), ['Description', 'DescriptionText']),
+                    ARRAY_FILTER_USE_KEY
+                );
+
+                if ($columnChanges === [] && $dataChanges === []) {
+                    continue;
+                }
+
+                $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'modified', $columnChanges, $dataChanges);
                 $count++;
 
-                continue;
-            }
-
-            if ($old !== null && $new === null) {
-                $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'removed', null, null);
-                $count++;
-
-                continue;
-            }
-
-            // Both exist — diff
-            $columnChanges = DeepDiff::diffColumns($old->toArray(), $new->toArray(), $columns);
-            $dataChanges = DeepDiff::diff($old->data, $new->data);
-
-            // Filter out noisy description paths
-            $dataChanges = array_filter(
-                $dataChanges,
-                fn (string $path) => ! in_array(Str::of($path)->afterLast('.')->toString(), ['Description', 'DescriptionText']),
-                ARRAY_FILTER_USE_KEY
-            );
-
-            if ($columnChanges === [] && $dataChanges === []) {
-                continue;
-            }
-
-            $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'modified', $columnChanges, $dataChanges);
-            $count++;
-
-            if (count($batch) >= 500) {
-                $this->upsertBatch($batch);
-                $batch = [];
+                if (count($batch) >= 500) {
+                    $this->upsertBatch($batch);
+                    $batch = [];
+                }
             }
         }
 
