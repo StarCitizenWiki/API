@@ -109,12 +109,13 @@
                                             $ingredientQuantity = data_get($child, 'quantity');
                                             $ingredientUuid = data_get($child, 'uuid');
                                             $ingredientKind = data_get($child, 'kind');
+                                            $ingredientOreUuid = data_get($child, 'ore_uuid');
 
                                             $ingredientWebUrl = null;
                                             if (is_string($ingredientUuid) && $ingredientUuid !== '') {
                                                 $ingredientWebUrl = $ingredientKind === 'item'
                                                     ? route('web.items.show', array_filter(['item' => $ingredientUuid, 'version' => $versionQuery]))
-                                                    : route('web.commodities.show', array_filter(['identifier' => $ingredientUuid, 'version' => $versionQuery]));
+                                                    : route('web.commodities.show', array_filter(['identifier' => $ingredientOreUuid ?? $ingredientUuid, 'version' => $versionQuery]));
                                             }
                                         @endphp
 

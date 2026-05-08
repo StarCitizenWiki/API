@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Blueprint;
 
+use App\Models\Game\Commodity\Commodity;
+use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -17,9 +20,11 @@ final class BlueprintAspectState
 {
     /**
      * @param  Closure(string, array<string, string>, Request): string  $makeUrl
+     * @param  Collection<string, Commodity>  $ingredients  Loaded ingredients keyed by UUID, with rawVersions eager-loaded.
      */
     public function __construct(
-        private readonly \Closure $makeUrl,
+        private readonly Closure $makeUrl,
+        private readonly Collection $ingredients = new Collection,
     ) {}
 
     /**
@@ -253,9 +258,11 @@ final class BlueprintAspectState
         }
 
         if ($kind === 'resource') {
+            $oreUuid = $this->ingredients->get($inputUuid)?->rawVersions->first()?->uuid ?? $inputUuid;
+
             return ($this->makeUrl)(
                 'web.commodities.show',
-                ['identifier' => $inputUuid],
+                ['identifier' => $oreUuid],
                 $request,
             );
         }

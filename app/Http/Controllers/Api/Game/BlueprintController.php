@@ -87,7 +87,7 @@ class BlueprintController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $blueprints = $this->buildIndexQuery($request)
-            ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients'])
+            ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions'])
             ->withCount('missions')
             ->defaultSort('key')
             ->jsonPaginate()
@@ -130,7 +130,7 @@ class BlueprintController extends Controller
         $blueprintData = BlueprintData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->where('blueprint_id', $blueprint->id)
-            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients', 'missions.mission'])
+            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients.rawVersions', 'missions.mission'])
             ->withCount('missions')
             ->first();
 

@@ -454,7 +454,7 @@ class BlueprintResource extends AbstractBaseResource
                 : null),
             $this->mergeWhen($this->shouldIncludeDetailFields($request), [
                 'dismantle' => $this->dismantlePayload($payload),
-                'requirement_groups' => $requirementGroups,
+                'requirement_groups' => $this->enrichRequirementGroupsWithOreUuids($requirementGroups),
                 'summary_properties' => $normalizer->summaryProperties($payload),
                 'unlocking_missions' => $this->unlockingMissions($request),
                 'unlocking_missions_grouped' => $this->groupedUnlockingMissions($request),
@@ -485,8 +485,49 @@ class BlueprintResource extends AbstractBaseResource
     private function buildAspectState(array $requirementGroups, Request $request): array
     {
         $makeUrl = fn (string $routeName, array $params, Request $req): string => $this->urlWithVersion(route($routeName, $params), $req);
+        $ingredients = $this->loadedRelation('ingredients')->keyBy('uuid');
 
-        return new BlueprintAspectState($makeUrl)->build($requirementGroups, $request);
+        return new BlueprintAspectState($makeUrl, $ingredients)->build($requirementGroups, $request);
+    }
+
+    /**
+     * Enrich requirement group children with an `ore_uuid` when a raw (ore) version exists.
+     *
+     * @param  array<int, array<string, mixed>>  $requirementGroups
+     * @return array<int, array<string, mixed>>
+     */
+    private function enrichRequirementGroupsWithOreUuids(array $requirementGroups): array
+    {
+        $ingredients = $this->loadedRelation('ingredients')->keyBy('uuid');
+
+        return array_map(fn (array $group): array => [
+            ...$group,
+            'children' => $this->enrichChildrenWithOreUuids($group['children'] ?? [], $ingredients),
+        ], $requirementGroups);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $children
+     * @param  Collection<string, mixed>  $ingredients
+     * @return array<int, array<string, mixed>>
+     */
+    private function enrichChildrenWithOreUuids(array $children, Collection $ingredients): array
+    {
+        return array_map(function (array $child) use ($ingredients): array {
+            if (($child['children'] ?? []) !== []) {
+                $child['children'] = $this->enrichChildrenWithOreUuids($child['children'], $ingredients);
+            }
+
+            if (($child['kind'] ?? null) === 'resource' && ($child['uuid'] ?? null) !== null) {
+                $oreUuid = $ingredients->get($child['uuid'])?->rawVersions->first()?->uuid;
+
+                if ($oreUuid !== null) {
+                    $child['ore_uuid'] = $oreUuid;
+                }
+            }
+
+            return $child;
+        }, $children);
     }
 
     /**
@@ -750,7 +791,7 @@ class BlueprintResource extends AbstractBaseResource
             }
         }
 
-        return array_values(array_map(function (array $ingredient) use ($request): array {
+        return array_values(array_map(function (array $ingredient) use ($request, $loadedIngredients): array {
             $kind = $ingredient['kind'] ?? null;
 
             if ($kind === 'item') {
@@ -767,10 +808,12 @@ class BlueprintResource extends AbstractBaseResource
                 $uuid = $ingredient['resource_type_uuid'];
 
                 if ($uuid !== null && Str::isUuid($uuid)) {
+                    $oreUuid = $loadedIngredients->get($uuid)?->rawVersions->first()?->uuid ?? $uuid;
+
                     $ingredient = [
                         ...$ingredient,
-                        'link' => $this->urlWithVersion(route('commodities.show', ['commodity' => $uuid]), $request),
-                        'web_url' => $this->urlWithVersion(route('web.commodities.show', ['identifier' => $uuid]), $request),
+                        'link' => $this->urlWithVersion(route('commodities.show', ['commodity' => $oreUuid]), $request),
+                        'web_url' => $this->urlWithVersion(route('web.commodities.show', ['identifier' => $oreUuid]), $request),
                     ];
                 }
             }
