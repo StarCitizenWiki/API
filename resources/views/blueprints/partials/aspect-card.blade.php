@@ -109,12 +109,12 @@
                 @elseif ($aspect['has_modifiers'])
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">Fixed modifier band.</span>
-                        <span class="badge badge-ghost badge-sm">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
                     </div>
                 @else
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">No modifier data.</span>
-                        <span class="badge badge-ghost badge-sm">{{ $isSelected ? 'None' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm">{{ $isSelected ? 'None' : 'Off' }}</span>
                     </div>
                 @endif
             </div>

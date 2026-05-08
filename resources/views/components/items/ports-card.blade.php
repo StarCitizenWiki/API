@@ -11,7 +11,7 @@
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Ports</h2>
             @if ($portsCount > 0)
-                <span class="badge badge-ghost text-xs" data-testid="item-ports-count">{{ $portsCount }}</span>
+                <span class="badge badge-soft text-xs" data-testid="item-ports-count">{{ $portsCount }}</span>
             @endif
         </div>
 

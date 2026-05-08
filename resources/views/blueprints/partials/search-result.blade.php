@@ -82,7 +82,7 @@
 
             <div class="flex flex-wrap items-center gap-2 lg:justify-end">
                 @if ($searchResultTypeLabel !== '')
-                    <span class="badge badge-ghost badge-sm">{{ $searchResultTypeLabel }}</span>
+                    <span class="badge badge-soft badge-sm">{{ $searchResultTypeLabel }}</span>
                 @endif
 
                 <span class="badge badge-outline badge-sm">

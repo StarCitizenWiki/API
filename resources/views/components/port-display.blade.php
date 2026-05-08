@@ -116,7 +116,7 @@
         >
             <span class="flex flex-wrap items-center gap-2">
                 @if ($isDeactivated)
-                    <span class="badge badge-ghost badge-sm" data-testid="port-display-deactivated" title="{{ $deactivationReason }}">
+                    <span class="badge badge-soft badge-sm" data-testid="port-display-deactivated" title="{{ $deactivationReason }}">
                         <x-icon name="power-off" class="size-3"/>
                         <span>Deactivated</span>
                     </span>
@@ -140,7 +140,7 @@
                     <span class="text-xs font-normal text-subtle">{{ $portPosition }}</span>
                 @endif
                 @if ($sizeRangeLabel !== '-')
-                    <span class="badge badge-ghost badge-sm">{{ $sizeRangeLabel }}</span>
+                    <span class="badge badge-soft badge-sm">{{ $sizeRangeLabel }}</span>
                 @endif
                 @if ($portTypeLabel !== '')
                     @if (! $isLocked && $portType)
@@ -153,12 +153,12 @@
                                 $browseFilters['size'] = implode(',', range($portSizeMin, $portSizeMax));
                             }
                         @endphp
-                        <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="badge badge-ghost badge-sm max-w-48 truncate no-underline hover:opacity-80" title="Browse {{ $portTypeLabel }}">
+                        <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="badge badge-soft badge-sm max-w-48 truncate no-underline hover:opacity-80" title="Browse {{ $portTypeLabel }}">
                             {{ $portTypeLabel }}
                             <x-icon name="external-link" class="size-3 opacity-60"/>
                         </a>
                     @else
-                        <span class="badge badge-ghost badge-sm max-w-48 truncate" title="{{ $portTypeLabel }}">
+                        <span class="badge badge-soft badge-sm max-w-48 truncate" title="{{ $portTypeLabel }}">
                             {{ $portTypeLabel }}
                         </span>
                     @endif
@@ -173,10 +173,10 @@
                         </span>
                     @endif
                     @if ($itemSize !== null)
-                        <span class="badge badge-sm badge-ghost" title="Item Size">S{{ $itemSize }}</span>
+                        <span class="badge badge-sm badge-soft" title="Item Size">S{{ $itemSize }}</span>
                     @endif
                     @if ($powerSegmentUsage > 0)
-                        <span class="badge badge-sm badge-ghost" title="Power Segment Usage">
+                        <span class="badge badge-sm badge-soft" title="Power Segment Usage">
                             <x-icon name="zap" class="size-3"/>
                             <span class="font-medium">{{ Format::compact($powerSegmentUsage, 1) }}</span>
                             <span class="hidden sm:inline">Power Usage</span>
@@ -184,7 +184,7 @@
                         </span>
                     @endif
                     @if ($coolantSegmentUsage > 0)
-                        <span class="badge badge-sm badge-ghost" title="Coolant Segment Usage">
+                        <span class="badge badge-sm badge-soft" title="Coolant Segment Usage">
                             <x-icon name="fan" class="size-3"/>
                             <span class="font-medium">{{ Format::compact($coolantSegmentUsage, 1) }}</span>
                             <span class="hidden sm:inline">Coolant Usage</span>

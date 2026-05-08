@@ -16,7 +16,7 @@
         <span class="flex items-center gap-2">
             <span>UEX Prices</span>
             @if ($pricesCount > 0)
-                <span class="badge badge-ghost text-xs">{{ $pricesCount }}</span>
+                <span class="badge badge-soft text-xs">{{ $pricesCount }}</span>
             @endif
         </span>
     </summary>

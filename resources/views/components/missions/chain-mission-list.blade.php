@@ -33,7 +33,7 @@
                                             <span class="badge badge-primary badge-sm" title="{{ data_get($mission, 'variant_count') }} variants">{{ data_get($mission, 'variant_count') }}</span>
                                         @endif
                                         @if (data_get($mission, 'mission_type'))
-                                            <span class="badge badge-ghost badge-sm">{{ data_get($mission, 'mission_type') }}</span>
+                                            <span class="badge badge-soft badge-sm">{{ data_get($mission, 'mission_type') }}</span>
                                         @endif
                                     </div>
                                 </a>
@@ -45,7 +45,7 @@
                                             <span class="badge badge-primary badge-sm" title="{{ data_get($mission, 'variant_count') }} variants">{{ data_get($mission, 'variant_count') }}</span>
                                         @endif
                                         @if (data_get($mission, 'mission_type'))
-                                            <span class="badge badge-ghost badge-sm">{{ data_get($mission, 'mission_type') }}</span>
+                                            <span class="badge badge-soft badge-sm">{{ data_get($mission, 'mission_type') }}</span>
                                         @endif
                                     </div>
                                 </div>

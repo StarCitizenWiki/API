@@ -25,7 +25,7 @@
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Related Items</h2>
             @if ($totalItemsCount > 0)
-                <span class="badge badge-ghost text-xs">{{ $totalItemsCount }}</span>
+                <span class="badge badge-soft text-xs">{{ $totalItemsCount }}</span>
             @endif
         </div>
 

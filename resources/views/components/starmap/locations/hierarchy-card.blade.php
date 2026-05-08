@@ -14,7 +14,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-2">
                     <h3 class="text-base font-semibold tracking-tight">Child Locations</h3>
-                    <span class="badge badge-ghost">{{ $childCount }}</span>
+                    <span class="badge badge-soft">{{ $childCount }}</span>
                 </div>
                 @if ($childTypeCount > 0)
                     <div class="text-sm text-subtle">{{ $childTypeCount }} type{{ $childTypeCount === 1 ? '' : 's' }}</div>

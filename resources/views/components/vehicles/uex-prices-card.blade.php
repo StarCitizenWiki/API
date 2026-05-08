@@ -27,7 +27,7 @@
                     <section class="space-y-3">
                         <div class="flex items-center gap-2 text-sm font-semibold text-subtle">
                             <span>Purchase Prices</span>
-                            <span class="badge badge-ghost text-xs">{{ $purchaseCount }}</span>
+                            <span class="badge badge-soft text-xs">{{ $purchaseCount }}</span>
                         </div>
 
                         <div class="space-y-3">
@@ -88,7 +88,7 @@
                     <section class="space-y-3">
                         <div class="flex items-center gap-2 text-sm font-semibold text-subtle">
                             <span>Rental Prices</span>
-                            <span class="badge badge-ghost text-xs">{{ $rentalCount }}</span>
+                            <span class="badge badge-soft text-xs">{{ $rentalCount }}</span>
                         </div>
 
                         <div class="space-y-3">

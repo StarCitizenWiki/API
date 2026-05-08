@@ -176,13 +176,13 @@
                     @if ($badge['url'])
                         <a
                             href="{{ $badge['url'] }}"
-                            class="badge {{ $badge['badge_class'] ?? 'badge-ghost' }} transition hover:border-base-content/25 hover:bg-base-200"
+                            class="badge {{ $badge['badge_class'] ?? 'badge-soft' }} transition hover:border-base-content/25 hover:bg-base-200"
                             @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif
                         >
                             {{ $badge['label'] }}
                         </a>
                     @else
-                        <span class="badge {{ $badge['badge_class'] ?? 'badge-ghost' }}" @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif>{{ $badge['label'] }}</span>
+                        <span class="badge {{ $badge['badge_class'] ?? 'badge-soft' }}" @if ($badge['test_id']) data-testid="{{ $badge['test_id'] }}" @endif>{{ $badge['label'] }}</span>
                     @endif
                 @endforeach
             </div>

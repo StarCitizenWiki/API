@@ -13,7 +13,7 @@
         <div class="flex items-center gap-2">
             <h2 class="card-title text-base">Default Composition</h2>
             @if ($entryCount > 0)
-                <span class="badge badge-ghost text-xs">{{ $entryCount }}</span>
+                <span class="badge badge-soft text-xs">{{ $entryCount }}</span>
             @endif
         </div>
 

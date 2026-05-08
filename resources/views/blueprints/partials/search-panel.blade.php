@@ -29,7 +29,7 @@
                 aria-controls="blueprint-resource-filter-panel"
             >
                 <span>Filter by resource</span>
-                <span class="badge badge-ghost badge-sm" data-resource-filter-count>{{ $activeFilterCount }} selected</span>
+                <span class="badge badge-soft badge-sm" data-resource-filter-count>{{ $activeFilterCount }} selected</span>
             </button>
         </div>
 

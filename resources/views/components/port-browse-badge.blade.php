@@ -25,7 +25,7 @@
     }
 @endphp
 
-<a href="{{ route('web.items.index', ['filter' => $filters]) }}" class="badge badge-sm badge-ghost no-underline hover:opacity-80" title="Browse matching items">
+<a href="{{ route('web.items.index', ['filter' => $filters]) }}" class="badge badge-sm badge-soft no-underline hover:opacity-80" title="Browse matching items">
     @if ($label)
         <span>{{ $label }}</span>
     @endif

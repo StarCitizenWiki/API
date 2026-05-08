@@ -36,11 +36,11 @@
         </span>
 
         @if ($depSignature !== null)
-            <span class="badge badge-ghost badge-sm">Signature: {{ $depSignature }}</span>
+            <span class="badge badge-soft badge-sm">Signature: {{ $depSignature }}</span>
         @endif
 
         @if ($clusterMin !== null && $clusterMax !== null)
-            <span class="badge badge-ghost badge-sm" title="Clustering: number of deposits that spawn together">
+            <span class="badge badge-soft badge-sm" title="Clustering: number of deposits that spawn together">
                 Cluster: {{ $clusterMin }}-{{ $clusterMax }}
                 @if ($clusterProb !== null)
                     ({{ $clusterProb }}%)
@@ -54,14 +54,14 @@
 
         @if ($harvestableSetup !== null)
             @if (data_get($harvestableSetup, 'respawn_formatted'))
-                <span class="badge badge-ghost badge-sm" title="Respawn time">Respawn: {{ $harvestableSetup['respawn_formatted'] }}</span>
+                <span class="badge badge-soft badge-sm" title="Respawn time">Respawn: {{ $harvestableSetup['respawn_formatted'] }}</span>
             @endif
             @if (data_get($harvestableSetup, 'despawn_formatted'))
-                <span class="badge badge-ghost badge-sm" title="Despawn time">Despawn: {{ $harvestableSetup['despawn_formatted'] }}</span>
+                <span class="badge badge-soft badge-sm" title="Despawn time">Despawn: {{ $harvestableSetup['despawn_formatted'] }}</span>
             @endif
 
             @if (data_get($harvestableSetup, 'additional_wait_formatted'))
-                <span class="badge badge-ghost badge-sm" title="Additional wait when players are nearby">Wait: {{ $harvestableSetup['additional_wait_formatted'] }}</span>
+                <span class="badge badge-soft badge-sm" title="Additional wait when players are nearby">Wait: {{ $harvestableSetup['additional_wait_formatted'] }}</span>
             @endif
         @endif
 
@@ -79,7 +79,7 @@
                     $badgeTitle = "{$exceptionName} — Increased spawn rate";
 
                     if ($modifierValue === 0) {
-                        $badgeClass = 'badge-ghost opacity-50 line-through';
+                        $badgeClass = 'badge-soft opacity-50 line-through';
                         $suffix = ' (does not spawn)';
                         $badgeTitle = "{$exceptionName} — Does not spawn in this area";
                     }

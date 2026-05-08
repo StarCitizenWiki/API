@@ -75,7 +75,7 @@
                                 <div class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
                                     <span class="truncate">{{ $missionTitle }}</span>
                                     @if ($dedupeCount > 1)
-                                        <span class="badge badge-ghost badge-sm shrink-0">x{{ $dedupeCount }}</span>
+                                        <span class="badge badge-soft badge-sm shrink-0">x{{ $dedupeCount }}</span>
                                     @endif
                                 </div>
 

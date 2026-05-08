@@ -14,7 +14,7 @@
         <div class="card-body p-5 sm:p-6">
             <h2 class="card-title text-base">
                 Cargo Grids
-                <span class="badge badge-ghost text-xs">{{ count($cargoGrids) }}</span>
+                <span class="badge badge-soft text-xs">{{ count($cargoGrids) }}</span>
             </h2>
 
             @if ($oreCapacity !== null)

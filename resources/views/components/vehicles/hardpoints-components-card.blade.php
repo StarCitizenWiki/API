@@ -41,7 +41,7 @@
         <span class="flex items-center gap-2">
             <span>Hardpoints</span>
             @if ($portsCount > 0)
-                <span class="badge badge-ghost text-xs">{{ $portsCount }}</span>
+                <span class="badge badge-soft text-xs">{{ $portsCount }}</span>
             @endif
         </span>
     </summary>

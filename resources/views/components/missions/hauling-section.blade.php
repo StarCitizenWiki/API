@@ -6,7 +6,7 @@
         'Resource' => 'badge-info',
         'Entity' => 'badge-warning',
         'Entities' => 'badge-warning',
-        'MissionItem' => 'badge-ghost',
+        'MissionItem' => 'badge-soft',
         'Or' => 'badge-accent',
     ];
 
@@ -25,12 +25,12 @@
 <section {{ $attributes->merge(['class' => 'space-y-4']) }}>
     <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold tracking-tight">Hauling Orders</h2>
-        <span class="badge badge-ghost badge-sm">{{ count($haulingOrders) }}</span>
+        <span class="badge badge-soft badge-sm">{{ count($haulingOrders) }}</span>
     </div>
 
     @foreach ($orOrders as $order)
         @php
-            $badge = $kindBadge['Or'] ?? 'badge-ghost';
+            $badge = $kindBadge['Or'] ?? 'badge-soft';
             $orOptions = data_get($order, 'or_options') ?? [];
         @endphp
 
@@ -51,7 +51,7 @@
                             @foreach ($optionGroup as $groupEntry)
                                 @php
                                     $entryKind = data_get($groupEntry, 'kind', 'Order');
-                                    $entryBadge = $kindBadge[$entryKind] ?? 'badge-ghost';
+                                    $entryBadge = $kindBadge[$entryKind] ?? 'badge-soft';
                                     $entryLabel = $kindLabel[$entryKind] ?? $entryKind;
                                     $entryItems = data_get($groupEntry, 'items') ?? [];
                                 @endphp
@@ -119,7 +119,7 @@
             @foreach ($regularOrders as $order)
                 @php
                     $kind = data_get($order, 'kind', 'Order');
-                    $badge = $kindBadge[$kind] ?? 'badge-ghost';
+                    $badge = $kindBadge[$kind] ?? 'badge-soft';
                     $label = $kindLabel[$kind] ?? $kind;
                     $hasScu = (data_get($order, 'max_scu') ?? 0) > 0 || (data_get($order, 'min_scu') ?? 0) > 0;
                     $hasAmount = (data_get($order, 'max_amount') ?? 0) > 0 || (data_get($order, 'min_amount') ?? 0) > 0;

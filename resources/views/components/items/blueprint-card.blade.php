@@ -173,7 +173,7 @@
                                         <span>{{ $missionTitle }}</span>
                                     @endif
                                     @if ($missionCount > 1)
-                                        <span class="badge badge-ghost badge-sm">&times;{{ $missionCount }}</span>
+                                        <span class="badge badge-soft badge-sm">&times;{{ $missionCount }}</span>
                                     @endif
                                     <span class="text-xs text-subtle">{{ $groupLabel }}</span>
                                 </div>

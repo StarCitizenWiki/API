@@ -21,7 +21,7 @@
         'enemy' => 'badge-error',
         'defend_target' => 'badge-warning',
         'escort_target' => 'badge-info',
-        'other' => 'badge-ghost',
+        'other' => 'badge-soft',
     ];
 
     $hasDefendObjective = data_get($resource, 'has_defend_objective');
@@ -31,10 +31,10 @@
     <div class="flex items-center gap-3 flex-wrap">
         <h2 class="text-lg font-semibold tracking-tight">Combat</h2>
         @if ($totalMin !== null || $totalMax !== null)
-            <span class="badge badge-ghost badge-sm">{{ Format::range($totalMin, $totalMax, '', 0) }} Total Enemies</span>
+            <span class="badge badge-soft badge-sm">{{ Format::range($totalMin, $totalMax, '', 0) }} Total Enemies</span>
         @endif
         @foreach ($combatByGroup as $group)
-            <span class="badge badge-ghost badge-sm">{{ Format::range(data_get($group, 'min'), data_get($group, 'max'), '', 0) }} {{ data_get($group, 'group_name', '-') }}</span>
+            <span class="badge badge-soft badge-sm">{{ Format::range(data_get($group, 'min'), data_get($group, 'max'), '', 0) }} {{ data_get($group, 'group_name', '-') }}</span>
         @endforeach
         @if ($hasDefendObjective)
             <span class="badge badge-warning badge-sm">Defend Objective</span>
@@ -71,7 +71,7 @@
                                                 {{ $spawnGroup }}
                                             @endif
                                             @if ($spawn['weight'] !== null)
-                                                <span class="badge badge-ghost badge-xs ml-1">&times;{{ $spawn['weight'] }}</span>
+                                                <span class="badge badge-soft badge-xs ml-1">&times;{{ $spawn['weight'] }}</span>
                                             @endif
                                         </td>
                                         <td>
@@ -125,7 +125,7 @@
                                             @if ($allPositiveTags !== [])
                                                 <div class="flex flex-wrap gap-1">
                                                     @foreach ($allPositiveTags as $tag)
-                                                        <span class="badge badge-ghost badge-sm">{{ $tag }}</span>
+                                                        <span class="badge badge-soft badge-sm">{{ $tag }}</span>
                                                     @endforeach
                                                 </div>
                                             @else

@@ -344,7 +344,7 @@
                                     ${ingredientPreview === "" ? "" : `<p class="mt-2 text-xs text-subtle"><span class="font-semibold text-emphasis">Inputs:</span> ${escapeHtml(ingredientPreview)}</p>`}
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2 lg:justify-end">
-                                    ${typeLabel === "" ? "" : `<span class="badge badge-ghost badge-sm">${escapeHtml(typeLabel)}</span>`}
+                                    ${typeLabel === "" ? "" : `<span class="badge badge-soft badge-sm">${escapeHtml(typeLabel)}</span>`}
                                     <span class="badge badge-outline badge-sm">${inputCount} input${inputCount === 1 ? "" : "s"}</span>
                                     ${craftTimeLabel === null ? "" : `<span class="badge badge-outline badge-sm">${escapeHtml(craftTimeLabel)}</span>`}
                                 </div>
@@ -718,7 +718,7 @@
 
                         element.textContent = `${selectedCount} of ${group.requiredCount} selected`;
                         element.className = selectedCount === group.requiredCount
-                            ? "badge badge-ghost badge-sm"
+                            ? "badge badge-soft badge-sm"
                             : "badge badge-warning badge-sm";
                     });
 
@@ -1198,7 +1198,7 @@
                                                 @endif
                                             </div>
 
-                                            <span class="badge badge-ghost badge-sm" data-selection-group-count="{{ $aspectGroup['key'] }}">
+                                            <span class="badge badge-soft badge-sm" data-selection-group-count="{{ $aspectGroup['key'] }}">
                                                 {{ $aspectGroup['selected_count'] }} of {{ $aspectGroup['required_count'] }} selected
                                             </span>
                                         </div>
@@ -1240,7 +1240,7 @@
                                     <div class="flex flex-wrap items-center gap-2 text-xs">
                                         <span class="badge badge-primary badge-sm">Output</span>
                                         @if ($outputGrade)
-                                            <span class="badge badge-ghost badge-sm">Grade {{ $outputGrade }}</span>
+                                            <span class="badge badge-soft badge-sm">Grade {{ $outputGrade }}</span>
                                         @endif
                                         <span class="ml-auto">
                                             @if ($isAvailableByDefault)
@@ -1389,7 +1389,7 @@
                                                                 <span class="text-sm font-medium text-emphasis">{{ $mission['title'] ?? 'Unknown mission' }}</span>
                                                             @endif
                                                             @if (($mission['count'] ?? 1) > 1)
-                                                                <span class="badge badge-ghost badge-sm">&times;{{ $mission['count'] }}</span>
+                                                                <span class="badge badge-soft badge-sm">&times;{{ $mission['count'] }}</span>
                                                             @endif
                                                         </div>
                                                         @if ($mission['reward_scope'])
@@ -1494,7 +1494,7 @@
                             <div class="card-body gap-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <h2 class="card-title text-base">Requirement groups</h2>
-                                    <span class="badge badge-ghost badge-sm">{{ is_array($requirementGroups) ? count($requirementGroups) : 0 }}</span>
+                                    <span class="badge badge-soft badge-sm">{{ is_array($requirementGroups) ? count($requirementGroups) : 0 }}</span>
                                 </div>
 
                                 @if (! is_array($requirementGroups) || $requirementGroups === [])

@@ -33,7 +33,7 @@
                                 @if ($user->is_admin)
                                     <span class="badge badge-success">Yes</span>
                                 @else
-                                    <span class="badge badge-ghost">No</span>
+                                    <span class="badge badge-soft">No</span>
                                 @endif
                             </td>
                             <td>{{ $user->created_at->format('Y-m-d H:i') }}</td>

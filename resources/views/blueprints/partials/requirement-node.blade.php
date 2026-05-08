@@ -57,7 +57,7 @@
         @if ($badges !== [])
             <div class="flex flex-wrap gap-2">
                 @foreach ($badges as $badge)
-                    <span class="badge badge-ghost badge-sm">{{ $badge }}</span>
+                    <span class="badge badge-soft badge-sm">{{ $badge }}</span>
                 @endforeach
             </div>
         @endif

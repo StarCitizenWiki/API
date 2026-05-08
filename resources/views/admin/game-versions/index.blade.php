@@ -35,7 +35,7 @@
                                 @if ($version->is_default)
                                     <span class="badge badge-success" data-testid="admin-game-versions-default-status-{{ $version->id }}">Default</span>
                                 @else
-                                    <span class="badge badge-ghost" data-testid="admin-game-versions-default-status-{{ $version->id }}">Not Default</span>
+                                    <span class="badge badge-soft" data-testid="admin-game-versions-default-status-{{ $version->id }}">Not Default</span>
                                 @endif
                             </td>
                             <td>
@@ -60,13 +60,13 @@
                                             <div class="modal-box">
                                                 <h3 class="text-lg font-bold">Confirm Default Version</h3>
                                                 <p class="py-4">Are you sure you want to set "{{ $version->code }}" as the default version?</p>
-                                                <div class="modal-action">
-                                                    <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}" data-testid="admin-game-versions-set-default-form-{{ $version->id }}">
-                                                        @csrf
+                                                <form method="POST" action="{{ route('admin.game-versions.set-default', $version) }}" data-testid="admin-game-versions-set-default-form-{{ $version->id }}">
+                                                    @csrf
+                                                    <div class="modal-action">
                                                         <button type="submit" class="btn btn-primary">Set as Default</button>
-                                                    </form>
-                                                    <button class="btn" onclick="setDefaultModal{{ $version->id }}.close()">Cancel</button>
-                                                </div>
+                                                        <button type="button" class="btn" onclick="setDefaultModal{{ $version->id }}.close()">Cancel</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </dialog>
                                     @else

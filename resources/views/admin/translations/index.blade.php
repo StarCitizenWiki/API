@@ -40,13 +40,13 @@
                                                 @php
                                                     $translations = $commLink->getTranslations('translation');
                                                 @endphp
-                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-soft' }}">
                                                     EN
                                                 </span>
-                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-soft' }}">
                                                     DE
                                                 </span>
-                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-soft' }}">
                                                     ZH
                                                 </span>
                                             </div>
@@ -109,13 +109,13 @@
                                                 @php
                                                     $translations = $article->getTranslations('translation');
                                                 @endphp
-                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-soft' }}">
                                                     EN
                                                 </span>
-                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-soft' }}">
                                                     DE
                                                 </span>
-                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-soft' }}">
                                                     ZH
                                                 </span>
                                             </div>
@@ -182,13 +182,13 @@
                                                 @php
                                                     $translations = $size->getTranslations('translation');
                                                 @endphp
-                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-soft' }}">
                                                     EN
                                                 </span>
-                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-soft' }}">
                                                     DE
                                                 </span>
-                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-soft' }}">
                                                     ZH
                                                 </span>
                                             </div>
@@ -224,13 +224,13 @@
                                                 @php
                                                     $translations = $focus->getTranslations('translation');
                                                 @endphp
-                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-soft' }}">
                                                     EN
                                                 </span>
-                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-soft' }}">
                                                     DE
                                                 </span>
-                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-soft' }}">
                                                     ZH
                                                 </span>
                                             </div>
@@ -266,13 +266,13 @@
                                                 @php
                                                     $translations = $type->getTranslations('translation');
                                                 @endphp
-                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['en']) && !empty($translations['en']) ? 'badge-success' : 'badge-soft' }}">
                                                     EN
                                                 </span>
-                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['de']) && !empty($translations['de']) ? 'badge-success' : 'badge-soft' }}">
                                                     DE
                                                 </span>
-                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-ghost' }}">
+                                                <span class="badge {{ isset($translations['zh']) && !empty($translations['zh']) ? 'badge-success' : 'badge-soft' }}">
                                                     ZH
                                                 </span>
                                             </div>

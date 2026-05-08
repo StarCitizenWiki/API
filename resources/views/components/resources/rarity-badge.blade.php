@@ -2,7 +2,7 @@
 
 @php
     $tierClasses = match ($tier) {
-        'common' => 'badge-ghost',
+        'common' => 'badge-soft',
         'uncommon' => 'badge-success',
         'rare' => 'badge-info',
         'epic' => 'badge-secondary',

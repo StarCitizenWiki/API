@@ -76,7 +76,7 @@
                 <div class="flex items-center gap-3">
                     <h2 class="text-lg font-semibold tracking-tight">Locations</h2>
                     @if ($locationCount > 0)
-                        <span class="badge badge-ghost badge-sm">{{ $locationCount }} locations, {{ $totalDeposits }} deposits</span>
+                        <span class="badge badge-soft badge-sm">{{ $locationCount }} locations, {{ $totalDeposits }} deposits</span>
                     @endif
                 </div>
 
@@ -87,7 +87,7 @@
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
                         <h2 class="text-lg font-semibold tracking-tight">Used in Blueprints</h2>
-                        <span class="badge badge-ghost badge-sm">{{ count($blueprints) }}</span>
+                        <span class="badge badge-soft badge-sm">{{ count($blueprints) }}</span>
                     </div>
 
                     <div class="card card-border bg-base-100 shadow">
@@ -127,7 +127,7 @@
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
                         <h2 class="text-lg font-semibold tracking-tight">Contained in Items</h2>
-                        <span class="badge badge-ghost badge-sm">{{ count($items) }}</span>
+                        <span class="badge badge-soft badge-sm">{{ count($items) }}</span>
                     </div>
 
                     <div class="card card-border bg-base-100 shadow">

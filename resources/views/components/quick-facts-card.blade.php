@@ -69,7 +69,7 @@
                                         @elseif (($row['type'] ?? null) === 'badges_ghost')
                                             <span class="flex flex-wrap justify-end gap-2">
                                                 @foreach ($row['value'] as $badge)
-                                                    <span class="badge badge-ghost badge-sm">{{ $badge }}</span>
+                                                    <span class="badge badge-soft badge-sm">{{ $badge }}</span>
                                                 @endforeach
                                             </span>
                                         @else

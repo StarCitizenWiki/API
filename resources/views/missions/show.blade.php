@@ -339,7 +339,7 @@
                         @php
                             $totalLocations = array_sum(array_map(fn (array $locs): int => count($locs), $mergedLocations));
                         @endphp
-                        <span class="badge badge-ghost badge-sm">{{ $totalLocations }} locations</span>
+                        <span class="badge badge-soft badge-sm">{{ $totalLocations }} locations</span>
                     </div>
 
                     @foreach ($mergedLocations as $groupLabel => $locations)
@@ -373,7 +373,7 @@
                                                 </div>
                                                 <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                     @if (data_get($location, 'system'))
-                                                        <span class="badge badge-ghost badge-sm">{{ data_get($location, 'system') }}</span>
+                                                        <span class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
                                                     @endif
                                                     @if (data_get($location, 'type'))
                                                         <span>{{ data_get($location, 'type') }}</span>
@@ -401,7 +401,7 @@
                                                         </div>
                                                         <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                             @if (data_get($location, 'system'))
-                                                                <span class="badge badge-ghost badge-sm">{{ data_get($location, 'system') }}</span>
+                                                                <span class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
                                                             @endif
                                                             @if (data_get($location, 'type'))
                                                                 <span>{{ data_get($location, 'type') }}</span>

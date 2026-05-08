@@ -24,7 +24,7 @@
             <section class="space-y-4" data-testid="resource-system">
                 <h3 class="flex items-center gap-2 text-lg font-semibold tracking-tight">
                     {{ $systemName }}
-                    <span class="badge badge-ghost badge-sm">{{ count($systemLocations) }}</span>
+                    <span class="badge badge-soft badge-sm">{{ count($systemLocations) }}</span>
                 </h3>
 
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -76,11 +76,11 @@
                                     @endif
 
                                     @if ($groupProb !== null)
-                                        <span class="badge badge-ghost badge-sm" title="Probability of this group spawning at this location">Spawn: {{ $groupProb }}%</span>
+                                        <span class="badge badge-soft badge-sm" title="Probability of this group spawning at this location">Spawn: {{ $groupProb }}%</span>
                                     @endif
 
                                     @if ($relProb !== null)
-                                        <span class="badge badge-ghost badge-sm" title="Relative probability of this resource vs. others in the group">Occurrence: {{ $relProb }}%</span>
+                                        <span class="badge badge-soft badge-sm" title="Relative probability of this resource vs. others in the group">Occurrence: {{ $relProb }}%</span>
                                     @endif
                                 </div>
 
