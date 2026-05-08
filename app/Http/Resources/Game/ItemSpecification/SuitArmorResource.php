@@ -153,6 +153,13 @@ use OpenApi\Attributes as OA;
             ],
             nullable: true
         ),
+        new OA\Property(
+            property: 'gforce_resistance',
+            description: 'G-force tolerance modifier from root. Positive increases tolerance, negative reduces it.',
+            type: 'double',
+            example: 0.9,
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -205,6 +212,7 @@ class SuitArmorResource extends AbstractItemSpecificationResource
             'radiation_resistance' => Arr::has($stdItem, 'RadiationResistance')
                 ? (new RadiationResistanceResource(Arr::get($stdItem, 'RadiationResistance')))->toArray($request)
                 : null,
+            'gforce_resistance' => Arr::get($stdItem, 'GForceResistance.Value'),
         ];
     }
 

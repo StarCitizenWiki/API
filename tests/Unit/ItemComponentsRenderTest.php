@@ -341,3 +341,68 @@ it('hides the weapon attachment card when all data is null', function (): void {
 
     $view->assertDontSeeText('Weapon Attachment');
 });
+
+describe('clothing-card', function (): void {
+    it('renders g-force resistance as a percentage', function (): void {
+        $view = $this->blade('<x-items.clothing-card :clothing="$clothing" :temperature-resistance="$temp" :inventory="$inventory" :gforce-resistance="$gfr" />', [
+            'clothing' => ['slot' => 'Torso'],
+            'temp' => ['minimum' => -20, 'maximum' => 50],
+            'inventory' => ['scu_converted' => 0.001, 'unit' => 'µSCU'],
+            'gfr' => -0.125,
+        ]);
+
+        $view->assertSeeTextInOrder(['G-Force Resistance', 'Modifier', '-12.5%']);
+    });
+
+    it('renders positive g-force resistance', function (): void {
+        $view = $this->blade('<x-items.clothing-card :clothing="$clothing" :temperature-resistance="$temp" :inventory="$inventory" :gforce-resistance="$gfr" />', [
+            'clothing' => ['slot' => 'Legs'],
+            'temp' => ['minimum' => -10, 'maximum' => 40],
+            'inventory' => ['scu_converted' => 0.001, 'unit' => 'µSCU'],
+            'gfr' => 0.9,
+        ]);
+
+        $view->assertSeeTextInOrder(['G-Force Resistance', 'Modifier', '90.0%']);
+    });
+
+    it('renders zero g-force resistance', function (): void {
+        $view = $this->blade('<x-items.clothing-card :clothing="$clothing" :temperature-resistance="$temp" :inventory="$inventory" :gforce-resistance="$gfr" />', [
+            'clothing' => ['slot' => 'Feet'],
+            'temp' => ['minimum' => 0, 'maximum' => 30],
+            'inventory' => ['scu_converted' => 0.001, 'unit' => 'µSCU'],
+            'gfr' => 0,
+        ]);
+
+        $view->assertSeeTextInOrder(['G-Force Resistance', 'Modifier', '0.0%']);
+    });
+});
+
+describe('suit-armor-card', function (): void {
+    it('renders g-force resistance in the armor card', function (): void {
+        $view = $this->blade('<x-items.suit-armor-card :suit-armor="$armor" :temperature-resistance="$temp" :inventory="$inventory" :gforce-resistance="$gfr" />', [
+            'armor' => [
+                'slot' => 'Core',
+                'damage_resistance_map' => ['physical_change' => -0.3],
+            ],
+            'temp' => ['minimum' => -30, 'maximum' => 60],
+            'inventory' => ['scu_converted' => 0.002, 'unit' => 'µSCU'],
+            'gfr' => 0.9,
+        ]);
+
+        $view->assertSeeTextInOrder(['G-Force Resistance', 'Modifier', '90.0%']);
+    });
+
+    it('renders negative g-force resistance for heavy suits', function (): void {
+        $view = $this->blade('<x-items.suit-armor-card :suit-armor="$armor" :temperature-resistance="$temp" :inventory="$inventory" :gforce-resistance="$gfr" />', [
+            'armor' => [
+                'slot' => 'Core',
+                'damage_resistance_map' => [],
+            ],
+            'temp' => ['minimum' => -40, 'maximum' => 80],
+            'inventory' => ['scu_converted' => 0.003, 'unit' => 'µSCU'],
+            'gfr' => -0.875,
+        ]);
+
+        $view->assertSeeTextInOrder(['G-Force Resistance', 'Modifier', '-87.5%']);
+    });
+});

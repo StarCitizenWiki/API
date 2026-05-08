@@ -436,7 +436,11 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
                 'quality_stddev' => isset($qualityRange['Stddev']) && is_numeric($qualityRange['Stddev']) ? (int) $qualityRange['Stddev'] : null,
                 'min_percentage' => isset($quality['MinPercentage']) && is_numeric($quality['MinPercentage']) ? round((float) $quality['MinPercentage'], 4) : null,
                 'max_percentage' => isset($quality['MaxPercentage']) && is_numeric($quality['MaxPercentage']) ? round((float) $quality['MaxPercentage'], 4) : null,
-                'data' => $locationData,
+                'data' => array_merge($locationData, array_filter([
+                    'quality_quantization' => isset($quality['QualityQuantization']) && is_array($quality['QualityQuantization']) && $quality['QualityQuantization'] !== []
+                        ? array_map(static fn (int $v): int => $v, $quality['QualityQuantization'])
+                        : null,
+                ])),
             ];
         }
 

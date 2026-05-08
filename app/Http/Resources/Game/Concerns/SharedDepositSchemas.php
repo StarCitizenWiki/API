@@ -81,6 +81,15 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'group_probability_percent', description: 'Group probability expressed as a percentage (0–100).', type: 'number'),
         new OA\Property(property: 'relative_probability', description: 'Raw relative probability compared to other materials in the deposit (0–1).', type: 'number'),
         new OA\Property(property: 'relative_probability_percent', description: 'Relative probability expressed as a percentage (0–100).', type: 'number'),
+        new OA\Property(property: 'quality_quantized_values', description: 'The discrete set of quantized quality values a player can actually receive, filtered by the material\'s quality range. Each value corresponds to one reachable quantization band.', type: 'array', items: new OA\Items(type: 'integer'), example: [521, 664, 710, 874, 907, 970, 1000], nullable: true),
+        new OA\Property(
+            property: 'quality_quantization',
+            description: 'All possible quantized quality values for this material from the source data. Use quality_quantized_values for the filtered set reachable on this specific deposit.',
+            type: 'array',
+            items: new OA\Items(type: 'integer'),
+            example: [348, 523, 686, 717, 861, 916, 975, 1000],
+            nullable: true
+        ),
     ],
     type: 'object'
 )]

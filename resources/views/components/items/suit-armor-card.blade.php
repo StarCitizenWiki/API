@@ -3,6 +3,7 @@
     'suitArmor',
     'temperatureResistance',
     'inventory',
+    'gforceResistance',
 ])
 
 @php
@@ -39,6 +40,8 @@
         ['label' => 'Dissipation Rate', 'value' => data_get($radiationResistance, 'radiation_dissipation_rate')],
     ];
 
+    $gforceResistance = $gforceResistance ?? null;
+
 
 @endphp
 
@@ -68,6 +71,12 @@
         <x-dl-section title="Temperature Resistance">
             <x-dt-dd label="Min" :value="data_get($temperatureResistance, 'minimum')">{{ Format::valueWithUnit(data_get($temperatureResistance, 'minimum'), '°C', 1) }}</x-dt-dd>
             <x-dt-dd label="Max" :value="data_get($temperatureResistance, 'maximum')">{{ Format::valueWithUnit(data_get($temperatureResistance, 'maximum'), '°C', 1) }}</x-dt-dd>
+        </x-dl-section>
+
+        <x-dl-section title="G-Force Resistance">
+            <x-dt-dd label="Modifier" :value="$gforceResistance">
+                <span class="{{ Format::colorClass($gforceResistance) }}">{{ Format::valueWithUnit($gforceResistance * 100, '%', 1) }}</span>
+            </x-dt-dd>
         </x-dl-section>
 
         <x-dl-section title="Radiation Resistance">

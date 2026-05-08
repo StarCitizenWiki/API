@@ -516,6 +516,122 @@ it('returns null areas when no provider areas', function (): void {
     expect($response->json('data.locations.0.resources.0.area_exceptions'))->toBeNull();
 });
 
+it('returns null quality_quantization when raw data has no quantization', function (): void {
+    $commodity = Commodity::factory()->create(['name' => 'Beryl']);
+    $resourceData = createResourceData($commodity, 'mineable');
+    attachLocation($resourceData, 'Stanton', 'Planet', 'microTech', 'SpaceShip_Mineables', 'mineable');
+
+    $response = $this->getJson("/api/commodities/{$commodity->uuid}");
+
+    $response->assertSuccessful();
+    $materials = $response->json('data.locations.0.resources.0.materials');
+    expect($materials)->toHaveCount(1)
+        ->and($materials[0]['quality_quantization'])->toBeNull()
+        ->and($materials[0]['quality_quantized_values'])->toBeNull();
+});
+
+it('returns quality quantization values matched by commodity UUID and percentage range', function (): void {
+    $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold']);
+    $aluminum = Commodity::factory()->create(['name' => 'Aluminum (Ore)', 'key' => 'Ore_Aluminum']);
+
+    $resource = Resource::factory()->create();
+    $resourceData = ResourceData::factory()->create([
+        'resource_id' => $resource->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'key' => 'GPI_Icicle',
+        'name' => 'GPI Icicle',
+        'kind' => 'mineable',
+        'data' => [
+            'Composition' => [
+                'Parts' => [
+                    [
+                        'ResourceTypeUUID' => $gold->uuid,
+                        'Key' => 'Ore_Gold',
+                        'Name' => 'Gold (Ore)',
+                        'MinPercentage' => 10,
+                        'MaxPercentage' => 30,
+                        'Probability' => 1,
+                        'QualityScale' => 1,
+                        'CurveExponent' => 1,
+                        'QualityQuantization' => [318, 511, 614, 783, 896, 919, 953, 1000],
+                    ],
+                    [
+                        'ResourceTypeUUID' => $aluminum->uuid,
+                        'Key' => 'Ore_Aluminum',
+                        'Name' => 'Aluminum (Ore)',
+                        'MinPercentage' => 30,
+                        'MaxPercentage' => 70,
+                        'Probability' => 1,
+                        'QualityScale' => 1,
+                        'CurveExponent' => 1,
+                        'QualityQuantization' => [300, 500, 650, 750, 850, 925, 970, 1000],
+                    ],
+                ],
+            ],
+        ],
+    ]);
+
+    ResourceCommodity::create(['resource_data_id' => $resourceData->id, 'commodity_id' => $gold->id]);
+    ResourceCommodity::create(['resource_data_id' => $resourceData->id, 'commodity_id' => $aluminum->id]);
+
+    $starmapLocation = StarmapLocation::factory()->create();
+    $locationData = StarmapLocationData::factory()->create([
+        'starmap_location_id' => $starmapLocation->id,
+        'game_version_id' => $this->defaultVersion->id,
+        'name' => 'microTech',
+        'type_name' => 'Planet',
+        'system' => 'Stanton',
+    ]);
+
+    $provider = ResourceProvider::factory()->create();
+
+    // Gold: quality 620–680, composition part at 10–30%
+    $rlGold = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'commodity_id' => $gold->id,
+        'quality_min' => 620,
+        'quality_max' => 680,
+        'min_percentage' => 10,
+        'max_percentage' => 30,
+    ]);
+    $rlGold->starmapLocationData()->attach($locationData->id);
+
+    // Aluminum: quality 500–750, composition part at 30–70%
+    $rlAluminum = ResourceLocation::factory()->create([
+        'resource_data_id' => $resourceData->id,
+        'resource_provider_id' => $provider->id,
+        'group_name' => 'SpaceShip_Mineables',
+        'resource_kind' => 'mineable',
+        'commodity_id' => $aluminum->id,
+        'quality_min' => 500,
+        'quality_max' => 750,
+        'min_percentage' => 30,
+        'max_percentage' => 70,
+    ]);
+    $rlAluminum->starmapLocationData()->attach($locationData->id);
+
+    $response = $this->getJson("/api/commodities/{$gold->uuid}");
+
+    $response->assertSuccessful();
+    $materials = $response->json('data.locations.0.resources.0.materials');
+    expect($materials)->toHaveCount(2);
+
+    // Gold: flat array from the matching part (10–30%)
+    $goldEntry = collect($materials)->first(fn (array $m): bool => $m['key'] === 'Ore_Gold');
+    expect($goldEntry)->not->toBeNull()
+        ->and($goldEntry['quality_quantization'])->toBe([318, 511, 614, 783, 896, 919, 953, 1000])
+        ->and($goldEntry['quality_quantized_values'])->toBe([318, 511, 614, 783, 896, 919, 953, 1000]);
+
+    // Aluminum: flat array from the matching part (30–70%)
+    $aluminumEntry = collect($materials)->first(fn (array $m): bool => $m['key'] === 'Ore_Aluminum');
+    expect($aluminumEntry)->not->toBeNull()
+        ->and($aluminumEntry['quality_quantization'])->toBe([300, 500, 650, 750, 850, 925, 970, 1000])
+        ->and($aluminumEntry['quality_quantized_values'])->toBe([300, 500, 650, 750, 850, 925, 970, 1000]);
+});
+
 function createResourceData(Commodity $commodity, string $kind = 'mineable'): ResourceData
 {
     $test = test();

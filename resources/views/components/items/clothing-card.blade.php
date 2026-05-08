@@ -3,11 +3,13 @@
     'clothing',
     'temperatureResistance',
     'inventory',
+    'gforceResistance',
 ])
 
 @php
     $slot = data_get($clothing, 'slot');
     $temperatureResistance = $temperatureResistance ?? [];
+    $gforceResistance = $gforceResistance ?? null;
     $scuConverted = data_get($inventory, 'scu_converted');
     $inventoryUnit = data_get($inventory, 'unit', 'SCU');
 
@@ -19,6 +21,12 @@
             <x-dt-dd label="Slot" :value="$slot">{{ $slot }}</x-dt-dd>
             <x-dt-dd label="Inventory" :value="$scuConverted">{{ Format::valueWithUnit($scuConverted, $inventoryUnit, 1) }}</x-dt-dd>
         </x-slot:head>
+
+        <x-dl-section title="G-Force Resistance">
+            <x-dt-dd label="Modifier" :value="$gforceResistance">
+                <span class="{{ Format::colorClass($gforceResistance) }}">{{ Format::valueWithUnit($gforceResistance * 100, '%', 1) }}</span>
+            </x-dt-dd>
+        </x-dl-section>
 
         <x-dl-section title="Temperature Resistance">
             <x-dt-dd label="Min" :value="data_get($temperatureResistance, 'minimum')">{{ Format::valueWithUnit(data_get($temperatureResistance, 'minimum'), '°C', 1) }}</x-dt-dd>

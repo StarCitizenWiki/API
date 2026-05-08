@@ -19,6 +19,7 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -200,6 +201,7 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(property: 'temperature_resistance', ref: '#/components/schemas/temperature_resistance', nullable: true),
         new OA\Property(property: 'radiation_resistance', ref: '#/components/schemas/radiation_resistance', nullable: true),
+        new OA\Property(property: 'gforce_resistance', description: 'G-force tolerance modifier. Positive values increase tolerance, negative values reduce it. 0 = neutral.', type: 'double', example: 0.9, nullable: true),
 
         new OA\Property(property: 'armor', ref: '#/components/schemas/vehicle_armor', nullable: true),
         new OA\Property(property: 'cooler', ref: '#/components/schemas/cooler', nullable: true),
@@ -536,6 +538,9 @@ class ItemResource extends AbstractBaseResource
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'TemperatureResistance'), [
                 'temperature_resistance' => new TemperatureResistanceResource($this->extractFromStdItem($itemData, 'TemperatureResistance')),
+            ]),
+            $this->mergeWhen($this->hasInStdItem($itemData, 'GForceResistance'), [
+                'gforce_resistance' => Arr::get($this->extractFromStdItem($itemData, 'GForceResistance'), 'Value'),
             ]),
             $this->mergeWhen($this->hasInStdItem($itemData, 'HeatConnection'), [
                 'heat' => new ItemHeatConnectionResource($this->extractFromStdItem($itemData, 'HeatConnection')),

@@ -298,6 +298,8 @@ trait HasDepositFormatting
                 $rl = $pair['resourceLocation'];
                 $commodity = $rl->commodity;
 
+                $qqValues = data_get($rl->data, 'quality_quantization');
+
                 return [
                     'key' => $rl->commodity?->key,
                     'name' => $commodity?->name,
@@ -315,6 +317,8 @@ trait HasDepositFormatting
                     'group_probability_percent' => self::formatPercent((float) $rl->group_probability),
                     'relative_probability' => (float) $rl->relative_probability,
                     'relative_probability_percent' => self::formatPercent((float) $rl->relative_probability),
+                    'quality_quantized_values' => $qqValues,
+                    'quality_quantization' => $qqValues,
                 ];
             })
             ->sortByDesc(static fn (array $item): float => $item['max_percentage'])

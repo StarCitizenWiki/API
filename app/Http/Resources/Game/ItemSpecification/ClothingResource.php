@@ -74,6 +74,13 @@ use OpenApi\Attributes as OA;
             ],
             nullable: true
         ),
+        new OA\Property(
+            property: 'gforce_resistance',
+            description: 'G-force tolerance modifier from root. Positive increases tolerance, negative reduces it.',
+            type: 'double',
+            example: -0.125,
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -98,8 +105,9 @@ class ClothingResource extends AbstractBaseResource
             'temp_resistance_min' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Minimum'),
             'temp_resistance_max' => Arr::get($resource, 'data.stdItem.TemperatureResistance.Maximum'),
             'radiation_resistance' => Arr::has($resource, 'data.stdItem.RadiationResistance')
-                ? (new RadiationResistanceResource(Arr::get($resource, 'data.stdItem.RadiationResistance')))->toArray($request)
+                ? new RadiationResistanceResource(Arr::get($resource, 'data.stdItem.RadiationResistance'))->toArray($request)
                 : null,
+            'gforce_resistance' => Arr::get($resource, 'data.stdItem.GForceResistance.Value'),
         ];
     }
 

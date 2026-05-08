@@ -23,6 +23,7 @@
     $clusterProb = data_get($clustering, 'probability_percent');
 
     $isMineable = $resourceKind === 'mineable';
+    $hasQuantization = collect($materials)->contains(fn ($m) => data_get($m, 'quality_quantization') !== null);
 @endphp
 
 <div class="border-t border-base-200 pt-3 mt-1 first:border-t-0 first:mt-0 first:pt-0">
@@ -100,76 +101,103 @@
         <div class="overflow-x-auto">
             <table class="table table-sm">
                 <thead>
-                    <tr>
-                        <th>Material</th>
-                        <th>Range</th>
-                        <th>Quality</th>
-                        <th>Mean</th>
-                        <th>Std Dev</th>
-                        <th>Instability</th>
-                        <th>Resistance</th>
-                    </tr>
+                <tr>
+                    <th>Material</th>
+                    <th>Range</th>
+                    <th title="The raw quality range the server rolls from. Each rock gets one roll within this range, then the result is mapped to the nearest fixed value in the Received column.">
+                        <span class="flex items-center gap-1">
+                            Quality
+                            <x-icon name="info" class="size-3.5 opacity-50" />
+                        </span>
+                    </th>
+                    @if ($hasQuantization)
+                        <th title="The actual quality value you receive. The game converts the rolled quality into one of these fixed values.">
+                            <span class="flex items-center gap-1">
+                                Received
+                                <x-icon name="info" class="size-3.5 opacity-50" />
+                            </span>
+                        </th>
+                    @endif
+                    <th>Mean</th>
+                    <th>Std Dev</th>
+                    <th>Instability</th>
+                    <th>Resistance</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach ($materials as $material)
-                        @php
-                            $matName = data_get($material, 'name');
-                            $matUuid = data_get($material, 'uuid');
-                            $isCurrent = data_get($material, 'is_current', false);
-                            $matMinPct = data_get($material, 'min_percentage');
-                            $matMaxPct = data_get($material, 'max_percentage');
-                            $qMin = data_get($material, 'quality_min');
-                            $qMax = data_get($material, 'quality_max');
-                            $qMean = data_get($material, 'quality_mean');
-                            $qStddev = data_get($material, 'quality_stddev');
+                @foreach ($materials as $material)
+                    @php
+                        $matName = data_get($material, 'name');
+                        $matUuid = data_get($material, 'uuid');
+                        $isCurrent = data_get($material, 'is_current', false);
+                        $matMinPct = data_get($material, 'min_percentage');
+                        $matMaxPct = data_get($material, 'max_percentage');
+                        $qMin = data_get($material, 'quality_min');
+                        $qMax = data_get($material, 'quality_max');
+                        $qMean = data_get($material, 'quality_mean');
+                        $qStddev = data_get($material, 'quality_stddev');
 
-                            $qualityPercent = null;
-                            $qualityLeftPercent = null;
-                            if ($qMin !== null && $qMax !== null && $depQRange !== null && $depQRange > 0) {
-                                $qualityPercent = round((($qMax - $qMin) / $depQRange) * 100, 1);
-                                $qualityLeftPercent = round((($qMin - $depQMin) / $depQRange) * 100, 1);
-                            } elseif ($qMin !== null && $qMax !== null) {
-                                $qualityPercent = 100;
-                                $qualityLeftPercent = 0;
-                            }
-                        @endphp
+                        $qualityPercent = null;
+                        $qualityLeftPercent = null;
+                        if ($qMin !== null && $qMax !== null && $depQRange !== null && $depQRange > 0) {
+                            $qualityPercent = round((($qMax - $qMin) / $depQRange) * 100, 1);
+                            $qualityLeftPercent = round((($qMin - $depQMin) / $depQRange) * 100, 1);
+                        } elseif ($qMin !== null && $qMax !== null) {
+                            $qualityPercent = 100;
+                            $qualityLeftPercent = 0;
+                        }
+                    @endphp
 
-                        <tr class="hover{{ $isCurrent ? ' bg-primary/5' : '' }}">
-                            <td class="text-xs font-medium whitespace-nowrap">
-                                @if ($isCurrent)
-                                    <span class="font-bold">{{ $matName }}</span>
-                                @elseif ($matUuid)
-                                    <a href="{{ $withVersion(route('web.commodities.show', ['identifier' => $matUuid])) }}" class="link link-hover">{{ $matName }}</a>
-                                @else
-                                    {{ $matName }}
-                                @endif
-                            </td>
-                            <td class="text-xs tabular-nums whitespace-nowrap">
-                                @if ($matMinPct !== null)
-                                    {{ round((float) $matMinPct, 1) }}-{{ round((float) $matMaxPct, 1) }}%
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="whitespace-nowrap">
-                                @if ($qMin !== null && $qMax !== null)
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-medium">{{ $qMin }}</span>
-                                        <div class="relative h-1.5 w-16 rounded-full bg-base-200">
-                                            <div class="absolute h-1.5 rounded-full bg-primary" style="left: {{ $qualityLeftPercent ?? 0 }}%; width: {{ $qualityPercent ?? 100 }}%"></div>
-                                        </div>
-                                        <span class="text-xs font-medium">{{ $qMax }}</span>
+                    <tr class="hover{{ $isCurrent ? ' bg-primary/5' : '' }}">
+                        <td class="text-xs font-medium whitespace-nowrap">
+                            @if ($isCurrent)
+                                <span class="font-bold">{{ $matName }}</span>
+                            @elseif ($matUuid)
+                                <a href="{{ $withVersion(route('web.commodities.show', ['identifier' => $matUuid])) }}" class="link link-hover">{{ $matName }}</a>
+                            @else
+                                {{ $matName }}
+                            @endif
+                        </td>
+                        <td class="text-xs tabular-nums whitespace-nowrap">
+                            @if ($matMinPct !== null)
+                                {{ round((float) $matMinPct, 1) }}-{{ round((float) $matMaxPct, 1) }}%
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td class="whitespace-nowrap">
+                            @if ($qMin !== null && $qMax !== null)
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-medium">{{ $qMin }}</span>
+                                    <div class="relative h-1.5 w-16 rounded-full bg-base-200">
+                                        <div class="absolute h-1.5 rounded-full bg-primary" style="left: {{ $qualityLeftPercent ?? 0 }}%; width: {{ $qualityPercent ?? 100 }}%"></div>
                                     </div>
+                                    <span class="text-xs font-medium">{{ $qMax }}</span>
+                                </div>
+                            @else
+                                -
+                            @endif
+                        </td>
+                        @if ($hasQuantization)
+                            @php
+                                $qzValues = data_get($material, 'quality_quantized_values');
+                            @endphp
+                            <td class="text-xs tabular-nums">
+                                @if ($qzValues !== null && $qzValues !== [])
+                                    <span title="The discrete quality values you can actually receive on this deposit. Used for sell price and refining yield.">
+                                        {{ implode(', ', $qzValues) }}
+                                    </span>
                                 @else
-                                    -
+                                    <span class="opacity-40">-</span>
                                 @endif
                             </td>
-                            <td class="text-xs tabular-nums">{{ $qMean ?? '-' }}</td>
-                            <td class="text-xs tabular-nums">{{ $qStddev ?? '-' }}</td>
-                            <td class="text-xs tabular-nums">{{ data_get($material, 'instability') ?? '-' }}</td>
-                            <td class="text-xs tabular-nums">{{ data_get($material, 'resistance') ?? '-' }}</td>
-                        </tr>
-                    @endforeach
+                        @endif
+                        <td class="text-xs tabular-nums">{{ $qMean ?? '-' }}</td>
+                        <td class="text-xs tabular-nums">{{ $qStddev ?? '-' }}</td>
+                        <td class="text-xs tabular-nums">{{ data_get($material, 'instability') ?? '-' }}</td>
+                        <td class="text-xs tabular-nums">{{ data_get($material, 'resistance') ?? '-' }}</td>
+                    </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>
