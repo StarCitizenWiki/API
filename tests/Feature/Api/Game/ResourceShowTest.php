@@ -596,6 +596,9 @@ it('returns quality quantization values matched by commodity UUID and percentage
         'quality_max' => 680,
         'min_percentage' => 10,
         'max_percentage' => 30,
+        'data' => [
+            'quality_quantization' => [318, 511, 614, 783, 896, 919, 953, 1000],
+        ],
     ]);
     $rlGold->starmapLocationData()->attach($locationData->id);
 
@@ -610,6 +613,9 @@ it('returns quality quantization values matched by commodity UUID and percentage
         'quality_max' => 750,
         'min_percentage' => 30,
         'max_percentage' => 70,
+        'data' => [
+            'quality_quantization' => [300, 500, 650, 750, 850, 925, 970, 1000],
+        ],
     ]);
     $rlAluminum->starmapLocationData()->attach($locationData->id);
 
