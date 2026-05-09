@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'personal_weapon_mode',
     title: 'Personal Weapon Mode',
-    description: 'Fire mode entries as returned by the game data mapping.',
+    description: 'Fire mode entries as returned by the game data mapping. Type-specific fields are only present when the mode type matches.',
     properties: [
         new OA\Property(property: 'mode', description: 'Mode name (Modes[].Name).', type: 'string', example: 'Rapid', nullable: true),
         new OA\Property(property: 'localised', description: 'Localized label (Modes[].LocalisedName).', type: 'string', example: '[AUTO]', nullable: true),
@@ -20,6 +20,71 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'ammo_per_shot', description: 'Ammo consumed per shot (Modes[].AmmoPerShot).', type: 'integer', example: 1, nullable: true),
         new OA\Property(property: 'pellets_per_shot', description: 'Pellets per shot (Modes[].PelletsPerShot).', type: 'integer', example: 12, nullable: true),
         new OA\Property(property: 'damage_per_second', description: 'Mode DPS as provided (Modes[].DamagePerSecond).', type: 'double', example: 0, nullable: true),
+
+        // Heat / wear (projectile)
+        new OA\Property(property: 'heat_per_shot', description: 'Heat generated per shot (projectile modes).', type: 'double', nullable: true),
+        new OA\Property(property: 'wear_per_shot', description: 'Durability lost per shot (projectile modes).', type: 'double', nullable: true),
+
+        // Heat / wear (continuous / beam)
+        new OA\Property(property: 'heat_per_second', description: 'Heat generated per second (beam / continuous-fire modes).', type: 'double', nullable: true),
+        new OA\Property(property: 'wear_per_second', description: 'Durability lost per second (beam / continuous-fire modes).', type: 'double', nullable: true),
+
+        // Rapid
+        new OA\Property(property: 'fire_during_spin_up', description: 'Whether the weapon fires during barrel spin-up (rapid mode).', type: 'boolean', nullable: true),
+
+        // Burst
+        new OA\Property(property: 'shot_count', description: 'Number of shots per burst (burst mode).', type: 'integer', nullable: true),
+        new OA\Property(property: 'cooldown_time', description: 'Cooldown time between bursts in seconds (burst mode).', type: 'double', nullable: true),
+
+        // Sequence
+        new OA\Property(property: 'sequence_mode', description: 'Sequence mode identifier (sequence mode).', type: 'string', nullable: true),
+
+        // Beam (combat)
+        new OA\Property(property: 'charge_up_time', description: 'Beam spool-up time in seconds (beam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'charge_down_time', description: 'Beam spool-down time in seconds (beam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'full_damage_range', description: 'Range at which full damage is applied (beam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'zero_damage_range', description: 'Range at which damage drops to zero (beam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'hit_type', description: 'Beam hit registration type (beam mode).', type: 'string', nullable: true),
+        new OA\Property(property: 'hit_radius', description: 'Beam impact radius (beam / salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'min_energy_draw', description: 'Minimum power draw (beam / salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_energy_draw', description: 'Maximum power draw (beam / salvage mode).', type: 'double', nullable: true),
+
+        // Healing beam
+        new OA\Property(property: 'healing_mode', description: 'Healing mode identifier (healingbeam mode).', type: 'string', nullable: true),
+        new OA\Property(property: 'healing_per_second', description: 'SCU healed per second (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'ammo_per_mscu', description: 'Ammo consumed per medical SCU (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'medical_ammo_type', description: 'Medical ammo type tag (healingbeam mode).', type: 'string', nullable: true),
+        new OA\Property(property: 'external_healing', description: 'External healing mode (healingbeam mode).', type: 'string', nullable: true),
+        new OA\Property(property: 'toggle', description: 'Toggle mode flag (healingbeam mode).', type: 'boolean', nullable: true),
+        new OA\Property(property: 'max_distance', description: 'Maximum healing distance (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_sensor_distance', description: 'Maximum sensor range for target detection (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'auto_dosage_modifier', description: 'Auto-dosage BDL modifier (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'healing_break_time', description: 'Time before healing breaks in seconds (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_dose_for_auto_adjustment', description: 'Max dose for auto-adjustment (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'battery_drain_per_second', description: 'Battery drain per second (healingbeam mode).', type: 'double', nullable: true),
+
+        // Salvage / Repair
+        new OA\Property(property: 'material_efficiency', description: 'Material recovery rate (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_health_repair_rate', description: 'Max hull repair rate (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_damage_map_repair_rate', description: 'Max damage-map repair rate (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'health_to_ammo_ratio', description: 'Health restored per ammo unit (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'ramp_up_time', description: 'Beam ramp-up time in seconds (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'ramp_down_time', description: 'Beam ramp-down time in seconds (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_vehicle_damage_ratio', description: 'Max vehicle damage ratio (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'repaired_material_ratio', description: 'Ratio of repaired material (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'salvage_can_fire_on_full', description: 'Can fire when target is at full health (salvage mode).', type: 'boolean', nullable: true),
+        new OA\Property(property: 'damage_threshold', description: 'Damage threshold for salvage operations (salvage mode).', type: 'double', nullable: true),
+
+        // Collection beam (mining)
+        new OA\Property(property: 'minimum_distance', description: 'Minimum mining distance (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'maximum_distance', description: 'Maximum mining distance (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'beam_radius', description: 'Collection beam radius (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'collection_rate', description: 'Ore collection rate (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'energy_draw', description: 'Power consumption (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'mining_extractor_tag', description: 'Extractor classification tag (collectionbeam mode).', type: 'string', nullable: true),
+
+        // Tractor beam
+        new OA\Property(property: 'toggle_mode', description: 'Toggle mode flag (tractorbeam mode).', type: 'boolean', nullable: true),
     ],
     type: 'object'
 )]
@@ -75,6 +140,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'overcharge_time', type: 'double', example: 0.5, nullable: true),
         new OA\Property(property: 'overcharged_time', type: 'double', example: 0.5, nullable: true),
         new OA\Property(property: 'cooldown_time', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'auto_fire', description: 'Auto-fire when fully charged.', type: 'boolean', nullable: true),
+        new OA\Property(property: 'require_full_charge', description: 'Must be fully charged before firing.', type: 'boolean', nullable: true),
+        new OA\Property(property: 'auto_charge', description: 'Auto-charges when held.', type: 'boolean', nullable: true),
+        new OA\Property(property: 'interpolate_bonus', description: 'Interpolates charge bonus linearly.', type: 'boolean', nullable: true),
     ],
     type: 'object'
 )]
@@ -86,6 +155,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'damage', type: 'double', example: 1.0, nullable: true),
         new OA\Property(property: 'fire_rate', type: 'double', example: 1.0, nullable: true),
         new OA\Property(property: 'ammo_speed', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'fire_rate_override', description: 'Override fire rate at full charge.', type: 'double', nullable: true),
+        new OA\Property(property: 'pellets_override', description: 'Override pellet count at full charge.', type: 'integer', nullable: true),
+        new OA\Property(property: 'burst_shots_override', description: 'Override burst shot count at full charge.', type: 'integer', nullable: true),
+        new OA\Property(property: 'heat_multiplier', description: 'Heat generation multiplier at full charge.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -226,6 +299,71 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
                 'ammo_per_shot' => Arr::get($mode, 'AmmoPerShot'),
                 'pellets_per_shot' => Arr::get($mode, 'PelletsPerShot'),
                 'damage_per_second' => Arr::get($mode, 'DamagePerSecond'),
+
+                // Heat / wear (projectile)
+                'heat_per_shot' => Arr::get($mode, 'HeatPerShot'),
+                'wear_per_shot' => Arr::get($mode, 'WearPerShot'),
+
+                // Heat / wear (continuous / beam)
+                'heat_per_second' => Arr::get($mode, 'HeatPerSecond'),
+                'wear_per_second' => Arr::get($mode, 'WearPerSecond'),
+
+                // Rapid
+                'fire_during_spin_up' => Arr::get($mode, 'FireDuringSpinUp'),
+
+                // Burst
+                'shot_count' => Arr::get($mode, 'ShotCount'),
+                'cooldown_time' => Arr::get($mode, 'CooldownTime'),
+
+                // Sequence
+                'sequence_mode' => Arr::get($mode, 'SequenceMode'),
+
+                // Beam (combat)
+                'charge_up_time' => Arr::get($mode, 'ChargeUpTime'),
+                'charge_down_time' => Arr::get($mode, 'ChargeDownTime'),
+                'full_damage_range' => Arr::get($mode, 'FullDamageRange'),
+                'zero_damage_range' => Arr::get($mode, 'ZeroDamageRange'),
+                'hit_type' => Arr::get($mode, 'HitType'),
+                'hit_radius' => Arr::get($mode, 'HitRadius'),
+                'min_energy_draw' => Arr::get($mode, 'MinEnergyDraw'),
+                'max_energy_draw' => Arr::get($mode, 'MaxEnergyDraw'),
+
+                // Healing beam
+                'healing_mode' => Arr::get($mode, 'HealingMode'),
+                'healing_per_second' => Arr::get($mode, 'HealingPerSecond'),
+                'ammo_per_mscu' => Arr::get($mode, 'AmmoPerMSCU'),
+                'medical_ammo_type' => Arr::get($mode, 'MedicalAmmoType'),
+                'external_healing' => Arr::get($mode, 'ExternalHealing'),
+                'toggle' => Arr::get($mode, 'Toggle'),
+                'max_distance' => Arr::get($mode, 'MaxDistance'),
+                'max_sensor_distance' => Arr::get($mode, 'MaxSensorDistance'),
+                'auto_dosage_modifier' => Arr::get($mode, 'AutoDosageModifier'),
+                'healing_break_time' => Arr::get($mode, 'HealingBreakTime'),
+                'max_dose_for_auto_adjustment' => Arr::get($mode, 'MaxDoseForAutoAdjustment'),
+                'battery_drain_per_second' => Arr::get($mode, 'BatteryDrainPerSecond'),
+
+                // Salvage / Repair
+                'material_efficiency' => Arr::get($mode, 'MaterialEfficiency'),
+                'max_health_repair_rate' => Arr::get($mode, 'MaxHealthRepairRate'),
+                'max_damage_map_repair_rate' => Arr::get($mode, 'MaxDamageMapRepairRate'),
+                'health_to_ammo_ratio' => Arr::get($mode, 'HealthToAmmoRatio'),
+                'ramp_up_time' => Arr::get($mode, 'RampUpTime'),
+                'ramp_down_time' => Arr::get($mode, 'RampDownTime'),
+                'max_vehicle_damage_ratio' => Arr::get($mode, 'MaxVehicleDamageRatio'),
+                'repaired_material_ratio' => Arr::get($mode, 'RepairedMaterialRatio'),
+                'salvage_can_fire_on_full' => Arr::get($mode, 'SalvageCanFireOnFull'),
+                'damage_threshold' => Arr::get($mode, 'DamageThreshold'),
+
+                // Collection beam (mining)
+                'minimum_distance' => Arr::get($mode, 'MinimumDistance'),
+                'maximum_distance' => Arr::get($mode, 'MaximumDistance'),
+                'beam_radius' => Arr::get($mode, 'BeamRadius'),
+                'collection_rate' => Arr::get($mode, 'CollectionRate'),
+                'energy_draw' => Arr::get($mode, 'EnergyDraw'),
+                'mining_extractor_tag' => Arr::get($mode, 'MiningExtractorTag'),
+
+                // Tractor beam
+                'toggle_mode' => Arr::get($mode, 'ToggleMode'),
             ])
             ->values()
             ->toArray();
@@ -305,15 +443,23 @@ class PersonalWeaponResource extends AbstractItemSpecificationResource
 
             $this->mergeWhen(Arr::get($mode, 'Charge') !== null, [
                 'charge' => [
-                    'time' => Arr::get($weapon, 'Charge.ChargeTime'),
-                    'overcharge_time' => Arr::get($weapon, 'Charge.OverchargeTime'),
-                    'overcharged_time' => Arr::get($weapon, 'Charge.OverchargedTime'),
-                    'cooldown_time' => Arr::get($weapon, 'Charge.CooldownTime'),
+                    'time' => Arr::get($mode, 'Charge.ChargeTime'),
+                    'overcharge_time' => Arr::get($mode, 'Charge.OverchargeTime'),
+                    'overcharged_time' => Arr::get($mode, 'Charge.OverchargedTime'),
+                    'cooldown_time' => Arr::get($mode, 'Charge.CooldownTime'),
+                    'auto_fire' => Arr::get($mode, 'Charge.AutoFire'),
+                    'require_full_charge' => Arr::get($mode, 'Charge.RequireFullCharge'),
+                    'auto_charge' => Arr::get($mode, 'Charge.AutoCharge'),
+                    'interpolate_bonus' => Arr::get($mode, 'Charge.InterpolateBonus'),
                 ],
                 'charge_modifier' => [
-                    'damage' => Arr::get($weapon, 'ChargeModifier.Damage'),
-                    'fire_rate' => Arr::get($weapon, 'ChargeModifier.FireRate'),
-                    'ammo_speed' => Arr::get($weapon, 'ChargeModifier.AmmoSpeed'),
+                    'damage' => Arr::get($mode, 'ChargeModifier.Damage'),
+                    'fire_rate' => Arr::get($mode, 'ChargeModifier.FireRate'),
+                    'ammo_speed' => Arr::get($mode, 'ChargeModifier.AmmoSpeed'),
+                    'fire_rate_override' => Arr::get($mode, 'ChargeModifier.FireRateOverride'),
+                    'pellets_override' => Arr::get($mode, 'ChargeModifier.PelletsOverride'),
+                    'burst_shots_override' => Arr::get($mode, 'ChargeModifier.BurstShotsOverride'),
+                    'heat_multiplier' => Arr::get($mode, 'ChargeModifier.HeatMultiplier'),
                 ],
             ]),
 

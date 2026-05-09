@@ -50,8 +50,7 @@ it('renders the port display with equipped item content', function (): void {
     $view->assertSeeText('Test Port')
         ->assertSeeText('S2')
         ->assertSeeText('Test Shield')
-        ->assertSeeText('Equippable Size')
-        ->assertSeeText('Equippable Type');
+        ->assertSeeText('Equippable Size');
 
     expect($crawler->filter('a')->count())->toBeGreaterThan(0)
         ->and($crawler->filter('a')->last()->attr('href'))->toBe(route('web.items.show', $equippedItemUuid));

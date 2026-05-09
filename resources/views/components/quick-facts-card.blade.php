@@ -5,30 +5,33 @@
 ])
 
 @php
-    $columns = array_values(array_filter(array_map(function ($section) {
-        if (isset($section['rows']) && is_array($section['rows'])) {
-            $section['rows'] = array_values(array_filter($section['rows'], function ($row): bool {
-                if ($row === null) {
-                    return false;
-                }
+    $columns = array_map(static function ($section) {
+            if (isset($section['rows']) && is_array($section['rows'])) {
+                $section['rows'] = array_values(array_filter($section['rows'], function ($row): bool {
+                    if ($row === null) {
+                        return false;
+                    }
 
-                return ! array_key_exists('value', $row) || $row['value'] !== null;
-            }));
-        }
+                    return !array_key_exists('value', $row) || $row['value'] !== null;
+                }));
+            }
 
-        if (($section['rows'] ?? null) === []) {
-            return null;
-        }
+            if (($section['rows'] ?? null) === []) {
+                return null;
+            }
 
-        return $section;
-    }, $columns)));
+            return $section;
+        }, $columns)
+            |> array_filter(...)
+            |> array_values(...);
 
     $footer = is_array($footer) ? array_values(array_filter($footer)) : null;
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }} @if($testId) data-testid="{{ $testId }}" @endif>
+<section
+    {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }} @if($testId) data-testid="{{ $testId }}" @endif>
     <div class="card-body p-5 sm:p-6">
-        <div class="grid h-full gap-6 sm:grid-cols-2 sm:gap-6">
+        <div class="grid gap-6 sm:grid-cols-2 sm:gap-6">
             @foreach ($columns as $section)
                 <section class="min-w-0">
                     <div class="font-semibold text-accent">
@@ -57,7 +60,9 @@
                                                     <a
                                                         href="{{ $link['url'] }}"
                                                         class="link link-hover link-primary"
-                                                    >{{ $link['name'] }}</a>@if (!$loop->last),@endif
+                                                    >{{ $link['name'] }}</a>@if (!$loop->last)
+                                                        ,
+                                                    @endif
                                                 @endforeach
                                             </span>
                                         @elseif (($row['type'] ?? null) === 'badges')
@@ -98,7 +103,8 @@
                         <dt class="font-semibold">{{ $item['label'] }}</dt>
                         <dd>
                             @if (! empty($item['url']))
-                                <a href="{{ $item['url'] }}" class="link link-hover link-primary" target="_blank">{{ $item['value'] }}</a>
+                                <a href="{{ $item['url'] }}" class="link link-hover link-primary"
+                                   target="_blank">{{ $item['value'] }}</a>
                             @else
                                 {{ $item['value'] }}
                             @endif

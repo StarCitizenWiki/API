@@ -10807,7 +10807,7 @@ components:
       type: object
     personal_weapon_mode:
       title: 'Personal Weapon Mode'
-      description: 'Fire mode entries as returned by the game data mapping.'
+      description: 'Fire mode entries as returned by the game data mapping. Type-specific fields are only present when the mode type matches.'
       properties:
         mode:
           description: 'Mode name (Modes[].Name).'
@@ -10845,6 +10845,220 @@ components:
           type: number
           format: double
           example: 0
+          nullable: true
+        heat_per_shot:
+          description: 'Heat generated per shot (projectile modes).'
+          type: number
+          format: double
+          nullable: true
+        wear_per_shot:
+          description: 'Durability lost per shot (projectile modes).'
+          type: number
+          format: double
+          nullable: true
+        heat_per_second:
+          description: 'Heat generated per second (beam / continuous-fire modes).'
+          type: number
+          format: double
+          nullable: true
+        wear_per_second:
+          description: 'Durability lost per second (beam / continuous-fire modes).'
+          type: number
+          format: double
+          nullable: true
+        fire_during_spin_up:
+          description: 'Whether the weapon fires during barrel spin-up (rapid mode).'
+          type: boolean
+          nullable: true
+        shot_count:
+          description: 'Number of shots per burst (burst mode).'
+          type: integer
+          nullable: true
+        cooldown_time:
+          description: 'Cooldown time between bursts in seconds (burst mode).'
+          type: number
+          format: double
+          nullable: true
+        sequence_mode:
+          description: 'Sequence mode identifier (sequence mode).'
+          type: string
+          nullable: true
+        charge_up_time:
+          description: 'Beam spool-up time in seconds (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        charge_down_time:
+          description: 'Beam spool-down time in seconds (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        full_damage_range:
+          description: 'Range at which full damage is applied (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        zero_damage_range:
+          description: 'Range at which damage drops to zero (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        hit_type:
+          description: 'Beam hit registration type (beam mode).'
+          type: string
+          nullable: true
+        hit_radius:
+          description: 'Beam impact radius (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        min_energy_draw:
+          description: 'Minimum power draw (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_energy_draw:
+          description: 'Maximum power draw (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        healing_mode:
+          description: 'Healing mode identifier (healingbeam mode).'
+          type: string
+          nullable: true
+        healing_per_second:
+          description: 'SCU healed per second (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        ammo_per_mscu:
+          description: 'Ammo consumed per medical SCU (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        medical_ammo_type:
+          description: 'Medical ammo type tag (healingbeam mode).'
+          type: string
+          nullable: true
+        external_healing:
+          description: 'External healing mode (healingbeam mode).'
+          type: string
+          nullable: true
+        toggle:
+          description: 'Toggle mode flag (healingbeam mode).'
+          type: boolean
+          nullable: true
+        max_distance:
+          description: 'Maximum healing distance (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        max_sensor_distance:
+          description: 'Maximum sensor range for target detection (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        auto_dosage_modifier:
+          description: 'Auto-dosage BDL modifier (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        healing_break_time:
+          description: 'Time before healing breaks in seconds (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        max_dose_for_auto_adjustment:
+          description: 'Max dose for auto-adjustment (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        battery_drain_per_second:
+          description: 'Battery drain per second (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        material_efficiency:
+          description: 'Material recovery rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_health_repair_rate:
+          description: 'Max hull repair rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_damage_map_repair_rate:
+          description: 'Max damage-map repair rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        health_to_ammo_ratio:
+          description: 'Health restored per ammo unit (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        ramp_up_time:
+          description: 'Beam ramp-up time in seconds (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        ramp_down_time:
+          description: 'Beam ramp-down time in seconds (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_vehicle_damage_ratio:
+          description: 'Max vehicle damage ratio (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        repaired_material_ratio:
+          description: 'Ratio of repaired material (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        salvage_can_fire_on_full:
+          description: 'Can fire when target is at full health (salvage mode).'
+          type: boolean
+          nullable: true
+        damage_threshold:
+          description: 'Damage threshold for salvage operations (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        minimum_distance:
+          description: 'Minimum mining distance (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        maximum_distance:
+          description: 'Maximum mining distance (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        beam_radius:
+          description: 'Collection beam radius (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        collection_rate:
+          description: 'Ore collection rate (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        energy_draw:
+          description: 'Power consumption (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        mining_extractor_tag:
+          description: 'Extractor classification tag (collectionbeam mode).'
+          type: string
+          nullable: true
+        toggle_mode:
+          description: 'Toggle mode flag (tractorbeam mode).'
+          type: boolean
           nullable: true
       type: object
     personal_weapon_damage_vector:
@@ -10988,6 +11202,22 @@ components:
           format: double
           example: 1
           nullable: true
+        auto_fire:
+          description: 'Auto-fire when fully charged.'
+          type: boolean
+          nullable: true
+        require_full_charge:
+          description: 'Must be fully charged before firing.'
+          type: boolean
+          nullable: true
+        auto_charge:
+          description: 'Auto-charges when held.'
+          type: boolean
+          nullable: true
+        interpolate_bonus:
+          description: 'Interpolates charge bonus linearly.'
+          type: boolean
+          nullable: true
       type: object
     personal_weapon_charge_modifier:
       title: 'Personal Weapon Charge Modifier'
@@ -11007,6 +11237,24 @@ components:
           type: number
           format: double
           example: 1
+          nullable: true
+        fire_rate_override:
+          description: 'Override fire rate at full charge.'
+          type: number
+          format: double
+          nullable: true
+        pellets_override:
+          description: 'Override pellet count at full charge.'
+          type: integer
+          nullable: true
+        burst_shots_override:
+          description: 'Override burst shot count at full charge.'
+          type: integer
+          nullable: true
+        heat_multiplier:
+          description: 'Heat generation multiplier at full charge.'
+          type: number
+          format: double
           nullable: true
       type: object
     personal_weapon:
@@ -12741,7 +12989,7 @@ components:
       type: object
     vehicle_weapon_mode:
       title: 'Vehicle Weapon Mode'
-      description: 'Fire mode entry as emitted by the resource (no derived values).'
+      description: 'Fire mode entry as emitted by the resource. Type-specific fields are only present when the mode type matches (e.g. beam fields only appear for type=beam).'
       properties:
         mode:
           type: string
@@ -12779,6 +13027,220 @@ components:
           type: number
           format: double
           example: 0
+          nullable: true
+        heat_per_shot:
+          description: 'Heat generated per shot (projectile modes).'
+          type: number
+          format: double
+          nullable: true
+        wear_per_shot:
+          description: 'Durability lost per shot (projectile modes).'
+          type: number
+          format: double
+          nullable: true
+        heat_per_second:
+          description: 'Heat generated per second (beam / continuous-fire modes).'
+          type: number
+          format: double
+          nullable: true
+        wear_per_second:
+          description: 'Durability lost per second (beam / continuous-fire modes).'
+          type: number
+          format: double
+          nullable: true
+        fire_during_spin_up:
+          description: 'Whether the weapon fires during barrel spin-up (rapid mode).'
+          type: boolean
+          nullable: true
+        shot_count:
+          description: 'Number of shots per burst (burst mode).'
+          type: integer
+          nullable: true
+        cooldown_time:
+          description: 'Cooldown time between bursts in seconds (burst mode).'
+          type: number
+          format: double
+          nullable: true
+        sequence_mode:
+          description: 'Sequence mode identifier (sequence mode).'
+          type: string
+          nullable: true
+        charge_up_time:
+          description: 'Beam spool-up time in seconds (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        charge_down_time:
+          description: 'Beam spool-down time in seconds (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        full_damage_range:
+          description: 'Range at which full damage is applied (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        zero_damage_range:
+          description: 'Range at which damage drops to zero (beam mode).'
+          type: number
+          format: double
+          nullable: true
+        hit_type:
+          description: 'Beam hit registration type (beam mode).'
+          type: string
+          nullable: true
+        hit_radius:
+          description: 'Beam impact radius (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        min_energy_draw:
+          description: 'Minimum power draw (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_energy_draw:
+          description: 'Maximum power draw (beam / salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        healing_mode:
+          description: 'Healing mode identifier (healingbeam mode).'
+          type: string
+          nullable: true
+        healing_per_second:
+          description: 'SCU healed per second (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        ammo_per_mscu:
+          description: 'Ammo consumed per medical SCU (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        medical_ammo_type:
+          description: 'Medical ammo type tag (healingbeam mode).'
+          type: string
+          nullable: true
+        external_healing:
+          description: 'External healing mode (healingbeam mode).'
+          type: string
+          nullable: true
+        toggle:
+          description: 'Toggle mode flag (healingbeam mode).'
+          type: boolean
+          nullable: true
+        max_distance:
+          description: 'Maximum healing distance (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        max_sensor_distance:
+          description: 'Maximum sensor range for target detection (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        auto_dosage_modifier:
+          description: 'Auto-dosage BDL modifier (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        healing_break_time:
+          description: 'Time before healing breaks in seconds (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        max_dose_for_auto_adjustment:
+          description: 'Max dose for auto-adjustment (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        battery_drain_per_second:
+          description: 'Battery drain per second (healingbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        material_efficiency:
+          description: 'Material recovery rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_health_repair_rate:
+          description: 'Max hull repair rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_damage_map_repair_rate:
+          description: 'Max damage-map repair rate (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        health_to_ammo_ratio:
+          description: 'Health restored per ammo unit (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        ramp_up_time:
+          description: 'Beam ramp-up time in seconds (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        ramp_down_time:
+          description: 'Beam ramp-down time in seconds (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        max_vehicle_damage_ratio:
+          description: 'Max vehicle damage ratio (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        repaired_material_ratio:
+          description: 'Ratio of repaired material (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        salvage_can_fire_on_full:
+          description: 'Can fire when target is at full health (salvage mode).'
+          type: boolean
+          nullable: true
+        damage_threshold:
+          description: 'Damage threshold for salvage operations (salvage mode).'
+          type: number
+          format: double
+          nullable: true
+        minimum_distance:
+          description: 'Minimum mining distance (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        maximum_distance:
+          description: 'Maximum mining distance (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        beam_radius:
+          description: 'Collection beam radius (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        collection_rate:
+          description: 'Ore collection rate (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        energy_draw:
+          description: 'Power consumption (collectionbeam mode).'
+          type: number
+          format: double
+          nullable: true
+        mining_extractor_tag:
+          description: 'Extractor classification tag (collectionbeam mode).'
+          type: string
+          nullable: true
+        toggle_mode:
+          description: 'Toggle mode flag (tractorbeam mode).'
+          type: boolean
           nullable: true
       type: object
     vehicle_weapon_damage_types:
@@ -12961,6 +13423,22 @@ components:
           type: number
           format: double
           nullable: true
+        auto_fire:
+          description: 'Auto-fire when fully charged.'
+          type: boolean
+          nullable: true
+        require_full_charge:
+          description: 'Must be fully charged before firing.'
+          type: boolean
+          nullable: true
+        auto_charge:
+          description: 'Auto-charges when held.'
+          type: boolean
+          nullable: true
+        interpolate_bonus:
+          description: 'Interpolates charge bonus linearly.'
+          type: boolean
+          nullable: true
       type: object
     vehicle_weapon_charge_modifier:
       title: 'Vehicle Weapon Charge Modifier'
@@ -12974,6 +13452,24 @@ components:
           format: double
           nullable: true
         ammo_speed:
+          type: number
+          format: double
+          nullable: true
+        fire_rate_override:
+          description: 'Override fire rate at full charge.'
+          type: number
+          format: double
+          nullable: true
+        pellets_override:
+          description: 'Override pellet count at full charge.'
+          type: integer
+          nullable: true
+        burst_shots_override:
+          description: 'Override burst shot count at full charge.'
+          type: integer
+          nullable: true
+        heat_multiplier:
+          description: 'Heat generation multiplier at full charge.'
           type: number
           format: double
           nullable: true
@@ -15470,6 +15966,87 @@ components:
           type: string
           nullable: true
       type: object
+    vehicle_relay_entry:
+      title: 'Relay Entry'
+      description: 'A single relay junction with its connected hardpoints grouped by equipment category.'
+      properties:
+        hardpoint:
+          description: 'Relay hardpoint name.'
+          type: string
+          example: hardpoint_relay_bridge
+        class_name:
+          description: 'Relay entity class name.'
+          type: string
+          example: RELAY_2slot
+          nullable: true
+        fuse_slots:
+          description: 'Number of fuse slots on this relay.'
+          type: integer
+          example: 2
+        room:
+          description: 'Room/bone name where the relay is located.'
+          type: string
+          example: animated_bridge
+          nullable: true
+        connection_count:
+          description: 'Total number of connected hardpoints.'
+          type: integer
+          example: 26
+        connected_hardpoints:
+          description: 'Hardpoints powered by this relay, grouped by equipment category.'
+          type: array
+          items:
+            description: 'A group of connected hardpoints sharing the same equipment category.'
+            properties:
+              category:
+                description: 'Equipment category label.'
+                type: string
+                example: Weapons
+              count:
+                description: 'Number of hardpoints in this group.'
+                type: integer
+                example: 4
+              items:
+                description: 'Individual hardpoints in this group.'
+                type: array
+                items:
+                  description: 'A hardpoint connected to this relay.'
+                  properties: { hardpoint: { description: 'Hardpoint name.', type: string, example: hardpoint_shield_generator_l }, item_name: { description: 'Display name of the installed item.', type: string, example: Barbican, nullable: true }, class_name: { description: 'SC class name of the installed item.', type: string, example: SHLD_BASL_S03_Barbican_SCItem, nullable: true }, type: { description: 'Primary equipment type.', type: string, example: Shield, nullable: true }, uuid: { description: 'Item UUID.', type: string, nullable: true } }
+                  type: object
+            type: object
+          nullable: true
+      type: object
+    vehicle_relay_network:
+      title: 'Relay Network'
+      description: 'Ship relay power-distribution topology. Each relay is a fuse-protected junction that feeds connected hardpoints.'
+      properties:
+        total_fuses:
+          description: 'Total fuse slots across all relays.'
+          type: integer
+          example: 18
+          nullable: true
+        relays:
+          description: 'Relay junction entries with their connected hardpoints.'
+          type: array
+          items:
+            $ref: '#/components/schemas/vehicle_relay_entry'
+          nullable: true
+        links:
+          description: 'Raw relay-to-hardpoint link edges.'
+          type: array
+          items:
+            properties:
+              from:
+                description: 'Source hardpoint (relay).'
+                type: string
+                example: hardpoint_relay_bridge
+              to:
+                description: 'Target hardpoint.'
+                type: string
+                example: hardpoint_controller_shield
+            type: object
+          nullable: true
+      type: object
     game_vehicle_turret:
       title: 'Turret Summary'
       description: 'Manned or remote turret entry as provided by the ship data.'
@@ -16857,6 +17434,11 @@ components:
               type: number
               nullable: true
           type: object
+          nullable: true
+        relay_network:
+          oneOf:
+            -
+              $ref: '#/components/schemas/vehicle_relay_network'
           nullable: true
         career:
           description: 'Primary career classification (see GET /api/vehicles/filters for valid values).'
