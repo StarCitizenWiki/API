@@ -154,7 +154,7 @@
                             }
                         @endphp
                         <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="badge badge-soft badge-sm max-w-48 truncate no-underline hover:opacity-80" title="Browse {{ $portTypeLabel }}">
-                            {{ $portTypeLabel }}
+                            Equippable
                             <x-icon name="external-link" class="size-3 opacity-60"/>
                         </a>
                     @else
@@ -166,7 +166,7 @@
             </span>
 
             @if ($showQuickStats)
-                <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
+                <span class="flex flex-wrap items-center justify-end gap-2 text-xs font-normal tabular-nums">
                     @if ($hasNamedEquippedItem)
                         <span class="max-w-56 truncate text-subtle" title="{{ $equippedDisplayName }}">
                             {{ $equippedDisplayName }}
@@ -204,19 +204,18 @@
             @endif
         </summary>
         <div id="{{ $portIdentifier }}-content" class="collapse-content">
-
             @php
                 $hasPortMeta = $displayPortName !== '-' || $sizeRangeLabel !== '-' || $portTypeLabel !== '' || !empty($portPosition);
             @endphp
             @if ($hasPortMeta)
                 <div class="card card-border bg-base-100">
                     <div class="card-body p-2">
-                        <x-dl-container :headCols="$portPosition ? 4 : 3">
+                        <x-dl-container>
                             <x-slot:head>
                                 <x-dt-dd label="Port Name" :value="$displayPortName">{{ $displayPortName }}</x-dt-dd>
                                 <x-dt-dd label="Equippable Size" :value="$sizeRangeLabel !== '-'">{{ $sizeRangeLabel }}</x-dt-dd>
-                                <x-dt-dd label="Equippable Type" :value="$portTypeLabel !== ''">{{ $portTypeLabel !== '' ? $portTypeLabel : '-' }}</x-dt-dd>
-                                <x-dt-dd label="Position" :value="$portPosition">{{ $portPosition }}</x-dt-dd>
+                                {{-- <x-dt-dd label="Equippable Type" :value="$portTypeLabel !== ''">{{ $portTypeLabel !== '' ? $portTypeLabel : '-' }}</x-dt-dd> --}}
+                                {{-- <x-dt-dd label="Position" :value="$portPosition">{{ $portPosition }}</x-dt-dd> --}}
                             </x-slot:head>
                         </x-dl-container>
                     </div>

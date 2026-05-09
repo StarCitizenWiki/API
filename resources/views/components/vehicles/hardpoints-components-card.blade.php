@@ -1,3 +1,4 @@
+@php use App\Support\Game\EquipmentCategoryOrder; @endphp
 @props(['vehicle'])
 
 @php
@@ -9,31 +10,7 @@
     $portsCount = count($portEntries);
 
     $portEntries = collect($portEntries)->groupBy('category_label');
-    $order = [
-        'Weapons',
-        'Turrets',
-        'Manned Turrets',
-        'Remote Turrets',
-        'PDC Turrets',
-        'Missile & Bomb Racks',
-        'EMP',
-        'QED',
-        'Shields',
-        'Coolers',
-        'Power Plants',
-        'Quantum Drives',
-        'Radars',
-        'Cargo Grids',
-        'Counter Measures',
-        'Flight Controller',
-        'Life Support',
-        'Thrusters',
-        'Fuel',
-        'Customization',
-        'Paints',
-        'Armor',
-        'Other',
-    ];
+    $order = EquipmentCategoryOrder::all();
 @endphp
 
 <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-full">
@@ -46,8 +23,7 @@
         </span>
     </summary>
 
-    <div class="collapse-content">
-
+    <div class="collapse-content max-h-96 overflow-y-auto">
         <!-- Ports & Hardpoints -->
         @if ($portEntries->isNotEmpty())
             <div class="space-y-4">
@@ -59,7 +35,9 @@
                         <h4>{{$categoryLabel}}</h4>
                         @php $categoryIndex = 0; @endphp
                         @foreach ($portEntries[$categoryLabel] ?? [] as $port)
-                            <x-port-display :port="$port" :editable="data_get($port, 'editable', false)" :power-pools="$powerPools" :category-index="$categoryIndex" :vehicle-name="data_get($vehicle, 'name')"/>
+                            <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
+                                            :power-pools="$powerPools" :category-index="$categoryIndex"
+                                            :vehicle-name="data_get($vehicle, 'name')"/>
                             @php $categoryIndex++; @endphp
                         @endforeach
                     </div>

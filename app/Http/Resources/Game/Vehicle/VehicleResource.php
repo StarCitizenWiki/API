@@ -579,6 +579,11 @@ use OpenApi\Attributes as OA;
             type: 'object',
             nullable: true
         ),
+        new OA\Property(
+            property: 'relay_network',
+            ref: '#/components/schemas/vehicle_relay_network',
+            nullable: true
+        ),
         new OA\Property(property: 'career', description: 'Primary career classification (see GET /api/vehicles/filters for valid values).', type: 'string', example: 'Light Freight', nullable: true),
         new OA\Property(property: 'role', description: 'Specific role within the career (see GET /api/vehicles/filters for valid values).', type: 'string', example: 'Combat', nullable: true),
         new OA\Property(property: 'web_url', type: 'string', example: 'https://example.com/vehicles/uuid', nullable: true),
@@ -1013,6 +1018,11 @@ class VehicleResource extends AbstractBaseResource
                 'fuse' => Arr::get($payload, 'PenetrationMultiplier.Fuse'),
                 'components' => Arr::get($payload, 'PenetrationMultiplier.Components'),
             ],
+
+            $this->mergeWhen(
+                ! empty(Arr::get($payload, 'RelayNetwork')),
+                fn () => ['relay_network' => new RelayNetworkResource(Arr::get($payload, 'RelayNetwork'))]
+            ),
 
             'insurance' => [
                 'claim_time' => Arr::get($payload, 'Insurance.StandardClaimTime'),

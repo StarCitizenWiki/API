@@ -1,0 +1,168 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Resources\Game\Vehicle\Concerns;
+
+/**
+ * Maps equipment Type values to canonical display categories
+ */
+trait CategorizesEquipmentType
+{
+    /**
+     * Return all known category labels in canonical display order.
+     *
+     * @return list<string>
+     */
+    public static function categoryOrder(): array
+    {
+        return [
+            'Weapons',
+            'Manned Turrets',
+            'Remote Turrets',
+            'PDC Turrets',
+            'Turrets',
+            'Missile & Bomb Racks',
+            'Shields',
+            'Coolers',
+            'Power Plants',
+            'Flight Controller',
+            'Quantum Drives',
+            'Counter Measures',
+            'Cargo Grids',
+            'Radars',
+            'EMP',
+            'QED',
+
+            'Life Support',
+            'Relays',
+            'Fuel',
+
+            'Controllers',
+            'Crew Stations',
+            'AI Modules',
+            'Landing Systems',
+            'Docking',
+            'Thrusters',
+            'Doors & Hatches',
+            'Systems',
+            'Customization',
+            'Paints',
+            'Armor',
+            'Other',
+        ];
+    }
+
+    /**
+     * Categorize an equipment type string into a display label.
+     *
+     * Handles both primary types (e.g. "Shield") and dotted types (e.g. "Shield.UNDEFINED").
+     * Falls back to "Other" for unknown types, with special handling for relay-only
+     * types that don't appear in the regular loadout port list.
+     *
+     * @param  string  $type  Primary equipment type (before the dot).
+     * @param  string|null  $subType  Sub-type after the dot (e.g. "MannedTurret").
+     * @param  string|null  $className  Optional class name for turret disambiguation.
+     * @return string Display category label.
+     */
+    protected function categorizeEquipmentType(string $type, ?string $subType = null, ?string $className = null): string
+    {
+        $category = match ($type) {
+            'AIModule' => 'AI Modules',
+            'AirTrafficController',
+            'CapacitorAssignmentController',
+            'CommsController',
+            'CoolerController',
+            'DoorController',
+            'EnergyController',
+            'FuelController',
+            'LightController',
+            'MissileController',
+            'ShieldController',
+            'WeaponController' => 'Controllers',
+            'Armor' => 'Armor',
+            'CargoGrid' => 'Cargo Grids',
+            'Cooler' => 'Coolers',
+            'Seat', 'SeatAccess', 'SeatDashboard' => 'Crew Stations',
+            'DockingAnimator', 'DockingCollar' => 'Docking',
+            'Door' => 'Doors & Hatches',
+            'EMP' => 'EMP',
+            'FlightController' => 'Flight Controller',
+            'FuelTank', 'QuantumFuelTank', 'FuelIntake' => 'Fuel',
+            'LandingSystem' => 'Landing Systems',
+            'LifeSupportGenerator' => 'Life Support',
+            'MainThruster', 'ManneuverThruster' => 'Thrusters',
+            'MissileLauncher', 'BombRack' => 'Missile & Bomb Racks',
+            'Paint' => 'Paints',
+            'PowerPlant' => 'Power Plants',
+            'QuantumDrive' => 'Quantum Drives',
+            'QuantumInterdictionGenerator' => 'QED',
+            'Radar' => 'Radars',
+            'Relay' => 'Relays',
+            'Shield' => 'Shields',
+            'Computer', 'Display', 'SelfDestruct' => 'Systems',
+            'Turret', 'TurretBase' => 'Turrets',
+            'WeaponDefensive' => 'Counter Measures',
+            'WeaponGun' => 'Weapons',
+            default => str_starts_with($type, 'Flair') ? 'Customization' : 'Other',
+        };
+
+        // Turret sub-type disambiguation
+        if ($category === 'Turrets') {
+            if ($className !== null && str_contains($className, 'Remote')) {
+                $category = 'Remote Turrets';
+            } elseif ($subType === 'MannedTurret') {
+                $category = 'Manned Turrets';
+            } elseif ($subType === 'PDCTurret') {
+                $category = 'PDC Turrets';
+            }
+        }
+
+        return $category;
+    }
+
+    /**
+     * Fallback categorization based on hardpoint naming patterns.
+     *
+     * Used when no enriched Type data is available (empty ports without installed items).
+     * Labels match the type-based categories from categorizeEquipmentType().
+     */
+    protected function categorizeByHardpointName(string $hardpoint): string
+    {
+        return match (true) {
+            str_starts_with($hardpoint, 'hardpoint_thruster_'),
+            str_starts_with($hardpoint, 'hardpoint_engine_') => 'Thrusters',
+            str_starts_with($hardpoint, 'hardpoint_turret_'),
+            str_starts_with($hardpoint, 'hardpoint_rear_turret_'),
+            str_starts_with($hardpoint, 'hardpoint_front_turret_'),
+            str_starts_with($hardpoint, 'hardpoint_left_turret'),
+            str_starts_with($hardpoint, 'hardpoint_right_turret'),
+            str_starts_with($hardpoint, 'hardpoint_nose_turret_'),
+            str_starts_with($hardpoint, 'hardpoint_lower_turret_'),
+            str_starts_with($hardpoint, 'hardpoint_upper_turret_') => 'Turrets',
+            str_starts_with($hardpoint, 'hardpoint_seat_'),
+            str_starts_with($hardpoint, 'hardpoint_dashboard_'),
+            str_starts_with($hardpoint, 'hardpoint_brig_controller_') => 'Crew Stations',
+            str_starts_with($hardpoint, 'hardpoint_controller_'),
+            str_starts_with($hardpoint, 'hardpoint_ATC_') => 'Controllers',
+            str_starts_with($hardpoint, 'hardpoint_door_') => 'Doors & Hatches',
+            str_starts_with($hardpoint, 'hardpoint_countermeasures_') => 'Counter Measures',
+            str_starts_with($hardpoint, 'hardpoint_cooler_') => 'Coolers',
+            str_starts_with($hardpoint, 'hardpoint_shield_') => 'Shields',
+            str_starts_with($hardpoint, 'hardpoint_power_plant') => 'Power Plants',
+            str_starts_with($hardpoint, 'hardpoint_quantum_') => 'Quantum Drives',
+            str_starts_with($hardpoint, 'hardpoint_fuel_') => 'Fuel',
+            str_starts_with($hardpoint, 'hardpoint_missile_') => 'Missile & Bomb Racks',
+            str_starts_with($hardpoint, 'hardpoint_weapon_regen_pool') => 'Systems',
+            str_starts_with($hardpoint, 'hardpoint_weapon_') => 'Weapons',
+            str_starts_with($hardpoint, 'hardpoint_computer_') => 'Systems',
+            str_starts_with($hardpoint, 'hardpoint_paint') => 'Paints',
+            str_starts_with($hardpoint, 'hardpoint_armor') => 'Armor',
+            str_starts_with($hardpoint, 'hardpoint_landingpad_') => 'Landing Systems',
+            str_starts_with($hardpoint, 'hardpoint_'),
+            str_starts_with($hardpoint, 'hardpoint_rstairwell_weapon_locker'),
+            str_starts_with($hardpoint, 'hardpoint_hangar_weapon_locker') => 'Other',
+            default => 'Other',
+        };
+    }
+}

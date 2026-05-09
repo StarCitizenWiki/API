@@ -87,7 +87,7 @@ return [
 
         'scunpacked' => [
             'driver' => 'local',
-            'root' => storage_path('app/api/scunpacked-data'),
+            'root' => env('SCUNPACKED_PATH', storage_path('app/api/scunpacked-data')),
             'throw' => false,
         ],
 

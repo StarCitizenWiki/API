@@ -8,10 +8,10 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\PortItemResource;
+use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
 use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -58,6 +58,7 @@ use OpenApi\Attributes as OA;
 )]
 class PortResource extends AbstractBaseResource
 {
+    use CategorizesEquipmentType;
     use ExtractsJsonData;
     use ProcessesHardpointData;
     use ResolvesGameVersion;
@@ -103,48 +104,30 @@ class PortResource extends AbstractBaseResource
             'health' => $health,
             'equipped_item' => $resolvedItem !== null ? new PortItemResource($resolvedItem) : null,
             'ports' => $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
-            'category_label' => ! $this->isChild ? $this->categorize() : null,
+            'category_label' => ! $this->isChild ? $this->categorizePort() : null,
             'version' => $this->gameVersionCode(),
         ];
     }
 
-    private function categorize(): string
+    private function categorizePort(): string
     {
         [$type, $subtype] = $this->extractTypeAndSubtype();
 
-        $category = match ($type) {
-            'CargoGrid' => 'Cargo Grids',
-            'Cooler' => 'Coolers',
-            'EMP' => 'EMP',
-            'FlightController' => 'Flight Controller',
-            'FuelTank', 'QuantumFuelTank', 'FuelIntake' => 'Fuel',
-            'LifeSupportGenerator' => 'Life Support',
-            'MainThruster', 'ManneuverThruster' => 'Thrusters', // TODO
-            'MissileLauncher', 'BombRack' => 'Missile & Bomb Racks',
-            'Paint' => 'Paints',
-            'PowerPlant' => 'Power Plants',
-            'QuantumDrive' => 'Quantum Drives',
-            'QuantumInterdictionGenerator' => 'QED',
-            'Radar' => 'Radars',
-            'Shield' => 'Shields',
-            'Turret', 'TurretBase' => 'Turrets',
-            'WeaponDefensive' => 'Counter Measures',
-            'WeaponGun' => 'Weapons',
-            default => 'Other',
-        };
+        $category = $this->categorizeEquipmentType(
+            $type,
+            $subtype,
+            Arr::get($this, 'ClassName'),
+        );
 
-        if ($category === 'Turrets') {
-            if (Str::contains(Arr::get($this, 'ClassName'), 'Remote')) {
-                $category = 'Remote Turrets';
-            } elseif ($subtype === 'MannedTurret') {
-                $category = 'Manned Turrets';
-            } elseif ($subtype === 'PDCTurret') {
-                $category = 'PDC Turrets';
+        // When type is empty/unknown, fall back to hardpoint-name patterns
+        if ($category === 'Other' && ($type === '' || $type === null)) {
+            $hardpoint = Arr::get($this, 'HardpointName');
+            if ($hardpoint !== null) {
+                $fallback = $this->categorizeByHardpointName($hardpoint);
+                if ($fallback !== 'Other') {
+                    return $fallback;
+                }
             }
-        }
-
-        if ($category === 'Other' && str_starts_with($type, 'Flair')) {
-            $category = 'Customization';
         }
 
         return $category;
