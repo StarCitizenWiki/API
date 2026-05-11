@@ -23,7 +23,8 @@ class AddGameVersion extends Command implements PromptsForMissingInput
     protected $signature = 'game:add-version
         {code : Game version in the format Major.Minor.Patch.SCOPE.Buildnumber (scope must be LIVE, PTU, or EPTU)}
         {--released-at= : Release date/time (e.g. 2025-12-06 or 2025-12-06 15:30)}
-        {--default : Set this version as the default}';
+        {--default : Set this version as the default}
+        {--hidden : Set this version as hidden}';
 
     /**
      * The console command description.
@@ -75,6 +76,7 @@ class AddGameVersion extends Command implements PromptsForMissingInput
                 'channel' => $parsed['scope'],
                 'released_at' => $releasedAt,
                 'is_default' => $setDefault,
+                'is_hidden' => (bool) $this->option('hidden'),
             ]);
         });
 
