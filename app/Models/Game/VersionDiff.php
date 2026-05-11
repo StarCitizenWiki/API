@@ -195,9 +195,9 @@ class VersionDiff extends Model
             return null;
         }
 
-        if ($this->change_type === 'removed') {
-            $url .= '?version='.$this->fromVersion->code;
-        }
+        $url .= '?version='.($this->change_type === 'removed'
+            ? $this->fromVersion->code
+            : $this->toVersion->code);
 
         return $url;
     }

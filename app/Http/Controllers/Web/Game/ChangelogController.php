@@ -10,13 +10,22 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\VersionDiff;
 use App\Support\Game\EntityTypeConfig;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 #[CacheTag('gameversions')]
 class ChangelogController extends Controller
 {
-    public function show(Request $request, string $version): View
+    public function show(Request $request, string $version): View|RedirectResponse
     {
+        $requestedVersion = $request->query('version');
+        if ($requestedVersion !== null) {
+            return redirect()->route('web.changelog.show', array_merge(
+                ['version' => $requestedVersion],
+                $request->only('entity_type', 'change_type'),
+            ), 302);
+        }
+
         $gameVersion = GameVersion::findByCode($version, fail: true);
         $previousVersion = $gameVersion->findPreviousVersion();
         abort_if($previousVersion === null, 404, 'No previous version found.');
