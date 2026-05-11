@@ -49,7 +49,8 @@ class ImportItemData implements ShouldQueue
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path,
-        ?Labels $labels = null
+        ?Labels $labels = null,
+        private readonly string $diskName = 'scunpacked',
     ) {
         if ($labels !== null) {
             self::$labels = $labels;
@@ -108,7 +109,7 @@ class ImportItemData implements ShouldQueue
      */
     private function readPayload(): array
     {
-        $contents = Storage::disk('scunpacked')->get($this->path);
+        $contents = Storage::disk($this->diskName)->get($this->path);
 
         return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
     }

@@ -17,7 +17,7 @@ class ImportManufacturers extends Command
      *
      * @var string
      */
-    protected $signature = 'game:import-manufacturers {--path=manufacturers.json : Relative path to the manufacturers JSON file on the scunpacked disk}';
+    protected $signature = 'game:import-manufacturers {--path=manufacturers.json : Relative path to the manufacturers JSON file on the scunpacked disk} {--disk=scunpacked : Storage disk to read from}';
 
     /**
      * The console command description.
@@ -33,14 +33,16 @@ class ImportManufacturers extends Command
     {
         $path = (string) $this->option('path');
 
-        if (Storage::disk('scunpacked')->missing($path)) {
+        $disk = Storage::disk($this->option('disk'));
+
+        if ($disk->missing($path)) {
             $this->error(sprintf('%s not found in scunpacked storage.', $path));
 
             return self::FAILURE;
         }
 
         try {
-            $contents = Storage::disk('scunpacked')->get($path);
+            $contents = $disk->get($path);
             $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));

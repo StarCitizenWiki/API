@@ -45,17 +45,19 @@ class ImportItems extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        $itemFiles = collect(Storage::disk('scunpacked')->files('items'))
+        $disk = Storage::disk($gameVersion->getStorageDiskName());
+
+        $itemFiles = collect($disk->files('items'))
             ->filter(static fn (string $path): bool => str_ends_with($path, '.json'))
             ->values();
 
         if ($itemFiles->isEmpty()) {
-            $this->warn('No item files found in storage/app/api/scunpacked-data/items.');
+            $this->warn('No item files found in scunpacked-data/items.');
 
             return self::SUCCESS;
         }
 
-        $this->dispatchJobs($itemFiles, $gameVersion->id);
+        $this->dispatchJobs($itemFiles, $gameVersion);
         FilterCache::bust(FilterCache::NAMESPACE_ITEMS);
 
         $this->info(sprintf(
@@ -91,10 +93,13 @@ class ImportItems extends Command implements PromptsForMissingInput
         ];
     }
 
-    private function dispatchJobs(Collection $itemFiles, int $gameVersionId): void
+    private function dispatchJobs(Collection $itemFiles, GameVersion $gameVersion): void
     {
-        $itemFiles->each(static function (string $path) use ($gameVersionId): void {
-            ImportItemData::dispatch($gameVersionId, $path);
+        $diskName = $gameVersion->getStorageDiskName();
+        $versionId = $gameVersion->id;
+
+        $itemFiles->each(static function (string $path) use ($versionId, $diskName): void {
+            ImportItemData::dispatch($versionId, $path, null, $diskName);
         });
     }
 }

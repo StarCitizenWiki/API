@@ -13,7 +13,7 @@ use JsonException;
 
 class ImportCommodities extends Command
 {
-    protected $signature = 'game:import-commodities {--path=resources/commodities.json : Relative path to the commodities JSON file on the scunpacked disk}';
+    protected $signature = 'game:import-commodities {--path=resources/commodities.json : Relative path to the commodities JSON file on the scunpacked disk} {--disk=scunpacked : Storage disk to read from}';
 
     protected $description = 'Import game commodities from scunpacked data';
 
@@ -21,14 +21,16 @@ class ImportCommodities extends Command
     {
         $path = (string) $this->option('path');
 
-        if (Storage::disk('scunpacked')->missing($path)) {
+        $disk = Storage::disk($this->option('disk'));
+
+        if ($disk->missing($path)) {
             $this->error(sprintf('%s not found in scunpacked storage.', $path));
 
             return self::FAILURE;
         }
 
         try {
-            $contents = Storage::disk('scunpacked')->get($path);
+            $contents = $disk->get($path);
             $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));

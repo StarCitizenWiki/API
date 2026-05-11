@@ -34,12 +34,14 @@ class ImportMissions extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        $missionFiles = collect(Storage::disk('scunpacked')->files('contracts'))
+        $disk = Storage::disk($gameVersion->getStorageDiskName());
+
+        $missionFiles = collect($disk->files('contracts'))
             ->filter(static fn (string $path): bool => str_ends_with($path, '.json'))
             ->values();
 
         if ($missionFiles->isEmpty()) {
-            $this->warn('No contract files found in storage/app/api/scunpacked-data/contracts.');
+            $this->warn('No contract files found in scunpacked-data/contracts.');
 
             return self::SUCCESS;
         }
@@ -47,9 +49,10 @@ class ImportMissions extends Command implements PromptsForMissingInput
         $this->info(sprintf('Dispatching %d mission import jobs for version %s...', $missionFiles->count(), $gameVersion->code));
 
         $versionId = $gameVersion->id;
+        $diskName = $gameVersion->getStorageDiskName();
 
         $jobs = $missionFiles->map(
-            static fn (string $path): ImportMissionData => new ImportMissionData($versionId, $path)
+            static fn (string $path): ImportMissionData => new ImportMissionData($versionId, $path, $diskName)
         )->all();
 
         Bus::batch($jobs)

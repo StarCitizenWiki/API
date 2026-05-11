@@ -26,6 +26,27 @@ class GameVersion extends Model
         'is_hidden' => 'boolean',
     ];
 
+    /**
+     * Map of channel values to filesystem disk names.
+     *
+     * @var array<string, string>
+     */
+    private const CHANNEL_DISK_MAP = [
+        'PTU' => 'scunpacked_ptu',
+        'EPTU' => 'scunpacked_ptu',
+        'TECHPREVIEW' => 'scunpacked_ptu',
+    ];
+
+    /**
+     * Resolve the filesystem disk name for this version's channel.
+     */
+    public function getStorageDiskName(): string
+    {
+        $channel = strtoupper((string) $this->channel);
+
+        return self::CHANNEL_DISK_MAP[$channel] ?? 'scunpacked';
+    }
+
     public function scopeRequestedOrDefault(Builder $query, ?string $code): Builder
     {
         if ($code !== null) {

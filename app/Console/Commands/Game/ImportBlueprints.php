@@ -51,14 +51,14 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        if (Storage::disk('scunpacked')->missing($path)) {
+        if (Storage::disk($gameVersion->getStorageDiskName())->missing($path)) {
             $this->error(sprintf('%s not found in scunpacked storage.', $path));
 
             return self::FAILURE;
         }
 
         try {
-            $contents = Storage::disk('scunpacked')->get($path);
+            $contents = Storage::disk($gameVersion->getStorageDiskName())->get($path);
             $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));

@@ -15,18 +15,20 @@ use JsonException;
 
 class ImportFactions extends Command
 {
-    protected $signature = 'game:import-factions';
+    protected $signature = 'game:import-factions {--disk=scunpacked : Storage disk to read faction files from}';
 
     protected $description = 'Import game factions from scunpacked data';
 
     public function handle(): int
     {
-        $files = collect(Storage::disk('scunpacked')->files('factions'))
+        $disk = Storage::disk($this->option('disk'));
+
+        $files = collect($disk->files('factions'))
             ->filter(static fn (string $path): bool => str_ends_with($path, '.json'))
             ->values();
 
         if ($files->isEmpty()) {
-            $this->warn('No faction files found in storage/app/api/scunpacked-data/factions.');
+            $this->warn('No faction files found on the specified disk.');
 
             return self::SUCCESS;
         }
@@ -36,7 +38,7 @@ class ImportFactions extends Command
 
         foreach ($files as $path) {
             try {
-                $contents = Storage::disk('scunpacked')->get($path);
+                $contents = $disk->get($path);
                 $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $exception) {
                 $this->warn(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));

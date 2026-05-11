@@ -45,18 +45,20 @@ class ImportVehicles extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        $shipFiles = collect(Storage::disk('scunpacked')->files('ships'))
+        $disk = Storage::disk($gameVersion->getStorageDiskName());
+
+        $shipFiles = collect($disk->files('ships'))
             ->filter(static fn (string $path): bool => str_ends_with($path, '.json'))
             ->reject(static fn (string $path): bool => str_ends_with($path, '-raw.json'))
             ->values();
 
         if ($shipFiles->isEmpty()) {
-            $this->warn('No ship files found in storage/app/api/scunpacked-data/ships.');
+            $this->warn('No ship files found in scunpacked-data/ships.');
 
             return self::SUCCESS;
         }
 
-        $this->dispatchJobs($shipFiles, $gameVersion->id);
+        $this->dispatchJobs($shipFiles, $gameVersion);
         FilterCache::bust(FilterCache::NAMESPACE_VEHICLES);
 
         $this->info(sprintf(
@@ -92,10 +94,13 @@ class ImportVehicles extends Command implements PromptsForMissingInput
         ];
     }
 
-    private function dispatchJobs(Collection $shipFiles, int $gameVersionId): void
+    private function dispatchJobs(Collection $shipFiles, GameVersion $gameVersion): void
     {
-        $shipFiles->each(static function (string $path) use ($gameVersionId): void {
-            ImportVehicleData::dispatch($gameVersionId, $path);
+        $diskName = $gameVersion->getStorageDiskName();
+        $versionId = $gameVersion->id;
+
+        $shipFiles->each(static function (string $path) use ($versionId, $diskName): void {
+            ImportVehicleData::dispatch($versionId, $path, $diskName);
         });
     }
 }

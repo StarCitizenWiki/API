@@ -32,7 +32,9 @@ class ImportResourceData extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        if (Artisan::call('game:import-commodities') !== self::SUCCESS) {
+        $diskName = $gameVersion->getStorageDiskName();
+
+        if (Artisan::call('game:import-commodities', ['--disk' => $diskName]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 

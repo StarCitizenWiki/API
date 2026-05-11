@@ -79,11 +79,13 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
+        $diskName = $gameVersion?->getStorageDiskName() ?? 'scunpacked';
+
         if (Artisan::call('game:import-labels') !== self::SUCCESS) {
             return self::FAILURE;
         }
 
-        if (Artisan::call('game:import-manufacturers') !== self::SUCCESS) {
+        if (Artisan::call('game:import-manufacturers', ['--disk' => $diskName]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
@@ -94,11 +96,13 @@ class SyncGameData extends Command
             'code' => 'UNKN',
         ]);
 
-        if (Artisan::call('game:import-tags') !== self::SUCCESS) {
+        if (Artisan::call('game:import-tags', ['--disk' => $diskName]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
-        if (! $skipFactions && Artisan::call('game:import-factions') !== self::SUCCESS) {
+        if (! $skipFactions && Artisan::call('game:import-factions', [
+            '--disk' => $diskName,
+        ]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
@@ -186,18 +190,20 @@ class SyncGameData extends Command
 
     private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeItemGroups): void
     {
-        $itemFiles = collect(Storage::disk('scunpacked')->files('items'))
+        $itemFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('items'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
             ->values();
 
         if ($itemFiles->isEmpty()) {
-            $this->warn('No item files found in storage/app/api/scunpacked-data/items.');
+            $this->warn('No item files found in scunpacked-data/items.');
 
             return;
         }
 
-        $jobs = $itemFiles->map(static function (string $path) use ($gameVersion): ImportItemData {
-            return new ImportItemData($gameVersion->id, $path);
+        $diskName = $gameVersion->getStorageDiskName();
+
+        $jobs = $itemFiles->map(static function (string $path) use ($gameVersion, $diskName): ImportItemData {
+            return new ImportItemData($gameVersion->id, $path, null, $diskName);
         });
 
         $this->dispatchChunkedBatch($jobs, $skipComputeItemGroups ? null : function () use ($gameVersion): void {
@@ -208,19 +214,21 @@ class SyncGameData extends Command
 
     private function dispatchVehicleImports(GameVersion $gameVersion, bool $skipBackfillShipmatrixIds): void
     {
-        $shipFiles = collect(Storage::disk('scunpacked')->files('ships'))
+        $shipFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('ships'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
             ->reject(static fn (string $path): bool => Str::endsWith($path, '-raw.json'))
             ->values();
 
         if ($shipFiles->isEmpty()) {
-            $this->warn('No ship files found in storage/app/api/scunpacked-data/ships.');
+            $this->warn('No ship files found in scunpacked-data/ships.');
 
             return;
         }
 
-        $jobs = $shipFiles->map(static function (string $path) use ($gameVersion): ImportVehicleData {
-            return new ImportVehicleData($gameVersion->id, $path);
+        $diskName = $gameVersion->getStorageDiskName();
+
+        $jobs = $shipFiles->map(static function (string $path) use ($gameVersion, $diskName): ImportVehicleData {
+            return new ImportVehicleData($gameVersion->id, $path, $diskName);
         });
 
         $this->dispatchChunkedBatch($jobs, $skipBackfillShipmatrixIds ? null : function () use ($gameVersion): void {
@@ -232,13 +240,15 @@ class SyncGameData extends Command
 
     private function dispatchStarmapImport(GameVersion $gameVersion): void
     {
-        if (Storage::disk('scunpacked')->missing('starmap.json')) {
-            $this->warn('No starmap file found in storage/app/api/scunpacked-data/starmap.json.');
+        $diskName = $gameVersion->getStorageDiskName();
+
+        if (Storage::disk($diskName)->missing('starmap.json')) {
+            $this->warn('No starmap file found in scunpacked-data/starmap.json.');
 
             return;
         }
 
-        new ImportStarmapData($gameVersion->id)->handle();
+        new ImportStarmapData($gameVersion->id, 'starmap.json', $diskName)->handle();
     }
 
     /**

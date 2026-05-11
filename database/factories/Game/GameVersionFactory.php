@@ -23,7 +23,7 @@ class GameVersionFactory extends Factory
     {
         return [
             'code' => fake()->unique()->numerify('3.##.#'),
-            'channel' => fake()->randomElement(['live', 'ptu', 'eptu']),
+            'channel' => 'LIVE',
             'released_at' => fake()->dateTimeBetween('-2 years', 'now'),
             'is_default' => false,
             'is_hidden' => false,

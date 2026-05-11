@@ -33,6 +33,7 @@ class ImportStarmapData implements ShouldQueue
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path = 'starmap.json',
+        private readonly string $diskName = 'scunpacked',
     ) {}
 
     /**
@@ -40,7 +41,7 @@ class ImportStarmapData implements ShouldQueue
      */
     public function handle(): void
     {
-        $contents = Storage::disk('scunpacked')->get($this->path);
+        $contents = Storage::disk($this->diskName)->get($this->path);
         $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
 
         $entries = is_array($payload) ? $payload : [];

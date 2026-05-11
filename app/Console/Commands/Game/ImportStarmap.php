@@ -32,13 +32,13 @@ class ImportStarmap extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        if (Storage::disk('scunpacked')->missing('starmap.json')) {
-            $this->warn('No starmap file found in storage/app/api/scunpacked-data/starmap.json.');
+        if (Storage::disk($gameVersion->getStorageDiskName())->missing('starmap.json')) {
+            $this->warn('No starmap file found in scunpacked-data/starmap.json.');
 
             return self::SUCCESS;
         }
 
-        new ImportStarmapData($gameVersion->id)->handle();
+        new ImportStarmapData($gameVersion->id, 'starmap.json', $gameVersion->getStorageDiskName())->handle();
 
         $this->info(sprintf(
             'Imported starmap data for version %s.',

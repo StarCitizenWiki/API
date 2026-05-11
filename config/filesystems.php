@@ -91,6 +91,12 @@ return [
             'throw' => false,
         ],
 
+        'scunpacked_ptu' => [
+            'driver' => 'local',
+            'root' => env('SCUNPACKED_PTU_PATH', storage_path('app/api/scunpacked-data-ptu')),
+            'throw' => false,
+        ],
+
         'stats' => [
             'driver' => 'local',
             'root' => storage_path('app/api/stats'),

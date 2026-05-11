@@ -67,6 +67,7 @@ class ImportMissionData implements ShouldQueue
     public function __construct(
         private readonly int $gameVersionId,
         private readonly string $path,
+        private readonly string $diskName = 'scunpacked',
     ) {}
 
     private function factionLookup(): array
@@ -209,7 +210,7 @@ class ImportMissionData implements ShouldQueue
 
     private function readPayload(): array
     {
-        $contents = Storage::disk('scunpacked')->get($this->path);
+        $contents = Storage::disk($this->diskName)->get($this->path);
 
         if (! is_string($contents) || trim($contents) === '') {
             return [];
