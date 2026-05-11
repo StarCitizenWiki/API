@@ -184,24 +184,34 @@ class DeepDiff
             return ['old' => $old, 'new' => $new];
         }
 
+        // If old has content but new is an empty array, the whole thing was
+        // removed — return a simple leaf (normalized new to null) so the
+        // template renders it as a crossed-out key rather than expanding into
+        // meaningless #0/#1 entries.
+        if (($oldIsAssoc || $oldIsList) && is_array($new) && $new === []) {
+            return ['old' => $old, 'new' => null];
+        }
+
+        if ($oldIsAssoc || $newIsAssoc) {
+            $keys = array_unique(array_merge(
+                $oldIsAssoc ? array_keys($old) : [],
+                $newIsAssoc ? array_keys($new) : [],
+            ));
+
+            $branch = [];
+
+            foreach ($keys as $key) {
+                $oldVal = $oldIsAssoc && array_key_exists($key, $old) ? $old[$key] : null;
+                $newVal = $newIsAssoc && array_key_exists($key, $new) ? $new[$key] : null;
+                $branch[$key] = static::expandLeaf($oldVal, $newVal);
+            }
+
+            return $branch;
+        }
+
         if ($oldIsList || $newIsList) {
             return static::expandIndexedList($old, $new);
         }
-
-        $keys = array_unique(array_merge(
-            $oldIsAssoc ? array_keys($old) : [],
-            $newIsAssoc ? array_keys($new) : [],
-        ));
-
-        $branch = [];
-
-        foreach ($keys as $key) {
-            $oldVal = $oldIsAssoc && array_key_exists($key, $old) ? $old[$key] : null;
-            $newVal = $newIsAssoc && array_key_exists($key, $new) ? $new[$key] : null;
-            $branch[$key] = static::expandLeaf($oldVal, $newVal);
-        }
-
-        return $branch;
     }
 
     /**

@@ -25,17 +25,11 @@
             $direction = DeepDiff::branchDirection($value);
         @endphp
 
-        @if($direction === 'removed')
-            <div class="py-0.5 {{ $depth > 0 ? 'pl-4 border-l border-base-300' : '' }}">
-                <span class="text-xs font-mono text-subtle line-through">{{ $key }}</span>
+        <div class="py-0.5 {{ $depth > 0 ? 'pl-4 border-l border-base-300' : '' }}">
+            <div class="text-xs font-semibold py-0.5 {{ $direction === 'removed' ? 'line-through text-subtle' : '' }}">{{ $key }}</div>
+            <div class="mt-0.5">
+                @include('changelog.partials.change-tree', ['node' => $value, 'depth' => $depth + 1])
             </div>
-        @else
-            <div class="py-0.5 {{ $depth > 0 ? 'pl-4 border-l border-base-300' : '' }}">
-                <div class="text-xs font-semibold py-0.5">{{ $key }}</div>
-                <div class="mt-0.5">
-                    @include('changelog.partials.change-tree', ['node' => $value, 'depth' => $depth + 1])
-                </div>
-            </div>
-        @endif
+        </div>
     @endif
 @endforeach
