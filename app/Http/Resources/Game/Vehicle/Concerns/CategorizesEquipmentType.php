@@ -17,6 +17,7 @@ trait CategorizesEquipmentType
     public static function categoryOrder(): array
     {
         return [
+            'Docked Vehicles',
             'Weapons',
             'Manned Turrets',
             'Remote Turrets',
@@ -85,6 +86,7 @@ trait CategorizesEquipmentType
             'Cooler' => 'Coolers',
             'Seat', 'SeatAccess', 'SeatDashboard' => 'Crew Stations',
             'DockingAnimator', 'DockingCollar' => 'Docking',
+            'NOITEM_Vehicle' => 'Docked Vehicles',
             'Door' => 'Doors & Hatches',
             'EMP' => 'EMP',
             'FlightController' => 'Flight Controller',

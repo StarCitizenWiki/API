@@ -7694,7 +7694,7 @@ components:
           description: 'API URL for item detail endpoint'
           type: string
         updated_at:
-          description: 'Date/time this item was updated in the database.'
+          description: "Date/time this item's version-specific data was updated."
           type: string
           format: date-time
         version:
@@ -15964,6 +15964,37 @@ components:
         version:
           description: 'Game version code for this data.'
           type: string
+          nullable: true
+        attached_vehicle:
+          description: 'Resolved vehicle attached to a NOITEM_Vehicle port (e.g. a snub ship or command module).'
+          properties:
+            uuid:
+              type: string
+            name:
+              type: string
+            class_name:
+              type: string
+            size_class:
+              type: integer
+              nullable: true
+            is_spaceship:
+              type: boolean
+              nullable: true
+            is_vehicle:
+              type: boolean
+              nullable: true
+            is_gravlev:
+              type: boolean
+              nullable: true
+            link:
+              description: 'API URL for the vehicle.'
+              type: string
+              nullable: true
+            web_url:
+              description: 'Web URL for the vehicle page.'
+              type: string
+              nullable: true
+          type: object
           nullable: true
       type: object
     vehicle_relay_entry:

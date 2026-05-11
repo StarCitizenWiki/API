@@ -30,10 +30,14 @@
     $equippedItemUuid = data_get($equippedItem, 'uuid');
     $showQuickStats = !empty($equippedItem);
     $equippedItemName = data_get($equippedItem, 'name');
+
+    // Attached vehicle (e.g. snub ship, command module)
+    $attachedVehicle = data_get($port, 'attached_vehicle');
+
     $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== '<= PLACEHOLDER =>';
-    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
+    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : ($attachedVehicle ? data_get($attachedVehicle, 'name', $portLabel) : $portLabel);
     $displayPortName = $portName ?? '-';
-    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
+    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($attachedVehicle ? data_get($attachedVehicle, 'class_name', $equippedItemName ?? '-') : ($equippedItemName ?? '-'));
 
     // Power pool deactivation logic
     $isDeactivated = false;
@@ -102,6 +106,38 @@
     }
 @endphp
 
+@php
+    $isVehicleDock = $attachedVehicle !== null;
+@endphp
+
+@if ($isVehicleDock)
+<div class="port-entry {{ $indentClass }}" data-testid="port-display">
+    <div
+        id="{{ $portIdentifier }}"
+        data-testid="port-display-details"
+        class="border border-primary/30 bg-primary/5 rounded-lg px-3 py-2 flex flex-wrap items-center gap-2"
+    >
+        <x-icon name="rocket" class="size-4 text-primary shrink-0"/>
+        <a
+            data-testid="port-display-attached-vehicle-link"
+            href="{{ data_get($attachedVehicle, 'web_url') }}"
+            class="link link-primary font-semibold text-sm"
+        >{{ data_get($attachedVehicle, 'name', $displayPortLabel) }}</a>
+        @if (data_get($attachedVehicle, 'size_class'))
+            <span class="badge badge-sm badge-primary" title="Vehicle Size">S{{ data_get($attachedVehicle, 'size_class') }}</span>
+        @endif
+        <span class="badge badge-sm badge-soft">
+            @if (data_get($attachedVehicle, 'is_spaceship'))
+                Spaceship
+            @elseif (data_get($attachedVehicle, 'is_gravlev'))
+                Gravlev
+            @elseif (data_get($attachedVehicle, 'is_vehicle'))
+                Ground Vehicle
+            @endif
+        </span>
+    </div>
+</div>
+@else
 <div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}" data-testid="port-display">
     <details {{ $depth > 0 ? 'data-remove' : '' }}
         id="{{ $portIdentifier }}"
@@ -415,3 +451,4 @@
         </div>
     </details>
 </div>
+@endif

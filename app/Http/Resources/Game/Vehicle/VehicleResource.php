@@ -956,7 +956,9 @@ class VehicleResource extends AbstractBaseResource
                 fn () => ['weaponry' => $weaponry]
             ),
 
-            'manufacturer' => new ManufacturerLinkResource($vehicleData->manufacturer),
+            'manufacturer' => $vehicleData->relationLoaded('manufacturer')
+                ? new ManufacturerLinkResource($vehicleData->manufacturer)
+                : null,
             'size_class' => $vehicleData->size ?? Arr::get($payload, 'Size'),
 
             'cross_section' => [

@@ -34,12 +34,14 @@
                     <div class="space-y-2">
                         <h4>{{$categoryLabel}}</h4>
                         @php $categoryIndex = 0; @endphp
+                        <div @if(count($portEntries[$categoryLabel]) > 1) class="grid grid-cols-1 lg:grid-cols-2 gap-2" @endif>
                         @foreach ($portEntries[$categoryLabel] ?? [] as $port)
                             <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
                                             :power-pools="$powerPools" :category-index="$categoryIndex"
                                             :vehicle-name="data_get($vehicle, 'name')"/>
                             @php $categoryIndex++; @endphp
                         @endforeach
+                        </div>
                     </div>
                 @endforeach
             </div>

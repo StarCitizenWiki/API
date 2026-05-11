@@ -141,7 +141,7 @@ trait ResolvesGameVersion
         return Vehicle::query()
             ->where('uuid', $uuid)
             ->with([
-                'data' => fn (Builder $query) => $query->where('game_version_id', $this->gameVersion()->id),
+                'data' => fn ($query) => $query->where('game_version_id', $this->gameVersion()->id),
             ])
             ->first();
     }

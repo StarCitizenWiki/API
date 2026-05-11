@@ -357,7 +357,7 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(
             property: 'updated_at',
-            description: 'Date/time this item was updated in the database.',
+            description: "Date/time this item's version-specific data was updated.",
             type: 'string',
             format: 'date-time',
         ),
@@ -595,7 +595,7 @@ class ItemResource extends AbstractBaseResource
             ),
             'web_url' => $this->buildWebUrl($request),
             'link' => $this->buildApiUrl($request),
-            'updated_at' => $this->item->updated_at,
+            'updated_at' => $itemData->updated_at,
             'version' => $itemData->relationLoaded('gameVersion')
                 ? $itemData->gameVersion->code
                 : null,
@@ -604,14 +604,10 @@ class ItemResource extends AbstractBaseResource
 
     private function buildApiUrl(Request $request): string
     {
-        $url = route('items.show', ['identifier' => $this->item->uuid]);
-        $version = $request->query('version');
-
-        if ($version === null || $version === '') {
-            return $url;
-        }
-
-        return url()->query($url, ['version' => $version]);
+        return $this->urlWithVersion(
+            route('items.show', ['identifier' => $this->item->uuid]),
+            $request,
+        );
     }
 
     /**
@@ -767,14 +763,10 @@ class ItemResource extends AbstractBaseResource
 
     private function buildWebUrl(Request $request): string
     {
-        $url = route('web.items.show', ['item' => $this->item->slug ?? $this->item->uuid]);
-        $version = $request->query('version');
-
-        if ($version === null || $version === '') {
-            return $url;
-        }
-
-        return url()->query($url, ['version' => $version]);
+        return $this->urlWithVersion(
+            route('web.items.show', ['item' => $this->item->slug ?? $this->item->uuid]),
+            $request,
+        );
     }
 
     private function buildTypeWebUrl(?string $type, Request $request): ?string
@@ -783,14 +775,10 @@ class ItemResource extends AbstractBaseResource
             return null;
         }
 
-        $url = route('web.items.index', ['filter' => ['type' => $type]]);
-        $version = $request->query('version');
-
-        if ($version === null || $version === '') {
-            return $url;
-        }
-
-        return url()->query($url, ['version' => $version]);
+        return $this->urlWithVersion(
+            route('web.items.index', ['filter' => ['type' => $type]]),
+            $request,
+        );
     }
 
     private function expandUexPrices(ItemData $itemData): array
