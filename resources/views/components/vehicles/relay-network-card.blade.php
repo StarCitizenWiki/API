@@ -12,11 +12,44 @@
 
     $relayCount = count($relays);
 
+    $primaryCategories = [
+        'Shields',
+        'Power Plants',
+        'Quantum Drives',
+        'Coolers',
+        'Flight Controller',
+        'Life Support',
+        'Weapons',
+        'Manned Turrets',
+        'Remote Turrets',
+        'PDC Turrets',
+        'Turrets',
+        'Missile & Bomb Racks',
+        'Counter Measures',
+    ];
+
     $formatRelayName = static function (string $hardpoint): string {
         $name = Str::after($hardpoint, 'hardpoint_relay_');
         $name = str_replace('_', ' ', $name);
 
         return Str::title($name);
+    };
+
+    $splitGroups = static function (array $groups) use ($primaryCategories): array {
+        $primary = [];
+        $secondary = [];
+
+        foreach ($groups as $group) {
+            $category = data_get($group, 'category', 'Other');
+
+            if (in_array($category, $primaryCategories, true)) {
+                $primary[] = $group;
+            } else {
+                $secondary[] = $group;
+            }
+        }
+
+        return [$primary, $secondary];
     };
 @endphp
 
@@ -30,14 +63,17 @@
             </span>
         </h2>
 
-        <div @if(count($relays) > 1) class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2" @endif>
-            @foreach($relays as $index => $relay)
+        <div @if($relayCount > 1) class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2" @endif>
+            @foreach($relays as $relay)
                 @php
                     $relayName = $formatRelayName(data_get($relay, 'hardpoint', ''));
                     $fuseSlots = data_get($relay, 'fuse_slots');
                     $connectionCount = data_get($relay, 'connection_count');
-                    $room = data_get($relay, 'room');
                     $connectedGroups = data_get($relay, 'connected_hardpoints', []);
+                    [$primaryGroups, $secondaryGroups] = $splitGroups($connectedGroups);
+                    $hasSecondary = $secondaryGroups !== [];
+                    $secondaryCount = array_sum(array_map(fn (array $g) => data_get($g, 'count', 0), $secondaryGroups));
+                    $secondaryLabel = implode(', ', array_map(fn (array $g) => data_get($g, 'category', ''), $secondaryGroups));
                 @endphp
 
                 <details class="collapse collapse-arrow border border-base-300 bg-base-100">
@@ -54,48 +90,35 @@
                     </summary>
 
                     <div class="collapse-content max-h-96 overflow-y-auto">
-                        @if (is_array($connectedGroups) && $connectedGroups !== [])
+                        @if ($primaryGroups !== [] || $secondaryGroups !== [])
                             <div class="flex flex-col gap-3">
-                                @foreach ($connectedGroups as $group)
-                                    @php
-                                        $category = data_get($group, 'category', 'Other');
-                                        $count = data_get($group, 'count', 0);
-                                        $items = data_get($group, 'items', []);
-                                    @endphp
-
-                                    <div>
-                                        <span class="text-sm font-semibold uppercase tracking-wide text-subtle">
-                                            {{ $category }}
-                                            <span class="font-normal">({{ $count }})</span>
-                                        </span>
-
-                                        @if (is_array($items) && $items !== [])
-                                            <div class="pl-4 border-l border-base-300 mt-1 space-y-0.5">
-                                                @foreach ($items as $item)
-                                                    @php
-                                                        $itemName = data_get($item, 'item_name');
-                                                        $hardpoint = data_get($item, 'hardpoint');
-                                                    @endphp
-
-                                                    <div
-                                                        class="text-sm"
-                                                        @if ($itemName && $hardpoint && ! Str::startsWith($itemName, '<='))
-                                                            title="{{ $hardpoint }}"
-                                                        @endif
-                                                    >
-                                                        <span class="font-medium">
-                                                            @if ($itemName && ! Str::startsWith($itemName, '<='))
-                                                                {{ $itemName }}
-                                                            @elseif ($hardpoint)
-                                                                <span class="font-normal text-subtle">{{ $hardpoint }}</span>
-                                                            @endif
-                                                        </span>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
+                                @foreach ($primaryGroups as $group)
+                                    @include('components.vehicles.partials.relay-category-group', [
+                                        'category' => data_get($group, 'category', 'Other'),
+                                        'count' => data_get($group, 'count', 0),
+                                        'items' => data_get($group, 'items', []),
+                                    ])
                                 @endforeach
+
+                                @if ($hasSecondary)
+                                    <details class="collapse collapse-arrow border border-base-200 bg-base-200/30">
+                                        <summary class="collapse-title min-h-0 py-2 px-3 text-xs">
+                                            <span class="text-subtle">
+                                                {{ $secondaryCount }} more in {{ $secondaryLabel }}
+                                            </span>
+                                        </summary>
+
+                                        <div class="collapse-content">
+                                            @foreach ($secondaryGroups as $group)
+                                                @include('components.vehicles.partials.relay-category-group', [
+                                                    'category' => data_get($group, 'category', 'Other'),
+                                                    'count' => data_get($group, 'count', 0),
+                                                    'items' => data_get($group, 'items', []),
+                                                ])
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                @endif
                             </div>
                         @endif
                     </div>
