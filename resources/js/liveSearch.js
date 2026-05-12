@@ -37,10 +37,10 @@ export function liveSearch(apiEndpoint) {
 
             const rect = input.getBoundingClientRect();
             const parentRect = input.parentElement.getBoundingClientRect();
-            dropdown.style.position = "absolute";
+            dropdown.style.position = "fixed";
             dropdown.style.zIndex = "9999";
-            dropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
-            dropdown.style.left = `${parentRect.left + window.scrollX}px`;
+            dropdown.style.top = `${rect.bottom + 4}px`;
+            dropdown.style.left = `${parentRect.left}px`;
             dropdown.style.width = `${parentRect.width}px`;
         },
 

@@ -114,21 +114,21 @@ class UnifiedSearchController extends Controller
         $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
 
         return <<<SQL
-            SELECT * FROM (SELECT 'items' AS type, gid.name, gid.class_name, gid.classification,
-                    gi.slug, {$uuidCast('gi.uuid')} AS uuid, NULL{$nt} AS extra_label, gid.type AS item_type
-             FROM game_item_data gid
-             JOIN game_items gi ON gi.id = gid.item_id
-             WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>' AND (gid.name {$like} ? OR gid.class_name {$like} ? OR gid.type {$like} ?)
-             LIMIT 5)
-
-             UNION ALL
-
-             SELECT * FROM (SELECT 'vehicles' AS type, gvd.name, gvd.class_name, NULL{$nt} AS classification,
+            SELECT * FROM (SELECT 'vehicles' AS type, gvd.name, gvd.class_name, NULL{$nt} AS classification,
                      gv.slug, {$uuidCast('gv.uuid')} AS uuid, gvd.career AS extra_label, NULL{$nt} AS item_type
               FROM game_vehicle_data gvd
               JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
               WHERE gvd.game_version_id = ? AND (gvd.name {$like} ? OR gvd.class_name {$like} ?)
               LIMIT 5)
+
+             UNION ALL
+
+             SELECT * FROM (SELECT 'items' AS type, gid.name, gid.class_name, gid.classification,
+                    gi.slug, {$uuidCast('gi.uuid')} AS uuid, NULL{$nt} AS extra_label, gid.type AS item_type
+             FROM game_item_data gid
+             JOIN game_items gi ON gi.id = gid.item_id
+             WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>' AND (gid.name {$like} ? OR gid.class_name {$like} ? OR gid.type {$like} ?)
+             LIMIT 5)
 
              UNION ALL
 
@@ -198,22 +198,22 @@ class UnifiedSearchController extends Controller
 
         return <<<SQL
             SELECT * FROM (
-                SELECT 1 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
-                FROM game_item_data gid
-                JOIN game_items gi ON gi.id = gid.item_id
-                WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
-                  AND ({$eq('gid.name')} OR {$eq('gid.class_name')} OR LOWER({$uuidCast('gi.uuid')}) = LOWER(?))
+                SELECT 1 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
+                FROM game_vehicle_data gvd
+                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
+                WHERE gvd.game_version_id = ?
+                  AND ({$eq('gvd.name')} OR {$eq('gvd.class_name')} OR LOWER({$uuidCast('gv.uuid')}) = LOWER(?))
                 LIMIT 1
             ) t
 
             UNION ALL
 
             SELECT * FROM (
-                SELECT 2 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
-                FROM game_vehicle_data gvd
-                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
-                WHERE gvd.game_version_id = ?
-                  AND ({$eq('gvd.name')} OR {$eq('gvd.class_name')} OR LOWER({$uuidCast('gv.uuid')}) = LOWER(?))
+                SELECT 2 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
+                FROM game_item_data gid
+                JOIN game_items gi ON gi.id = gid.item_id
+                WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
+                  AND ({$eq('gid.name')} OR {$eq('gid.class_name')} OR LOWER({$uuidCast('gi.uuid')}) = LOWER(?))
                 LIMIT 1
             ) t
 
@@ -282,10 +282,10 @@ class UnifiedSearchController extends Controller
     private function buildBindings(int $versionId, string $like): array
     {
         return [
-            // Items
-            $versionId, $like, $like, $like,
             // Vehicles
             $versionId, $like, $like,
+            // Items
+            $versionId, $like, $like, $like,
             // Locations
             $versionId, $like,
             // Commodities (no version)

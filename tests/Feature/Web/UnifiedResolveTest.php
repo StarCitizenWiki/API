@@ -98,7 +98,7 @@ it('redirects when matching by uuid', function (): void {
         ->assertRedirect(route('web.items.show', ['item' => 'uuid-item']));
 });
 
-it('respects priority order: items before vehicles', function (): void {
+it('respects priority order: vehicles before items', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '1.0.0-LIVE',
         'channel' => 'live',
@@ -132,7 +132,7 @@ it('respects priority order: items before vehicles', function (): void {
 
     $this->get('/search/Arrow')
         ->assertStatus(302)
-        ->assertRedirect(route('web.items.show', ['item' => 'arrow-item']));
+        ->assertRedirect(route('web.vehicles.show', ['vehicle' => 'arrow-vehicle']));
 });
 
 it('falls through to vehicle when no item matches', function (): void {
