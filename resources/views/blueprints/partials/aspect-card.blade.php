@@ -1,5 +1,5 @@
+@use('App\Support\Format')
 @php
-    use App\Support\Format;
     $selectionGroup = is_array($aspect['selection_group'] ?? null) ? $aspect['selection_group'] : null;
     $isSelectable = $selectionGroup !== null
         && is_numeric($selectionGroup['required_count'] ?? null)

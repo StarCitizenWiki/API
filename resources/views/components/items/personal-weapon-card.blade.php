@@ -28,20 +28,17 @@
     $rpm = data_get($personalWeapon, 'rpm');
     $pelletsPerShot = data_get($personalWeapon, 'pellets_per_shot');
 
-    // Damage metrics
     $damageMetrics = [
         ['label' => 'DPS Total', 'value' => $dpsTotal, 'unit' => '', 'precision' => 0],
         ['label' => 'Alpha Total', 'value' => $alphaTotal, 'unit' => '', 'precision' => 0],
         ['label' => 'Maximum', 'value' => $maximum !== null ? $maximum . ' per magazine' : null, 'unit' => '', 'precision' => 0],
     ];
 
-    // Fire rate metrics
     $fireRateMetrics = [
         ['label' => 'RPM', 'value' => $rpm, 'unit' => '/min', 'precision' => 0],
         ['label' => 'Pellets per Shot', 'value' => $pelletsPerShot, 'unit' => '', 'precision' => 0],
     ];
 
-    // DPS / Alpha breakdown — same 6 damage types
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
     $dpsBreakdown = collect($damageTypes)
@@ -54,7 +51,6 @@
         ->filter(fn (array $m): bool => $m['value'] !== null && $m['value'] > 0)
         ->values()->all();
 
-    // Spread metrics — same fields for hip-fire and ADS
     $spreadFields = [
         ['key' => 'first_attack', 'label' => 'First Attack'],
         ['key' => 'per_attack', 'label' => 'Per Attack'],
@@ -74,7 +70,6 @@
         'value' => data_get($adsSpread, $f['key']),
     ])->all();
 
-    // Heat / wear metrics (beam-like modes use per-second, others use per-shot)
     $heatWearMetrics = [
         ['label' => 'Heat Per Second', 'value' => data_get($mode, 'heat_per_second'), 'unit' => '/s', 'precision' => 2],
         ['label' => 'Wear Per Second', 'value' => data_get($mode, 'wear_per_second'), 'unit' => '/s', 'precision' => 2],
@@ -82,7 +77,6 @@
         ['label' => 'Wear Per Shot', 'value' => data_get($mode, 'wear_per_shot'), 'unit' => '', 'precision' => 2],
     ];
 
-    // Charge timings metrics
     $chargeMetrics = [
         ['label' => 'Time', 'value' => data_get($charge, 'time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Overcharge Time', 'value' => data_get($charge, 'overcharge_time'), 'unit' => 's', 'precision' => 2],
@@ -93,7 +87,6 @@
         ['label' => 'Auto Charge', 'value' => data_get($charge, 'auto_charge')],
     ];
 
-    // Charge modifier metrics
     $chargeModMetrics = [
         ['label' => 'Damage', 'value' => data_get($chargeModifier, 'damage'), 'unit' => '', 'precision' => 2],
         ['label' => 'Fire Rate', 'value' => data_get($chargeModifier, 'fire_rate'), 'unit' => '', 'precision' => 2],
@@ -104,7 +97,6 @@
         ['label' => 'Heat Multiplier', 'value' => data_get($chargeModifier, 'heat_multiplier'), 'unit' => '', 'precision' => 2],
     ];
 
-    // Fire-type-specific metrics
     $beamMetrics = [
         ['label' => 'Charge Up Time', 'value' => data_get($mode, 'charge_up_time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Charge Down Time', 'value' => data_get($mode, 'charge_down_time'), 'unit' => 's', 'precision' => 2],

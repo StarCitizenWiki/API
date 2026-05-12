@@ -23,7 +23,6 @@
     $bulletImpulseFalloff = data_get($ammunition, 'bullet_impulse_falloff');
     $bulletElectron = data_get($ammunition, 'bullet_electron');
 
-    // Stats metrics (Size, Speed, Lifetime, Initial Capacity)
     $statsMetrics = [
         ['label' => 'Size', 'value' => $size, 'unit' => '', 'precision' => 0],
         ['label' => 'Speed', 'value' => $speed, 'unit' => 'm/s', 'precision' => 0],
@@ -31,7 +30,6 @@
         ['label' => 'Initial Capacity', 'value' => $initialCapacity, 'unit' => '', 'precision' => 0],
     ];
 
-    // Penetration metrics
     $penetrationMetrics = [
         ['label' => 'Base Distance', 'value' => data_get($penetration, 'base_distance'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Near Radius', 'value' => data_get($penetration, 'near_radius'), 'unit' => 'm', 'precision' => 0],
@@ -39,7 +37,6 @@
         ['label' => 'Angle', 'value' => data_get($penetration, 'angle'), 'unit' => 'deg', 'precision' => 1],
     ];
 
-    // Damage breakdowns — 6 damage types
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
     $impactBreakdown = array_values(array_filter(
@@ -58,8 +55,6 @@
         static fn (array $m): bool => $m['value'] !== null && $m['value'] > 0,
     ));
 
-    // Damage drop — 7 keys (6 types + total), 3 separate metric arrays
-    // Filter out zero values
     $damageDropKeys = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun', 'total'];
 
     $damageDropMinDistMetrics = array_values(array_filter(
@@ -92,14 +87,12 @@ $damageDropPerMeterMetrics = array_values(array_filter(
         static fn (array $m): bool => $m['value'] !== null && $m['value'] > 0,
     ));
 
-    // Bullet impulse falloff metrics
     $impulseFalloffMetrics = [
         ['label' => 'Min Distance', 'value' => data_get($bulletImpulseFalloff, 'min_distance'), 'unit' => '', 'precision' => 0],
         ['label' => 'Drop Falloff', 'value' => data_get($bulletImpulseFalloff, 'drop_falloff'), 'unit' => '', 'precision' => 0],
         ['label' => 'Max Falloff', 'value' => data_get($bulletImpulseFalloff, 'max_falloff'), 'unit' => '', 'precision' => 0],
     ];
 
-    // Bullet electron metrics
     $bulletElectronMetrics = [
         ['label' => 'Jump Range', 'value' => data_get($bulletElectron, 'jump_range'), 'unit' => 'm', 'precision' => 0],
         ['label' => 'Maximum Jumps', 'value' => data_get($bulletElectron, 'maximum_jumps'), 'unit' => '', 'precision' => 0],

@@ -76,12 +76,12 @@
 
                     $badgeClass = 'badge-warning';
                     $suffix = ' (increased spawn rate)';
-                    $badgeTitle = "{$exceptionName} — Increased spawn rate";
+                    $badgeTitle = "{$exceptionName} - Increased spawn rate";
 
                     if ($modifierValue === 0) {
                         $badgeClass = 'badge-soft opacity-50 line-through';
                         $suffix = ' (does not spawn)';
-                        $badgeTitle = "{$exceptionName} — Does not spawn in this area";
+                        $badgeTitle = "{$exceptionName} - Does not spawn in this area";
                     }
                 @endphp
                 <span class="badge badge-sm {{ $badgeClass }}" title="{{ $badgeTitle }}">{{ $exceptionName }}{{ $suffix }}</span>

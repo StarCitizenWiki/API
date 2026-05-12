@@ -134,7 +134,7 @@
                                                 @elseif ($ingredientQuantityScu !== null && $ingredientQuantityScu > 0)
                                                     {{ $ingredientQuantityScu }} SCU
                                                 @else
-                                                    —
+                                                    -
                                                 @endif
                                             </td>
                                         </tr>

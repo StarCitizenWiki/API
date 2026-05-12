@@ -16,7 +16,6 @@
     $scuConverted = data_get($inventory, 'scu_converted');
     $inventoryUnit = data_get($inventory, 'unit', 'SCU');
 
-    // Damage change metrics — 6 types, rendered in Damage Resistance section
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
     $damageChangeMetrics = array_values(array_filter(
@@ -27,14 +26,12 @@
         static fn (array $m): bool => $m['value'] !== null,
     ));
 
-    // Signature metrics — dynamic key-value pairs
     $signatureMetrics = collect($signature)
         ->filter(static fn ($value): bool => $value !== null)
         ->map(static fn ($value, $key): array => ['label' => $key, 'value' => $value])
         ->values()
         ->all();
 
-    // Radiation resistance metrics
     $radiationResistanceMetrics = [
         ['label' => 'Max Radiation Capacity', 'value' => data_get($radiationResistance, 'maximum_radiation_capacity')],
         ['label' => 'Dissipation Rate', 'value' => data_get($radiationResistance, 'radiation_dissipation_rate')],

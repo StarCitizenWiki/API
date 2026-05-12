@@ -27,20 +27,17 @@
     $chargeModifier = data_get($vehicleWeapon, 'charge_modifier', []);
     $allModes = data_get($vehicleWeapon, 'modes', []);
 
-    // Primary metrics — Range and RPM (Class/Capacity use special rendering)
     $primaryMetrics = [
         ['label' => 'Range', 'value' => $range, 'unit' => 'm', 'precision' => 0],
         ['label' => 'RPM', 'value' => $rpm, 'unit' => 'RPM', 'precision' => 0],
     ];
 
-    // Damage stats metrics — Alpha, Burst, Maximum (Maximum uses special rendering)
     $damageStatsMetrics = [
         ['label' => 'Alpha', 'value' => $alphaTotal, 'unit' => '', 'precision' => 0],
         ['label' => 'Burst', 'value' => $burst, 'unit' => '', 'precision' => 2],
         ['label' => 'Maximum', 'value' => $maximum, 'unit' => '', 'precision' => 0],
     ];
 
-    // DPS / Alpha breakdown — 6 damage types
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
     $dpsMetrics = collect($damageTypes)
@@ -53,20 +50,17 @@
         ->filter(fn (array $m): bool => $m['value'] !== null && $m['value'] > 0)
         ->values()->all();
 
-    // Spread metrics (Min/Max range uses special fmt_range rendering)
     $spreadMetrics = [
         ['label' => 'First Attack', 'value' => data_get($spread, 'first_attack'), 'unit' => 'deg', 'precision' => 0],
         ['label' => 'Per Attack', 'value' => data_get($spread, 'per_attack'), 'unit' => 'deg', 'precision' => 0],
         ['label' => 'Decay', 'value' => data_get($spread, 'decay'), 'unit' => 'deg/s', 'precision' => 0],
     ];
 
-    // Barrel spin metrics
     $barrelSpinMetrics = [
         ['label' => 'Up', 'value' => data_get($barrelSpinTime, 'up'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Down', 'value' => data_get($barrelSpinTime, 'down'), 'unit' => 's', 'precision' => 2],
     ];
 
-    // Heat metrics
     $heatMetrics = [
         ['label' => 'Overheat Max Shots', 'value' => data_get($heat, 'overheat_max_shots'), 'unit' => '', 'precision' => 0],
         ['label' => 'Overheat Max Time', 'value' => data_get($heat, 'overheat_max_time'), 'unit' => 's', 'precision' => 2],
@@ -78,7 +72,6 @@
         ['label' => 'Wear Per Second', 'value' => data_get($mode, 'wear_per_second'), 'unit' => '/s', 'precision' => 2],
     ];
 
-    // Capacitor metrics
     $capacitorMetrics = [
         ['label' => 'Max Ammo Load', 'value' => data_get($capacitor, 'max_ammo_load'), 'unit' => '', 'precision' => 0],
         ['label' => 'Regen Per Second', 'value' => data_get($capacitor, 'regen_per_second'), 'unit' => '', 'precision' => 0],
@@ -87,7 +80,6 @@
         ['label' => 'Costs Per Shot', 'value' => data_get($capacitor, 'costs_per_shot'), 'unit' => '', 'precision' => 0],
     ];
 
-    // Charge timings metrics
     $chargeTimingsMetrics = [
         ['label' => 'Time', 'value' => data_get($charge, 'time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Overcharge Time', 'value' => data_get($charge, 'overcharge_time'), 'unit' => 's', 'precision' => 2],
@@ -99,7 +91,6 @@
         // ['label' => 'Interpolate Bonus', 'value' => data_get($charge, 'interpolate_bonus')],
     ];
 
-    // Charge modifier metrics
     $chargeModMetrics = [
         ['label' => 'Damage', 'value' => data_get($chargeModifier, 'damage'), 'unit' => '', 'precision' => 0],
         ['label' => 'Fire Rate', 'value' => data_get($chargeModifier, 'fire_rate'), 'unit' => '', 'precision' => 0],
@@ -110,7 +101,6 @@
         ['label' => 'Heat Multiplier', 'value' => data_get($chargeModifier, 'heat_multiplier'), 'unit' => '', 'precision' => 2],
     ];
 
-    // Fire-type-specific metrics
     $beamMetrics = [
         ['label' => 'Charge Up Time', 'value' => data_get($mode, 'charge_up_time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Charge Down Time', 'value' => data_get($mode, 'charge_down_time'), 'unit' => 's', 'precision' => 2],

@@ -50,7 +50,7 @@
         @if ($searchType)
             <div class="alert alert-info text-sm" data-testid="comm-links-images-search-summary">
                 @if ($searchType === 'media-name')
-                    Showing results for media name search: <span class="font-semibold">{{ $searchQuery ?: '—' }}</span>.
+                    Showing results for media name search: <span class="font-semibold">{{ $searchQuery ?: '-' }}</span>.
                 @elseif ($searchType === 'reverse-image')
                     Showing reverse image matches.
                 @endif

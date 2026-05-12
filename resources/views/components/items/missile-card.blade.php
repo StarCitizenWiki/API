@@ -15,7 +15,6 @@
     $explosion = data_get($missile, 'explosion', []);
     $delays = data_get($missile, 'delays', []);
 
-    // Head metrics — primary always-visible fields (Signal Type and Lock Range rendered as static x-dt-dd)
     $headMetrics = [
         ['label' => 'Damage Total', 'value' => $damageTotal, 'unit' => '', 'precision' => 2],
         ['label' => 'Range', 'value' => data_get($flight, 'range'), 'unit' => 'm', 'precision' => 0],
@@ -23,7 +22,6 @@
         ['label' => 'Cluster Size', 'value' => $clusterSize, 'unit' => '', 'precision' => 0],
     ];
 
-    // Target Lock metrics (Lock Range rendered as static x-dt-dd)
     $targetLockMetrics = [
         ['label' => 'Lock Angle', 'value' => data_get($targetLock, 'angle'), 'unit' => 'deg', 'precision' => 1],
         ['label' => 'Tracking Signal Min', 'value' => $trackingSignalMin, 'unit' => '', 'precision' => 2],
@@ -34,7 +32,6 @@
         ['label' => 'Allow Dumb Firing', 'value' => data_get($targetLock, 'allow_dumb_firing'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
     ];
 
-    // Flight metrics
     $flightMetrics = [
         ['label' => 'Speed', 'value' => data_get($flight, 'speed'), 'unit' => 'm/s', 'precision' => 2],
         ['label' => 'Max Lifetime', 'value' => data_get($flight, 'max_lifetime'), 'unit' => 's', 'precision' => 2],
@@ -47,7 +44,6 @@
         ['label' => 'Terminal Phase Engagement Angle', 'value' => data_get($flight, 'terminal_phase_engagement_angle'), 'unit' => 'deg', 'precision' => 1],
     ];
 
-    // Damage map — dynamic key-value pairs
     $damageMetrics = array_values(array_filter(
         collect($damageMap)->map(fn (float|int|null $value, string $type): array => [
             'label' => Str::headline($type),
@@ -58,7 +54,6 @@
         static fn (array $m): bool => $m['value'] !== null && $m['value'] > 0,
     ));
 
-    // Explosion metrics (Radius rendered as static x-dt-dd)
     $explosionMetrics = [
         ['label' => 'Is Cluster', 'value' => data_get($explosion, 'is_cluster'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
         ['label' => 'Cluster Size', 'value' => data_get($explosion, 'cluster_size'), 'unit' => '', 'precision' => 0],
@@ -67,7 +62,6 @@
         ['label' => 'Proximity', 'value' => data_get($explosion, 'proximity'), 'unit' => 'm', 'precision' => 2],
     ];
 
-    // Delays metrics
     $delaysMetrics = [
         ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time'), 'unit' => 's', 'precision' => 2],
         ['label' => 'Ignite Time', 'value' => data_get($delays, 'ignite_time'), 'unit' => 's', 'precision' => 2],

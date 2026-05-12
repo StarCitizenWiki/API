@@ -7,7 +7,6 @@
     $activateOnAttach = data_get($weaponModifier, 'activate_on_attach');
     $ignoreWear = data_get($weaponModifier, 'ignore_wear');
 
-    // Base change metrics — only render _change when both _multiplier and _change exist
     $base = data_get($weaponModifier, 'base', []);
     $baseMetrics = collect([
         ['key' => 'muzzle_flash', 'label' => 'Muzzle Flash', 'invert' => false],
@@ -67,7 +66,7 @@
             'invert' => $m['invert'],
         ])->values()->all();
 
-    // Aim metrics — mixed: zoom_time is a change metric; others are standalone
+    // Aim metrics - mixed: zoom_time is a change metric; others are standalone
     $aim = data_get($weaponModifier, 'aim', []);
     $aimChangeMetrics = collect([
         ['key' => 'zoom_time', 'label' => 'Zoom Time', 'invert' => false],
@@ -92,7 +91,6 @@
 
     $aimMetrics = array_merge($aimChangeMetrics, $aimStandaloneMetrics);
 
-    // Regen metrics — standalone multipliers, no _change pairs
     $regen = data_get($weaponModifier, 'regen', []);
     $regenMetrics = array_values(array_filter([
         ['label' => 'Power Ratio', 'value' => data_get($regen, 'power_ratio_multiplier'), 'unit' => '', 'precision' => 2],
@@ -100,7 +98,6 @@
         ['label' => 'Max Regen/sec', 'value' => data_get($regen, 'max_regen_per_sec_multiplier'), 'unit' => '', 'precision' => 2],
     ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
 
-    // Salvage metrics — standalone, no _change pairs
     $salvage = data_get($weaponModifier, 'salvage', []);
     $salvageMetrics = array_values(array_filter([
         ['label' => 'Salvage Speed', 'value' => data_get($salvage, 'salvage_speed_multiplier'), 'unit' => '', 'precision' => 2],
@@ -108,7 +105,6 @@
         ['label' => 'Extraction Efficiency', 'value' => data_get($salvage, 'extraction_efficiency'), 'unit' => '', 'precision' => 2],
     ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
 
-    // Zeroing metrics — absolute values with units
     $zeroing = data_get($weaponModifier, 'zeroing', []);
     $zeroingMetrics = array_values(array_filter([
         ['label' => 'Default Range', 'value' => data_get($zeroing, 'default_range'), 'unit' => 'm', 'precision' => 2],
