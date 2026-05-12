@@ -1,6 +1,6 @@
 @php use Illuminate\Support\Facades\Route; @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeToggle" x-init="init()" x-bind:data-theme="isDark ? darkTheme : lightTheme" x-effect="localStorage.setItem('theme', isDark ? darkTheme : lightTheme)">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,19 +58,76 @@
                             </a>
                         </div>
 
-                        <div class="w-full min-w-0 max-w-xl px-2 place-self-center">
+                        <div
+                            x-data="liveSearch('/api/search')"
+                            x-init="init()"
+                            x-on:click.window="closeOnOutside($event)"
+                            class="w-full min-w-0 max-w-xl px-2 place-self-center"
+                        >
                             <label class="input input-bordered input-sm flex w-full items-center gap-2">
                                 <x-icon name="search" class="size-4 text-subtle shrink-0" />
                                 <input
+                                    x-ref="input"
                                     type="search"
                                     class="grow text-sm"
                                     placeholder="Search the verse..."
                                     data-testid="header-search-input"
-                                    data-live-search
-                                    data-api-endpoint="/api/search"
+                                    x-model="query"
+                                    x-on:input="search()"
+                                    x-on:keydown="navigate($event)"
+                                    x-on:focus="results.length && query.trim().length >= 2 && (open = true)"
                                     autocomplete="off"
                                 />
                             </label>
+
+                            {{-- Live search dropdown --}}
+                            <div
+                                x-ref="dropdown"
+                                x-show="open"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100"
+                                x-transition:leave-end="opacity-0"
+                                x-init="updateDropdownPosition()"
+                                role="listbox"
+                                class="rounded-box border border-base-300 bg-base-100 shadow-xl max-h-96 overflow-y-auto overflow-x-hidden"
+                                style="display: none;"
+                            >
+                                <template x-if="results.length === 0">
+                                    <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
+                                        <span class="text-sm text-muted">No results found</span>
+                                    </div>
+                                </template>
+
+                                <ul x-show="results.length > 0" class="menu menu-sm p-1 gap-0.5 w-full">
+                                    <template x-for="(item, idx) in results" :key="item.web_url ?? idx">
+                                        <li>
+                                            <a
+                                                :href="item.web_url"
+                                                role="option"
+                                                data-live-search-item
+                                                class="grid grid-cols-[auto_1fr] items-center gap-x-2 rounded-lg px-3 py-2 text-sm w-full"
+                                                :class="{ 'bg-base-200': idx === activeIndex }"
+                                                x-on:click.prevent="selectItem(idx)"
+                                                x-on:mouseenter="activeIndex = idx"
+                                            >
+                                                <span x-show="item.type_label" x-text="item.type_label" class="text-xs text-muted truncate max-w-20"></span>
+                                                <span x-show="!item.type_label">&nbsp;</span>
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <span x-text="item.name ?? item.title" class="truncate"></span>
+                                                    <span
+                                                        x-show="itemLabel(item)"
+                                                        class="text-xs text-muted shrink-0 pl-1"
+                                                        x-text="itemLabel(item)"
+                                                    ></span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end gap-2">
@@ -89,7 +146,7 @@
                             @endif
 
                             <label class="swap swap-rotate btn btn-ghost btn-square hidden md:inline-grid">
-                                <input type="checkbox" class="theme-toggle" data-theme-toggle="dark" aria-label="Toggle dark mode">
+                                <input type="checkbox" class="theme-toggle" aria-label="Toggle dark mode" x-model="isDark">
                                 <x-icon name="sun" class="swap-off size-5" />
                                 <x-icon name="moon" class="swap-on size-5" />
                             </label>
@@ -140,7 +197,7 @@
 
                                     <li>
                                         <label class="swap place-content-start">
-                                            <input type="checkbox" class="theme-toggle" data-theme-toggle="dark" aria-label="Toggle dark mode">
+                                            <input type="checkbox" class="theme-toggle" aria-label="Toggle dark mode" x-model="isDark">
                                             <span class="swap-off flex gap-2"><x-icon name="sun" class="size-5" />Light</span>
                                             <span class="swap-on flex gap-2"><x-icon name="moon" class="size-5" />Dark</span>
                                         </label>

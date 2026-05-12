@@ -17,15 +17,9 @@
     $inputQuantity = $input['quantity'] ?? null;
     $inputQuantityScu = $input['quantity_scu'] ?? null;
     $inputWebUrl = is_string($input['web_url'] ?? null) && trim($input['web_url']) !== '' ? trim($input['web_url']) : null;
-    $cardClasses = $isSelected
-        ? 'card card-border bg-base-200/60 shadow-sm'
-        : 'card border border-dashed border-base-300 bg-base-100 opacity-70 shadow-sm';
-    $selectionButtonClasses = $isSelected
-        ? 'btn btn-primary btn-xs'
-        : 'btn btn-outline btn-xs border-base-300 bg-base-100 text-subtle';
 @endphp
 
-<div class="{{ $cardClasses }}" data-aspect-card="{{ $aspectIndex }}">
+<div :class="getAspectCardClass({{ $aspectIndex }})">
     <div class="card-body gap-3 p-4">
         <div class="flex items-start justify-between gap-3">
             <div class="flex flex-1 flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
@@ -35,12 +29,11 @@
                         @if ($isSelectable)
                             <button
                                 type="button"
-                                class="{{ $selectionButtonClasses }}"
-                                data-aspect-toggle="{{ $aspectIndex }}"
-                                aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
-                            >
-                                {{ $isSelected ? 'Included' : 'Excluded' }}
-                            </button>
+                                :class="getToggleClass({{ $aspectIndex }})"
+                                x-on:click="toggleSelected({{ $aspectIndex }})"
+                                :aria-pressed="selectedByAspect[{{ $aspectIndex }}] ? 'true' : 'false'"
+                                x-text="getToggleText({{ $aspectIndex }})"
+                            ></button>
                         @endif
                     </div>
                     @if ($inputWebUrl)
@@ -79,14 +72,14 @@
                             <div class="flex items-center gap-2">
                                 <button
                                     type="button"
-                                    class="invisible btn btn-ghost btn-xs text-muted transition-colors"
-                                    data-aspect-reset="{{ $aspectIndex }}"
+                                    :class="getResetClass({{ $aspectIndex }})"
+                                    x-on:click="resetQuality({{ $aspectIndex }})"
+                                    :disabled="isResetDisabled({{ $aspectIndex }})"
                                     aria-label="Reset {{ $aspect['name'] }} quality"
-                                    @if (! $isSelected) disabled @endif
                                 >
                                     Reset to {{ $aspect['initial_quality'] }}
                                 </button>
-                                <div class="badge badge-neutral badge-sm min-w-10 tabular-nums" data-aspect-quality-value="{{ $aspectIndex }}">
+                                <div class="badge badge-neutral badge-sm min-w-10 tabular-nums" x-text="getQualityDisplay({{ $aspectIndex }})">
                                     {{ $isSelected ? $aspect['initial_quality'] : 'Off' }}
                                 </div>
                             </div>
@@ -96,9 +89,9 @@
                             min="{{ $aspect['slider_min'] }}"
                             max="{{ $aspect['slider_max'] }}"
                             value="{{ $aspect['initial_quality'] }}"
-                            class="range range-primary range-sm w-full @if (! $isSelected) opacity-50 @endif"
-                            data-aspect-slider="{{ $aspectIndex }}"
-                            @if (! $isSelected) disabled @endif
+                            :class="getSliderClass({{ $aspectIndex }})"
+                            x-on:input="setQuality({{ $aspectIndex }}, Number($event.target.value))"
+                            :disabled="!selectedByAspect[{{ $aspectIndex }}]"
                         />
                         <div class="flex w-full justify-between text-xs text-subtle">
                             <span>{{ $aspect['slider_min'] }}</span>
@@ -109,12 +102,12 @@
                 @elseif ($aspect['has_modifiers'])
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">Fixed modifier band.</span>
-                        <span class="badge badge-soft badge-sm">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'Fixed' : 'Off'">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
                     </div>
                 @else
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">No modifier data.</span>
-                        <span class="badge badge-soft badge-sm">{{ $isSelected ? 'None' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'None' : 'Off'">{{ $isSelected ? 'None' : 'Off' }}</span>
                     </div>
                 @endif
             </div>
@@ -124,8 +117,7 @@
             <div class="grid gap-1.5 md:grid-cols-2">
                 @foreach ($aspect['modifiers'] as $modifierIndex => $modifier)
                     <div
-                        class="rounded-box border border-base-300 bg-base-100 px-2.5 py-2 transition-colors"
-                        data-modifier-card="{{ $aspectIndex }}:{{ $modifierIndex }}"
+                        :class="getModifierCardClass({{ $aspectIndex }}, {{ $modifierIndex }})"
                     >
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
@@ -141,7 +133,7 @@
                                 </div>
                             </div>
                             <div class="shrink-0 text-right">
-                                <div class="text-xs font-semibold tabular-nums text-subtle" data-modifier-change="{{ $aspectIndex }}:{{ $modifierIndex }}">
+                                <div :class="getModifierChangeClass({{ $aspectIndex }}, {{ $modifierIndex }})" x-text="getModifierChangeText({{ $aspectIndex }}, {{ $modifierIndex }})">
                                     {{ $isSelected ? 'No change' : 'Excluded' }}
                                 </div>
                             </div>

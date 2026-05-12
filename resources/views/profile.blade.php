@@ -29,7 +29,11 @@
                 <h2 class="card-title">API Token</h2>
 
                 @if (session('token'))
-                    <div class="space-y-2" data-testid="profile-new-token">
+                    <div
+                        x-data="{ copied: false }"
+                        class="space-y-2"
+                        data-testid="profile-new-token"
+                    >
                         <label class="label">
                             <span class="label-text font-semibold">Your New API Token</span>
                         </label>
@@ -42,7 +46,7 @@
                             />
                             <button
                                 type="button"
-                                onclick="copyToken('{{ session('token') }}')"
+                                x-on:click="navigator.clipboard.writeText('{{ session('token') }}'); copied = true; setTimeout(() => copied = false, 3000)"
                                 class="btn btn-ghost join-item"
                                 aria-label="Copy token"
                             >
@@ -54,6 +58,13 @@
                             <x-icon name="info" class="size-3 inline" />
                             Copy this token now. You won't be able to see it again.
                         </p>
+
+                        <div class="toast toast-end toast-bottom" x-show="copied" x-transition style="display: none;">
+                            <div class="alert alert-success">
+                                <x-icon name="check-circle" />
+                                <span>API token copied to clipboard!</span>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
@@ -232,21 +243,4 @@
             </div>
         </div>
     </div>
-
-    <div id="toast" class="toast toast-end toast-bottom hidden">
-        <div class="alert alert-success">
-            <x-icon name="check-circle" />
-            <span>API token copied to clipboard!</span>
-        </div>
-    </div>
-
-    <script>
-        function copyToken(token) {
-            navigator.clipboard.writeText(token).then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 3000);
-            });
-        }
-    </script>
 @endsection
