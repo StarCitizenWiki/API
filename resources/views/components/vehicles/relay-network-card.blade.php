@@ -1,4 +1,4 @@
-@use('Illuminate\Support\Str')
+@use('Illuminate\Support\Js;use Illuminate\Support\Str')
 @props(['vehicle'])
 
 @php
@@ -53,15 +53,25 @@
     };
 @endphp
 
-<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
+<section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }} x-data="{ search: '' }">
     <div class="card-body gap-4">
-        <h2 class="card-title text-base">
-            Relay Network
-            <span class="flex items-center gap-2 text-sm text-subtle font-normal">
-                ({{ $totalFuses }} {{ Str::plural('Fuse', $totalFuses) }} -
-                {{ $relayCount }} {{ Str::plural('Relay', $relayCount) }})
-            </span>
-        </h2>
+        <div>
+            <h2 class="card-title text-base">
+                Relay Network
+                <span class="text-sm text-subtle font-normal">
+                    ({{ $totalFuses }} {{ Str::plural('Fuse', $totalFuses) }} -
+                    {{ $relayCount }} {{ Str::plural('Relay', $relayCount) }})
+                </span>
+            </h2>
+            <p class="text-xs text-subtle">
+                Each relay controls the listed hardpoints. If a relay is damaged, the connected components go offline.
+            </p>
+        </div>
+
+        @if ($relayCount > 1)
+            <input type="text" x-model="search" placeholder="Search relays, hardpoints, items…"
+                   class="input input-bordered input-sm w-full max-w-xs"/>
+        @endif
 
         <div @if($relayCount > 1) class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2" @endif>
             @foreach($relays as $relay)
@@ -74,9 +84,23 @@
                     $hasSecondary = $secondaryGroups !== [];
                     $secondaryCount = array_sum(array_map(fn (array $g) => data_get($g, 'count', 0), $secondaryGroups));
                     $secondaryLabel = implode(', ', array_map(fn (array $g) => data_get($g, 'category', ''), $secondaryGroups));
+
+                    $searchBlob = Str::lower(collect($connectedGroups)
+                        ->flatMap(fn (array $g) => collect(data_get($g, 'items', []))
+                            ->map(fn (array $i) => data_get($i, 'item_name', '') . ' ' . data_get($i, 'hardpoint', ''))
+                            ->push(data_get($g, 'category', ''))
+                        )
+                        ->push($relayName)
+                        ->push(data_get($relay, 'hardpoint', ''))
+                        ->implode(' '));
                 @endphp
 
-                <details class="collapse collapse-arrow border border-base-300 bg-base-100">
+                <details
+                    x-show="!search || {{ Js::from($searchBlob) }}.includes(search.toLowerCase())"
+                    x-transition
+                    class="collapse collapse-arrow border bg-base-100"
+                    :class="search && {{ Js::from($searchBlob) }}.includes(search.toLowerCase()) ? 'border-primary' : 'border-base-300'"
+                >
                     <summary class="collapse-title min-h-11 py-3">
                         <span class="font-semibold block w-full" title="{{ data_get($relay, 'hardpoint', '') }}">
                             {{ $relayName }}
