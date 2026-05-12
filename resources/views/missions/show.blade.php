@@ -1,5 +1,5 @@
 @php
-    use Illuminate\Support\Str;
+    use App\Support\Format;use Illuminate\Support\Str;
 
     $title = data_get($resource, 'title', 'Mission');
     $seoBreadcrumbs = data_get($seo, 'breadcrumbs', []);
@@ -90,8 +90,8 @@
         />
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
-            <x-missions.hero :resource="$resource" class="xl:col-span-7" />
-            <x-missions.quick-facts-card :resource="$resource" class="xl:col-span-5" />
+            <x-missions.hero :resource="$resource" class="xl:col-span-7"/>
+            <x-missions.quick-facts-card :resource="$resource" class="xl:col-span-5"/>
         </div>
 
         <div class="flex flex-col gap-8">
@@ -109,26 +109,27 @@
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm table-zebra">
                                             <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Amount</th>
-                                                    <th>Home</th>
-                                                </tr>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Amount</th>
+                                                <th>Home</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($rewardItems as $item)
-                                                    <tr>
-                                                        <td>
-                                                            @if (data_get($item, 'web_url'))
-                                                                <a href="{{ data_get($item, 'web_url') }}" class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
-                                                            @else
-                                                                {{ data_get($item, 'name', '-') }}
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ data_get($item, 'amount') ?? '-' }}</td>
-                                                        <td>{{ data_get($item, 'send_to_home') === true ? 'Yes' : '-' }}</td>
-                                                    </tr>
-                                                @endforeach
+                                            @foreach ($rewardItems as $item)
+                                                <tr>
+                                                    <td>
+                                                        @if (data_get($item, 'web_url'))
+                                                            <a href="{{ data_get($item, 'web_url') }}"
+                                                               class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
+                                                        @else
+                                                            {{ data_get($item, 'name', '-') }}
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ data_get($item, 'amount') ?? '-' }}</td>
+                                                    <td>{{ data_get($item, 'send_to_home') === true ? 'Yes' : '-' }}</td>
+                                                </tr>
+                                            @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -142,36 +143,39 @@
                                     <h3 class="font-semibold uppercase text-subtle mb-3">Blueprints</h3>
                                     @if (data_get($blueprints, 'drop_chance'))
                                         <p class="text-xs text-subtle mb-3">
-                                            One blueprint from this pool ({{ data_get($blueprints, 'drop_chance_percent') }}% drop chance)
+                                            One blueprint from this pool
+                                            ({{ data_get($blueprints, 'drop_chance_percent') }}% drop chance)
                                         </p>
                                     @endif
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm table-zebra">
                                             <thead>
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th>Blueprint</th>
-                                                </tr>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Blueprint</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($blueprintItems as $bpItem)
-                                                    <tr>
-                                                        <td>
-                                                            @if (data_get($bpItem, 'web_item_link'))
-                                                                <a href="{{ data_get($bpItem, 'web_item_link') }}" class="link link-primary">{{ data_get($bpItem, 'name', '-') }}</a>
-                                                            @else
-                                                                {{ data_get($bpItem, 'name', '-') }}
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if (data_get($bpItem, 'web_blueprint_link'))
-                                                                <a href="{{ data_get($bpItem, 'web_blueprint_link') }}" class="link link-primary text-xs">View</a>
-                                                            @else
-                                                                -
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
+                                            @foreach ($blueprintItems as $bpItem)
+                                                <tr>
+                                                    <td>
+                                                        @if (data_get($bpItem, 'web_item_link'))
+                                                            <a href="{{ data_get($bpItem, 'web_item_link') }}"
+                                                               class="link link-primary">{{ data_get($bpItem, 'name', '-') }}</a>
+                                                        @else
+                                                            {{ data_get($bpItem, 'name', '-') }}
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (data_get($bpItem, 'web_blueprint_link'))
+                                                            <a href="{{ data_get($bpItem, 'web_blueprint_link') }}"
+                                                               class="link link-primary text-xs">View</a>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -185,32 +189,34 @@
                                     <div class="space-y-6">
                                         @if ($reputationGained !== [])
                                             <div>
-                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation Gained</h3>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation
+                                                    Gained</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
-                                                            <tr>
-                                                                <th>Faction</th>
-                                                                <th>Amount</th>
-                                                                <th>Scope</th>
-                                                                <th>Tier</th>
-                                                            </tr>
+                                                        <tr>
+                                                            <th>Faction</th>
+                                                            <th>Amount</th>
+                                                            <th>Scope</th>
+                                                            <th>Tier</th>
+                                                        </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach ($reputationGained as $rep)
-                                                                <tr>
-                                                                    <td>{{ data_get($rep, 'faction') ?? '-' }}</td>
-                                                                    <td>
-                                                                        @if (data_get($rep, 'amount'))
-                                                                            <span class="text-success">+{{ data_get($rep, 'amount') }}</span>
-                                                                        @else
-                                                                            -
-                                                                        @endif
-                                                                    </td>
-                                                                    <td>{{ data_get($rep, 'scope') ?? '-' }}</td>
-                                                                    <td>{{ data_get($rep, 'tier') ?? '-' }}</td>
-                                                                </tr>
-                                                            @endforeach
+                                                        @foreach ($reputationGained as $rep)
+                                                            <tr>
+                                                                <td>{{ data_get($rep, 'faction') ?? '-' }}</td>
+                                                                <td>
+                                                                    @if (data_get($rep, 'amount'))
+                                                                        <span
+                                                                            class="text-success">+{{ data_get($rep, 'amount') }}</span>
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ data_get($rep, 'scope') ?? '-' }}</td>
+                                                                <td>{{ data_get($rep, 'tier') ?? '-' }}</td>
+                                                            </tr>
+                                                        @endforeach
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -219,32 +225,34 @@
 
                                         @if ($reputationLost !== [])
                                             <div>
-                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation Lost</h3>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation
+                                                    Lost</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
-                                                            <tr>
-                                                                <th>Faction</th>
-                                                                <th>Amount</th>
-                                                                <th>Scope</th>
-                                                                <th>Tier</th>
-                                                            </tr>
+                                                        <tr>
+                                                            <th>Faction</th>
+                                                            <th>Amount</th>
+                                                            <th>Scope</th>
+                                                            <th>Tier</th>
+                                                        </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach ($reputationLost as $rep)
-                                                                <tr>
-                                                                    <td>{{ data_get($rep, 'faction') ?? '-' }}</td>
-                                                                    <td>
-                                                                        @if (data_get($rep, 'amount'))
-                                                                            <span class="text-error">{{ data_get($rep, 'amount') }}</span>
-                                                                        @else
-                                                                            -
-                                                                        @endif
-                                                                    </td>
-                                                                    <td>{{ data_get($rep, 'scope') ?? '-' }}</td>
-                                                                    <td>{{ data_get($rep, 'tier') ?? '-' }}</td>
-                                                                </tr>
-                                                            @endforeach
+                                                        @foreach ($reputationLost as $rep)
+                                                            <tr>
+                                                                <td>{{ data_get($rep, 'faction') ?? '-' }}</td>
+                                                                <td>
+                                                                    @if (data_get($rep, 'amount'))
+                                                                        <span
+                                                                            class="text-error">{{ data_get($rep, 'amount') }}</span>
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ data_get($rep, 'scope') ?? '-' }}</td>
+                                                                <td>{{ data_get($rep, 'tier') ?? '-' }}</td>
+                                                            </tr>
+                                                        @endforeach
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -258,14 +266,14 @@
                 </section>
             @endif
 
-            <x-missions.chain-flow :resource="$resource" />
+            <x-missions.chain-flow :resource="$resource"/>
 
             @if ($haulingOrders !== [])
-                <x-missions.hauling-section :hauling-orders="$haulingOrders" />
+                <x-missions.hauling-section :hauling-orders="$haulingOrders"/>
             @endif
 
             @if ($hasCombatSection)
-                <x-missions.combat-card :resource="$resource" />
+                <x-missions.combat-card :resource="$resource"/>
             @endif
 
             @if (data_get($resource, 'faction') !== null)
@@ -309,18 +317,18 @@
                                         <div class="overflow-x-auto">
                                             <table class="table table-sm table-zebra">
                                                 <thead>
-                                                    <tr>
-                                                        <th>Rank</th>
-                                                        <th>XP Required</th>
-                                                    </tr>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>XP Required</th>
+                                                </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach ($reputationLadderStandings as $standing)
-                                                        <tr>
-                                                            <td>{{ data_get($standing, 'display_name') ?? data_get($standing, 'name', '-') }}</td>
-                                                            <td>{{ number_format(data_get($standing, 'min_reputation', 0)) }}</td>
-                                                        </tr>
-                                                    @endforeach
+                                                @foreach ($reputationLadderStandings as $standing)
+                                                    <tr>
+                                                        <td>{{ data_get($standing, 'display_name') ?? data_get($standing, 'name', '-') }}</td>
+                                                        <td>{{ Format::number(data_get($standing, 'min_reputation', 0)) }}</td>
+                                                    </tr>
+                                                @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
@@ -351,7 +359,9 @@
                             $startOpen = $groupLabel !== 'Availability';
                         @endphp
 
-                        <details class="collapse collapse-arrow card card-border bg-base-100 shadow" @if ($startOpen) open @endif data-testid="mission-location-group-{{ Str::slug($groupLabel) }}">
+                        <details class="collapse collapse-arrow card card-border bg-base-100 shadow"
+                                 @if ($startOpen) open
+                                 @endif data-testid="mission-location-group-{{ Str::slug($groupLabel) }}">
                             <summary class="collapse-title min-h-11 text-sm font-semibold flex items-center gap-3">
                                 {{ $groupLabel }}
                                 <span class="badge badge-outline badge-sm">{{ $groupCount }}</span>
@@ -368,12 +378,14 @@
                                             class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                         >
                                             <div class="min-w-0 space-y-1.5">
-                                                <div class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
+                                                <div
+                                                    class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
                                                     <span class="truncate">{{ data_get($location, 'name', '-') }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                     @if (data_get($location, 'system'))
-                                                        <span class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
+                                                        <span
+                                                            class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
                                                     @endif
                                                     @if (data_get($location, 'type'))
                                                         <span>{{ data_get($location, 'type') }}</span>
@@ -386,7 +398,8 @@
 
                                 @if ($hiddenCount > 0)
                                     <details class="mt-4">
-                                        <summary class="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer transition">
+                                        <summary
+                                            class="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer transition">
                                             Show {{ $hiddenCount }} more {{ Str::lower($groupLabel) }}
                                         </summary>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
@@ -396,12 +409,15 @@
                                                     class="group block rounded-box border border-base-300 bg-base-100 p-3 transition hover:border-base-content/20 hover:bg-base-200/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20"
                                                 >
                                                     <div class="min-w-0 space-y-1.5">
-                                                        <div class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
-                                                            <span class="truncate">{{ data_get($location, 'name', '-') }}</span>
+                                                        <div
+                                                            class="flex items-center gap-1.5 truncate text-sm font-semibold text-base-content transition group-hover:text-base-content/80">
+                                                            <span
+                                                                class="truncate">{{ data_get($location, 'name', '-') }}</span>
                                                         </div>
                                                         <div class="flex items-center gap-1.5 text-xs text-subtle">
                                                             @if (data_get($location, 'system'))
-                                                                <span class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
+                                                                <span
+                                                                    class="badge badge-soft badge-sm">{{ data_get($location, 'system') }}</span>
                                                             @endif
                                                             @if (data_get($location, 'type'))
                                                                 <span>{{ data_get($location, 'type') }}</span>
@@ -426,35 +442,37 @@
                         <div class="overflow-x-auto">
                             <table class="table table-sm table-zebra">
                                 <thead>
-                                    <tr>
-                                        <th>Tag</th>
-                                        <th>Unlocks Missions</th>
-                                    </tr>
+                                <tr>
+                                    <th>Tag</th>
+                                    <th>Unlocks Missions</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($completionTags as $tag)
-                                        <tr>
-                                            <td>{{ data_get($tag, 'name', '-') }}</td>
-                                            <td>
-                                                @php
-                                                    $tagMissions = data_get($tag, 'unlocks_missions', []);
-                                                @endphp
-                                                @if ($tagMissions !== [])
-                                                    <div class="flex flex-wrap gap-2">
-                                                        @foreach ($tagMissions as $tagMission)
-                                                            @if (data_get($tagMission, 'link'))
-                                                                <a href="{{ data_get($tagMission, 'link') }}" class="link link-primary text-sm">{{ data_get($tagMission, 'title', '-') }}</a>
-                                                            @else
-                                                                <span class="text-sm">{{ data_get($tagMission, 'title', '-') }}</span>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                @foreach ($completionTags as $tag)
+                                    <tr>
+                                        <td>{{ data_get($tag, 'name', '-') }}</td>
+                                        <td>
+                                            @php
+                                                $tagMissions = data_get($tag, 'unlocks_missions', []);
+                                            @endphp
+                                            @if ($tagMissions !== [])
+                                                <div class="flex flex-wrap gap-2">
+                                                    @foreach ($tagMissions as $tagMission)
+                                                        @if (data_get($tagMission, 'link'))
+                                                            <a href="{{ data_get($tagMission, 'link') }}"
+                                                               class="link link-primary text-sm">{{ data_get($tagMission, 'title', '-') }}</a>
+                                                        @else
+                                                            <span
+                                                                class="text-sm">{{ data_get($tagMission, 'title', '-') }}</span>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>

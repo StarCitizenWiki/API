@@ -1,3 +1,4 @@
+@php use App\Support\Format; @endphp
 @props([
     'composition',
     'versionQuery' => null,
@@ -34,13 +35,14 @@
                         <div class="card-body gap-2 p-3">
                             <div class="text-sm font-semibold">
                                 @if ($commodityUrl)
-                                    <a href="{{ $commodityUrl }}" class="link link-hover link-primary">{{ $commodityName }}</a>
+                                    <a href="{{ $commodityUrl }}"
+                                       class="link link-hover link-primary">{{ $commodityName }}</a>
                                 @else
                                     {{ $commodityName }}
                                 @endif
                             </div>
                             <div class="text-xs text-subtle">
-                                Weight: {{ $weight !== null ? rtrim(rtrim(number_format($weight * 100, 2), '0'), '.') . '%' : '-' }}
+                                Weight: {{ $weight !== null ? rtrim(rtrim(Format::number($weight * 100, 2), '0'), '.') . '%' : '-' }}
                             </div>
                         </div>
                     </div>
@@ -51,42 +53,43 @@
                 <table class="table table-sm">
                     <caption class="sr-only">Default commodity composition</caption>
                     <thead>
-                        <tr>
-                            <th scope="col">Commodity</th>
-                            <th scope="col">Weight</th>
-                            <th scope="col">Link</th>
-                        </tr>
+                    <tr>
+                        <th scope="col">Commodity</th>
+                        <th scope="col">Weight</th>
+                        <th scope="col">Link</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @foreach ($entries as $entry)
-                            @php
-                                $commodity = data_get($entry, 'commodity');
-                                $commodityName = data_get($commodity, 'name', data_get($entry, 'entry', '-'));
-                                $commodityUuid = data_get($commodity, 'uuid');
-                                $weight = data_get($entry, 'weight');
-                                $commodityUrl = $commodityUuid ? route('web.commodities.show', $commodityUuid) : null;
-                                if ($commodityUrl && $versionQuery) {
-                                    $commodityUrl = url()->query($commodityUrl, ['version' => $versionQuery]);
-                                }
-                            @endphp
-                            <tr>
-                                <td class="whitespace-nowrap">
-                                    @if ($commodityUrl)
-                                        <a href="{{ $commodityUrl }}" class="link link-hover link-primary">{{ $commodityName }}</a>
-                                    @else
-                                        {{ $commodityName }}
-                                    @endif
-                                </td>
-                                <td>{{ $weight !== null ? rtrim(rtrim(number_format($weight * 100, 2), '0'), '.') . '%' : '-' }}</td>
-                                <td>
-                                    @if ($commodityUrl)
-                                        <a href="{{ $commodityUrl }}" class="link link-primary">View</a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
+                    @foreach ($entries as $entry)
+                        @php
+                            $commodity = data_get($entry, 'commodity');
+                            $commodityName = data_get($commodity, 'name', data_get($entry, 'entry', '-'));
+                            $commodityUuid = data_get($commodity, 'uuid');
+                            $weight = data_get($entry, 'weight');
+                            $commodityUrl = $commodityUuid ? route('web.commodities.show', $commodityUuid) : null;
+                            if ($commodityUrl && $versionQuery) {
+                                $commodityUrl = url()->query($commodityUrl, ['version' => $versionQuery]);
+                            }
+                        @endphp
+                        <tr>
+                            <td class="whitespace-nowrap">
+                                @if ($commodityUrl)
+                                    <a href="{{ $commodityUrl }}"
+                                       class="link link-hover link-primary">{{ $commodityName }}</a>
+                                @else
+                                    {{ $commodityName }}
+                                @endif
+                            </td>
+                            <td>{{ $weight !== null ? rtrim(rtrim(Format::number($weight * 100, 2), '0'), '.') . '%' : '-' }}</td>
+                            <td>
+                                @if ($commodityUrl)
+                                    <a href="{{ $commodityUrl }}" class="link link-primary">View</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
                     </tbody>
                 </table>
             </div>

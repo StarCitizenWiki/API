@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -24,7 +25,7 @@ class VehicleIndexSeoData extends AbstractIndexSeoData
         $total = Arr::get($data, 'total');
         $manufacturer = Arr::get($data, 'manufacturer');
 
-        $count = is_numeric($total) ? number_format((int) $total).' ' : '';
+        $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
         $parts = ["Explore the complete {$count}Star Citizen vehicles database"];
 

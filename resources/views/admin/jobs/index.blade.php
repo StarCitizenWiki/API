@@ -1,3 +1,4 @@
+@php use App\Support\Format; @endphp
 @extends('admin.layout')
 
 @section('breadcrumbs')
@@ -9,9 +10,11 @@
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-semibold" data-testid="admin-failed-jobs-heading">Failed Jobs</h1>
             <div class="flex gap-2">
-                <span class="text-sm text-subtle" data-testid="admin-failed-jobs-total">Total: {{ number_format($jobs->total()) }}</span>
+                <span class="text-sm text-subtle"
+                      data-testid="admin-failed-jobs-total">Total: {{ Format::number($jobs->total()) }}</span>
                 @if ($jobs->total() > 0)
-                    <button onclick="truncateModal.showModal()" class="btn btn-error btn-sm" data-testid="admin-failed-jobs-truncate-button">
+                    <button onclick="truncateModal.showModal()" class="btn btn-error btn-sm"
+                            data-testid="admin-failed-jobs-truncate-button">
                         Truncate All
                     </button>
                 @endif
@@ -21,79 +24,84 @@
         <div class="overflow-x-auto">
             <table class="table table-sm" data-testid="admin-failed-jobs-table">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>UUID</th>
-                        <th>Connection</th>
-                        <th>Queue</th>
-                        <th>Failed At</th>
-                        <th>Actions</th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>UUID</th>
+                    <th>Connection</th>
+                    <th>Queue</th>
+                    <th>Failed At</th>
+                    <th>Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @forelse ($jobs as $job)
-                        <tr data-testid="admin-failed-jobs-row-{{ $job->id }}">
-                            <td data-testid="admin-failed-jobs-id-{{ $job->id }}">{{ $job->id }}</td>
-                            <td class="font-mono text-xs">{{ Str::limit($job->uuid, 20) }}</td>
-                            <td>{{ $job->connection }}</td>
-                            <td data-testid="admin-failed-jobs-queue-{{ $job->id }}">{{ $job->queue }}</td>
-                            <td data-testid="admin-failed-jobs-failed-at-{{ $job->id }}">{{ \Carbon\Carbon::parse($job->failed_at)->format('Y-m-d H:i') }}</td>
-                            <td>
-                                <div class="flex gap-2">
-                                    <button
-                                        onclick="exceptionModal{{ $job->id }}.showModal()"
-                                        class="btn btn-outline btn-sm"
-                                        data-testid="admin-failed-jobs-view-exception-button-{{ $job->id }}"
-                                    >
-                                        View Exception
-                                    </button>
-                                    <button
-                                        onclick="deleteModal{{ $job->id }}.showModal()"
-                                        class="btn btn-error btn-sm"
-                                        data-testid="admin-failed-jobs-delete-button-{{ $job->id }}"
-                                    >
-                                        Delete
-                                    </button>
+                @forelse ($jobs as $job)
+                    <tr data-testid="admin-failed-jobs-row-{{ $job->id }}">
+                        <td data-testid="admin-failed-jobs-id-{{ $job->id }}">{{ $job->id }}</td>
+                        <td class="font-mono text-xs">{{ Str::limit($job->uuid, 20) }}</td>
+                        <td>{{ $job->connection }}</td>
+                        <td data-testid="admin-failed-jobs-queue-{{ $job->id }}">{{ $job->queue }}</td>
+                        <td data-testid="admin-failed-jobs-failed-at-{{ $job->id }}">{{ \Carbon\Carbon::parse($job->failed_at)->format('Y-m-d H:i') }}</td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button
+                                    onclick="exceptionModal{{ $job->id }}.showModal()"
+                                    class="btn btn-outline btn-sm"
+                                    data-testid="admin-failed-jobs-view-exception-button-{{ $job->id }}"
+                                >
+                                    View Exception
+                                </button>
+                                <button
+                                    onclick="deleteModal{{ $job->id }}.showModal()"
+                                    class="btn btn-error btn-sm"
+                                    data-testid="admin-failed-jobs-delete-button-{{ $job->id }}"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+
+                            {{-- Exception Modal --}}
+                            <dialog id="exceptionModal{{ $job->id }}" class="modal">
+                                <div class="modal-box max-w-4xl">
+                                    <h3 class="text-lg font-semibold">Exception Details</h3>
+                                    <div class="py-4">
+                                        <pre
+                                            class="overflow-auto rounded bg-base-200 p-4 text-sm">{{ $job->exception }}</pre>
+                                    </div>
+                                    <div class="modal-action">
+                                        <button class="btn" onclick="exceptionModal{{ $job->id }}.close()">Close
+                                        </button>
+                                    </div>
                                 </div>
+                                <form method="dialog" class="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
 
-                                {{-- Exception Modal --}}
-                                <dialog id="exceptionModal{{ $job->id }}" class="modal">
-                                    <div class="modal-box max-w-4xl">
-                                        <h3 class="text-lg font-semibold">Exception Details</h3>
-                                        <div class="py-4">
-                                            <pre class="overflow-auto rounded bg-base-200 p-4 text-sm">{{ $job->exception }}</pre>
-                                        </div>
-                                        <div class="modal-action">
-                                            <button class="btn" onclick="exceptionModal{{ $job->id }}.close()">Close</button>
-                                        </div>
+                            {{-- Delete Modal --}}
+                            <dialog id="deleteModal{{ $job->id }}" class="modal">
+                                <div class="modal-box">
+                                    <h3 class="text-lg font-semibold">Confirm Deletion</h3>
+                                    <p class="py-4">Are you sure you want to delete this failed job?</p>
+                                    <div class="modal-action">
+                                        <form method="POST" action="{{ route('admin.jobs.destroy', $job->id) }}"
+                                              data-testid="admin-failed-jobs-delete-form-{{ $job->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-error">Delete</button>
+                                        </form>
+                                        <button class="btn" onclick="deleteModal{{ $job->id }}.close()">Cancel</button>
                                     </div>
-                                    <form method="dialog" class="modal-backdrop">
-                                        <button>close</button>
-                                    </form>
-                                </dialog>
-
-                                {{-- Delete Modal --}}
-                                <dialog id="deleteModal{{ $job->id }}" class="modal">
-                                    <div class="modal-box">
-                                        <h3 class="text-lg font-semibold">Confirm Deletion</h3>
-                                        <p class="py-4">Are you sure you want to delete this failed job?</p>
-                                        <div class="modal-action">
-                                            <form method="POST" action="{{ route('admin.jobs.destroy', $job->id) }}" data-testid="admin-failed-jobs-delete-form-{{ $job->id }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-error">Delete</button>
-                                            </form>
-                                            <button class="btn" onclick="deleteModal{{ $job->id }}.close()">Cancel</button>
-                                        </div>
-                                    </div>
-                                </dialog>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-subtle" data-testid="admin-failed-jobs-empty-state">No failed jobs found.</td>
-                        </tr>
-                    @endforelse
+                                </div>
+                            </dialog>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-subtle" data-testid="admin-failed-jobs-empty-state">No
+                            failed jobs found.
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
@@ -111,7 +119,8 @@
             <h3 class="text-lg font-semibold">Confirm Truncate</h3>
             <p class="py-4">Are you sure you want to delete ALL failed jobs? This action cannot be undone.</p>
             <div class="modal-action">
-                <form method="POST" action="{{ route('admin.jobs.truncate') }}" data-testid="admin-failed-jobs-truncate-form">
+                <form method="POST" action="{{ route('admin.jobs.truncate') }}"
+                      data-testid="admin-failed-jobs-truncate-form">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-error">Delete All</button>

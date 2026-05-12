@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @php use Illuminate\Support\Carbon; @endphp
 @props([
     'prices',
@@ -45,7 +46,7 @@
                                     @foreach ($systemPrices as $price)
                                         <tr>
                                             <td class="whitespace-nowrap text-xs text-subtle">
-                                                {{ data_get($price, 'starmap_location.parent_name', '—') }}
+                                                {{ data_get($price, 'starmap_location.parent_name', '-') }}
                                             </td>
                                             <td class="whitespace-nowrap">
                                                 @if ($webUrl = data_get($price, 'web_url'))
@@ -55,19 +56,19 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                {{ data_get($price, 'price_buy') > 0 ? number_format((float) data_get($price, 'price_buy')) . ' aUEC' : '—' }}
+                                                {{ data_get($price, 'price_buy') > 0 ? Format::number((float) data_get($price, 'price_buy')) . ' aUEC' : '-' }}
                                             </td>
                                             <td>
-                                                {{ data_get($price, 'price_sell') > 0 ? number_format((float) data_get($price, 'price_sell')) . ' aUEC' : '—' }}
+                                                {{ data_get($price, 'price_sell') > 0 ? Format::number((float) data_get($price, 'price_sell')) . ' aUEC' : '-' }}
                                             </td>
                                             <td class="whitespace-nowrap text-xs text-subtle">
-                                                {{ data_get($price, 'game_version', '—') }}
+                                                {{ data_get($price, 'game_version', '-') }}
                                             </td>
                                             <td>
                                                 @if ($dateUpdated = data_get($price, 'date_updated'))
-                                                    {{ Carbon::make($dateUpdated)?->diffForHumans() ?? '—' }}
+                                                    {{ Carbon::make($dateUpdated)?->diffForHumans() ?? '-' }}
                                                 @else
-                                                    —
+                                                    -
                                                 @endif
                                             </td>
                                         </tr>

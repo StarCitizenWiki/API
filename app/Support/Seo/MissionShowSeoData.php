@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -173,7 +174,7 @@ final class MissionShowSeoData extends AbstractShowSeoData
 
         $reputationAmount = data_get($mission, 'reputation_amount');
         if ($reputationAmount !== null) {
-            $segments[] = number_format($reputationAmount).' reputation XP';
+            $segments[] = Format::number($reputationAmount).' reputation XP';
         }
 
         $starSystems = data_get($mission, 'star_systems');
@@ -197,15 +198,15 @@ final class MissionShowSeoData extends AbstractShowSeoData
         }
 
         if ($rewardMin !== null && $rewardMax !== null && $rewardMin === $rewardMax) {
-            return 'Rewards '.number_format((int) $rewardMax).' '.$currency;
+            return 'Rewards '.Format::number((int) $rewardMax).' '.$currency;
         }
 
         $parts = [];
         if ($rewardMin !== null) {
-            $parts[] = number_format((int) $rewardMin);
+            $parts[] = Format::number((int) $rewardMin);
         }
 
-        $parts[] = $rewardMax !== null ? number_format((int) $rewardMax) : '?';
+        $parts[] = $rewardMax !== null ? Format::number((int) $rewardMax) : '?';
 
         return 'Rewards '.implode('–', $parts).' '.$currency;
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
+
 abstract class AbstractShowSeoData extends AbstractSeoData
 {
     abstract protected function showRouteName(): string;
@@ -135,10 +137,10 @@ abstract class AbstractShowSeoData extends AbstractSeoData
     protected function formatMass(float|int $mass): string
     {
         if ($mass >= 1000) {
-            return number_format($mass, 0, '.', ',').' kg';
+            return Format::number($mass, 0).' kg';
         }
 
-        return rtrim(rtrim(number_format($mass, 2, '.', ''), '0'), '.').' kg';
+        return rtrim(rtrim(Format::number($mass, 2), '0'), '.').' kg';
     }
 
     protected function buildImage(array $entity): ?string

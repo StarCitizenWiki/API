@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -29,7 +30,7 @@ class MissionIndexSeoData extends AbstractIndexSeoData
         $parts = [];
 
         if (is_numeric($total)) {
-            $parts[] = 'Browse '.number_format((int) $total).' Star Citizen missions';
+            $parts[] = 'Browse '.Format::number((int) $total).' Star Citizen missions';
         } else {
             $parts[] = 'Browse all Star Citizen missions';
         }

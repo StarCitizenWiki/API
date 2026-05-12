@@ -1,3 +1,4 @@
+@php use App\Support\Format;use Carbon\Carbon; @endphp
 @props([
     'image',
     'showFooter' => true,
@@ -8,13 +9,13 @@
          function formatFileSize(float $bytes): string
         {
             if ($bytes >= 1073741824) {
-                return number_format($bytes / 1073741824, 2) . ' GB';
+                return Format::number($bytes / 1073741824, 2) . ' GB';
             }
             if ($bytes >= 1048576) {
-                return number_format($bytes / 1048576, 2) . ' MB';
+                return Format::number($bytes / 1048576, 2) . ' MB';
             }
             if ($bytes >= 1024) {
-                return number_format($bytes / 1024, 2) . ' KB';
+                return Format::number($bytes / 1024, 2) . ' KB';
             }
             return $bytes . ' B';
         }
@@ -40,8 +41,8 @@
 
 
     $sizeFormatted = $size !== null ? formatFileSize((float) $size) : null;
-    $lastModifiedFormatted = $lastModified ? \Carbon\Carbon::parse($lastModified)->diffForHumans() : null;
-    $lastModifiedAbsolute = $lastModified ? \Carbon\Carbon::parse($lastModified)->format('Y-m-d') : null;
+    $lastModifiedFormatted = $lastModified ? Carbon::parse($lastModified)->diffForHumans() : null;
+    $lastModifiedAbsolute = $lastModified ? Carbon::parse($lastModified)->format('Y-m-d') : null;
 
     $previewTag = is_array($tags) ? (collect($tags)->first() ?? null) : null;
     $commLinks = is_array($commLinks) ? $commLinks : [];
@@ -65,12 +66,14 @@
             </span>
         @endif
         @if ($duplicatesCount > 0)
-            <span class="badge badge-secondary absolute left-3 bottom-3 z-10 tooltip" data-tip="{{ $duplicatesCount }} duplicate{{ $duplicatesCount > 1 ? 's' : '' }}">
+            <span class="badge badge-secondary absolute left-3 bottom-3 z-10 tooltip"
+                  data-tip="{{ $duplicatesCount }} duplicate{{ $duplicatesCount > 1 ? 's' : '' }}">
                 ×{{ $duplicatesCount }}
             </span>
         @endif
         @if ($hasBaseImage)
-            <span class="badge badge-secondary absolute right-3 bottom-3 z-10 tooltip" data-tip="Duplicate of {{ $baseImage['name'] }}">
+            <span class="badge badge-secondary absolute right-3 bottom-3 z-10 tooltip"
+                  data-tip="Duplicate of {{ $baseImage['name'] }}">
                 Duplicate
             </span>
         @endif
@@ -108,7 +111,8 @@
                 @endif
             </div>
             @if ($imageId)
-                <a class="link link-primary text-xs" data-testid="comm-link-image-details-link-{{ $imageId }}" href="{{ route('web.comm-links.images.show', $imageId) }}">Details</a>
+                <a class="link link-primary text-xs" data-testid="comm-link-image-details-link-{{ $imageId }}"
+                   href="{{ route('web.comm-links.images.show', $imageId) }}">Details</a>
             @endif
         </div>
 
@@ -123,14 +127,17 @@
 
         <div class="flex flex-wrap gap-2">
             @if ($rsiUrl)
-                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-source-link-{{ $imageId }}" href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">Source</a>
+                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-source-link-{{ $imageId }}"
+                   href="{{ $rsiUrl }}" target="_blank" rel="noreferrer">Source</a>
             @endif
             @if ($imageId)
-                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-info-link-{{ $imageId }}" href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
+                <a class="btn btn-outline btn-xs" data-testid="comm-link-image-info-link-{{ $imageId }}"
+                   href="{{ route('web.comm-links.images.show', $imageId) }}">Info</a>
             @endif
             @auth
                 @if ($isImage)
-                    <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.similar', $imageId) }}" target="_blank">Find Similar</a>
+                    <a class="btn btn-outline btn-xs" href="{{ route('web.comm-links.images.similar', $imageId) }}"
+                       target="_blank">Find Similar</a>
                 @endif
             @endauth
         </div>
@@ -141,14 +148,15 @@
                 <span class="badge badge-neutral badge-xs">{{ count($commLinks) }}</span>
             </div>
             <div class="collapse collapse-arrow border border-base-300 bg-base-100">
-                <input type="checkbox" />
+                <input type="checkbox"/>
                 <div class="collapse-title text-xs font-semibold">
                     Show all {{ count($commLinks) }} Comm-Links
                 </div>
                 <div class="collapse-content">
                     <div class="flex flex-col gap-1 text-xs">
                         @foreach ($commLinks as $commLink)
-                            <a class="link link-primary" href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">
+                            <a class="link link-primary"
+                               href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">
                                 {{ $commLink['id'] ?? '-' }} - {{ $commLink['title'] ?? 'Comm-Link' }}
                             </a>
                         @endforeach
@@ -159,7 +167,8 @@
             <div class="text-xs text-subtle">Used in Comm-Links</div>
             <div class="flex flex-col gap-1 text-xs">
                 @foreach ($commLinksPreview as $commLink)
-                    <a class="link link-primary" href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">
+                    <a class="link link-primary"
+                       href="{{ $commLink['web_url'] ?? route('web.comm-links.show', $commLink['id'] ?? 0) }}">
                         {{ $commLink['id'] ?? '-' }} - {{ $commLink['title'] ?? 'Comm-Link' }}
                     </a>
                 @endforeach

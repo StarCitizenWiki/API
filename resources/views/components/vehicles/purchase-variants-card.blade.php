@@ -18,7 +18,7 @@
             'rows' => array_values(array_filter([
                 $shipMatrixMsrp !== null ? [
                     'label' => 'MSRP',
-                    'value' => '$'.number_format($shipMatrixMsrp),
+                    'value' => '$'.Format::number($shipMatrixMsrp),
                     'url' => null,
                 ] : null,
                 $shipMatrixPledgeUrl ? [

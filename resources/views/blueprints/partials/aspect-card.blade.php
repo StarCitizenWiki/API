@@ -1,4 +1,5 @@
 @php
+    use App\Support\Format;
     $selectionGroup = is_array($aspect['selection_group'] ?? null) ? $aspect['selection_group'] : null;
     $isSelectable = $selectionGroup !== null
         && is_numeric($selectionGroup['required_count'] ?? null)
@@ -25,7 +26,8 @@
             <div class="flex flex-1 flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
                 <div class="min-w-0 space-y-1 lg:w-1/2">
                     <div class="flex flex-wrap items-center gap-2">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $aspect['name'] }}</div>
+                        <div
+                            class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $aspect['name'] }}</div>
                         @if ($isSelectable)
                             <button
                                 type="button"
@@ -37,15 +39,18 @@
                         @endif
                     </div>
                     @if ($inputWebUrl)
-                        <h3 class="text-base font-semibold leading-snug"><a class="link link-primary link-hover" href="{{ $inputWebUrl }}">{{ $inputName }}</a></h3>
+                        <h3 class="text-base font-semibold leading-snug"><a class="link link-primary link-hover"
+                                                                            href="{{ $inputWebUrl }}">{{ $inputName }}</a>
+                        </h3>
                     @else
-                        <h3 class="text-base font-semibold leading-snug"><span class="link link-primary">{{ $inputName }}</span></h3>
+                        <h3 class="text-base font-semibold leading-snug"><span
+                                class="link link-primary">{{ $inputName }}</span></h3>
                     @endif
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-subtle">
                         <span>{{ $inputKindLabel }}</span>
 
                         @if ($inputQuantityScu !== null)
-                            <span>{{ number_format((float) $inputQuantityScu, 2) }} SCU</span>
+                            <span>{{ Format::number((float) $inputQuantityScu, 2) }} SCU</span>
                         @elseif ($inputQuantity !== null)
                             <span>
                                 {{ $inputQuantity }}
@@ -79,7 +84,8 @@
                                 >
                                     Reset to {{ $aspect['initial_quality'] }}
                                 </button>
-                                <div class="badge badge-neutral badge-sm min-w-10 tabular-nums" x-text="getQualityDisplay({{ $aspectIndex }})">
+                                <div class="badge badge-neutral badge-sm min-w-10 tabular-nums"
+                                     x-text="getQualityDisplay({{ $aspectIndex }})">
                                     {{ $isSelected ? $aspect['initial_quality'] : 'Off' }}
                                 </div>
                             </div>
@@ -88,7 +94,7 @@
                             type="range"
                             min="{{ $aspect['slider_min'] }}"
                             max="{{ $aspect['slider_max'] }}"
-                            value="{{ $aspect['initial_quality'] }}"
+                            :value="qualityByAspect[{{ $aspectIndex }}]"
                             :class="getSliderClass({{ $aspectIndex }})"
                             x-on:input="setQuality({{ $aspectIndex }}, Number($event.target.value))"
                             :disabled="!selectedByAspect[{{ $aspectIndex }}]"
@@ -102,12 +108,14 @@
                 @elseif ($aspect['has_modifiers'])
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">Fixed modifier band.</span>
-                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'Fixed' : 'Off'">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm"
+                              x-text="selectedByAspect[{{ $aspectIndex }}] ? 'Fixed' : 'Off'">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
                     </div>
                 @else
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">No modifier data.</span>
-                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'None' : 'Off'">{{ $isSelected ? 'None' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm"
+                              x-text="selectedByAspect[{{ $aspectIndex }}] ? 'None' : 'Off'">{{ $isSelected ? 'None' : 'Off' }}</span>
                     </div>
                 @endif
             </div>
@@ -133,7 +141,8 @@
                                 </div>
                             </div>
                             <div class="shrink-0 text-right">
-                                <div :class="getModifierChangeClass({{ $aspectIndex }}, {{ $modifierIndex }})" x-text="getModifierChangeText({{ $aspectIndex }}, {{ $modifierIndex }})">
+                                <div :class="getModifierChangeClass({{ $aspectIndex }}, {{ $modifierIndex }})"
+                                     x-text="getModifierChangeText({{ $aspectIndex }}, {{ $modifierIndex }})">
                                     {{ $isSelected ? 'No change' : 'Excluded' }}
                                 </div>
                             </div>

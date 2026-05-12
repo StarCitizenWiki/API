@@ -217,7 +217,7 @@
 
                                 <div class="grid gap-3">
                                     @foreach ($summaryPropertyList as $summaryProperty)
-                                        @php($pk = data_get($summaryProperty, 'property_key'))
+                                        @php $pk = data_get($summaryProperty, 'property_key'); @endphp
                                         <div
                                             :class="getAggregateCardClass('{{ $pk }}')"
                                             x-show="isAggregateVisible('{{ $pk }}')"
@@ -352,7 +352,7 @@
                                         @if ($dismantleEfficiency !== null)
                                             <div class="rounded-box border border-base-300 bg-base-200 px-4 py-3">
                                                 <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Efficiency</div>
-                                                <div class="mt-1 text-sm font-medium">{{ $dismantleEfficiency }}</div>
+                                                <div class="mt-1 text-sm font-medium">{{ \App\Support\Format::percentOrDash((float) $dismantleEfficiency) }}</div>
                                             </div>
                                         @endif
                                     </div>
@@ -466,7 +466,7 @@
                                                     @endforeach
                                                 </div>
                                             </div>
-                                        @endforeach>
+                                        @endforeach
                                     </div>
                                 @endif
                             </div>

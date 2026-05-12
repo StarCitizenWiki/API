@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle'])
 
 @php
@@ -26,14 +27,14 @@
                     <dd class="text-right text-sm font-semibold text-base-content">{{ (int) ($thruster['count'] ?? 0) }}</dd>
                     <dd class="text-right text-sm font-semibold text-base-content">
                         @if (($thruster['capacity'] ?? null) !== null)
-                            {{ number_format((float) $thruster['capacity'], 2) }} MN
+                            {{ Format::number((float) $thruster['capacity'], 2) }} MN
                         @else
                             -
                         @endif
                     </dd>
                     <dd class="text-right text-sm font-semibold text-base-content">
                         @if (($thruster['g'] ?? null) !== null)
-                            {{ number_format((float) $thruster['g'], 2) }} G
+                            {{ Format::number((float) $thruster['g'], 2) }} G
                         @else
                             -
                         @endif

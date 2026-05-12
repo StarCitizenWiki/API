@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -27,7 +28,7 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
         if ($outputType !== null && is_numeric($total)) {
             return Str::limit(
                 collect([
-                    'Browse '.number_format((int) $total).' Star Citizen blueprints',
+                    'Browse '.Format::number((int) $total).' Star Citizen blueprints',
                     'filtered by type '.$outputType,
                     'Filter by output type, class, craft time, and ingredients to find crafting recipes.',
                 ])->filter()->implode('. ').'.',
@@ -37,7 +38,7 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
 
         if (is_numeric($total)) {
             return Str::limit(
-                'Browse '.number_format((int) $total).' Star Citizen blueprints. Filter by output type, class, craft time, and ingredients to find crafting recipes.',
+                'Browse '.Format::number((int) $total).' Star Citizen blueprints. Filter by output type, class, craft time, and ingredients to find crafting recipes.',
                 160,
             );
         }

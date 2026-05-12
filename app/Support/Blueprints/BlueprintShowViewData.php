@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Blueprints;
 
+use App\Support\Format;
 use App\Support\Formatting\FormatDuration;
 use Illuminate\Support\Str;
 
@@ -500,7 +501,7 @@ final class BlueprintShowViewData
         $quantityScu = $input['quantity_scu'] ?? null;
 
         if (is_numeric($quantityScu)) {
-            return number_format((float) $quantityScu, 2).' SCU';
+            return Format::number((float) $quantityScu, 2).' SCU';
         }
 
         $quantity = $input['quantity'] ?? null;
@@ -512,7 +513,7 @@ final class BlueprintShowViewData
         $normalizedQuantity = (float) $quantity;
         $quantityLabel = fmod($normalizedQuantity, 1.0) === 0.0
             ? (string) (int) $normalizedQuantity
-            : rtrim(rtrim(number_format($normalizedQuantity, 2, '.', ''), '0'), '.');
+            : rtrim(rtrim(Format::number($normalizedQuantity, 2), '0'), '.');
 
         if (($input['kind'] ?? null) === 'item') {
             return $quantityLabel.' '.($normalizedQuantity === 1.0 ? 'item' : 'items');

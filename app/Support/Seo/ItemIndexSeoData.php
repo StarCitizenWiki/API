@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Support\Format;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -28,7 +29,7 @@ class ItemIndexSeoData extends AbstractIndexSeoData
 
         if ($type !== null) {
             $label = Str::headline($type);
-            $count = is_numeric($total) ? number_format((int) $total).' ' : '';
+            $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
             $parts = ["Browse {$count}Star Citizen {$label} items"];
 
@@ -43,7 +44,7 @@ class ItemIndexSeoData extends AbstractIndexSeoData
 
         if ($category !== null) {
             $label = Str::headline($category);
-            $count = is_numeric($total) ? number_format((int) $total).' ' : '';
+            $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
             $parts = ["Browse {$count}Star Citizen {$label}"];
 
@@ -56,7 +57,7 @@ class ItemIndexSeoData extends AbstractIndexSeoData
             return Str::limit(implode('. ', $parts).'.', 160);
         }
 
-        $count = is_numeric($total) ? number_format((int) $total).' ' : '';
+        $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
         return Str::limit("Browse the complete {$count}Star Citizen items database - weapons, armor, gadgets, components, and more. Filter by type, grade, and size.", 160);
     }

@@ -36,11 +36,11 @@ describe('colorClass', function (): void {
 
 describe('number', function (): void {
     it('formats integer with no decimals', function (): void {
-        expect(Format::number(1000))->toBe('1,000');
+        expect(Format::number(1000))->toBe("1\u{00A0}000");
     });
 
     it('formats with specified decimals', function (): void {
-        expect(Format::number(1234.567, 2))->toBe('1,234.57');
+        expect(Format::number(1234.567, 2))->toBe("1\u{00A0}234.57");
     });
 
     it('formats zero', function (): void {

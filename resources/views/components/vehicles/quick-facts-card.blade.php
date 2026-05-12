@@ -38,7 +38,7 @@
     $storageRows = [
         ['label' => 'Cargo', 'value' => $cargoCapacity !== null ? Format::valueWithUnit($cargoCapacity, 'SCU', 0) : null],
         ['label' => 'Ore', 'value' => $oreCapacity !== null ? Format::valueWithUnit($oreCapacity, 'SCU', 0) : null],
-        ['label' => 'Stowage', 'value' => $stowage !== null ? Format::valueWithUnit($stowage, 'µSCU', 0) : null],
+        ['label' => 'Stowage', 'value' => $stowage !== null ? ($stowage >= 1000 ? Format::valueWithUnit($stowage / 1000, 'K µSCU', 0) : Format::valueWithUnit($stowage, 'µSCU', 0)) : null],
     ];
 
     $speedRows = [

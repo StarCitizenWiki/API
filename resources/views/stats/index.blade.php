@@ -1,3 +1,4 @@
+@php use App\Support\Format;use Illuminate\Support\Carbon; @endphp
 @extends('layouts.app')
 
 @section('title', 'Stats')
@@ -9,11 +10,11 @@
         $fleet = $latestStats['fleet'] ?? null;
         $timestamp = $latestStats['timestamp'] ?? null;
 
-        $fundsValue = $funds !== null ? number_format((float) $funds, 2, '.', ',') : '—';
-        $fleetValue = $fleet !== null ? number_format((float) $fleet) : '—';
+        $fundsValue = $funds !== null ? Format::number((float) $funds, 2) : '-';
+        $fleetValue = $fleet !== null ? Format::number((float) $fleet) : '-';
         $updatedLabel = $timestamp
-            ? \Illuminate\Support\Carbon::parse($timestamp)->toDayDateTimeString()
-            : '—';
+            ? Carbon::parse($timestamp)->toDayDateTimeString()
+            : '-';
     @endphp
 
     <div class="flex flex-col gap-6">

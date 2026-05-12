@@ -85,15 +85,15 @@
                                 @if ($metric['value'] !== null || $metric['boosted'] !== null)
                                     <span class="inline-flex flex-nowrap items-baseline justify-end gap-1 whitespace-nowrap">
                                         @if ($metric['value'] !== null)
-                                            <span>{{ number_format((float) $metric['value'], 1) }} °/s</span>
+                                            <span>{{ Format::number((float) $metric['value'], 1) }} °/s</span>
                                         @endif
 
                                         @if ($metric['boosted'] !== null)
                                             <span class="text-muted">
                                                 @if ($metric['value'] !== null)
-                                                    (boost {{ number_format((float) $metric['boosted'], 1) }} °/s)
+                                                    (boost {{ Format::number((float) $metric['boosted'], 1) }} °/s)
                                                 @else
-                                                    boost {{ number_format((float) $metric['boosted'], 1) }} °/s
+                                                    boost {{ Format::number((float) $metric['boosted'], 1) }} °/s
                                                 @endif
                                             </span>
                                         @endif

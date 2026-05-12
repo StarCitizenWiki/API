@@ -1,3 +1,4 @@
+@use('App\Support\Format')
 @props(['vehicle', 'translations' => null])
 
 @php
@@ -112,7 +113,7 @@
                         MSRP
                     </div>
                     <div class="mt-1.5 text-base font-semibold leading-none text-base-content">
-                        ${{ number_format((float) $msrp, 0) }}
+                        ${{ Format::number((float) $msrp, 0) }}
                     </div>
                 </div>
             @endif

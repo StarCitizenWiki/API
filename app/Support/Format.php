@@ -7,6 +7,11 @@ namespace App\Support;
 class Format
 {
     /**
+     * Nonbreaking space (U+00A0) used as thousands separator.
+     */
+    private const THOUSANDS_SEP = "\u{00A0}";
+
+    /**
      * Return a CSS color class based on the sign of the value.
      *
      * Positive → text-error, negative → text-success (or inverted).
@@ -33,7 +38,7 @@ class Format
      */
     public static function number(float|int $value, int $decimals = 0): string
     {
-        return number_format($value, $decimals);
+        return number_format($value, $decimals, '.', self::THOUSANDS_SEP);
     }
 
     /**
@@ -58,7 +63,7 @@ class Format
             return '-';
         }
 
-        return number_format((float) $value * 100, $decimals).'%';
+        return number_format((float) $value * 100, $decimals, '.', self::THOUSANDS_SEP).'%';
     }
 
     /**
@@ -329,11 +334,11 @@ class Format
         $pct = ((float) $value - 1) * 100;
 
         if ($pct > 0) {
-            return ($showPlus ? '+' : '').number_format($pct, 0).'%';
+            return ($showPlus ? '+' : '').number_format($pct, 0, '.', self::THOUSANDS_SEP).'%';
         }
 
         if ($pct < 0) {
-            return number_format($pct, 0).'%';
+            return number_format($pct, 0, '.', self::THOUSANDS_SEP).'%';
         }
 
         return '0%';
