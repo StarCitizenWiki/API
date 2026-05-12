@@ -1,50 +1,85 @@
-@php use App\Support\Game\EquipmentCategoryOrder; @endphp
+@php use App\Support\Game\HardpointCategory; @endphp
 @props(['vehicle'])
 
 @php
     $ports = data_get($vehicle, 'ports', []);
-    $hardpoints = data_get($vehicle, 'hardpoints', []);
     $powerPools = data_get($vehicle, 'power_pools', []);
+    $vehicleName = data_get($vehicle, 'name');
 
-    $portEntries = is_array($ports) && $ports !== [] ? $ports : (is_array($hardpoints) ? $hardpoints : []);
-    $portsCount = count($portEntries);
+    if (! is_array($ports) || $ports === []) {
+        return;
+    }
 
-    $portEntries = collect($portEntries)->groupBy('category_label');
-    $order = EquipmentCategoryOrder::all();
+    $grouped = collect($ports)->groupBy(fn ($port) => data_get($port, 'category_label', 'Other'));
+
+    $primaryCategories = HardpointCategory::primary();
+    $collapsedCategories = HardpointCategory::collapsed();
+    $knownCategories = array_merge($primaryCategories, $collapsedCategories);
+
+    $primaryPorts = collect();
+    $collapsedPorts = collect();
+
+    foreach ($primaryCategories as $cat) {
+        if ($grouped->has($cat)) {
+            $primaryPorts[$cat] = $grouped[$cat];
+        }
+    }
+
+    foreach ($collapsedCategories as $cat) {
+        if ($grouped->has($cat)) {
+            $collapsedPorts[$cat] = $grouped[$cat];
+        }
+    }
+
+    foreach ($grouped as $cat => $catPorts) {
+        if (! in_array($cat, $knownCategories, true)) {
+            $collapsedPorts['Other'] = collect($collapsedPorts->get('Other', []))->merge($catPorts);
+        }
+    }
+
+    $collapsedCount = $collapsedPorts->sum(fn ($p) => count($p));
 @endphp
 
-<details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow col-span-full">
-    <summary class="collapse-title min-h-11 py-3 font-semibold">
-        <span class="flex items-center gap-2">
-            <span>Hardpoints</span>
-            @if ($portsCount > 0)
-                <span class="badge badge-soft text-xs">{{ $portsCount }}</span>
-            @endif
-        </span>
-    </summary>
-
-    <div class="collapse-content max-h-96 overflow-y-auto">
-        <!-- Ports & Hardpoints -->
-        @if ($portEntries->isNotEmpty())
-            <div class="space-y-4">
-                @foreach ($order as $categoryLabel)
-                    @if(empty($portEntries[$categoryLabel]))
-                        @continue
-                    @endif
-                    <div class="space-y-2">
-                        <h4>{{$categoryLabel}}</h4>
-                        @php $categoryIndex = 0; @endphp
-                        <div @if(count($portEntries[$categoryLabel]) > 1) class="grid grid-cols-1 lg:grid-cols-2 gap-2" @endif>
-                        @foreach ($portEntries[$categoryLabel] ?? [] as $port)
+<div class="col-span-full space-y-4">
+    @if($primaryPorts->isNotEmpty())
+        <div class="space-y-4">
+            @foreach($primaryPorts as $categoryLabel => $categoryPorts)
+                <div class="space-y-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-muted px-2">{{ $categoryLabel }}</h4>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                        @foreach($categoryPorts as $port)
                             <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
-                                            :power-pools="$powerPools" :category-index="$categoryIndex"
-                                            :vehicle-name="data_get($vehicle, 'name')"/>
-                            @php $categoryIndex++; @endphp
+                                            :power-pools="$powerPools" :category-index="$loop->index"
+                                            :vehicle-name="$vehicleName"/>
                         @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    @if($collapsedPorts->isNotEmpty())
+        <details class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-lg shadow-sm">
+            <summary class="collapse-title min-h-10 py-2 text-sm">
+                <span class="flex items-center gap-2">
+                    <span class="text-muted">Show All Hardpoints</span>
+                    <span class="badge badge-ghost badge-sm">{{ $collapsedCount }} more</span>
+                </span>
+            </summary>
+            <div class="collapse-content space-y-4">
+                @foreach($collapsedPorts as $categoryLabel => $categoryPorts)
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-muted px-2">{{ $categoryLabel }}</h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                            @foreach($categoryPorts as $port)
+                                <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
+                                                :power-pools="$powerPools" :category-index="$loop->index"
+                                                :vehicle-name="$vehicleName"/>
+                            @endforeach
                         </div>
                     </div>
                 @endforeach
             </div>
-        @endif
-    </div>
-</details>
+        </details>
+    @endif
+</div>

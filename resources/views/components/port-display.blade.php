@@ -1,5 +1,5 @@
 @use('App\Support\Format')
-@php use Illuminate\Support\Str; @endphp
+@use('App\Support\Game\HardpointRow')
 @props([
     'port',
     'depth' => 0,
@@ -10,104 +10,31 @@
 ])
 
 @php
+    use Illuminate\Support\Str;
+
+    $row = HardpointRow::make($port, $powerPools, $categoryIndex);
+
     $indentClass = $depth > 0 ? 'mt-2 pl-2 sm:pl-3 border-l-2 sm:border-l-4 border-base-300/70' : '';
     $portId = $depth . '-' . ($loop->index ?? 0);
     $portIdentifier = 'port-'.$portId;
-    $portName = data_get($port, 'name');
-    $portLabel = Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline();
-    $portPosition = data_get($port, 'position');
-    $sizeRange = Format::range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '');
-    $sizeRangeLabel = $sizeRange === '-' ? '-' : 'S'.$sizeRange;
-    $portTypeLabel = collect([data_get($port, 'type')/*, data_get($port, 'subtype')*/])->filter()->implode(' / ');
-    $isLocked = is_bool($editable) ? !$editable : (data_get($port, 'editable') === true ? false : true);
-    $portSizeMin = data_get($port, 'sizes.min');
-    $portSizeMax = data_get($port, 'sizes.max');
-    $portType = data_get($port, 'type');
-    $equippedCardClasses = 'port-equipped-card';
-
-    // Extract equipped item stats for summary display
+    $portName = $row['name'];
+    $portLabel = $row['display_name'];
+    $isLocked = is_bool($editable) ? !$editable : !$row['editable'];
+    $sizeLabel = $row['size_label'];
+    $isDeactivated = $row['deactivated'];
+    $deactivationReason = $row['deactivation_reason'];
+    $equippedItemUuid = $row['equipped_item_uuid'];
+    $hasEquippedItem = $row['has_equipped_item'];
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
-    $equippedItemUuid = data_get($equippedItem, 'uuid');
-    $showQuickStats = !empty($equippedItem);
-    $equippedItemName = data_get($equippedItem, 'name');
+    $isVehicleDock = $row['is_attached_vehicle'];
 
-    // Attached vehicle (e.g. snub ship, command module)
-    $attachedVehicle = data_get($port, 'attached_vehicle');
-
-    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== '<= PLACEHOLDER =>';
-    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : ($attachedVehicle ? data_get($attachedVehicle, 'name', $portLabel) : $portLabel);
-    $displayPortName = $portName ?? '-';
-    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($attachedVehicle ? data_get($attachedVehicle, 'class_name', $equippedItemName ?? '-') : ($equippedItemName ?? '-'));
-
-    // Power pool deactivation logic
-    $isDeactivated = false;
-    $deactivationReason = null;
-
-    if ($showQuickStats && !empty($powerPools)) {
-        $itemType = data_get($equippedItem, 'type');
-
-        // Normalize item type for power pool matching
-        $poolItemType = match (true) {
-            $itemType === 'Shield' => 'Shield',
-            $itemType === 'WeaponGun' => 'WeaponGun',
-            $itemType === 'FlightController' => 'FlightController',
-            $itemType === 'TractorBeam' => 'TractorBeam',
-            $itemType === 'TowingBeam' => 'TowingBeam',
-            $itemType === 'WeaponMining' => 'WeaponMining',
-            $itemType === 'SalvageHead' => 'SalvageHead',
-            default => $itemType,
-        };
-
-        $pool = data_get($powerPools, $poolItemType);
-        $poolSize = data_get($pool, 'size');
-
-        // Only apply for Shield pool for now
-        if ($poolItemType === 'Shield' && $poolSize !== null && $poolSize >= 0) {
-            $shieldIndex = $categoryIndex;
-
-            if ($categoryIndex >= $poolSize) {
-                $isDeactivated = true;
-                $idx = $shieldIndex+1;
-                $deactivationReason = "Pool Limit ({$idx} of {$poolSize} active)";
-            }
-        }
-    }
-
-    if ($showQuickStats) {
-        // Universal stats
-        $itemSize = data_get($equippedItem, 'size');
-        $powerSegmentUsage = data_get($equippedItem, 'resource_network.usage.power.maximum');
-        $coolantSegmentUsage = data_get($equippedItem, 'resource_network.usage.coolant.maximum');
-
-        // Type-specific stat determination
-        $typeSpecificStat = null;
-        $typeSpecificLabel = null;
-        $typeSpecificIcon = null;
-
-        if (data_get($equippedItem, 'shield.MaxShieldHealth')) {
-            $typeSpecificStat = data_get($equippedItem, 'shield.MaxShieldHealth');
-            $typeSpecificLabel = 'Max Shield HP';
-            $typeSpecificIcon = 'shield';
-        } elseif (data_get($equippedItem, 'power_plant.power_segment_generation')) {
-            $typeSpecificStat = data_get($equippedItem, 'power_plant.power_segment_generation');
-            $typeSpecificLabel = 'Generation';
-            $powerSegmentUsage = null;
-            $typeSpecificIcon = 'power';
-        } elseif (data_get($equippedItem, 'resource_network.generation.coolant')) {
-            $typeSpecificStat = data_get($equippedItem, 'resource_network.generation.coolant');
-            $typeSpecificLabel = 'Generation';
-            $coolantSegmentUsage = null;
-            $typeSpecificIcon = 'fan';
-        } elseif (data_get($equippedItem, 'vehicle_weapon.damage.alpha_total')) {
-            $typeSpecificStat = data_get($equippedItem, 'vehicle_weapon.damage.alpha_total');
-            $typeSpecificLabel = 'Alpha Damage';
-            $typeSpecificIcon = 'sword';
-        }
-    }
-@endphp
-
-@php
-    $isVehicleDock = $attachedVehicle !== null;
+    // Display name logic: when item is named, swap port label and item name
+    $hasNamedEquippedItem = $hasEquippedItem && ! empty(data_get($equippedItem, 'name')) && data_get($equippedItem, 'name') !== '<= PLACEHOLDER =>';
+    $displayPortLabel = $hasNamedEquippedItem ? $portLabel : ($isVehicleDock ? data_get($row['attached_vehicle'], 'name', $portLabel) : $portLabel);
+    $displayPortName = $portName;
+    $equippedDisplayName = $hasNamedEquippedItem
+        ? Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline()
+        : ($isVehicleDock ? data_get($row['attached_vehicle'], 'class_name', data_get($equippedItem, 'name', '-')) : (data_get($equippedItem, 'name', '-')));
 @endphp
 
 @if ($isVehicleDock)
@@ -120,18 +47,18 @@
         <x-icon name="rocket" class="size-4 text-primary shrink-0"/>
         <a
             data-testid="port-display-attached-vehicle-link"
-            href="{{ data_get($attachedVehicle, 'web_url') }}"
+            href="{{ data_get($row['attached_vehicle'], 'web_url') }}"
             class="link link-primary font-semibold text-sm"
-        >{{ data_get($attachedVehicle, 'name', $displayPortLabel) }}</a>
-        @if (data_get($attachedVehicle, 'size_class'))
-            <span class="badge badge-sm badge-primary" title="Vehicle Size">S{{ data_get($attachedVehicle, 'size_class') }}</span>
+        >{{ data_get($row['attached_vehicle'], 'name', $displayPortLabel) }}</a>
+        @if (data_get($row['attached_vehicle'], 'size_class'))
+            <span class="badge badge-sm badge-primary" title="Vehicle Size">S{{ data_get($row['attached_vehicle'], 'size_class') }}</span>
         @endif
         <span class="badge badge-sm badge-soft">
-            @if (data_get($attachedVehicle, 'is_spaceship'))
+            @if (data_get($row['attached_vehicle'], 'is_spaceship'))
                 Spaceship
-            @elseif (data_get($attachedVehicle, 'is_gravlev'))
+            @elseif (data_get($row['attached_vehicle'], 'is_gravlev'))
                 Gravlev
-            @elseif (data_get($attachedVehicle, 'is_vehicle'))
+            @elseif (data_get($row['attached_vehicle'], 'is_vehicle'))
                 Ground Vehicle
             @endif
         </span>
@@ -151,6 +78,12 @@
             aria-controls="{{ $portIdentifier }}-content"
         >
             <span class="flex flex-wrap items-center gap-2">
+                @if($isLocked)
+                    <x-icon name="lock" class="size-3"/>
+                @endif
+                @if ($row['item_size'] !== null)
+                    <span class="badge badge-sm badge-outline" title="Item Size">S{{ $row['item_size'] }}</span>
+                @endif
                 @if ($isDeactivated)
                     <span class="badge badge-soft badge-sm" data-testid="port-display-deactivated" title="{{ $deactivationReason }}">
                         <x-icon name="power-off" class="size-3"/>
@@ -160,108 +93,107 @@
                 @if ($depth > 0)
                     <span class="text-muted">↳</span>
                 @endif
-                @if($isLocked)
-                    <x-icon name="lock" class="size-3"/>
-                @endif
                     @if($equippedItemUuid)
                         <a
                             data-testid="port-display-equipped-item-link"
                             href="{{ route('web.items.show', $equippedItemUuid) }}"
                             class="link link-primary text-sm"
+                            title="{{ $displayPortName }}"
                         >{{$displayPortLabel}}</a>
+                        @if ($row['type_annotation'])
+                            <span class="text-xs font-normal text-subtle">({{ $row['type_annotation'] }})</span>
+                        @endif
                     @else
-                        <span>{{ $displayPortLabel }}</span>
+                        <span title="{{ $displayPortName }}">{{ $displayPortLabel }}</span>
+                        @if ($row['type_annotation'])
+                            <span class="text-xs font-normal text-subtle">({{ $row['type_annotation'] }})</span>
+                        @endif
                     @endif
-                @if (! empty($portPosition))
-                    <span class="text-xs font-normal text-subtle">{{ $portPosition }}</span>
+                @if (! $isLocked && $row['type'] && ! $hasEquippedItem)
+                    @php
+                        $browseFilters = array_filter([
+                            'type' => $row['type'],
+                            'name' => $row['type'] === 'FlightController' ? $vehicleName : null,
+                        ]);
+                        if ($row['size_min'] !== null && $row['size_max'] !== null) {
+                            $browseFilters['size'] = implode(',', range($row['size_min'], $row['size_max']));
+                        }
+                    @endphp
+                    <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="text-subtle hover:text-primary transition-colors" title="Browse {{ $row['type'] }} items">
+                        <x-icon name="external-link" class="size-3"/>
+                    </a>
                 @endif
-                @if ($sizeRangeLabel !== '-')
-                    <span class="badge badge-soft badge-sm">{{ $sizeRangeLabel }}</span>
-                @endif
-                @if ($portTypeLabel !== '')
-                    @if (! $isLocked && $portType)
-                        @php
-                            $browseFilters = array_filter([
-                                'type' => $portType,
-                                'name' => $portType === 'FlightController' ? $vehicleName : null,
-                            ]);
-                            if ($portSizeMin !== null && $portSizeMax !== null) {
-                                $browseFilters['size'] = implode(',', range($portSizeMin, $portSizeMax));
-                            }
-                        @endphp
-                        <a href="{{ route('web.items.index', ['filter' => $browseFilters]) }}" class="badge badge-soft badge-sm max-w-48 truncate no-underline hover:opacity-80" title="Browse {{ $portTypeLabel }}">
-                            Equippable
-                            <x-icon name="external-link" class="size-3 opacity-60"/>
-                        </a>
-                    @else
-                        <span class="badge badge-soft badge-sm max-w-48 truncate" title="{{ $portTypeLabel }}">
-                            {{ $portTypeLabel }}
-                        </span>
-                    @endif
+                @if (! empty($row['position']))
+                    <span class="text-xs font-normal text-subtle">{{ $row['position'] }}</span>
                 @endif
             </span>
 
-            @if ($showQuickStats)
-                <span class="flex flex-wrap items-center justify-end gap-2 text-xs font-normal tabular-nums">
-                    @if ($hasNamedEquippedItem)
-                        <span class="max-w-56 truncate text-subtle" title="{{ $equippedDisplayName }}">
-                            {{ $equippedDisplayName }}
+            @if ($hasEquippedItem)
+                <span class="flex flex-wrap items-center justify-end gap-x-3 text-xs font-normal tabular-nums text-subtle">
+                    @if ($row['power_usage'] > 0)
+                        <span title="Power Segment Usage">
+                            <x-icon name="zap" class="size-3 inline"/>
+                            <span class="font-medium">{{ Format::compact($row['power_usage'], 1) }}</span>
                         </span>
                     @endif
-                    @if ($itemSize !== null)
-                        <span class="badge badge-sm badge-soft" title="Item Size">S{{ $itemSize }}</span>
-                    @endif
-                    @if ($powerSegmentUsage > 0)
-                        <span class="badge badge-sm badge-soft" title="Power Segment Usage">
-                            <x-icon name="zap" class="size-3"/>
-                            <span class="font-medium">{{ Format::compact($powerSegmentUsage, 1) }}</span>
-                            <span class="hidden sm:inline">Power Usage</span>
-                            <span class="sm:hidden">Pwr</span>
+                    @if ($row['coolant_usage'] > 0)
+                        <span title="Coolant Segment Usage">
+                            <x-icon name="fan" class="size-3 inline"/>
+                            <span class="font-medium">{{ Format::compact($row['coolant_usage'], 1) }}</span>
                         </span>
                     @endif
-                    @if ($coolantSegmentUsage > 0)
-                        <span class="badge badge-sm badge-soft" title="Coolant Segment Usage">
-                            <x-icon name="fan" class="size-3"/>
-                            <span class="font-medium">{{ Format::compact($coolantSegmentUsage, 1) }}</span>
-                            <span class="hidden sm:inline">Coolant Usage</span>
-                            <span class="sm:hidden">Cool</span>
-                        </span>
-                    @endif
-                    @if ($typeSpecificStat !== null)
-                        <span class="badge badge-sm badge-primary" title="{{ $typeSpecificLabel }}">
-                            @if ($typeSpecificIcon)
-                                <x-icon name="{{ $typeSpecificIcon }}" class="size-3"/>
+                    @if ($row['primary_stat'] !== null)
+                        <span class="badge badge-sm badge-primary" title="{{ $row['primary_label'] }}">
+                            @if ($row['primary_icon'])
+                                <x-icon name="{{ $row['primary_icon'] }}" class="size-3"/>
                             @endif
-                            <span class="font-medium">{{ Format::compact($typeSpecificStat, 0) }}</span>
-                            <span class="hidden sm:inline">{{ $typeSpecificLabel }}</span>
+                            <span class="font-medium">{{ Format::compact($row['primary_stat'], 1) }}{{ $row['primary_unit'] }}</span> {{ $row['primary_label'] }}
                         </span>
+                    @endif
+                    @if (! empty($row['secondary_stats']))
+                        @foreach ($row['secondary_stats'] as $sec)
+                            <span>{{ $sec }}</span>
+                        @endforeach
+                    @endif
+                    @if ($sizeLabel !== null)
+                        <span title="Equippable Size">{{ $sizeLabel }}</span>
                     @endif
                 </span>
+            @elseif ($sizeLabel !== null)
+                <span class="text-xs font-normal tabular-nums text-subtle" title="Equippable Size">{{ $sizeLabel }}</span>
             @endif
         </summary>
-        <div id="{{ $portIdentifier }}-content" class="collapse-content">
-            @php
-                $hasPortMeta = $displayPortName !== '-' || $sizeRangeLabel !== '-' || $portTypeLabel !== '' || !empty($portPosition);
-            @endphp
-            @if ($hasPortMeta)
-                <div class="card card-border bg-base-100">
-                    <div class="card-body p-2">
-                        <x-dl-container>
-                            <x-slot:head>
-                                <x-dt-dd label="Port Name" :value="$displayPortName">{{ $displayPortName }}</x-dt-dd>
-                                <x-dt-dd label="Equippable Size" :value="$sizeRangeLabel !== '-'">{{ $sizeRangeLabel }}</x-dt-dd>
-                                {{-- <x-dt-dd label="Equippable Type" :value="$portTypeLabel !== ''">{{ $portTypeLabel !== '' ? $portTypeLabel : '-' }}</x-dt-dd> --}}
-                                {{-- <x-dt-dd label="Position" :value="$portPosition">{{ $portPosition }}</x-dt-dd> --}}
-                            </x-slot:head>
-                        </x-dl-container>
-                    </div>
-                </div>
-            @endif
-            @unless(empty($equippedItem))
-                <div class="border border-base-300 rounded-lg overflow-hidden">
+        <div id="{{ $portIdentifier }}-content" class="collapse-content space-y-2">
+            @if (! empty(data_get($port, 'ports')))
+                @foreach (data_get($port, 'ports') as $childPort)
                     @php
-                        $equippedType = data_get($equippedItem, 'type');
+                        $childType = data_get($childPort, 'type');
+                        $childSubType = data_get($childPort, 'sub_type');
+                        $childEquipItem = data_get($childPort, 'equipped_item');
+                        $isIgnoredType = in_array($childType, ['Display', 'Screen', 'Seat', 'Door', 'Hatch', 'Ladder', 'Light', 'Button'], true);
+                        $isUndefinedSubtype = $childSubType === 'UNDEFINED';
+                        $hasChildContent = ! $isIgnoredType && (! $isUndefinedSubtype || ! empty($childEquipItem)) && (! empty($childType) || ! empty($childEquipItem));
                     @endphp
+                    @if ($hasChildContent)
+                        <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName"/>
+                    @endif
+                @endforeach
+            @endif
+
+            @unless(! $hasEquippedItem)
+            @php
+                $hasNoChildren = empty(data_get($port, 'ports'));
+                $autoExpandDetails = $hasNoChildren;
+            @endphp
+            <details class="collapse collapse-arrow" {{ $autoExpandDetails ? 'open' : '' }}>
+                <summary class="collapse-title min-h-0 py-2 text-sm font-semibold text-subtle pl-0">
+                    Item Details
+                </summary>
+                <div class="collapse-content pl-0">
+                    <div class="border border-base-300 rounded-lg overflow-hidden">
+                        @php
+                            $equippedType = data_get($equippedItem, 'type');
+                        @endphp
                     @if ($equippedType === 'WeaponPersonal')
                         <x-items.personal-weapon-card
                             :personal-weapon="data_get($equippedItem, 'personal_weapon')"
@@ -275,7 +207,7 @@
                     @if ($equippedType === 'WeaponGun')
                         <x-items.vehicle-weapon-card
                             :vehicle-weapon="data_get($equippedItem, 'vehicle_weapon')"
-                            :class="$equippedCardClasses"/>
+                            :class="'port-equipped-card'"/>
                     @endif
 
                     @if ($equippedType === 'WeaponAttachment')
@@ -439,15 +371,10 @@
                             :weapon-modifier="data_get($equippedItem, 'weapon_modifier')"
                            />
                     @endif
+                    </div>
                 </div>
+            </details>
             @endunless
-
-
-            @if (! empty(data_get($port, 'ports')))
-                @foreach (data_get($port, 'ports') as $childPort)
-                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName"/>
-                @endforeach
-            @endif
         </div>
     </details>
 </div>
