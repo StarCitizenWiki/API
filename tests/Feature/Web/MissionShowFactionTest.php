@@ -62,7 +62,7 @@ it('shows full faction card with reputation ladder on mission page', function ()
         ->assertSee('Hostile')
         ->assertSee('Neutral')
         ->assertSee('Allied')
-        ->assertSee('50,000');
+        ->assertSee("50\u{00A0}000");
 });
 
 it('shows faction card without ladder when faction has no reputation', function (): void {

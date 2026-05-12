@@ -119,5 +119,5 @@ it('renders nested hardpoints on the vehicle page', function (): void {
         ->assertSeeText('Expedite')
         ->assertSeeText('Open')
         ->assertSeeText('S1')
-        ->assertSeeText('S1-1');
+        ->assertSeeText('S1 1');
 });

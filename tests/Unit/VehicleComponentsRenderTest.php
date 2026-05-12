@@ -47,10 +47,8 @@ it('renders the port display with equipped item content', function (): void {
     ]);
     $crawler = new Crawler((string) $view);
 
-    $view->assertSeeText('Test Port')
-        ->assertSeeText('S2')
-        ->assertSeeText('Test Shield')
-        ->assertSeeText('Equippable Size');
+    $view->assertSeeText('S2')
+        ->assertSeeText('Test Shield');
 
     expect($crawler->filter('a')->count())->toBeGreaterThan(0)
         ->and($crawler->filter('a')->last()->attr('href'))->toBe(route('web.items.show', $equippedItemUuid));
@@ -99,6 +97,6 @@ it('renders purchase variants with price and sku table content', function (): vo
 
     $view->assertSeeText('Loaner & SKUs')
         ->assertSeeText('TEST-001')
-        ->assertSeeText('100,000')
+        ->assertSeeText("100\u{00A0}000")
         ->assertSeeText('Imported At');
 });

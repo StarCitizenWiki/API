@@ -29,8 +29,8 @@ it('renders prices with game_version column', function (): void {
     ]);
 
     $view->assertSeeText('Lorville Hangars')
-        ->assertSeeText('1,520,000 aUEC')
-        ->assertSeeText('1,480,000 aUEC')
+        ->assertSeeText("1\u{00A0}520\u{00A0}000 aUEC")
+        ->assertSeeText("1\u{00A0}480\u{00A0}000 aUEC")
         ->assertSeeText('4.7.1')
         ->assertSeeText('Stanton')
         ->assertSeeText('Hurston');

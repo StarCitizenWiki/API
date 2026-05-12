@@ -15,7 +15,7 @@ it('renders the ammunition card content', function (): void {
     $view->assertSeeTextInOrder([
         'Ammunition',
         'Speed',
-        '1,000 m/s',
+        "1\u{00A0}000 m/s",
         'Lifetime',
         '5.00 s',
     ]);
@@ -65,7 +65,7 @@ it('renders the resource network card with generation for PowerPlant', function 
         'Coolant Usage',
         '5 - 15 Segments',
         'Power Generation',
-        '1,000 Segments',
+        "1\u{00A0}000 Segments",
     ])->assertDontSee('Power Usage');
 });
 
@@ -255,7 +255,7 @@ it('renders the shield card with primary stats and omits empty sections', functi
     $view->assertSeeTextInOrder([
         'Shield',
         'Max Health',
-        '1,000 HP',
+        "1\u{00A0}000 HP",
     ]);
 
     expect($crawler->filter('details')->count())->toBe(0);

@@ -28,9 +28,10 @@ it('renders the global search bar in the header', function (): void {
     $crawler = welcomePageCrawler($response);
 
     $input = $crawler->filter('[data-testid="header-search-input"]');
+    $parent = $input->closest('[x-data]');
     expect($input->count())->toBe(1)
-        ->and($input->attr('data-live-search'))->not()->toBeNull()
-        ->and($input->attr('data-api-endpoint'))->toBe('/api/search');
+        ->and($parent->count())->toBe(1)
+        ->and($parent->attr('x-data'))->toContain("liveSearch('/api/search')");
 });
 
 it('renders the welcome page categories for guests', function (): void {

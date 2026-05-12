@@ -30,7 +30,7 @@ it('renders purchase prices grouped by system', function (): void {
 
     $view->assertSeeText('Purchase Prices')
         ->assertSeeText('Lorville Hangars')
-        ->assertSeeText('1,520,000 aUEC')
+        ->assertSeeText("1\u{00A0}520\u{00A0}000 aUEC")
         ->assertSeeText('4.7.1')
         ->assertSeeText('Stanton')
         ->assertSeeText('Hurston')
@@ -62,7 +62,7 @@ it('renders rental prices grouped by system', function (): void {
 
     $view->assertSeeText('Rental Prices')
         ->assertSeeText('Area18 Admin')
-        ->assertSeeText('45,000 aUEC')
+        ->assertSeeText("45\u{00A0}000 aUEC")
         ->assertSeeText('4.7.1')
         ->assertSeeText('ArcCorp')
         ->assertDontSee('Purchase Prices');
@@ -94,8 +94,8 @@ it('renders both purchase and rental tables', function (): void {
 
     $view->assertSeeText('Purchase Prices')
         ->assertSeeText('Rental Prices')
-        ->assertSeeText('1,000,000 aUEC')
-        ->assertSeeText('30,000 aUEC');
+        ->assertSeeText("1\u{00A0}000\u{00A0}000 aUEC")
+        ->assertSeeText("30\u{00A0}000 aUEC");
 });
 
 it('shows badge with count', function (): void {
