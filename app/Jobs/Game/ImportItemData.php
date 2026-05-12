@@ -398,13 +398,15 @@ class ImportItemData implements ShouldQueue
                     'uuid' => $tagData['tag'],
                     'name' => $tagData['name'],
                 ];
-            })->values()->all();
+            })->values();
 
-            EntityTag::query()->upsert(
-                $tagsToCreate,
-                ['uuid'],
-                ['name', 'updated_at']
-            );
+            foreach ($tagsToCreate->chunk(500) as $chunk) {
+                EntityTag::query()->upsert(
+                    $chunk->all(),
+                    ['uuid'],
+                    ['name', 'updated_at']
+                );
+            }
 
             self::$entityTagsLookup = null;
         }

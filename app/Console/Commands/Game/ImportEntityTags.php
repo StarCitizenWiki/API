@@ -96,7 +96,7 @@ class ImportEntityTags extends Command
         $totalCreated = 0;
         $totalUpdated = 0;
 
-        foreach ($tags->chunk(10000) as $batch) {
+        foreach ($tags->chunk(500) as $batch) {
             $batchUuids = $batch->pluck('uuid')->all();
 
             $existing = EntityTag::query()
