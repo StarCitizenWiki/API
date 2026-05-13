@@ -226,19 +226,20 @@ describe('search', function (): void {
             ->assertViewIs('blueprints.show')
             ->assertViewHas('isEmptyMode', true)
             ->assertSee('Requested Output')
-            ->assertSee('Hephaestanite, Iron')
-            ->assertDontSee('Default Output')
-            ->assertSee('data-testid="blueprints-search-result-link-'.$requestedBlueprint->uuid.'"', false);
+            ->assertDontSee('Default Output');
 
-        expect(attributeForTestId($response->getContent(), 'blueprints-search-result-link-'.$requestedBlueprint->uuid, 'href'))->toBe(
-            route('web.blueprints.show', [
-                'blueprint' => $requestedBlueprint->uuid,
-                'version' => $this->requestedVersion->code,
-                'filter' => [
-                    'ingredient.uuid' => $resourceTypeUuid,
-                ],
-            ])
-        );
+        $initialResults = $response->viewData('initialSearchResults');
+        $matchedResult = collect($initialResults)->first(fn (array $r): bool => data_get($r, 'uuid') === $requestedBlueprint->uuid);
+
+        expect($matchedResult)->not->toBeNull()
+            ->and(data_get($matchedResult, 'output_name'))->toBe('Requested Output')
+            ->and(collect(data_get($matchedResult, 'ingredients', []))->pluck('name')->filter()->all())->toContain('Hephaestanite', 'Iron')
+            ->and(data_get($matchedResult, 'web_url'))->toBe(
+                route('web.blueprints.show', [
+                    'blueprint' => $requestedBlueprint->slug ?? $requestedBlueprint->uuid,
+                    'version' => $this->requestedVersion->code,
+                ])
+            );
     });
 
     it('limits rendered blueprint search results to five records', function (): void {
@@ -265,7 +266,15 @@ describe('search', function (): void {
             ->assertSee('Limiter Output 5')
             ->assertDontSee('Limiter Output 6');
 
-        expect(substr_count($response->getContent(), 'data-testid="blueprints-search-result-link-'))->toBe(5);
+        $initialResults = $response->viewData('initialSearchResults');
+        expect(count($initialResults))->toBe(5)
+            ->and(collect($initialResults)->pluck('output_name')->sort()->values()->all())->toBe([
+                'Limiter Output 1',
+                'Limiter Output 2',
+                'Limiter Output 3',
+                'Limiter Output 4',
+                'Limiter Output 5',
+            ]);
     });
 });
 

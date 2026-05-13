@@ -99,7 +99,7 @@ it('returns an empty media-name result set for an empty query', function (): voi
         ->assertViewHas('images', [])
         ->assertSee('data-testid="comm-links-images-search-summary"', false)
         ->assertSee('data-testid="comm-links-images-empty-state"', false)
-        ->assertSeeText('Showing results for media name search: —.')
+        ->assertSeeText('Showing results for media name search: -.')
         ->assertSeeText('No images available.')
         ->assertDontSeeText('carrack.webp');
 });
