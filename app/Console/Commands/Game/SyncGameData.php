@@ -117,7 +117,7 @@ class SyncGameData extends Command
         }
 
         if (! $skipItems) {
-            $this->dispatchItemImports($gameVersion, $skipComputeItemGroups);
+            $this->dispatchItemImports($gameVersion, $skipComputeItemGroups, ! $skipMissions);
         }
 
         if (! $skipVehicles) {
@@ -130,7 +130,7 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
-        if (! $skipMissions && Artisan::call('game:import-missions', [
+        if (! $skipMissions && $skipItems && Artisan::call('game:import-missions', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
             return self::FAILURE;
@@ -188,7 +188,7 @@ class SyncGameData extends Command
         return $gameVersion;
     }
 
-    private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeItemGroups): void
+    private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeItemGroups, bool $dispatchMissionsAfter = false): void
     {
         $itemFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('items'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
@@ -206,10 +206,20 @@ class SyncGameData extends Command
             return new ImportItemData($gameVersion->id, $path, null, $diskName);
         });
 
-        $this->dispatchChunkedBatch($jobs, $skipComputeItemGroups ? null : function () use ($gameVersion): void {
-            ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
-            ComputeItemSetItemsJob::dispatch($gameVersion->id);
-        });
+        $hasPostBatchWork = ! $skipComputeItemGroups || $dispatchMissionsAfter;
+
+        $this->dispatchChunkedBatch($jobs, $hasPostBatchWork ? function () use ($gameVersion, $skipComputeItemGroups, $dispatchMissionsAfter): void {
+            if (! $skipComputeItemGroups) {
+                ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
+                ComputeItemSetItemsJob::dispatch($gameVersion->id);
+            }
+
+            if ($dispatchMissionsAfter) {
+                Artisan::call('game:import-missions', [
+                    'version' => $gameVersion->code,
+                ]);
+            }
+        } : null);
     }
 
     private function dispatchVehicleImports(GameVersion $gameVersion, bool $skipBackfillShipmatrixIds): void
