@@ -4,6 +4,7 @@ import { themeToggle } from "./themeToggle";
 import { liveSearch } from "./liveSearch";
 import { blueprintSearch } from "./blueprintSearch";
 import { blueprintTuning } from "./blueprintTuning";
+import { portEquippable } from "./portEquippable";
 
 import { createIcons, icons } from 'lucide';
 
@@ -15,5 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.Alpine.data('liveSearch', liveSearch);
     window.Alpine.data('blueprintSearch', blueprintSearch);
     window.Alpine.data('blueprintTuning', blueprintTuning);
+    window.Alpine.data('portEquippable', portEquippable);
     window.Alpine.start();
 });
