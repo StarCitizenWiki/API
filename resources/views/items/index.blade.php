@@ -47,6 +47,7 @@
             'headerFilterOptionsMap' => $headerFilterOptionsMap,
             'apiUrlTargetId' => 'items-api-url',
             'columns' => $tableColumns,
+            'externalFilters' => $externalFilters,
         ];
 
         $filterQuery = request()->query('filter', []);

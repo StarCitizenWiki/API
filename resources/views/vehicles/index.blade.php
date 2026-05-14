@@ -52,6 +52,10 @@
             ],
             'apiUrlTargetId' => 'vehicles-api-url',
             'externalFilters' => [
+                ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => [
+                    ['value' => '', 'label' => 'Default'],
+                    ['value' => 'true', 'label' => 'Yes'],
+                ]],
                 ['title' => 'Ship', 'field' => 'is_spaceship', 'options' => $booleanFilterOptions],
                 ['title' => 'Ground Vehicle', 'field' => 'is_vehicle', 'options' => $booleanFilterOptions],
                 ['title' => 'Gravlev', 'field' => 'is_gravlev', 'options' => $booleanFilterOptions],
