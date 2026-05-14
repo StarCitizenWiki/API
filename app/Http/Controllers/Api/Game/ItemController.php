@@ -111,6 +111,11 @@ class ItemController extends Controller
                 $this->allowedJsonSorts()
             ))
             ->defaultSort('name')
+            ->where('class_name', 'NOT LIKE', '%_VNCL')
+            ->where('class_name', 'NOT LIKE', '%_LowPoly')
+            ->where('class_name', 'NOT LIKE', '%_SecurityNetwork')
+            ->where('class_name', 'NOT LIKE', '%_SecurityNetwork_Weak')
+            ->where('name', '<>', '<= PLACEHOLDER =>')
             ->allowedIncludes(...$this->allowedIncludes())
             ->with($withRelations);
     }
