@@ -19,6 +19,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name', description: 'Raw part name from scunpacked data (e.g. LEFT_WING).', type: 'string', example: 'Nose'),
         new OA\Property(property: 'display_name', description: 'Human-readable name with positional suffix (e.g. "Wing (left)").', type: 'string', example: 'Nose'),
         new OA\Property(property: 'damage_max', description: 'Maximum damage this structural part can absorb.', type: 'number', example: 2500, nullable: true),
+        new OA\Property(property: 'destruction_damage', description: 'Total damage needed to destroy this part (only set when part appears in DamageBeforeDestruction).', type: 'number', example: 2500, nullable: true),
+        new OA\Property(property: 'detach_damage', description: 'Total damage needed to detach this part (only set when part appears in DamageBeforeDetach).', type: 'number', example: 600, nullable: true),
         new OA\Property(
             property: 'children',
             description: 'Nested child structural parts.',
@@ -35,14 +37,40 @@ class PartResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;
 
+    /**
+     * Damage limits lookup shared across all part instances in a request.
+     *
+     * NOT safe under long-running PHP processes :-)
+     *
+     * @var array<string, array{destruction_damage?: int, detach_damage?: int}>
+     */
+    protected static array $damageLimitsLookup = [];
+
+    /**
+     * Set the damage limits lookup for all part resources.
+     *
+     * @param  array<string, array{destruction_damage?: int, detach_damage?: int}>  $lookup
+     */
+    public static function setDamageLimitsLookup(array $lookup): void
+    {
+        static::$damageLimitsLookup = $lookup;
+    }
+
     public function toArray(Request $request): array
     {
         $name = Arr::get($this->resource, 'Name');
+        $limitEntry = $name !== null ? (static::$damageLimitsLookup[$name] ?? []) : [];
 
         return [
             'name' => $name,
             'display_name' => $this->generateDisplayName($name),
             'damage_max' => Arr::get($this->resource, 'DamageMax'),
+            $this->mergeWhen(array_key_exists('destruction_damage', $limitEntry), fn () => [
+                'destruction_damage' => $limitEntry['destruction_damage'],
+            ]),
+            $this->mergeWhen(array_key_exists('detach_damage', $limitEntry), fn () => [
+                'detach_damage' => $limitEntry['detach_damage'],
+            ]),
             $this->mergeWhen(Arr::has($this->resource, 'Children'), [
                 'children' => self::collection(Arr::get($this->resource, 'Children', [])),
             ]),

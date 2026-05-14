@@ -1046,7 +1046,11 @@ class VehicleResource extends AbstractBaseResource
                     return [$portKey => $hardpoints];
                 }
             ),
-            'parts' => PartResource::collection(Arr::get($payload, 'Parts', [])),
+            'parts' => (function () use ($payload) {
+                PartResource::setDamageLimitsLookup($this->buildDamageLimitsLookup($payload));
+
+                return PartResource::collection(Arr::get($payload, 'Parts', []));
+            })(),
             'turrets' => [
                 'manned' => TurretSummaryResource::collection($mannedTurrets),
                 'remote' => TurretSummaryResource::collection($remoteTurrets),
@@ -1198,7 +1202,7 @@ class VehicleResource extends AbstractBaseResource
             return [];
         }
 
-        return VehicleLoanerResource::collection($shipMatrixVehicle->loaner)->resolve();
+        return VehicleLoanerResource::collection($shipMatrixVehicle->loaner->unique('id'))->resolve();
     }
 
     private function getSkus(VehicleData $vehicleData): array
@@ -1320,5 +1324,26 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return collect($medicalBeds)->pluck('Count', 'Tier')->all();
+    }
+
+    /**
+     * Build a name-keyed lookup from DamageBeforeDestruction and DamageBeforeDetach.
+     *
+     * @return array<string, array{destruction_damage?: int, detach_damage?: int}>
+     */
+    private function buildDamageLimitsLookup(array $payload): array
+    {
+        $lookup = [];
+
+        foreach (Arr::get($payload, 'DamageBeforeDestruction', []) as $entry) {
+            $lookup[Arr::get($entry, 'Name')] = ['destruction_damage' => Arr::get($entry, 'DestructionDamage')];
+        }
+
+        foreach (Arr::get($payload, 'DamageBeforeDetach', []) as $entry) {
+            $name = Arr::get($entry, 'Name');
+            $lookup[$name] = array_merge($lookup[$name] ?? [], ['detach_damage' => Arr::get($entry, 'DetachDamage')]);
+        }
+
+        return $lookup;
     }
 }
