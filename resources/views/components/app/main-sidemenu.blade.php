@@ -585,7 +585,7 @@
     </x-app.sidemenu-item>
     <x-app.sidemenu-item href="https://github.com/StarCitizenWiki/API" :with-version="false">
         <x-slot:icon>
-            <x-icon name="github" class="size-4" />
+            <x-icon name="code-xml" class="size-4" />
         </x-slot:icon>
         Source Code
     </x-app.sidemenu-item>

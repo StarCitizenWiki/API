@@ -13,7 +13,6 @@
         "daisyui": "^5.5.19",
         "laravel-vite-plugin": "^3.0.0",
         "lucide": "^1.7.0",
-        "luxon": "^3.7.2",
         "playwright": "^1.59.0",
         "tabulator-tables": "^6.4.0",
         "tailwindcss": "^4.2.2",

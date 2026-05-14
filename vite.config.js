@@ -11,7 +11,11 @@ export default defineConfig({
                     groups: [
                         {
                             name: 'vendor',
-                            test: /node_modules/,
+                            test: /node_modules\/(?!tabulator-tables)/,
+                        },
+                        {
+                            name: 'vendor-tabulator',
+                            test: /node_modules\/tabulator-tables/,
                         },
                     ],
                 },
