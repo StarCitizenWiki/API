@@ -104,14 +104,14 @@
                 <tr>
                     <th>Material</th>
                     <th>Range</th>
-                    <th title="Since version 4.8: The raw quality range the server rolls from. Each rock gets one roll within this range, then the result is mapped to the nearest fixed value in the Received column.">
+                    <th title="Since version 4.8: The raw quality range the server rolls from. Each rock gets one roll within this range (affected by qualityScale), then the result is snapped to the nearest quantization band's mapped value shown in the Received column. The rolled value and the received value can differ significantly because quantization bands are non-linear." id="quality-th">
                         <span class="flex items-center gap-1">
                             Quality
                             <x-icon name="info" class="size-3.5 opacity-50" />
                         </span>
                     </th>
                     @if ($hasQuantization)
-                        <th title="The actual quality value you receive. The game converts the rolled quality into one of these fixed values.">
+                        <th title="The discrete quality values you can actually receive. The game divides the full 0-1000 quality space into non-linear bands, each with a fixed mapped value. A roll within a band's range always produces that band's value, which may be higher (or lower) than the rolled number. For example, a roll of 450 in a 400–599 band can yield a received value of 585." id="received-th">
                             <span class="flex items-center gap-1">
                                 Received
                                 <x-icon name="info" class="size-3.5 opacity-50" />
@@ -184,7 +184,7 @@
                             @endphp
                             <td class="text-xs tabular-nums">
                                 @if ($qzValues !== null && $qzValues !== [])
-                                    <span title="The discrete quality values you can actually receive on this deposit. Used for sell price and refining yield.">
+                                    <span title="Discrete quality values you can actually receive on this deposit. The band structure means received values can fall outside the raw quality roll range. Used for sell price and refining yield.">
                                         {{ implode(', ', $qzValues) }}
                                     </span>
                                 @else
