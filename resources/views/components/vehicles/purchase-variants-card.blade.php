@@ -60,7 +60,7 @@
         data-testid="purchase-variants-card" {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body p-5 sm:p-6">
             <div @class([
-                'grid gap-8 xl:grid-cols-2 xl:gap-10' => $sections !== [] && ($hasLoaners || $hasSkus),
+                'grid gap-12 grid-cols-1 lg:grid-cols-2' => $sections !== [] && ($hasLoaners || $hasSkus),
                 'space-y-6' => ! ($sections !== [] && ($hasLoaners || $hasSkus)),
             ])>
                 @if ($sections !== [])

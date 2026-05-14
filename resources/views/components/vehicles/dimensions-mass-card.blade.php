@@ -54,7 +54,7 @@
         <div class="card-body p-5 sm:p-6">
             <h2 class="card-title text-base">Dimensions & Mass</h2>
 
-            <div class="grid gap-12 lg:grid-cols-3">
+            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                 @foreach ($sections as $section)
                     <x-dl-section :title="$section['label']" class="min-w-0">
                         @foreach ($section['rows'] as $row)

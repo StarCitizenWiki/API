@@ -56,7 +56,7 @@
         <div class="card-body p-5 sm:p-6">
             <h2 class="card-title text-base">Crew & Medical</h2>
 
-            <div class="grid gap-12 lg:grid-cols-3">
+            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                 @foreach ($sections as $section)
                     <div class="min-w-0 space-y-3">
                         <x-dl-section :title="$section['label']">

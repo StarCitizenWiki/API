@@ -29,10 +29,14 @@
     ];
 
     $formatRelayName = static function (string $hardpoint): string {
-        $name = Str::after($hardpoint, 'hardpoint_relay_');
-        $name = str_replace('_', ' ', $name);
+        if ($hardpoint === 'hardpoint_relay') {
+            return 'Relay';
+        }
 
-        return Str::title($name);
+        $suffix = Str::after($hardpoint, 'hardpoint_relay_');
+        $suffix = str_replace('_', ' ', $suffix);
+
+        return 'Relay ' . Str::title($suffix);
     };
 
     $splitGroups = static function (array $groups) use ($primaryCategories): array {
@@ -73,7 +77,7 @@
                    class="input input-bordered input-sm w-full max-w-xs"/>
         @endif
 
-        <div @if($relayCount > 1) class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2" @endif>
+        <div @if($relayCount > 1) class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2" @endif>
             @foreach($relays as $relay)
                 @php
                     $relayName = $formatRelayName(data_get($relay, 'hardpoint', ''));

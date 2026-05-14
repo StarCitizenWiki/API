@@ -79,15 +79,17 @@
         <div class="flex flex-col gap-8">
             <section class="space-y-4">
                 <h2 class="text-lg font-semibold tracking-tight">Combat & Systems</h2>
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 ">
+                    <x-vehicles.weaponry-card :vehicle="$vehicle" />
+                    <x-vehicles.systems-signatures-card :vehicle="$vehicle" />
 
-                <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
-
-                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <x-vehicles.armor-card :vehicle="$vehicle" />
                     <x-vehicles.shield-card :vehicle="$vehicle" />
-                    <x-vehicles.weaponry-card :vehicle="$vehicle" />
+                </div>
+                <x-vehicles.hardpoints-components-card :vehicle="$vehicle" />
 
-                    <x-vehicles.systems-signatures-card :vehicle="$vehicle" />
+
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <x-vehicles.systems-breakdown-card :vehicle="$vehicle" />
                     <x-vehicles.relay-network-card :vehicle="$vehicle" />
 

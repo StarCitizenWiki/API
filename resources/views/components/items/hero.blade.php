@@ -109,9 +109,9 @@
 
 <section {{ $attributes->merge(['class' => 'card sm:card-side bg-base-100 shadow', 'data-testid' => 'item-hero']) }}>
     @if ($heroImage)
-        <figure class="relative">
+        <figure class="relative min-w-48">
             <a href="{{ $fullImageUrl ?? $heroImage }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="size-full object-cover max-h-96" loading="lazy" />
+                <img src="{{ $heroImage }}" alt="{{ $itemName }}" class="size-full object-cover" loading="lazy" />
             </a>
             @if ($imageSource)
                 <span class="pointer-events-none absolute right-3 bottom-2 rounded bg-black/30 px-2 py-0.5 text-xs text-white/70 w-auto h-auto">

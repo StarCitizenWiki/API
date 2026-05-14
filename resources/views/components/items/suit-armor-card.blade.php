@@ -38,8 +38,6 @@
     ];
 
     $gforceResistance = $gforceResistance ?? null;
-
-
 @endphp
 
 <x-item-card title="Suit Armor">
@@ -72,7 +70,7 @@
 
         <x-dl-section title="G-Force Resistance">
             <x-dt-dd label="Modifier" :value="$gforceResistance">
-                <span class="{{ Format::colorClass($gforceResistance) }}">{{ Format::valueWithUnit($gforceResistance * 100, '%', 1) }}</span>
+                <span class="{{ Format::colorClass($gforceResistance, true) }}">{{ Format::valueWithUnit($gforceResistance * 100, '%', 1) }}</span>
             </x-dt-dd>
         </x-dl-section>
 
