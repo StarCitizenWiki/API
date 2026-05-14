@@ -30,6 +30,7 @@ final class HardpointRow
         'Armor' => ['armor.health', 'HP', '', 'shield'],
         'CargoGrid' => ['inventory.scu', 'SCU', '', 'package'],
         'CountermeasureLauncher' => ['ammunition.capacity', 'Ammo', '', 'layers'],
+        'WeaponDefensive' => ['ammunition.capacity', 'Ammo', '', 'layers'],
         'EMP' => ['emp.radius', 'Radius', '', null],
         'QuantumInterdictionGenerator' => ['quantum_interdiction_generator.range', 'Range', '', null],
     ];
@@ -79,6 +80,7 @@ final class HardpointRow
      *     coolant_usage: float|int|null,
      *     type_annotation: string|null,
      *     position: string|null,
+     *     pilot_slaveable: bool,
      * }
      */
     public static function make(array $port, array $powerPools = [], int $categoryIndex = 0): array
@@ -119,6 +121,7 @@ final class HardpointRow
             if (in_array($type, self::ZERO_POWER_TYPES, true)) {
                 $powerUsage = null;
             }
+
             if (in_array($type, self::ZERO_COOLANT_TYPES, true)) {
                 $coolantUsage = null;
             }
@@ -162,6 +165,7 @@ final class HardpointRow
             'coolant_usage' => $coolantUsage,
             'type_annotation' => $typeAnnotation,
             'position' => Arr::get($port, 'position'),
+            'pilot_slaveable' => (bool) Arr::get($port, 'pilot_slaveable', false),
         ];
     }
 
@@ -210,6 +214,7 @@ final class HardpointRow
         }
 
         $itemName = Arr::get($item, 'name');
+
         if ($itemName !== null && $itemName !== '' && $itemName !== '<= PLACEHOLDER =>') {
             return $itemName;
         }
@@ -233,9 +238,11 @@ final class HardpointRow
         }
 
         $parts = [];
+
         if ($min !== null) {
             $parts[] = 'S'.$min;
         }
+
         if ($max !== null) {
             $parts[] = 'S'.$max;
         }
@@ -249,11 +256,13 @@ final class HardpointRow
     private static function extractCompatibleType(array $port): ?string
     {
         $types = Arr::get($port, 'compatible_types', []);
+
         if (empty($types)) {
             return null;
         }
 
         $first = Arr::get($types, '0.type');
+
         if ($first === null) {
             return null;
         }
@@ -307,6 +316,8 @@ final class HardpointRow
             'MissileLauncher', 'BombLauncher' => self::missileRackStats($port),
             'Missile', 'Bomb', 'Torpedo' => self::missileStats($item),
             'FlightController' => self::flightControllerStats($item),
+            'WeaponDefensive' => self::counterMeasureStats($item),
+            'WeaponGun' => self::weaponGunStats($item),
             default => self::mapLookup($type, $item),
         };
     }
@@ -342,8 +353,14 @@ final class HardpointRow
     {
         $secondaries = [];
         $regenRate = Arr::get($item, 'shield.regen_rate');
+
         if ($regenRate !== null) {
             $secondaries[] = Format::compact($regenRate, 0).'/s Regen';
+        }
+
+        $regenTime = Arr::get($item, 'shield.regen_time');
+        if ($regenTime !== null) {
+            $secondaries[] = Format::compact($regenTime, 0).'s Full';
         }
 
         return [
@@ -379,11 +396,14 @@ final class HardpointRow
     private static function missileStats(array $item): array
     {
         $secondaries = [];
-        $signalType = Arr::get($item, 'missile.target_lock.signal_type');
+        $signalType = Arr::get($item, 'missile.signal_type');
+
         if ($signalType !== null) {
             $secondaries[] = (string) $signalType;
         }
+
         $rangeMax = Arr::get($item, 'missile.target_lock.range_max');
+
         if ($rangeMax !== null) {
             $secondaries[] = Format::compact($rangeMax, 0).'m';
         }
@@ -398,6 +418,77 @@ final class HardpointRow
     }
 
     /**
+     * Counter measure stats with signature secondaries.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function counterMeasureStats(array $item): array
+    {
+        $secondaries = [];
+        $type = Arr::get($item, 'counter_measure.type');
+
+        if ($type !== null) {
+            $secondaries[] = (string) $type;
+        }
+
+        $signature = Arr::get($item, 'counter_measure.signature', []);
+        $parts = [];
+
+        if (($signature['infrared'] ?? 0) > 0) {
+            $parts[] = 'IR '.Format::compact($signature['infrared'], 0);
+        }
+
+        if (($signature['cross_section'] ?? 0) > 0) {
+            $parts[] = 'CS '.Format::compact($signature['cross_section'], 0);
+        }
+
+        if (($signature['electromagnetic'] ?? 0) > 0) {
+            $parts[] = 'EM '.Format::compact($signature['electromagnetic'], 0);
+        }
+
+        if ($parts !== []) {
+            $secondaries[] = implode(' / ', $parts);
+        }
+
+        return [
+            'stat' => Arr::get($item, 'ammunition.capacity'),
+            'label' => 'Ammo',
+            'unit' => '',
+            'icon' => 'layers',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * Weapon gun stats with ammo secondary for finite-ammo weapons.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function weaponGunStats(array $item): array
+    {
+        $secondaries = [];
+        $capacity = Arr::get($item, 'ammunition.capacity');
+
+        if ($capacity !== null && $capacity > 0) {
+            $secondaries[] = Format::compact($capacity, 0).' rounds';
+        }
+
+        $alpha = Arr::get($item, 'vehicle_weapon.damage.alpha_total');
+
+        if ($alpha !== null) {
+            $secondaries[] = Format::compact($alpha, 1).' α';
+        }
+
+        return [
+            'stat' => Arr::get($item, 'vehicle_weapon.damage.burst'),
+            'label' => 'DPS',
+            'unit' => '',
+            'icon' => 'crosshair',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
      * Flight controller stats with nav speed secondary.
      *
      * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
@@ -406,6 +497,7 @@ final class HardpointRow
     {
         $secondaries = [];
         $navSpeed = Arr::get($item, 'flight_controller.max_speed');
+
         if ($navSpeed !== null) {
             $secondaries[] = Format::compact($navSpeed, 0).'m/s Nav';
         }
@@ -430,6 +522,7 @@ final class HardpointRow
 
         $sizeClass = Arr::get($vehicle, 'size_class');
         $parts = [];
+
         if ($sizeClass !== null) {
             $parts[] = 'S'.$sizeClass;
         }

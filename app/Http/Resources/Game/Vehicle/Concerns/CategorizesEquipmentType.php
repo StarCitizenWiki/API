@@ -156,6 +156,8 @@ trait CategorizesEquipmentType
             str_starts_with($hardpoint, 'hardpoint_fuel_') => 'Fuel',
             str_starts_with($hardpoint, 'hardpoint_missile_') => 'Missile & Bomb Racks',
             str_starts_with($hardpoint, 'hardpoint_weapon_regen_pool') => 'Systems',
+            str_starts_with($hardpoint, 'hardpoint_weapon_locker_'),
+            str_starts_with($hardpoint, 'hardpoint_weapon_emp') => 'Other',
             str_starts_with($hardpoint, 'hardpoint_weapon_') => 'Weapons',
             str_starts_with($hardpoint, 'hardpoint_computer_') => 'Systems',
             str_starts_with($hardpoint, 'hardpoint_paint') => 'Paints',
