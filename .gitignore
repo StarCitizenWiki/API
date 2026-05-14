@@ -37,3 +37,5 @@ AGENTS.md
 .codex
 .plans
 .ai
+*.sql
+*.tar.gz

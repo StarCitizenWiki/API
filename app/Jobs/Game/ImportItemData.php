@@ -254,7 +254,7 @@ class ImportItemData implements ShouldQueue
 
     private function syncEnglishTranslation(Item $item, array $raw, array $itemPayload): bool
     {
-        $english = $this->extractEnglishDescription($itemPayload);
+        $english = $this->extractEnglishDescription($raw, $itemPayload);
 
         if ($english === null || $english === '') {
             return false;
@@ -352,25 +352,97 @@ class ImportItemData implements ShouldQueue
             $exploded = explode('\n\n', $exploded[0]);
         }
 
-        // Strip data lines ("Key: Value" at start of line) from each part, then remove any parts that become empty.
-        $dataLinePattern = '/^[A-Z\d][A-Za-z\s.]{0,30}[：:]/m';
-
         $cleaned = [];
+        $hadDataSection = false;
+
         foreach ($exploded as $part) {
-            $lines = explode("\n", $part);
+            $lines = array_values(array_filter(explode("\n", $part), static fn (string $l) => trim($l) !== ''));
 
-            $prose = array_values(array_filter($lines, static function (string $line) use ($dataLinePattern) {
-                return preg_match($dataLinePattern, $line) !== 1;
-            }));
-
-            $proseText = implode("\n", $prose);
-
-            if (trim($proseText) !== '') {
-                $cleaned[] = $proseText;
+            if (empty($lines)) {
+                continue;
             }
+
+            $allData = array_reduce($lines, static function (bool $carry, string $line) {
+                return $carry && self::isDataLine($line);
+            }, true);
+
+            // Accept as data section: 2+ all-data lines, or 1 data line when there are other parts
+            if ($allData && (count($lines) >= 2 || count($exploded) > 1)) {
+                $hadDataSection = true;
+
+                continue;
+            }
+
+            $cleaned[] = $part;
+        }
+
+        // Strip leading data lines from remaining parts if we had a data section,
+        // or for single-part descriptions with no \n\n separator.
+        if ($hadDataSection || count($cleaned) === 1) {
+            $finalCleaned = [];
+            foreach ($cleaned as $part) {
+                $lines = explode("\n", $part);
+                $proseLines = [];
+                $foundProse = false;
+                foreach ($lines as $line) {
+                    if (! $foundProse && self::isDataLine($line)) {
+                        continue;
+                    }
+                    $foundProse = true;
+                    $proseLines[] = $line;
+                }
+
+                $proseText = implode("\n", $proseLines);
+                if (trim($proseText) !== '') {
+                    $finalCleaned[] = $proseText;
+                }
+            }
+            $cleaned = $finalCleaned;
         }
 
         return trim(implode("\n\n", $cleaned));
+    }
+
+    /**
+     * Check if a line looks like a data line ("Key: Value") rather than prose.
+     * Data lines have a short Title Case label before the colon.
+     */
+    private static function isDataLine(string $line): bool
+    {
+        // Quick pre-check: must contain a colon with content after it
+        if (! preg_match('/^[A-Z\d][A-Za-z\s.\-]{0,33}[\xef\xbc\x9a:]\s*\S/m', $line)) {
+            return false;
+        }
+
+        // Extract the label part (before the colon)
+        $colonPos = mb_strpos($line, ':');
+        $fullWidthPos = mb_strpos($line, '：');
+        if ($fullWidthPos !== false && ($colonPos === false || $fullWidthPos < $colonPos)) {
+            $colonPos = $fullWidthPos;
+        }
+        if ($colonPos === false) {
+            return false;
+        }
+
+        $label = trim(mb_substr($line, 0, $colonPos));
+
+        // Split label into words and check Title Case
+        // Data labels have all major words starting uppercase (e.g. "G-Force Tolerance")
+        // Prose has lowercase words before the colon (e.g. "The Buccaneer here:")
+        $minorWords = ['of', 'the', 'a', 'an', 'in', 'for', 'to', 'and', 'or', 'de', 'la', 'le'];
+        $words = preg_split('/[\s.\-]+/u', $label);
+
+        foreach ($words as $word) {
+            if ($word === '' || in_array(mb_strtolower($word), $minorWords, true)) {
+                continue;
+            }
+            $firstChar = mb_substr($word, 0, 1);
+            if ($firstChar !== mb_strtoupper($firstChar) || ! preg_match('/\p{L}/u', $firstChar)) {
+                return false; // Found a non-minor word starting with lowercase
+            }
+        }
+
+        return true;
     }
 
     private function syncEntityTags(ItemData $itemData, array $itemPayload): void

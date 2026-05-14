@@ -41,11 +41,17 @@ class BackfillPlayerRelevant extends Command
                 }
 
                 if ($changes !== []) {
+                    $cases = '';
+                    $ids = [];
+
                     foreach ($changes as $id => $value) {
-                        DB::table('game_item_data')
-                            ->where('id', $id)
-                            ->update(['is_player_relevant' => $value]);
+                        $cases .= "WHEN {$id} THEN ".($value ? 1 : 0).' ';
+                        $ids[] = $id;
                     }
+
+                    DB::table('game_item_data')
+                        ->whereIn('id', $ids)
+                        ->update(['is_player_relevant' => DB::raw("CASE id {$cases}END")]);
 
                     $updated += count($changes);
                 }

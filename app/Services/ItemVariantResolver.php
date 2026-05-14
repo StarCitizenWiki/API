@@ -186,6 +186,11 @@ class ItemVariantResolver
 
     public function __construct(private readonly int $gameVersionId) {}
 
+    public function isExcludedItem(ItemData $item): bool
+    {
+        return ! ItemRelevanceChecker::isPlayerRelevant($item->name, $item->class_name);
+    }
+
     public function clearCaches(): void
     {
         $this->queryCache = [];

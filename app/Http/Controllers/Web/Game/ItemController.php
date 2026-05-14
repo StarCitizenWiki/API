@@ -27,7 +27,9 @@ class ItemController extends Controller
         private readonly ItemTableConfig $itemTableConfig,
         private readonly ItemShowSeoData $itemShowSeoData,
         private readonly ItemIndexSeoData $itemIndexSeoData,
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function index(Request $request): View
     {
@@ -43,12 +45,12 @@ class ItemController extends Controller
 
         $tableConfig = $this->itemTableConfig->build($resolvedType);
 
-        $tableConfig['externalFilters'] = [
+        $tableConfig['externalFilters'] = array_merge($tableConfig['externalFilters'] ?? [], [
             ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => [
                 ['value' => '', 'label' => 'Default'],
                 ['value' => 'true', 'label' => 'Yes'],
             ]],
-        ];
+        ]);
 
         $total = Arr::get($initialTableData, 'meta.total');
         $manufacturer = $endpointFilters['manufacturer'] ?? null;
