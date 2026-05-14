@@ -254,7 +254,7 @@ class ImportItemData implements ShouldQueue
 
     private function syncEnglishTranslation(Item $item, array $raw, array $itemPayload): bool
     {
-        $english = $this->extractEnglishDescription($raw, $itemPayload);
+        $english = $this->extractEnglishDescription($itemPayload);
 
         if ($english === null || $english === '') {
             return false;

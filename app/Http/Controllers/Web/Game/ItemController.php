@@ -27,9 +27,7 @@ class ItemController extends Controller
         private readonly ItemTableConfig $itemTableConfig,
         private readonly ItemShowSeoData $itemShowSeoData,
         private readonly ItemIndexSeoData $itemIndexSeoData,
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
     public function index(Request $request): View
     {
