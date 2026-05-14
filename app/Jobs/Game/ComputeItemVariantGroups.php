@@ -69,6 +69,7 @@ class ComputeItemVariantGroups implements ShouldQueue
 
             ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
+                ->where('is_player_relevant', true)
                 ->with(['item', 'gameVersion'])
                 ->chunkById(250, function (Collection $items) use ($resolver, &$processedIds): void {
                     foreach ($items as $itemData) {
@@ -76,13 +77,11 @@ class ComputeItemVariantGroups implements ShouldQueue
                             continue;
                         }
 
-                        if ($resolver->isExcludedItem($itemData)) {
-                            continue;
-                        }
-
                         $group = array_values(array_filter(
                             $this->resolveGroup($resolver, $itemData),
-                            fn (ItemData $member): bool => ! isset($processedIds[$member->id]),
+                            static fn (ItemData $member): bool => ! isset($processedIds[$member->id])
+                                && $member->is_player_relevant
+                                && ! self::isExcludedVariant($member),
                         ));
 
                         if (count($group) < 2) {
@@ -193,5 +192,25 @@ class ComputeItemVariantGroups implements ShouldQueue
                 ->whereKey($itemData->id)
                 ->update(['base_id' => $baseId]);
         }
+    }
+
+    private const array EXCLUDED_VARIANT_SUFFIXES = [
+        '_fps_balance',
+        '_FPS_Balance',
+        '_Cutlass_Steel',
+        '_FakeHologram',
+    ];
+
+    private static function isExcludedVariant(ItemData $member): bool
+    {
+        $className = $member->class_name ?? '';
+
+        foreach (self::EXCLUDED_VARIANT_SUFFIXES as $suffix) {
+            if (str_ends_with($className, $suffix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

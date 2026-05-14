@@ -12,6 +12,7 @@ use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use App\Services\Game\SlugService;
+use App\Services\ItemRelevanceChecker;
 use App\Services\Parser\SC\Labels;
 use Exception;
 use Illuminate\Bus\Batchable;
@@ -175,6 +176,7 @@ class ImportItemData implements ShouldQueue
             'grade' => $this->nullableInt($itemPayload['grade'] ?? null),
             'class' => $itemClass,
             'rarity' => Arr::get($itemPayload, 'stdItem.Rarity'),
+            'is_player_relevant' => ItemRelevanceChecker::isPlayerRelevant($name, $itemPayload['className'] ?? null),
             'base_id' => null,
 
             'data' => $itemPayload,
@@ -252,7 +254,7 @@ class ImportItemData implements ShouldQueue
 
     private function syncEnglishTranslation(Item $item, array $raw, array $itemPayload): bool
     {
-        $english = $this->extractEnglishDescription($raw, $itemPayload);
+        $english = $this->extractEnglishDescription($itemPayload);
 
         if ($english === null || $english === '') {
             return false;
@@ -278,33 +280,20 @@ class ImportItemData implements ShouldQueue
 
     private function extractDescriptionLabel(array $raw): ?string
     {
-        $component = Arr::get($raw, 'Entity.Components.SAttachableComponentParams.AttachDef', []);
+        $label = Arr::get($raw, 'Entity.Components.SAttachableComponentParams.AttachDef.Localization.__Description');
 
-        $label = $component['Localization__Description'] ?? Arr::get($component, 'Localization.__Description');
-
-        if (! is_string($label)) {
-            return null;
-        }
-
-        $label = trim($label);
-
-        if ($label === '' || mb_strtolower($label) === '@loc_empty') {
+        if (! is_string($label) || trim($label) === '' || mb_strtolower($label) === '@loc_empty') {
             return null;
         }
 
         return ltrim($label, '@');
     }
 
-    private function extractEnglishDescription(array $raw, array $itemPayload): ?string
+    private function extractEnglishDescription(array $itemPayload): ?string
     {
-        $component = Arr::get($raw, 'Entity.Components.SAttachableComponentParams.AttachDef', []);
-        $localization = $component['Localization'] ?? [];
-
         $candidates = [
             Arr::get($itemPayload, 'stdItem.DescriptionText'),
             Arr::get($itemPayload, 'stdItem.Description'),
-            Arr::get($localization, 'English.Description'),
-            Arr::get($localization, 'Description'),
         ];
 
         return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
@@ -348,9 +337,14 @@ class ImportItemData implements ShouldQueue
      */
     private function getDescriptionText(string $description): string
     {
+        // Normalize escaped whitespace-only lines between escaped newlines
         $description = str_replace('\\n \\n', '\\n\\n', $description);
 
         $description = trim(str_replace('\n', "\n", $description));
+
+        // Normalize literal whitespace-only lines between newlines ("\n \n", "\n\u{00A0}\n" -> "\n\n")
+        $description = preg_replace('/\n[ \t\x{00A0}]+\n/u', "\n\n", $description);
+
         $description = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], $description);
         $exploded = explode("\n\n", $description);
 
@@ -358,11 +352,25 @@ class ImportItemData implements ShouldQueue
             $exploded = explode('\n\n', $exploded[0]);
         }
 
-        $exploded = array_filter($exploded, static function (string $part) {
-            return preg_match('/(：|\w:[\s| ])/u', $part) !== 1;
-        });
+        // Strip data lines ("Key: Value" at start of line) from each part, then remove any parts that become empty.
+        $dataLinePattern = '/^[A-Z\d][A-Za-z\s.]{0,30}[：:]/m';
 
-        return trim(implode("\n\n", $exploded));
+        $cleaned = [];
+        foreach ($exploded as $part) {
+            $lines = explode("\n", $part);
+
+            $prose = array_values(array_filter($lines, static function (string $line) use ($dataLinePattern) {
+                return preg_match($dataLinePattern, $line) !== 1;
+            }));
+
+            $proseText = implode("\n", $prose);
+
+            if (trim($proseText) !== '') {
+                $cleaned[] = $proseText;
+            }
+        }
+
+        return trim(implode("\n\n", $cleaned));
     }
 
     private function syncEntityTags(ItemData $itemData, array $itemPayload): void

@@ -178,18 +178,6 @@ class ItemVariantResolver
         'DCDelving', 'Kaboos', 'Wikelo', 'XenoThreat', 'Volt', 'Tru',
     ];
 
-    private const array EXCLUDED_CLASS_NAME_PREFIXES = [
-        'invisible_',
-        'mannequin_',
-        'nodraw_',
-        'vanduul_',
-        'volume_',
-        'customizer_',
-        'med_body',
-        'med_skeleton',
-        'test_',
-    ];
-
     /** @var array<string, array<int, ItemData>> */
     private array $queryCache = [];
 
@@ -489,31 +477,6 @@ class ItemVariantResolver
         }
 
         return $prefix !== '' ? $prefix : null;
-    }
-
-    public function isExcludedItem(ItemData $itemData): bool
-    {
-        $name = $itemData->name;
-
-        if ($name !== null) {
-            $lowerName = strtolower($name);
-
-            if (str_contains($lowerName, 'placeholder') || $lowerName === 'test string') {
-                return true;
-            }
-        }
-
-        $className = $itemData->class_name ?? '';
-
-        if ($className !== '' && str_contains($className, '_TEMPLATE')) {
-            return true;
-        }
-
-        if ($name !== null && $name === $className) {
-            return true;
-        }
-
-        return array_any(self::EXCLUDED_CLASS_NAME_PREFIXES, fn ($prefix) => str_starts_with($className, $prefix));
     }
 
     /** @return array<int,string> */

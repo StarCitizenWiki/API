@@ -10,6 +10,7 @@ use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Services\Game\SlugService;
 use App\Services\Game\VehicleMatchingService;
+use App\Services\ItemRelevanceChecker;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -129,6 +130,8 @@ class ImportVehicleData implements ShouldQueue
             'is_vehicle' => (bool) Arr::get($payload, 'IsVehicle', false),
             'is_gravlev' => (bool) Arr::get($payload, 'IsGravlev', false),
             'is_spaceship' => (bool) Arr::get($payload, 'IsSpaceship', false),
+
+            'is_player_relevant' => ItemRelevanceChecker::isVehiclePlayerRelevant($payload['ClassName'] ?? ''),
 
             'size' => Arr::get($payload, 'Size'),
 

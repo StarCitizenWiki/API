@@ -42,12 +42,14 @@ class ItemData extends Model
         'base_id',
         'data',
         'rarity',
+        'is_player_relevant',
         'uex_prices',
     ];
 
     protected $casts = [
         'size' => 'integer',
         'grade' => 'integer',
+        'is_player_relevant' => 'boolean',
         'data' => AsCollection::class,
         'uex_prices' => 'array',
     ];
@@ -297,22 +299,19 @@ class ItemData extends Model
     public function scopeClothes(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.Clothing.%')
-            ->excludePlaceholderNames();
+            ->where('classification', 'LIKE', 'FPS.Clothing.%');
     }
 
     public function scopeFpsItems(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.%')
-            ->excludePlaceholderNames();
+            ->where('classification', 'LIKE', 'FPS.%');
     }
 
     public function scopeArmor(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.Armor.%')
-            ->excludePlaceholderNames();
+            ->where('classification', 'LIKE', 'FPS.Armor.%');
     }
 
     public function scopeVehicleWeapons(Builder $query): Builder
@@ -401,14 +400,9 @@ class ItemData extends Model
             ]);
     }
 
-    public function scopeExcludePlaceholderNames(Builder $query): Builder
+    public function scopePlayerRelevant(Builder $query): Builder
     {
-        return $query
-            ->where($this->table.'.name', 'NOT LIKE', '%PLACEHOLDER%')
-            ->where($this->table.'.name', 'NOT LIKE', '%Placeholder%')
-            ->where($this->table.'.name', 'NOT LIKE', 'PH -%')
-            ->where($this->table.'.name', 'NOT LIKE', '[PH]%')
-            ->where($this->table.'.name', 'NOT LIKE', '%- name%');
+        return $query->where($this->getTable().'.is_player_relevant', true);
     }
 
     public function scopeWithDescriptionValue(Builder $query, string $name, string $value): Builder

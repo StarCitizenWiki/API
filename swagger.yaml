@@ -666,6 +666,13 @@ paths:
           schema:
             type: number
             example: 3
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Weapons'
@@ -724,6 +731,13 @@ paths:
           schema:
             type: number
             example: 1
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Weapon Attachments'
@@ -782,6 +796,13 @@ paths:
           schema:
             type: string
             example: Jacket
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Clothes'
@@ -840,6 +861,13 @@ paths:
           schema:
             type: string
             example: Core
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Armor'
@@ -891,6 +919,13 @@ paths:
           schema:
             type: string
             example: Burger
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Food Items'
@@ -949,6 +984,13 @@ paths:
           schema:
             type: number
             example: 3
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Vehicle Weapons'
@@ -1014,6 +1056,13 @@ paths:
           schema:
             type: string
             example: Shield
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Vehicle Items'
@@ -1147,6 +1196,13 @@ paths:
           schema:
             type: string
             example: Rare
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'List of Items'
@@ -1507,6 +1563,13 @@ paths:
           schema:
             type: string
             example: Military
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       requestBody:
         description: 'Item Name or (sub)type'
         required: true
@@ -1634,6 +1697,13 @@ paths:
           schema:
             type: string
             example: Rare
+        -
+          name: 'filter[include_irrelevant]'
+          in: query
+          description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: 'Available filter facets for in-game items, grouped by field with counts.'
@@ -15849,6 +15919,16 @@ components:
           type: number
           example: 2500
           nullable: true
+        destruction_damage:
+          description: 'Total damage needed to destroy this part (only set when part appears in DamageBeforeDestruction).'
+          type: number
+          example: 2500
+          nullable: true
+        detach_damage:
+          description: 'Total damage needed to detach this part (only set when part appears in DamageBeforeDetach).'
+          type: number
+          example: 600
+          nullable: true
         children:
           description: 'Nested child structural parts.'
           type: array
@@ -16267,6 +16347,11 @@ components:
                 nullable: true
               link:
                 description: 'API URL for the full item detail.'
+                type: string
+                format: uri
+                nullable: true
+              web_url:
+                description: 'API Web URL for the full item detail.'
                 type: string
                 format: uri
                 nullable: true

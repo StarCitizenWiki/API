@@ -93,6 +93,10 @@ class ItemController extends Controller
         return QueryBuilder::for(ItemData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forCategory($category)
+            ->when(
+                ! $request->filled('filter.include_irrelevant'),
+                fn ($q) => $q->where('game_item_data.is_player_relevant', true),
+            )
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...array_merge(
                 [
@@ -111,11 +115,6 @@ class ItemController extends Controller
                 $this->allowedJsonSorts()
             ))
             ->defaultSort('name')
-            ->where('class_name', 'NOT LIKE', '%_VNCL')
-            ->where('class_name', 'NOT LIKE', '%_LowPoly')
-            ->where('class_name', 'NOT LIKE', '%_SecurityNetwork')
-            ->where('class_name', 'NOT LIKE', '%_SecurityNetwork_Weak')
-            ->where('game_item_data.name', '<>', '<= PLACEHOLDER =>')
             ->allowedIncludes(...$this->allowedIncludes())
             ->with($withRelations);
     }
@@ -168,6 +167,9 @@ class ItemController extends Controller
             AllowedFilter::exact('size'),
             AllowedFilter::exact('grade'),
             AllowedFilter::exact('class'),
+            AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
+                // noop
+            }),
             AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
                 $this->applyColumnFilter($query, 'game_item_data.rarity', $value);
             }),
@@ -203,6 +205,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Arrow')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -224,6 +227,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Iron Sight')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Iron Sight')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 1)),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapon Attachments', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -245,6 +249,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Jacket')),
             new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Clothing). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Clothing.Torso')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Jacket')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Clothes', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -266,6 +271,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Core')),
             new OA\Parameter(name: 'filter[classification]', description: 'Partial match on item classification (dot-notation, e.g. FPS.Armor). (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FPS.Armor.Torso')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Core')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Armor', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -286,6 +292,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[manufacturer]', description: 'Manufacturer name or code. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'TDD')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Burger')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Burger')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Food Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -307,6 +314,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on item display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cannon')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cannon')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Weapons', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -329,6 +337,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[type]', description: 'Exact match on item type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Cooler')),
             new OA\Parameter(name: 'filter[sub_type]', description: 'Exact match on item sub-type. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Default')),
             new OA\Parameter(name: 'filter[query]', description: 'Search items by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Shield')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Items', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item'))),
@@ -368,6 +377,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Item rarity. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Rare')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(
@@ -641,6 +651,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[size]', description: 'Exact item size (0–12).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1–7, mapped to A–G).', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(
@@ -702,6 +713,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[grade]', description: 'Narrow facets to items with this grade.', in: 'query', schema: new OA\Schema(type: 'number', example: 3)),
             new OA\Parameter(name: 'filter[class]', description: 'Narrow facets to items with this class.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Narrow facets to items with this rarity.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Rare')),
+            new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
         ],
         responses: [
             new OA\Response(
@@ -744,6 +756,7 @@ class ItemController extends Controller
             $baseQuery = QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->forCategory($category)
+                ->playerRelevant()
                 ->allowedFilters(...$this->allowedFilters());
 
             $facets = [

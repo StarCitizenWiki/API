@@ -43,6 +43,13 @@ class ItemController extends Controller
 
         $tableConfig = $this->itemTableConfig->build($resolvedType);
 
+        $tableConfig['externalFilters'] = [
+            ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => [
+                ['value' => '', 'label' => 'Default'],
+                ['value' => 'true', 'label' => 'Yes'],
+            ]],
+        ];
+
         $total = Arr::get($initialTableData, 'meta.total');
         $manufacturer = $endpointFilters['manufacturer'] ?? null;
 
@@ -53,6 +60,7 @@ class ItemController extends Controller
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
+            'externalFilters' => $tableConfig['externalFilters'] ?? [],
             'endpointRouteName' => 'items.index',
             'endpointFilters' => $endpointFilters,
             'seo' => $this->itemIndexSeoData->build([

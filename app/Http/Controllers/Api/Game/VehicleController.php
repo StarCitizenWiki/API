@@ -684,6 +684,10 @@ class VehicleController extends Controller
         return QueryBuilder::for(VehicleData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->forVehicleType($vehicleType)
+            ->when(
+                ! $request->filled('filter.include_irrelevant'),
+                fn ($q) => $q->where('game_vehicle_data.is_player_relevant', true),
+            )
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(...$this->allowedSorts())
             ->defaultSort('name')
@@ -738,6 +742,9 @@ class VehicleController extends Controller
             AllowedFilter::exact('is_vehicle'),
             AllowedFilter::exact('is_gravlev'),
             AllowedFilter::exact('is_spaceship'),
+            AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
+                // noop
+            }),
             AllowedFilter::exact('size'),
             AllowedFilter::exact('size_class', 'size'),
             AllowedFilter::callback('mass_total', function (Builder $query, mixed $value): void {

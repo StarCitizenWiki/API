@@ -35,6 +35,8 @@ class VehicleData extends Model
         'is_gravlev',
         'is_spaceship',
 
+        'is_player_relevant',
+
         'size',
 
         'data',
@@ -52,6 +54,8 @@ class VehicleData extends Model
         'is_vehicle' => 'boolean',
         'is_gravlev' => 'boolean',
         'is_spaceship' => 'boolean',
+
+        'is_player_relevant' => 'boolean',
 
         'size' => 'integer',
 
@@ -129,9 +133,11 @@ class VehicleData extends Model
         return $itemData->descriptionData;
     }
 
-    /**
-     * Scope to filter by requested game version code or default version.
-     */
+    public function scopePlayerRelevant(Builder $query): Builder
+    {
+        return $query->where($this->getTable().'.is_player_relevant', true);
+    }
+
     public function scopeForVehicleType(Builder $query, string $vehicleType): Builder
     {
         return match ($vehicleType) {
