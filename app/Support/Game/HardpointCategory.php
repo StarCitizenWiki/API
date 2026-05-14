@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Game;
 
 /**
- * Defines hardpoint category ordering and the primary/collapsed split.
+ * Defines hardpoint category ordering, the primary/collapsed split, and column layout.
  *
  * Primary categories are always visible. Collapsed categories are hidden.
  */
@@ -41,6 +41,7 @@ final class HardpointCategory
             'Tractor Beams',
             'Towing Beams',
             'Life Support',
+            'Paints',
         ];
     }
 
@@ -65,8 +66,49 @@ final class HardpointCategory
             'AI Modules',
             'Systems',
             'Customization',
-            'Paints',
             'Other',
+        ];
+    }
+
+    /**
+     * Primary categories grouped into 3 columns for the card layout.
+     *
+     * Each inner array is ordered top-to-bottom within its column.
+     *
+     * @return array<int, list<string>>
+     */
+    public static function columns(): array
+    {
+        return [
+            1 => [
+                'Docked Vehicles',
+                'Weapons',
+                'Manned Turrets',
+                'Remote Turrets',
+                'PDC Turrets',
+                'Turrets',
+                'Missile & Bomb Racks',
+                'Mining',
+                'Salvage',
+                'Tractor Beams',
+                'Towing Beams',
+                'EMP',
+                'QED',
+            ],
+            2 => [
+                'Shields',
+                'Coolers',
+                'Power Plants',
+                'Flight Controller',
+                'Armor',
+            ],
+            3 => [
+                'Quantum Drives',
+                'Counter Measures',
+                'Radars',
+                'Life Support',
+                'Paints',
+            ],
         ];
     }
 
