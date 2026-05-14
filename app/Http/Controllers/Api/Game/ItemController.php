@@ -115,7 +115,7 @@ class ItemController extends Controller
             ->where('class_name', 'NOT LIKE', '%_LowPoly')
             ->where('class_name', 'NOT LIKE', '%_SecurityNetwork')
             ->where('class_name', 'NOT LIKE', '%_SecurityNetwork_Weak')
-            ->where('name', '<>', '<= PLACEHOLDER =>')
+            ->where('game_item_data.name', '<>', '<= PLACEHOLDER =>')
             ->allowedIncludes(...$this->allowedIncludes())
             ->with($withRelations);
     }
