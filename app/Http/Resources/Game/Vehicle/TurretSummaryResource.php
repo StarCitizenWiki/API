@@ -64,6 +64,7 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'class_name', description: 'SC class name of the weapon.', type: 'string', example: 'BEHR_LaserRepeater_PDC_S1', nullable: true),
                     new OA\Property(property: 'name', description: 'Human-readable weapon name.', type: 'string', example: 'M2C "Swarm"', nullable: true),
                     new OA\Property(property: 'link', description: 'API URL for the full item detail.', type: 'string', format: 'uri', nullable: true),
+                    new OA\Property(property: 'web_url', description: 'API Web URL for the full item detail.', type: 'string', format: 'uri', nullable: true),
                     new OA\Property(property: 'dps', description: 'Weapon DPS.', type: 'number', example: 166.7, nullable: true),
                     new OA\Property(property: 'sustained_dps', description: 'Weapon sustained DPS.', type: 'number', example: 74.2, nullable: true),
                     new OA\Property(property: 'alpha', description: 'Weapon alpha damage.', type: 'number', example: 10.0, nullable: true),
@@ -173,6 +174,9 @@ class TurretSummaryResource extends AbstractBaseResource
                     'name' => Arr::get($weapon, 'Name'),
                     'link' => Arr::get($weapon, 'UUID') !== null
                         ? route('items.show', ['identifier' => Arr::get($weapon, 'UUID')])
+                        : null,
+                    'web_url' => Arr::get($weapon, 'UUID') !== null
+                        ? route('web.items.show', ['item' => Arr::get($weapon, 'UUID')])
                         : null,
                     'dps' => Arr::get($weapon, 'Dps'),
                     'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
