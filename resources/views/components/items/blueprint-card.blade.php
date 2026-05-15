@@ -27,7 +27,7 @@
     }
 
     $hasIngredients = $requirementGroups->isNotEmpty();
-    $hasUnlockingMissions = ! $isAvailableByDefault && $unlockingMissionsGrouped->isNotEmpty();
+    $showUnlockingMissions = ! $isAvailableByDefault;
 
     $flattenChildren = static function (array $nodes) use (&$flattenChildren): array {
         $result = [];
@@ -83,7 +83,7 @@
             </x-slot:head>
         </x-dl-container>
 
-        <div class="{{ $hasUnlockingMissions ? 'grid grid-cols-1 gap-6 sm:grid-cols-2' : '' }}">
+        <div class="{{ $showUnlockingMissions ? 'grid grid-cols-1 gap-6 sm:grid-cols-2' : '' }}">
             @if ($hasIngredients)
                 <div class="overflow-x-auto">
                         <table class="table table-sm">
@@ -145,10 +145,11 @@
                 </div>
             @endif
 
-            @if ($hasUnlockingMissions)
+            @if (! $isAvailableByDefault)
                 <div>
                     <div class="text-xs font-semibold uppercase tracking-wide text-subtle">Unlocking missions</div>
-                    <div class="mt-2 space-y-2">
+                    @if ($unlockingMissionsGrouped->isNotEmpty())
+                        <div class="mt-2 space-y-2">
                         @php
                             $shownCount = 0;
                         @endphp
@@ -181,10 +182,13 @@
                             @endforeach
                         @endforeach
 
-                        @if ($unlockingMissionsCount > $shownCount && is_string($blueprintUrl) && $blueprintUrl !== '')
-                            <a href="{{ $blueprintUrl }}" class="text-sm text-subtle link link-hover">+{{ $unlockingMissionsCount - $shownCount }} more</a>
-                        @endif
-                    </div>
+                            @if ($unlockingMissionsCount > $shownCount && is_string($blueprintUrl) && $blueprintUrl !== '')
+                                <a href="{{ $blueprintUrl }}" class="text-sm text-subtle link link-hover">+{{ $unlockingMissionsCount - $shownCount }} more</a>
+                            @endif
+                        </div>
+                    @else
+                        <p class="mt-2 text-sm text-subtle">No unlocking missions found.</p>
+                    @endif
                 </div>
             @endif
         </div>
