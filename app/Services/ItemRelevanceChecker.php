@@ -22,6 +22,7 @@ final class ItemRelevanceChecker
 
         if (
             $lowerName === 'test string'
+            || $lowerName === 'door control'
             || str_contains($lowerName, '- name')
             || str_contains($lowerName, 'placeholder')
             || str_starts_with($name, 'PH - ')
@@ -47,6 +48,7 @@ final class ItemRelevanceChecker
             || str_ends_with($lowerClassName, '_template')
             || str_ends_with($lowerClassName, '_temp')
             || str_ends_with($lowerClassName, '_templ')
+            || str_starts_with($lowerClassName, 'controlpanel_')
         ) {
             return false;
         }

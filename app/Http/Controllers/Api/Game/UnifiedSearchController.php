@@ -119,6 +119,7 @@ class UnifiedSearchController extends Controller
               FROM game_vehicle_data gvd
               JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
               WHERE gvd.game_version_id = ? AND (gvd.name {$like} ? OR gvd.class_name {$like} ?)
+              AND gvd.is_player_relevant = TRUE
               LIMIT 5)
 
              UNION ALL
@@ -128,6 +129,7 @@ class UnifiedSearchController extends Controller
              FROM game_item_data gid
              JOIN game_items gi ON gi.id = gid.item_id
              WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>' AND (gid.name {$like} ? OR gid.class_name {$like} ? OR gid.type {$like} ?)
+             AND gid.is_player_relevant = TRUE
              LIMIT 5)
 
              UNION ALL
