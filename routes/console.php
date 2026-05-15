@@ -21,8 +21,9 @@ Schedule::command('vehicles:import-ship-matrix')
     ->daily()
     ->then(fn () => Artisan::call('sitemap:generate --only=vehicles'));
 
-Schedule::command('vehicles:import-msrp')
-    ->daily();
+Schedule::command('pledge-store:import')
+    ->daily()
+    ->withoutOverlapping();
 
 Schedule::command('vehicles:import-loaner')
     ->daily();
