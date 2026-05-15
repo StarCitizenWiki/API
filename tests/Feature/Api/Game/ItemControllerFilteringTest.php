@@ -302,6 +302,111 @@ describe('query filter', function (): void {
     });
 });
 
+describe('tags filter', function (): void {
+    it('filters items by a single tag', function (): void {
+        $match = Item::factory()->create();
+        ItemData::factory()
+            ->for($match)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Tagged Item',
+                'type' => 'Widget',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
+                    ],
+                ],
+            ]);
+
+        $other = Item::factory()->create();
+        ItemData::factory()
+            ->for($other)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Other Item',
+                'type' => 'Widget',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['Something_Else'],
+                    ],
+                ],
+            ]);
+
+        $response = $this->getJson('/api/items?filter[tags]=Dock_Command_Module');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $match->uuid);
+    });
+
+    it('filters items by multiple tags with AND logic', function (): void {
+        $match = Item::factory()->create();
+        ItemData::factory()
+            ->for($match)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Both Tags Item',
+                'type' => 'Widget',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
+                    ],
+                ],
+            ]);
+
+        $partial = Item::factory()->create();
+        ItemData::factory()
+            ->for($partial)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Only One Tag Item',
+                'type' => 'Widget',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['Dock_Command_Module'],
+                    ],
+                ],
+            ]);
+
+        $response = $this->getJson('/api/items?filter[tags]=Dock_Command_Module,Ship_Dock_Refuel');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $match->uuid);
+    });
+
+    it('returns empty when no items match tag', function (): void {
+        $item = Item::factory()->create();
+        ItemData::factory()
+            ->for($item)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'No Tag Item',
+                'type' => 'Widget',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['Unrelated_Tag'],
+                    ],
+                ],
+            ]);
+
+        $response = $this->getJson('/api/items?filter[tags]=Nonexistent_Tag');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+});
+
 describe('rarity filter', function (): void {
     it('filters items by rarity', function (): void {
         $rareItem = Item::factory()->create();
@@ -342,5 +447,150 @@ describe('rarity filter', function (): void {
         $response->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.uuid', $rareItem->uuid);
+    });
+});
+
+describe('filter[port_tags]', function (): void {
+    it('excludes items with no RequiredTags and no matching Tags', function (): void {
+        $universal = Item::factory()->create();
+        ItemData::factory()
+            ->for($universal)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Universal Turret',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                        'Tags' => ['Unrelated_Tag'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[port_tags]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
+    it('includes items with no RequiredTags but matching Tags', function (): void {
+        $paint = Item::factory()->create();
+        ItemData::factory()
+            ->for($paint)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => '300 Series Paint',
+                'type' => 'Paints',
+                'classification' => 'Ship.Paints',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                        'Tags' => ['ORIG_300i_Base', '300i_Paint'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[port_tags]=ORIG_300i_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $paint->uuid);
+    });
+
+    it('excludes items with no RequiredTags and non-matching Tags', function (): void {
+        $wrongPaint = Item::factory()->create();
+        ItemData::factory()
+            ->for($wrongPaint)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Caterpillar Paint',
+                'type' => 'Paints',
+                'classification' => 'Ship.Paints',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                        'Tags' => ['DRAK_Caterpillar_Base', 'Caterpillar_Paint'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[port_tags]=ORIG_300i_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
+    it('includes items whose RequiredTags match the port tags', function (): void {
+        $matched = Item::factory()->create();
+        ItemData::factory()
+            ->for($matched)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Avenger Turret',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['AEGS_Avenger_Base'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[port_tags]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $matched->uuid);
+    });
+
+    it('excludes items whose RequiredTags do not match the port tags', function (): void {
+        $polaris = Item::factory()->create();
+        ItemData::factory()
+            ->for($polaris)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Polaris Turret',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['RSI_Polaris'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[port_tags]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
+    it('includes items when any RequiredTag matches (any-match, not subset)', function (): void {
+        // In practice SC items have 0 or 1 RequiredTags. This test documents
+        // the current limitation: multi-tag items match if ANY RequiredTag is
+        // in the port tags (not an exact subset check).
+        $partial = Item::factory()->create();
+        ItemData::factory()
+            ->for($partial)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Partial Match',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['AEGS_Avenger_Base', 'SomeOtherTag'],
+                    ],
+                ],
+            ]);
+
+        // Port only has AEGS_Avenger_Base — item matches because one of its
+        // RequiredTags is present (any-match, not subset).
+        $this->getJson('/api/items?filter[port_tags]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $partial->uuid);
     });
 });

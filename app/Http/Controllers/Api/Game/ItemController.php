@@ -173,6 +173,52 @@ class ItemController extends Controller
             AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
                 $this->applyColumnFilter($query, 'game_item_data.rarity', $value);
             }),
+            AllowedFilter::callback('tags', static function (Builder $query, mixed $value): void {
+                $values = is_array($value) ? $value : [$value];
+                $values = array_values(array_filter($values, static fn ($item) => $item !== null && $item !== ''));
+
+                if ($values === []) {
+                    return;
+                }
+
+                foreach ($values as $tag) {
+                    $query->whereJsonContains('data->stdItem->Tags', $tag);
+                }
+            }),
+            AllowedFilter::callback('port_tags', static function (Builder $query, mixed $value): void {
+                $portTags = is_array($value) ? $value : [$value];
+                $portTags = array_values(array_filter($portTags, static fn ($item) => $item !== null && $item !== ''));
+
+                if ($portTags === []) {
+                    return;
+                }
+
+                // Match items compatible with this port. Two matching modes:
+                // 1. Any of the item's RequiredTags appears in the port's tags.
+                // 2. The item has no RequiredTags but its Tags overlap with the port's PortTags (older paint system, e.g. ORIG_300i_Base).
+                // Items with no RequiredTags and no overlapping Tags are excluded, they are NOT universal.
+                $query->where(static function (Builder $q) use ($portTags): void {
+                    // Mode 1: Any of the item's RequiredTags appears in the port's tags
+                    $q->orWhere(static function (Builder $inner) use ($portTags): void {
+                        foreach ($portTags as $tag) {
+                            $inner->orWhereJsonContains('data->stdItem->RequiredTags', $tag);
+                        }
+                    });
+
+                    // Mode 2: No RequiredTags but item Tags overlap with port tags
+                    $q->orWhere(static function (Builder $inner) use ($portTags): void {
+                        $inner->where(static function (Builder $rt): void {
+                            $rt->whereNull('data->stdItem->RequiredTags')
+                                ->orWhereJsonLength('data->stdItem->RequiredTags', 0);
+                        });
+                        $inner->where(static function (Builder $tagMatch) use ($portTags): void {
+                            foreach ($portTags as $tag) {
+                                $tagMatch->orWhereJsonContains('data->stdItem->Tags', $tag);
+                            }
+                        });
+                    });
+                });
+            }),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -378,6 +424,8 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Military')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Item rarity. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Rare')),
             new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[tags]', description: 'Filter by stdItem.Tags array values. Accepts comma-separated tags for AND matching (item must have ALL specified tags). Example: filter[tags]=FPS_Barrel,energy_attach to find items with both tags.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Dock_Command_Module')),
+            new OA\Parameter(name: 'filter[port_tags]', description: 'Filter items by RequiredTags compatibility with a port\'s tags. Accepts comma-separated port tag values. Returns items where any of their RequiredTags appear in the provided tags, OR items with no RequiredTags but whose Tags overlap with the provided tags (e.g. older paint system). Items with no RequiredTags and no overlapping Tags are excluded. Pass the port_tags value from a vehicle hardpoint port.', in: 'query', schema: new OA\Schema(type: 'string', example: 'flight_ready,Ship_Dock_Refuel')),
         ],
         responses: [
             new OA\Response(
@@ -612,7 +660,7 @@ class ItemController extends Controller
             return redirect(sprintf('/api/vehicles/%s', $itemData->item->uuid));
         }
 
-        return (new ItemResource($itemData))
+        return new ItemResource($itemData)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 

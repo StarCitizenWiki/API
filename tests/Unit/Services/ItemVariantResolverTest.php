@@ -34,8 +34,8 @@ describe('extractClassNamePrefix', function () {
 
     it('isolates attachments by size', function () {
         expect(resolver()->extractClassNamePrefix('arma_barrel_comp_s1'))->toBe('arma_barrel_comp_s1')
-            ->and(resolver()->extractClassNamePrefix('arma_barrel_comp_s2'))->toBe('arma_barrel_comp_s2');
-        expect(resolver()->extractClassNamePrefix('arma_barrel_comp_s1'))->not->toBe(resolver()->extractClassNamePrefix('arma_barrel_comp_s2'));
+            ->and(resolver()->extractClassNamePrefix('arma_barrel_comp_s2'))->toBe('arma_barrel_comp_s2')
+            ->and(resolver()->extractClassNamePrefix('arma_barrel_comp_s1'))->not->toBe(resolver()->extractClassNamePrefix('arma_barrel_comp_s2'));
     });
 
     it('groups attachment event variants', function () {
@@ -45,8 +45,8 @@ describe('extractClassNamePrefix', function () {
 
     it('isolates optics by zoom level', function () {
         expect(resolver()->extractClassNamePrefix('behr_optics_holo_x1_s1'))->toBe('behr_optics_holo_x1_s1')
-            ->and(resolver()->extractClassNamePrefix('behr_optics_holo_x2_s1'))->toBe('behr_optics_holo_x2_s1');
-        expect(resolver()->extractClassNamePrefix('behr_optics_holo_x1_s1'))->not->toBe(resolver()->extractClassNamePrefix('behr_optics_holo_x2_s1'));
+            ->and(resolver()->extractClassNamePrefix('behr_optics_holo_x2_s1'))->toBe('behr_optics_holo_x2_s1')
+            ->and(resolver()->extractClassNamePrefix('behr_optics_holo_x1_s1'))->not->toBe(resolver()->extractClassNamePrefix('behr_optics_holo_x2_s1'));
     });
 
     it('groups armor event variants', function () {
@@ -65,8 +65,8 @@ describe('extractClassNamePrefix', function () {
     it('groups ship weapons across sizes by manufacturer and type', function () {
         expect(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S1'))->toBe('AMRS_LaserCannon')
             ->and(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S2'))->toBe('AMRS_LaserCannon')
-            ->and(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S6'))->toBe('AMRS_LaserCannon');
-        expect(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S1'))->toBe(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S6'));
+            ->and(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S6'))->toBe('AMRS_LaserCannon')
+            ->and(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S1'))->toBe(resolver()->extractClassNamePrefix('AMRS_LaserCannon_S6'));
     });
 
     it('strips ship weapon suffixes', function () {
@@ -85,14 +85,14 @@ describe('extractClassNamePrefix', function () {
     it('groups all sizes of same ship weapon type together', function () {
         expect(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S1'))->toBe('ESPR_BallisticCannon')
             ->and(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S3'))->toBe('ESPR_BallisticCannon')
-            ->and(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S6'))->toBe('ESPR_BallisticCannon');
-        expect(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S1'))->toBe(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S6'));
+            ->and(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S6'))->toBe('ESPR_BallisticCannon')
+            ->and(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S1'))->toBe(resolver()->extractClassNamePrefix('ESPR_BallisticCannon_S6'));
     });
 
     it('strips S## from ship weapons even with intervening segments', function () {
         expect(resolver()->extractClassNamePrefix('GATS_BallisticGatling_Mounted_S1'))->toBe('GATS_BallisticGatling')
-            ->and(resolver()->extractClassNamePrefix('GATS_BallisticGatling_S2'))->toBe('GATS_BallisticGatling');
-        expect(resolver()->extractClassNamePrefix('GATS_BallisticGatling_Mounted_S1'))->toBe(resolver()->extractClassNamePrefix('GATS_BallisticGatling_S2'));
+            ->and(resolver()->extractClassNamePrefix('GATS_BallisticGatling_S2'))->toBe('GATS_BallisticGatling')
+            ->and(resolver()->extractClassNamePrefix('GATS_BallisticGatling_Mounted_S1'))->toBe(resolver()->extractClassNamePrefix('GATS_BallisticGatling_S2'));
     });
 
     it('separates different weapon types from same manufacturer', function () {
@@ -102,8 +102,8 @@ describe('extractClassNamePrefix', function () {
 
     it('preserves S## in prefix for missiles where S## is at index 1', function () {
         expect(resolver()->extractClassNamePrefix('MISL_S01_CS_FSKI_Spark'))->toBe('MISL_S01')
-            ->and(resolver()->extractClassNamePrefix('GMISL_S02_CS_FSKI_Tempest'))->toBe('GMISL_S02');
-        expect(resolver()->extractClassNamePrefix('MISL_S01_CS_FSKI_Spark'))->not->toBe(resolver()->extractClassNamePrefix('MISL_S02_CS_FSKI_Tempest'));
+            ->and(resolver()->extractClassNamePrefix('GMISL_S02_CS_FSKI_Tempest'))->toBe('GMISL_S02')
+            ->and(resolver()->extractClassNamePrefix('MISL_S01_CS_FSKI_Spark'))->not->toBe(resolver()->extractClassNamePrefix('MISL_S02_CS_FSKI_Tempest'));
     });
 
     it('extracts ship variant armor prefix', function () {
@@ -136,8 +136,8 @@ describe('extractClassNamePrefix', function () {
 
     it('separates medical items by version number', function () {
         expect(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_01'))->toBe('crlf_consumable_adrenaline_01')
-            ->and(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_02'))->toBe('crlf_consumable_adrenaline_02');
-        expect(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_01'))->not->toBe(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_02'));
+            ->and(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_02'))->toBe('crlf_consumable_adrenaline_02')
+            ->and(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_01'))->not->toBe(resolver()->extractClassNamePrefix('crlf_consumable_adrenaline_02'));
     });
 
     it('groups multi-tool functional variants by prefix', function () {
@@ -157,8 +157,8 @@ describe('extractClassNamePrefix', function () {
 
     it('groups mass drivers across sizes ignoring S##', function () {
         expect(resolver()->extractClassNamePrefix('KLWE_MassDriver_S1'))->toBe('KLWE_MassDriver')
-            ->and(resolver()->extractClassNamePrefix('KLWE_MassDriver_S10'))->toBe('KLWE_MassDriver');
-        expect(resolver()->extractClassNamePrefix('KLWE_MassDriver_S1'))->toBe(resolver()->extractClassNamePrefix('KLWE_MassDriver_S10'));
+            ->and(resolver()->extractClassNamePrefix('KLWE_MassDriver_S10'))->toBe('KLWE_MassDriver')
+            ->and(resolver()->extractClassNamePrefix('KLWE_MassDriver_S1'))->toBe(resolver()->extractClassNamePrefix('KLWE_MassDriver_S10'));
     });
 
     it('extracts MRCK missile rack prefix including manufacturer and product', function () {
@@ -171,8 +171,8 @@ describe('extractClassNamePrefix', function () {
 
     it('groups MRCK variants of the same product', function () {
         expect(resolver()->extractClassNamePrefix('MRCK_S01_Krig_quad'))->toBe(resolver()->extractClassNamePrefix('MRCK_S01_Krig_quad_right'))
-            ->toBe('MRCK_S01_Krig_quad');
-        expect(resolver()->extractClassNamePrefix('MRCK_S02_MISC_Fury'))->toBe(resolver()->extractClassNamePrefix('MRCK_S02_MISC_Fury_Dual'))
+            ->toBe('MRCK_S01_Krig_quad')
+            ->and(resolver()->extractClassNamePrefix('MRCK_S02_MISC_Fury'))->toBe(resolver()->extractClassNamePrefix('MRCK_S02_MISC_Fury_Dual'))
             ->toBe('MRCK_S02_MISC_Fury');
     });
 
@@ -190,6 +190,43 @@ describe('extractClassNamePrefix', function () {
 
     it('does not apply MRCK rule to non-MRCK items with S## at index 1', function () {
         expect(resolver()->extractClassNamePrefix('COOL_ACOM_S01_IcePlunge_SCItem'))->toBe('COOL_ACOM_S01');
+    });
+
+    it('refines blocked prefix with alphanumeric set identifier', function () {
+        $resolver = resolver();
+        $prefix = $resolver->extractClassNamePrefix('eld_shirt_04_crus07_01');
+        expect($prefix)->toBe('eld_shirt_04')
+            ->and($resolver->refineClassNamePrefix('eld_shirt_04_crus07_01', $prefix))->toBe('eld_shirt_04_crus07')
+            ->and($resolver->refineClassNamePrefix('eld_shirt_04_crus07_12', $prefix))->toBe('eld_shirt_04_crus07')
+            ->and($resolver->refineClassNamePrefix('eld_shirt_04_iae2021_01', $prefix))->toBe('eld_shirt_04_iae2021')
+            ->and($resolver->refineClassNamePrefix('cbd_hat_03_iae2021_01', 'cbd_hat_03'))->toBe('cbd_hat_03_iae2021')
+            ->and($resolver->refineClassNamePrefix('eld_shirt_04_drake_03', 'eld_shirt_04'))->toBe('eld_shirt_04_drake');
+    });
+
+    it('refines blocked prefix with pure-alpha set identifier', function () {
+        expect(resolver()->refineClassNamePrefix('eld_shirt_04_fleetweek_01_dec', 'eld_shirt_04'))->toBe('eld_shirt_04_fleetweek');
+    });
+
+    it('refines blocked prefix with numeric sub-design', function () {
+        $resolver = resolver();
+        expect($resolver->refineClassNamePrefix('fio_jacket_01_01_01', 'fio_jacket_01'))->toBe('fio_jacket_01_01')
+            ->and($resolver->refineClassNamePrefix('fio_jacket_01_01_02', 'fio_jacket_01'))->toBe('fio_jacket_01_01')
+            ->and($resolver->refineClassNamePrefix('fio_jacket_01_01_12', 'fio_jacket_01'))->toBe('fio_jacket_01_01');
+    });
+
+    it('refines blocked prefix for clothing color variants', function () {
+        expect(resolver()->refineClassNamePrefix('nrs_shoes_03_01_01', 'nrs_shoes_03'))->toBe('nrs_shoes_03_01')
+            ->and(resolver()->refineClassNamePrefix('nrs_shoes_03_01_02', 'nrs_shoes_03'))->toBe('nrs_shoes_03_01');
+    });
+
+    it('separates different clothing designs within same manufacturer', function () {
+        expect(resolver()->refineClassNamePrefix('alb_pants_01_01_01', 'alb_pants_01'))->toBe('alb_pants_01_01')
+            ->and(resolver()->refineClassNamePrefix('alb_pants_01_02_01', 'alb_pants_01'))->toBe('alb_pants_01_02');
+    });
+
+    it('returns null when no segment exists after prefix', function () {
+        expect(resolver()->refineClassNamePrefix('eld_shirt_04', 'eld_shirt_04'))->toBeNull()
+            ->and(resolver()->refineClassNamePrefix('eld_shirt_04_01', 'eld_shirt_04'))->toBeNull();
     });
 });
 
@@ -320,31 +357,30 @@ describe('isExcludedItem', function () {
 });
 
 describe('isKnownFalseMergePrefix', function () {
-    it('blocks eld_shirt_04 mega-merge prefix', function () {
-        expect(resolver()->isKnownFalseMergePrefix('eld_shirt_04'))->toBeTrue();
+    it('blocks exact armor variant prefixes that merge different products', function () {
+        expect(resolver()->isKnownFalseMergePrefix('qrt_combat_heavy_arms_02'))->toBeTrue()
+            ->and(resolver()->isKnownFalseMergePrefix('srvl_combat_heavy_core_03'))->toBeTrue()
+            ->and(resolver()->isKnownFalseMergePrefix('cds_combat_medium_arms_04'))->toBeTrue();
     });
 
-    it('blocks cbd_hat_03 mega-merge prefix', function () {
-        expect(resolver()->isKnownFalseMergePrefix('cbd_hat_03'))->toBeTrue();
-    });
-
-    it('blocks clothing template version prefixes', function () {
-        expect(resolver()->isKnownFalseMergePrefix('fio_jacket_01'))->toBeTrue();
-        expect(resolver()->isKnownFalseMergePrefix('nrs_shoes_03'))->toBeTrue();
-        expect(resolver()->isKnownFalseMergePrefix('dmc_frontier_jacket_01'))->toBeTrue();
-        expect(resolver()->isKnownFalseMergePrefix('987_shoes_01'))->toBeTrue();
-    });
-
-    it('blocks armor variant prefixes that merge different products', function () {
-        expect(resolver()->isKnownFalseMergePrefix('qrt_combat_heavy_arms_02'))->toBeTrue();
-        expect(resolver()->isKnownFalseMergePrefix('srvl_combat_heavy_core_03'))->toBeTrue();
-        expect(resolver()->isKnownFalseMergePrefix('cds_combat_medium_arms_04'))->toBeTrue();
+    it('does not block more specific sub-prefixes', function () {
+        expect(resolver()->isKnownFalseMergePrefix('qrt_combat_heavy_arms_02_01'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('cds_combat_medium_arms_04_01'))->toBeFalse();
     });
 
     it('does not block legitimate prefixes', function () {
-        expect(resolver()->isKnownFalseMergePrefix('cds_armor_medium_arms_01'))->toBeFalse();
-        expect(resolver()->isKnownFalseMergePrefix('kap_light_helmet'))->toBeFalse();
-        expect(resolver()->isKnownFalseMergePrefix('behr_rifle_ballistic_01'))->toBeFalse();
+        expect(resolver()->isKnownFalseMergePrefix('cds_armor_medium_arms_01'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('kap_light_helmet'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('behr_rifle_ballistic_01'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('eld_shirt_04_crus07'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('fio_jacket_01_01'))->toBeFalse()
+            ->and(resolver()->isKnownFalseMergePrefix('nrs_shoes_03_01'))->toBeFalse();
+    });
+
+    it('blocks remaining clothing prefixes that still merge different products', function () {
+        expect(resolver()->isKnownFalseMergePrefix('cbd_shirt_01'))->toBeTrue()
+            ->and(resolver()->isKnownFalseMergePrefix('cbd_shirt_02'))->toBeTrue()
+            ->and(resolver()->isKnownFalseMergePrefix('dmc_jacket_04'))->toBeTrue();
     });
 });
 

@@ -328,6 +328,66 @@ class ItemVariantResolver
             ->whereJsonContains('data->stdItem->Tags', $paintPrefix), 2);
     }
 
+    public function extractShipComponentPrefix(string $className): ?string
+    {
+        $segments = explode('_', $className);
+
+        foreach ($segments as $i => $segment) {
+            if ($i > 0 && preg_match('/^S\d+$/i', $segment)) {
+                return self::nullIfEmpty(implode('_', array_slice($segments, 0, $i)));
+            }
+        }
+
+        return null;
+    }
+
+    /** @return array<int,ItemData> */
+    public function findShipComponentGroup(ItemData $itemData): array
+    {
+        $className = $itemData->class_name ?? '';
+
+        $prefix = $this->extractShipComponentPrefix($className);
+
+        if ($prefix === null) {
+            return [];
+        }
+
+        $cacheKey = sprintf('ship_cn|%d|%s|%s', $this->gameVersionId, $prefix, $this->buildTypeFilterSuffix($itemData));
+        $escapedPrefix = str_replace('_', '!_', $prefix);
+
+        $results = $this->cachedQuery($cacheKey, function () use ($itemData, $prefix, $escapedPrefix): Builder {
+            $query = ItemData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->where(function (Builder $q) use ($prefix, $escapedPrefix): void {
+                    $q->where('class_name', $prefix)
+                        ->orWhereRaw("class_name LIKE ? ESCAPE '!'", [$escapedPrefix.'!_%']);
+                });
+
+            $this->applyVariantTypeFilter($query, $itemData);
+
+            return $query;
+        });
+
+        return array_values(array_filter(
+            $results,
+            static function (ItemData $member) use ($prefix): bool {
+                $cn = $member->class_name ?? '';
+
+                if ($cn === $prefix) {
+                    return true;
+                }
+
+                if (! str_starts_with($cn, $prefix.'_')) {
+                    return false;
+                }
+
+                $remainder = substr($cn, strlen($prefix) + 1);
+
+                return (bool) preg_match('/^S\d+$/i', $remainder);
+            },
+        ));
+    }
+
     /** @return array<int,ItemData> */
     public function findVariantGroupFromClassName(ItemData $itemData): array
     {
@@ -344,7 +404,12 @@ class ItemVariantResolver
         }
 
         if ($this->isKnownFalseMergePrefix($prefix)) {
-            return [];
+            $refined = $this->refineClassNamePrefix($className, $prefix);
+            if ($refined !== null && ! $this->isKnownFalseMergePrefix($refined)) {
+                $prefix = $refined;
+            } else {
+                return [];
+            }
         }
 
         $cacheKey = $this->buildClassNameGroupCacheKey($itemData, $prefix);
@@ -802,6 +867,16 @@ class ItemVariantResolver
         }
 
         if ($this->isKnownFalseMergePrefix($prefix)) {
+            $refined = $this->refineClassNamePrefix($itemData->class_name ?? '', $prefix);
+
+            if ($refined !== null && ! $this->isKnownFalseMergePrefix($refined)) {
+                return array_values(array_filter(
+                    $results,
+                    static fn (ItemData $member): bool => ($member->class_name ?? '') === $refined
+                        || str_starts_with((string) $member->class_name, $refined.'_'),
+                ));
+            }
+
             return [];
         }
 
@@ -876,7 +951,7 @@ class ItemVariantResolver
 
     public function isKnownFalseMergePrefix(string $prefix): bool
     {
-        return array_any(self::SPECIAL_MERGE_PREFIXES, fn ($knownPrefix) => $prefix === $knownPrefix || str_starts_with($prefix, $knownPrefix.'_'));
+        return in_array($prefix, self::SPECIAL_MERGE_PREFIXES, true);
     }
 
     private function extractCountermeasurePrefix(string $className): ?string
@@ -919,6 +994,37 @@ class ItemVariantResolver
         return count($segments) > 2
             ? implode('_', array_slice($segments, 0, -1))
             : null;
+    }
+
+    public function refineClassNamePrefix(string $className, string $currentPrefix): ?string
+    {
+        if (! str_starts_with($className, $currentPrefix.'_')) {
+            return null;
+        }
+
+        $afterPrefix = substr($className, strlen($currentPrefix) + 1);
+
+        if ($afterPrefix === '') {
+            return null;
+        }
+
+        $segments = explode('_', $afterPrefix);
+
+        if ($segments === [] || $segments[0] === '') {
+            return null;
+        }
+
+        $nextSegment = $segments[0];
+
+        if (preg_match('/^\d+$/', $nextSegment)) {
+            if (count($segments) > 1) {
+                return $currentPrefix.'_'.$nextSegment;
+            }
+
+            return null;
+        }
+
+        return $currentPrefix.'_'.$nextSegment;
     }
 
     /** @return array<string> */

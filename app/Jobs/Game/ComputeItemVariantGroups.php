@@ -134,6 +134,14 @@ class ComputeItemVariantGroups implements ShouldQueue
             }
         }
 
+        if (str_starts_with((string) $itemData->classification, 'Ship.')) {
+            $shipGroup = $resolver->findShipComponentGroup($itemData);
+
+            if (count($shipGroup) > 1) {
+                return $shipGroup;
+            }
+        }
+
         $tagGroup = $resolver->findVariantGroupFromTags($itemData);
 
         if (count($tagGroup) > 1) {
@@ -153,9 +161,9 @@ class ComputeItemVariantGroups implements ShouldQueue
     {
         $setName = $resolver->resolveSetNameFromEntityTags($group);
 
-        $names = array_map(fn (ItemData $item): string => $item->name ?? '', $group);
+        $names = array_map(static fn (ItemData $item): string => $item->name ?? '', $group);
         $baseInfo = ['uuid' => $base->item->uuid ?? '', 'name' => $base->name ?? ''];
-        $groupInfo = array_map(fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group);
+        $groupInfo = array_map(static fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group);
 
         if ($setName === null) {
             [$setName, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
@@ -173,10 +181,16 @@ class ComputeItemVariantGroups implements ShouldQueue
         foreach ($group as $itemData) {
             $isBase = $itemData->id === $base->id;
 
+            $variantName = ItemVariantResolver::normalizeVariantName($variantNames[$itemData->item->uuid ?? ''] ?? null);
+
+            if ($variantName === 'Base' && str_starts_with((string) $itemData->classification, 'Ship.')) {
+                $variantName = $itemData->name;
+            }
+
             VariantGroupItem::query()->create([
                 'variant_group_id' => $variantGroup->id,
                 'item_data_id' => $itemData->id,
-                'variant_name' => ItemVariantResolver::normalizeVariantName($variantNames[$itemData->item->uuid ?? ''] ?? null),
+                'variant_name' => $variantName,
                 'sort_order' => $sortOrder++,
                 'is_base' => $isBase,
             ]);
@@ -205,12 +219,6 @@ class ComputeItemVariantGroups implements ShouldQueue
     {
         $className = $member->class_name ?? '';
 
-        foreach (self::EXCLUDED_VARIANT_SUFFIXES as $suffix) {
-            if (str_ends_with($className, $suffix)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(self::EXCLUDED_VARIANT_SUFFIXES, fn ($suffix) => str_ends_with($className, $suffix));
     }
 }

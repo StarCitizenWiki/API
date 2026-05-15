@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Concerns;
 
+use App\Http\Resources\Game\Concerns\NormalizesValues;
 use App\Models\Game\Item;
 use Illuminate\Support\Arr;
 
 trait ProcessesHardpointData
 {
+    use NormalizesValues;
+
     protected function loadEquippedItem(): ?Item
     {
         $hasEquippedItem = Arr::has($this->resource, 'UUID');
@@ -37,7 +40,10 @@ trait ProcessesHardpointData
 
     protected function buildCompatibleTypes(): array
     {
-        return collect(Arr::get($this->resource, 'ItemTypes', []))
+        // Pre 4.8 ScDataDumper format
+        $source = Arr::get($this->resource, 'CompatibleTypes') ?? Arr::get($this->resource, 'ItemTypes', []);
+
+        return collect($source)
             ->map(static function ($type) {
                 return [
                     'type' => Arr::get($type, 'Type'),
@@ -55,6 +61,11 @@ trait ProcessesHardpointData
     protected function getChildrenArray(): array
     {
         return Arr::get($this->resource, 'Loadout', []);
+    }
+
+    protected function buildPortTags(): ?array
+    {
+        return self::normalizeTagList(Arr::get($this->resource, 'PortTags'));
     }
 
     protected function extractTypeAndSubtype(): array

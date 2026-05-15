@@ -81,6 +81,8 @@ final class HardpointRow
      *     type_annotation: string|null,
      *     position: string|null,
      *     pilot_slaveable: bool,
+     *     required_tags: array|null,
+     *     port_tags: array|null,
      * }
      */
     public static function make(array $port, array $powerPools = [], int $categoryIndex = 0): array
@@ -166,6 +168,8 @@ final class HardpointRow
             'type_annotation' => $typeAnnotation,
             'position' => Arr::get($port, 'position'),
             'pilot_slaveable' => (bool) Arr::get($port, 'pilot_slaveable', false),
+            'required_tags' => Arr::get($port, 'required_tags') ?: null,
+            'port_tags' => Arr::get($port, 'port_tags') ?: null,
         ];
     }
 
@@ -195,7 +199,7 @@ final class HardpointRow
             return [false, null];
         }
 
-        if ($categoryIndex >= $poolSize) {
+        if ($poolSize >= 0 && $categoryIndex >= $poolSize) {
             $idx = $categoryIndex + 1;
 
             return [true, "Pool Limit ({$idx} of {$poolSize} active)"];

@@ -109,6 +109,18 @@ export function portEquippable(filters) {
                 params.set("filter[size]", sizes.join(","));
             }
 
+            if (filters.requiredTags) {
+                const tags = Array.isArray(filters.requiredTags)
+                    ? filters.requiredTags
+                    : [filters.requiredTags];
+                tags.forEach(tag => params.append("filter[tags]", tag));
+            } else if (filters.portTags) {
+                const portTags = Array.isArray(filters.portTags)
+                    ? filters.portTags
+                    : [filters.portTags];
+                portTags.forEach(tag => params.append("filter[port_tags]", tag));
+            }
+
             try {
                 const response = await fetch(`/api/items?${params}&page_size=50`, {
                     headers: {

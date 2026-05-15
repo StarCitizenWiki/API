@@ -52,6 +52,14 @@
         if ($row['size_min'] !== null && $row['size_max'] !== null) {
             $browseFilters['size'] = implode(',', range($row['size_min'], $row['size_max']));
         }
+        if ($row['required_tags'] !== null) {
+            $tags = is_array($row['required_tags']) ? $row['required_tags'] : [$row['required_tags']];
+            $browseFilters['tags'] = count($tags) === 1 ? $tags[0] : $tags;
+        } elseif ($row['port_tags'] !== null) {
+            // Only use port_tags filter when there are no required_tags
+            // Ports with required_tags already filter correctly via filter[tags], sending port_tags too would exclude valid items
+            $browseFilters['port_tags'] = count($row['port_tags']) === 1 ? $row['port_tags'][0] : $row['port_tags'];
+        }
     }
 @endphp
 
@@ -141,7 +149,7 @@
                 @endif
                 @if ($canBrowse)
                     <span class="{{ $row['primary_stat'] === null ? 'ml-auto' : '' }}">
-                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :browse-url="route('web.items.index', ['filter' => $browseFilters])"/>
+                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :browse-url="route('web.items.index', ['filter' => $browseFilters])"/>
                     </span>
                 @endif
             </span>
@@ -176,8 +184,9 @@
                     $childType = data_get($childPort, 'type');
                     $childSubType = data_get($childPort, 'sub_type');
                     $childEquipItem = data_get($childPort, 'equipped_item');
-                    $isIgnoredType = in_array($childType, ['Display', 'Screen', 'Seat', 'Door', 'Hatch', 'Ladder', 'Light', 'Button', 'Misc', 'WeaponAttachment'], true);
-                    $isIgnoredSubtype = $childSubType === 'UNDEFINED' || ($childType === 'Misc' && $childSubType === 'Utility');
+                    $isIgnoredType = in_array($childType, ['Display', 'Screen', 'Seat', 'Door', 'Hatch', 'Ladder', 'Light', 'Button', 'Misc', 'WeaponAttachment', 'UNDEFINED'], true);
+                    $hasNamedEquipItem = ! empty($childEquipItem) && data_get($childEquipItem, 'name') !== '<= PLACEHOLDER =>';
+                    $isIgnoredSubtype = ($childSubType === 'UNDEFINED' && ! $hasNamedEquipItem) || ($childType === 'Misc' && $childSubType === 'Utility');
                     $hasChildContent = ! $isIgnoredType && ! $isIgnoredSubtype && (! empty($childType) || ! empty($childEquipItem));
                 @endphp
                 @if ($hasChildContent)

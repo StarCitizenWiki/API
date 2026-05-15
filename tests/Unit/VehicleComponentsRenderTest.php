@@ -80,6 +80,54 @@ it('marks shield ports as deactivated when the power pool is exhausted', functio
     expect($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
 });
 
+it('does not mark shield ports as deactivated when pool size is -1 (not applicable)', function (): void {
+    $view = $this->blade('<x-port-display :port="$port" :power-pools="$powerPools" :category-index="1" />', [
+        'port' => [
+            'name' => 'hardpoint_shield_01',
+            'equipped_item' => [
+                'name' => 'Test Shield',
+                'type' => 'Shield',
+                'size' => 2,
+            ],
+        ],
+        'powerPools' => [
+            'Shield' => [
+                'type' => 'DynamicPowerPool',
+                'item_type' => 'Shield',
+                'size' => -1,
+            ],
+        ],
+    ]);
+    $crawler = new Crawler((string) $view);
+
+    $view->assertDontSeeText('Deactivated');
+    expect($crawler->filter('[title^="Pool Limit"]')->count())->toBe(0);
+});
+
+it('marks shield ports as deactivated when pool size is 0 (zero active)', function (): void {
+    $view = $this->blade('<x-port-display :port="$port" :power-pools="$powerPools" :category-index="0" />', [
+        'port' => [
+            'name' => 'hardpoint_shield_01',
+            'equipped_item' => [
+                'name' => 'Test Shield',
+                'type' => 'Shield',
+                'size' => 2,
+            ],
+        ],
+        'powerPools' => [
+            'Shield' => [
+                'type' => 'DynamicPowerPool',
+                'item_type' => 'Shield',
+                'size' => 0,
+            ],
+        ],
+    ]);
+    $crawler = new Crawler((string) $view);
+
+    $view->assertSeeText('Deactivated');
+    expect($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
+});
+
 it('renders purchase variants with price and sku table content', function (): void {
     $view = $this->blade('<x-vehicles.purchase-variants-card :vehicle="$data" />', [
         'data' => [
@@ -99,4 +147,53 @@ it('renders purchase variants with price and sku table content', function (): vo
         ->assertSeeText('TEST-001')
         ->assertSeeText("100\u{00A0}000")
         ->assertSeeText('Imported At');
+});
+
+it('renders salvage head children inside turret ports with UNDEFINED subtype', function (): void {
+    $view = $this->blade('<x-port-display :port="$port" />', [
+        'port' => [
+            'name' => 'hardpoint_mining_cab_front',
+            'equipped_item' => [
+                'name' => 'Manned Turret',
+                'type' => 'UtilityTurret',
+                'size' => 4,
+            ],
+            'ports' => [
+                [
+                    'name' => 'hardpoint_weapon_salvage',
+                    'type' => 'SalvageHead',
+                    'sub_type' => 'UNDEFINED',
+                    'equipped_item' => [
+                        'uuid' => 'f8aabcb1-83b9-4b08-8846-acc77082cd4d',
+                        'name' => 'Baler Salvage Head',
+                        'type' => 'SalvageHead',
+                        'size' => 2,
+                    ],
+                    'ports' => [
+                        [
+                            'name' => 'hardpoint_salvage_subItem01',
+                            'type' => 'SalvageModifier',
+                            'sub_type' => 'UNDEFINED',
+                            'equipped_item' => [
+                                'uuid' => '81d7c828-42b2-46e8-b2e3-6798bdc32c23',
+                                'name' => 'Cinch Scraper Module',
+                                'type' => 'SalvageModifier',
+                                'size' => 1,
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'Mining_HUD',
+                    'type' => 'Display',
+                    'sub_type' => 'UNDEFINED',
+                    'equipped_item' => null,
+                ],
+            ],
+        ],
+    ]);
+
+    $view->assertSeeText('Baler Salvage Head')
+        ->assertSeeText('Cinch Scraper Module')
+        ->assertDontSeeText('Mining_HUD');
 });

@@ -4,11 +4,13 @@
     'subType' => null,
     'sizeMin' => null,
     'sizeMax' => null,
+    'requiredTags' => null,
+    'portTags' => null,
     'browseUrl',
 ])
 
 <div
-    x-data="portEquippable(@js(['type' => $type, 'subType' => $subType, 'sizeMin' => $sizeMin, 'sizeMax' => $sizeMax]))"
+    x-data="portEquippable(@js(['type' => $type, 'subType' => $subType, 'sizeMin' => $sizeMin, 'sizeMax' => $sizeMax, 'requiredTags' => $requiredTags, 'portTags' => $portTags]))"
 >
     <button
         type="button"

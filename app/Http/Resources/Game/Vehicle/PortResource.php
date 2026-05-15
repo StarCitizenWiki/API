@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Http\Resources\Game\Concerns\NormalizesValues;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\PortItemResource;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
@@ -53,6 +54,8 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_port'),
             nullable: true
         ),
+        new OA\Property(property: 'required_tags', description: 'Tags that items must have to be equipped in this port. Pass individual values as filter[tags] to the items API.', type: 'array', items: new OA\Items(type: 'string'), example: ['Ship_Dock_Refuel'], nullable: true),
+        new OA\Property(property: 'port_tags', description: 'Identity tags this port provides. Used to filter items by RequiredTags compatibility - an item can attach if its RequiredTags is empty or fully contained in these tags. Pass as filter[port_tags] to the items API.', type: 'array', items: new OA\Items(type: 'string'), example: ['AEGS_Avenger_Base'], nullable: true),
         new OA\Property(property: 'version', description: 'Game version code for this data.', type: 'string', nullable: true),
         new OA\Property(
             property: 'attached_vehicle',
@@ -78,6 +81,7 @@ class PortResource extends AbstractBaseResource
 {
     use CategorizesEquipmentType;
     use ExtractsJsonData;
+    use NormalizesValues;
     use ProcessesHardpointData;
     use ResolvesGameVersion;
 
@@ -129,6 +133,8 @@ class PortResource extends AbstractBaseResource
             'attached_vehicle' => $attachedVehicle,
             'ports' => $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
             'category_label' => ! $this->isChild ? $this->categorizePort() : null,
+            'required_tags' => self::normalizeTagList(Arr::get($this, 'RequiredTags')),
+            'port_tags' => $this->buildPortTags(),
             'version' => $this->gameVersionCode(),
         ];
     }
@@ -168,10 +174,10 @@ class PortResource extends AbstractBaseResource
     private function isNoItemVehicle(array $port): bool
     {
         $type = Arr::get($port, 'Type', '');
-        $itemTypes = Arr::get($port, 'ItemTypes', []);
+        $compatibleTypes = Arr::get($port, 'CompatibleTypes') ?? Arr::get($port, 'ItemTypes', []);
 
         return str_starts_with($type, 'NOITEM_Vehicle')
-            || collect($itemTypes)->contains(fn (array $it): bool => ($it['Type'] ?? '') === 'NOITEM_Vehicle');
+            || collect($compatibleTypes)->contains(fn (array $it): bool => ($it['Type'] ?? '') === 'NOITEM_Vehicle');
     }
 
     /**

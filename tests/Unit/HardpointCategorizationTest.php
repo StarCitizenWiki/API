@@ -56,4 +56,43 @@ describe('hardpoint name-based categorization fallback', function () {
 
         expect($result['category_label'])->toBe('Weapons');
     });
+
+    it('categorizes turret console as Crew Stations, not Turrets', function () {
+        $resource = new PortResource([
+            'HardpointName' => 'hardpoint_turret_console_left',
+            'Type' => '.',
+            'ItemTypes' => [],
+            'Loadout' => [],
+        ]);
+
+        $result = $resource->resolve(request());
+
+        expect($result['category_label'])->toBe('Crew Stations');
+    });
+
+    it('categorizes turret console access as Crew Stations, not Turrets', function () {
+        $resource = new PortResource([
+            'HardpointName' => 'hardpoint_turret_console_right_access',
+            'Type' => '.',
+            'ItemTypes' => [],
+            'Loadout' => [],
+        ]);
+
+        $result = $resource->resolve(request());
+
+        expect($result['category_label'])->toBe('Crew Stations');
+    });
+
+    it('categorizes actual turret hardpoints as Turrets', function () {
+        $resource = new PortResource([
+            'HardpointName' => 'hardpoint_turret_pilot',
+            'Type' => '.',
+            'ItemTypes' => [],
+            'Loadout' => [],
+        ]);
+
+        $result = $resource->resolve(request());
+
+        expect($result['category_label'])->toBe('Turrets');
+    });
 });

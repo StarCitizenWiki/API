@@ -1203,6 +1203,20 @@ paths:
           schema:
             type: boolean
             example: true
+        -
+          name: 'filter[tags]'
+          in: query
+          description: 'Filter by stdItem.Tags array values. Accepts comma-separated tags for AND matching (item must have ALL specified tags). Example: filter[tags]=FPS_Barrel,energy_attach to find items with both tags.'
+          schema:
+            type: string
+            example: Dock_Command_Module
+        -
+          name: 'filter[port_tags]'
+          in: query
+          description: "Filter items by RequiredTags compatibility with a port's tags. Accepts comma-separated port tag values. Returns items where any of their RequiredTags appear in the provided tags, OR items with no RequiredTags but whose Tags overlap with the provided tags (e.g. older paint system). Items with no RequiredTags and no overlapping Tags are excluded. Pass the port_tags value from a vehicle hardpoint port."
+          schema:
+            type: string
+            example: 'flight_ready,Ship_Dock_Refuel'
       responses:
         '200':
           description: 'List of Items'
@@ -16040,6 +16054,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/game_vehicle_port'
+          nullable: true
+        required_tags:
+          description: 'Tags that items must have to be equipped in this port. Pass individual values as filter[tags] to the items API.'
+          type: array
+          items:
+            type: string
+          example:
+            - Ship_Dock_Refuel
+          nullable: true
+        port_tags:
+          description: 'Identity tags this port provides. Used to filter items by RequiredTags compatibility - an item can attach if its RequiredTags is empty or fully contained in these tags. Pass as filter[port_tags] to the items API.'
+          type: array
+          items:
+            type: string
+          example:
+            - AEGS_Avenger_Base
           nullable: true
         version:
           description: 'Game version code for this data.'

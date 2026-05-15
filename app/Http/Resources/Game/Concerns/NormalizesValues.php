@@ -46,6 +46,25 @@ trait NormalizesValues
         return $value === '' ? null : $value;
     }
 
+    /**
+     * Normalize a raw tag list (array or space-delimited string) into a
+     * filtered, re-indexed array. Returns null when no valid tags remain.
+     *
+     * @return string[]|null
+     */
+    protected static function normalizeTagList(array|string|null $raw): ?array
+    {
+        if ($raw === null || $raw === '' || $raw === []) {
+            return null;
+        }
+
+        $tags = is_array($raw)
+            ? array_values(array_filter($raw))
+            : array_values(array_filter(explode(' ', $raw)));
+
+        return $tags !== [] ? $tags : null;
+    }
+
     protected function nullableNumeric(mixed $value): int|float|null
     {
         if (! is_numeric($value)) {
