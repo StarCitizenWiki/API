@@ -36,6 +36,8 @@ class ImportPledgeStore implements ShouldQueue
 
     private const int THROTTLE_MICROSECONDS = 500_000;
 
+    public int $throttleUs = self::THROTTLE_MICROSECONDS;
+
     /**
      * Each entry defines a product filter with facets.
      * Results are deduplicated by cig_id across all queries.
@@ -115,7 +117,7 @@ class ImportPledgeStore implements ShouldQueue
             }
 
             $allSkus = $allSkus->merge($result);
-            usleep(self::THROTTLE_MICROSECONDS);
+            usleep($this->throttleUs);
         }
 
         $allSkus = $allSkus->unique('id');

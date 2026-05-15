@@ -414,6 +414,7 @@ describe('fetch failure safety', function (): void {
         });
 
         $job = new ImportPledgeStore;
+        $job->throttleUs = 0;
         $job->handle(new RsiDownloadClient);
 
         // The existing SKU should NOT be delisted — the job aborted safely
@@ -497,5 +498,6 @@ function runImport(array $skus): void
     });
 
     $job = new ImportPledgeStore;
+    $job->throttleUs = 0;
     $job->handle(new RsiDownloadClient);
 }
