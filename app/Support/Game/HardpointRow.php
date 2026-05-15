@@ -384,7 +384,7 @@ final class HardpointRow
     private static function missileRackStats(array $port): array
     {
         return [
-            'stat' => count(Arr::get($port, 'ports', [])),
+            'stat' => count(Arr::get($port, 'ports') ?? []),
             'label' => 'Missiles',
             'unit' => '',
             'icon' => 'arrow-up',
