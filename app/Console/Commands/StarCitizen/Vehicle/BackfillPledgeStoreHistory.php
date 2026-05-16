@@ -75,13 +75,14 @@ class BackfillPledgeStoreHistory extends Command
             }
 
             $oldPriceCents = $old->price * 100;
+            $tags = $this->mapSkuTitleToTags($old->sku_title);
 
             // Skip if this would duplicate an existing history entry
             $alreadyExists = PledgeStoreSkuHistory::query()
                 ->where('pledge_store_sku_id', $newSku->id)
-                ->where('native_price', $oldPriceCents)
-                ->where('stock_available', (bool) $old->available)
                 ->where('created_at', $old->created_at)
+                ->where('data->nativePrice->amount', $oldPriceCents)
+                ->where('data->stock->available', (bool) $old->available)
                 ->exists();
 
             if ($alreadyExists) {
@@ -107,13 +108,23 @@ class BackfillPledgeStoreHistory extends Command
 
             PledgeStoreSkuHistory::query()->create([
                 'pledge_store_sku_id' => $newSku->id,
-                'native_price' => $oldPriceCents,
-                'native_discounted' => null,
-                'discount_description' => null,
-                'stock_available' => (bool) $old->available,
-                'stock_level' => (bool) $old->available ? 'high' : null,
-                'stock_qty' => 0,
-                'tags' => $this->mapSkuTitleToTags($old->sku_title),
+                'data' => [
+                    'nativePrice' => [
+                        'amount' => $oldPriceCents,
+                        'discounted' => null,
+                        'discountDescription' => null,
+                    ],
+                    'stock' => [
+                        'available' => (bool) $old->available,
+                        'unlimited' => (bool) $old->available,
+                        'qty' => 0,
+                        'backOrder' => false,
+                        'backOrderQty' => 0,
+                        'level' => (bool) $old->available ? 'high' : null,
+                    ],
+                    'tags' => collect($tags)->map(fn (string $tag) => ['name' => $tag])->values()->toArray(),
+                    'source' => 'backfill',
+                ],
                 'created_at' => $old->created_at,
             ]);
 

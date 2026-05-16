@@ -34,6 +34,8 @@ class ImportPledgeStore implements ShouldQueue
 
     private const int PAGE_SIZE = 100;
 
+    private const int SKU_CARD_BATCH_SIZE = 100;
+
     private const int THROTTLE_MICROSECONDS = 500_000;
 
     public int $throttleUs = self::THROTTLE_MICROSECONDS;
@@ -53,6 +55,9 @@ class ImportPledgeStore implements ShouldQueue
             'products' => [72],
             'facet' => 'extras-standalone-ships',
         ],
+        'ship-upgrades' => [
+            'products' => [241, 51],
+        ],
         'add-ons' => [
             'products' => [3],
             'facet' => 'extras-add-ons',
@@ -67,6 +72,27 @@ class ImportPledgeStore implements ShouldQueue
         ],
         'packs' => [
             'products' => [270],
+        ],
+        'subscriptions' => [
+            'products' => [24, 29],
+        ],
+        'rentals' => [
+            'products' => [105, 106, 130, 134],
+        ],
+        'ingame-decorations' => [
+            'products' => [32, 33, 34, 58],
+        ],
+        'ingame-weapons' => [
+            'products' => [35, 36, 37, 38, 40, 57, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 99, 100, 101, 108, 109, 122, 123, 124, 129, 138, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161],
+        ],
+        'ingame-components' => [
+            'products' => [131, 133],
+        ],
+        'ingame-skins' => [
+            'products' => [102],
+        ],
+        'merchandise' => [
+            'products' => [232, 233, 261, 300, 313, 319, 320, 335, 338, 339, 340, 341, 342, 343, 344, 346, 347, 348, 349],
         ],
         'misc' => [
             'products' => [41, 60, 65, 67],
@@ -128,6 +154,7 @@ class ImportPledgeStore implements ShouldQueue
 
         $this->syncProducts();
         $this->syncSkus($allSkus);
+        $this->syncImages($client, $allSkus->pluck('id')->map(fn ($id) => (string) $id)->unique()->values()->toArray());
     }
 
     /**
@@ -390,8 +417,16 @@ QUERY;
 
         foreach ($delisted as $sku) {
             $sku->stock_available = false;
-            $sku->stock_unlimited = false;
-            $sku->stock_qty = 0;
+            // Update the raw data to reflect the delisted state
+            $currentData = $sku->data?->toArray() ?? [];
+            if (isset($currentData['stock'])) {
+                $currentData['stock']['available'] = false;
+                $currentData['stock']['unlimited'] = false;
+                $currentData['stock']['qty'] = 0;
+            } else {
+                $currentData['stock'] = ['available' => false, 'unlimited' => false, 'qty' => 0];
+            }
+            $sku->data = $currentData;
             $sku->save();
             $this->recordHistory($sku);
         }
@@ -405,6 +440,8 @@ QUERY;
     }
 
     /**
+     * Extract normalized columns and store full API response in `data`.
+     *
      * @param  array<string, mixed>  $apiSku
      * @return array<string, mixed>
      */
@@ -412,37 +449,21 @@ QUERY;
     {
         $stock = $apiSku['stock'] ?? [];
         $nativePrice = $apiSku['nativePrice'] ?? [];
-        $parentProduct = $apiSku['parentProduct'] ?? [];
-        $publicType = $apiSku['publicType'] ?? [];
         $tags = collect($apiSku['tags'] ?? [])->pluck('name')->values()->toArray();
-        $ships = $apiSku['ships'] ?? [];
 
         return [
             'cig_id' => (int) $apiSku['id'],
-            'slug' => $apiSku['slug'] ?? null,
             'name' => $apiSku['name'] ?? '',
-            'title' => $apiSku['title'] ?? null,
-            'subtitle' => $apiSku['subtitle'] ?? null,
             'url' => $apiSku['url'] ?? null,
             'product_id' => isset($apiSku['productId']) ? (int) $apiSku['productId'] : null,
-            'public_type_code' => $publicType['code'] ?? null,
-            'parent_product_slug' => $parentProduct['slug'] ?? null,
-            'parent_product_name' => $parentProduct['name'] ?? null,
             'is_warbond' => (bool) ($apiSku['isWarbond'] ?? false),
             'is_package' => (bool) ($apiSku['isPackage'] ?? false),
-            'is_vip' => (bool) ($apiSku['isVip'] ?? false),
-            'customizable' => (bool) ($apiSku['customizable'] ?? false),
             'native_price' => (int) ($nativePrice['amount'] ?? 0),
             'native_discounted' => $nativePrice['discounted'] !== null ? (int) $nativePrice['discounted'] : null,
             'discount_description' => $nativePrice['discountDescription'] ?? null,
             'stock_available' => (bool) ($stock['available'] ?? false),
-            'stock_unlimited' => (bool) ($stock['unlimited'] ?? false),
-            'stock_back_order' => (bool) ($stock['backOrder'] ?? false),
-            'stock_qty' => (int) ($stock['qty'] ?? 0),
-            'stock_back_order_qty' => (int) ($stock['backOrderQty'] ?? 0),
-            'stock_level' => $stock['level'] ?? null,
             'tags' => $tags,
-            'ships' => $ships,
+            'data' => $apiSku,
         ];
     }
 
@@ -454,31 +475,18 @@ QUERY;
         $before = $sku->trackedAttributes();
 
         $sku->fill([
-            'slug' => $attributes['slug'],
             'name' => $attributes['name'],
-            'title' => $attributes['title'],
-            'subtitle' => $attributes['subtitle'],
             'url' => $attributes['url'],
             'product_id' => $attributes['product_id'],
-            'public_type_code' => $attributes['public_type_code'],
-            'parent_product_slug' => $attributes['parent_product_slug'],
-            'parent_product_name' => $attributes['parent_product_name'],
             'is_warbond' => $attributes['is_warbond'],
             'is_package' => $attributes['is_package'],
-            'is_vip' => $attributes['is_vip'],
-            'customizable' => $attributes['customizable'],
-            'stock_unlimited' => $attributes['stock_unlimited'],
-            'stock_back_order' => $attributes['stock_back_order'],
-            'stock_back_order_qty' => $attributes['stock_back_order_qty'],
-            'ships' => $attributes['ships'],
+            'data' => $attributes['data'],
         ]);
 
         $sku->native_price = $attributes['native_price'];
         $sku->native_discounted = $attributes['native_discounted'];
         $sku->discount_description = $attributes['discount_description'];
         $sku->stock_available = $attributes['stock_available'];
-        $sku->stock_qty = $attributes['stock_qty'];
-        $sku->stock_level = $attributes['stock_level'];
         $sku->tags = $attributes['tags'];
 
         $after = $sku->trackedAttributes();
@@ -498,14 +506,121 @@ QUERY;
     {
         PledgeStoreSkuHistory::query()->create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => $sku->native_price,
-            'native_discounted' => $sku->native_discounted,
-            'discount_description' => $sku->discount_description,
-            'stock_available' => $sku->stock_available,
-            'stock_level' => $sku->stock_level,
-            'stock_qty' => $sku->stock_qty,
-            'tags' => $sku->tags,
+            'data' => $sku->data?->toArray(),
         ]);
+    }
+
+    /**
+     * Fetch image media keys via the GetSkusCardsList GraphQL query
+     * and update the `images` column on each SKU.
+     *
+     * @param  array<int, string>  $skuIds
+     */
+    private function syncImages(mixed $client, array $skuIds): void
+    {
+        $batches = collect($skuIds)->chunk(self::SKU_CARD_BATCH_SIZE);
+        $updated = 0;
+
+        foreach ($batches as $batch) {
+            $response = $client->post(self::GRAPHQL_URL, [
+                'operationName' => 'GetSkusCardsList',
+                'variables' => [
+                    'storeFront' => 'pledge',
+                    'query' => [
+                        'skus' => [
+                            'ids' => $batch->values()->toArray(),
+                            'imageComposer' => [
+                                ['name' => 'store', 'size' => 'SIZE_900', 'ratio' => 'RATIO_16_9', 'extension' => 'WEBP'],
+                            ],
+                        ],
+                    ],
+                ],
+                'query' => self::skuCardsQuery(),
+            ]);
+
+            if (! $response->successful()) {
+                Log::warning('Pledge store image fetch failed', [
+                    'status' => $response->status(),
+                ]);
+
+                continue;
+            }
+
+            $resources = $response->json('data.store.search.resources', []);
+
+            foreach ($resources as $resource) {
+                $mediaKey = $this->extractMediaKey($resource);
+
+                PledgeStoreSku::query()
+                    ->where('cig_id', (int) $resource['id'])
+                    ->update([
+                        'images' => $mediaKey !== null ? ['media_key' => $mediaKey] : null,
+                    ]);
+
+                $updated++;
+            }
+
+            usleep($this->throttleUs);
+        }
+
+        Log::info('Pledge store image sync completed', [
+            'updated' => $updated,
+            'total' => count($skuIds),
+        ]);
+    }
+
+    /**
+     * Extract the media key from the media.thumbnail.slideshow URL.
+     * The URL format is: https://media.robertsspaceindustries.com/{media_key}/slideshow.jpg
+     *
+     * @param  array<string, mixed>  $resource
+     */
+    private function extractMediaKey(array $resource): ?string
+    {
+        $slideshow = $resource['media']['thumbnail']['slideshow']
+            ?? $resource['media']['thumbnail']['storeSmall']
+            ?? null;
+
+        if ($slideshow === null) {
+            return null;
+        }
+
+        // Extract key from URL like: https://media.robertsspaceindustries.com/utwlo4yrdqw7g/slideshow.jpg
+        if (preg_match('#robertsspaceindustries\.com/([^/]+)/#', $slideshow, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    private static function skuCardsQuery(): string
+    {
+        return <<<'QUERY'
+query GetSkusCardsList($query: SearchQuery!, $storeFront: String = "pledge") {
+  store(name: $storeFront, browse: true) {
+    search(query: $query) {
+      count
+      resources {
+        id
+        ... on TySku {
+          media {
+            thumbnail {
+              slideshow
+              storeSmall
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+QUERY;
     }
 
     public function failed(Throwable $exception): void

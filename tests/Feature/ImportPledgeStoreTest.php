@@ -24,14 +24,14 @@ describe('initial import', function (): void {
 
         runImport($payload);
 
-        expect(PledgeStoreSku::count())->toBe(2);
-        expect(PledgeStoreSkuHistory::count())->toBe(2);
+        expect(PledgeStoreSku::count())->toBe(2)
+            ->and(PledgeStoreSkuHistory::count())->toBe(2);
 
         $aurora = PledgeStoreSku::where('cig_id', 100)->first();
-        expect($aurora)->not->toBeNull();
-        expect($aurora->name)->toBe('Aurora ES');
-        expect($aurora->native_price)->toBe(2000);
-        expect($aurora->stock_available)->toBeTrue();
+        expect($aurora)->not->toBeNull()
+            ->and($aurora->name)->toBe('Aurora ES')
+            ->and($aurora->native_price)->toBe(2000)
+            ->and($aurora->stock_available)->toBeTrue();
     });
 
     it('stores warbond and discount data', function (): void {
@@ -47,17 +47,16 @@ describe('initial import', function (): void {
         runImport($payload);
 
         $sku = PledgeStoreSku::where('cig_id', 300)->first();
-        expect($sku->is_warbond)->toBeTrue();
-        expect($sku->native_price)->toBe(9000);
-        expect($sku->native_discounted)->toBe(7500);
-        expect($sku->discount_description)->toBe('Warbond');
+        expect($sku->is_warbond)->toBeTrue()
+            ->and($sku->native_price)->toBe(9000)
+            ->and($sku->native_discounted)->toBe(7500)
+            ->and($sku->discount_description)->toBe('Warbond');
 
         $history = $sku->history()->first();
-        expect($history->native_price)->toBe(9000);
-        expect($history->native_discounted)->toBe(7500);
+        expect($history->getData('nativePrice'))->toBe(['amount' => 9000, 'discounted' => 7500, 'discountDescription' => 'Warbond']);
     });
 
-    it('stores tags and ships', function (): void {
+    it('stores tags in normalized column and full payload in data', function (): void {
         $payload = [
             makeSku([
                 'id' => '400',
@@ -71,7 +70,7 @@ describe('initial import', function (): void {
 
         $sku = PledgeStoreSku::where('cig_id', 400)->first();
         expect($sku->tags)->toBe(['Bonus Gear', 'Limited Time']);
-        expect($sku->ships)->toBe([['id' => '275', 'productionStatus' => 'flight-ready']]);
+        expect($sku->getData('ships'))->toBe([['id' => '275', 'productionStatus' => 'flight-ready']]);
     });
 });
 
@@ -83,16 +82,11 @@ describe('change detection', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 2000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -110,7 +104,7 @@ describe('change detection', function (): void {
         expect($sku->native_price)->toBe(2500);
 
         $latestHistory = $sku->latestHistory;
-        expect($latestHistory->native_price)->toBe(2500);
+        expect($latestHistory->getData('nativePrice.amount'))->toBe(2500);
     });
 
     it('records history when discount appears', function (): void {
@@ -120,16 +114,11 @@ describe('change detection', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 9000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -143,9 +132,9 @@ describe('change detection', function (): void {
         runImport($payload);
 
         $sku->refresh();
-        expect($sku->native_discounted)->toBe(7200);
-        expect($sku->discount_description)->toBe('20%');
-        expect(PledgeStoreSkuHistory::count())->toBe(2);
+        expect($sku->native_discounted)->toBe(7200)
+            ->and($sku->discount_description)->toBe('20%')
+            ->and(PledgeStoreSkuHistory::count())->toBe(2);
     });
 
     it('records history when availability changes', function (): void {
@@ -155,16 +144,11 @@ describe('change detection', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 2000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -179,11 +163,11 @@ describe('change detection', function (): void {
         runImport($payload);
 
         $sku->refresh();
-        expect($sku->stock_available)->toBeFalse();
-        expect(PledgeStoreSkuHistory::count())->toBe(2);
+        expect($sku->stock_available)->toBeFalse()
+            ->and(PledgeStoreSkuHistory::count())->toBe(2);
 
         $latest = $sku->latestHistory;
-        expect($latest->stock_available)->toBeFalse();
+        expect($latest->getData('stock.available'))->toBeFalse();
     });
 
     it('records history when tags change', function (): void {
@@ -191,17 +175,11 @@ describe('change detection', function (): void {
             'cig_id' => 100,
             'native_price' => 2000,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 2000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
-            'tags' => [],
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -226,18 +204,11 @@ describe('change detection', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 2000,
-            'native_discounted' => null,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
-            'tags' => [],
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -263,16 +234,11 @@ describe('change detection', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 2000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -288,8 +254,8 @@ describe('change detection', function (): void {
         runImport($payload);
 
         $sku->refresh();
-        expect($sku->name)->toBe('New Name');
-        expect(PledgeStoreSkuHistory::count())->toBe($historyBefore);
+        expect($sku->name)->toBe('New Name')
+            ->and(PledgeStoreSkuHistory::count())->toBe($historyBefore);
     });
 });
 
@@ -301,17 +267,11 @@ describe('delisted items', function (): void {
             'native_discounted' => null,
             'discount_description' => null,
             'stock_available' => true,
-            'stock_unlimited' => true,
-            'stock_qty' => 0,
-            'stock_level' => 'high',
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 5000,
-            'stock_available' => true,
-            'stock_level' => 'high',
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         // Return a completely different SKU — 999 is missing from API
@@ -326,11 +286,9 @@ describe('delisted items', function (): void {
 
         $sku->refresh();
         expect($sku->stock_available)->toBeFalse();
-        expect($sku->stock_unlimited)->toBeFalse();
-        expect($sku->stock_qty)->toBe(0);
 
         $latestHistory = $sku->latestHistory;
-        expect($latestHistory->stock_available)->toBeFalse();
+        expect($latestHistory->getData('stock.available'))->toBeFalse();
     });
 
     it('does not double-mark already unavailable SKUs', function (): void {
@@ -338,16 +296,11 @@ describe('delisted items', function (): void {
             'cig_id' => 999,
             'native_price' => 5000,
             'stock_available' => false,
-            'stock_level' => null,
-            'stock_qty' => 0,
             'tags' => [],
         ]);
         PledgeStoreSkuHistory::create([
             'pledge_store_sku_id' => $sku->id,
-            'native_price' => 5000,
-            'stock_available' => false,
-            'stock_level' => null,
-            'stock_qty' => 0,
+            'data' => $sku->data?->toArray(),
         ]);
 
         $payload = [
@@ -371,8 +324,8 @@ describe('deduplication', function (): void {
 
         runImport($payload);
 
-        expect(PledgeStoreSku::count())->toBe(2);
-        expect(PledgeStoreSkuHistory::count())->toBe(2);
+        expect(PledgeStoreSku::count())->toBe(2)
+            ->and(PledgeStoreSkuHistory::count())->toBe(2);
     });
 });
 
@@ -381,9 +334,6 @@ describe('fetch failure safety', function (): void {
         $existing = PledgeStoreSku::factory()->create([
             'cig_id' => 999,
             'stock_available' => true,
-            'stock_unlimited' => true,
-            'stock_qty' => 0,
-            'stock_level' => 'high',
             'tags' => [],
         ]);
 
@@ -419,11 +369,8 @@ describe('fetch failure safety', function (): void {
 
         // The existing SKU should NOT be delisted — the job aborted safely
         $existing->refresh();
-        expect($existing->stock_available)->toBeTrue();
-        expect($existing->stock_unlimited)->toBeTrue();
-
-        // No new SKUs should be created
-        expect(PledgeStoreSku::count())->toBe(1);
+        expect($existing->stock_available)->toBeTrue()
+            ->and(PledgeStoreSku::count())->toBe(1);
     });
 });
 

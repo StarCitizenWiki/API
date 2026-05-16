@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\PledgeStore;
 
+use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,30 +19,18 @@ class PledgeStoreSku extends Model
 
     protected $fillable = [
         'cig_id',
-        'slug',
         'name',
-        'title',
-        'subtitle',
         'url',
         'product_id',
-        'public_type_code',
-        'parent_product_slug',
-        'parent_product_name',
         'is_warbond',
         'is_package',
-        'is_vip',
-        'customizable',
         'native_price',
         'native_discounted',
         'discount_description',
         'stock_available',
-        'stock_unlimited',
-        'stock_back_order',
-        'stock_qty',
-        'stock_back_order_qty',
-        'stock_level',
         'tags',
-        'ships',
+        'data',
+        'images',
     ];
 
     protected $casts = [
@@ -49,18 +38,53 @@ class PledgeStoreSku extends Model
         'product_id' => 'integer',
         'is_warbond' => 'boolean',
         'is_package' => 'boolean',
-        'is_vip' => 'boolean',
-        'customizable' => 'boolean',
         'native_price' => 'integer',
         'native_discounted' => 'integer',
         'stock_available' => 'boolean',
-        'stock_unlimited' => 'boolean',
-        'stock_back_order' => 'boolean',
-        'stock_qty' => 'integer',
-        'stock_back_order_qty' => 'integer',
         'tags' => 'array',
-        'ships' => 'array',
+        'data' => AsCollection::class,
+        'images' => 'array',
     ];
+
+    /**
+     * Build the full source image URL from the stored media key.
+     */
+    public function getThumbnailSourceUrl(): ?string
+    {
+        $key = $this->images['media_key'] ?? null;
+
+        if ($key === null) {
+            return null;
+        }
+
+        return "https://media.robertsspaceindustries.com/{$key}/source.jpg";
+    }
+
+    /**
+     * Build a specific image size URL from the stored media key.
+     */
+    public function getThumbnailUrl(string $size = 'store_small'): ?string
+    {
+        $key = $this->images['media_key'] ?? null;
+
+        if ($key === null) {
+            return null;
+        }
+
+        return "https://media.robertsspaceindustries.com/{$key}/{$size}.jpg";
+    }
+
+    /**
+     * Get a value from the raw data payload using dot notation.
+     */
+    public function getData(string $key, mixed $default = null): mixed
+    {
+        if ($this->data === null) {
+            return $default;
+        }
+
+        return data_get($this->data, $key, $default);
+    }
 
     /**
      * Tracked fields that trigger a history entry when changed.
@@ -74,8 +98,6 @@ class PledgeStoreSku extends Model
             'native_discounted' => $this->native_discounted,
             'discount_description' => $this->discount_description,
             'stock_available' => $this->stock_available,
-            'stock_level' => $this->stock_level,
-            'stock_qty' => $this->stock_qty,
             'tags' => $this->tags,
         ];
     }

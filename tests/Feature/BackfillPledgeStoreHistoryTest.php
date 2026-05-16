@@ -37,10 +37,11 @@ describe('backfill pledge store history', function (): void {
             ->where('created_at', '2024-01-07 13:54:02')
             ->first();
 
-        expect($history)->not->toBeNull();
-        expect($history->native_price)->toBe(5500); // $55 * 100
-        expect($history->stock_available)->toBeTrue();
-        expect($history->tags)->toBe(['Warbond']);
+        expect($history)->not->toBeNull()
+            ->and($history->getData('nativePrice.amount'))->toBe(5500)
+            ->and($history->getData('stock.available'))->toBeTrue()
+            ->and($history->getData('tags'))->toBe([['name' => 'Warbond']]);
+        // $55 * 100
     });
 
     it('converts dollar prices to cents', function (): void {
@@ -58,7 +59,7 @@ describe('backfill pledge store history', function (): void {
 
         $history = PledgeStoreSkuHistory::where('pledge_store_sku_id', $newSku->id)->first();
 
-        expect($history->native_price)->toBe(15000);
+        expect($history->getData('nativePrice.amount'))->toBe(15000);
     });
 
     it('matches warbond editions correctly', function (): void {
@@ -84,11 +85,11 @@ describe('backfill pledge store history', function (): void {
         $standardHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', $standardSku->id)->first();
         $warbondHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', $warbondSku->id)->first();
 
-        expect($standardHistory)->not->toBeNull();
-        expect($standardHistory->native_price)->toBe(9000);
+        expect($standardHistory)->not->toBeNull()
+            ->and($standardHistory->getData('nativePrice.amount'))->toBe(9000)
+            ->and($warbondHistory)->not->toBeNull()
+            ->and($warbondHistory->getData('nativePrice.amount'))->toBe(8000);
 
-        expect($warbondHistory)->not->toBeNull();
-        expect($warbondHistory->native_price)->toBe(8000);
     });
 
     it('is idempotent — re-run creates no new entries', function (): void {
@@ -147,9 +148,9 @@ describe('backfill pledge store history', function (): void {
             ->orderBy('created_at')
             ->get();
 
-        expect($histories)->toHaveCount(2);
-        expect($histories[0]->native_price)->toBe(27500);
-        expect($histories[1]->native_price)->toBe(32500);
+        expect($histories)->toHaveCount(2)
+            ->and($histories[0]->getData('nativePrice.amount'))->toBe(27500)
+            ->and($histories[1]->getData('nativePrice.amount'))->toBe(32500);
     });
 
     it('only matches against standalone ship SKUs (product_id 72)', function (): void {
@@ -175,9 +176,9 @@ describe('backfill pledge store history', function (): void {
         $paintHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', PledgeStoreSku::where('product_id', 268)->first()->id)->first();
         $shipHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', $shipSku->id)->first();
 
-        expect($paintHistory)->toBeNull();
-        expect($shipHistory)->not->toBeNull();
-        expect($shipHistory->native_price)->toBe(6000);
+        expect($paintHistory)->toBeNull()
+            ->and($shipHistory)->not->toBeNull()
+            ->and($shipHistory->getData('nativePrice.amount'))->toBe(6000);
     });
 
     it('tags subscriber editions correctly', function (): void {
@@ -195,8 +196,8 @@ describe('backfill pledge store history', function (): void {
 
         $history = PledgeStoreSkuHistory::where('pledge_store_sku_id', $newSku->id)->first();
 
-        expect($history)->not->toBeNull();
-        expect($history->tags)->toContain('Subscriber Exclusive');
+        expect($history)->not->toBeNull()
+            ->and($history->getData('tags'))->toBe([['name' => 'Subscriber Exclusive']]);
     });
 });
 
