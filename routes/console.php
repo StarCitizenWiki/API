@@ -19,6 +19,7 @@ Schedule::command('stats:sync')
 // Vehicles/Ship Matrix
 Schedule::command('vehicles:import-ship-matrix')
     ->daily()
+    ->then(fn () => Artisan::call('vehicles:import-msrp'))
     ->then(fn () => Artisan::call('sitemap:generate --only=vehicles'));
 
 Schedule::command('pledge-store:import')
