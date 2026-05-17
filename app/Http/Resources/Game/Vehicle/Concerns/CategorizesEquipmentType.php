@@ -24,6 +24,7 @@ trait CategorizesEquipmentType
             'PDC Turrets',
             'Turrets',
             'Missile & Bomb Racks',
+            'Weapon Lockers',
             'Modules',
             'Mining & Salvage',
             'Tractor Beams',
@@ -168,6 +169,8 @@ trait CategorizesEquipmentType
             str_contains($hardpoint, '_module') => 'Modules',
             str_starts_with($hardpoint, 'hardpoint_weapon_regen_pool') => 'Systems',
             str_starts_with($hardpoint, 'hardpoint_weapon_locker_'),
+            str_starts_with($hardpoint, 'hardpoint_rstairwell_weapon_locker'),
+            str_starts_with($hardpoint, 'hardpoint_hangar_weapon_locker') => 'Weapon Lockers',
             str_starts_with($hardpoint, 'hardpoint_weapon_emp'),
             str_starts_with($hardpoint, 'hardpoint_weapon_rack') => 'Other',
             str_starts_with($hardpoint, 'hardpoint_weapon_mining'),
@@ -180,9 +183,7 @@ trait CategorizesEquipmentType
             str_starts_with($hardpoint, 'hardpoint_paint') => 'Paints',
             str_starts_with($hardpoint, 'hardpoint_armor') => 'Armor',
             str_starts_with($hardpoint, 'hardpoint_landingpad_') => 'Landing Systems',
-            str_starts_with($hardpoint, 'hardpoint_'),
-            str_starts_with($hardpoint, 'hardpoint_rstairwell_weapon_locker'),
-            str_starts_with($hardpoint, 'hardpoint_hangar_weapon_locker') => 'Other',
+            str_starts_with($hardpoint, 'hardpoint_') => 'Other',
             default => 'Other',
         };
     }

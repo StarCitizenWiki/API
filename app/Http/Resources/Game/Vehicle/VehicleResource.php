@@ -35,7 +35,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'slug', description: 'URL-friendly vehicle identifier.', type: 'string', example: 'avenger-titan'),
         new OA\Property(property: 'class_name', description: 'class name.', type: 'string', example: 'AEGS_Avenger_Titan'),
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
-        new OA\Property(property: 'size_class', description: 'Vehicle size classification (1–6).', type: 'integer', example: 2, nullable: true),
+        new OA\Property(property: 'size_class', description: 'Vehicle size classification (1-6).', type: 'integer', example: 2, nullable: true),
         new OA\Property(
             property: 'dimension',
             description: 'Vehicle physical dimensions in meters.',
@@ -89,9 +89,11 @@ use OpenApi\Attributes as OA;
             ], type: 'object', nullable: true),
             new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size.', type: 'number', example: 8, nullable: true),
         ], type: 'object', nullable: true),
-        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64…', type: 'integer', example: 8, nullable: true),
+        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64', type: 'integer', example: 8, nullable: true),
         new OA\Property(property: 'vehicle_inventory', description: 'Vehicle stowage in micro SCU', type: 'number', example: 0, nullable: true),
         new OA\Property(property: 'inventory_containers', description: 'Personal inventory containers (stowage) from ship data.', type: 'array', items: new OA\Items(ref: '#/components/schemas/item_inventory'), nullable: true),
+        new OA\Property(property: 'weapon_storage', ref: '#/components/schemas/vehicle_weapon_storage', description: 'Weapon locker / rack storage from ship data. Only present when lockers exist.', nullable: true),
+        new OA\Property(property: 'suit_storage', ref: '#/components/schemas/vehicle_suit_storage', description: 'Suit locker storage from ship data. Only present when lockers exist.', nullable: true),
         new OA\Property(
             property: 'crew',
             description: 'Crew requirements.',
@@ -143,7 +145,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'hp', description: 'Total shield hit points.', type: 'number', example: 12000, nullable: true),
                 new OA\Property(property: 'regeneration', description: 'Shield regeneration rate per second.', type: 'number', example: 50, nullable: true),
                 new OA\Property(property: 'face_type', description: 'Shield face configuration (e.g., Bubble, Quadrant).', type: 'string', example: 'FourFaces', nullable: true),
-                new OA\Property(property: 'max_reallocation', description: 'Maximum shield reallocation ratio (0–1).', type: 'number', example: 0.5, nullable: true),
+                new OA\Property(property: 'max_reallocation', description: 'Maximum shield reallocation ratio (0-1).', type: 'number', example: 0.5, nullable: true),
                 new OA\Property(property: 'reconfiguration_cooldown', description: 'Cooldown time for shield reconfiguration in seconds.', type: 'number', example: 2.0, nullable: true),
                 new OA\Property(property: 'max_electrical_charge_damage_rate', description: 'Maximum electrical charge damage rate.', type: 'number', example: 100, nullable: true),
                 new OA\Property(property: 'resistance', description: 'Shield resistance values by damage type.', properties: [
@@ -339,11 +341,11 @@ use OpenApi\Attributes as OA;
                 ),
                 new OA\Property(
                     property: 'agility',
-                    description: 'Handling, grip, and acceleration scores (0–1 scale).',
+                    description: 'Handling, grip, and acceleration scores (0-1 scale).',
                     properties: [
-                        new OA\Property(property: 'handling', description: 'Handling score (0–1).', type: 'number', example: 0.5, nullable: true),
-                        new OA\Property(property: 'grip', description: 'Grip score (0–1).', type: 'number', example: 0.1875, nullable: true),
-                        new OA\Property(property: 'acceleration', description: 'Acceleration score (0–1).', type: 'number', example: 1.0, nullable: true),
+                        new OA\Property(property: 'handling', description: 'Handling score (0-1).', type: 'number', example: 0.5, nullable: true),
+                        new OA\Property(property: 'grip', description: 'Grip score (0-1).', type: 'number', example: 0.1875, nullable: true),
+                        new OA\Property(property: 'acceleration', description: 'Acceleration score (0-1).', type: 'number', example: 1.0, nullable: true),
                     ],
                     type: 'object',
                     nullable: true
@@ -682,21 +684,7 @@ use OpenApi\Attributes as OA;
                             new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
                             new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                             new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                            new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
-                            new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
-                            new OA\Property(
-                                property: 'starmap_location',
-                                description: 'Expanded starmap location data',
-                                properties: [
-                                    new OA\Property(property: 'name', type: 'string'),
-                                    new OA\Property(property: 'slug', type: 'string', nullable: true),
-                                    new OA\Property(property: 'type_name', type: 'string', nullable: true),
-                                    new OA\Property(property: 'parent_name', type: 'string', nullable: true),
-                                    new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
-                                ],
-                                type: 'object',
-                                nullable: true
-                            ),
+                            new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
                         ],
                         type: 'object'
                     )
@@ -714,21 +702,7 @@ use OpenApi\Attributes as OA;
                             new OA\Property(property: 'price_rent', type: 'number', format: 'double'),
                             new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                             new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                            new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
-                            new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
-                            new OA\Property(
-                                property: 'starmap_location',
-                                description: 'Expanded starmap location data',
-                                properties: [
-                                    new OA\Property(property: 'name', type: 'string'),
-                                    new OA\Property(property: 'slug', type: 'string', nullable: true),
-                                    new OA\Property(property: 'type_name', type: 'string', nullable: true),
-                                    new OA\Property(property: 'parent_name', type: 'string', nullable: true),
-                                    new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
-                                ],
-                                type: 'object',
-                                nullable: true
-                            ),
+                            new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
                         ],
                         type: 'object'
                     )
@@ -870,6 +844,16 @@ class VehicleResource extends AbstractBaseResource
             ),
             'vehicle_inventory' => Arr::get($payload, 'Stowage', 0) * (10 ** 6),
             'inventory_containers' => ItemInventoryResource::collection(Arr::get($payload, 'InventoryContainers', [])),
+
+            $this->mergeWhen(
+                is_array($ws = Arr::get($payload, 'WeaponStorage')) && (int) Arr::get($ws, 'Lockers', 0) > 0,
+                fn () => ['weapon_storage' => new WeaponStorageResource($ws)]
+            ),
+
+            $this->mergeWhen(
+                is_array($ss = Arr::get($payload, 'SuitStorage')) && (int) Arr::get($ss, 'Lockers', 0) > 0,
+                fn () => ['suit_storage' => new SuitStorageResource($ss)]
+            ),
 
             'crew' => [
                 'min' => Arr::get($payload, 'Crew'),

@@ -6,6 +6,26 @@
     $agility = data_get($vehicle, 'agility', []);
     $afterburner = data_get($vehicle, 'afterburner', []);
 
+    $speedMetrics = [
+        [
+            'label' => 'SCM',
+            'value' => data_get($speed, 'scm'),
+            'unit' => 'm/s',
+            'precision' => 0,
+        ],
+        [
+            'label' => 'NAV',
+            'value' => data_get($speed, 'max'),
+            'unit' => 'm/s',
+            'precision' => 0,
+        ],
+    ];
+
+    $speedMetrics = array_values(array_filter(
+        $speedMetrics,
+        static fn (array $metric): bool => $metric['value'] !== null
+    ));
+
     $boostMetrics = [
         [
             'label' => 'Forward',
@@ -56,12 +76,22 @@
     ));
 @endphp
 
-@if ($boostMetrics !== [] || $agilityMetrics !== [])
+@if ($speedMetrics !== [] || $boostMetrics !== [] || $agilityMetrics !== [])
     <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Flight Characteristics</h2>
 
-            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2">
+            <div class="grid gap-12 grid-cols-1 lg:grid-cols-{{ $speedMetrics !== [] ? '3' : '2' }}">
+                @if ($speedMetrics !== [])
+                    <x-dl-section title="Speed">
+                        @foreach ($speedMetrics as $metric)
+                            <x-dt-dd :label="$metric['label']">
+                                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
+                            </x-dt-dd>
+                        @endforeach
+                    </x-dl-section>
+                @endif
+
                 @if ($boostMetrics !== [])
                     <x-dl-section title="Boost">
                         @foreach ($boostMetrics as $metric)

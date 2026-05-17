@@ -112,10 +112,10 @@ it('expands vehicle purchase prices with location data', function (): void {
         ->and($price['starmap_location']['type_name'])->toBe('Outpost')
         ->and($price['starmap_location']['parent_name'])->toBe('Hurston')
         ->and($price['starmap_location']['star_system_name'])->toBe('Stanton')
-        ->and($price['link'])->toContain($location->uuid)
-        ->and($price['web_url'])->toContain($location->uuid);
+        ->and($price['starmap_location']['link'])->toContain($location->uuid)
+        ->and($price['starmap_location']['web_url'])->toContain($location->uuid)
+        ->and($response->json('data.uex_prices.rental'))->toBe([]);
 
-    expect($response->json('data.uex_prices.rental'))->toBe([]);
 });
 
 it('expands vehicle rental prices with price_rent field', function (): void {
@@ -143,12 +143,10 @@ it('expands vehicle rental prices with price_rent field', function (): void {
     $response->assertSuccessful();
 
     $rental = $response->json('data.uex_prices.rental');
-    expect($rental)->toHaveCount(1);
-    expect($rental[0]['price_rent'])->toBe(45000)
+    expect($rental)->toHaveCount(1)
+        ->and($rental[0]['price_rent'])->toBe(45000)
         ->and($rental[0]['game_version'])->toBe('4.4.0-TEST')
-        ->and($rental[0]['starmap_location'])->toBeNull()
-        ->and($rental[0]['link'])->toBeNull()
-        ->and($rental[0]['web_url'])->toBeNull();
+        ->and($rental[0]['starmap_location'])->toBeNull();
 });
 
 it('sorts prices by star system ascending then date_updated descending', function (): void {

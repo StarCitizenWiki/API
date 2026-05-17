@@ -36,7 +36,7 @@
         ? Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline()
         : ($isVehicleDock ? data_get($row['attached_vehicle'], 'class_name', data_get($equippedItem, 'name', '-')) : (data_get($equippedItem, 'name', '-')));
 
-    // Browse-equippable filters — prefer compatible_types over port type
+    // Browse-equippable filters - prefer compatible_types over port type
     $compatibleTypes = collect(data_get($port, 'compatible_types', []))->map(fn (array $ct) => $ct['type'])->filter();
     $browseType = $compatibleTypes->contains($row['type']) ? $row['type'] : $compatibleTypes->first();
     $browseType = $browseType ?: $row['type'];
