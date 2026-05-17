@@ -250,7 +250,7 @@
                 <label for="app-drawer" class="drawer-overlay"></label>
                 <aside class="min-h-full w-72 bg-base-100 px-3 py-5 pt-20">
                     <x-app.sidemenu>
-                        <x-app.main-sidemenu :changelogVersionCode="$changelogVersionCode"/>
+                        <x-app.main-sidemenu :changelogVersionCode="$changelogVersionCode ?? null"/>
                         @hasSection('sidemenu')
                             @yield('sidemenu')
                         @endif
