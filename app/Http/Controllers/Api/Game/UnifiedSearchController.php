@@ -50,7 +50,7 @@ class UnifiedSearchController extends Controller
                     )),
                 ],
             )),
-            new OA\Response(response: 422, description: 'Validation error – filter[query] is required and must be at least 2 characters'),
+            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 2 characters'),
         ],
     )]
     public function search(Request $request): JsonResponse

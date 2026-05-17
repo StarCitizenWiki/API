@@ -218,12 +218,12 @@ it('disambiguates all gateway stations across systems', function (): void {
 
     $version = GameVersion::factory()->create();
 
-    $pyroGwInStanton = StarmapLocation::factory()->create(['uuid' => 'pg-st-0000-0000-000000000001']);
-    $nyxGwInStanton = StarmapLocation::factory()->create(['uuid' => 'ng-st-0000-0000-000000000001']);
-    $stantonGwInPyro = StarmapLocation::factory()->create(['uuid' => 'sg-py-0000-0000-000000000001']);
-    $nyxGwInPyro = StarmapLocation::factory()->create(['uuid' => 'ng-py-0000-0000-000000000001']);
-    $stantonGwInNyx = StarmapLocation::factory()->create(['uuid' => 'sg-ny-0000-0000-000000000001']);
-    $pyroGwInNyx = StarmapLocation::factory()->create(['uuid' => 'pg-ny-0000-0000-000000000001']);
+    $pyroGwInStanton = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000001']);
+    $nyxGwInStanton = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000002']);
+    $stantonGwInPyro = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000003']);
+    $nyxGwInPyro = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000004']);
+    $stantonGwInNyx = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000005']);
+    $pyroGwInNyx = StarmapLocation::factory()->create(['uuid' => 'a0000000-0000-0000-0000-000000000006']);
 
     StarmapLocationData::factory()->create(['starmap_location_id' => $pyroGwInStanton->id, 'game_version_id' => $version->id, 'name' => 'Pyro Gateway', 'system' => 'Stanton System']);
     StarmapLocationData::factory()->create(['starmap_location_id' => $nyxGwInStanton->id, 'game_version_id' => $version->id, 'name' => 'Nyx Gateway', 'system' => 'Stanton System']);
@@ -247,12 +247,12 @@ it('disambiguates all gateway stations across systems', function (): void {
 
     $mapper = new TerminalLocationMapper($version->id);
 
-    expect($mapper->mapping->get(1))->toBe('pg-st-0000-0000-000000000001')
-        ->and($mapper->mapping->get(2))->toBe('ng-st-0000-0000-000000000001')
-        ->and($mapper->mapping->get(3))->toBe('sg-py-0000-0000-000000000001')
-        ->and($mapper->mapping->get(4))->toBe('ng-py-0000-0000-000000000001')
-        ->and($mapper->mapping->get(5))->toBe('sg-ny-0000-0000-000000000001')
-        ->and($mapper->mapping->get(6))->toBe('pg-ny-0000-0000-000000000001');
+    expect($mapper->mapping->get(1))->toBe('a0000000-0000-0000-0000-000000000001')
+        ->and($mapper->mapping->get(2))->toBe('a0000000-0000-0000-0000-000000000002')
+        ->and($mapper->mapping->get(3))->toBe('a0000000-0000-0000-0000-000000000003')
+        ->and($mapper->mapping->get(4))->toBe('a0000000-0000-0000-0000-000000000004')
+        ->and($mapper->mapping->get(5))->toBe('a0000000-0000-0000-0000-000000000005')
+        ->and($mapper->mapping->get(6))->toBe('a0000000-0000-0000-0000-000000000006');
 });
 
 it('resolves terminal codes by terminal ID', function (): void {

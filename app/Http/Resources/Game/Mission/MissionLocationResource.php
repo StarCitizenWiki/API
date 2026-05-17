@@ -46,7 +46,7 @@ class MissionLocationResource extends AbstractBaseResource
 
     /**
      * @param  Closure(string, array<string, string>, Request): string  $makeApiUrl
-     * @param  Closure(string, array<string, string>): string  $makeWebUrl
+     * @param  Closure(string, array<string, string>, Request): string  $makeWebUrl
      */
     public function __construct(
         $resource,
@@ -115,6 +115,7 @@ class MissionLocationResource extends AbstractBaseResource
                 ? ($this->makeWebUrl)(
                     'web.locations.show',
                     ['identifier' => $uuid],
+                    $request,
                 )
                 : null,
         ];

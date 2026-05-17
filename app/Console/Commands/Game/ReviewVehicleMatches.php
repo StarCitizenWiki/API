@@ -67,10 +67,10 @@ class ReviewVehicleMatches extends Command
 
             $selected = ShipMatrixVehicle::find($selectedId);
 
-            if (confirm("Confirm: '{$vehicle->name}' → '{$selected->name}'?")) {
+            if (confirm("Confirm: '{$vehicle->name}' -> '{$selected->name}'?")) {
                 $vehicle->update(['shipmatrix_id' => $selected->id]);
 
-                $this->info('✓ Matched!');
+                $this->info('Matched!');
 
                 if (confirm('Add this to config overrides?', default: false)) {
                     $newOverrides[$vehicle->name] = $selected->name;

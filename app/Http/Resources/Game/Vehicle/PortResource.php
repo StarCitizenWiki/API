@@ -203,7 +203,7 @@ class PortResource extends AbstractBaseResource
     }
 
     /**
-     * Find the vehicle UUID for this port — either directly or from a NOITEM_Vehicle child.
+     * Find the vehicle UUID for this port - either directly or from a NOITEM_Vehicle child.
      */
     private function resolveAttachedVehicleUuid(): ?string
     {

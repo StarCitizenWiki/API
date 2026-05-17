@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="text-xs">
                                         @if (! empty($setItem['uuid']))
-                                            <a href="{{ route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
+                                            <a href="{{ $setItem['web_url'] ?? route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
                                         @else
                                             -
                                         @endif
@@ -69,7 +69,7 @@
                                         <td>{{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}</td>
                                         <td>
                                             @if (! empty($setItem['uuid']))
-                                                <a href="{{ route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
+                                                <a href="{{ $setItem['web_url'] ?? route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
                                             @else
                                                 -
                                             @endif
@@ -106,7 +106,7 @@
                                             <td>{{ $baseVariant['grade_label'] ?? '-' }}</td>
                                             <td>
                                                 @if (! empty($baseVariant['uuid']))
-                                                    <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
+                                                    <a href="{{ $baseVariant['web_url'] ?? route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
                                                 @else
                                                     -
                                                 @endif
@@ -120,7 +120,7 @@
                                             <td>{{ $variant['grade_label'] ?? '-' }}</td>
                                             <td>
                                                 @if (! empty($variant['uuid']))
-                                                    <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
+                                                    <a href="{{ $variant['web_url'] ?? route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
                                                 @else
                                                     -
                                                 @endif
@@ -149,7 +149,7 @@
                                             <td>Base Item</td>
                                             <td>
                                                 @if (! empty($baseVariant['uuid']))
-                                                    <a href="{{ route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
+                                                    <a href="{{ $baseVariant['web_url'] ?? route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
                                                 @else
                                                     -
                                                 @endif
@@ -162,7 +162,7 @@
                                             <td>{{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}</td>
                                             <td>
                                                 @if (! empty($variant['uuid']))
-                                                    <a href="{{ route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
+                                                    <a href="{{ $variant['web_url'] ?? route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
                                                 @else
                                                     -
                                                 @endif

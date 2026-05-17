@@ -63,7 +63,7 @@ class ChangelogController extends Controller
             'entityTypes' => EntityTypeConfig::all(),
             'entityType' => $entityType,
             'changeType' => $changeType,
-            'pageTitle' => "Changelog: {$previousVersion->code} → {$gameVersion->code}",
+            'pageTitle' => "Changelog: {$previousVersion->code} -> {$gameVersion->code}",
         ]);
     }
 }

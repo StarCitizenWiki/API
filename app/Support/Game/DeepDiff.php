@@ -185,7 +185,7 @@ class DeepDiff
         }
 
         // If old has content but new is an empty array, the whole thing was
-        // removed — return a simple leaf (normalized new to null) so the
+        // removed - return a simple leaf (normalized new to null) so the
         // template renders it as a crossed-out key rather than expanding into
         // meaningless #0/#1 entries.
         if (($oldIsAssoc || $oldIsList) && is_array($new) && $new === []) {

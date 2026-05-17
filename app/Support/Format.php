@@ -14,7 +14,7 @@ class Format
     /**
      * Return a CSS color class based on the sign of the value.
      *
-     * Positive → text-error, negative → text-success (or inverted).
+     * Positive -> text-error, negative -> text-success (or inverted).
      */
     public static function colorClass(float|int|null $value, ?bool $invert = false): string
     {
@@ -262,7 +262,7 @@ class Format
     }
 
     /**
-     * Format a range (min–max) with a unit.
+     * Format a range (min-max) with a unit.
      * If both are equal, renders a single value. Handles null bounds with ≥/≤.
      */
     public static function range(?float $min, ?float $max, string $unit, int $decimals = 0, bool $compact = false): string

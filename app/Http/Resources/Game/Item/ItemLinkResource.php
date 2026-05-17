@@ -31,6 +31,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'variant_name', description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"', type: 'string', nullable: true),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'link', type: 'string'),
+                new OA\Property(property: 'web_url', description: 'Web URL for the item detail page.', type: 'string', nullable: true),
                 new OA\Property(property: 'size', type: 'integer', nullable: true),
                 new OA\Property(property: 'base_variant', description: 'Link to base variant item', type: 'string', nullable: true),
                 new OA\Property(
@@ -70,7 +71,8 @@ class ItemLinkResource extends AbstractBaseResource
             'manufacturer' => $itemData->relationLoaded('manufacturer')
                 ? new ManufacturerLinkResource($itemData->manufacturer)
                 : null,
-            'link' => route('items.show', ['identifier' => $item->uuid]),
+            'link' => $this->urlWithVersion(route('items.show', ['identifier' => $item->uuid]), $request),
+            'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $item->slug ?? $item->uuid]), $request),
             'size' => $itemData->size,
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
                 'base_variant' => route('items.show', [

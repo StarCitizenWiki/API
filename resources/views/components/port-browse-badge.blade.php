@@ -23,9 +23,16 @@
     if (empty($filters)) {
         return;
     }
+
+    $versionQuery = request()->query('version');
+    $url = route('web.items.index', ['filter' => $filters]);
+
+    if (is_string($versionQuery) && $versionQuery !== '') {
+        $url = url()->query($url, ['version' => $versionQuery]);
+    }
 @endphp
 
-<a href="{{ route('web.items.index', ['filter' => $filters]) }}" class="badge badge-sm badge-soft no-underline hover:opacity-80" title="Browse matching items">
+<a href="{{ $url }}" class="badge badge-sm badge-soft no-underline hover:opacity-80" title="Browse matching items">
     @if ($label)
         <span>{{ $label }}</span>
     @endif

@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'fill_rate',
-            description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25–10.',
+            description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25-10.',
             type: 'double',
             example: 10,
             nullable: true

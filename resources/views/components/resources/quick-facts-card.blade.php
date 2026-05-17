@@ -76,7 +76,7 @@
         ...$rightSections,
     ];
 
-    $uuidApiUrl = $uuid !== null ? route('commodities.show', $uuid) : null;
+    $uuidApiUrl = $uuid !== null ? route('commodities.show', array_filter(['commodity' => $uuid, 'version' => request()->query('version')])) : null;
 
     $footer = [
         ['label' => 'UUID', 'value' => $uuid, 'url' => $uuidApiUrl],

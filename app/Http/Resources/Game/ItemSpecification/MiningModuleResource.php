@@ -21,8 +21,8 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'charges', description: 'Total activations provided by the module.', type: 'integer', example: 6, nullable: true),
                 new OA\Property(property: 'lifetime_seconds', description: 'Lifetime in seconds a module remains effective once installed.', type: 'double', example: 60, nullable: true),
-                new OA\Property(property: 'uses', description: 'Number of activations before a consumable expires. Observed range: 3–10.', type: 'integer', example: 6, nullable: true),
-                new OA\Property(property: 'duration_seconds', description: 'Active duration per use in seconds. Observed range: 15–60.', type: 'double', example: 30, nullable: true),
+                new OA\Property(property: 'uses', description: 'Number of activations before a consumable expires. Observed range: 3-10.', type: 'integer', example: 6, nullable: true),
+                new OA\Property(property: 'duration_seconds', description: 'Active duration per use in seconds. Observed range: 15-60.', type: 'double', example: 30, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -74,7 +74,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'shatter_damage_percent', description: 'Change to damage taken when the rock shatters. Negative reduces hazard; positive increases. Range seen: -30 to +40.', type: 'double', example: -30, nullable: true),
                 new OA\Property(property: 'overcharge_rate_percent', description: 'Change to catastrophic/overcharge rate. Negative lowers risk, positive increases. Range seen: -80 to +60.', type: 'double', example: -60, nullable: true),
                 new OA\Property(property: 'cluster_factor', description: 'Scaling applied to cluster-related calculations for fracture/extraction when present.', type: 'double', example: 1.35, nullable: true),
-                new OA\Property(property: 'damage_multiplier', description: 'General damage multiplier used by modules. Observed range: 0.85–1.50.', type: 'double', example: 1.35, nullable: true),
+                new OA\Property(property: 'damage_multiplier', description: 'General damage multiplier used by modules. Observed range: 0.85-1.50.', type: 'double', example: 1.35, nullable: true),
             ],
             type: 'object',
             nullable: true

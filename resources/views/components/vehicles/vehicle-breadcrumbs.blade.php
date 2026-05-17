@@ -7,15 +7,26 @@
 ])
 
 @php
+    $versionQuery = request()->query('version');
+    $makeVehiclesUrl = static function (array $params = []) use ($versionQuery): string {
+        $url = route('web.vehicles.index', $params);
+
+        if (is_string($versionQuery) && $versionQuery !== '') {
+            $url = url()->query($url, ['version' => $versionQuery]);
+        }
+
+        return $url;
+    };
+
     if (! is_array($breadcrumbs) || $breadcrumbs === []) {
         $breadcrumbs = [
             [
                 'label' => 'All Vehicles',
-                'url' => route('web.vehicles.index'),
+                'url' => $makeVehiclesUrl(),
             ],
             [
                 'label' => data_get($vehicle, 'manufacturer.name'),
-                'url' => route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerCode]]),
+                'url' => $makeVehiclesUrl(['filter' => ['manufacturer' => $manufacturerCode]]),
             ],
             [
                 'label' => data_get($vehicle, 'name'),

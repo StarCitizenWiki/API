@@ -318,7 +318,7 @@ final class ItemTableConfig
      * Enrich a single column with sortField from sorts configuration.
      *
      * Matches column 'field' to sort config key and adds 'sortField' from 'path'.
-     * Example: field='mass' → sortField='Mass' (from sorts config)
+     * Example: field='mass' -> sortField='Mass' (from sorts config)
      *
      * @param  array<string, mixed>  $column  Column definition
      * @param  array<string, array{path: string, cast: string}>  $sortsConfig  Sorts configuration

@@ -274,7 +274,7 @@ describe('API: suit_storage', function () {
 describe('Web card', function () {
     it('renders storage card with weapon and suit sections', function (): void {
         $vehicle = Vehicle::factory()->create([
-            'uuid' => 'test-storage-card-uuid',
+            'uuid' => 'b0000000-0000-0000-0000-000000000001',
         ]);
 
         VehicleData::factory()
@@ -336,7 +336,7 @@ describe('Web card', function () {
 
     it('renders card with weapon storage only', function (): void {
         $vehicle = Vehicle::factory()->create([
-            'uuid' => 'test-weapon-only-uuid',
+            'uuid' => 'b0000000-0000-0000-0000-000000000002',
         ]);
 
         VehicleData::factory()
@@ -384,7 +384,7 @@ describe('Web card', function () {
 
     it('does not render storage card when no lockers', function (): void {
         $vehicle = Vehicle::factory()->create([
-            'uuid' => 'test-no-locker-uuid',
+            'uuid' => 'b0000000-0000-0000-0000-000000000003',
         ]);
 
         VehicleData::factory()

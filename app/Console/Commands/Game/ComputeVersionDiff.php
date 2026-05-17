@@ -51,7 +51,7 @@ class ComputeVersionDiff extends Command
         }
 
         if ($this->diffAlreadyExists($previousVersion, $version)) {
-            if (! $this->confirm(sprintf('Diff for %s → %s already exists. Recompute?', $previousVersion->code, $version->code), false)) {
+            if (! $this->confirm(sprintf('Diff for %s -> %s already exists. Recompute?', $previousVersion->code, $version->code), false)) {
                 $this->info('Aborted.');
 
                 return self::SUCCESS;
@@ -60,7 +60,7 @@ class ComputeVersionDiff extends Command
             $this->deleteExistingDiff($previousVersion, $version);
         }
 
-        $this->info(sprintf('Computing diff: %s → %s', $previousVersion->code, $version->code));
+        $this->info(sprintf('Computing diff: %s -> %s', $previousVersion->code, $version->code));
 
         $types = $this->resolveEntityTypes();
         $total = 0;

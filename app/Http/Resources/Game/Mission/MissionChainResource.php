@@ -120,7 +120,7 @@ class MissionChainResource extends AbstractBaseResource
 {
     /**
      * @param  Closure(string, array<string, string>, Request): string  $makeApiUrl
-     * @param  Closure(string, array<string, string>): string  $makeWebUrl
+     * @param  Closure(string, array<string, string>, Request): string  $makeWebUrl
      */
     public function __construct(
         $resource,
@@ -180,6 +180,7 @@ class MissionChainResource extends AbstractBaseResource
                     ? ($this->makeWebUrl)(
                         'web.missions.show',
                         ['mission' => $linked->mission->slug ?? $linked->mission->uuid],
+                        $request,
                     )
                     : null,
             ];
@@ -240,6 +241,7 @@ class MissionChainResource extends AbstractBaseResource
                                 ? ($this->makeWebUrl)(
                                     'web.missions.show',
                                     ['mission' => $m['UUID']],
+                                    $request,
                                 )
                                 : null,
                         ];

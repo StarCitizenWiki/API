@@ -271,7 +271,7 @@ class MissionResource extends AbstractBaseResource
         $data = $this->resource->data;
 
         $makeApiUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
-        $makeWebUrl = fn (string $route, array $params): string => route($route, $params);
+        $makeWebUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
 
         $haulingResource = new MissionHaulingResource(null, $makeApiUrl, $makeWebUrl);
         $chainResource = new MissionChainResource(null, $makeApiUrl, $makeWebUrl);
@@ -454,7 +454,7 @@ class MissionResource extends AbstractBaseResource
                 )
                 : null,
             'web_url' => $itemData->item?->uuid !== null
-                ? route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid])
+                ? $this->urlWithVersion(route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid]), $request)
                 : null,
         ])->values()->all();
     }

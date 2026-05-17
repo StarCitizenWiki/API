@@ -129,7 +129,7 @@ class FormatMissionTitle
             $difficulty,
         ]);
 
-        return implode(' — ', $segments) ?: self::headline($debugName);
+        return implode(' - ', $segments) ?: self::headline($debugName);
     }
 
     /**

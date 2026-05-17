@@ -107,7 +107,7 @@ class TurretSummaryResource extends AbstractBaseResource
             'sustained_dps_total' => Arr::get($this->resource, 'SustainedDpsTotal'),
             'alpha_total' => Arr::get($this->resource, 'AlphaTotal'),
             'is_pilot_slaveable' => Arr::get($this->resource, 'IsPilotSlaveable'),
-            'weapons' => $this->weaponRows(),
+            'weapons' => $this->weaponRows($request),
             'version' => $this->gameVersionCode(),
         ];
     }
@@ -163,20 +163,22 @@ class TurretSummaryResource extends AbstractBaseResource
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function weaponRows(): array
+    private function weaponRows(Request $request): array
     {
         return collect(Arr::get($this->resource, 'Weapons', []))
             ->filter(static fn (mixed $weapon): bool => is_array($weapon))
-            ->map(function (array $weapon): array {
+            ->map(function (array $weapon) use ($request): array {
+                $uuid = Arr::get($weapon, 'UUID');
+
                 return [
-                    'uuid' => Arr::get($weapon, 'UUID'),
+                    'uuid' => $uuid,
                     'class_name' => Arr::get($weapon, 'ClassName'),
                     'name' => Arr::get($weapon, 'Name'),
-                    'link' => Arr::get($weapon, 'UUID') !== null
-                        ? route('items.show', ['identifier' => Arr::get($weapon, 'UUID')])
+                    'link' => $uuid !== null
+                        ? route('items.show', ['identifier' => $uuid])
                         : null,
-                    'web_url' => Arr::get($weapon, 'UUID') !== null
-                        ? route('web.items.show', ['item' => Arr::get($weapon, 'UUID')])
+                    'web_url' => $uuid !== null
+                        ? $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request)
                         : null,
                     'dps' => Arr::get($weapon, 'Dps'),
                     'sustained_dps' => Arr::get($weapon, 'SustainedDps'),

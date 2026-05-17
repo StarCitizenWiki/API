@@ -113,8 +113,8 @@
                     <dd class="text-sm">
                         <div class="flex items-center gap-2">
                             <span>{{ data_get($port, 'equipped_item.name') ?? '-' }}</span>
-                            @if (! empty(data_get($port, 'equipped_item.uuid')))
-                                <a href="{{ route('web.items.show', data_get($port, 'equipped_item.uuid')) }}"
+                            @if (! empty(data_get($port, 'equipped_item.web_url')))
+                                <a href="{{ data_get($port, 'equipped_item.web_url') }}"
                                    class="link link-primary">View</a>
                             @endif
                         </div>

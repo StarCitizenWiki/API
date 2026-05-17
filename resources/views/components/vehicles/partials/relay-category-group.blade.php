@@ -29,7 +29,7 @@
 
                 <div class="text-sm flex items-baseline gap-2">
                     @if ($canLink)
-                        <a href="{{ route('web.items.show', $uuid) }}" class="link link-hover link-primary font-medium">
+                        <a href="{{ data_get($item, 'web_url') ?? route('web.items.show', $uuid) }}" class="link link-hover link-primary font-medium">
                             {{ $itemName }}
                         </a>
                         <span class="text-xs text-ghost truncate">{{ $hardpoint }}</span>

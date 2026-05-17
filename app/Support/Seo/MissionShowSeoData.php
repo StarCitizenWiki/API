@@ -208,7 +208,7 @@ final class MissionShowSeoData extends AbstractShowSeoData
 
         $parts[] = $rewardMax !== null ? Format::number((int) $rewardMax) : '?';
 
-        return 'Rewards '.implode('–', $parts).' '.$currency;
+        return 'Rewards '.implode('-', $parts).' '.$currency;
     }
 
     /**

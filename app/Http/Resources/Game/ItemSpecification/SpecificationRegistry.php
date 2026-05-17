@@ -40,7 +40,7 @@ final class SpecificationRegistry
     }
 
     /**
-     * Register a multi-key specification handler (e.g. Grenade → grenade + personal_weapon).
+     * Register a multi-key specification handler (e.g. Grenade -> grenade + personal_weapon).
      *
      * @param  callable(ItemData): bool  $predicate
      * @param  array<string, class-string>  $specs  specKey => resourceClass
@@ -301,19 +301,19 @@ final class SpecificationRegistry
             resourceClass: JumpDriveResource::class,
         );
 
-        // 23. Grenade (must be before general WeaponPersonal) — multi-key
+        // 23. Grenade (must be before general WeaponPersonal) - multi-key
         $registry->registerMulti(
             predicate: fn (ItemData $d): bool => $d->type === 'WeaponPersonal' && $d->sub_type === 'Grenade',
             specs: ['grenade' => GrenadeResource::class, 'personal_weapon' => PersonalWeaponResource::class],
         );
 
-        // 24. Knife / Melee Weapon (must be before general WeaponPersonal) — multi-key
+        // 24. Knife / Melee Weapon (must be before general WeaponPersonal) - multi-key
         $registry->registerMulti(
             predicate: fn (ItemData $d): bool => $d->type === 'WeaponPersonal' && $d->sub_type === 'Knife',
             specs: ['melee_weapon' => MeleeWeaponResource::class, 'knife' => MeleeWeaponResource::class],
         );
 
-        // 25. Personal Weapon (general — after specific grenade / knife checks)
+        // 25. Personal Weapon (general - after specific grenade / knife checks)
         $registry->register(
             predicate: fn (ItemData $d): bool => ($d->type === 'WeaponPersonal' || str_starts_with($d->classification ?? '', 'FPS.Weapon.'))
                 && ($d->type !== 'WeaponPersonal' || ! in_array($d->sub_type, ['Grenade', 'Knife'], true)),
@@ -455,7 +455,7 @@ final class SpecificationRegistry
             ],
         );
 
-        // 40. Mining Modifier (from stdItem — separate from type-based mining_module)
+        // 40. Mining Modifier (from stdItem - separate from type-based mining_module)
         $registry->register(
             predicate: fn (ItemData $d): bool => Arr::has($d->data, 'stdItem.MiningModule'),
             specKey: 'mining_modifier',

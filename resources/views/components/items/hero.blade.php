@@ -34,7 +34,21 @@
 
     if ($typeUrl === null && $itemType) {
         $typeUrl = route('web.items.index', ['filter' => ['type' => $itemType]]);
+
+        if (is_string($version) && $version !== '') {
+            $typeUrl = url()->query($typeUrl, ['version' => $version]);
+        }
     }
+
+    $makeItemsUrl = static function (array $filters) use ($version): string {
+        $url = route('web.items.index', ['filter' => $filters]);
+
+        if (is_string($version) && $version !== '') {
+            $url = url()->query($url, ['version' => $version]);
+        }
+
+        return $url;
+    };
 
     $primaryBlueprint = collect(data_get($item, 'blueprint', []))
         ->first(static fn (mixed $blueprint): bool => is_array($blueprint) && is_string(data_get($blueprint, 'uuid')) && data_get($blueprint, 'uuid') !== '');
@@ -80,7 +94,7 @@
         $manufacturerName
             ? [
                 'label' => $manufacturerName,
-                'url' => route('web.items.index', ['filter' => ['manufacturer' => $manufacturerName]]),
+                'url' => $makeItemsUrl(['manufacturer' => $manufacturerName]),
             ]
             : null,
         $itemType

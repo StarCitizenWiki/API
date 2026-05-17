@@ -105,7 +105,7 @@
                                                 <td>{{ $loaner['name'] ?? '-' }}</td>
                                                 <td>
                                                     @if (! empty($loaner['name']))
-                                                        <a href="{{ route('web.vehicles.show', ['vehicle' => $loaner['uuid'] ?? $loaner['slug'] ?? $loaner['name']]) }}"
+                                                        <a href="{{ $loaner['web_url'] ?? route('web.vehicles.show', ['vehicle' => $loaner['uuid'] ?? $loaner['slug'] ?? $loaner['name']]) }}"
                                                            class="link link-primary">View</a>
                                                     @else
                                                         -

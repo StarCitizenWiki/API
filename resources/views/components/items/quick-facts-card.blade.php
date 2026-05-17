@@ -50,11 +50,7 @@
     $baseVariantUrl = null;
 
     if (is_string($baseVariantUuid) && $baseVariantUuid !== '' && $baseVariantUuid !== $currentItemUuid) {
-        $baseVariantUrl = route('web.items.show', $baseVariantUuid);
-
-        if (is_string($versionQuery) && $versionQuery !== '') {
-            $baseVariantUrl = url()->query($baseVariantUrl, ['version' => $versionQuery]);
-        }
+        $baseVariantUrl = data_get($baseVariant, 'web_url') ?? route('web.items.show', $baseVariantUuid);
     }
 
     $matchedCommodities = [];
@@ -62,10 +58,7 @@
     foreach ($compositionEntries as $compEntry) {
         $commodity = data_get($compEntry, 'commodity');
         if ($commodity && ($commodityName = data_get($commodity, 'name')) && ($commodityUuid = data_get($commodity, 'uuid'))) {
-            $commodityUrl = route('web.commodities.show', $commodityUuid);
-            if (is_string($versionQuery) && $versionQuery !== '') {
-                $commodityUrl = url()->query($commodityUrl, ['version' => $versionQuery]);
-            }
+            $commodityUrl = data_get($commodity, 'web_url') ?? route('web.commodities.show', $commodityUuid);
             $matchedCommodities[] = ['name' => $commodityName, 'url' => $commodityUrl];
         }
     }

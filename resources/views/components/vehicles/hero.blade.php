@@ -33,6 +33,17 @@
         $vehicleTypeLabel = 'Ground vehicle';
     }
 
+    $version = request()->query('version');
+    $makeVehiclesUrl = static function (array $filters) use ($version): string {
+        $url = route('web.vehicles.index', ['filter' => $filters]);
+
+        if (is_string($version) && $version !== '') {
+            $url = url()->query($url, ['version' => $version]);
+        }
+
+        return $url;
+    };
+
     $isPortrait = true;
 @endphp
 
@@ -73,7 +84,7 @@
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-subtle">
                         @if ($manufacturerName)
                             <a
-                                href="{{ route('web.vehicles.index', ['filter' => ['manufacturer' => $manufacturerName]]) }}"
+                                href="{{ $makeVehiclesUrl(['manufacturer' => $manufacturerName]) }}"
                                 class="link link-hover font-semibold text-subtle"
                             >
                                 {{ $manufacturerName }}

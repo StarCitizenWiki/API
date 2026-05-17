@@ -491,12 +491,12 @@ class MigrateData extends Command
             $afterValue = $maxId ?? 1;
 
             if ($beforeValue !== $afterValue) {
-                $this->info("    ✓ Synced sequence {$seqName}: {$beforeValue} → {$afterValue}");
+                $this->info("    Synced sequence {$seqName}: {$beforeValue} -> {$afterValue}");
             } else {
-                $this->line("    ✓ Sequence {$seqName} already in sync ({$beforeValue})");
+                $this->line("    Sequence {$seqName} already in sync ({$beforeValue})");
             }
         } catch (Throwable $e) {
-            $this->error("    ✗ Sequence sync failed for {$table}.{$pk}: {$e->getMessage()}");
+            $this->error("    Sequence sync failed for {$table}.{$pk}: {$e->getMessage()}");
         }
     }
 }

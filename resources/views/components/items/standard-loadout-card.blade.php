@@ -41,7 +41,7 @@
                             <tr>
                                 <td class="whitespace-nowrap">
                                     @if ($vehicle['uuid'] ?? null)
-                                        <a href="{{ route('web.vehicles.show', $vehicle['uuid']) }}" class="link link-primary">{{ $vehicle['name'] ?? '-' }}</a>
+                                        <a href="{{ $vehicle['web_url'] ?? route('web.vehicles.show', $vehicle['uuid']) }}" class="link link-primary">{{ $vehicle['name'] ?? '-' }}</a>
                                     @else
                                         {{ $vehicle['name'] ?? '-' }}
                                     @endif

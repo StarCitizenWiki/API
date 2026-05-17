@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Item;
 
+use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
 use App\Services\ItemVariantResolver;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
-class RelatedItemsResource extends JsonResource
+class RelatedItemsResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
@@ -24,7 +24,7 @@ class RelatedItemsResource extends JsonResource
                 'set_name' => $this->deriveSetNameFromSetItems($itemData),
                 'base_item' => null,
                 'variant_items' => [],
-                'set_items' => $this->formatSetItems($itemData),
+                'set_items' => $this->formatSetItems($itemData, $request),
             ];
         }
 
@@ -34,7 +34,7 @@ class RelatedItemsResource extends JsonResource
         $basePivot = $groupItems->firstWhere('is_base', true);
 
         $base = $basePivot !== null
-            ? $this->formatRelatedLink($basePivot->itemData, $basePivot->variant_name ?? 'Base', true, $itemData->gameVersion->code)
+            ? $this->formatRelatedLink($basePivot->itemData, $basePivot->variant_name ?? 'Base', true, $itemData->gameVersion->code, $request)
             : null;
 
         $baseId = $basePivot?->item_data_id;
@@ -46,7 +46,7 @@ class RelatedItemsResource extends JsonResource
                 ['itemData.size', 'asc'],
                 ['itemData.grade', 'asc'],
             ])
-            ->map(fn ($gi): array => $this->formatRelatedLink($gi->itemData, $gi->variant_name ?? 'Base', false, $itemData->gameVersion->code))
+            ->map(fn ($gi): array => $this->formatRelatedLink($gi->itemData, $gi->variant_name ?? 'Base', false, $itemData->gameVersion->code, $request))
             ->values()
             ->all();
 
@@ -54,11 +54,11 @@ class RelatedItemsResource extends JsonResource
             'set_name' => $variantGroup->set_name,
             'base_item' => $base,
             'variant_items' => $variants,
-            'set_items' => $this->formatSetItems($itemData),
+            'set_items' => $this->formatSetItems($itemData, $request),
         ];
     }
 
-    private function formatRelatedLink(ItemData $itemData, ?string $variantName, bool $isBase, string $versionCode): array
+    private function formatRelatedLink(ItemData $itemData, ?string $variantName, bool $isBase, string $versionCode, Request $request): array
     {
         $manufacturer = Arr::get($itemData->data, 'stdItem.Manufacturer');
 
@@ -89,8 +89,8 @@ class RelatedItemsResource extends JsonResource
             'grade' => $itemData->grade,
             'grade_label' => ItemData::formatGrade($itemData->grade, $itemData->classification),
             'class' => $itemData->class,
-            'link' => route('items.show', ['identifier' => $uuid]),
-            'web_url' => route('web.items.show', ['item' => $itemData->item->slug ?? $uuid]),
+            'link' => $this->urlWithVersion(route('items.show', ['identifier' => $uuid]), $request),
+            'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $itemData->item->slug ?? $uuid]), $request),
             'version' => $versionCode,
         ];
 
@@ -101,7 +101,7 @@ class RelatedItemsResource extends JsonResource
         return $link;
     }
 
-    private function formatSetItems(ItemData $itemData): array
+    private function formatSetItems(ItemData $itemData, Request $request): array
     {
         if (! $itemData->relationLoaded('setItems')) {
             return [];
@@ -119,8 +119,8 @@ class RelatedItemsResource extends JsonResource
                 'classification' => $setItemData->classification,
                 'classification_label' => $setItemData->classification_label,
                 'size' => $setItemData->size,
-                'link' => route('items.show', ['identifier' => $setItemData->item->uuid]),
-                'web_url' => route('web.items.show', ['item' => $setItemData->item->slug ?? $setItemData->item->uuid]),
+                'link' => $this->urlWithVersion(route('items.show', ['identifier' => $setItemData->item->uuid]), $request),
+                'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $setItemData->item->slug ?? $setItemData->item->uuid]), $request),
             ])
             ->all();
     }
@@ -166,14 +166,5 @@ class RelatedItemsResource extends JsonResource
             ...$manufacturer,
             'link' => route('manufacturers.show', ['manufacturer' => $manufacturer['code'] ?? 'UNKN']),
         ];
-    }
-
-    private function stripItemTypePrefix(?string $type): ?string
-    {
-        if ($type === null) {
-            return null;
-        }
-
-        return str_replace('NOITEM_', '', $type);
     }
 }

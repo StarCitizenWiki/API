@@ -14,7 +14,7 @@ use OpenApi\Attributes as OA;
     description: 'Afterburner (boost) capacitor configuration and regeneration settings.',
     properties: [
         new OA\Property(property: 'capacity', description: 'Maximum afterburner capacitor capacity.', type: 'double', example: 20, nullable: true),
-        new OA\Property(property: 'threshold_ratio', description: 'Minimum capacitor fraction required to engage afterburner (0–1).', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'threshold_ratio', description: 'Minimum capacitor fraction required to engage afterburner (0-1).', type: 'double', example: 0.1, nullable: true),
         new OA\Property(property: 'idle_cost', description: 'Capacitor drain per second while afterburner is armed but not thrusting.', type: 'double', example: 1, nullable: true),
         new OA\Property(property: 'linear_cost', description: 'Capacitor drain per second for linear afterburner thrust.', type: 'double', example: 0, nullable: true),
         new OA\Property(property: 'angular_cost', description: 'Capacitor drain per second for angular afterburner thrust.', type: 'double', example: 0, nullable: true),

@@ -884,12 +884,11 @@ it('shows variant state in the hero and base variant link in quick facts', funct
         ->and(trim($variantHero->filter('[data-testid="item-hero-pill-variant-state"]')->text()))->toBe('Variant')
         ->and($variantHero->filter('[data-testid="item-hero-pill-base-variant"]')->count())->toBe(0)
         ->and($variantHero->filter('[data-testid="item-hero-pill-craftable"]')->count())->toBe(1)
-        ->and($variantHero->filter('[data-testid="item-hero-pill-craftable"]')->attr('href'))->toBe(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]));
-
-    expect($variantQuickFacts->count())->toBe(1)
+        ->and($variantHero->filter('[data-testid="item-hero-pill-craftable"]')->attr('href'))->toBe(route('web.blueprints.show', ['blueprint' => $blueprint->uuid]))
+        ->and($variantQuickFacts->count())->toBe(1)
         ->and($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->count())->toBe(1)
         ->and(trim($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->text()))->toBe('Prototype Base Rifle')
-        ->and($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->attr('href'))->toBe(route('web.items.show', $baseItem->uuid));
+        ->and($variantQuickFacts->filter('[data-testid="item-quick-facts-base-variant-link"]')->attr('href'))->toBe(route('web.items.show', $baseItem->slug));
 
     $baseResponse = $this->get(route('web.items.show', $baseItem->uuid));
 

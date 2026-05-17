@@ -25,7 +25,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'link', description: 'API URL for the full item detail.', type: 'string'),
                 new OA\Property(property: 'size', description: 'Item size as integer.', type: 'integer', nullable: true),
                 new OA\Property(property: 'mass', description: 'Item mass in kg.', type: 'double', nullable: true),
-                new OA\Property(property: 'grade', description: 'Item grade letter (A–D).', type: 'string', nullable: true),
+                new OA\Property(property: 'grade', description: 'Item grade letter (A-D).', type: 'string', nullable: true),
                 new OA\Property(property: 'class', description: 'Item class name from game data.', type: 'string', nullable: true),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
                 new OA\Property(property: 'type', description: 'Item type with NOITEM_ prefix stripped.', type: 'string', nullable: true),

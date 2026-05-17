@@ -126,7 +126,7 @@
                     @if($equippedItemUuid)
                         <a
                             data-testid="port-display-equipped-item-link"
-                            href="{{ route('web.items.show', $equippedItemUuid) }}"
+                            href="{{ data_get($equippedItem, 'web_url') ?? route('web.items.show', $equippedItemUuid) }}"
                             class="link link-primary text-sm"
                         >{{$displayPortLabel}}</a>
                     @else
@@ -149,7 +149,7 @@
                 @endif
                 @if ($canBrowse)
                     <span class="{{ $row['primary_stat'] === null ? 'ml-auto' : '' }}">
-                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :browse-url="route('web.items.index', ['filter' => $browseFilters])"/>
+                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :browse-url="url()->query(route('web.items.index', ['filter' => $browseFilters]), array_filter(['version' => request()->query('version')]))"/>
                     </span>
                 @endif
             </span>

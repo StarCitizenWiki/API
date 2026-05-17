@@ -50,7 +50,7 @@ class StarmapLocationLinkResource extends AbstractBaseResource
                 ? route('locations.show', ['identifier' => $locationUuid])
                 : null,
             'web_url' => $locationUuid !== null
-                ? route('web.locations.show', ['identifier' => $locationUuid])
+                ? $this->urlWithVersion(route('web.locations.show', ['identifier' => $locationUuid]), $request)
                 : null,
         ];
     }

@@ -85,10 +85,10 @@ class PartResource extends AbstractBaseResource
      * to ensure consistent display name generation across API versions.
      *
      * Examples:
-     * - "LEFT_WING" → "Wing (left)"
-     * - "FRONT_MID_LOWER_WING" → "Wing (front mid lower)"
-     * - "NOSE" → "Nose"
-     * - "LEFT" → "Left" (position as entire name)
+     * - "LEFT_WING" -> "Wing (left)"
+     * - "FRONT_MID_LOWER_WING" -> "Wing (front mid lower)"
+     * - "NOSE" -> "Nose"
+     * - "LEFT" -> "Left" (position as entire name)
      */
     private function generateDisplayName(?string $name): ?string
     {

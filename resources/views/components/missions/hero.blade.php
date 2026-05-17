@@ -7,9 +7,20 @@
     $factionName = data_get($faction, 'name');
     $rewardScope = data_get($resource, 'reward_scope');
 
+    $version = request()->query('version');
+    $makeMissionsUrl = static function (array $filters) use ($version): string {
+        $url = route('web.missions.index', ['filter' => $filters]);
+
+        if (is_string($version) && $version !== '') {
+            $url = url()->query($url, ['version' => $version]);
+        }
+
+        return $url;
+    };
+
     $headlineLinks = array_values(array_filter([
-        $factionName ? ['label' => $factionName, 'url' => route('web.missions.index', ['filter' => ['faction' => $factionName]])] : null,
-        $rewardScope ? ['label' => $rewardScope, 'url' => route('web.missions.index', ['filter' => ['reward_scope' => $rewardScope]])] : null,
+        $factionName ? ['label' => $factionName, 'url' => $makeMissionsUrl(['faction' => $factionName])] : null,
+        $rewardScope ? ['label' => $rewardScope, 'url' => $makeMissionsUrl(['reward_scope' => $rewardScope])] : null,
     ]));
 
     $iconName = match ($rewardScope) {

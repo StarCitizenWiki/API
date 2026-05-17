@@ -655,14 +655,14 @@ paths:
         -
           name: 'filter[size]'
           in: query
-          description: 'Exact item size (0–12).'
+          description: 'Exact item size (0-12).'
           schema:
             type: number
             example: 3
         -
           name: 'filter[grade]'
           in: query
-          description: 'Exact item grade (1–7, mapped to A–G).'
+          description: 'Exact item grade (1-7, mapped to A-G).'
           schema:
             type: number
             example: 3
@@ -727,7 +727,7 @@ paths:
         -
           name: 'filter[size]'
           in: query
-          description: 'Exact item size (0–12).'
+          description: 'Exact item size (0-12).'
           schema:
             type: number
             example: 1
@@ -980,7 +980,7 @@ paths:
         -
           name: 'filter[size]'
           in: query
-          description: 'Exact item size (0–12).'
+          description: 'Exact item size (0-12).'
           schema:
             type: number
             example: 3
@@ -1171,14 +1171,14 @@ paths:
         -
           name: 'filter[size]'
           in: query
-          description: 'Exact item size (0–12).'
+          description: 'Exact item size (0-12).'
           schema:
             type: number
             example: 3
         -
           name: 'filter[grade]'
           in: query
-          description: 'Exact item grade (1–7, mapped to A–G).'
+          description: 'Exact item grade (1-7, mapped to A-G).'
           schema:
             type: number
             example: 3
@@ -1559,14 +1559,14 @@ paths:
         -
           name: 'filter[size]'
           in: query
-          description: 'Exact item size (0–12).'
+          description: 'Exact item size (0-12).'
           schema:
             type: number
             example: 3
         -
           name: 'filter[grade]'
           in: query
-          description: 'Exact item grade (1–7, mapped to A–G).'
+          description: 'Exact item grade (1-7, mapped to A-G).'
           schema:
             type: number
             example: 3
@@ -1725,7 +1725,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0–12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1–7, mapped A–G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0-12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1-7, mapped A-G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
   /api/manufacturers:
     get:
@@ -2533,7 +2533,7 @@ paths:
                   data: { type: array, items: { properties: { type: { type: string, example: items }, label: { type: string, example: Items }, results: { type: array, items: { properties: { name: { type: string, example: Arrow }, class_name: { type: string, example: AEGS_Arrow, nullable: true }, classification: { type: string, example: fighter, nullable: true }, classification_label: { type: string, example: Fighter, nullable: true }, item_type_label: { type: string, example: Weapon, nullable: true }, extra_label: { type: string, example: Fighter, nullable: true }, web_url: { type: string, example: 'https://example.com/vehicles/arrow' }, api_url: { type: string, example: 'https://example.com/api/vehicles/arrow' } }, type: object } } }, type: object } }
                 type: object
         '422':
-          description: 'Validation error – filter[query] is required and must be at least 2 characters'
+          description: 'Validation error - filter[query] is required and must be at least 2 characters'
   /api/ground-vehicles:
     get:
       tags:
@@ -5873,16 +5873,16 @@ components:
               format: uri
               nullable: true
             group_probability:
-              description: 'Raw probability of this commodity group occurring at this location (0–1).'
+              description: 'Raw probability of this commodity group occurring at this location (0-1).'
               type: number
             group_probability_percent:
-              description: 'Group probability expressed as a percentage (0–100).'
+              description: 'Group probability expressed as a percentage (0-100).'
               type: number
             relative_probability:
-              description: 'Raw relative probability compared to other commodities at this location (0–1).'
+              description: 'Raw relative probability compared to other commodities at this location (0-1).'
               type: number
             relative_probability_percent:
-              description: 'Relative probability expressed as a percentage (0–100).'
+              description: 'Relative probability expressed as a percentage (0-100).'
               type: number
             quality_min:
               description: 'Minimum quality across all deposit instances at this location.'
@@ -6109,6 +6109,12 @@ components:
               description: "Frontend URL for this commodity's page."
               type: string
               format: uri
+            uex_prices:
+              description: 'Price data from UEXcorp for this commodity at various terminals.'
+              type: array
+              items:
+                $ref: '#/components/schemas/uex_price'
+              nullable: true
           type: object
     area_exception:
       title: 'Area Exception'
@@ -6185,11 +6191,11 @@ components:
           type: number
           nullable: true
         probability:
-          description: 'Raw probability of clustering occurring (0–1).'
+          description: 'Raw probability of clustering occurring (0-1).'
           type: number
           nullable: true
         probability_percent:
-          description: 'Clustering probability expressed as a percentage (0–100).'
+          description: 'Clustering probability expressed as a percentage (0-100).'
           type: number
           nullable: true
         params:
@@ -6235,10 +6241,10 @@ components:
           type: integer
           nullable: true
         min_percentage:
-          description: 'Minimum composition percentage of this material (0–100).'
+          description: 'Minimum composition percentage of this material (0-100).'
           type: number
         max_percentage:
-          description: 'Maximum composition percentage of this material (0–100).'
+          description: 'Maximum composition percentage of this material (0-100).'
           type: number
         instability:
           description: 'Instability rating of this material, affecting mining difficulty.'
@@ -6249,16 +6255,16 @@ components:
           type: number
           nullable: true
         group_probability:
-          description: 'Raw probability of this material occurring in the deposit group (0–1).'
+          description: 'Raw probability of this material occurring in the deposit group (0-1).'
           type: number
         group_probability_percent:
-          description: 'Group probability expressed as a percentage (0–100).'
+          description: 'Group probability expressed as a percentage (0-100).'
           type: number
         relative_probability:
-          description: 'Raw relative probability compared to other materials in the deposit (0–1).'
+          description: 'Raw relative probability compared to other materials in the deposit (0-1).'
           type: number
         relative_probability_percent:
-          description: 'Relative probability expressed as a percentage (0–100).'
+          description: 'Relative probability expressed as a percentage (0-100).'
           type: number
         quality_quantized_values:
           description: "The discrete set of quantized quality values a player can actually receive, filtered by the material's quality range. Each value corresponds to one reachable quantization band."
@@ -6311,11 +6317,11 @@ components:
           type: string
           nullable: true
         relative_probability:
-          description: 'Raw relative spawn probability for this harvestable (0–1).'
+          description: 'Raw relative spawn probability for this harvestable (0-1).'
           type: number
           nullable: true
         relative_probability_percent:
-          description: 'Relative spawn probability expressed as a percentage (0–100).'
+          description: 'Relative spawn probability expressed as a percentage (0-100).'
           type: number
           nullable: true
         respawn_multiplier:
@@ -6382,19 +6388,19 @@ components:
           type: integer
           nullable: true
         relative_probability_min:
-          description: 'Lowest relative probability among deposit instances (0–1).'
+          description: 'Lowest relative probability among deposit instances (0-1).'
           type: number
           nullable: true
         relative_probability_max:
-          description: 'Highest relative probability among deposit instances (0–1).'
+          description: 'Highest relative probability among deposit instances (0-1).'
           type: number
           nullable: true
         relative_probability_min_percent:
-          description: 'Lowest relative probability as a percentage (0–100).'
+          description: 'Lowest relative probability as a percentage (0-100).'
           type: number
           nullable: true
         relative_probability_max_percent:
-          description: 'Highest relative probability as a percentage (0–100).'
+          description: 'Highest relative probability as a percentage (0-100).'
           type: number
           nullable: true
       type: object
@@ -7033,6 +7039,10 @@ components:
               $ref: '#/components/schemas/manufacturer_link'
             link:
               type: string
+            web_url:
+              description: 'Web URL for the item detail page.'
+              type: string
+              nullable: true
             size:
               type: integer
               nullable: true
@@ -7745,23 +7755,9 @@ components:
               date_updated:
                 type: string
                 format: date-time
-              link:
-                description: 'API URL for the starmap location'
-                type: string
-                nullable: true
-              web_url:
-                description: 'Web URL for the starmap location'
-                type: string
-                nullable: true
               starmap_location:
-                description: 'Expanded starmap location data'
-                properties:
-                  name: { type: string }
-                  slug: { type: string, nullable: true }
-                  type_name: { type: string, nullable: true }
-                  parent_name: { type: string, nullable: true }
-                  star_system_name: { type: string, nullable: true }
-                type: object
+                oneOf:
+                  - { $ref: '#/components/schemas/starmap_location_link' }
                 nullable: true
             type: object
           nullable: true
@@ -8106,7 +8102,7 @@ components:
           example: Power
           nullable: true
         rate:
-          description: 'Rate applied per tick (game native units). Typical power draw ~2–5; fuel draw often 0.01.'
+          description: 'Rate applied per tick (game native units). Typical power draw ~2-5; fuel draw often 0.01.'
           type: number
           format: double
           example: 2.2
@@ -9349,10 +9345,10 @@ components:
       type: object
     emp:
       title: 'EMP Generator'
-      description: 'Electromagnetic pulse generator stats pulled from Item.stdItem.Emp. Values scale with generator size (S1–S4) and determine how quickly the device charges, how hard it hits shields via distortion, and how far the blast reaches.'
+      description: 'Electromagnetic pulse generator stats pulled from Item.stdItem.Emp. Values scale with generator size (S1-S4) and determine how quickly the device charges, how hard it hits shields via distortion, and how far the blast reaches.'
       properties:
         distortion_damage:
-          description: 'Peak distortion damage applied at the center of the blast. Observed values: 1000 (S1), 1800–2475 (S2–S3), 2750–3300 (S4 variants).'
+          description: 'Peak distortion damage applied at the center of the blast. Observed values: 1000 (S1), 1800-2475 (S2-S3), 2750-3300 (S4 variants).'
           type: number
           format: double
           example: 1000
@@ -9364,13 +9360,13 @@ components:
           example: 400
           nullable: true
         min_emp_radius:
-          description: 'Inner radius (m) guaranteed to receive full EMP effect before falloff begins. Presently 150m–250m.'
+          description: 'Inner radius (m) guaranteed to receive full EMP effect before falloff begins. Presently 150m-250m.'
           type: number
           format: double
           example: 150
           nullable: true
         charge_duration:
-          description: 'Seconds required to fully charge before firing. Current game data ranges 12–26 seconds across EMP sizes.'
+          description: 'Seconds required to fully charge before firing. Current game data ranges 12-26 seconds across EMP sizes.'
           type: number
           format: double
           example: 12
@@ -9382,7 +9378,7 @@ components:
           example: 0.75
           nullable: true
         cooldown_duration:
-          description: 'Cooldown in seconds before charging can restart. Current data spans 6–40 seconds depending on size and variant.'
+          description: 'Cooldown in seconds before charging can restart. Current data spans 6-40 seconds depending on size and variant.'
           type: number
           format: double
           example: 6
@@ -9399,7 +9395,7 @@ components:
           example: 20
           nullable: true
         threshold_ratio:
-          description: 'Minimum capacitor fraction required to engage afterburner (0–1).'
+          description: 'Minimum capacitor fraction required to engage afterburner (0-1).'
           type: number
           format: double
           example: 0.1
@@ -9911,7 +9907,7 @@ components:
       description: 'Fuel and quantum fuel tank characteristics.'
       properties:
         fill_rate:
-          description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25–10.'
+          description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25-10.'
           type: number
           format: double
           example: 10
@@ -10006,7 +10002,7 @@ components:
           example: 0.5
           nullable: true
         error_chance:
-          description: 'Probability (0–1) that a hack attempt fails or produces an error. Higher values indicate more risk. Example 0.9 = 90% error chance.'
+          description: 'Probability (0-1) that a hack attempt fails or produces an error. Higher values indicate more risk. Example 0.9 = 90% error chance.'
           type: number
           format: double
           example: 0.9
@@ -10434,13 +10430,13 @@ components:
               nullable: true
               deprecated: true
             uses:
-              description: 'Number of activations before a consumable expires. Observed range: 3–10.'
+              description: 'Number of activations before a consumable expires. Observed range: 3-10.'
               type: integer
               example: 6
               nullable: true
               deprecated: true
             duration_seconds:
-              description: 'Active duration per use in seconds. Observed range: 15–60.'
+              description: 'Active duration per use in seconds. Observed range: 15-60.'
               type: number
               format: double
               example: 30
@@ -10556,7 +10552,7 @@ components:
               nullable: true
               deprecated: true
             damage_multiplier:
-              description: 'General damage multiplier used by modules. Observed range: 0.85–1.50.'
+              description: 'General damage multiplier used by modules. Observed range: 0.85-1.50.'
               type: number
               format: double
               example: 1.35
@@ -11495,13 +11491,13 @@ components:
       description: 'Jump profile settings for quantum travel modes (StandardJump/SplineJump). Values mirror stdItem.QuantumDrive.[StandardJump|SplineJump] in game data.'
       properties:
         drive_speed:
-          description: 'Max cruise velocity for the jump profile (m/s). Standard jumps range ~138,000,000–876,000,000; spline jumps ~400,000–500,000.'
+          description: 'Max cruise velocity for the jump profile (m/s). Standard jumps range ~138,000,000-876,000,000; spline jumps ~400,000-500,000.'
           type: number
           format: double
           example: 218000000
           nullable: true
         cooldown_time:
-          description: 'Cooldown after exit in seconds; dataset ranges 0–92.07.'
+          description: 'Cooldown after exit in seconds; dataset ranges 0-92.07.'
           type: number
           format: double
           example: 41.4
@@ -15278,6 +15274,38 @@ components:
           type: string
           format: uri
       type: object
+    starmap_location_link:
+      title: 'Starmap Location Link'
+      description: 'Lightweight reference to a starmap location with navigation links.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        slug:
+          type: string
+          nullable: true
+        type_name:
+          type: string
+          nullable: true
+        parent_name:
+          type: string
+          nullable: true
+        star_system_name:
+          type: string
+          nullable: true
+        link:
+          description: 'API URL for the starmap location'
+          type: string
+          nullable: true
+        web_url:
+          description: 'Web URL for the starmap location'
+          type: string
+          nullable: true
+      type: object
     game_starmap_location_linked_summary:
       title: 'Game Starmap Location Linked Summary'
       description: 'A lightweight summary of a linked starmap location, used for parent, star, and related location references.'
@@ -15554,19 +15582,19 @@ components:
           type: string
           nullable: true
         group_probability_min:
-          description: 'Lowest raw probability among deposits in this group (0–1).'
+          description: 'Lowest raw probability among deposits in this group (0-1).'
           type: number
           nullable: true
         group_probability_max:
-          description: 'Highest raw probability among deposits in this group (0–1).'
+          description: 'Highest raw probability among deposits in this group (0-1).'
           type: number
           nullable: true
         group_probability_min_percent:
-          description: 'Lowest probability in this group as a percentage (0–100).'
+          description: 'Lowest probability in this group as a percentage (0-100).'
           type: number
           nullable: true
         group_probability_max_percent:
-          description: 'Highest probability in this group as a percentage (0–100).'
+          description: 'Highest probability in this group as a percentage (0-100).'
           type: number
           nullable: true
         resources:
@@ -15773,6 +15801,44 @@ components:
             $ref: '#/components/schemas/game_starmap_location_mission_group'
           nullable: true
       type: object
+    uex_price:
+      title: 'UEX Price'
+      description: 'Price data from UEXcorp for a commodity or vehicle at a specific terminal'
+      properties:
+        price_buy:
+          type: number
+          nullable: true
+        price_sell:
+          type: number
+          nullable: true
+        price_rent:
+          type: number
+          nullable: true
+        terminal_id:
+          type: integer
+          nullable: true
+        terminal_code:
+          type: string
+          nullable: true
+        terminal_name:
+          type: string
+          nullable: true
+        starmap_location:
+          oneOf:
+            -
+              $ref: '#/components/schemas/starmap_location_link'
+          nullable: true
+        date_updated:
+          type: string
+          nullable: true
+        game_version:
+          type: string
+          nullable: true
+        uex_link:
+          description: 'Link to the UEX terminal page for this item/vehicle price'
+          type: string
+          nullable: true
+      type: object
     game_vehicle_hardpoint_item:
       title: 'Vehicle Hardpoint Item v2'
       description: 'Deprecated: Trimmed down version of item resource, used for hardpoints in v2 API.'
@@ -15801,7 +15867,7 @@ components:
               format: double
               nullable: true
             grade:
-              description: 'Item grade letter (A–D).'
+              description: 'Item grade letter (A-D).'
               type: string
               nullable: true
             class:
@@ -16188,6 +16254,45 @@ components:
             type: object
           nullable: true
       type: object
+    vehicle_suit_storage:
+      title: 'Suit Storage'
+      description: 'Suit locker storage from ship data.'
+      properties:
+        lockers:
+          description: 'Number of suit lockers.'
+          type: integer
+          example: 1
+        slots_total:
+          description: 'Total suit slots across all lockers.'
+          type: integer
+          example: 8
+        by_locker:
+          description: 'Per-locker breakdown, grouped by identical configuration.'
+          type: array
+          items:
+            properties:
+              count:
+                description: 'Number of identical lockers with this configuration.'
+                type: integer
+                example: 1
+              name:
+                description: 'Locker display name.'
+                type: string
+                example: '<= PLACEHOLDER =>'
+              class_name:
+                description: 'Locker class name.'
+                type: string
+                example: locker_suit_drak_cutter_rambler
+              port:
+                description: 'Hardpoint port name.'
+                type: string
+                example: hardpoint_suit_locker_expo
+              slots_total:
+                description: 'Total slots in this locker.'
+                type: integer
+                example: 8
+            type: object
+      type: object
     game_vehicle_turret:
       title: 'Turret Summary'
       description: 'Manned or remote turret entry as provided by the ship data.'
@@ -16435,7 +16540,7 @@ components:
               description: 'Vehicle role (e.g. Stealth Fighter, Heavy Freight).'
               type: string
             size_class:
-              description: 'Vehicle size class (1–6).'
+              description: 'Vehicle size class (1-6).'
               type: integer
             size:
               description: 'Deprecated: Use size_class.'
@@ -16455,6 +16560,10 @@ components:
             link:
               description: 'API URL for the full vehicle detail.'
               type: string
+            web_url:
+              description: 'Web URL for the vehicle detail page.'
+              type: string
+              nullable: true
             updated_at:
               description: 'Timestamp of the last vehicle data update.'
               type: string
@@ -16494,7 +16603,7 @@ components:
         manufacturer:
           $ref: '#/components/schemas/manufacturer_link'
         size_class:
-          description: 'Vehicle size classification (1–6).'
+          description: 'Vehicle size classification (1-6).'
           type: integer
           example: 2
           nullable: true
@@ -16630,7 +16739,7 @@ components:
           type: object
           nullable: true
         max_scu_box:
-          description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64…'
+          description: 'Largest standard SCU box that fits within the max item size. Powers of two: 1, 2, 4, 8, 16, 32, 64'
           type: integer
           example: 8
           nullable: true
@@ -16645,6 +16754,18 @@ components:
           items:
             $ref: '#/components/schemas/item_inventory'
           nullable: true
+        weapon_storage:
+          oneOf:
+            -
+              $ref: '#/components/schemas/vehicle_weapon_storage'
+          nullable: true
+          description: 'Weapon locker / rack storage from ship data. Only present when lockers exist.'
+        suit_storage:
+          oneOf:
+            -
+              $ref: '#/components/schemas/vehicle_suit_storage'
+          nullable: true
+          description: 'Suit locker storage from ship data. Only present when lockers exist.'
         crew:
           description: 'Crew requirements.'
           properties:
@@ -16753,7 +16874,7 @@ components:
               example: FourFaces
               nullable: true
             max_reallocation:
-              description: 'Maximum shield reallocation ratio (0–1).'
+              description: 'Maximum shield reallocation ratio (0-1).'
               type: number
               example: 0.5
               nullable: true
@@ -17190,20 +17311,20 @@ components:
               type: object
               nullable: true
             agility:
-              description: 'Handling, grip, and acceleration scores (0–1 scale).'
+              description: 'Handling, grip, and acceleration scores (0-1 scale).'
               properties:
                 handling:
-                  description: 'Handling score (0–1).'
+                  description: 'Handling score (0-1).'
                   type: number
                   example: 0.5
                   nullable: true
                 grip:
-                  description: 'Grip score (0–1).'
+                  description: 'Grip score (0-1).'
                   type: number
                   example: 0.1875
                   nullable: true
                 acceleration:
-                  description: 'Acceleration score (0–1).'
+                  description: 'Acceleration score (0-1).'
                   type: number
                   example: 1
                   nullable: true
@@ -17686,9 +17807,7 @@ components:
                   price_buy: { type: number, format: double }
                   game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
                   date_updated: { type: string, format: date-time }
-                  link: { description: 'API URL for the starmap location', type: string, nullable: true }
-                  web_url: { description: 'Web URL for the starmap location', type: string, nullable: true }
-                  starmap_location: { description: 'Expanded starmap location data', properties: { name: { type: string }, slug: { type: string, nullable: true }, type_name: { type: string, nullable: true }, parent_name: { type: string, nullable: true }, star_system_name: { type: string, nullable: true } }, type: object, nullable: true }
+                  starmap_location: { oneOf: [{ $ref: '#/components/schemas/starmap_location_link' }], nullable: true }
                 type: object
             rental:
               description: 'Rental prices from UEX Corp.'
@@ -17702,9 +17821,7 @@ components:
                   price_rent: { type: number, format: double }
                   game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
                   date_updated: { type: string, format: date-time }
-                  link: { description: 'API URL for the starmap location', type: string, nullable: true }
-                  web_url: { description: 'Web URL for the starmap location', type: string, nullable: true }
-                  starmap_location: { description: 'Expanded starmap location data', properties: { name: { type: string }, slug: { type: string, nullable: true }, type_name: { type: string, nullable: true }, parent_name: { type: string, nullable: true }, star_system_name: { type: string, nullable: true } }, type: object, nullable: true }
+                  starmap_location: { oneOf: [{ $ref: '#/components/schemas/starmap_location_link' }], nullable: true }
                 type: object
           type: object
         images:
@@ -17743,6 +17860,61 @@ components:
           description: 'Game version code this data applies to.'
           type: string
           example: 4.4.0-LIVE.12340123
+      type: object
+    vehicle_weapon_storage:
+      title: 'Weapon Storage'
+      description: 'Weapon locker / rack storage from ship data.'
+      properties:
+        lockers:
+          description: 'Number of weapon lockers.'
+          type: integer
+          example: 2
+        slots_total:
+          description: 'Total weapon slots across all lockers.'
+          type: integer
+          example: 40
+        slots_rifle:
+          description: 'Total rifle slots across all lockers.'
+          type: integer
+          example: 16
+        slots_pistol:
+          description: 'Total pistol slots across all lockers.'
+          type: integer
+          example: 24
+        by_locker:
+          description: 'Per-locker breakdown, grouped by identical configuration.'
+          type: array
+          items:
+            properties:
+              count:
+                description: 'Number of identical racks with this configuration.'
+                type: integer
+                example: 2
+              name:
+                description: 'Locker display name.'
+                type: string
+                example: 'Weapon Rack'
+              class_name:
+                description: 'Locker class name.'
+                type: string
+                example: weapon_rack_anvl_carrack_armory_large
+              port:
+                description: 'Hardpoint port name.'
+                type: string
+                example: hardpoint_weapon_locker_01
+              slots_total:
+                description: 'Total slots in this locker.'
+                type: integer
+                example: 20
+              slots_rifle:
+                description: 'Rifle slots in this locker.'
+                type: integer
+                example: 8
+              slots_pistol:
+                description: 'Pistol slots in this locker.'
+                type: integer
+                example: 12
+            type: object
       type: object
     version_changelog:
       title: 'Version Changelog'

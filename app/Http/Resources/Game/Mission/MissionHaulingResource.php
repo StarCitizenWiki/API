@@ -55,7 +55,7 @@ class MissionHaulingResource extends AbstractBaseResource
 {
     /**
      * @param  Closure(string, array<string, string>, Request): string  $makeApiUrl
-     * @param  Closure(string, array<string, string>): string  $makeWebUrl
+     * @param  Closure(string, array<string, string>, Request): string  $makeWebUrl
      */
     public function __construct(
         $resource,
@@ -108,7 +108,7 @@ class MissionHaulingResource extends AbstractBaseResource
                             'name' => $item['Name'] ?? null,
                             'uuid' => $itemUuid,
                             'link' => $this->haulingLink($itemUuid, $kind, $request),
-                            'web_url' => $this->haulingWebUrl($itemUuid, $kind),
+                            'web_url' => $this->haulingWebUrl($itemUuid, $kind, $request),
                         ];
                     })->values()->all(),
                     'max_scu' => max((int) ($entry['MinScu'] ?? 0), (int) ($entry['MaxScu'] ?? 0)) ?: null,
@@ -117,7 +117,7 @@ class MissionHaulingResource extends AbstractBaseResource
                     'min_amount' => min((int) ($entry['MinAmount'] ?? 0), (int) ($entry['MaxAmount'] ?? 0)) ?: null,
                     'max_container_size' => $entry['MaxContainerSize'] ?? null,
                     'link' => $this->haulingLink($uuid, $kind, $request),
-                    'web_url' => $this->haulingWebUrl($uuid, $kind),
+                    'web_url' => $this->haulingWebUrl($uuid, $kind, $request),
                 ];
             }
 
@@ -152,7 +152,7 @@ class MissionHaulingResource extends AbstractBaseResource
         return null;
     }
 
-    private function haulingWebUrl(?string $uuid, ?string $kind): ?string
+    private function haulingWebUrl(?string $uuid, ?string $kind, Request $request): ?string
     {
         if ($uuid === null) {
             return null;
@@ -162,6 +162,7 @@ class MissionHaulingResource extends AbstractBaseResource
             return ($this->makeWebUrl)(
                 'web.commodities.show',
                 ['identifier' => $uuid],
+                $request,
             );
         }
 
@@ -169,6 +170,7 @@ class MissionHaulingResource extends AbstractBaseResource
             return ($this->makeWebUrl)(
                 'web.items.show',
                 ['item' => $uuid],
+                $request,
             );
         }
 

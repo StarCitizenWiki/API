@@ -19,7 +19,7 @@ class SlugService
      *
      * Uses retry-on-conflict: attempts to save, catches unique constraint
      * violations (SQLSTATE 23505), and retries with an incremented suffix.
-     * This is safe for parallel imports — no TOCTOU gap.
+     * This is safe for parallel imports - no TOCTOU gap.
      *
      * @param  class-string<Model>  $modelClass
      * @param  list<string>  $localMap  Slugs already claimed in this batch (passed by reference)
@@ -71,7 +71,7 @@ class SlugService
      * Generate a unique slug for batch upsert operations.
      *
      * Checks both a local in-memory map and the database for conflicts.
-     * The actual upsert call handles atomicity — this method just
+     * The actual upsert call handles atomicity - this method just
      * reduces unnecessary collisions.
      *
      * @param  class-string<Model>  $modelClass

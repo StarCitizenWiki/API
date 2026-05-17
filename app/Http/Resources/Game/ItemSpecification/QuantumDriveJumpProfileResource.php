@@ -16,14 +16,14 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'drive_speed',
-            description: 'Max cruise velocity for the jump profile (m/s). Standard jumps range ~138,000,000–876,000,000; spline jumps ~400,000–500,000.',
+            description: 'Max cruise velocity for the jump profile (m/s). Standard jumps range ~138,000,000-876,000,000; spline jumps ~400,000-500,000.',
             type: 'double',
             example: 218000000,
             nullable: true
         ),
         new OA\Property(
             property: 'cooldown_time',
-            description: 'Cooldown after exit in seconds; dataset ranges 0–92.07.',
+            description: 'Cooldown after exit in seconds; dataset ranges 0-92.07.',
             type: 'double',
             example: 41.4,
             nullable: true

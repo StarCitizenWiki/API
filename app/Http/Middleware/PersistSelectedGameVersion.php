@@ -39,6 +39,11 @@ class PersistSelectedGameVersion
 
                     if ($resolvedSessionCode === $defaultCode) {
                         $request->session()->forget('game_version_code');
+                    } elseif ($requestedCode === null) {
+                        // No explicit version in URL but session has a valid non-default version.
+                        // Inject it into the query so internal API sub-requests pick it up.
+                        $request->query->set('version', $resolvedSessionCode);
+                        $request->server->set('QUERY_STRING', $request->getQueryString());
                     }
                 }
             }

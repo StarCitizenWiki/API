@@ -29,7 +29,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'error_chance',
-            description: 'Probability (0–1) that a hack attempt fails or produces an error. Higher values indicate more risk. Example 0.9 = 90% error chance.',
+            description: 'Probability (0-1) that a hack attempt fails or produces an error. Higher values indicate more risk. Example 0.9 = 90% error chance.',
             type: 'double',
             example: 0.9,
             nullable: true
