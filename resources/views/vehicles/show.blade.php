@@ -97,6 +97,7 @@
                     <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
 
                     <x-vehicles.crew-medical-card :vehicle="$vehicle" />
+                    <x-vehicles.weapon-storage-card :vehicle="$vehicle" />
                 </div>
             </section>
 
@@ -131,10 +132,16 @@
                 @if ($hasOwnershipData)
                     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                         <x-vehicles.purchase-variants-card :vehicle="$vehicle" />
-                        <x-vehicles.uex-prices-card :purchasePrices="$uexPurchasePrices" :rentalPrices="$uexRentalPrices" />
+                        <x-uex.prices-card :sections="[
+                            ['title' => 'Purchase Prices', 'prices' => $uexPurchasePrices],
+                            ['title' => 'Rental Prices', 'prices' => $uexRentalPrices],
+                        ]" />
                     </div>
                 @elseif ($hasUexPrices)
-                    <x-vehicles.uex-prices-card :purchasePrices="$uexPurchasePrices" :rentalPrices="$uexRentalPrices" />
+                    <x-uex.prices-card :sections="[
+                        ['title' => 'Purchase Prices', 'prices' => $uexPurchasePrices],
+                        ['title' => 'Rental Prices', 'prices' => $uexRentalPrices],
+                    ]" />
                 @endif
             </section>
 

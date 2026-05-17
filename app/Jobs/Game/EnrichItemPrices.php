@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Jobs\Game\Concerns\BuildsUexLinks;
+use App\Jobs\Game\Concerns\FiltersUexVersions;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -24,7 +26,9 @@ use Throwable;
 class EnrichItemPrices implements ShouldQueue
 {
     use Batchable;
+    use BuildsUexLinks;
     use Dispatchable;
+    use FiltersUexVersions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
@@ -70,7 +74,7 @@ class EnrichItemPrices implements ShouldQueue
             ->keyBy('item_id');
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
-        $locationMapping = $mapper->getMapping();
+        $locationMapping = $mapper->mapping;
 
         $locationDataLookup = StarmapLocationData::query()
             ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
@@ -113,31 +117,6 @@ class EnrichItemPrices implements ShouldQueue
     }
 
     /**
-     * @return array<string, string> apiVersionPrefix => dbVersionCode
-     */
-    private function buildVersionPrefixMap(string $currentVersionCode): array
-    {
-        $map = [];
-
-        $map[$this->extractMajorMinor($currentVersionCode)] = $currentVersionCode;
-
-        if ($this->previousVersionCode !== null) {
-            $map[$this->extractMajorMinor($this->previousVersionCode)] = $this->previousVersionCode;
-        }
-
-        return $map;
-    }
-
-    private function extractMajorMinor(string $version): string
-    {
-        if (preg_match('/^(\d+\.\d+)/', $version, $matches)) {
-            return $matches[1];
-        }
-
-        return $version;
-    }
-
-    /**
      * @param  array<string, string>  $versionPrefixMap
      */
     private function enrichItem(
@@ -176,7 +155,7 @@ class EnrichItemPrices implements ShouldQueue
 
                 return [
                     'terminal_id' => $terminalId,
-                    'terminal_code' => $p['terminal_code'] ?? $mapper->getTerminalCode($terminalId),
+                    'terminal_code' => $p['terminal_code'] ?? $mapper->terminalCodes()->get($terminalId),
                     'terminal_name' => $p['terminal_name'],
                     'starmap_location_uuid' => $locationUuid,
                     'starmap_location_data_id' => $locationUuid !== null
@@ -186,6 +165,7 @@ class EnrichItemPrices implements ShouldQueue
                     'price_sell' => $p['price_sell'],
                     'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                    'uex_link' => $this->buildItemLink($p['item_name'] ?? null),
                 ];
             })
             ->values()
@@ -195,30 +175,6 @@ class EnrichItemPrices implements ShouldQueue
         $itemData->save();
 
         return true;
-    }
-
-    /**
-     * @param  array<string, string>  $versionPrefixMap
-     */
-    private function matchesKnownVersion(?string $apiVersion, array $versionPrefixMap): bool
-    {
-        if ($apiVersion === null) {
-            return false;
-        }
-
-        return array_any($versionPrefixMap, fn ($_, $prefix) => str_starts_with($apiVersion, $prefix));
-    }
-
-    /**
-     * @param  array<string, string>  $versionPrefixMap
-     */
-    private function resolveDbVersionCode(?string $apiVersion, array $versionPrefixMap): ?string
-    {
-        if ($apiVersion === null) {
-            return null;
-        }
-
-        return array_find($versionPrefixMap, fn ($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
     }
 
     public function failed(Throwable $exception): void

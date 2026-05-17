@@ -195,7 +195,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'resource_network', ref: '#/components/schemas/resource_network', nullable: true),
         new OA\Property(property: 'emission', ref: '#/components/schemas/item_emission', nullable: true),
 
-        // Root-level “stdItem” blocks
+        // Root-level "stdItem" blocks
         new OA\Property(property: 'seat', ref: '#/components/schemas/seat', nullable: true),
         new OA\Property(property: 'ammunition', ref: '#/components/schemas/ammunition', nullable: true),
 
@@ -324,21 +324,7 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'price_sell', type: 'number', format: 'double'),
                     new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
                     new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                    new OA\Property(property: 'link', description: 'API URL for the starmap location', type: 'string', nullable: true),
-                    new OA\Property(property: 'web_url', description: 'Web URL for the starmap location', type: 'string', nullable: true),
-                    new OA\Property(
-                        property: 'starmap_location',
-                        description: 'Expanded starmap location data',
-                        properties: [
-                            new OA\Property(property: 'name', type: 'string'),
-                            new OA\Property(property: 'slug', type: 'string', nullable: true),
-                            new OA\Property(property: 'type_name', type: 'string', nullable: true),
-                            new OA\Property(property: 'parent_name', type: 'string', nullable: true),
-                            new OA\Property(property: 'star_system_name', type: 'string', nullable: true),
-                        ],
-                        type: 'object',
-                        nullable: true
-                    ),
+                    new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
                 ],
                 type: 'object'
             ),

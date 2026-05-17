@@ -171,9 +171,7 @@
                             />
                         @endif
 
-                        @if ($uexPricesCount > 0)
-                            <x-items.uex-prices-card :prices="$uexPrices" />
-                        @endif
+                        <x-uex.prices-card :sections="[['prices' => $uexPrices]]" />
 
                         @if ($hasBlueprintCards)
                             <div class="flex flex-col gap-4">

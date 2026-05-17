@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -26,6 +27,7 @@ use Throwable;
 class ImportItemPrices implements ShouldQueue
 {
     use Batchable;
+    use BuildsUexLinks;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
@@ -124,7 +126,7 @@ class ImportItemPrices implements ShouldQueue
             ->get()
             ->keyBy('item_id');
 
-        $locationMapping = $mapper->getMapping();
+        $locationMapping = $mapper->mapping;
 
         $locationDataLookup = StarmapLocationData::query()
             ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
@@ -159,7 +161,7 @@ class ImportItemPrices implements ShouldQueue
 
                     return [
                         'terminal_id' => $terminalId,
-                        'terminal_code' => $mapper->getTerminalCode($terminalId),
+                        'terminal_code' => $mapper->terminalCodes()->get($terminalId),
                         'terminal_name' => $p['terminal_name'],
                         'starmap_location_uuid' => $locationUuid,
                         'starmap_location_data_id' => $locationUuid !== null
@@ -169,6 +171,7 @@ class ImportItemPrices implements ShouldQueue
                         'price_sell' => $p['price_sell'],
                         'game_version' => $gameVersionCode,
                         'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                        'uex_link' => self::buildItemLink($p['item_name'] ?? null),
                     ];
                 })
                 ->values()
@@ -217,7 +220,7 @@ class ImportItemPrices implements ShouldQueue
         $purchasePrices = $this->fetchBulkPrices("{$apiUrl}/vehicles_purchases_prices_all", 'purchase');
         $rentalPrices = $this->fetchBulkPrices("{$apiUrl}/vehicles_rentals_prices_all", 'rental');
 
-        $locationMapping = $mapper->getMapping();
+        $locationMapping = $mapper->mapping;
 
         $locationDataLookup = StarmapLocationData::query()
             ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
@@ -353,7 +356,7 @@ class ImportItemPrices implements ShouldQueue
 
                 return [
                     'terminal_id' => $terminalId,
-                    'terminal_code' => $mapper->getTerminalCode($terminalId),
+                    'terminal_code' => $mapper->terminalCodes()->get($terminalId),
                     'terminal_name' => $p['terminal_name'],
                     'starmap_location_uuid' => $locationUuid,
                     'starmap_location_data_id' => $locationUuid !== null
@@ -362,6 +365,7 @@ class ImportItemPrices implements ShouldQueue
                     $priceField => $p[$priceField],
                     'game_version' => $gameVersionCode,
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                    'uex_link' => self::buildVehicleLink($terminalId, $priceField),
                 ];
             })
             ->values()

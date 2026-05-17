@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Concerns;
 
+use App\Http\Resources\Game\Uex\UexPriceResource;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Support\Collection;
 
@@ -11,6 +12,9 @@ trait ExpandsUexPrices
 {
     private static ?Collection $locationDataCache = null;
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function expandPrices(array $prices): array
     {
         if ($prices === []) {
@@ -20,35 +24,15 @@ trait ExpandsUexPrices
         $locationDataLookup = $this->resolveLocationDataLookup($prices);
 
         return collect($prices)
-            ->map(function (array $price) use ($locationDataLookup): array {
+            ->map(function (array $price) use ($locationDataLookup): UexPriceResource {
                 $locationDataId = $price['starmap_location_data_id'] ?? null;
                 $locationData = $locationDataId !== null ? $locationDataLookup->get($locationDataId) : null;
-                $locationUuid = $price['starmap_location_uuid'] ?? null;
 
                 unset($price['starmap_location_data_id']);
 
-                $price['link'] = $locationUuid !== null
-                    ? route('locations.show', ['identifier' => $locationUuid])
-                    : null;
-
-                $price['web_url'] = $locationUuid !== null
-                    ? route('web.locations.show', ['identifier' => $locationUuid])
-                    : null;
-
-                if ($locationData !== null) {
-                    $price['starmap_location'] = [
-                        'name' => $locationData->name,
-                        'slug' => $locationData->location?->slug,
-                        'type_name' => $locationData->type_name,
-                        'parent_name' => $locationData->parent?->name,
-                        'star_system_name' => $locationData->parent?->star?->name,
-                    ];
-                } else {
-                    $price['starmap_location'] = null;
-                }
-
-                return $price;
+                return new UexPriceResource($price, $locationData);
             })
+            ->map(fn (UexPriceResource $r) => $r->resolve())
             ->sortBy([['starmap_location.star_system_name', 'asc'], ['date_updated', 'desc']])
             ->values()
             ->toArray();

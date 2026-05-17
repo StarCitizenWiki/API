@@ -6,10 +6,9 @@ namespace App\Jobs\Game;
 
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
-use App\Models\Game\Vehicle;
-use App\Models\Game\VehicleData;
 use App\Support\UEXcorp\TerminalLocationMapper;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -23,7 +22,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class EnrichVehiclePrices implements ShouldQueue
+class EnrichCommodityPrices implements ShouldQueue
 {
     use Batchable;
     use BuildsUexLinks;
@@ -40,13 +39,11 @@ class EnrichVehiclePrices implements ShouldQueue
     private const int THROTTLE_MICROSECONDS = 200_000;
 
     /**
-     * @param  array<int, string>  $vehicleUuids  wiki UUIDs
-     * @param  array<string, string>  $wikiToUexMap  wikiUUID => uexUUID
+     * @param  array<int, int>  $commodityIds  our commodity IDs to enrich
      */
     public function __construct(
         private readonly int $gameVersionId,
-        private readonly array $vehicleUuids,
-        private readonly array $wikiToUexMap = [],
+        private readonly array $commodityIds,
         private readonly ?string $previousVersionCode = null,
     ) {}
 
@@ -64,18 +61,11 @@ class EnrichVehiclePrices implements ShouldQueue
 
         $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
 
-        $reverseMap = collect($this->wikiToUexMap);
-
-        $vehicles = Vehicle::query()
-            ->whereIn('uuid', $this->vehicleUuids)
-            ->pluck('id', 'uuid');
-
-        $vehicleDataCollection = VehicleData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->whereIn('vehicle_id', $vehicles->values())
-            ->where(fn ($q) => $q->whereNotNull('uex_purchase_prices')->orWhereNotNull('uex_rental_prices'))
+        $commodities = Commodity::query()
+            ->whereIn('id', $this->commodityIds)
+            ->whereNotNull('uex_prices')
             ->get()
-            ->keyBy('vehicle_id');
+            ->keyBy('id');
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
         $locationMapping = $mapper->mapping;
@@ -88,22 +78,20 @@ class EnrichVehiclePrices implements ShouldQueue
         $apiUrl = config('uexcorp.api_url');
         $updatedCount = 0;
 
-        foreach ($this->vehicleUuids as $wikiUuid) {
-            $vehicleId = $vehicles->get($wikiUuid);
+        foreach ($this->commodityIds as $commodityId) {
+            $commodity = $commodities->get($commodityId);
 
-            if ($vehicleId === null) {
+            if ($commodity === null) {
                 continue;
             }
 
-            $vehicleData = $vehicleDataCollection->get($vehicleId);
+            $uexCommodityId = $this->extractUexCommodityId($commodity->uex_prices ?? []);
 
-            if ($vehicleData === null) {
+            if ($uexCommodityId === null) {
                 continue;
             }
 
-            $uexUuid = $reverseMap->get($wikiUuid, $wikiUuid) ?? $wikiUuid;
-
-            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
+            $enriched = $this->enrichCommodity($apiUrl, $uexCommodityId, $commodity, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -112,67 +100,60 @@ class EnrichVehiclePrices implements ShouldQueue
             usleep(self::THROTTLE_MICROSECONDS);
         }
 
-        Log::info('UEX vehicle prices enrichment chunk completed', [
+        Log::info('UEX commodity prices enrichment chunk completed', [
             'count' => $updatedCount,
-            'chunk_size' => count($this->vehicleUuids),
+            'chunk_size' => count($this->commodityIds),
             'game_version_id' => $this->gameVersionId,
         ]);
     }
 
+    private function extractUexCommodityId(array $prices): ?int
+    {
+        $first = $prices[0] ?? null;
+
+        if ($first === null) {
+            return null;
+        }
+
+        return $first['uex_commodity_id'] ?? null;
+    }
+
     /**
-     * @param  Collection<int, string>  $locationMapping
-     * @param  Collection<int, int|null>  $locationDataLookup
      * @param  array<string, string>  $versionPrefixMap
      */
-    private function enrichVehicle(
+    private function enrichCommodity(
         string $apiUrl,
-        string $uexUuid,
-        VehicleData $vehicleData,
+        int $uexCommodityId,
+        Commodity $commodity,
         Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         array $versionPrefixMap,
     ): bool {
-        $purchaseResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_purchases_prices", ['uuid' => $uexUuid]);
-        $rentalResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_rentals_prices", ['uuid' => $uexUuid]);
+        $response = Http::timeout(30)->get("{$apiUrl}/commodities_prices", ['id_commodity' => $uexCommodityId]);
 
-        $purchaseData = $purchaseResponse->successful() ? $purchaseResponse->json('data', []) : [];
-        $rentalData = $rentalResponse->successful() ? $rentalResponse->json('data', []) : [];
+        if (! $response->successful()) {
+            Log::warning('UEX per-commodity price API failed', [
+                'uex_commodity_id' => $uexCommodityId,
+                'status' => $response->status(),
+            ]);
 
-        if ((! is_array($purchaseData) || $purchaseData === []) && (! is_array($rentalData) || $rentalData === [])) {
             return false;
         }
 
-        if (is_array($purchaseData) && $purchaseData !== []) {
-            $vehicleData->uex_purchase_prices = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+        $apiPrices = $response->json('data', []);
+
+        if (! is_array($apiPrices) || $apiPrices === []) {
+            return false;
         }
 
-        if (is_array($rentalData) && $rentalData !== []) {
-            $vehicleData->uex_rental_prices = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
-        }
+        $uexLink = self::buildCommodityLink($commodity->name);
 
-        $vehicleData->save();
-
-        return true;
-    }
-
-    /**
-     * @param  Collection<int, string>  $locationMapping
-     * @param  Collection<int, int|null>  $locationDataLookup
-     * @param  array<string, string>  $versionPrefixMap
-     */
-    private function mapEnrichedPrices(
-        array $apiPrices,
-        Collection $locationMapping,
-        TerminalLocationMapper $mapper,
-        Collection $locationDataLookup,
-        string $priceField,
-        array $versionPrefixMap,
-    ): array {
-        return collect($apiPrices)
+        $enrichedPrices = collect($apiPrices)
             ->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap))
+            ->filter(fn (array $p): bool => ($p['price_buy'] ?? 0) > 0 || ($p['price_sell'] ?? 0) > 0)
             ->unique('id_terminal')
-            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField, $versionPrefixMap): array {
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $versionPrefixMap, $uexLink, $uexCommodityId): array {
                 $terminalId = (int) $p['id_terminal'];
                 $locationUuid = $locationMapping->get($terminalId);
 
@@ -184,21 +165,35 @@ class EnrichVehiclePrices implements ShouldQueue
                     'starmap_location_data_id' => $locationUuid !== null
                         ? $locationDataLookup->get($locationUuid)
                         : null,
-                    $priceField => $p[$priceField],
+                    'price_buy' => $p['price_buy'],
+                    'price_sell' => $p['price_sell'],
+                    'price_buy_avg' => $p['price_buy_avg'] ?? null,
+                    'price_sell_avg' => $p['price_sell_avg'] ?? null,
+                    'scu_sell_stock' => $p['scu_sell_stock'] ?? null,
+                    'scu_sell_stock_avg' => $p['scu_sell_stock_avg'] ?? null,
+                    'container_sizes' => $p['container_sizes'] ?? null,
+                    'status_buy' => $p['status_buy'] ?? null,
+                    'status_sell' => $p['status_sell'] ?? null,
                     'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
                     'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
-                    'uex_link' => $this->buildVehicleLink($terminalId, $priceField),
+                    'uex_link' => $uexLink,
+                    'uex_commodity_id' => $uexCommodityId,
                 ];
             })
             ->values()
             ->toArray();
+
+        $commodity->uex_prices = $enrichedPrices;
+        $commodity->save();
+
+        return true;
     }
 
     public function failed(Throwable $exception): void
     {
-        Log::error('UEX vehicle prices enrichment job failed', [
+        Log::error('UEX commodity prices enrichment job failed', [
             'game_version_id' => $this->gameVersionId,
-            'chunk_size' => count($this->vehicleUuids),
+            'chunk_size' => count($this->commodityIds),
             'message' => $exception->getMessage(),
         ]);
     }

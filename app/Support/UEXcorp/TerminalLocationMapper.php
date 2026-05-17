@@ -11,7 +11,60 @@ use Illuminate\Support\Facades\Log;
 
 final class TerminalLocationMapper
 {
-    private ?Collection $mapping = null;
+    public private(set) ?Collection $mapping = null {
+        get {
+            if ($this->mapping !== null) {
+                return $this->mapping;
+            }
+
+            $terminals = $this->fetchTerminals();
+
+            if ($terminals->isEmpty()) {
+                $this->mapping = collect();
+                $this->terminalCodes = collect();
+
+                return $this->mapping;
+            }
+
+            $starmapIndex = $this->loadStarmapIndex();
+
+            $overrides = collect(config('uexcorp.terminal_location_overrides', []));
+
+            $this->mapping = collect();
+            $this->terminalCodes = collect();
+
+            foreach ($terminals as $terminal) {
+                $displayname = $terminal['displayname'] ?? null;
+
+                if ($displayname === null || $displayname === '') {
+                    continue;
+                }
+
+                $systemName = $terminal['star_system_name'] ?? null;
+                $uuid = $this->resolveUuid($displayname, $systemName, $starmapIndex, $overrides);
+                $terminalId = (int) $terminal['id'];
+
+                if ($uuid !== null) {
+                    $this->mapping->put($terminalId, $uuid);
+                }
+
+                if (isset($terminal['code']) && $terminal['code'] !== '') {
+                    $this->terminalCodes->put($terminalId, $terminal['code']);
+                }
+            }
+
+            $total = $terminals->count();
+            $matched = $this->mapping->count();
+
+            Log::info('UEXcorp terminal-to-starmap mapping built', [
+                'total_terminals' => $total,
+                'matched' => $matched,
+                'unmatched' => $total - $matched,
+            ]);
+
+            return $this->mapping;
+        }
+    }
 
     /** @var Collection<int, string> terminal_id => code */
     private Collection $terminalCodes;
@@ -19,106 +72,100 @@ final class TerminalLocationMapper
     public function __construct(private readonly ?int $gameVersionId = null) {}
 
     /**
-     * @return Collection<int, string> terminal_id => starmap_location_uuid
+     * @return Collection<int, string> terminal_id => code
      */
-    public function getMapping(): Collection
+    public function terminalCodes(): Collection
     {
-        if ($this->mapping !== null) {
-            return $this->mapping;
-        }
+        $this->mapping;
 
-        $terminals = $this->fetchTerminals();
-
-        if ($terminals->isEmpty()) {
-            $this->mapping = collect();
-            $this->terminalCodes = collect();
-
-            return $this->mapping;
-        }
-
-        $starmapNames = $this->loadStarmapNameIndex();
-
-        $overrides = collect(config('uexcorp.terminal_location_overrides', []));
-        $lowerMap = $starmapNames->mapWithKeys(fn (string $uuid, string $name): array => [strtolower($name) => $uuid]);
-
-        $this->mapping = collect();
-        $this->terminalCodes = collect();
-
-        foreach ($terminals as $terminal) {
-            $displayname = $terminal['displayname'] ?? null;
-
-            if ($displayname === null || $displayname === '') {
-                continue;
-            }
-
-            $uuid = $this->resolveUuid($displayname, $starmapNames, $overrides, $lowerMap);
-            $terminalId = (int) $terminal['id'];
-
-            if ($uuid !== null) {
-                $this->mapping->put($terminalId, $uuid);
-            }
-
-            if (isset($terminal['code']) && $terminal['code'] !== '') {
-                $this->terminalCodes->put($terminalId, $terminal['code']);
-            }
-        }
-
-        $total = $terminals->count();
-        $matched = $this->mapping->count();
-        Log::info('UEXcorp terminal-to-starmap mapping built', [
-            'total_terminals' => $total,
-            'matched' => $matched,
-            'unmatched' => $total - $matched,
-        ]);
-
-        return $this->mapping;
-    }
-
-    public function resolveUuidForTerminal(int $terminalId): ?string
-    {
-        return $this->getMapping()->get($terminalId);
-    }
-
-    public function getTerminalCode(int $terminalId): ?string
-    {
-        $this->getMapping();
-
-        return $this->terminalCodes->get($terminalId);
+        return $this->terminalCodes;
     }
 
     /**
-     * @return Collection<string, string> name => uuid
+     * @return array{by_system: Collection<string, Collection<string, string>>, by_name: Collection<string, string>}
+     *                                                                                                               by_system: system_key => (name => uuid), by_name: name => uuid
      */
-    private function loadStarmapNameIndex(): Collection
+    private function loadStarmapIndex(): array
     {
-        return StarmapLocationData::query()
+        $rows = StarmapLocationData::query()
             ->whereNotNull('name')
             ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
             ->when($this->gameVersionId !== null, fn ($q) => $q->where('game_starmap_location_data.game_version_id', $this->gameVersionId))
-            ->pluck('game_starmap_locations.uuid', 'game_starmap_location_data.name');
+            ->select([
+                'game_starmap_location_data.name',
+                'game_starmap_location_data.system',
+                'game_starmap_locations.uuid',
+            ])
+            ->get();
+
+        $byName = $rows->pluck('uuid', 'name');
+
+        $bySystem = $rows
+            ->filter(fn ($row) => $row->system !== null && $row->system !== '')
+            ->groupBy(fn ($row) => self::normalizeSystemName($row->system))
+            ->map(fn ($group) => $group->pluck('uuid', 'name'));
+
+        return ['by_system' => $bySystem, 'by_name' => $byName];
+    }
+
+    private static function normalizeSystemName(string $system): string
+    {
+        return strtolower(rtrim(str_replace(' System', '', $system)));
     }
 
     /**
-     * @param  Collection<string, string>  $starmapNames  name => uuid
+     * @param  array{by_system: Collection<string, Collection<string, string>>, by_name: Collection<string, string>}  $starmapIndex
      * @param  Collection<string, string>  $overrides  displayname => starmap_name
-     * @param  Collection<string, string>  $lowerMap  strtolower(name) => uuid
      */
-    private function resolveUuid(string $displayname, Collection $starmapNames, Collection $overrides, Collection $lowerMap): ?string
+    private function resolveUuid(string $displayname, ?string $systemName, array $starmapIndex, Collection $overrides): ?string
     {
+        $bySystem = $starmapIndex['by_system'];
+        $byName = $starmapIndex['by_name'];
+
+        // Manual terminal overrides
         if ($overrides->has($displayname)) {
-            return $starmapNames->get($overrides->get($displayname));
+            $overrideName = $overrides->get($displayname);
+
+            if ($systemName !== null && $systemName !== '') {
+                $uuid = $bySystem->get(strtolower($systemName))?->get($overrideName);
+                if ($uuid !== null) {
+                    return $uuid;
+                }
+            }
+
+            return $byName->get($overrideName);
         }
 
-        if ($starmapNames->has($displayname)) {
-            return $starmapNames->get($displayname);
+        // Exact terminal name in system
+        if ($systemName !== null && $systemName !== '') {
+            $uuid = $bySystem->get(strtolower($systemName))?->get($displayname);
+            if ($uuid !== null) {
+                return $uuid;
+            }
         }
 
+        // Case-insensitive terminal name search
         $lower = strtolower($displayname);
-        if ($lowerMap->has($lower)) {
-            return $lowerMap->get($lower);
+        if ($systemName !== null && $systemName !== '') {
+            $systemMap = $bySystem->get(strtolower($systemName));
+
+            if ($systemMap !== null) {
+                foreach ($systemMap as $name => $uuid) {
+                    if (strtolower($name) === $lower) {
+                        return $uuid;
+                    }
+                }
+            }
         }
 
-        foreach ($starmapNames as $name => $uuid) {
+        foreach ($byName as $name => $uuid) {
+            if (strtolower($name) === $lower) {
+                return $uuid;
+            }
+        }
+
+        // Last resort fuzzy substring search
+        foreach ($byName as $name => $uuid) {
             if (str_contains(strtolower($name), $lower) || str_contains($lower, strtolower($name))) {
                 Log::info('UEXcorp terminal matched via fuzzy substring', [
                     'terminal_name' => $displayname,

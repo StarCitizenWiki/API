@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Console\Commands\Game\ImportItemPrices;
 use App\Jobs\Game\EnrichItemPrices as EnrichItemPricesJob;
 use App\Jobs\Game\EnrichVehiclePrices as EnrichVehiclePricesJob;
+use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
 use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
@@ -31,8 +32,9 @@ it('dispatches import batch for default game version', function (): void {
     Bus::assertBatchCount(1);
 
     Bus::assertBatched(function ($batch): bool {
-        return $batch->jobs->count() === 1
-            && $batch->jobs->first() instanceof ImportItemPricesJob;
+        return $batch->jobs->count() === 2
+            && $batch->jobs->first() instanceof ImportItemPricesJob
+            && $batch->jobs->last() instanceof ImportCommodityPricesJob;
     });
 });
 

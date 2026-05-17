@@ -51,6 +51,7 @@ class Commodity extends Model
         'has_default_cargo_containers' => 'boolean',
         'box_sizes_scu' => 'array',
         'images' => 'array',
+        'uex_prices' => 'array',
         'data' => AsCollection::class,
     ];
 

@@ -37,7 +37,7 @@ it('maps terminal IDs to starmap location UUIDs via exact name match', function 
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->resolveUuidForTerminal(1))->toBe('11111111-1111-1111-1111-111111111111');
+    expect($mapper->mapping->get(1))->toBe('11111111-1111-1111-1111-111111111111');
 });
 
 it('falls back to case-insensitive matching', function (): void {
@@ -65,7 +65,7 @@ it('falls back to case-insensitive matching', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->resolveUuidForTerminal(10))->toBe('22222222-2222-2222-2222-222222222222');
+    expect($mapper->mapping->get(10))->toBe('22222222-2222-2222-2222-222222222222');
 });
 
 it('applies config overrides before name matching', function (): void {
@@ -97,7 +97,7 @@ it('applies config overrides before name matching', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->resolveUuidForTerminal(20))->toBe('33333333-3333-3333-3333-333333333333');
+    expect($mapper->mapping->get(20))->toBe('33333333-3333-3333-3333-333333333333');
 });
 
 it('returns null for unmatched terminals', function (): void {
@@ -118,7 +118,7 @@ it('returns null for unmatched terminals', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->resolveUuidForTerminal(99))->toBeNull();
+    expect($mapper->mapping->get(99))->toBeNull();
 });
 
 it('caches the mapping after first build', function (): void {
@@ -146,8 +146,8 @@ it('caches the mapping after first build', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    $mapper->getMapping();
-    $mapper->getMapping();
+    $mapper->mapping;
+    $mapper->mapping;
 
     Http::assertSentCount(1);
 });
@@ -163,7 +163,96 @@ it('handles empty terminal API response gracefully', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->getMapping())->toBeEmpty();
+    expect($mapper->mapping)->toBeEmpty();
+});
+
+it('disambiguates same-named locations across different star systems', function (): void {
+    Log::spy();
+
+    // "Nyx Gateway" exists in both Stanton System and Pyro System
+    $stantonVersion = GameVersion::factory()->create();
+    $pyroLocation = StarmapLocation::factory()->create(['uuid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa']);
+    $stantonLocation = StarmapLocation::factory()->create(['uuid' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb']);
+
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => $pyroLocation->id,
+        'game_version_id' => $stantonVersion->id,
+        'name' => 'Nyx Gateway',
+        'system' => 'Pyro System',
+    ]);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => $stantonLocation->id,
+        'game_version_id' => $stantonVersion->id,
+        'name' => 'Nyx Gateway',
+        'system' => 'Stanton System',
+    ]);
+
+    Http::fake([
+        'api.uexcorp.uk/*' => Http::response([
+            'data' => [
+                [
+                    'id' => 100,
+                    'displayname' => 'Nyx Gateway',
+                    'name' => 'Juice Bar - Nyx Gateway (Pyro)',
+                    'star_system_name' => 'Pyro',
+                ],
+                [
+                    'id' => 200,
+                    'displayname' => 'Nyx Gateway',
+                    'name' => 'Juice Bar - Nyx Gateway (Stanton)',
+                    'star_system_name' => 'Stanton',
+                ],
+            ],
+        ]),
+    ]);
+
+    $mapper = new TerminalLocationMapper($stantonVersion->id);
+
+    // The Pyro terminal must resolve to the Pyro location, not Stanton
+    expect($mapper->mapping->get(100))->toBe('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
+        ->and($mapper->mapping->get(200))->toBe('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+});
+
+it('disambiguates all gateway stations across systems', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create();
+
+    $pyroGwInStanton = StarmapLocation::factory()->create(['uuid' => 'pg-st-0000-0000-000000000001']);
+    $nyxGwInStanton = StarmapLocation::factory()->create(['uuid' => 'ng-st-0000-0000-000000000001']);
+    $stantonGwInPyro = StarmapLocation::factory()->create(['uuid' => 'sg-py-0000-0000-000000000001']);
+    $nyxGwInPyro = StarmapLocation::factory()->create(['uuid' => 'ng-py-0000-0000-000000000001']);
+    $stantonGwInNyx = StarmapLocation::factory()->create(['uuid' => 'sg-ny-0000-0000-000000000001']);
+    $pyroGwInNyx = StarmapLocation::factory()->create(['uuid' => 'pg-ny-0000-0000-000000000001']);
+
+    StarmapLocationData::factory()->create(['starmap_location_id' => $pyroGwInStanton->id, 'game_version_id' => $version->id, 'name' => 'Pyro Gateway', 'system' => 'Stanton System']);
+    StarmapLocationData::factory()->create(['starmap_location_id' => $nyxGwInStanton->id, 'game_version_id' => $version->id, 'name' => 'Nyx Gateway', 'system' => 'Stanton System']);
+    StarmapLocationData::factory()->create(['starmap_location_id' => $stantonGwInPyro->id, 'game_version_id' => $version->id, 'name' => 'Stanton Gateway', 'system' => 'Pyro System']);
+    StarmapLocationData::factory()->create(['starmap_location_id' => $nyxGwInPyro->id, 'game_version_id' => $version->id, 'name' => 'Nyx Gateway', 'system' => 'Pyro System']);
+    StarmapLocationData::factory()->create(['starmap_location_id' => $stantonGwInNyx->id, 'game_version_id' => $version->id, 'name' => 'Stanton Gateway', 'system' => 'Nyx System']);
+    StarmapLocationData::factory()->create(['starmap_location_id' => $pyroGwInNyx->id, 'game_version_id' => $version->id, 'name' => 'Pyro Gateway', 'system' => 'Nyx System']);
+
+    Http::fake([
+        'api.uexcorp.uk/*' => Http::response([
+            'data' => [
+                ['id' => 1, 'displayname' => 'Pyro Gateway', 'name' => 'test', 'star_system_name' => 'Stanton'],
+                ['id' => 2, 'displayname' => 'Nyx Gateway', 'name' => 'test', 'star_system_name' => 'Stanton'],
+                ['id' => 3, 'displayname' => 'Stanton Gateway', 'name' => 'test', 'star_system_name' => 'Pyro'],
+                ['id' => 4, 'displayname' => 'Nyx Gateway', 'name' => 'test', 'star_system_name' => 'Pyro'],
+                ['id' => 5, 'displayname' => 'Stanton Gateway', 'name' => 'test', 'star_system_name' => 'Nyx'],
+                ['id' => 6, 'displayname' => 'Pyro Gateway', 'name' => 'test', 'star_system_name' => 'Nyx'],
+            ],
+        ]),
+    ]);
+
+    $mapper = new TerminalLocationMapper($version->id);
+
+    expect($mapper->mapping->get(1))->toBe('pg-st-0000-0000-000000000001')
+        ->and($mapper->mapping->get(2))->toBe('ng-st-0000-0000-000000000001')
+        ->and($mapper->mapping->get(3))->toBe('sg-py-0000-0000-000000000001')
+        ->and($mapper->mapping->get(4))->toBe('ng-py-0000-0000-000000000001')
+        ->and($mapper->mapping->get(5))->toBe('sg-ny-0000-0000-000000000001')
+        ->and($mapper->mapping->get(6))->toBe('pg-ny-0000-0000-000000000001');
 });
 
 it('resolves terminal codes by terminal ID', function (): void {
@@ -199,7 +288,36 @@ it('resolves terminal codes by terminal ID', function (): void {
 
     $mapper = new TerminalLocationMapper;
 
-    expect($mapper->getTerminalCode(1))->toBe('ARCL1')
-        ->and($mapper->getTerminalCode(2))->toBe('UNMAT')
-        ->and($mapper->getTerminalCode(999))->toBeNull();
+    expect($mapper->terminalCodes()->get(1))->toBe('ARCL1')
+        ->and($mapper->terminalCodes()->get(2))->toBe('UNMAT')
+        ->and($mapper->terminalCodes()->get(999))->toBeNull();
+});
+
+it('resolves unique location name using star_system_name', function (): void {
+    Log::spy();
+
+    $location = StarmapLocation::factory()->create(['uuid' => 'cccccccc-cccc-cccc-cccc-cccccccccccc']);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => $location->id,
+        'game_version_id' => GameVersion::factory()->create()->id,
+        'name' => 'Port Tressler',
+        'system' => 'Stanton System',
+    ]);
+
+    Http::fake([
+        'api.uexcorp.uk/*' => Http::response([
+            'data' => [
+                [
+                    'id' => 300,
+                    'displayname' => 'Port Tressler',
+                    'name' => 'Admin - Port Tressler',
+                    'star_system_name' => 'Stanton',
+                ],
+            ],
+        ]),
+    ]);
+
+    $mapper = new TerminalLocationMapper;
+
+    expect($mapper->mapping->get(300))->toBe('cccccccc-cccc-cccc-cccc-cccccccccccc');
 });

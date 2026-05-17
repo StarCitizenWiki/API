@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Commodity;
 
 use App\Enums\Game\ResourceKind;
+use App\Http\Resources\Game\Concerns\ExpandsUexPrices;
 use App\Models\Game\Commodity\Commodity;
 use App\Support\Formatting\FormatDuration;
 use App\Support\Resources\HasDepositFormatting;
@@ -44,10 +45,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'parent_uuid', description: 'UUID of the parent location entity.', type: 'string', format: 'uuid', nullable: true),
         new OA\Property(property: 'uuid', description: 'UUID of this starmap location entity.', type: 'string', format: 'uuid', nullable: true),
         new OA\Property(property: 'link', description: 'API link to the full location details.', type: 'string', format: 'uri', nullable: true),
-        new OA\Property(property: 'group_probability', description: 'Raw probability of this commodity group occurring at this location (0–1).', type: 'number'),
-        new OA\Property(property: 'group_probability_percent', description: 'Group probability expressed as a percentage (0–100).', type: 'number'),
-        new OA\Property(property: 'relative_probability', description: 'Raw relative probability compared to other commodities at this location (0–1).', type: 'number'),
-        new OA\Property(property: 'relative_probability_percent', description: 'Relative probability expressed as a percentage (0–100).', type: 'number'),
+        new OA\Property(property: 'group_probability', description: 'Raw probability of this commodity group occurring at this location (0-1).', type: 'number'),
+        new OA\Property(property: 'group_probability_percent', description: 'Group probability expressed as a percentage (0-100).', type: 'number'),
+        new OA\Property(property: 'relative_probability', description: 'Raw relative probability compared to other commodities at this location (0-1).', type: 'number'),
+        new OA\Property(property: 'relative_probability_percent', description: 'Relative probability expressed as a percentage (0-100).', type: 'number'),
         new OA\Property(property: 'quality_min', description: 'Minimum quality across all deposit instances at this location.', type: 'integer', nullable: true),
         new OA\Property(property: 'quality_max', description: 'Maximum quality across all deposit instances at this location.', type: 'integer', nullable: true),
         new OA\Property(
@@ -205,11 +206,19 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'link', description: 'API link to this commodity\'s full details.', type: 'string', format: 'uri'),
         new OA\Property(property: 'web_url', description: 'Frontend URL for this commodity\'s page.', type: 'string', format: 'uri'),
+        new OA\Property(
+            property: 'uex_prices',
+            description: 'Price data from UEXcorp for this commodity at various terminals.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/uex_price'),
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
 class CommodityShowResource extends CommodityIndexResource
 {
+    use ExpandsUexPrices;
     use HasDepositFormatting;
 
     public function toArray(Request $request): array
@@ -274,6 +283,8 @@ class CommodityShowResource extends CommodityIndexResource
                         )
                         : null,
                 ])->values()->all(), []),
+
+            'uex_prices' => $this->expandPrices((array) ($this->resource->uex_prices ?? [])),
         ]);
     }
 

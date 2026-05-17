@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Game;
 
+use App\Jobs\Game\EnrichCommodityPrices as EnrichCommodityPricesJob;
 use App\Jobs\Game\EnrichItemPrices as EnrichItemPricesJob;
 use App\Jobs\Game\EnrichVehiclePrices as EnrichVehiclePricesJob;
+use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
 use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
@@ -18,7 +21,7 @@ class ImportItemPrices extends Command
 {
     protected $signature = 'game:import-item-prices {--chunk=50 : Number of UUIDs per enrichment job}';
 
-    protected $description = 'Import item & vehicle prices from UEX Corp API for the default game version';
+    protected $description = 'Import item, vehicle & commodity prices from UEX Corp API for the default game version';
 
     public function handle(): int
     {
@@ -43,7 +46,10 @@ class ImportItemPrices extends Command
             $this->info("Including previous version {$previousVersion->code} for enrichment.");
         }
 
-        Bus::batch([new ImportItemPricesJob($gameVersion->id)])
+        Bus::batch([
+            new ImportItemPricesJob($gameVersion->id),
+            new ImportCommodityPricesJob($gameVersion->id),
+        ])
             ->then(function () use ($gameVersion, $chunkSize, $previousVersionCode): void {
                 self::dispatchEnrichmentBatches($gameVersion, $chunkSize, $previousVersionCode);
             })
@@ -58,6 +64,7 @@ class ImportItemPrices extends Command
     {
         self::dispatchItemEnrichment($gameVersion, $chunkSize, $previousVersionCode);
         self::dispatchVehicleEnrichment($gameVersion, $chunkSize, $previousVersionCode);
+        self::dispatchCommodityEnrichment($gameVersion, $chunkSize, $previousVersionCode);
     }
 
     private static function dispatchItemEnrichment(GameVersion $gameVersion, int $chunkSize, ?string $previousVersionCode): void
@@ -105,6 +112,27 @@ class ImportItemPrices extends Command
 
         $jobs = $chunks->map(
             fn ($chunk): EnrichVehiclePricesJob => new EnrichVehiclePricesJob($gameVersion->id, $chunk->values()->toArray(), $wikiToUexMap, $previousVersionCode),
+        )->all();
+
+        Bus::batch($jobs)->allowFailures()->dispatch();
+    }
+
+    private static function dispatchCommodityEnrichment(GameVersion $gameVersion, int $chunkSize, ?string $previousVersionCode): void
+    {
+        $commodityIds = Commodity::query()
+            ->whereNotNull('uex_prices')
+            ->pluck('id')
+            ->values()
+            ->toArray();
+
+        if ($commodityIds === []) {
+            return;
+        }
+
+        $chunks = collect($commodityIds)->chunk($chunkSize);
+
+        $jobs = $chunks->map(
+            fn ($chunk): EnrichCommodityPricesJob => new EnrichCommodityPricesJob($gameVersion->id, $chunk->values()->toArray(), $previousVersionCode),
         )->all();
 
         Bus::batch($jobs)->allowFailures()->dispatch();

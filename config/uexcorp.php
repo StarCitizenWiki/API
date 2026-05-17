@@ -10,6 +10,9 @@ return [
         'Area 18' => 'Area18',
         'Deakins Research' => 'Deakins Research Outpost',
         'Shady Glen' => 'Shady Glen Farms',
+        'GrimHEX' => 'Grim HEX',
+        'Dudley  Daughters' => 'Dudley & Daughters',
+        'Dudley Daughters' => 'Dudley & Daughters',
     ],
 
     'item_uuid_overrides' => [

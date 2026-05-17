@@ -16,6 +16,7 @@
         ->reduce(static fn (int $carry, array $location): int => $carry + count(data_get($location, 'resources', [])), 0);
     $blueprints = data_get($resource, 'blueprints', []);
     $items = data_get($resource, 'items', []);
+    $uexPrices = data_get($resource, 'uex_prices', []);
 @endphp
 @extends('layouts.app')
 
@@ -83,21 +84,25 @@
                 <x-resources.locations-card :resource="$resource" />
             </section>
 
-            @if (!empty($blueprints))
-                <section class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-lg font-semibold tracking-tight">Used in Blueprints</h2>
-                        <span class="badge badge-soft badge-sm">{{ count($blueprints) }}</span>
-                    </div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <x-uex.prices-card
+                    class="sm:col-span-2"
+                    title="Market Prices"
+                    :sections="[['prices' => $uexPrices]]"
+                />
 
+                @if (!empty($blueprints))
                     <div class="card card-border bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
-                            <div class="overflow-x-auto overflow-y-auto max-h-96">
-                                <table class="table table-zebra">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-subtle mb-3">
+                                <span>Used in Blueprints</span>
+                                <span class="badge badge-soft text-xs">{{ count($blueprints) }}</span>
+                            </div>
+                            <div class="max-h-96 overflow-auto">
+                                <table class="table table-sm table-zebra">
                                     <thead>
                                         <tr>
                                             <th>Output</th>
-                                            <th>Key</th>
                                             <th>Craft Time</th>
                                         </tr>
                                     </thead>
@@ -111,7 +116,6 @@
                                                         {{ $blueprint['output_name'] ?? $blueprint['key'] }}
                                                     @endif
                                                 </td>
-                                                <td class="font-mono text-sm">{{ $blueprint['key'] }}</td>
                                                 <td>{{ $blueprint['craft_time_label'] ?? '-' }}</td>
                                             </tr>
                                         @endforeach
@@ -120,20 +124,17 @@
                             </div>
                         </div>
                     </div>
-                </section>
-            @endif
+                @endif
 
-            @if (!empty($items))
-                <section class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-lg font-semibold tracking-tight">Contained in Items</h2>
-                        <span class="badge badge-soft badge-sm">{{ count($items) }}</span>
-                    </div>
-
+                @if (!empty($items))
                     <div class="card card-border bg-base-100 shadow">
                         <div class="card-body p-5 sm:p-6">
-                            <div class="overflow-x-auto overflow-y-auto max-h-96">
-                                <table class="table table-zebra">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-subtle mb-3">
+                                <span>Contained in Items</span>
+                                <span class="badge badge-soft text-xs">{{ count($items) }}</span>
+                            </div>
+                            <div class="max-h-96 overflow-auto">
+                                <table class="table table-sm table-zebra">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -162,8 +163,8 @@
                             </div>
                         </div>
                     </div>
-                </section>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
 @endsection
