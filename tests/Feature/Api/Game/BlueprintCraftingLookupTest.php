@@ -1122,7 +1122,6 @@ it('includes web_url for unlocking missions on blueprint detail', function (): v
         ->create([
             'title' => 'Eliminate Pirate Threat',
             'reward_scope' => 'Bounty Hunter',
-            'blueprint_drop_chance' => 0.25,
         ]);
 
     $itemData = ItemData::factory()->for($this->defaultVersion, 'gameVersion')->create();
@@ -1139,6 +1138,58 @@ it('includes web_url for unlocking missions on blueprint detail', function (): v
         ->assertJsonCount(1, 'data.unlocking_missions')
         ->assertJsonPath('data.unlocking_missions.0.title', 'Eliminate Pirate Threat')
         ->assertJsonPath('data.unlocking_missions.0.reward_scope', 'Bounty Hunter')
-        ->assertJsonPath('data.unlocking_missions.0.chance', 0.25)
         ->assertJsonPath('data.unlocking_missions.0.web_url', route('web.missions.show', ['mission' => $mission->uuid]));
+});
+
+it('groups unlocking missions by chance on blueprint detail', function (): void {
+    $blueprint = Blueprint::factory()->create();
+
+    $outputItem = Item::factory()->create();
+    ItemData::factory()->for($outputItem, 'item')->for($this->defaultVersion, 'gameVersion')->create();
+
+    $blueprintData = BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_item_uuid' => $outputItem->uuid,
+            'data' => ['tiers' => []],
+        ]);
+
+    $guaranteedMission = Mission::factory()->create();
+    $guaranteedMissionData = MissionData::factory()
+        ->for($guaranteedMission, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create(['title' => 'Alpha Strike']);
+
+    $probableMission = Mission::factory()->create();
+    $probableMissionData = MissionData::factory()
+        ->for($probableMission, 'mission')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create(['title' => 'Bravo Recovery']);
+
+    $itemData = ItemData::factory()->for($this->defaultVersion, 'gameVersion')->create();
+
+    $blueprintData->missions()->attach([
+        $guaranteedMissionData->id => [
+            'pool_uuid' => fake()->uuid(),
+            'item_data_id' => $itemData->id,
+            'chance' => 1.0,
+        ],
+        $probableMissionData->id => [
+            'pool_uuid' => fake()->uuid(),
+            'item_data_id' => $itemData->id,
+            'chance' => 0.5,
+        ],
+    ]);
+
+    $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonCount(2, 'data.unlocking_missions_grouped')
+        ->assertJsonPath('data.unlocking_missions_grouped.0.label', 'Guaranteed')
+        ->assertJsonPath('data.unlocking_missions_grouped.0.chance', 1)
+        ->assertJsonPath('data.unlocking_missions_grouped.0.missions.0.title', 'Alpha Strike')
+        ->assertJsonPath('data.unlocking_missions_grouped.1.label', '50% chance')
+        ->assertJsonPath('data.unlocking_missions_grouped.1.chance', 0.5)
+        ->assertJsonPath('data.unlocking_missions_grouped.1.missions.0.title', 'Bravo Recovery');
 });

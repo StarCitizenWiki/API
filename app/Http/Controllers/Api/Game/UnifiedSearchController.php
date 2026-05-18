@@ -175,7 +175,7 @@ class UnifiedSearchController extends Controller
 
         if ($isPgsql) {
             return "SELECT * FROM (SELECT DISTINCT ON (gmd.game_version_id, gmd.title, gmd.generator_class,
-                        gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.blueprint_pool_uuid)
+                        gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.mission_key)
                         'missions' AS type, gmd.title AS name, NULL::text AS class_name,
                         gmd.mission_type AS classification, gm.slug, gm.uuid::text AS uuid,
                         gmd.debug_name AS extra_label, NULL::text AS item_type
@@ -185,7 +185,7 @@ class UnifiedSearchController extends Controller
                    AND (gmd.title ILIKE ? OR gmd.description ILIKE ? OR gmd.debug_name ILIKE ?)
                    AND gmd.title IS NOT NULL AND gmd.title != ''
                  ORDER BY gmd.game_version_id, gmd.title, gmd.generator_class,
-                          gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.blueprint_pool_uuid, gmd.id ASC
+                          gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.mission_key, gmd.id ASC
                  LIMIT 5)";
         }
 

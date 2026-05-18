@@ -437,66 +437,84 @@ class ImportMissionData implements ShouldQueue
 
     private function syncBlueprints(MissionData $missionData, array $payload): void
     {
-        $blueprintPayload = $payload['Blueprint'] ?? null;
+        // Support both new (Blueprints array) and legacy (Blueprint object) formats
+        $blueprintPayloads = $payload['Blueprints'] ?? null;
 
-        if (! is_array($blueprintPayload)) {
+        if ($blueprintPayloads === null && isset($payload['Blueprint']) && is_array($payload['Blueprint'])) {
+            $blueprintPayloads = [$payload['Blueprint']];
+        }
+
+        if (! is_array($blueprintPayloads) || $blueprintPayloads === []) {
             $missionData->blueprints()->sync([]);
-            $missionData->blueprint_drop_chance = null;
-            $missionData->blueprint_pool_uuid = null;
+            $missionData->mission_key = null;
             $missionData->save();
 
             return;
         }
 
-        $chance = isset($blueprintPayload['Chance']) && is_numeric($blueprintPayload['Chance'])
-            ? (float) $blueprintPayload['Chance']
-            : null;
-
-        $missionData->blueprint_drop_chance = $chance;
-        $missionData->blueprint_pool_uuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
-        $missionData->save();
-
-        $poolUuid = $this->trimOrNull($blueprintPayload['PoolUUID'] ?? null);
-
+        // Collect all pool UUIDs for mission_key computation
+        $poolUuids = [];
         $pivots = [];
 
-        foreach ($blueprintPayload['PoolContents'] ?? [] as $content) {
-            if (! is_array($content)) {
+        foreach ($blueprintPayloads as $pool) {
+            if (! is_array($pool)) {
                 continue;
             }
 
-            $blueprintUuid = $this->trimOrNull($content['BlueprintUUID'] ?? null);
+            $poolUuid = $this->trimOrNull($pool['PoolUUID'] ?? null);
+            $poolChance = isset($pool['Chance']) && is_numeric($pool['Chance'])
+                ? (float) $pool['Chance']
+                : null;
 
-            if ($blueprintUuid === null) {
-                continue;
+            if ($poolUuid !== null) {
+                $poolUuids[] = $poolUuid;
             }
 
-            $blueprintId = $this->blueprintLookup()[$blueprintUuid] ?? null;
+            foreach ($pool['PoolContents'] ?? [] as $content) {
+                if (! is_array($content)) {
+                    continue;
+                }
 
-            if ($blueprintId === null) {
-                continue;
+                $blueprintUuid = $this->trimOrNull($content['BlueprintUUID'] ?? null);
+
+                if ($blueprintUuid === null) {
+                    continue;
+                }
+
+                $blueprintId = $this->blueprintLookup()[$blueprintUuid] ?? null;
+
+                if ($blueprintId === null) {
+                    continue;
+                }
+
+                $blueprintDataId = $this->blueprintDataLookup()[$blueprintId] ?? null;
+
+                if ($blueprintDataId === null) {
+                    continue;
+                }
+
+                $itemUuid = $this->trimOrNull($content['ItemUUID'] ?? null);
+                $itemId = $itemUuid !== null ? ($this->itemLookup()[$itemUuid] ?? null) : null;
+                $itemDataId = $itemId !== null ? ($this->itemDataLookup()[$itemId] ?? null) : null;
+
+                if ($itemDataId === null) {
+                    continue;
+                }
+
+                $pivots[$blueprintDataId.':'.$itemDataId.':'.$poolUuid] = [
+                    'blueprint_data_id' => $blueprintDataId,
+                    'pool_uuid' => $poolUuid,
+                    'item_data_id' => $itemDataId,
+                    'chance' => $poolChance,
+                ];
             }
-
-            $blueprintDataId = $this->blueprintDataLookup()[$blueprintId] ?? null;
-
-            if ($blueprintDataId === null) {
-                continue;
-            }
-
-            $itemUuid = $this->trimOrNull($content['ItemUUID'] ?? null);
-            $itemId = $itemUuid !== null ? ($this->itemLookup()[$itemUuid] ?? null) : null;
-            $itemDataId = $itemId !== null ? ($this->itemDataLookup()[$itemId] ?? null) : null;
-
-            if ($itemDataId === null) {
-                continue;
-            }
-
-            $pivots[$blueprintDataId.':'.$itemDataId] = [
-                'blueprint_data_id' => $blueprintDataId,
-                'pool_uuid' => $poolUuid,
-                'item_data_id' => $itemDataId,
-            ];
         }
+
+        // mission_key = md5 of sorted unique pool UUIDs
+        $sortedPoolUuids = array_unique($poolUuids);
+        sort($sortedPoolUuids);
+        $missionData->mission_key = $sortedPoolUuids !== [] ? md5(implode(',', $sortedPoolUuids)) : null;
+        $missionData->save();
 
         $missionData->blueprints()->detach();
 

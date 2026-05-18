@@ -531,7 +531,7 @@ class BlueprintResource extends AbstractBaseResource
     }
 
     /**
-     * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, chance: int|float|null, web_url: ?string}>
+     * @return array<int, array{title: ?string, debug_name: ?string, reward_scope: ?string, web_url: ?string}>
      */
     private function unlockingMissions(Request $request): array
     {
@@ -544,7 +544,7 @@ class BlueprintResource extends AbstractBaseResource
             ),
             'debug_name' => $this->nullableString($mission->debug_name),
             'reward_scope' => $this->nullableString($mission->reward_scope),
-            'chance' => $this->nullableNumeric($mission->blueprint_drop_chance ?? null),
+            'chance' => $mission->pivot?->chance,
             'web_url' => $mission->relationLoaded('mission') && $mission->mission !== null
                 ? $this->urlWithVersion(route('web.missions.show', ['mission' => $mission->mission->uuid]), $request)
                 : null,

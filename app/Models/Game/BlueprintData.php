@@ -74,7 +74,7 @@ class BlueprintData extends Model
     public function missions(): BelongsToMany
     {
         return $this->belongsToMany(MissionData::class, 'game_mission_data_blueprint', 'blueprint_data_id', 'mission_data_id')
-            ->withPivot(['pool_uuid', 'item_data_id'])
+            ->withPivot(['pool_uuid', 'item_data_id', 'chance'])
             ->using(MissionBlueprint::class);
     }
 

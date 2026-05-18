@@ -31,7 +31,7 @@ class MissionData extends Model
         'mission_giver',
         'faction_id',
         'illegal',
-        'blueprint_pool_uuid',
+        'mission_key',
     ];
 
     protected $table = 'game_mission_data';
@@ -71,8 +71,7 @@ class MissionData extends Model
         'enemy_count_min',
         'enemy_count_max',
         'reward_scope',
-        'blueprint_drop_chance',
-        'blueprint_pool_uuid',
+        'mission_key',
         'data',
     ];
 
@@ -98,8 +97,7 @@ class MissionData extends Model
         'enemy_count_min' => 'integer',
         'enemy_count_max' => 'integer',
         'star_systems' => 'array',
-        'blueprint_drop_chance' => 'float',
-        'blueprint_pool_uuid' => 'string',
+        'mission_key' => 'string',
         'data' => AsCollection::class,
     ];
 
@@ -122,7 +120,7 @@ class MissionData extends Model
     public function blueprints(): BelongsToMany
     {
         return $this->belongsToMany(BlueprintData::class, 'game_mission_data_blueprint', 'mission_data_id', 'blueprint_data_id')
-            ->withPivot(['pool_uuid', 'item_data_id'])
+            ->withPivot(['pool_uuid', 'item_data_id', 'chance'])
             ->using(MissionBlueprint::class);
     }
 

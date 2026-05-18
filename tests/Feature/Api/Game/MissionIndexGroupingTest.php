@@ -354,7 +354,7 @@ it('does not show variant count when ungrouped', function (): void {
     expect($data[1])->not->toHaveKey('variant_count');
 });
 
-it('separates missions with different blueprint pool uuid', function (): void {
+it('separates missions with different mission key', function (): void {
     $mission1 = Mission::factory()->create();
     $mission2 = Mission::factory()->create();
 
@@ -364,7 +364,7 @@ it('separates missions with different blueprint pool uuid', function (): void {
         'mission_giver' => 'Rayari',
         'faction_id' => null,
         'illegal' => false,
-        'blueprint_pool_uuid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        'mission_key' => md5('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
     ]);
     MissionData::factory()->forVersion($this->version)->forMission($mission2)->create([
         'title' => 'Research Mission',
@@ -372,7 +372,7 @@ it('separates missions with different blueprint pool uuid', function (): void {
         'mission_giver' => 'Rayari',
         'faction_id' => null,
         'illegal' => false,
-        'blueprint_pool_uuid' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+        'mission_key' => md5('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),
     ]);
 
     $response = $this->getJson('/api/missions');
@@ -382,7 +382,7 @@ it('separates missions with different blueprint pool uuid', function (): void {
     expect($data)->toHaveCount(2);
 });
 
-it('groups missions with same blueprint pool uuid together', function (): void {
+it('groups missions with same mission key together', function (): void {
     if (DB::connection()->getDriverName() !== 'pgsql') {
         $this->markTestSkipped('Mission grouping requires PostgreSQL.');
     }
@@ -391,13 +391,15 @@ it('groups missions with same blueprint pool uuid together', function (): void {
     $mission2 = Mission::factory()->create();
     $mission3 = Mission::factory()->create();
 
+    $sharedKey = md5('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+
     MissionData::factory()->forVersion($this->version)->forMission($mission1)->create([
         'title' => 'Mining Order',
         'generator_class' => 'Shubin_Mining',
         'mission_giver' => 'Shubin',
         'faction_id' => null,
         'illegal' => false,
-        'blueprint_pool_uuid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        'mission_key' => $sharedKey,
     ]);
     MissionData::factory()->forVersion($this->version)->forMission($mission2)->create([
         'title' => 'Mining Order',
@@ -405,7 +407,7 @@ it('groups missions with same blueprint pool uuid together', function (): void {
         'mission_giver' => 'Shubin',
         'faction_id' => null,
         'illegal' => false,
-        'blueprint_pool_uuid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        'mission_key' => $sharedKey,
     ]);
     MissionData::factory()->forVersion($this->version)->forMission($mission3)->create([
         'title' => 'Mining Order',
@@ -413,7 +415,7 @@ it('groups missions with same blueprint pool uuid together', function (): void {
         'mission_giver' => 'Shubin',
         'faction_id' => null,
         'illegal' => false,
-        'blueprint_pool_uuid' => null,
+        'mission_key' => null,
     ]);
 
     $response = $this->getJson('/api/missions');
@@ -422,8 +424,56 @@ it('groups missions with same blueprint pool uuid together', function (): void {
     $data = $response->json('data');
     expect($data)->toHaveCount(2);
 
-    $withPool = collect($data)->first(fn (array $item) => $item['variant_count'] === 1);
-    $withoutPool = collect($data)->first(fn (array $item) => ! isset($item['variant_count']) || $item['variant_count'] === 0);
-    expect($withPool)->not->toBeNull();
-    expect($withoutPool)->not->toBeNull();
+    $withKey = collect($data)->first(fn (array $item) => $item['variant_count'] === 1);
+    $withoutKey = collect($data)->first(fn (array $item) => ! isset($item['variant_count']) || $item['variant_count'] === 0);
+    expect($withKey)->not->toBeNull();
+    expect($withoutKey)->not->toBeNull();
+});
+
+it('computes deterministic mission key from sorted pool UUIDs', function (): void {
+    $poolA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    $poolB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+
+    // md5 of sorted, comma-joined UUIDs
+    $sorted = collect([$poolA, $poolB])->sort()->values()->all();
+    $expectedKey = md5(implode(',', $sorted));
+
+    // Reverse order should produce the same key because we sort first
+    $reversed = collect([$poolB, $poolA])->sort()->values()->all();
+    $reversedKey = md5(implode(',', $reversed));
+    expect($reversedKey)->toBe($expectedKey);
+});
+
+it('separates missions with multi-pool mission keys', function (): void {
+    $poolA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    $poolB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    $poolC = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+
+    $mission1 = Mission::factory()->create();
+    $mission2 = Mission::factory()->create();
+
+    // Mission 1 has pools A,B -> key = md5("A,B")
+    // Mission 2 has pools A,C -> key = md5("A,C") - different!
+    MissionData::factory()->forVersion($this->version)->forMission($mission1)->create([
+        'title' => 'Multi Pool Mission',
+        'generator_class' => 'Gen_Multi',
+        'mission_giver' => 'Giver',
+        'faction_id' => null,
+        'illegal' => false,
+        'mission_key' => md5(implode(',', [$poolA, $poolB])),
+    ]);
+    MissionData::factory()->forVersion($this->version)->forMission($mission2)->create([
+        'title' => 'Multi Pool Mission',
+        'generator_class' => 'Gen_Multi',
+        'mission_giver' => 'Giver',
+        'faction_id' => null,
+        'illegal' => false,
+        'mission_key' => md5(implode(',', [$poolA, $poolC])),
+    ]);
+
+    $response = $this->getJson('/api/missions');
+
+    $response->assertSuccessful();
+    $data = $response->json('data');
+    expect($data)->toHaveCount(2);
 });

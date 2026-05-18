@@ -18,7 +18,7 @@
 
     $rewardItems = data_get($resource, 'reward_items') ?? [];
     $blueprints = data_get($resource, 'blueprints');
-    $blueprintItems = data_get($blueprints, 'items') ?? [];
+    $hasBlueprints = ! empty($blueprints);
     $reputationGained = data_get($resource, 'reputation_gained') ?? [];
     $reputationLost = data_get($resource, 'reputation_lost') ?? [];
     $combat = data_get($resource, 'combat');
@@ -137,44 +137,66 @@
                             </div>
                         @endif
 
-                        @if ($blueprintItems !== [])
+                        @if ($hasBlueprints)
                             <div class="card card-border bg-base-100 shadow">
-                                <div class="card-body p-5 sm:p-6">
+                                <div class="card-body p-5 sm:p-6 max-h-96 flex flex-col">
                                     <h3 class="font-semibold uppercase text-subtle mb-3">Blueprints</h3>
-                                    @if (data_get($blueprints, 'drop_chance'))
-                                        <p class="text-xs text-subtle mb-3">
-                                            One blueprint from this pool
-                                            ({{ data_get($blueprints, 'drop_chance_percent') }}% drop chance)
-                                        </p>
-                                    @endif
-                                    <div class="overflow-x-auto">
-                                        <table class="table table-sm table-zebra">
-                                            <thead>
+                                    @php
+                                        $isSinglePool = count($blueprints) === 1;
+                                        $singlePoolChance = $isSinglePool ? data_get($blueprints[0], 'drop_chance_percent') : null;
+                                    @endphp
+                                    <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
+                                        <table class="table table-sm">
+                                            <thead class="sticky top-0 z-10">
                                             <tr>
-                                                <th>Item</th>
-                                                <th>Blueprint</th>
+                                                <th class="bg-base-100">Item</th>
+                                                <th class="bg-base-100">Blueprint</th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @foreach ($blueprintItems as $bpItem)
+                                            @foreach ($blueprints as $poolIndex => $pool)
                                                 <tr>
-                                                    <td>
-                                                        @if (data_get($bpItem, 'web_item_link'))
-                                                            <a href="{{ data_get($bpItem, 'web_item_link') }}"
-                                                               class="link link-primary">{{ data_get($bpItem, 'name', '-') }}</a>
+                                                    <td colspan="2" class="bg-base-200/50 px-4 py-2">
+                                                        @if ($isSinglePool)
+                                                            <span class="text-xs text-subtle">
+                                                                One blueprint from this pool
+                                                                @if ($singlePoolChance)
+                                                                    ({{ $singlePoolChance }}% drop chance)
+                                                                @endif
+                                                            </span>
                                                         @else
-                                                            {{ data_get($bpItem, 'name', '-') }}
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if (data_get($bpItem, 'web_blueprint_link'))
-                                                            <a href="{{ data_get($bpItem, 'web_blueprint_link') }}"
-                                                               class="link link-primary text-xs">View</a>
-                                                        @else
-                                                            -
+                                                            <span class="text-xs font-semibold uppercase text-subtle">
+                                                                Pool {{ $poolIndex + 1 }}
+                                                            </span>
+                                                            <span class="text-xs text-subtle">
+                                                                - one from this pool
+                                                                @if (data_get($pool, 'drop_chance'))
+                                                                    ({{ data_get($pool, 'drop_chance_percent') }}% drop chance)
+                                                                @endif
+                                                            </span>
                                                         @endif
                                                     </td>
                                                 </tr>
+                                                @foreach (data_get($pool, 'items', []) as $bpItem)
+                                                    <tr>
+                                                        <td>
+                                                            @if (data_get($bpItem, 'web_item_link'))
+                                                                <a href="{{ data_get($bpItem, 'web_item_link') }}"
+                                                                   class="link link-primary">{{ data_get($bpItem, 'name', '-') }}</a>
+                                                            @else
+                                                                {{ data_get($bpItem, 'name', '-') }}
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if (data_get($bpItem, 'web_blueprint_link'))
+                                                                <a href="{{ data_get($bpItem, 'web_blueprint_link') }}"
+                                                                   class="link link-primary text-xs">View</a>
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
                                             @endforeach
                                             </tbody>
                                         </table>

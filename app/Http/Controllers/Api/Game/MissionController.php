@@ -15,6 +15,7 @@ use App\Models\Game\Mission\MissionData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -391,19 +392,35 @@ class MissionController extends Controller
             $blueprintNameQuery = $this->buildFiltersBaseQuery($request, $versionCode)
                 ->allowedFilters(...$this->allowedFilters())
                 ->join('game_mission_data_blueprint as mdb', 'game_mission_data.id', '=', 'mdb.mission_data_id')
-                ->join('game_blueprint_data as bd', 'mdb.blueprint_data_id', '=', 'bd.id');
+                ->join('game_blueprint_data as bd', 'mdb.blueprint_data_id', '=', 'bd.id')
+                ->leftJoin('game_items as bi', 'bd.output_item_uuid', '=', 'bi.uuid')
+                ->leftJoin('game_item_data as bid', function (JoinClause $join): void {
+                    $join->on('bi.id', '=', 'bid.item_id')
+                        ->on('bid.game_version_id', '=', 'game_mission_data.game_version_id');
+                });
 
             $blueprintNameRows = $blueprintNameQuery
                 ->select([
                     DB::raw('bd.output_name as value'),
+                    DB::raw('bid.classification as item_class'),
                     DB::raw('count(distinct game_mission_data.id) as count'),
                 ])
                 ->whereNotNull('bd.output_name')
-                ->groupByRaw('bd.output_name')
-                ->orderByRaw('bd.output_name')
-                ->get();
+                ->groupByRaw('bd.output_name, bid.classification')
+                ->orderByRaw('bid.classification, bd.output_name')
+                ->get()
+                ->map(function (object $row): object {
+                    $segments = explode('.', $row->item_class ?? '');
+                    $row->item_class = $segments[1] ?? $segments[0] ?? null;
 
-            $out['blueprint_name'] = FilterValues::fromRows($blueprintNameRows);
+                    if ($row->item_class === '' || $row->item_class === null) {
+                        $row->item_class = 'Unknown';
+                    }
+
+                    return $row;
+                });
+
+            $out['blueprint_name'] = FilterValues::fromRows($blueprintNameRows, groupColumn: 'item_class');
 
             $repScopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
                 ->allowedFilters(...$this->allowedFilters());

@@ -18,6 +18,7 @@ class MissionBlueprint extends Pivot
         'blueprint_data_id',
         'pool_uuid',
         'item_data_id',
+        'chance',
     ];
 
     protected $casts = [

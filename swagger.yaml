@@ -1206,10 +1206,10 @@ paths:
         -
           name: 'filter[tags]'
           in: query
-          description: 'Filter by stdItem.Tags array values. Accepts comma-separated tags for AND matching (item must have ALL specified tags). Example: filter[tags]=FPS_Barrel,energy_attach to find items with both tags.'
+          description: 'Filter by stdItem.RequiredTags array values. Use when a port has required_tags - matches items whose RequiredTags contain ALL specified values. Accepts comma-separated tags for AND matching.'
           schema:
             type: string
-            example: Dock_Command_Module
+            example: MISC_Fury_Miru
         -
           name: 'filter[port_tags]'
           in: query
@@ -1217,6 +1217,13 @@ paths:
           schema:
             type: string
             example: 'flight_ready,Ship_Dock_Refuel'
+        -
+          name: 'filter[vehicle]'
+          in: query
+          description: "Scope items to a specific vehicle. Accepts one or more vehicle identity tags (from the vehicle's port_tags field). Returns universal items (empty RequiredTags) plus bespoke items whose RequiredTags match any provided tag. Use on vehicle pages to show only items equippable on that vehicle."
+          schema:
+            type: string
+            example: AEGS_Avenger_Base
       responses:
         '200':
           description: 'List of Items'
@@ -6110,10 +6117,13 @@ components:
               type: string
               format: uri
             uex_prices:
-              description: 'Price data from UEXcorp for this commodity at various terminals.'
-              type: array
-              items:
-                $ref: '#/components/schemas/uex_price'
+              description: 'Commodity prices from UEX Corp API.'
+              properties:
+                purchase:
+                  description: 'Purchase prices from UEX Corp.'
+                  type: array
+                  items: { $ref: '#/components/schemas/uex_price' }
+              type: object
               nullable: true
           type: object
     area_exception:
@@ -7728,39 +7738,13 @@ components:
           nullable: true
         uex_prices:
           description: 'Item prices from UEX Corp API.'
-          type: array
-          items:
-            properties:
-              terminal_id:
-                description: 'UEX terminal ID'
-                type: integer
-              terminal_code:
-                type: string
-                nullable: true
-              terminal_name:
-                type: string
-              starmap_location_uuid:
-                type: string
-                nullable: true
-              price_buy:
-                type: number
-                format: double
-              price_sell:
-                type: number
-                format: double
-              game_version:
-                description: 'Game version this price applies to, e.g. 4.7.1'
-                type: string
-                nullable: true
-              date_updated:
-                type: string
-                format: date-time
-              starmap_location:
-                oneOf:
-                  - { $ref: '#/components/schemas/starmap_location_link' }
-                nullable: true
-            type: object
-          nullable: true
+          properties:
+            purchase:
+              description: 'Purchase prices from UEX Corp.'
+              type: array
+              items:
+                $ref: '#/components/schemas/uex_price'
+          type: object
         vehicles:
           description: 'Only returned when `include=vehicles` is requested. Vehicles that have this item installed.'
           type: array
@@ -14592,10 +14576,6 @@ components:
           nullable: true
         has_blueprints:
           type: boolean
-        blueprint_drop_chance:
-          type: number
-          format: float
-          nullable: true
         blueprints:
           type: array
           items:
@@ -15127,13 +15107,23 @@ components:
       type: object
     mission_blueprints:
       title: 'Mission Blueprints'
+      description: 'Array of blueprint pools'
+      type: array
+      items:
+        $ref: '#/components/schemas/mission_blueprint_pool'
+    mission_blueprint_pool:
+      title: 'Mission Blueprint Pool'
       properties:
         drop_chance:
           type: number
           format: float
+          nullable: true
         drop_chance_percent:
           type: number
           format: float
+          nullable: true
+        pool_uuid:
+          type: string
           nullable: true
         items:
           type: array
@@ -16600,6 +16590,13 @@ components:
           description: 'class name.'
           type: string
           example: AEGS_Avenger_Titan
+        port_tags:
+          description: 'Vehicle-level identity tags. Used by the items API filter[vehicle] to scope equippable items to this vehicle.'
+          type: array
+          items:
+            type: string
+          example:
+            - AEGS_Avenger_Base
         manufacturer:
           $ref: '#/components/schemas/manufacturer_link'
         size_class:
@@ -17799,30 +17796,12 @@ components:
               description: 'Purchase prices from UEX Corp.'
               type: array
               items:
-                properties:
-                  terminal_id: { description: 'UEX terminal ID', type: integer }
-                  terminal_code: { type: string, nullable: true }
-                  terminal_name: { type: string }
-                  starmap_location_uuid: { type: string, nullable: true }
-                  price_buy: { type: number, format: double }
-                  game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
-                  date_updated: { type: string, format: date-time }
-                  starmap_location: { oneOf: [{ $ref: '#/components/schemas/starmap_location_link' }], nullable: true }
-                type: object
+                $ref: '#/components/schemas/uex_price'
             rental:
               description: 'Rental prices from UEX Corp.'
               type: array
               items:
-                properties:
-                  terminal_id: { description: 'UEX terminal ID', type: integer }
-                  terminal_code: { type: string, nullable: true }
-                  terminal_name: { type: string }
-                  starmap_location_uuid: { type: string, nullable: true }
-                  price_rent: { type: number, format: double }
-                  game_version: { description: 'Game version this price applies to, e.g. 4.7.1', type: string, nullable: true }
-                  date_updated: { type: string, format: date-time }
-                  starmap_location: { oneOf: [{ $ref: '#/components/schemas/starmap_location_link' }], nullable: true }
-                type: object
+                $ref: '#/components/schemas/uex_price'
           type: object
         images:
           description: 'Images from external sources for this vehicle.'

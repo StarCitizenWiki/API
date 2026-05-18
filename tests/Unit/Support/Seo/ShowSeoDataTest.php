@@ -392,9 +392,11 @@ it('builds mission seo data with faction breadcrumbs and Action structured data'
         'reward_currency' => 'aUEC',
         'star_systems' => ['Stanton', 'Pyro'],
         'blueprints' => [
-            'drop_chance_percent' => 12.5,
-            'items' => [
-                ['name' => 'Weapon Blueprint', 'uuid' => 'bp-item-1'],
+            [
+                'drop_chance_percent' => 12.5,
+                'items' => [
+                    ['name' => 'Weapon Blueprint', 'uuid' => 'bp-item-1'],
+                ],
             ],
         ],
         'game_version' => '4.1.0-LIVE',

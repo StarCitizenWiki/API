@@ -59,7 +59,6 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(property: 'has_blueprints', type: 'boolean'),
-        new OA\Property(property: 'blueprint_drop_chance', type: 'number', format: 'float', nullable: true),
         new OA\Property(
             property: 'blueprints',
             type: 'array',
@@ -222,7 +221,6 @@ class MissionIndexResource extends AbstractBaseResource
             'variant_count' => $this->whenNotNull($this->resource->variant_count),
             'variants' => $this->whenNotNull($variantLinks),
             'has_blueprints' => $this->resource->blueprints->isNotEmpty(),
-            'blueprint_drop_chance' => $this->resource->blueprint_drop_chance,
             'blueprints' => $this->when(
                 $this->resource->relationLoaded('blueprints') && $this->resource->blueprints->isNotEmpty(),
                 fn (): array => $this->mapBlueprints($request),

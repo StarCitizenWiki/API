@@ -273,31 +273,36 @@ final class MissionShowSeoData extends AbstractShowSeoData
     private function buildBlueprintInstrument(array $mission): ?array
     {
         $blueprints = data_get($mission, 'blueprints');
-        $items = data_get($blueprints, 'items');
 
-        if (! is_array($items) || $items === []) {
+        if (! is_array($blueprints) || $blueprints === []) {
             return null;
         }
 
-        $dropChancePercent = data_get($blueprints, 'drop_chance_percent');
+        $allItems = [];
+        foreach ($blueprints as $pool) {
+            $poolItems = $pool['items'] ?? [];
+            $dropChancePercent = $pool['drop_chance_percent'] ?? null;
 
-        return array_map(static function (array $item) use ($dropChancePercent): array {
-            $entry = [
-                '@type' => 'Thing',
-                'name' => data_get($item, 'name'),
-            ];
+            foreach ($poolItems as $item) {
+                $entry = [
+                    '@type' => 'Thing',
+                    'name' => data_get($item, 'name'),
+                ];
 
-            $itemUuid = data_get($item, 'uuid');
-            if ($itemUuid !== null) {
-                $entry['identifier'] = $itemUuid;
+                $itemUuid = data_get($item, 'uuid');
+                if ($itemUuid !== null) {
+                    $entry['identifier'] = $itemUuid;
+                }
+
+                if ($dropChancePercent !== null) {
+                    $entry['probability'] = $dropChancePercent;
+                }
+
+                $allItems[] = $entry;
             }
+        }
 
-            if ($dropChancePercent !== null) {
-                $entry['probability'] = $dropChancePercent;
-            }
-
-            return $entry;
-        }, $items);
+        return $allItems !== [] ? $allItems : null;
     }
 
     private function firstStarSystem(array $mission): ?string

@@ -191,9 +191,17 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'mission_blueprints',
     title: 'Mission Blueprints',
+    description: 'Array of blueprint pools',
+    type: 'array',
+    items: new OA\Items(ref: '#/components/schemas/mission_blueprint_pool')
+)]
+#[OA\Schema(
+    schema: 'mission_blueprint_pool',
+    title: 'Mission Blueprint Pool',
     properties: [
-        new OA\Property(property: 'drop_chance', type: 'number', format: 'float'),
+        new OA\Property(property: 'drop_chance', type: 'number', format: 'float', nullable: true),
         new OA\Property(property: 'drop_chance_percent', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'pool_uuid', type: 'string', nullable: true),
         new OA\Property(
             property: 'items',
             type: 'array',
@@ -404,34 +412,42 @@ class MissionResource extends AbstractBaseResource
             return null;
         }
 
-        return [
-            'drop_chance' => $this->resource->blueprint_drop_chance,
-            'drop_chance_percent' => is_numeric($this->resource->blueprint_drop_chance)
-                ? round((float) $this->resource->blueprint_drop_chance * 100, 1)
-                : null,
-            'items' => $blueprints->map(fn ($blueprintData): array => [
-                'name' => $blueprintData->output_name,
-                'uuid' => $blueprintData->output_item_uuid,
-                'item_link' => $blueprintData->output_item_uuid !== null
-                    ? $this->urlWithVersion(
-                        route('items.show', ['identifier' => $blueprintData->output_item_uuid]),
-                        $request,
-                    )
+        // Group pivot rows by pool_uuid
+        $grouped = $blueprints->groupBy(fn ($blueprintData) => $blueprintData->pivot->pool_uuid ?? '_null_');
+
+        return $grouped->map(function ($poolItems, $poolUuid) use ($request): array {
+            $dropChance = $poolItems->first()?->pivot?->chance;
+
+            return [
+                'drop_chance' => $dropChance,
+                'drop_chance_percent' => is_numeric($dropChance)
+                    ? round((float) $dropChance * 100, 1)
                     : null,
-                'blueprint_link' => $blueprintData->blueprint?->uuid !== null
-                    ? $this->urlWithVersion(
-                        route('blueprints.show', ['blueprint' => $blueprintData->blueprint->uuid]),
-                        $request,
-                    )
-                    : null,
-                'web_item_link' => $blueprintData->output_item_uuid !== null
-                    ? route('web.items.show', ['item' => $blueprintData->output_item_uuid])
-                    : null,
-                'web_blueprint_link' => $blueprintData->blueprint?->uuid !== null
-                    ? route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->slug ?? $blueprintData->blueprint->uuid])
-                    : null,
-            ])->values()->all(),
-        ];
+                'pool_uuid' => $poolUuid !== '_null_' ? $poolUuid : null,
+                'items' => $poolItems->map(fn ($blueprintData): array => [
+                    'name' => $blueprintData->output_name,
+                    'uuid' => $blueprintData->output_item_uuid,
+                    'item_link' => $blueprintData->output_item_uuid !== null
+                        ? $this->urlWithVersion(
+                            route('items.show', ['identifier' => $blueprintData->output_item_uuid]),
+                            $request,
+                        )
+                        : null,
+                    'blueprint_link' => $blueprintData->blueprint?->uuid !== null
+                        ? $this->urlWithVersion(
+                            route('blueprints.show', ['blueprint' => $blueprintData->blueprint->uuid]),
+                            $request,
+                        )
+                        : null,
+                    'web_item_link' => $blueprintData->output_item_uuid !== null
+                        ? route('web.items.show', ['item' => $blueprintData->output_item_uuid])
+                        : null,
+                    'web_blueprint_link' => $blueprintData->blueprint?->uuid !== null
+                        ? route('web.blueprints.show', ['blueprint' => $blueprintData->blueprint->slug ?? $blueprintData->blueprint->uuid])
+                        : null,
+                ])->values()->all(),
+            ];
+        })->values()->all();
     }
 
     private function mapRewardItemsFromRelation(Request $request): ?array
