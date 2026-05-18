@@ -5,6 +5,7 @@
     $ports = data_get($vehicle, 'ports', []);
     $powerPools = data_get($vehicle, 'power_pools', []);
     $vehicleName = data_get($vehicle, 'name');
+    $vehiclePortTags = data_get($vehicle, 'port_tags', []);
 
     if (! is_array($ports) || $ports === []) {
         return;
@@ -67,7 +68,7 @@
                                     @foreach($categoryPorts as $port)
                                         <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
                                                         :power-pools="$powerPools" :category-index="$loop->index"
-                                                        :vehicle-name="$vehicleName"/>
+                                                        :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
                                     @endforeach
                                 </div>
                             </div>
@@ -98,7 +99,7 @@
                                 @foreach($categoryPorts as $port)
                                     <x-port-display :port="$port" :editable="data_get($port, 'editable', false)"
                                                     :power-pools="$powerPools" :category-index="$loop->index"
-                                                    :vehicle-name="$vehicleName"/>
+                                                    :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
                                 @endforeach
                             </div>
                         </div>

@@ -6,11 +6,12 @@
     'sizeMax' => null,
     'requiredTags' => null,
     'portTags' => null,
+    'vehiclePortTags' => null,
     'browseUrl',
 ])
 
 <div
-    x-data="portEquippable(@js(['type' => $type, 'subType' => $subType, 'sizeMin' => $sizeMin, 'sizeMax' => $sizeMax, 'requiredTags' => $requiredTags, 'portTags' => $portTags]))"
+    x-data="portEquippable(@js(['type' => $type, 'subType' => $subType, 'sizeMin' => $sizeMin, 'sizeMax' => $sizeMax, 'requiredTags' => $requiredTags, 'portTags' => $portTags, 'vehiclePortTags' => $vehiclePortTags]))"
 >
     <button
         type="button"
@@ -48,7 +49,7 @@
 
             <div x-show="loading" class="flex items-center justify-center gap-2 px-3 py-6 text-sm text-muted">
                 <span class="loading loading-spinner loading-sm"></span>
-                <span>Loading…</span>
+                <span>Loading&hellip;</span>
             </div>
 
             <div x-show="!loading && items.length > 0" class="max-h-80 overflow-y-auto overscroll-contain">

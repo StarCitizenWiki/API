@@ -315,7 +315,7 @@ describe('tags filter', function (): void {
                 'classification' => 'Test',
                 'data' => [
                     'stdItem' => [
-                        'Tags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
+                        'RequiredTags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
                     ],
                 ],
             ]);
@@ -332,6 +332,7 @@ describe('tags filter', function (): void {
                 'data' => [
                     'stdItem' => [
                         'Tags' => ['Something_Else'],
+                        'RequiredTags' => [],
                     ],
                 ],
             ]);
@@ -355,7 +356,7 @@ describe('tags filter', function (): void {
                 'classification' => 'Test',
                 'data' => [
                     'stdItem' => [
-                        'Tags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
+                        'RequiredTags' => ['Dock_Command_Module', 'Ship_Dock_Refuel'],
                     ],
                 ],
             ]);
@@ -371,7 +372,7 @@ describe('tags filter', function (): void {
                 'classification' => 'Test',
                 'data' => [
                     'stdItem' => [
-                        'Tags' => ['Dock_Command_Module'],
+                        'RequiredTags' => ['Dock_Command_Module'],
                     ],
                 ],
             ]);
@@ -395,7 +396,7 @@ describe('tags filter', function (): void {
                 'classification' => 'Test',
                 'data' => [
                     'stdItem' => [
-                        'Tags' => ['Unrelated_Tag'],
+                        'RequiredTags' => ['Unrelated_Tag'],
                     ],
                 ],
             ]);
@@ -586,11 +587,180 @@ describe('filter[port_tags]', function (): void {
                 ],
             ]);
 
-        // Port only has AEGS_Avenger_Base — item matches because one of its
+        // Port only has AEGS_Avenger_Base - item matches because one of its
         // RequiredTags is present (any-match, not subset).
         $this->getJson('/api/items?filter[port_tags]=AEGS_Avenger_Base')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.uuid', $partial->uuid);
+    });
+});
+
+describe('filter[vehicle]', function (): void {
+    it('shows universal items that have no RequiredTags', function (): void {
+        $universal = Item::factory()->create();
+        ItemData::factory()
+            ->for($universal)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Universal Missile Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $universal->uuid);
+    });
+
+    it('shows bespoke items whose RequiredTags match the vehicle context', function (): void {
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Avenger Turret',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['AEGS_Avenger_Base'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $bespoke->uuid);
+    });
+
+    it('excludes bespoke items whose RequiredTags do not match the vehicle context', function (): void {
+        $furyRack = Item::factory()->create();
+        ItemData::factory()
+            ->for($furyRack)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Fury Missile Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['MISC_Fury_Miru'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
+    it('shows universal and matching bespoke items together', function (): void {
+        $universal = Item::factory()->create();
+        ItemData::factory()
+            ->for($universal)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Universal Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                    ],
+                ],
+            ]);
+
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Avenger Specific Part',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['AEGS_Avenger_Base'],
+                    ],
+                ],
+            ]);
+
+        $wrongBespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($wrongBespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Fury Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['MISC_Fury_Miru'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data');
+    });
+
+    it('matches when any vehicle context tag hits any RequiredTag', function (): void {
+        // Hurricane has multiple identity tags
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Cutlass Part',
+                'type' => 'Turret',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => ['DRAK_Cutlass_Base'],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=ANVL_Hurricane,DRAK_Cutlass_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $bespoke->uuid);
+    });
+
+    it('includes items with null RequiredTags as universal', function (): void {
+        $noTags = Item::factory()->create();
+        ItemData::factory()
+            ->for($noTags)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'No RequiredTags Field',
+                'type' => 'Cooler',
+                'classification' => 'Test',
+                'data' => [
+                    'stdItem' => new stdClass, // no RequiredTags key at all
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $noTags->uuid);
     });
 });

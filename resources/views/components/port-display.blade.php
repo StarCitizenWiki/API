@@ -7,6 +7,7 @@
     'powerPools' => [],
     'categoryIndex' => 0,
     'vehicleName' => null,
+    'vehiclePortTags' => [],
 ])
 
 @php
@@ -59,6 +60,9 @@
             // Only use port_tags filter when there are no required_tags
             // Ports with required_tags already filter correctly via filter[tags], sending port_tags too would exclude valid items
             $browseFilters['port_tags'] = count($row['port_tags']) === 1 ? $row['port_tags'][0] : $row['port_tags'];
+        } elseif (! empty($vehiclePortTags)) {
+            // Universal port on a known vehicle: scope to vehicle context
+            $browseFilters['vehicle'] = count($vehiclePortTags) === 1 ? $vehiclePortTags[0] : implode(',', $vehiclePortTags);
         }
     }
 @endphp
@@ -149,7 +153,7 @@
                 @endif
                 @if ($canBrowse)
                     <span class="{{ $row['primary_stat'] === null ? 'ml-auto' : '' }}">
-                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :browse-url="url()->query(route('web.items.index', ['filter' => $browseFilters]), array_filter(['version' => request()->query('version')]))"/>
+                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :vehicle-port-tags="$vehiclePortTags" :browse-url="url()->query(route('web.items.index', ['filter' => $browseFilters]), array_filter(['version' => request()->query('version')]))"/>
                     </span>
                 @endif
             </span>

@@ -119,6 +119,12 @@ export function portEquippable(filters) {
                     ? filters.portTags
                     : [filters.portTags];
                 portTags.forEach(tag => params.append("filter[port_tags]", tag));
+            } else if (filters.vehiclePortTags && filters.vehiclePortTags.length > 0) {
+                // Universal port on a known vehicle: scope to vehicle context
+                const vehicleTags = Array.isArray(filters.vehiclePortTags)
+                    ? filters.vehiclePortTags
+                    : [filters.vehiclePortTags];
+                params.set("filter[vehicle]", vehicleTags.join(","));
             }
 
             try {
