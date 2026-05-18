@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\AddBatchJobs;
+use App\Jobs\Game\ComputeBespokeItems as ComputeBespokeItemsJob;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Jobs\Game\ImportItemData;
@@ -36,6 +37,7 @@ class SyncGameData extends Command
                             {--skip-starmap : Skip importing starmap data}
                             {--skip-resources : Skip importing resource data}
                             {--skip-compute-item-groups : Skip computing item variant groups and set items}
+                            {--skip-compute-bespoke : Skip computing bespoke item flags}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
                             {--skip-factions : Skip importing faction data}
                             {--skip-missions : Skip importing mission data}';
@@ -68,6 +70,7 @@ class SyncGameData extends Command
         $skipStarmap = (bool) $this->option('skip-starmap');
         $skipResources = (bool) $this->option('skip-resources');
         $skipComputeItemGroups = (bool) $this->option('skip-compute-item-groups');
+        $skipComputeBespoke = (bool) $this->option('skip-compute-bespoke');
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
         $skipFactions = (bool) $this->option('skip-factions');
         $skipMissions = (bool) $this->option('skip-missions');
@@ -121,7 +124,7 @@ class SyncGameData extends Command
         }
 
         if (! $skipVehicles) {
-            $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds);
+            $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds, $skipComputeBespoke);
         }
 
         if ($gameVersion !== null && Artisan::call('game:import-blueprints', [
@@ -222,7 +225,7 @@ class SyncGameData extends Command
         } : null);
     }
 
-    private function dispatchVehicleImports(GameVersion $gameVersion, bool $skipBackfillShipmatrixIds): void
+    private function dispatchVehicleImports(GameVersion $gameVersion, bool $skipBackfillShipmatrixIds, bool $skipComputeBespoke): void
     {
         $shipFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('ships'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
@@ -241,11 +244,19 @@ class SyncGameData extends Command
             return new ImportVehicleData($gameVersion->id, $path, $diskName);
         });
 
-        $this->dispatchChunkedBatch($jobs, $skipBackfillShipmatrixIds ? null : function () use ($gameVersion): void {
-            Artisan::call('game:backfill-shipmatrix-ids', [
-                '--game-version' => $gameVersion->code,
-            ]);
-        });
+        $hasPostWork = ! $skipBackfillShipmatrixIds || ! $skipComputeBespoke;
+
+        $this->dispatchChunkedBatch($jobs, $hasPostWork ? static function () use ($gameVersion, $skipBackfillShipmatrixIds, $skipComputeBespoke): void {
+            if (! $skipBackfillShipmatrixIds) {
+                Artisan::call('game:backfill-shipmatrix-ids', [
+                    '--game-version' => $gameVersion->code,
+                ]);
+            }
+
+            if (! $skipComputeBespoke) {
+                ComputeBespokeItemsJob::dispatch($gameVersion->id);
+            }
+        } : null);
     }
 
     private function dispatchStarmapImport(GameVersion $gameVersion): void

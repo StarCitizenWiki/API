@@ -228,7 +228,7 @@ class ComputeItemVariantGroups implements ShouldQueue
 
         $currentSlot = null;
         foreach (ComputeItemSetItems::SET_PARTS as $part) {
-            if (str_contains($className, '_' . $part . '_')) {
+            if (str_contains($className, '_'.$part.'_')) {
                 $currentSlot = $part;
 
                 break;
@@ -247,7 +247,7 @@ class ComputeItemVariantGroups implements ShouldQueue
                 continue;
             }
 
-            $candidateClassName = Str::replaceFirst('_' . $currentSlot . '_', '_' . $part . '_', $className);
+            $candidateClassName = Str::replaceFirst('_'.$currentSlot.'_', '_'.$part.'_', $className);
 
             $found = ItemData::query()
                 ->where('class_name', $candidateClassName)
@@ -266,10 +266,10 @@ class ComputeItemVariantGroups implements ShouldQueue
         }
 
         // Strip slot words to normalize across armor pieces
-        $slotPattern = '/\\s+(' . implode('|', array_map(
+        $slotPattern = '/\\s+('.implode('|', array_map(
             static fn (string $w): string => preg_quote($w, '/'),
             ItemVariantResolver::SLOT_WORDS,
-        )) . ')\\s+/iu';
+        )).')\\s+/iu';
 
         $strippedNames = array_map(
             static fn (string $name): string => trim(preg_replace($slotPattern, ' ', $name) ?? $name),

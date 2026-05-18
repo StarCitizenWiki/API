@@ -199,12 +199,16 @@ class ItemController extends Controller
                     self::whereAnyRequiredTagMatches($q, $tags);
                     $q->orWhere(static function (Builder $inner) use ($tags): void {
                         self::whereNoRequiredTags($inner);
+                        $inner->where('is_bespoke', false);
                         self::whereAnyTagMatches($inner, $tags);
                     });
                 });
             }),
 
-            // filter[vehicle]: scope to a vehicle whose RequiredTags match any vehicle identity tag.
+            // filter[vehicle]: scope items to a specific vehicle.
+            // 1: universal (no RequiredTags AND not bespoke)
+            // 2: Bespoke items whose RequiredTags match any vehicle identity tag
+            // 3: Bespoke items whose bespoke_vehicle_tags match any vehicle identity tag
             AllowedFilter::callback('vehicle', static function (Builder $query, mixed $value): void {
                 $tags = self::normalizeFilterTags($value);
                 if ($tags === []) {
@@ -212,8 +216,19 @@ class ItemController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($tags): void {
-                    self::whereNoRequiredTags($q);
+                    // 1: Universal items
+                    $q->where(static function (Builder $inner): void {
+                        self::whereNoRequiredTags($inner);
+                        $inner->where('is_bespoke', false);
+                    });
+
+                    // 2: Bespoke items matching via RequiredTags
                     self::whereAnyRequiredTagMatches($q, $tags);
+
+                    // 3: Bespoke items matching via bespoke_vehicle_tags
+                    foreach ($tags as $tag) {
+                        $q->orWhereJsonContains('bespoke_vehicle_tags', $tag);
+                    }
                 });
             }),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
@@ -423,7 +438,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
             new OA\Parameter(name: 'filter[tags]', description: 'Filter by stdItem.RequiredTags array values. Use when a port has required_tags - matches items whose RequiredTags contain ALL specified values. Accepts comma-separated tags for AND matching.', in: 'query', schema: new OA\Schema(type: 'string', example: 'MISC_Fury_Miru')),
             new OA\Parameter(name: 'filter[port_tags]', description: 'Filter items by RequiredTags compatibility with a port\'s tags. Accepts comma-separated port tag values. Returns items where any of their RequiredTags appear in the provided tags, OR items with no RequiredTags but whose Tags overlap with the provided tags (e.g. older paint system). Items with no RequiredTags and no overlapping Tags are excluded. Pass the port_tags value from a vehicle hardpoint port.', in: 'query', schema: new OA\Schema(type: 'string', example: 'flight_ready,Ship_Dock_Refuel')),
-            new OA\Parameter(name: 'filter[vehicle]', description: 'Scope items to a specific vehicle. Accepts one or more vehicle identity tags (from the vehicle\'s port_tags field). Returns universal items (empty RequiredTags) plus bespoke items whose RequiredTags match any provided tag. Use on vehicle pages to show only items equippable on that vehicle.', in: 'query', schema: new OA\Schema(type: 'string', example: 'AEGS_Avenger_Base')),
+            new OA\Parameter(name: 'filter[vehicle]', description: 'Scope items to a specific vehicle. Accepts one or more vehicle identity tags (from the vehicle\'s port_tags field). Returns: (1) universal items with no RequiredTags and not bespoke, (2) bespoke items whose RequiredTags match any provided tag, (3) bespoke items whose bespoke_vehicle_tags match any provided tag. Use on vehicle pages to show only items equippable on that vehicle.', in: 'query', schema: new OA\Schema(type: 'string', example: 'AEGS_Avenger_Base')),
         ],
         responses: [
             new OA\Response(

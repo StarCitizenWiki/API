@@ -716,6 +716,15 @@ class VehicleResource extends AbstractBaseResource
     use ExtractsJsonData;
     use ResolvesGameVersion;
 
+    /**
+     * Manual overrides for vehicles with incorrect PortTags in the raw data.
+     * Key: vehicle class_name, Value: correct PortTags array.
+     */
+    private const array PORT_TAGS_OVERRIDES = [
+        // TODO: check on next update
+        'ARGO_MOTH' => ['ARGO_MOTH'], // CIG bug: raw data has MOLE_Base
+    ];
+
     private VehicleFlightBuilder $flightBuilder;
 
     private VehicleDriveBuilder $driveBuilder;
@@ -789,7 +798,7 @@ class VehicleResource extends AbstractBaseResource
             'game_name' => $vehicleData->name,
             'slug' => $this->vehicle->slug,
             'class_name' => $vehicleData->class_name,
-            'port_tags' => Arr::get($payload, 'PortTags', []),
+            'port_tags' => self::PORT_TAGS_OVERRIDES[$vehicleData->class_name] ?? Arr::get($payload, 'PortTags', []),
 
             'sizes' => [
                 'length' => $vehicleData->length ?? Arr::get($payload, 'Length'),

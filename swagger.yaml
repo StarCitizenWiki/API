@@ -1220,7 +1220,7 @@ paths:
         -
           name: 'filter[vehicle]'
           in: query
-          description: "Scope items to a specific vehicle. Accepts one or more vehicle identity tags (from the vehicle's port_tags field). Returns universal items (empty RequiredTags) plus bespoke items whose RequiredTags match any provided tag. Use on vehicle pages to show only items equippable on that vehicle."
+          description: "Scope items to a specific vehicle. Accepts one or more vehicle identity tags (from the vehicle's port_tags field). Returns: (1) universal items with no RequiredTags and not bespoke, (2) bespoke items whose RequiredTags match any provided tag, (3) bespoke items whose bespoke_vehicle_tags match any provided tag. Use on vehicle pages to show only items equippable on that vehicle."
           schema:
             type: string
             example: AEGS_Avenger_Base

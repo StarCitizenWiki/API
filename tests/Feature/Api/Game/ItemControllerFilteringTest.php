@@ -597,7 +597,7 @@ describe('filter[port_tags]', function (): void {
 });
 
 describe('filter[vehicle]', function (): void {
-    it('shows universal items that have no RequiredTags', function (): void {
+    it('shows universal items that have no RequiredTags and are not bespoke', function (): void {
         $universal = Item::factory()->create();
         ItemData::factory()
             ->for($universal)
@@ -607,6 +607,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Universal Missile Rack',
                 'type' => 'MissileLauncher',
                 'classification' => 'Test',
+                'is_bespoke' => false,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => [],
@@ -620,6 +621,31 @@ describe('filter[vehicle]', function (): void {
             ->assertJsonPath('data.0.uuid', $universal->uuid);
     });
 
+    it('excludes bespoke items with no RequiredTags from the universal branch', function (): void {
+        // Bespoke item with no RequiredTags
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Hull B Missile Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'is_bespoke' => true,
+                'bespoke_vehicle_tags' => ['MISC_Hull_B'],
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
     it('shows bespoke items whose RequiredTags match the vehicle context', function (): void {
         $bespoke = Item::factory()->create();
         ItemData::factory()
@@ -630,6 +656,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Avenger Turret',
                 'type' => 'Turret',
                 'classification' => 'Test',
+                'is_bespoke' => true,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => ['AEGS_Avenger_Base'],
@@ -643,6 +670,56 @@ describe('filter[vehicle]', function (): void {
             ->assertJsonPath('data.0.uuid', $bespoke->uuid);
     });
 
+    it('shows bespoke items whose bespoke_vehicle_tags match the vehicle context', function (): void {
+        // Bespoke item with no RequiredTags but matching bespoke_vehicle_tags
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Hull B Missile Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'is_bespoke' => true,
+                'bespoke_vehicle_tags' => ['MISC_Hull_B'],
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=MISC_Hull_B')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $bespoke->uuid);
+    });
+
+    it('excludes bespoke items whose bespoke_vehicle_tags do not match', function (): void {
+        $bespoke = Item::factory()->create();
+        ItemData::factory()
+            ->for($bespoke)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Hull B Missile Rack',
+                'type' => 'MissileLauncher',
+                'classification' => 'Test',
+                'is_bespoke' => true,
+                'bespoke_vehicle_tags' => ['MISC_Hull_B'],
+                'data' => [
+                    'stdItem' => [
+                        'RequiredTags' => [],
+                    ],
+                ],
+            ]);
+
+        $this->getJson('/api/items?filter[vehicle]=AEGS_Avenger_Base')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+    });
+
     it('excludes bespoke items whose RequiredTags do not match the vehicle context', function (): void {
         $furyRack = Item::factory()->create();
         ItemData::factory()
@@ -653,6 +730,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Fury Missile Rack',
                 'type' => 'MissileLauncher',
                 'classification' => 'Test',
+                'is_bespoke' => true,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => ['MISC_Fury_Miru'],
@@ -675,6 +753,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Universal Rack',
                 'type' => 'MissileLauncher',
                 'classification' => 'Test',
+                'is_bespoke' => false,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => [],
@@ -691,6 +770,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Avenger Specific Part',
                 'type' => 'Turret',
                 'classification' => 'Test',
+                'is_bespoke' => true,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => ['AEGS_Avenger_Base'],
@@ -707,6 +787,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Fury Rack',
                 'type' => 'MissileLauncher',
                 'classification' => 'Test',
+                'is_bespoke' => true,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => ['MISC_Fury_Miru'],
@@ -730,6 +811,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'Cutlass Part',
                 'type' => 'Turret',
                 'classification' => 'Test',
+                'is_bespoke' => true,
                 'data' => [
                     'stdItem' => [
                         'RequiredTags' => ['DRAK_Cutlass_Base'],
@@ -753,6 +835,7 @@ describe('filter[vehicle]', function (): void {
                 'name' => 'No RequiredTags Field',
                 'type' => 'Cooler',
                 'classification' => 'Test',
+                'is_bespoke' => false,
                 'data' => [
                     'stdItem' => new stdClass, // no RequiredTags key at all
                 ],

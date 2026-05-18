@@ -44,14 +44,18 @@ class ItemData extends Model
         'rarity',
         'is_player_relevant',
         'uex_prices',
+        'is_bespoke',
+        'bespoke_vehicle_tags',
     ];
 
     protected $casts = [
         'size' => 'integer',
         'grade' => 'integer',
         'is_player_relevant' => 'boolean',
+        'is_bespoke' => 'boolean',
         'data' => AsCollection::class,
         'uex_prices' => 'array',
+        'bespoke_vehicle_tags' => 'array',
     ];
 
     public function scopeCategory(Builder $query, string $category): Builder
