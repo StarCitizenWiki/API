@@ -564,4 +564,173 @@ describe('naming', function () {
 
         expect($result['variant_items'])->toHaveCount(1);
     });
+
+    it('resolves set name for Lynx Legs armor with manufacturer-name collision', function (): void {
+        // Regression: "Lynx" is both an armor set name and a manufacturer name.
+        // Entity tags for Lynx items include: Light, Common, FPS, Legs, Human,
+        // KastakArms, Lynx, Grey - where only "Lynx" is the set identifier.
+        // The manufacturer exclusion must not strip it during set-name resolution.
+        $base = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_01_01',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+                'data' => ['entity_tag_map' => [
+                    ['tag' => 'f1c9b063', 'name' => 'Light'],
+                    ['tag' => '59ca5e36', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42', 'name' => 'Human'],
+                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
+                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
+                    ['tag' => 'dd7bfcdd', 'name' => 'Grey'],
+                ]],
+            ]);
+
+        $red = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs Red',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_04_02',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+                'data' => ['entity_tag_map' => [
+                    ['tag' => 'f1c9b063', 'name' => 'Light'],
+                    ['tag' => '59ca5e36', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42', 'name' => 'Human'],
+                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
+                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
+                    ['tag' => 'a1d4429d', 'name' => 'Red'],
+                ]],
+            ]);
+
+        $blue = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs Blue',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_04_07',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+                'data' => ['entity_tag_map' => [
+                    ['tag' => 'f1c9b063', 'name' => 'Light'],
+                    ['tag' => '59ca5e36', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42', 'name' => 'Human'],
+                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
+                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
+                    ['tag' => 'dd7bfcdd', 'name' => 'Blue'],
+                ]],
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($base);
+
+        expect($result['set_name'])->toBe('Lynx')
+            ->and($result['variant_items'])->toHaveCount(2);
+
+        // Also verify that querying a variant still shows "Lynx" as set name
+        $variantResult = resolveRelatedItems($red);
+        expect($variantResult['set_name'])->toBe('Lynx');
+    });
+
+    it('derives set name from variant group after job computes it', function (): void {
+        // The job uses entity tags, LCP, and set-items fallbacks to compute
+        // set_name. This verifies the full pipeline produces 'Lynx' correctly.
+        $base = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_01_01',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+            ]);
+
+        $red = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs Red',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_04_02',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+            ]);
+
+        $blue = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Lynx Legs Blue',
+                'class_name' => 'outlaw_legacy_armor_light_legs_01_04_07',
+                'classification' => 'FPS.Armor.Light',
+                'is_player_relevant' => true,
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        // After the job runs, set_name should be 'Lynx' in the DB
+        $result = resolveRelatedItems($base);
+
+        expect($result['set_name'])->toBe('Lynx');
+    });
+
+    it('derives set name from set items when entity tags and LCP fail', function (): void {
+        // The "Monde" armor set has items across Helmet/Core/Arms/Legs.
+        // With no entity tags and a common suffix ("HighSec"), the LCP should
+        // produce the set name from cross-slot item names.
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Helmet HighSec',
+                'class_name' => 'kap_combat_heavy_helmet_02_03_01',
+                'classification' => 'Char_Armor',
+                'is_player_relevant' => true,
+            ]);
+
+        $core = ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Core HighSec',
+                'class_name' => 'kap_combat_heavy_core_02_03_01',
+                'classification' => 'Char_Armor',
+                'is_player_relevant' => true,
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Arms HighSec',
+                'class_name' => 'kap_combat_heavy_arms_02_03_01',
+                'classification' => 'Char_Armor',
+                'is_player_relevant' => true,
+            ]);
+
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Monde Legs HighSec',
+                'class_name' => 'kap_combat_heavy_legs_02_03_01',
+                'classification' => 'Char_Armor',
+                'is_player_relevant' => true,
+            ]);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($core);
+
+        expect($result['set_name'])->toBe('Monde HighSec');
+    });
 });

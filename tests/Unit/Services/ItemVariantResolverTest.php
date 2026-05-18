@@ -600,6 +600,64 @@ describe('resolveSetNameFromEntityTags', function () {
         ];
         expect(resolver()->resolveSetNameFromEntityTags($group))->toBeNull();
     });
+
+    it('resolves set name for armor set misclassified as manufacturer (Lynx)', function () {
+        // Regression: "Lynx" was in ENTITY_TAG_MANUFACTURER_NAMES but is NOT a
+        // manufacturer - it's an armor set name. The actual manufacturer is
+        // KastakArms. Entity tags: Light, Common, FPS, Legs, Human, KastakArms,
+        // Lynx, Grey - only "Lynx" survives (KastakArms is a real manufacturer).
+        $group = [
+            ItemData::factory()->make(['data' => ['entity_tag_map' => [
+                ['tag' => 'f1c9b063', 'name' => 'Light'],
+                ['tag' => '59ca5e36', 'name' => 'Common'],
+                ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                ['tag' => '4cd7531a', 'name' => 'Legs'],
+                ['tag' => 'ba81fd42', 'name' => 'Human'],
+                ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
+                ['tag' => '9c28b7ae', 'name' => 'Lynx'],
+                ['tag' => 'dd7bfcdd', 'name' => 'Grey'],
+            ]]]),
+            ItemData::factory()->make(['data' => ['entity_tag_map' => [
+                ['tag' => 'f1c9b063', 'name' => 'Light'],
+                ['tag' => '59ca5e36', 'name' => 'Common'],
+                ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                ['tag' => '4cd7531a', 'name' => 'Legs'],
+                ['tag' => 'ba81fd42', 'name' => 'Human'],
+                ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
+                ['tag' => '9c28b7ae', 'name' => 'Lynx'],
+                ['tag' => 'a1d4429d', 'name' => 'DarkGrey'],
+            ]]]),
+        ];
+        expect(resolver()->resolveSetNameFromEntityTags($group))->toBe('Lynx');
+    });
+
+    it('resolves set name for TrueDef-Pro armor (TrueDef not a manufacturer)', function () {
+        // Regression: "TrueDef" was in ENTITY_TAG_MANUFACTURER_NAMES but is
+        // NOT a manufacturer - it's Virgil's armor product line.
+        $group = [
+            ItemData::factory()->make(['data' => ['entity_tag_map' => [
+                ['tag' => 'f1c9b063', 'name' => 'Light'],
+                ['tag' => 'dfbc6af5', 'name' => 'Rare'],
+                ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                ['tag' => '4cd7531a', 'name' => 'Legs'],
+                ['tag' => 'ba81fd42', 'name' => 'Human'],
+                ['tag' => '51ce29f8', 'name' => 'Virgil'],
+                ['tag' => '8a874213', 'name' => 'TrueDef'],
+                ['tag' => 'dd7bfcdd', 'name' => 'Grey'],
+            ]]]),
+            ItemData::factory()->make(['data' => ['entity_tag_map' => [
+                ['tag' => 'f1c9b063', 'name' => 'Light'],
+                ['tag' => 'dfbc6af5', 'name' => 'Rare'],
+                ['tag' => 'ba75cc73', 'name' => 'FPS'],
+                ['tag' => '4cd7531a', 'name' => 'Legs'],
+                ['tag' => 'ba81fd42', 'name' => 'Human'],
+                ['tag' => '51ce29f8', 'name' => 'Virgil'],
+                ['tag' => '8a874213', 'name' => 'TrueDef'],
+                ['tag' => '64f4e1f7', 'name' => 'RedSilver'],
+            ]]]),
+        ];
+        expect(resolver()->resolveSetNameFromEntityTags($group))->toBe('TrueDef');
+    });
 });
 
 describe('naming helpers', function () {
@@ -678,5 +736,69 @@ describe('naming helpers', function () {
         expect($map['base'])->toBe('Tactical')
             ->and($map['v1'])->toBe('Sunchaser')
             ->and($map['v2'])->toBe('Hailstorm');
+    });
+
+    it('resolves hyphenated product line names as set name (Attrition)', function () {
+        // Regression: "Attrition-" was rejected because '-' wasn't treated as
+        // a word boundary. The LCP is "Attrition-" which should yield "Attrition".
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'Attrition-1 Repeater',
+            'Attrition-2 Repeater',
+            'Attrition-3 Repeater',
+            'Attrition-4 Repeater',
+            'Attrition-5 Repeater',
+            'Attrition-6 Repeater',
+        ]))->toBe('Attrition');
+    });
+
+    it('resolves other hyphenated set names', function () {
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'Dominance-1 Scattergun',
+            'Dominance-2 Scattergun',
+            'Dominance-3 Scattergun',
+        ]))->toBe('Dominance');
+
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'Ardor-1 Salvaged Repeater',
+            'Ardor-2 Salvaged Repeater',
+            'Ardor-3 Salvaged Repeater',
+        ]))->toBe('Ardor');
+
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'NDB-26 Repeater',
+            'NDB-28 Repeater',
+            'NDB-30 Repeater',
+        ]))->toBe('NDB');
+    });
+
+    it('rejects two-char hyphenated prefixes', function () {
+        // CF- and FL- are too short for a meaningful set name
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'CF-117 Bulldog Repeater',
+            'CF-227 Badger Repeater',
+            'CF-337 Panther Repeater',
+        ]))->toBeNull();
+
+        expect(ItemVariantResolver::deriveSetNameFromNames([
+            'FL-11 Cannon',
+            'FL-22 Cannon',
+            'FL-33 Cannon',
+        ]))->toBeNull();
+    });
+
+    it('extracts variant names from hyphenated series', function () {
+        [$setName, $map] = ItemVariantResolver::computeSetNameAndVariantNames(
+            ['Attrition-1 Repeater', 'Attrition-2 Repeater', 'Attrition-6 Repeater'],
+            ['uuid' => 'base', 'name' => 'Attrition-1 Repeater'],
+            [
+                ['uuid' => 'base', 'name' => 'Attrition-1 Repeater'],
+                ['uuid' => 'v2', 'name' => 'Attrition-2 Repeater'],
+                ['uuid' => 'v6', 'name' => 'Attrition-6 Repeater'],
+            ]
+        );
+        expect($setName)->toBe('Attrition')
+            ->and($map['base'])->toBe('1')
+            ->and($map['v2'])->toBe('2')
+            ->and($map['v6'])->toBe('6');
     });
 });

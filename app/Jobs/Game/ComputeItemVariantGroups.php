@@ -16,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ComputeItemVariantGroups implements ShouldQueue
@@ -171,6 +172,10 @@ class ComputeItemVariantGroups implements ShouldQueue
             [, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
         }
 
+        if ($setName === null) {
+            $setName = $this->deriveSetNameFromSetItems($base);
+        }
+
         $variantGroup = VariantGroup::query()->create([
             'game_version_id' => $this->gameVersionId,
             'set_name' => $setName,
@@ -206,6 +211,72 @@ class ComputeItemVariantGroups implements ShouldQueue
                 ->whereKey($itemData->id)
                 ->update(['base_id' => $baseId]);
         }
+    }
+
+    /**
+     * Derive a set name from armor set items by swapping slot segments
+     * in the class_name (e.g., _helmet_ -> _core_, _arms_, _legs_)
+     * and finding the longest common prefix of the resulting names.
+     */
+    private function deriveSetNameFromSetItems(ItemData $itemData): ?string
+    {
+        $className = $itemData->class_name;
+
+        if ($className === null) {
+            return null;
+        }
+
+        $currentSlot = null;
+        foreach (ComputeItemSetItems::SET_PARTS as $part) {
+            if (str_contains($className, '_' . $part . '_')) {
+                $currentSlot = $part;
+
+                break;
+            }
+        }
+
+        if ($currentSlot === null) {
+            return null;
+        }
+
+        // Collect names of all set members (other slots)
+        $names = [$itemData->name ?? ''];
+
+        foreach (ComputeItemSetItems::SET_PARTS as $part) {
+            if ($part === $currentSlot) {
+                continue;
+            }
+
+            $candidateClassName = Str::replaceFirst('_' . $currentSlot . '_', '_' . $part . '_', $className);
+
+            $found = ItemData::query()
+                ->where('class_name', $candidateClassName)
+                ->where('game_version_id', $this->gameVersionId)
+                ->value('name');
+
+            if ($found !== null) {
+                $names[] = $found;
+            }
+        }
+
+        $names = array_values(array_filter($names, static fn (string $n): bool => $n !== ''));
+
+        if (count($names) < 2) {
+            return null;
+        }
+
+        // Strip slot words to normalize across armor pieces
+        $slotPattern = '/\\s+(' . implode('|', array_map(
+            static fn (string $w): string => preg_quote($w, '/'),
+            ItemVariantResolver::SLOT_WORDS,
+        )) . ')\\s+/iu';
+
+        $strippedNames = array_map(
+            static fn (string $name): string => trim(preg_replace($slotPattern, ' ', $name) ?? $name),
+            $names,
+        );
+
+        return ItemVariantResolver::deriveSetNameFromNames($strippedNames);
     }
 
     private const array EXCLUDED_VARIANT_SUFFIXES = [

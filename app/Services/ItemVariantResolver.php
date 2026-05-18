@@ -168,11 +168,11 @@ class ItemVariantResolver
         'ClarkeDefense', 'KastakArms', 'RSI', 'FlightBlade',
         'StegmansClothingAndUniforms', 'QuirinusTech', 'GreyCat',
         'DMC', 'Fiore', 'AlejoBrothers', 'EscarLimited', 'Habidash',
-        'CBD', 'OpalSky', 'TrueDef', 'Caldera', 'Derion',
+        'CBD', 'OpalSky', 'Caldera', 'Derion',
         'CodeBlueApparel', 'GrindstoneBoots', 'Doomsday', 'KlausWerner',
         'CoHelmsman', 'Strata', 'MacFlex', 'Behring', 'R6Pro',
         'Orbageddon', 'OdysseyII', 'NorthStar', 'Gyson',
-        'Helmsman', 'Virgil', 'Lynx', 'Electron',
+        'Helmsman', 'Virgil', 'Electron',
         '987', 'KilgoreAndPoole', 'Gemini', 'Overlord', 'Octagon',
         'Aril', 'Antium', 'CCsConversions', 'Ninetails',
         'DCDelving', 'Kaboos', 'Wikelo', 'XenoThreat', 'Volt', 'Tru',
@@ -692,20 +692,24 @@ class ItemVariantResolver
         }
 
         $isWordBoundary = str_ends_with($rawPrefix, ' ')
+            || str_ends_with($rawPrefix, '-')
             || in_array($candidate, $names, true)
             || collect($names)->every(fn (string $n): bool => str_starts_with($n, $candidate.' ') || str_starts_with($n, $candidate.'-') || $n === $candidate);
 
         if (! $isWordBoundary) {
-            $lastSpace = strrpos($candidate, ' ');
+            $lastBoundary = max(
+                strrpos($candidate, ' ') ?: 0,
+                strrpos($candidate, '-') ?: 0,
+            );
 
-            if ($lastSpace !== false) {
-                $candidate = substr($candidate, 0, $lastSpace);
+            if ($lastBoundary > 0) {
+                $candidate = substr($candidate, 0, $lastBoundary);
             } else {
                 return null;
             }
         }
 
-        $candidate = trim($candidate);
+        $candidate = trim($candidate, ' -');
 
         if ($candidate !== '' && mb_strlen($candidate) < 3 && ! in_array($candidate, $names, true)) {
             return null;
@@ -782,7 +786,14 @@ class ItemVariantResolver
             return $name;
         }
 
-        return ltrim(Str::after($name, $prefix));
+        $remainder = Str::after($name, $prefix);
+
+        // Strip leading separator (space or hyphen) after the prefix
+        if (str_starts_with($remainder, ' ') || str_starts_with($remainder, '-')) {
+            $remainder = substr($remainder, 1);
+        }
+
+        return trim($remainder);
     }
 
     private static function stripCommonSuffix(array &$map): void
