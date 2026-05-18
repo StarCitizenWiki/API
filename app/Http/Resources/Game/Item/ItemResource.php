@@ -313,22 +313,15 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'uex_prices',
             description: 'Item prices from UEX Corp API.',
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
-                    new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
-                    new OA\Property(property: 'terminal_name', type: 'string'),
-                    new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
-                    new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
-                    new OA\Property(property: 'price_sell', type: 'number', format: 'double'),
-                    new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
-                    new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                    new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
-                ],
-                type: 'object'
-            ),
-            nullable: true
+            properties: [
+                new OA\Property(
+                    property: 'purchase',
+                    description: 'Purchase prices from UEX Corp.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/uex_price'),
+                ),
+            ],
+            type: 'object'
         ),
 
         new OA\Property(
@@ -769,6 +762,8 @@ class ItemResource extends AbstractBaseResource
 
     private function expandUexPrices(ItemData $itemData): array
     {
-        return $this->expandPrices((array) ($itemData->uex_prices ?? []));
+        return [
+            'purchase' => $this->expandPrices((array) ($itemData->uex_prices ?? [])),
+        ];
     }
 }

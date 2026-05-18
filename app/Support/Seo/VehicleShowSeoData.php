@@ -264,9 +264,9 @@ final class VehicleShowSeoData extends AbstractShowSeoData
             ];
         }
 
-        $uexPrices = data_get($vehicle, 'uex_prices');
-        if (is_array($uexPrices) && $uexPrices !== []) {
-            $uexOffer = $this->buildUexAggregateOffer($uexPrices);
+        $uexPurchasePrices = data_get($vehicle, 'uex_prices.purchase');
+        if (is_array($uexPurchasePrices) && $uexPurchasePrices !== []) {
+            $uexOffer = $this->buildUexAggregateOffer($uexPurchasePrices);
             if ($uexOffer !== null) {
                 $allOffers[] = $uexOffer;
             }

@@ -34,6 +34,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'game_name', description: 'Internal game class name.', type: 'string', example: 'AEGS_Avenger_Titan', nullable: true),
         new OA\Property(property: 'slug', description: 'URL-friendly vehicle identifier.', type: 'string', example: 'avenger-titan'),
         new OA\Property(property: 'class_name', description: 'class name.', type: 'string', example: 'AEGS_Avenger_Titan'),
+        new OA\Property(property: 'port_tags', description: 'Vehicle-level identity tags. Used by the items API filter[vehicle] to scope equippable items to this vehicle.', type: 'array', items: new OA\Items(type: 'string'), example: ['AEGS_Avenger_Base']),
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link'),
         new OA\Property(property: 'size_class', description: 'Vehicle size classification (1-6).', type: 'integer', example: 2, nullable: true),
         new OA\Property(
@@ -675,37 +676,13 @@ use OpenApi\Attributes as OA;
                     property: 'purchase',
                     description: 'Purchase prices from UEX Corp.',
                     type: 'array',
-                    items: new OA\Items(
-                        properties: [
-                            new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
-                            new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
-                            new OA\Property(property: 'terminal_name', type: 'string'),
-                            new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
-                            new OA\Property(property: 'price_buy', type: 'number', format: 'double'),
-                            new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
-                            new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                            new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
-                        ],
-                        type: 'object'
-                    )
+                    items: new OA\Items(ref: '#/components/schemas/uex_price'),
                 ),
                 new OA\Property(
                     property: 'rental',
                     description: 'Rental prices from UEX Corp.',
                     type: 'array',
-                    items: new OA\Items(
-                        properties: [
-                            new OA\Property(property: 'terminal_id', description: 'UEX terminal ID', type: 'integer'),
-                            new OA\Property(property: 'terminal_code', type: 'string', nullable: true),
-                            new OA\Property(property: 'terminal_name', type: 'string'),
-                            new OA\Property(property: 'starmap_location_uuid', type: 'string', nullable: true),
-                            new OA\Property(property: 'price_rent', type: 'number', format: 'double'),
-                            new OA\Property(property: 'game_version', description: 'Game version this price applies to, e.g. 4.7.1', type: 'string', nullable: true),
-                            new OA\Property(property: 'date_updated', type: 'string', format: 'date-time'),
-                            new OA\Property(property: 'starmap_location', ref: '#/components/schemas/starmap_location_link', nullable: true),
-                        ],
-                        type: 'object'
-                    )
+                    items: new OA\Items(ref: '#/components/schemas/uex_price'),
                 ),
             ],
             type: 'object'
@@ -812,6 +789,7 @@ class VehicleResource extends AbstractBaseResource
             'game_name' => $vehicleData->name,
             'slug' => $this->vehicle->slug,
             'class_name' => $vehicleData->class_name,
+            'port_tags' => Arr::get($payload, 'PortTags', []),
 
             'sizes' => [
                 'length' => $vehicleData->length ?? Arr::get($payload, 'Length'),

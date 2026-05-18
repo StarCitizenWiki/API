@@ -47,7 +47,7 @@
         $setItems = data_get($item, 'related_items.set_items');
         $setName = data_get($item, 'related_items.set_name');
 
-        $uexPrices = data_get($item, 'uex_prices', []);
+        $uexPrices = data_get($item, 'uex_prices.purchase', []);
         $descriptionData = data_get($item, 'description_data', []);
         $entityTagMap = data_get($item, 'entity_tag_map', []);
         $defaultComposition = data_get($item, 'resource_container.default_composition', []);

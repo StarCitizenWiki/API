@@ -49,16 +49,19 @@ it('builds vehicle seo data with session version fallback and shared schema help
         'msrp' => 220,
         'pledge_url' => 'https://robertsspaceindustries.com/pledge/ships/mercury-star-runner',
         'uex_prices' => [
-            [
-                'terminal_name' => 'Port Olisar',
-                'price_buy' => 6_500_000,
-                'price_sell' => 5_000_000,
+            'purchase' => [
+                [
+                    'terminal_name' => 'Port Olisar',
+                    'price_buy' => 6_500_000,
+                    'price_sell' => 5_000_000,
+                ],
+                [
+                    'terminal_name' => 'Lorville',
+                    'price_buy' => 6_800_000,
+                    'price_sell' => 5_200_000,
+                ],
             ],
-            [
-                'terminal_name' => 'Lorville',
-                'price_buy' => 6_800_000,
-                'price_sell' => 5_200_000,
-            ],
+            'rental' => [],
         ],
     ], $request);
 
@@ -181,15 +184,17 @@ it('builds item seo data with localized description and type-specific breadcrumb
             ],
         ],
         'uex_prices' => [
-            [
-                'terminal_name' => 'Port Olisar',
-                'price_buy' => 1500.0,
-                'price_sell' => 1200.0,
-            ],
-            [
-                'terminal_name' => 'Lorville',
-                'price_buy' => 1600.0,
-                'price_sell' => 1300.0,
+            'purchase' => [
+                [
+                    'terminal_name' => 'Port Olisar',
+                    'price_buy' => 1500.0,
+                    'price_sell' => 1200.0,
+                ],
+                [
+                    'terminal_name' => 'Lorville',
+                    'price_buy' => 1600.0,
+                    'price_sell' => 1300.0,
+                ],
             ],
         ],
     ], $request);

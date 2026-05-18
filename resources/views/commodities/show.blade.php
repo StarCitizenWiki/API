@@ -16,7 +16,7 @@
         ->reduce(static fn (int $carry, array $location): int => $carry + count(data_get($location, 'resources', [])), 0);
     $blueprints = data_get($resource, 'blueprints', []);
     $items = data_get($resource, 'items', []);
-    $uexPrices = data_get($resource, 'uex_prices', []);
+    $uexPrices = data_get($resource, 'uex_prices.purchase', []);
 @endphp
 @extends('layouts.app')
 

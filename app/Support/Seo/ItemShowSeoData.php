@@ -368,7 +368,7 @@ final class ItemShowSeoData extends AbstractShowSeoData
 
     private function buildOffers(array $item): ?array
     {
-        $uexPrices = data_get($item, 'uex_prices');
+        $uexPrices = data_get($item, 'uex_prices.purchase');
         if (! is_array($uexPrices) || $uexPrices === []) {
             return null;
         }

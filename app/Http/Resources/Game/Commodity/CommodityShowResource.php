@@ -208,9 +208,16 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'web_url', description: 'Frontend URL for this commodity\'s page.', type: 'string', format: 'uri'),
         new OA\Property(
             property: 'uex_prices',
-            description: 'Price data from UEXcorp for this commodity at various terminals.',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/uex_price'),
+            description: 'Commodity prices from UEX Corp API.',
+            properties: [
+                new OA\Property(
+                    property: 'purchase',
+                    description: 'Purchase prices from UEX Corp.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/uex_price'),
+                ),
+            ],
+            type: 'object',
             nullable: true
         ),
     ],
@@ -284,7 +291,9 @@ class CommodityShowResource extends CommodityIndexResource
                         : null,
                 ])->values()->all(), []),
 
-            'uex_prices' => $this->expandPrices((array) ($this->resource->uex_prices ?? [])),
+            'uex_prices' => [
+                'purchase' => $this->expandPrices((array) ($this->resource->uex_prices ?? [])),
+            ],
         ]);
     }
 
