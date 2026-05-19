@@ -39,6 +39,17 @@ class ComputeBespokeItems implements ShouldQueue
      */
     private const int MAX_VEHICLES_NAME_MATCH = 2;
 
+    /**
+     * Class-name substrings that indicate a bespoke (vehicle-specific) item.
+     * Items whose class_name contains any of these tokens are always bespoke.
+     *
+     * @var list<string>
+     */
+    private const array BESPOKE_CLASS_NAME_TOKENS = [
+        '_Colonial_',
+        '_PDC_',
+    ];
+
     public function __construct(
         private readonly int $gameVersionId,
     ) {}
@@ -211,8 +222,12 @@ class ComputeBespokeItems implements ShouldQueue
 
             $isBespoke = false;
 
+            if ($this->classNameMatchesBespokeToken($className)) {
+                $isBespoke = true;
+            }
+
             // Has RequiredTags = bespoke
-            if ($hasRequiredTags) {
+            if (! $isBespoke && $hasRequiredTags) {
                 $isBespoke = true;
             }
 
@@ -341,6 +356,15 @@ class ComputeBespokeItems implements ShouldQueue
         $results = [];
 
         foreach ($allItemClassNames as $className) {
+            if ($this->classNameMatchesBespokeToken($className)) {
+                $results[$className] = [
+                    'is_bespoke' => true,
+                    'bespoke_vehicle_tags' => [],
+                ];
+
+                continue;
+            }
+
             $matchedVehicles = [];
 
             foreach ($vehicleNameSet as $vehicleName) {
@@ -374,6 +398,15 @@ class ComputeBespokeItems implements ShouldQueue
         }
 
         return $results;
+    }
+
+    /**
+     * Check if a class name contains any bespoke token pattern.
+     * Items with these tokens in their class name are always bespoke.
+     */
+    private function classNameMatchesBespokeToken(string $className): bool
+    {
+        return array_any(self::BESPOKE_CLASS_NAME_TOKENS, fn($token) => str_contains($className, $token));
     }
 
     /**
