@@ -65,7 +65,8 @@
                             class="w-full min-w-0 max-w-xl px-2 place-self-center"
                         >
                             <label class="input input-bordered input-sm flex w-full items-center gap-2">
-                                <x-icon name="search" class="size-4 text-subtle shrink-0" />
+                                <x-icon name="search" class="size-4 text-subtle shrink-0" x-show="!loading" />
+                                <span class="loading loading-spinner loading-xs text-subtle shrink-0" x-show="loading"></span>
                                 <input
                                     x-ref="input"
                                     type="search"

@@ -26,7 +26,8 @@
                 class="join join-vertical w-full sm:join-horizontal lg:max-w-xl"
             >
                 <label class="input input-bordered join-item flex w-full items-center gap-2 bg-base-100">
-                    <x-icon name="search" class="size-4 text-muted" />
+                    <x-icon name="search" class="size-4 text-muted" x-show="!loading" />
+                    <span class="loading loading-spinner loading-xs text-muted" x-show="loading"></span>
                     <input
                         x-ref="input"
                         type="search"
@@ -114,7 +115,8 @@
                     class="flex flex-col gap-3 sm:flex-row"
                 >
                     <label class="input input-bordered flex w-full items-center gap-2">
-                        <x-icon name="search" class="size-4 text-subtle" />
+                        <x-icon name="search" class="size-4 text-subtle" x-show="!loading" />
+                        <span class="loading loading-spinner loading-xs text-subtle" x-show="loading"></span>
                         <input
                             x-ref="input"
                             type="search"

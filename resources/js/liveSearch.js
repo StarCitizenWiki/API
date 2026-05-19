@@ -9,6 +9,7 @@ export function liveSearch(apiEndpoint) {
         query: "",
         results: [],
         open: false,
+        loading: false,
         activeIndex: -1,
         apiEndpoint: apiEndpoint,
         _abortController: null,
@@ -51,6 +52,7 @@ export function liveSearch(apiEndpoint) {
             if (q.length < MIN_QUERY_LENGTH) {
                 this.results = [];
                 this.open = false;
+                this.loading = false;
                 return;
             }
 
@@ -59,8 +61,11 @@ export function liveSearch(apiEndpoint) {
                     this._abortController.abort();
                 }
                 this._abortController = new AbortController();
+                this.loading = true;
 
                 const data = await this.fetchResults(q);
+
+                this.loading = false;
                 if (!data) return;
 
                 this.results = data;
@@ -171,6 +176,7 @@ export function liveSearch(apiEndpoint) {
                 }));
             } catch (e) {
                 if (e.name === "AbortError") {
+                    this.loading = false;
                     return null;
                 }
                 throw e;
