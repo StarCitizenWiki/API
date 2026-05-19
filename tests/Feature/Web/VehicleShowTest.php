@@ -106,7 +106,7 @@ it('renders nested hardpoints on the vehicle page', function (): void {
     $response = $this->get(route('web.vehicles.show', $vehicle->uuid));
 
     $response->assertStatus(200)
-        ->assertSeeText('Hardpoints')
+        ->assertSeeText('Combat & Systems')
         ->assertSeeText('Turrets')
         ->assertSeeText('Manned')
         ->assertSeeText('Remote')

@@ -23,10 +23,10 @@ final class HardpointRow
     private const array STAT_MAP = [
         'WeaponGun' => ['vehicle_weapon.damage.burst', 'DPS', '', 'crosshair'],
         'Shield' => ['shield.max_health', 'HP', '', 'shield'],
-        'PowerPlant' => ['power_plant.power_segment_generation', 'Power Gen', '', 'zap'],
-        'Cooler' => ['resource_network.generation.coolant', 'Cool Gen', '', 'fan'],
+        'PowerPlant' => ['power_plant.power_segment_generation', 'Power generation', '', 'zap'],
+        'Cooler' => ['resource_network.generation.coolant', 'Cooling generation', '', 'fan'],
         'QuantumDrive' => ['quantum_drive.standard_jump.drive_speed', 'Speed', '', 'gauge'],
-        'Radar' => ['radar.aim_assist.distance_max_assignment', 'Aim', 'm', 'wifi'],
+        'Radar' => ['radar.aim_assist.distance_max_assignment', 'Max aim assign', 'm', 'wifi'],
         'Armor' => ['armor.health', 'HP', '', 'shield'],
         'CargoGrid' => ['inventory.scu', 'SCU', '', 'package'],
         'CountermeasureLauncher' => ['ammunition.capacity', 'Ammo', '', 'layers'],
@@ -316,6 +316,7 @@ final class HardpointRow
     private static function extractStats(?string $type, array $item, array $port): array
     {
         return match ($type) {
+            'Armor' => self::armorStats($item),
             'Shield' => self::shieldStats($item),
             'MissileLauncher', 'BombLauncher' => self::missileRackStats($port),
             'Missile', 'Bomb', 'Torpedo' => self::missileStats($item),
@@ -369,6 +370,45 @@ final class HardpointRow
 
         return [
             'stat' => Arr::get($item, 'shield.max_health'),
+            'label' => 'HP',
+            'unit' => '',
+            'icon' => 'shield',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * Armor stats with signal multiplier secondaries.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function armorStats(array $item): array
+    {
+        $secondaries = [];
+        $signal = Arr::get($item, 'armor.signal_multiplier', []);
+
+        $parts = [];
+        $ir = Arr::get($signal, 'infrared');
+        if ($ir !== null && $ir != 1) {
+            $parts[] = 'IR '.Format::signedPercent($ir, false);
+        }
+
+        $em = Arr::get($signal, 'electromagnetic');
+        if ($em !== null && $em != 1) {
+            $parts[] = 'EM '.Format::signedPercent($em, false);
+        }
+
+        $cs = Arr::get($signal, 'cross_section');
+        if ($cs !== null && $cs != 1) {
+            $parts[] = 'CS '.Format::signedPercent($cs, false);
+        }
+
+        if ($parts !== []) {
+            $secondaries[] = implode(' / ', $parts);
+        }
+
+        return [
+            'stat' => Arr::get($item, 'armor.health'),
             'label' => 'HP',
             'unit' => '',
             'icon' => 'shield',

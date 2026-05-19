@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Resources\Game\Vehicle\PortResource;
+use App\Support\Game\HardpointCategory;
 
 describe('hardpoint name-based categorization fallback', function () {
     it('categorizes weapon rack as Other, not Weapons', function () {
@@ -94,5 +95,20 @@ describe('hardpoint name-based categorization fallback', function () {
         $result = $resource->resolve(request());
 
         expect($result['category_label'])->toBe('Turrets');
+    });
+});
+
+describe('hardpoint category layout', function () {
+    it('configures every category emitted by vehicle port resources', function () {
+        foreach (PortResource::categoryOrder() as $category) {
+            expect(HardpointCategory::all())->toContain($category);
+        }
+    });
+
+    it('derives primary categories from configured columns', function () {
+        $columnCategories = collect(HardpointCategory::columns())->flatten()->values()->all();
+
+        expect(HardpointCategory::primary())->toBe($columnCategories)
+            ->and($columnCategories)->toHaveCount(count(array_unique($columnCategories)));
     });
 });

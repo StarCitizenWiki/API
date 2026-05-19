@@ -74,10 +74,9 @@ it('marks shield ports as deactivated when the power pool is exhausted', functio
     ]);
     $crawler = new Crawler((string) $view);
 
-    $view->assertSeeText('Deactivated')
-        ->assertSeeText('Test Shield 3');
-
-    expect($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
+    $view->assertSeeText('Test Shield 3');
+    expect($crawler->filter('[data-testid="port-display-deactivated"]')->count())->toBe(1)
+        ->and($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
 });
 
 it('does not mark shield ports as deactivated when pool size is -1 (not applicable)', function (): void {
@@ -124,8 +123,8 @@ it('marks shield ports as deactivated when pool size is 0 (zero active)', functi
     ]);
     $crawler = new Crawler((string) $view);
 
-    $view->assertSeeText('Deactivated');
-    expect($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
+    expect($crawler->filter('[data-testid="port-display-deactivated"]')->count())->toBe(1)
+        ->and($crawler->filter('[title^="Pool Limit"]')->count())->toBe(1);
 });
 
 it('renders purchase variants with price and sku table content', function (): void {

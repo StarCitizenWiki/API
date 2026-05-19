@@ -11,194 +11,234 @@
 ])
 
 @php
-    use Illuminate\Support\Str;
-
     $row = HardpointRow::make($port, $powerPools, $categoryIndex);
 
-    $indentClass = $depth > 0 ? 'mt-2 pl-2 sm:pl-3 border-l-2 sm:border-l-4 border-base-300/70' : '';
     $portId = $depth . '-' . ($loop->index ?? 0);
     $portIdentifier = 'port-'.$portId;
-    $portName = $row['name'];
-    $portLabel = $row['display_name'];
-    $isLocked = is_bool($editable) ? !$editable : !$row['editable'];
-    $sizeLabel = $row['size_label'];
-    $isDeactivated = $row['deactivated'];
-    $deactivationReason = $row['deactivation_reason'];
-    $equippedItemUuid = $row['equipped_item_uuid'];
-    $hasEquippedItem = $row['has_equipped_item'];
     $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
-    $isVehicleDock = $row['is_attached_vehicle'];
+    $attachedVehicle = $row['attached_vehicle'];
+    $isAttachedVehicle = $row['is_attached_vehicle'];
+    $isDeactivated = $row['deactivated'];
+    $isLocked = is_bool($editable) ? ! $editable : ! $row['editable'];
 
-    // Display name logic: when item is named, swap port label and item name
-    $hasNamedEquippedItem = $hasEquippedItem && ! empty(data_get($equippedItem, 'name')) && data_get($equippedItem, 'name') !== '<= PLACEHOLDER =>';
-    $displayPortLabel = $hasNamedEquippedItem ? $portLabel : ($isVehicleDock ? data_get($row['attached_vehicle'], 'name', $portLabel) : $portLabel);
-    $displayPortName = $portName;
-    $equippedDisplayName = $hasNamedEquippedItem
-        ? Str::of($portName ?? 'Port')->lower()->replace('hardpoint_', '')->headline()
-        : ($isVehicleDock ? data_get($row['attached_vehicle'], 'class_name', data_get($equippedItem, 'name', '-')) : (data_get($equippedItem, 'name', '-')));
+    $title = $isAttachedVehicle ? data_get($attachedVehicle, 'name', $row['display_name']) : $row['name'];
+    $label = $row['display_name'];
+    $url = null;
+    $linkTestId = null;
+    $leadingIcon = $isLocked ? 'lock' : null;
+    $leadingIconClass = $isLocked ? 'text-muted' : '';
+    $size = $row['item_size'];
+    $sizeTitle = 'Item Size';
+    $fallbackSizeLabel = ! $row['has_equipped_item'] ? $row['size_label'] : null;
+    $annotation = $row['type_annotation'];
+    $subtext = null;
+    $detailStats = [];
+    $summaryText = null;
+    $summaryPrimary = null;
+    $summarySecondaries = $row['secondary_stats'];
+    $childPorts = collect(data_get($port, 'ports') ?? []);
 
-    // Browse-equippable filters - prefer compatible_types over port type
+    if ($row['power_usage'] > 0) {
+        $detailStats[] = ['icon' => 'zap', 'title' => 'Power segment usage', 'value' => Format::compact($row['power_usage'], 1)];
+    }
+
+    if ($row['coolant_usage'] > 0) {
+        $detailStats[] = ['icon' => 'fan', 'title' => 'Cooling segment usage', 'value' => Format::compact($row['coolant_usage'], 1)];
+    }
+
+    if (is_int($row['primary_stat']) || is_float($row['primary_stat'])) {
+        $summaryPrimary = [
+            'title' => $row['primary_label'],
+            'value' => Format::compact($row['primary_stat'], 1).$row['primary_unit'],
+            'label' => $row['primary_label'],
+        ];
+    }
+
+    if ($isAttachedVehicle) {
+        $url = data_get($attachedVehicle, 'web_url');
+        $linkTestId = 'port-display-attached-vehicle-link';
+        $leadingIcon = 'rocket';
+        $leadingIconClass = 'text-primary';
+        $size = data_get($attachedVehicle, 'size_class');
+        $sizeTitle = 'Vehicle Size';
+        $fallbackSizeLabel = null;
+        $annotation = null;
+        $subtext = data_get($attachedVehicle, 'class_name');
+        $detailStats = [];
+        $summaryText = match (true) {
+            (bool) data_get($attachedVehicle, 'is_spaceship') => 'Spaceship',
+            (bool) data_get($attachedVehicle, 'is_gravlev') => 'Gravlev',
+            (bool) data_get($attachedVehicle, 'is_vehicle') => 'Ground Vehicle',
+            default => null,
+        };
+        $summaryPrimary = null;
+        $summarySecondaries = [];
+        $childPorts = collect();
+    } elseif ($row['equipped_item_uuid']) {
+        $url = data_get($equippedItem, 'web_url') ?? route('web.items.show', $row['equipped_item_uuid']);
+        $linkTestId = 'port-display-equipped-item-link';
+    }
+
+    $visibleChildPorts = $childPorts
+        ->filter(function (array $childPort): bool {
+            $childType = data_get($childPort, 'type');
+            $childSubType = data_get($childPort, 'sub_type');
+            $childEquipItem = data_get($childPort, 'equipped_item', data_get($childPort, 'equipped_port_item'));
+            $isIgnoredType = in_array($childType, ['Display', 'Screen', 'Seat', 'Door', 'Hatch', 'Ladder', 'Light', 'Button', 'Misc', 'WeaponAttachment', 'UNDEFINED'], true);
+            $hasNamedEquipItem = ! empty($childEquipItem) && data_get($childEquipItem, 'name') !== '<= PLACEHOLDER =>';
+            $isIgnoredSubtype = ($childSubType === 'UNDEFINED' && ! $hasNamedEquipItem) || ($childType === 'Misc' && $childSubType === 'Utility');
+
+            return ! $isIgnoredType && ! $isIgnoredSubtype && (! empty($childType) || ! empty($childEquipItem));
+        })
+        ->values();
+
     $compatibleTypes = collect(data_get($port, 'compatible_types', []))->map(fn (array $ct) => $ct['type'])->filter();
     $browseType = $compatibleTypes->contains($row['type']) ? $row['type'] : $compatibleTypes->first();
     $browseType = $browseType ?: $row['type'];
     $browseSubType = $row['sub_type'] && $row['sub_type'] !== 'UNDEFINED' ? $row['sub_type'] : null;
-    $canBrowse = ! $isLocked && $browseType !== null && $browseType !== '';
+    $canBrowse = ! $isAttachedVehicle && (! $isLocked || $isDeactivated) && $browseType !== null && $browseType !== '';
+    $browseConfig = [];
     $browseFilters = [];
+
     if ($canBrowse) {
+        $browseConfig = [
+            'type' => $browseType,
+            'subType' => $browseSubType,
+            'sizeMin' => $row['size_min'],
+            'sizeMax' => $row['size_max'],
+            'requiredTags' => $row['required_tags'],
+            'portTags' => $row['port_tags'],
+            'vehiclePortTags' => $vehiclePortTags,
+        ];
+
         $browseFilters = array_filter([
             'type' => $browseType,
             'sub_type' => $browseSubType,
             'name' => $browseType === 'FlightController' ? $vehicleName : null,
         ]);
+
         if ($row['size_min'] !== null && $row['size_max'] !== null) {
             $browseFilters['size'] = implode(',', range($row['size_min'], $row['size_max']));
         }
+
         if ($row['required_tags'] !== null) {
             $tags = is_array($row['required_tags']) ? $row['required_tags'] : [$row['required_tags']];
             $browseFilters['tags'] = count($tags) === 1 ? $tags[0] : $tags;
         } elseif ($row['port_tags'] !== null) {
-            // Only use port_tags filter when there are no required_tags
-            // Ports with required_tags already filter correctly via filter[tags], sending port_tags too would exclude valid items
             $browseFilters['port_tags'] = count($row['port_tags']) === 1 ? $row['port_tags'][0] : $row['port_tags'];
         } elseif (! empty($vehiclePortTags)) {
-            // Universal port on a known vehicle: scope to vehicle context
             $browseFilters['vehicle'] = count($vehiclePortTags) === 1 ? $vehiclePortTags[0] : implode(',', $vehiclePortTags);
         }
     }
+
+    $hasSummary = $summaryText || $summaryPrimary || ! empty($summarySecondaries);
 @endphp
 
-@if ($isVehicleDock)
-<div class="port-entry {{ $indentClass }}" data-testid="port-display">
+<div class="port-entry space-y-2" data-testid="port-display">
     <div
         id="{{ $portIdentifier }}"
         data-testid="port-display-details"
-        class="border border-primary/30 bg-primary/5 rounded-lg px-3 py-2 flex flex-wrap items-center gap-2"
-    >
-        <x-icon name="rocket" class="size-4 text-primary shrink-0"/>
-        <a
-            data-testid="port-display-attached-vehicle-link"
-            href="{{ data_get($row['attached_vehicle'], 'web_url') }}"
-            class="link link-primary font-semibold text-sm"
-        >{{ data_get($row['attached_vehicle'], 'name', $displayPortLabel) }}</a>
-        @if (data_get($row['attached_vehicle'], 'size_class'))
-            <span class="badge badge-sm badge-primary" title="Vehicle Size">S{{ data_get($row['attached_vehicle'], 'size_class') }}</span>
+        @if ($canBrowse)
+            x-data="portEquippable(@js($browseConfig))"
+            @click.stop="toggle($el)"
         @endif
-        <span class="badge badge-sm badge-soft">
-            @if (data_get($row['attached_vehicle'], 'is_spaceship'))
-                Spaceship
-            @elseif (data_get($row['attached_vehicle'], 'is_gravlev'))
-                Gravlev
-            @elseif (data_get($row['attached_vehicle'], 'is_vehicle'))
-                Ground Vehicle
-            @endif
-        </span>
-    </div>
-</div>
-@else
-<div class="port-entry {{ $indentClass }} {{ $isDeactivated ? 'opacity-60 bg-error/5 border-error/30' : '' }}" data-testid="port-display">
-    <div
-        id="{{ $portIdentifier }}"
-        data-testid="port-display-details"
-        class="border border-base-300  rounded-lg {{ $depth === 0 ? 'shadow-sm bg-base-200' : 'bg-base-100' }}"
+        @class([
+            'grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-lg border-2 bg-base-200 border-base-200',
+            'cursor-pointer hover:bg-base-300/50 transition-colors' => $canBrowse,
+            'border-dashed border-base-300' => $isDeactivated,
+        ])
     >
-        <div
-            data-testid="port-display-summary"
-            class="px-3 py-2 text-sm font-semibold flex flex-col gap-1.5"
-        >
-            <span class="flex flex-wrap items-center gap-2 min-w-0">
-                @if ($depth > 0)
-                    <span class="text-muted shrink-0">↳</span>
+        <aside class="grid grid-flow-col auto-cols-max items-stretch divide-x divide-base-200 bg-base-100">
+            @if ($isDeactivated)
+                <div class="flex items-center px-2 py-2 text-warning" title="{{ $row['deactivation_reason'] }}">
+                    <x-icon name="power-off" class="size-3" data-testid="port-display-deactivated" />
+                </div>
+            @endif
+
+            <div class="flex items-center gap-1 px-2 py-2">
+                @if($leadingIcon)
+                    <x-icon name="{{ $leadingIcon }}" class="size-3 shrink-0 {{ $leadingIconClass }}"/>
                 @endif
-                @if($isLocked)
-                    <x-icon name="lock" class="size-3 shrink-0"/>
+
+                @if ($size !== null)
+                    <span class="text-md" title="{{ $sizeTitle }}">S{{ $size }}</span>
                 @endif
-                @if ($row['pilot_slaveable'] ?? false)
-                    <span class="badge badge-sm badge-soft badge-warning shrink-0" title="Pilot Slaveable">
-                        <x-icon name="joystick" class="size-3"/>
-                    </span>
+
+                @if ($fallbackSizeLabel !== null)
+                    <span class="text-md" title="Equippable Size">{{ $fallbackSizeLabel }}</span>
                 @endif
-                @if ($row['item_size'] !== null)
-                    <span class="badge badge-sm badge-outline shrink-0" title="Item Size">S{{ $row['item_size'] }}</span>
+            </div>
+        </aside>
+
+        <div class="flex min-w-0 flex-col px-2 py-2">
+            <span class="truncate" title="{{ $title }}">
+                @if($url)
+                    <a
+                        data-testid="{{ $linkTestId }}"
+                        href="{{ $url }}"
+                        class="link-primary"
+                        @click.stop
+                    >{{ $label }}</a>
+                @else
+                    {{ $label }}
                 @endif
-                @if ($isDeactivated)
-                    <span class="badge badge-soft badge-sm shrink-0" data-testid="port-display-deactivated" title="{{ $deactivationReason }}">
-                        <x-icon name="power-off" class="size-3"/>
-                        <span>Deactivated</span>
-                    </span>
-                @endif
-                <span class="truncate" title="{{ $displayPortName }}">
-                    @if($equippedItemUuid)
-                        <a
-                            data-testid="port-display-equipped-item-link"
-                            href="{{ data_get($equippedItem, 'web_url') ?? route('web.items.show', $equippedItemUuid) }}"
-                            class="link link-primary text-sm"
-                        >{{$displayPortLabel}}</a>
-                    @else
-                        {{ $displayPortLabel }}
-                    @endif
-                </span>
-                @if ($row['type_annotation'])
-                    <span class="text-xs font-normal text-subtle">({{ $row['type_annotation'] }})</span>
-                @endif
-                @if (! empty($row['position']))
-                    <span class="text-xs font-normal text-subtle">{{ $row['position'] }}</span>
-                @endif
-                @if ($row['primary_stat'] !== null)
-                    <span class="ml-auto badge badge-sm badge-primary" title="{{ $row['primary_label'] }}">
-                        @if ($row['primary_icon'])
-                            <x-icon name="{{ $row['primary_icon'] }}" class="size-3"/>
-                        @endif
-                        <span class="font-medium">{{ Format::compact($row['primary_stat'], 1) }}{{ $row['primary_unit'] }}</span> {{ $row['primary_label'] }}
-                    </span>
-                @endif
-                @if ($canBrowse)
-                    <span class="{{ $row['primary_stat'] === null ? 'ml-auto' : '' }}">
-                        <x-port-browse-popup :type="$browseType" :sub-type="$browseSubType" :size-min="$row['size_min']" :size-max="$row['size_max']" :required-tags="$row['required_tags']" :port-tags="$row['port_tags']" :vehicle-port-tags="$vehiclePortTags" :browse-url="url()->query(route('web.items.index', ['filter' => $browseFilters]), array_filter(['version' => request()->query('version')]))"/>
-                    </span>
+
+                @if ($annotation)
+                    <span class="text-xs font-normal text-subtle">({{ $annotation }})</span>
                 @endif
             </span>
 
-            <span class="flex flex-wrap items-center justify-end gap-x-3 pl-5 text-xs font-normal tabular-nums text-subtle">
-                @if ($row['power_usage'] > 0)
-                    <span title="Power Segment Usage">
-                        <x-icon name="zap" class="size-3 inline"/>
-                        <span class="font-medium">{{ Format::compact($row['power_usage'], 1) }}</span>
-                    </span>
-                @endif
-                @if ($row['coolant_usage'] > 0)
-                    <span title="Coolant Segment Usage">
-                        <x-icon name="fan" class="size-3 inline"/>
-                        <span class="font-medium">{{ Format::compact($row['coolant_usage'], 1) }}</span>
-                    </span>
-                @endif
-                @if (! empty($row['secondary_stats']))
-                    @foreach ($row['secondary_stats'] as $sec)
-                        <span>{{ $sec }}</span>
+            @if ($subtext)
+                <span class="truncate text-xs text-subtle">{{ $subtext }}</span>
+            @elseif ($detailStats !== [])
+                <div class="flex gap-2">
+                    @foreach ($detailStats as $stat)
+                        <span title="{{ $stat['title'] }}">
+                            <x-icon name="{{ $stat['icon'] }}" class="inline" size="sm"/>
+                            <span class="text-sm">{{ $stat['value'] }}</span>
+                        </span>
                     @endforeach
-                @endif
-                @if (! $hasEquippedItem && $sizeLabel !== null)
-                    <span title="Equippable Size">{{ $sizeLabel }}</span>
-                @endif
-            </span>
+                </div>
+            @endif
         </div>
-        @if (! empty(data_get($port, 'ports')))
-        <div id="{{ $portIdentifier }}-content" class="px-3 pb-2 space-y-2">
-            @foreach (data_get($port, 'ports') as $childPort)
-                @php
-                    $childType = data_get($childPort, 'type');
-                    $childSubType = data_get($childPort, 'sub_type');
-                    $childEquipItem = data_get($childPort, 'equipped_item');
-                    $isIgnoredType = in_array($childType, ['Display', 'Screen', 'Seat', 'Door', 'Hatch', 'Ladder', 'Light', 'Button', 'Misc', 'WeaponAttachment', 'UNDEFINED'], true);
-                    $hasNamedEquipItem = ! empty($childEquipItem) && data_get($childEquipItem, 'name') !== '<= PLACEHOLDER =>';
-                    $isIgnoredSubtype = ($childSubType === 'UNDEFINED' && ! $hasNamedEquipItem) || ($childType === 'Misc' && $childSubType === 'Utility');
-                    $hasChildContent = ! $isIgnoredType && ! $isIgnoredSubtype && (! empty($childType) || ! empty($childEquipItem));
-                @endphp
-                @if ($hasChildContent)
-                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
+
+        @if ($hasSummary)
+            <aside data-testid="port-display-summary" class="px-2 py-2 text-right">
+                @if ($summaryText)
+                    <div class="text-xs">{{ $summaryText }}</div>
                 @endif
-            @endforeach
-        </div>
+
+                @if ($summaryPrimary)
+                    <div title="{{ $summaryPrimary['title'] }}">
+                        <span class="font-medium">{{ $summaryPrimary['value'] }}</span> {{ $summaryPrimary['label'] }}
+                    </div>
+                @endif
+
+                @if (! empty($summarySecondaries))
+                    <div class="flex gap-2 text-xs">
+                        @foreach ($summarySecondaries as $secondary)
+                            <span>{{ $secondary }}</span>
+                        @endforeach
+                    </div>
+                @endif
+            </aside>
+        @endif
+
+        @if ($canBrowse)
+            <x-port-browse-popup :type="$browseType" :browse-url="url()->query(route('web.items.index', ['filter' => $browseFilters]), array_filter(['version' => request()->query('version')]))"/>
         @endif
     </div>
+
+    @if ($visibleChildPorts->isNotEmpty())
+        <div id="{{ $portIdentifier }}-content" @class([
+            'space-y-1 -mt-1',
+            'pl-6' => $depth === 0,
+            'pl-8' => $depth === 1,
+            'pl-12' => $depth >= 2,
+        ])>
+            @foreach ($visibleChildPorts as $childPort)
+                <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
+            @endforeach
+        </div>
+    @endif
 </div>
-@endif
