@@ -48,6 +48,7 @@ class ComputeBespokeItems implements ShouldQueue
     private const array BESPOKE_CLASS_NAME_TOKENS = [
         '_Colonial_',
         '_PDC_',
+        '_NoSafety', // Nox specific
     ];
 
     public function __construct(
@@ -406,7 +407,7 @@ class ComputeBespokeItems implements ShouldQueue
      */
     private function classNameMatchesBespokeToken(string $className): bool
     {
-        return array_any(self::BESPOKE_CLASS_NAME_TOKENS, fn($token) => str_contains($className, $token));
+        return array_any(self::BESPOKE_CLASS_NAME_TOKENS, fn ($token) => str_contains($className, $token));
     }
 
     /**
