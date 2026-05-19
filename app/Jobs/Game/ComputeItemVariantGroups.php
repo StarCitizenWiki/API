@@ -107,101 +107,165 @@ class ComputeItemVariantGroups implements ShouldQueue
 
     private function resolveGroup(ItemVariantResolver $resolver, ItemData $itemData): array
     {
-        if ($itemData->base_id !== null) {
-            $base = ItemData::query()
-                ->where('id', $itemData->base_id)
-                ->where('game_version_id', $this->gameVersionId)
-                ->with(['item', 'gameVersion'])
-                ->first();
+        return $this->resolveExistingBaseGroup($itemData)
+            ?? $this->resolvePaintGroup($resolver, $itemData)
+            ?? $this->resolveShipComponentGroup($resolver, $itemData)
+            ?? $this->resolveTagOrClassNameGroup($resolver, $itemData)
+            ?? [$itemData];
+    }
 
-            if ($base !== null) {
-                $siblings = $base->variants()
-                    ->with(['item', 'gameVersion'])
-                    ->where('game_version_id', $this->gameVersionId)
-                    ->get()
-                    ->all();
-
-                if (count($siblings) >= 1) {
-                    return array_merge([$base], $siblings);
-                }
-            }
+    /** @return array<int, ItemData>|null */
+    private function resolveExistingBaseGroup(ItemData $itemData): ?array
+    {
+        if ($itemData->base_id === null) {
+            return null;
         }
 
-        if ($itemData->classification === 'Ship.Paints') {
-            $paintGroup = $resolver->findVariantGroupFromPaint($itemData);
+        $base = ItemData::query()
+            ->where('id', $itemData->base_id)
+            ->where('game_version_id', $this->gameVersionId)
+            ->with(['item', 'gameVersion'])
+            ->first();
 
-            if (count($paintGroup) > 1) {
-                return $paintGroup;
-            }
+        if ($base === null) {
+            return null;
         }
 
-        if (str_starts_with((string) $itemData->classification, 'Ship.')) {
-            $shipGroup = $resolver->findShipComponentGroup($itemData);
+        $siblings = $base->variants()
+            ->with(['item', 'gameVersion'])
+            ->where('game_version_id', $this->gameVersionId)
+            ->get()
+            ->all();
 
-            if (count($shipGroup) > 1) {
-                return $shipGroup;
-            }
+        return count($siblings) >= 1 ? array_merge([$base], $siblings) : null;
+    }
+
+    /** @return array<int, ItemData>|null */
+    private function resolvePaintGroup(ItemVariantResolver $resolver, ItemData $itemData): ?array
+    {
+        if ($itemData->classification !== 'Ship.Paints') {
+            return null;
         }
 
+        return $this->filledGroup($resolver->findVariantGroupFromPaint($itemData));
+    }
+
+    /** @return array<int, ItemData>|null */
+    private function resolveShipComponentGroup(ItemVariantResolver $resolver, ItemData $itemData): ?array
+    {
+        if (! str_starts_with((string) $itemData->classification, 'Ship.')) {
+            return null;
+        }
+
+        return $this->filledGroup($resolver->findShipComponentGroup($itemData));
+    }
+
+    /** @return array<int, ItemData>|null */
+    private function resolveTagOrClassNameGroup(ItemVariantResolver $resolver, ItemData $itemData): ?array
+    {
         $tagGroup = $resolver->findVariantGroupFromTags($itemData);
-
-        if (count($tagGroup) > 1) {
-            return $tagGroup;
-        }
-
         $classNameGroup = $resolver->findVariantGroupFromClassName($itemData);
 
-        if (count($classNameGroup) > 1) {
+        if ($this->isBetterClassNameGroup($classNameGroup, $tagGroup)) {
             return $classNameGroup;
         }
 
-        return [$itemData];
+        return $this->filledGroup($tagGroup) ?? $this->filledGroup($classNameGroup);
+    }
+
+    /**
+     * Prefer class-name grouping when it reconciles a smaller tag group.
+     * Some source tags are inconsistent across variants of the same numbered class-name family.
+     *
+     * @param  array<int, ItemData>  $classNameGroup
+     * @param  array<int, ItemData>  $tagGroup
+     */
+    private function isBetterClassNameGroup(array $classNameGroup, array $tagGroup): bool
+    {
+        return count($tagGroup) > 1
+            && count($classNameGroup) > count($tagGroup)
+            && $this->containsAllItems($classNameGroup, $tagGroup);
+    }
+
+    /**
+     * @param  array<int, ItemData>  $haystack
+     * @param  array<int, ItemData>  $needles
+     */
+    private function containsAllItems(array $haystack, array $needles): bool
+    {
+        $haystackIds = array_flip(array_map(static fn (ItemData $itemData): int => $itemData->id, $haystack));
+
+        return array_all($needles, fn ($needle) => isset($haystackIds[$needle->id]));
+    }
+
+    /**
+     * @param  array<int, ItemData>  $group
+     * @return array<int, ItemData>|null
+     */
+    private function filledGroup(array $group): ?array
+    {
+        return count($group) > 1 ? $group : null;
     }
 
     private function persistGroup(ItemVariantResolver $resolver, array $group, ItemData $base): void
     {
-        $setName = $resolver->resolveSetNameFromEntityTags($group);
-
-        $names = array_map(static fn (ItemData $item): string => $item->name ?? '', $group);
-        $baseInfo = ['uuid' => $base->item->uuid ?? '', 'name' => $base->name ?? ''];
-        $groupInfo = array_map(static fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group);
-
-        if ($setName === null) {
-            [$setName, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
-        } else {
-            [, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
-        }
-
-        if ($setName === null) {
-            $setName = $this->deriveSetNameFromSetItems($base);
-        }
+        [$setName, $variantNames] = $this->resolveGroupNames($resolver, $group, $base);
 
         $variantGroup = VariantGroup::query()->create([
             'game_version_id' => $this->gameVersionId,
             'set_name' => $setName,
         ]);
 
-        $sortOrder = 0;
-
-        foreach ($group as $itemData) {
-            $isBase = $itemData->id === $base->id;
-
-            $variantName = ItemVariantResolver::normalizeVariantName($variantNames[$itemData->item->uuid ?? ''] ?? null);
-
-            if ($variantName === 'Base' && str_starts_with((string) $itemData->classification, 'Ship.')) {
-                $variantName = $itemData->name;
-            }
-
-            VariantGroupItem::query()->create([
-                'variant_group_id' => $variantGroup->id,
-                'item_data_id' => $itemData->id,
-                'variant_name' => $variantName,
-                'sort_order' => $sortOrder++,
-                'is_base' => $isBase,
-            ]);
-
-            $this->updateBaseId($itemData, $isBase ? null : $base->id);
+        foreach ($group as $sortOrder => $itemData) {
+            $this->persistGroupItem($variantGroup, $itemData, $base, $variantNames, $sortOrder);
         }
+    }
+
+    /**
+     * @param  array<int, ItemData>  $group
+     * @return array{0: string|null, 1: array<string, string>}
+     */
+    private function resolveGroupNames(ItemVariantResolver $resolver, array $group, ItemData $base): array
+    {
+        $names = array_map(static fn (ItemData $item): string => $item->name ?? '', $group);
+        $baseInfo = ['uuid' => $base->item->uuid ?? '', 'name' => $base->name ?? ''];
+        $groupInfo = array_map(static fn (ItemData $item): array => ['uuid' => $item->item->uuid ?? '', 'name' => $item->name ?? ''], $group);
+
+        [$computedSetName, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo);
+
+        $setName = $resolver->resolveSetNameFromEntityTags($group)
+            ?? $computedSetName
+            ?? $this->deriveSetNameFromSetItems($base);
+
+        return [$setName, $variantNames];
+    }
+
+    /** @param array<string, string> $variantNames */
+    private function persistGroupItem(VariantGroup $variantGroup, ItemData $itemData, ItemData $base, array $variantNames, int $sortOrder): void
+    {
+        $isBase = $itemData->id === $base->id;
+
+        VariantGroupItem::query()->create([
+            'variant_group_id' => $variantGroup->id,
+            'item_data_id' => $itemData->id,
+            'variant_name' => $this->resolveVariantName($itemData, $variantNames),
+            'sort_order' => $sortOrder,
+            'is_base' => $isBase,
+        ]);
+
+        $this->updateBaseId($itemData, $isBase ? null : $base->id);
+    }
+
+    /** @param array<string, string> $variantNames */
+    private function resolveVariantName(ItemData $itemData, array $variantNames): ?string
+    {
+        $variantName = ItemVariantResolver::normalizeVariantName($variantNames[$itemData->item->uuid ?? ''] ?? null);
+
+        if ($variantName === 'Base' && str_starts_with((string) $itemData->classification, 'Ship.')) {
+            return $itemData->name;
+        }
+
+        return $variantName;
     }
 
     private function updateBaseId(ItemData $itemData, ?int $baseId): void

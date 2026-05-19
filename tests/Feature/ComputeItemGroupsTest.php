@@ -104,6 +104,52 @@ it('computes variant groups from stditem tags when class names do not match', fu
     expect($items)->toHaveCount(2);
 });
 
+it('prefers a class-name superset when source tags split one variant family', function (): void {
+    $version = GameVersion::query()->create([
+        'code' => '4.8.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $createItemData = function (string $name, string $className, array $tags) use ($version): ItemData {
+        $item = Item::query()->create(['uuid' => fake()->uuid()]);
+
+        return ItemData::query()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $version->id,
+            'manufacturer_id' => $this->manufacturer->id,
+            'name' => $name,
+            'class_name' => $className,
+            'classification' => 'FPS.Armor.Helmet',
+            'data' => [
+                'stdItem' => [
+                    'Tags' => $tags,
+                ],
+            ],
+        ]);
+    };
+
+    $baseData = $createItemData('Tailwind Flight Helmet', 'vgl_flightsuit_helmet_01_01_01', ['VGL', 'flightsuit', 'Set_01', 'Texture_01', 'Color_01', 'Helmet']);
+    $dominionData = $createItemData('Tailwind Flight Helmet Dominion Camo', 'vgl_flightsuit_helmet_01_02_01', ['VGL', 'flightsuit', 'Set_01', 'Texture_01', 'Color_01', 'Helmet']);
+    $bigBiteData = $createItemData('Tailwind Flight Helmet Big Bite', 'vgl_flightsuit_helmet_01_03_01', ['vgl_flightsuit_helmet', 'Set_01', 'Texture_03', 'Color_01', 'Helmet']);
+    $blackboltData = $createItemData('Tailwind Flight Helmet Blackbolt', 'vgl_flightsuit_helmet_01_04_01', ['vgl_flightsuit_helmet', 'Set_01', 'Texture_04', 'Color_01', 'Helmet']);
+
+    (new ComputeItemVariantGroupsJob($version->id))->handle();
+
+    $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
+    expect($group)->not->toBeNull();
+
+    $items = VariantGroupItem::query()->where('variant_group_id', $group->id)->get()->keyBy('item_data_id');
+
+    expect($items)->toHaveCount(4)
+        ->and($items[$baseData->id]->is_base)->toBeTrue()
+        ->and($items[$dominionData->id]->is_base)->toBeFalse()
+        ->and($items[$bigBiteData->id]->is_base)->toBeFalse()
+        ->and($items[$blackboltData->id]->is_base)->toBeFalse()
+        ->and($bigBiteData->fresh()->base_id)->toBe($baseData->id);
+});
+
 it('uses item name instead of Base for Ship classification variants', function (): void {
     $version = GameVersion::query()->create([
         'code' => '4.1.0-LIVE',
