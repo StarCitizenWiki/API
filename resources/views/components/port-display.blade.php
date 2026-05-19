@@ -194,7 +194,7 @@
                     $hasChildContent = ! $isIgnoredType && ! $isIgnoredSubtype && (! empty($childType) || ! empty($childEquipItem));
                 @endphp
                 @if ($hasChildContent)
-                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName"/>
+                    <x-port-display :port="$childPort" :depth="$depth + 1" :editable="data_get($childPort, 'editable', false)" :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
                 @endif
             @endforeach
         </div>
