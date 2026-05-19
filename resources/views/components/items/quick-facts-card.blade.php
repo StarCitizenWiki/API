@@ -17,13 +17,9 @@
     $baseVariantName = data_get($baseVariant, 'name');
     $mass = data_get($item, 'mass');
     $dimension = data_get($item, 'dimension', []);
-    $length = data_get($dimension, 'length');
-    $width = data_get($dimension, 'width');
-    $height = data_get($dimension, 'height');
-    $trueDimension = data_get($dimension, 'true_dimension');
-    $trueLength = data_get($trueDimension, 'length');
-    $trueWidth = data_get($trueDimension, 'width');
-    $trueHeight = data_get($trueDimension, 'height');
+    $dimensionsBlock = data_get($dimension, 'dimensions');
+    $cargoDimension = data_get($dimension, 'cargo_dimension');
+    $uiDimension = data_get($dimension, 'ui_dimension');
     $volume = data_get($dimension, 'volume_converted', data_get($dimension, 'volume'));
     $volumeUnit = data_get($dimension, 'volume_converted_unit');
     $versionQuery = request()->query('version');
@@ -36,16 +32,29 @@
         default => $grade,
     };
 
-    if ($trueDimension && ($trueLength || $trueWidth || $trueHeight)) {
-        $dimensionsValue = sprintf('%s × %s × %sm', $trueLength ?? '-', $trueWidth ?? '-', $trueHeight ?? '-');
-        $dimensionsTitle = sprintf('UI: %s × %s × %sm', $length ?? '-', $width ?? '-', $height ?? '-');
-    } elseif ($length || $width || $height) {
-        $dimensionsValue = sprintf('%s × %s × %sm', $length ?? '-', $width ?? '-', $height ?? '-');
-        $dimensionsTitle = null;
+    $dimLength = data_get($dimensionsBlock, 'length');
+    $dimWidth = data_get($dimensionsBlock, 'width');
+    $dimHeight = data_get($dimensionsBlock, 'height');
+
+    if ($dimLength || $dimWidth || $dimHeight) {
+        $dimensionsValue = sprintf('%s × %s × %sm', $dimLength ?? '-', $dimWidth ?? '-', $dimHeight ?? '-');
     } else {
         $dimensionsValue = '-';
-        $dimensionsTitle = null;
     }
+
+    $uiLength = data_get($uiDimension, 'length');
+    $uiWidth = data_get($uiDimension, 'width');
+    $uiHeight = data_get($uiDimension, 'height');
+    $dimensionsTitle = ($uiLength || $uiWidth || $uiHeight) && $dimensionsValue !== '-'
+        ? sprintf('UI: %s × %s × %sm', $uiLength ?? '-', $uiWidth ?? '-', $uiHeight ?? '-')
+        : null;
+
+    $cargoLength = data_get($cargoDimension, 'length');
+    $cargoWidth = data_get($cargoDimension, 'width');
+    $cargoHeight = data_get($cargoDimension, 'height');
+    $cargoValue = ($cargoLength || $cargoWidth || $cargoHeight)
+        ? sprintf('%s × %s × %sm', $cargoLength ?? '-', $cargoWidth ?? '-', $cargoHeight ?? '-')
+        : null;
 
     $baseVariantUrl = null;
 
@@ -123,6 +132,7 @@
                     'value' => $dimensionsValue,
                     ...($dimensionsTitle !== null ? ['title' => $dimensionsTitle] : []),
                 ],
+                ...($cargoValue !== null ? [['label' => 'Cargo Size', 'value' => $cargoValue]] : []),
             ],
         ],
         [

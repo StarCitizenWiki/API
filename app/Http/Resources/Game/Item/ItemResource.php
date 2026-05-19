@@ -440,6 +440,10 @@ class ItemResource extends AbstractBaseResource
 
         $this->addMetadata('deprecated_fields', [
             'shops' => 'Shop data is not available in the source files anymore, there is currently no replacement.',
+            'dimension.width' => 'Use dimension.dimensions, dimension.cargo_dimension, or dimension.ui_dimension instead.',
+            'dimension.height' => 'Use dimension.dimensions, dimension.cargo_dimension, or dimension.ui_dimension instead.',
+            'dimension.length' => 'Use dimension.dimensions, dimension.cargo_dimension, or dimension.ui_dimension instead.',
+            'dimension.true_dimension' => 'Use dimension.dimensions instead.',
         ]);
 
         $itemData = $this->resource;

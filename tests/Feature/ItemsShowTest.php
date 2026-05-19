@@ -1021,6 +1021,135 @@ it('does not show true dimensions when no override exists', function (): void {
         ->and($quickFacts->filter('span[title]')->count())->toBe(0);
 });
 
+it('shows cargo size row when cargo dimension is available', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Acme Works',
+        'code' => 'ACME',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Item with cargo dimensions'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Cargo Dim Item',
+            'class_name' => 'cargo_dim_item',
+            'classification' => 'Test.Module',
+            'type' => 'PowerPlant',
+            'sub_type' => 'Small',
+            'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Mass' => 5.0,
+                    'InventoryOccupancy' => [
+                        'Dimensions' => [
+                            'Width' => 0.458,
+                            'Height' => 0.354,
+                            'Length' => 0.466,
+                        ],
+                        'CargoGrid' => [
+                            'Width' => 0.24,
+                            'Height' => 0.34,
+                            'Length' => 0.30,
+                        ],
+                        'UIDimensions' => [
+                            'Width' => 0.75,
+                            'Height' => 0.75,
+                            'Length' => 0.75,
+                        ],
+                        'Volume' => [
+                            'SCUConverted' => 19000,
+                            'Unit' => 'µSCU',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        // True 3D dimensions shown as value
+        ->and($quickFacts->text())->toContain('0.466 × 0.458 × 0.354m')
+        // UI dimensions as title
+        ->and($quickFacts->filter('span[title]')->count())->toBe(1)
+        ->and($quickFacts->filter('span[title]')->attr('title'))->toBe('UI: 0.75 × 0.75 × 0.75m')
+        // Cargo size shown as separate row
+        ->and($quickFacts->text())->toContain('0.3 × 0.24 × 0.34m')
+        ->and($quickFacts->text())->toContain('Cargo Size');
+});
+
+it('does not show cargo size row when no cargo dimension', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Acme Works',
+        'code' => 'ACME',
+    ]);
+
+    $item = Item::factory()->create([
+        'translation' => ['en' => 'Item without cargo dims'],
+    ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'No Cargo Dim Item',
+            'class_name' => 'no_cargo_dim_item',
+            'classification' => 'Test.Module',
+            'type' => 'PowerPlant',
+            'sub_type' => 'Small',
+            'size' => 1,
+            'data' => [
+                'stdItem' => [
+                    'Mass' => 5.0,
+                    'InventoryOccupancy' => [
+                        'Dimensions' => [
+                            'Width' => 1.0,
+                            'Height' => 2.0,
+                            'Length' => 3.0,
+                        ],
+                        'Volume' => [
+                            'SCUConverted' => 0.5,
+                            'Unit' => 'SCU',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->get(route('web.items.show', $item->uuid));
+
+    $response->assertOk();
+
+    $quickFacts = itemQuickFacts($response);
+
+    expect($quickFacts->count())->toBe(1)
+        ->and($quickFacts->text())->not->toContain('Cargo Size');
+});
+
 it('shows blueprint links in quick-facts card when item is craftable', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
