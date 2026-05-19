@@ -44,6 +44,7 @@ Route::group(
     static function () {
         Route::middleware(['game.version', 'limit.parameter'])->group(static function () {
             Route::get('search', [UnifiedSearchController::class, 'search'])->middleware('throttle:search')->name('search');
+            Route::get('search/{query}', [UnifiedSearchController::class, 'apiResolve'])->middleware('throttle:search')->where('query', '[^/]+')->name('resolve');
 
             Route::prefix('v2')->group(static function () {
                 Route::get('vehicles', [VehicleController::class, 'index'])

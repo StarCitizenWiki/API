@@ -93,6 +93,16 @@ class UnifiedSearchController extends Controller
 
     public function resolve(string $query): RedirectResponse
     {
+        return $this->resolveEntity($query, redirectToApi: false);
+    }
+
+    public function apiResolve(string $query): RedirectResponse
+    {
+        return $this->resolveEntity($query, redirectToApi: true);
+    }
+
+    private function resolveEntity(string $query, bool $redirectToApi): RedirectResponse
+    {
         $versionId = $this->gameVersion()->id;
 
         $rows = DB::select($this->buildResolveSql(), $this->buildResolveBindings($versionId, $query));
@@ -103,7 +113,11 @@ class UnifiedSearchController extends Controller
 
         $match = $rows[0];
 
-        return redirect($this->webUrl($match->type, $match), 302);
+        $url = $redirectToApi
+            ? $this->apiUrl($match->type, $match)
+            : $this->webUrl($match->type, $match);
+
+        return redirect($url, 302);
     }
 
     private function buildSql(): string
