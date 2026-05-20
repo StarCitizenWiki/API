@@ -145,6 +145,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'hp', description: 'Total shield hit points.', type: 'number', example: 12000, nullable: true),
                 new OA\Property(property: 'regeneration', description: 'Shield regeneration rate per second.', type: 'number', example: 50, nullable: true),
+                new OA\Property(property: 'regeneration_time', description: 'Shield regeneration time from empty. Assuming full power segments assigned to shields.', type: 'number', example: 5.27, nullable: true),
                 new OA\Property(property: 'face_type', description: 'Shield face configuration (e.g., Bubble, Quadrant).', type: 'string', example: 'FourFaces', nullable: true),
                 new OA\Property(property: 'max_reallocation', description: 'Maximum shield reallocation ratio (0-1).', type: 'number', example: 0.5, nullable: true),
                 new OA\Property(property: 'reconfiguration_cooldown', description: 'Cooldown time for shield reconfiguration in seconds.', type: 'number', example: 2.0, nullable: true),
@@ -872,6 +873,7 @@ class VehicleResource extends AbstractBaseResource
             'shield' => [
                 'hp' => Arr::get($payload, 'ShieldsTotal.Hp', 0),
                 'regeneration' => Arr::get($payload, 'ShieldsTotal.Regen'),
+                'regeneration_time' => Arr::get($payload, 'ShieldsTotal.RegenerationTime'),
                 'face_type' => Arr::get($payload, 'ShieldController.FaceType'),
                 'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
                 'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),

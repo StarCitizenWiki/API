@@ -5,6 +5,7 @@
     $shield = data_get($vehicle, 'shield', []);
     $hp = data_get($shield, 'hp');
     $regeneration = data_get($shield, 'regeneration');
+    $regenerationTime = data_get($shield, 'regeneration_time');
     $faceType = data_get($shield, 'face_type');
 
     $resistance = data_get($shield, 'resistance', []);
@@ -35,9 +36,12 @@
                         </x-dt-dd>
                     @endif
 
-                    @if ($regeneration !== null)
+                    @if ($regenerationTime !== null)
                         <x-dt-dd label="Regeneration">
-                            {{ Format::numberOrDash($regeneration) }} <span class="text-xs text-muted">HP/s</span>
+                            <span>{{ Format::valueWithUnit($regenerationTime, 's', 2) }}</span>
+                            @if ($regeneration !== null)
+                                <span>({{ Format::numberOrDash($regeneration) }} <span class="text-xs text-muted">HP/s</span>)</span>
+                            @endif
                         </x-dt-dd>
                     @endif
                 </x-dl-section>

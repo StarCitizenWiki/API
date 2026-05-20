@@ -16897,6 +16897,11 @@ components:
               type: number
               example: 50
               nullable: true
+            regeneration_time:
+              description: 'Shield regeneration time from empty. Assuming full power segments assigned to shields.'
+              type: number
+              example: 5.27
+              nullable: true
             face_type:
               description: 'Shield face configuration (e.g., Bubble, Quadrant).'
               type: string

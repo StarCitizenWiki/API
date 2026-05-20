@@ -155,7 +155,7 @@
                 </div>
             @endif
 
-            <div class="flex items-center gap-1 px-2 py-2">
+            <div class="flex items-center gap-1 px-2 py-2 font-medium">
                 @if($leadingIcon)
                     <x-icon name="{{ $leadingIcon }}" class="size-3 shrink-0 {{ $leadingIconClass }}"/>
                 @endif

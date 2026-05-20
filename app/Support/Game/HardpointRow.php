@@ -368,6 +368,10 @@ final class HardpointRow
             $secondaries[] = Format::compact($regenTime, 0).'s Full';
         }
 
+        // Item level regen time changes based on ship pool size
+        // As this value is dynamic we cannot really show the item level data here
+        $secondaries = [];
+
         return [
             'stat' => Arr::get($item, 'shield.max_health'),
             'label' => 'HP',
