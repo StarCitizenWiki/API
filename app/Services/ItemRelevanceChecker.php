@@ -23,6 +23,7 @@ final class ItemRelevanceChecker
         if (
             $lowerName === 'test string'
             || $lowerName === 'door control'
+            || $lowerName === 'door'
             || str_contains($lowerName, '- name')
             || str_contains($lowerName, 'placeholder')
             || str_starts_with($name, 'PH - ')
