@@ -577,6 +577,12 @@
 
 
 <x-app.sidemenu-group title="Explore">
+    <x-app.sidemenu-item :route="'developers.index'" :with-version="false">
+        <x-slot:icon>
+            <x-icon name="book-open" class="size-4" />
+        </x-slot:icon>
+        Developers
+    </x-app.sidemenu-item>
     <x-app.sidemenu-item href="https://docs.star-citizen.wiki" :with-version="false">
         <x-slot:icon>
             <x-icon name="search" class="size-4" />

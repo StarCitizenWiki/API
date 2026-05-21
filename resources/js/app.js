@@ -81,6 +81,7 @@ import {
     Sun,
     Syringe,
     Target,
+    Terminal,
     Trash2,
     Truck,
     User,
@@ -168,6 +169,7 @@ const icons = {
     Sun,
     Syringe,
     Target,
+    Terminal,
     Trash2,
     Truck,
     User,
@@ -205,6 +207,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         lazyPromises.push(
             import("./portEquippable").then(({ portEquippable }) => {
                 window.Alpine.data("portEquippable", portEquippable);
+            }),
+        );
+    }
+
+    if (document.querySelector('[x-data="developerQuickstart"], [x-data="developerShowDemo"], [x-data="developerFiltersDemo"]')) {
+        lazyPromises.push(
+            import("./developerQuickstart").then((mod) => {
+                window.Alpine.data("developerQuickstart", mod.developerQuickstart);
+                window.Alpine.data("developerShowDemo", mod.developerShowDemo);
+                window.Alpine.data("developerFiltersDemo", mod.developerFiltersDemo);
             }),
         );
     }

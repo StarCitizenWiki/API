@@ -26,6 +26,8 @@ Route::get('/', static function () {
     return view('welcome');
 })->name('home');
 
+Route::view('/developers', 'developers.index')->name('developers.index');
+
 Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
 Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');
 Route::get('/comm-links/images', [CommLinkController::class, 'imagesIndex'])->name('web.comm-links.images.index');
