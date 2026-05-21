@@ -77,9 +77,10 @@ class CelestialObjectController extends Controller
 
     #[OA\Get(
         path: '/api/celestial-objects',
+        operationId: 'listCelestialObjects',
         description: 'Returns paginated celestial objects with optional relationships.',
         summary: 'Starmap Celestial Objects Overview',
-        tags: ['Starmap', 'RSI-Website'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -101,10 +102,14 @@ class CelestialObjectController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Celestial Objects',
+                description: 'Paginated list of Celestial Objects',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/celestial_object')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/celestial_object')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -121,9 +126,10 @@ class CelestialObjectController extends Controller
 
     #[OA\Get(
         path: '/api/celestial-objects/{code}',
+        operationId: 'getCelestialObject',
         description: 'Retrieve a celestial object by code, optionally including relations.',
         summary: 'Celestial Object Detail',
-        tags: ['Starmap', 'RSI-Website'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(
                 name: 'code',
@@ -147,11 +153,17 @@ class CelestialObjectController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A Celestial Object',
-                content: new OA\JsonContent(ref: '#/components/schemas/celestial_object')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/celestial_object'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'No Celestial Object with specified code found.'
+                description: 'No Celestial Object with specified code found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -181,6 +193,7 @@ class CelestialObjectController extends Controller
 
     #[OA\Post(
         path: '/api/celestial-objects/search',
+        operationId: 'searchCelestialObjectsDeprecated',
         description: 'Deprecated. Use GET /api/celestial-objects?filter[name]={value} for name search. This endpoint will be removed in a future version.',
         summary: 'Celestial Object Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -199,7 +212,7 @@ class CelestialObjectController extends Controller
                 ),
             ],
         ),
-        tags: ['Starmap', 'RSI-Website', 'Search'],
+        tags: ['Starmap', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -210,8 +223,10 @@ class CelestialObjectController extends Controller
                 response: 200,
                 description: 'List of matching Celestial Objects',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/celestial_object')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/celestial_object')),
+                    ],
+                    type: 'object'
                 )
             ),
         ],

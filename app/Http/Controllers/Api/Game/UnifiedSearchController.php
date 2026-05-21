@@ -20,15 +20,52 @@ class UnifiedSearchController extends Controller
 
     #[OA\Get(
         path: '/api/search',
+        operationId: 'searchGameData',
         description: 'Search across items, vehicles, starmap locations, commodities, blueprints, and missions simultaneously. Returns results grouped by type, limited to 5 results per group.',
         summary: 'Unified Search Across All Game Data',
         tags: ['Search'],
         parameters: [
-            new OA\Parameter(name: 'filter[query]', description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.', in: 'query', required: true, schema: new OA\Schema(type: 'string', minLength: 2, example: 'Arrow')),
+            new OA\Parameter(
+                name: 'filter[query]',
+                description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.',
+                in: 'query',
+                required: true,
+                schema: new OA\Schema(type: 'string', minLength: 2, example: 'Carrack'),
+                examples: [
+                    new OA\Examples(example: 'ship_search', summary: 'Search for a ship', value: 'carrack'),
+                    new OA\Examples(example: 'item_search', summary: 'Search for an item', value: 'arrow'),
+                ],
+            ),
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Grouped search results', content: new OA\JsonContent(
+                examples: [
+                    new OA\Examples(
+                        example: 'ship_search_results',
+                        summary: 'Grouped results for a ship search',
+                        value: [
+                            'data' => [
+                                [
+                                    'type' => 'vehicles',
+                                    'label' => 'Vehicles',
+                                    'results' => [
+                                        [
+                                            'name' => 'Carrack',
+                                            'class_name' => 'ANVL_Carrack',
+                                            'classification' => null,
+                                            'classification_label' => null,
+                                            'item_type_label' => null,
+                                            'extra_label' => 'Exploration',
+                                            'web_url' => 'https://star-citizen.wiki/vehicles/carrack',
+                                            'api_url' => 'https://api.star-citizen.wiki/api/vehicles/carrack',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ),
+                ],
                 properties: [
                     new OA\Property(property: 'data', type: 'array', items: new OA\Items(
                         properties: [
@@ -50,7 +87,8 @@ class UnifiedSearchController extends Controller
                     )),
                 ],
             )),
-            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 2 characters'),
+            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 2 characters', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
+            new OA\Response(response: 429, description: 'Rate limit exceeded. Search endpoints are limited to 60 requests per minute per IP.', content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response')),
         ],
     )]
     public function search(Request $request): JsonResponse
@@ -96,6 +134,21 @@ class UnifiedSearchController extends Controller
         return $this->resolveEntity($query, redirectToApi: false);
     }
 
+    #[OA\Get(
+        path: '/api/search/{query}',
+        operationId: 'resolveSearchQuery',
+        description: 'Resolve a search query to the best-matching entity and redirect to its API URL. Useful for quick lookups where you know the exact name.',
+        summary: 'Resolve Search Query',
+        tags: ['Search'],
+        parameters: [
+            new OA\Parameter(name: 'query', description: 'Entity name, class name, or UUID to resolve.', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: 'Carrack')),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+        ],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirect to the matched entity\'s API URL.'),
+            new OA\Response(response: 404, description: 'No matching entity found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+        ],
+    )]
     public function apiResolve(string $query): RedirectResponse
     {
         return $this->resolveEntity($query, redirectToApi: true);

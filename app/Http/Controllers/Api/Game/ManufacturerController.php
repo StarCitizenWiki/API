@@ -41,9 +41,10 @@ class ManufacturerController extends Controller
 
     #[OA\Get(
         path: '/api/manufacturers',
+        operationId: 'listManufacturers',
         description: 'Returns paginated manufacturers grouped by name with optional pagination.',
         summary: 'In-Game Manufacturers Overview',
-        tags: ['In-Game', 'Manufacturers'],
+        tags: ['Manufacturers'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -55,10 +56,12 @@ class ManufacturerController extends Controller
                 response: 200,
                 description: 'List of Manufacturers',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(
-                        ref: '#/components/schemas/manufacturer_link'
-                    )
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/manufacturer_link')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -74,9 +77,10 @@ class ManufacturerController extends Controller
 
     #[OA\Get(
         path: '/api/manufacturers/{manufacturer}',
+        operationId: 'getManufacturer',
         description: 'Retrieve a manufacturer by name, UUID, or code together with its products.',
         summary: 'In-Game Manufacturer Detail',
-        tags: ['In-Game', 'Manufacturers'],
+        tags: ['Manufacturers'],
         parameters: [
             new OA\Parameter(
                 name: 'manufacturer',
@@ -85,6 +89,7 @@ class ManufacturerController extends Controller
                 schema: new OA\Schema(
                     description: 'Manufacturer name, uuid, or code',
                     type: 'string',
+                    example: 'Anvil Aerospace',
                 ),
             ),
         ],
@@ -92,8 +97,14 @@ class ManufacturerController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A Manufacturer and its products',
-                content: new OA\JsonContent(ref: '#/components/schemas/manufacturer')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/manufacturer'),
+                    ],
+                    type: 'object'
+                )
             ),
+            new OA\Response(response: 404, description: 'Manufacturer not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function show(Request $request, string $manufacturer): ManufacturerResource
@@ -122,6 +133,7 @@ class ManufacturerController extends Controller
 
     #[OA\Post(
         path: '/api/manufacturers/search',
+        operationId: 'searchManufacturersDeprecated',
         description: 'Deprecated. Use GET /api/manufacturers?filter[name]={value} for name search. This endpoint will be removed in a future version.',
         summary: 'In-Game Manufacturer Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -135,7 +147,7 @@ class ManufacturerController extends Controller
                 ),
             ]
         ),
-        tags: ['In-Game', 'Manufacturers', 'Search'],
+        tags: ['Manufacturers', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -146,8 +158,12 @@ class ManufacturerController extends Controller
                 response: 200,
                 description: 'A List of matching Manufacturers',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/manufacturer_link')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/manufacturer_link')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
                 )
             ),
         ],

@@ -22,9 +22,10 @@ class FactionController extends Controller
 {
     #[OA\Get(
         path: '/api/factions',
+        operationId: 'listFactions',
         description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded.',
         summary: 'List Factions',
-        tags: ['In-Game', 'Factions'],
+        tags: ['Factions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -47,8 +48,12 @@ class FactionController extends Controller
                 response: 200,
                 description: 'List of factions',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/faction_index'),
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/faction_index')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
                 ),
             ),
         ],
@@ -69,9 +74,10 @@ class FactionController extends Controller
 
     #[OA\Get(
         path: '/api/factions/{faction}',
+        operationId: 'getFaction',
         description: 'Returns full details for a single faction, including reputation ladder with standings when the faction has a reputation system. Factions hidden from the Delphi app are excluded.',
         summary: 'Get Faction Detail',
-        tags: ['In-Game', 'Factions'],
+        tags: ['Factions'],
         parameters: [
             new OA\Parameter(
                 name: 'faction',
@@ -89,9 +95,14 @@ class FactionController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Faction detail',
-                content: new OA\JsonContent(ref: '#/components/schemas/faction'),
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/faction'),
+                    ],
+                    type: 'object'
+                )
             ),
-            new OA\Response(response: 404, description: 'Faction not found'),
+            new OA\Response(response: 404, description: 'Faction not found', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ],
     )]
     public function show(Request $request, string $faction): FactionResource

@@ -33,9 +33,10 @@ class GameVersionController extends Controller
 
     #[OA\Get(
         path: '/api/game-versions',
+        operationId: 'listGameVersions',
         description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries.',
         summary: 'List Game Versions',
-        tags: ['In-Game', 'Game Version'],
+        tags: ['Game Versions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -48,12 +49,14 @@ class GameVersionController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Game Versions',
+                description: 'Paginated list of Game Versions',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(
-                        ref: '#/components/schemas/game_version'
-                    )
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_version')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -74,18 +77,32 @@ class GameVersionController extends Controller
 
     #[OA\Get(
         path: '/api/game-versions/default',
+        operationId: 'getDefaultGameVersion',
         description: 'Returns the current default game version. This is the version used by default in version-scoped API queries (see the version query parameter on other endpoints).',
         summary: 'Get Default Game Version',
-        tags: ['In-Game', 'Game Version'],
+        tags: ['Game Versions'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'The default game version',
-                content: new OA\JsonContent(ref: '#/components/schemas/game_version')
+                content: new OA\JsonContent(
+                    examples: [
+                        new OA\Examples(
+                            example: 'default_game_version',
+                            summary: 'Current default version',
+                            value: ['data' => ['code' => '4.7.0-LIVE.11518367', 'channel' => 'LIVE', 'is_default' => true]],
+                        ),
+                    ],
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/game_version'),
+                    ],
+                    type: 'object',
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'No default version found'
+                description: 'No default version found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -96,6 +113,40 @@ class GameVersionController extends Controller
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No default game version found.');
         }
+
+        return new GameVersionResource($version);
+    }
+
+    #[OA\Get(
+        path: '/api/game-versions/{identifier}',
+        operationId: 'getGameVersion',
+        description: 'Retrieve a specific game version by its code (case-insensitive). Game versions are used to scope version-aware data endpoints via the `version` query parameter.',
+        summary: 'Get Game Version',
+        tags: ['Game Versions'],
+        parameters: [
+            new OA\Parameter(name: 'identifier', description: 'Game version code (case-insensitive).', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A game version',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/game_version'),
+                    ],
+                    type: 'object'
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Game version not found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
+            ),
+        ]
+    )]
+    public function show(string $identifier): GameVersionResource
+    {
+        $version = GameVersion::findByCode($identifier, fail: true);
 
         return new GameVersionResource($version);
     }

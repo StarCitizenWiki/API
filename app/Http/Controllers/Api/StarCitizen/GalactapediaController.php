@@ -86,9 +86,10 @@ class GalactapediaController extends Controller
 
     #[OA\Get(
         path: '/api/galactapedia',
+        operationId: 'listGalactapediaArticles',
         description: 'Returns paginated Galactapedia articles ordered by descending ID by default. Each article includes its templates, categories, and tags. Supports filtering by category, tag, template, title, and creation date. Results can be sorted by title, categories_count, tags_count, and related_articles_count.',
         summary: 'Galactapedia Overview',
-        tags: ['Galactapedia', 'RSI-Website'],
+        tags: ['Galactapedia'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -108,10 +109,14 @@ class GalactapediaController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Galactapedia Articles',
+                description: 'Paginated list of Galactapedia Articles',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/galactapedia_article')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -129,9 +134,10 @@ class GalactapediaController extends Controller
 
     #[OA\Get(
         path: '/api/galactapedia/filters',
+        operationId: 'listGalactapediaFilters',
         description: 'Returns available category, tag, and template filter values for Galactapedia articles, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.',
         summary: 'Galactapedia Filters',
-        tags: ['Galactapedia', 'RSI-Website'],
+        tags: ['Galactapedia'],
         parameters: [
             new OA\Parameter(name: 'filter[category]', description: 'Exact match on category name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Animals')),
             new OA\Parameter(name: 'filter[tag]', description: 'Exact match on tag name', in: 'query', schema: new OA\Schema(type: 'string', example: '100i')),
@@ -233,9 +239,10 @@ class GalactapediaController extends Controller
 
     #[OA\Get(
         path: '/api/galactapedia/{id}',
+        operationId: 'getGalactapediaArticle',
         description: 'Retrieve a Galactapedia article by ID with available includes and translations.',
         summary: 'Galactapedia Article',
-        tags: ['Galactapedia', 'RSI-Website'],
+        tags: ['Galactapedia'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(
@@ -272,11 +279,17 @@ class GalactapediaController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A singular Article',
-                content: new OA\JsonContent(ref: '#/components/schemas/galactapedia_article')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/galactapedia_article'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
                 description: 'No Article with specified ID found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -308,6 +321,7 @@ class GalactapediaController extends Controller
 
     #[OA\Post(
         path: '/api/galactapedia/search',
+        operationId: 'searchGalactapediaDeprecated',
         description: 'Deprecated. Use GET /api/galactapedia?filter[title]={value} for title search. This endpoint will be removed in a future version.',
         summary: 'Galactapedia Article Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -323,14 +337,16 @@ class GalactapediaController extends Controller
                 ),
             ]
         ),
-        tags: ['Galactapedia', 'RSI-Website', 'Search'],
+        tags: ['Galactapedia', 'Search'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'List of articles matching the query',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/galactapedia_article')),
+                    ],
+                    type: 'object'
                 )
             ),
         ],

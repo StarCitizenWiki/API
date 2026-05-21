@@ -83,9 +83,10 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles',
+        operationId: 'listShipMatrixVehicles',
         description: 'Returns paginated Ship Matrix vehicles with optional filters. SKU variants and loaner vehicles are included by default.',
         summary: 'Ship Matrix Vehicles Overview',
-        tags: ['Ship-Matrix', 'Vehicles'],
+        tags: ['Ship Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -101,10 +102,14 @@ class VehicleController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Ship-Matrix Vehicles',
+                description: 'Paginated list of Ship Matrix Vehicles',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -121,9 +126,10 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles/filters',
+        operationId: 'listShipMatrixFilters',
         description: 'Return all available filter values for Ship Matrix vehicles. Supports cross-filtering: pass filter parameters to get filtered facet counts.',
         summary: 'Ship Matrix Vehicle Filters',
-        tags: ['Ship-Matrix', 'Vehicles'],
+        tags: ['Ship Matrix', 'Vehicles'],
         responses: [
             new OA\Response(
                 response: 200,
@@ -226,9 +232,10 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/shipmatrix/vehicles/{slug}',
+        operationId: 'getShipMatrixVehicle',
         description: 'Retrieve a Ship Matrix vehicle by slug. Use the "include" query parameter to load additional relationships: components, loaner, skus.',
         summary: 'Ship Matrix Vehicle Detail',
-        tags: ['Ship-Matrix', 'Vehicles'],
+        tags: ['Ship Matrix', 'Vehicles'],
         parameters: [
             new OA\Parameter(
                 name: 'slug',
@@ -249,12 +256,18 @@ class VehicleController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'A Ship-Matrix Vehicle',
-                content: new OA\JsonContent(ref: '#/components/schemas/ship_matrix_vehicle')
+                description: 'A Ship Matrix Vehicle',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/ship_matrix_vehicle'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'Vehicle not found'
+                description: 'Vehicle not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -269,12 +282,13 @@ class VehicleController extends Controller
             throw new NotFoundHttpException('No Vehicle with specified slug found.');
         }
 
-        return (new VehicleResource($vehicle))
+        return new VehicleResource($vehicle)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(
         path: '/api/shipmatrix/vehicles/search',
+        operationId: 'searchShipMatrixVehiclesDeprecated',
         description: 'Deprecated. Use GET /api/shipmatrix/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.',
         summary: 'Ship Matrix Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -288,7 +302,7 @@ class VehicleController extends Controller
                 ),
             ]
         ),
-        tags: ['Ship-Matrix', 'Vehicles', 'Search'],
+        tags: ['Ship Matrix', 'Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -302,10 +316,12 @@ class VehicleController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'A List of matching Ship-Matrix Vehicles',
+                description: 'List of matching Ship Matrix Vehicles',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/ship_matrix_vehicle')),
+                    ],
+                    type: 'object'
                 )
             ),
         ],

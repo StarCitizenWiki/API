@@ -34,9 +34,10 @@ class MissionController extends Controller
 
     #[OA\Get(
         path: '/api/missions',
+        operationId: 'listMissions',
         description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.',
         summary: 'List Game Missions',
-        tags: ['In-Game', 'Missions'],
+        tags: ['Missions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -65,7 +66,16 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[reward_max]', description: 'Maximum reward in aUEC', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[title]', description: 'Partial match on mission title', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[description]', description: 'Partial match on mission description', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[query]', description: 'Search across title, description, and debug name', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'filter[query]',
+                description: 'Search across title, description, and debug name',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'delivery'),
+                examples: [
+                    new OA\Examples(example: 'delivery_missions', summary: 'Find delivery missions', value: 'delivery'),
+                    new OA\Examples(example: 'bounty_missions', summary: 'Find bounty missions', value: 'bounty'),
+                ],
+            ),
             new OA\Parameter(name: 'filter[reward_scope]', description: 'Mission category scope. (see GET /api/missions/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Bounty Hunter')),
             new OA\Parameter(name: 'filter[has_blueprints]', description: 'Filter for missions that reward blueprints', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[reputation_scope]', description: 'Reputation reward scope from ReputationGained data. (see GET /api/missions/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'FactionReputation')),
@@ -77,8 +87,25 @@ class MissionController extends Controller
                 response: 200,
                 description: 'List of missions',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/mission_index')
+                    examples: [
+                        new OA\Examples(
+                            example: 'delivery_mission_page',
+                            summary: 'Search missions by query',
+                            value: [
+                                'data' => [
+                                    ['uuid' => '00000000-0000-0000-0000-000000000000', 'title' => 'Delivery Contract', 'slug' => 'delivery-contract'],
+                                ],
+                                'links' => ['first' => 'https://api.star-citizen.wiki/api/missions?page[number]=1', 'last' => null, 'prev' => null, 'next' => null],
+                                'meta' => ['current_page' => 1, 'per_page' => 30, 'total' => 1],
+                            ],
+                        ),
+                    ],
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_index')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object',
                 )
             ),
         ]
@@ -120,9 +147,10 @@ class MissionController extends Controller
 
     #[OA\Get(
         path: '/api/missions/{mission}',
-        description: 'Returns full details for a single mission, including chain relationships and associated items.',
+        operationId: 'getMission',
+        description: 'Returns full details for a single mission, including chain relationships and associated items. Results are scoped to the requested or default game version.',
         summary: 'Get Mission Detail',
-        tags: ['In-Game', 'Missions'],
+        tags: ['Missions'],
         parameters: [
             new OA\Parameter(
                 name: 'mission',
@@ -139,9 +167,14 @@ class MissionController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Mission detail',
-                content: new OA\JsonContent(ref: '#/components/schemas/mission')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/mission'),
+                    ],
+                    type: 'object'
+                )
             ),
-            new OA\Response(response: 404, description: 'Mission not found'),
+            new OA\Response(response: 404, description: 'Mission not found', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function show(Request $request, string $mission): MissionResource
@@ -184,9 +217,10 @@ class MissionController extends Controller
 
     #[OA\Get(
         path: '/api/missions/filters',
+        operationId: 'listMissionFilters',
         description: 'Returns available filter facets for missions, scoped to the requested or default game version.',
         summary: 'Get Mission Filter Options',
-        tags: ['In-Game', 'Missions'],
+        tags: ['Missions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(name: 'filter[include_unreleased]', description: 'Include unreleased and work-in-progress missions', in: 'query', schema: new OA\Schema(type: 'boolean')),

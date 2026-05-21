@@ -109,9 +109,10 @@ class CommLinkController extends Controller
 
     #[OA\Get(
         path: '/api/comm-links',
+        operationId: 'listCommLinks',
         description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed images or links.',
         summary: 'Comm-Links Overview',
-        tags: ['Comm-Links', 'RSI-Website'],
+        tags: ['Comm-Links'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -139,10 +140,14 @@ class CommLinkController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Comm-Links',
+                description: 'Paginated list of Comm-Links',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -162,9 +167,10 @@ class CommLinkController extends Controller
 
     #[OA\Get(
         path: '/api/comm-links/filters',
+        operationId: 'listCommLinkFilters',
         description: 'Returns available category, channel, and series filter values for Comm-Links, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.',
         summary: 'Comm-Link Filters',
-        tags: ['Comm-Links', 'RSI-Website'],
+        tags: ['Comm-Links'],
         parameters: [
             new OA\Parameter(name: 'filter[id]', description: 'Exact match on the Comm-Link CIG ID', in: 'query', schema: new OA\Schema(type: 'integer', example: 12663)),
             new OA\Parameter(name: 'filter[title]', description: 'Partial match on the Comm-Link title', in: 'query', schema: new OA\Schema(type: 'string', example: 'This Week in Star Citizen')),
@@ -263,9 +269,10 @@ class CommLinkController extends Controller
 
     #[OA\Get(
         path: '/api/comm-links/{id}',
+        operationId: 'getCommLink',
         description: 'Retrieve a single Comm-Link by its CIG ID. Images with hash and metadata are always included. The response contains prev_id and next_id metadata for sequential navigation between Comm-Links.',
         summary: 'Comm-Link Detail',
-        tags: ['Comm-Links', 'RSI-Website'],
+        tags: ['Comm-Links'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
             new OA\Parameter(
@@ -285,11 +292,17 @@ class CommLinkController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A singular Comm-Link',
-                content: new OA\JsonContent(ref: '#/components/schemas/comm_link')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/comm_link'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link with specified ID found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]

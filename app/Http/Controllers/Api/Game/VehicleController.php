@@ -52,9 +52,10 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/ground-vehicles',
+        operationId: 'listGroundVehicles',
         description: 'Alias for /api/vehicles scoped to ground vehicles (is_vehicle=true, is_gravlev=false, is_spaceship=false). Returns paginated in-game ground vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus.',
         summary: 'In-Game Ground Vehicles Overview',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -101,14 +102,15 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators.', in: 'query', schema: new OA\Schema(type: 'number', example: 100)),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'List of Ground Vehicles', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle'))),
+            new OA\Response(response: 200, description: 'List of Ground Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
         ]
     )]
     #[OA\Get(
         path: '/api/gravlev-vehicles',
+        operationId: 'listGravlevVehicles',
         description: 'Alias for /api/vehicles scoped to gravlev vehicles (is_gravlev=true). Returns paginated in-game gravlev vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus.',
         summary: 'In-Game Gravlev Vehicles Overview',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -155,14 +157,15 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators.', in: 'query', schema: new OA\Schema(type: 'number', example: 100)),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'List of Gravlev Vehicles', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle'))),
+            new OA\Response(response: 200, description: 'List of Gravlev Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
         ]
     )]
     #[OA\Get(
         path: '/api/vehicles',
+        operationId: 'listVehicles',
         description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components, hardpoints, ports.',
         summary: 'In-Game Vehicles Overview',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -182,7 +185,16 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[manufacturer.name]', description: 'Alias for filter[manufacturer].', in: 'query', schema: new OA\Schema(type: 'string', example: 'Anvil Aerospace')),
             new OA\Parameter(name: 'filter[class_name]', description: 'Partial match on vehicle class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'NOBI')),
             new OA\Parameter(name: 'filter[name]', description: 'Partial match on vehicle display name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
-            new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name.', in: 'query', schema: new OA\Schema(type: 'string', example: 'Nova')),
+            new OA\Parameter(
+                name: 'filter[query]',
+                description: 'Search vehicles by name or class name.',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'Carrack'),
+                examples: [
+                    new OA\Examples(example: 'search_carrack', summary: 'Find the Carrack', value: 'carrack'),
+                    new OA\Examples(example: 'search_arrow', summary: 'Find the Arrow', value: 'arrow'),
+                ],
+            ),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6).', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size].', in: 'query', schema: new OA\Schema(type: 'integer', example: 3)),
             new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Exploration')),
@@ -213,8 +225,25 @@ class VehicleController extends Controller
                 response: 200,
                 description: 'List of Vehicles',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/game_vehicle')
+                    examples: [
+                        new OA\Examples(
+                            example: 'vehicle_search_page',
+                            summary: 'Search vehicles by name',
+                            value: [
+                                'data' => [
+                                    ['uuid' => '00000000-0000-0000-0000-000000000000', 'name' => 'Carrack', 'slug' => 'carrack'],
+                                ],
+                                'links' => ['first' => 'https://api.star-citizen.wiki/api/vehicles?page[number]=1', 'last' => null, 'prev' => null, 'next' => null],
+                                'meta' => ['current_page' => 1, 'per_page' => 30, 'total' => 1],
+                            ],
+                        ),
+                    ],
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object',
                 )
             ),
         ]
@@ -230,37 +259,42 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/ground-vehicles/{identifier}',
-        description: 'Alias for /api/vehicles/{identifier} scoped to ground vehicles.',
+        operationId: 'getGroundVehicle',
+        description: 'Alias for /api/vehicles/{identifier} scoped to ground vehicles. Results are scoped to the requested or default game version.',
         summary: 'In-Game Ground Vehicle Detail',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Vehicle name, class_name, or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Vehicle name, class_name, or UUID', type: 'string', example: 'Nova')),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'A Ground Vehicle', content: new OA\JsonContent(oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])),
+            new OA\Response(response: 200, description: 'A Ground Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
+            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     #[OA\Get(
         path: '/api/gravlev-vehicles/{identifier}',
-        description: 'Alias for /api/vehicles/{identifier} scoped to gravlev vehicles.',
+        operationId: 'getGravlevVehicle',
+        description: 'Alias for /api/vehicles/{identifier} scoped to gravlev vehicles. Results are scoped to the requested or default game version.',
         summary: 'In-Game Gravlev Vehicle Detail',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
-            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Vehicle name, class_name, or UUID', type: 'string')),
+            new OA\Parameter(name: 'identifier', in: 'path', required: true, schema: new OA\Schema(description: 'Vehicle name, class_name, or UUID', type: 'string', example: 'Dragonfly')),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'A Gravlev Vehicle', content: new OA\JsonContent(oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])),
+            new OA\Response(response: 200, description: 'A Gravlev Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
+            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     #[OA\Get(
         path: '/api/vehicles/{identifier}',
-        description: 'Retrieve a vehicle by name, class name, or UUID. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.',
+        operationId: 'getVehicle',
+        description: 'Retrieve a vehicle by name, class name, or UUID. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.',
         summary: 'In-Game Vehicle Detail',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
             new OA\Parameter(
                 name: 'identifier',
@@ -269,7 +303,12 @@ class VehicleController extends Controller
                 schema: new OA\Schema(
                     description: 'Vehicle name, class_name, or UUID',
                     type: 'string',
+                    example: 'Carrack',
                 ),
+                examples: [
+                    new OA\Examples(example: 'by_slug', summary: 'Lookup by slug', value: 'carrack'),
+                    new OA\Examples(example: 'by_name', summary: 'Lookup by display name', value: 'Carrack'),
+                ],
             ),
             new OA\Parameter(ref: '#/components/parameters/include'),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -279,12 +318,16 @@ class VehicleController extends Controller
                 response: 200,
                 description: 'A Vehicle',
                 content: new OA\JsonContent(
-                    oneOf: [
-                        new OA\Schema(ref: '#/components/schemas/game_vehicle'),
-                        new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle'),
-                    ]
+                    properties: [
+                        new OA\Property(property: 'data', oneOf: [
+                            new OA\Schema(ref: '#/components/schemas/game_vehicle'),
+                            new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle'),
+                        ]),
+                    ],
+                    type: 'object'
                 )
             ),
+            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function show(Request $request, string $identifier): AbstractBaseResource
@@ -392,38 +435,41 @@ class VehicleController extends Controller
 
     #[OA\Post(
         path: '/api/ground-vehicles/search',
-        description: 'Deprecated. Use GET /api/ground-vehicles?filter[name]={value} instead. Scoped to ground vehicles.',
+        operationId: 'searchGroundVehiclesDeprecated',
+        description: 'Deprecated. Use GET /api/ground-vehicles?filter[name]={value} for name search. Scoped to ground vehicles. This endpoint will be removed in a future version.',
         summary: 'In-Game Ground Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(description: 'Vehicle name, class_name, or UUID', required: true, content: [new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(type: 'object'), example: '{"query": "Nova"}')]),
-        tags: ['In-Game', 'Vehicles', 'Search'],
+        tags: ['Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'List of matching Ground Vehicles', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle'))),
+            new OA\Response(response: 200, description: 'List of matching Ground Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
         ],
         deprecated: true
     )]
     #[OA\Post(
         path: '/api/gravlev-vehicles/search',
-        description: 'Deprecated. Use GET /api/gravlev-vehicles?filter[name]={value} instead. Scoped to gravlev vehicles.',
+        operationId: 'searchGravlevVehiclesDeprecated',
+        description: 'Deprecated. Use GET /api/gravlev-vehicles?filter[name]={value} for name search. Scoped to gravlev vehicles. This endpoint will be removed in a future version.',
         summary: 'In-Game Gravlev Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(description: 'Vehicle name, class_name, or UUID', required: true, content: [new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(type: 'object'), example: '{"query": "Dragonfly"}')]),
-        tags: ['In-Game', 'Vehicles', 'Search'],
+        tags: ['Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'List of matching Gravlev Vehicles', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle'))),
+            new OA\Response(response: 200, description: 'List of matching Gravlev Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
         ],
         deprecated: true
     )]
     #[OA\Post(
         path: '/api/vehicles/search',
+        operationId: 'searchVehiclesDeprecated',
         description: 'Deprecated. Use GET /api/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.',
         summary: 'In-Game Vehicle Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -437,7 +483,7 @@ class VehicleController extends Controller
                 ),
             ]
         ),
-        tags: ['In-Game', 'Vehicles', 'Search'],
+        tags: ['Vehicles', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -478,8 +524,12 @@ class VehicleController extends Controller
                 response: 200,
                 description: 'A List of matching Vehicles',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/game_vehicle')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
                 )
             ),
         ],
@@ -512,9 +562,10 @@ class VehicleController extends Controller
 
     #[OA\Get(
         path: '/api/vehicles/filters',
+        operationId: 'listVehicleFilters',
         description: 'Return all available filter values for in-game vehicles.',
         summary: 'In-Game Vehicle Filters',
-        tags: ['In-Game', 'Vehicles'],
+        tags: ['Vehicles'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],

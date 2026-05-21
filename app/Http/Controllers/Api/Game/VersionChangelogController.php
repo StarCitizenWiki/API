@@ -20,9 +20,10 @@ class VersionChangelogController extends Controller
 {
     #[OA\Get(
         path: '/api/game-versions/{version}/changelog',
+        operationId: 'getVersionChangelog',
         description: 'Returns the changelog summary between the specified version and its predecessor.',
         summary: 'Get Version Changelog',
-        tags: ['In-Game', 'Game Version'],
+        tags: ['Game Versions'],
         parameters: [
             new OA\Parameter(name: 'version', description: 'Version code', in: 'path', schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
         ],
@@ -30,9 +31,14 @@ class VersionChangelogController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Version changelog summary',
-                content: new OA\JsonContent(ref: '#/components/schemas/version_changelog')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/version_changelog'),
+                    ],
+                    type: 'object'
+                )
             ),
-            new OA\Response(response: 404, description: 'Version not found or no previous version'),
+            new OA\Response(response: 404, description: 'Version not found or no previous version', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function show(string $version): VersionChangelogResource
@@ -54,9 +60,10 @@ class VersionChangelogController extends Controller
 
     #[OA\Get(
         path: '/api/game-versions/{version}/changelog/changes',
+        operationId: 'listVersionChangelogChanges',
         description: 'Returns paginated diff entries for a version changelog. Filter by entity_type and change_type.',
         summary: 'Get Version Changelog Changes',
-        tags: ['In-Game', 'Game Version'],
+        tags: ['Game Versions'],
         parameters: [
             new OA\Parameter(name: 'version', description: 'Version code', in: 'path', schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
             new OA\Parameter(name: 'filter[entity_type]', description: 'Filter by entity type (item, vehicle)', in: 'query', schema: new OA\Schema(type: 'string', example: 'item')),
@@ -70,11 +77,15 @@ class VersionChangelogController extends Controller
                 response: 200,
                 description: 'Paginated list of changes',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/version_diff_entry')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/version_diff_entry')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
-            new OA\Response(response: 404, description: 'Version not found or no previous version'),
+            new OA\Response(response: 404, description: 'Version not found or no previous version', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function changes(string $version): AnonymousResourceCollection

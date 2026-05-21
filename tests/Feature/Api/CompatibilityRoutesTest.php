@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\UserController;
 use App\Models\Game\GameVersion;
 use App\Models\System\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 
@@ -41,6 +44,12 @@ it('serves the openapi yaml headers on head /api/v2/openapi', function (): void 
 
     $response->assertSuccessful()
         ->assertHeader('Content-Type', 'application/yaml');
+});
+
+it('routes get /api/user through the documented controller', function (): void {
+    $route = Route::getRoutes()->match(HttpRequest::create('/api/user', 'GET'));
+
+    expect($route->getActionName())->toBe(UserController::class);
 });
 
 it('returns unauthorized for guests on get /api/user', function (): void {

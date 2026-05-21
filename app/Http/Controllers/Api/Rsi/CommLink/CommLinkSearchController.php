@@ -44,6 +44,7 @@ class CommLinkSearchController extends Controller
 
     #[OA\Post(
         path: '/api/comm-links/search',
+        operationId: 'searchCommLinksDeprecated',
         description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.',
         summary: 'Comm-Link Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -77,7 +78,7 @@ class CommLinkSearchController extends Controller
                 ),
             ]
         ),
-        tags: ['Comm-Links', 'RSI-Website'],
+        tags: ['Comm-Links'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes'),
@@ -88,12 +89,20 @@ class CommLinkSearchController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'A singular Comm-Link',
-                content: new OA\JsonContent(ref: '#/components/schemas/comm_link')
+                description: 'Search results for Comm-Links',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 422,
                 description: 'Validation error. At least one of keyword or query is required.',
+                content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response'),
             ),
         ],
         deprecated: true,
@@ -126,6 +135,7 @@ class CommLinkSearchController extends Controller
 
     #[OA\Post(
         path: '/api/comm-links/reverse-image-link-search',
+        operationId: 'reverseImageLinkSearch',
         description: 'Return comm-links that reference the same RSI-hosted image URL.',
         summary: 'Comm-Link Reverse Image Link Search',
         requestBody: new OA\RequestBody(
@@ -151,23 +161,32 @@ class CommLinkSearchController extends Controller
                 ),
             ]
         ),
-        tags: ['Comm-Links', 'RSI-Website', 'Search'],
+        tags: ['Comm-Links', 'Search'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'List of Comm-Links that use that image',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link')),
+                    ],
+                    type: 'object'
                 )
             ),
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
             new OA\Response(
                 response: 422,
                 description: 'Validation error. The url field is required and must be a valid URL on robertsspaceindustries.com.',
+                content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response'),
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Rate limit exceeded. Reverse image search is limited to 10 requests per minute.',
+                content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response'),
             ),
         ],
     )]
@@ -209,6 +228,7 @@ class CommLinkSearchController extends Controller
 
     #[OA\Post(
         path: '/api/comm-links/reverse-image-search',
+        operationId: 'reverseImageSearch',
         description: 'Search comm-links by uploading an image and specifying a similarity threshold. Requires the GD PHP extension.',
         summary: 'Comm-Link Reverse Image Search',
         requestBody: new OA\RequestBody(
@@ -239,27 +259,36 @@ class CommLinkSearchController extends Controller
                 ),
             ]
         ),
-        tags: ['Comm-Links', 'RSI-Website', 'Search'],
+        tags: ['Comm-Links', 'Search'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'List of similar images with associated Comm-Links',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link_image')),
+                    ],
+                    type: 'object'
                 )
             ),
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
             new OA\Response(
                 response: 422,
                 description: 'Validation error. The image field is required and must be a valid image file (max 5 MB).',
+                content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response'),
             ),
             new OA\Response(
                 response: 501,
                 description: 'The required GD PHP extension is not loaded on the server.',
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Rate limit exceeded. Reverse image search is limited to 10 requests per minute.',
+                content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response'),
             ),
         ],
     )]
@@ -283,12 +312,13 @@ class CommLinkSearchController extends Controller
 
     #[OA\Get(
         path: '/api/comm-link-images/{image}/similar',
+        operationId: 'findSimilarImages',
         description: 'Find Comm-Link images similar to an existing RSI-hosted image.',
         summary: 'Comm-Link Reverse Image Similar Search',
         security: [
             ['sanctum' => []],
         ],
-        tags: ['Comm-Links', 'RSI-Website', 'Search'],
+        tags: ['Comm-Links', 'Search'],
         parameters: [
             new OA\Parameter(
                 name: 'image',
@@ -315,13 +345,26 @@ class CommLinkSearchController extends Controller
                 response: 200,
                 description: 'List of similar Comm-Link images',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link_image')),
+                    ],
+                    type: 'object'
                 )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated. Bearer token is required for similar image search.',
+                content: new OA\JsonContent(ref: '#/components/schemas/unauthenticated_error_response'),
             ),
             new OA\Response(
                 response: 404,
                 description: 'Comm-Link image not found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Rate limit exceeded. Similar image search is limited to 10 requests per minute.',
+                content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response'),
             ),
         ],
     )]

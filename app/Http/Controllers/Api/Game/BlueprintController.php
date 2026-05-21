@@ -44,9 +44,10 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints',
+        operationId: 'listBlueprints',
         description: 'Returns paginated crafting blueprints, including ingredients, crafted items, and dismantle returns. Results are scoped to the requested or default game version.',
         summary: 'List Game Blueprints',
-        tags: ['In-Game', 'Blueprints'],
+        tags: ['Blueprints'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -78,8 +79,12 @@ class BlueprintController extends Controller
                 response: 200,
                 description: 'List of blueprints',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/blueprint')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/blueprint')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -98,9 +103,10 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints/{blueprint}',
+        operationId: 'getBlueprint',
         description: 'Returns full detail for a single crafting blueprint, including ingredients, crafted item, dismantle returns, and associated missions. Scoped to the requested or default game version.',
         summary: 'Get Game Blueprint Detail',
-        tags: ['In-Game', 'Blueprints'],
+        tags: ['Blueprints'],
         parameters: [
             new OA\Parameter(
                 name: 'blueprint',
@@ -117,11 +123,17 @@ class BlueprintController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'Blueprint detail',
-                content: new OA\JsonContent(ref: '#/components/schemas/blueprint')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/blueprint'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'Blueprint not found for the requested game version'
+                description: 'Blueprint not found for the requested game version',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -143,9 +155,10 @@ class BlueprintController extends Controller
 
     #[OA\Get(
         path: '/api/blueprints/filters',
+        operationId: 'listBlueprintFilters',
         description: 'Returns available filter facets for blueprints (crafted item types, ingredient and resource UUIDs), optionally scoped to the requested or default game version.',
         summary: 'Get Blueprint Filter Options',
-        tags: ['In-Game', 'Blueprints'],
+        tags: ['Blueprints'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],

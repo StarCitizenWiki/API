@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 #[OA\Parameter(
     parameter: 'page',
     name: 'page',
-    description: 'Page number for pagination (starts at 1).',
+    description: 'Page number for pagination (starts at 1). Prefer using `page[number]` instead.',
     in: 'query',
     required: false,
     schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
@@ -20,51 +20,51 @@ use OpenApi\Attributes as OA;
     description: 'Page number for pagination (starts at 1).',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
+    schema: new OA\Schema(type: 'integer', default: 1, minimum: 1, example: 1)
 )]
 #[OA\Parameter(
     parameter: 'page_size',
     name: 'page[size]',
-    description: 'Number of results to return per page.',
+    description: 'Number of results per page. Maximum 200.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'integer', default: 30, maximum: 200, minimum: 1)
+    schema: new OA\Schema(type: 'integer', default: 30, maximum: 200, minimum: 1, example: 50)
 )]
 #[OA\Parameter(
     parameter: 'locale',
     name: 'locale',
-    description: 'Locale code for translated fields (e.g. en, de, zh).',
+    description: 'Locale code for translated fields. Supported values depend on available translations (e.g. en, de, zh).',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string')
+    schema: new OA\Schema(type: 'string', example: 'de')
 )]
 #[OA\Parameter(
     parameter: 'include',
     name: 'include',
-    description: 'Comma-separated list of relationships to include (e.g. manufacturer,translations).',
+    description: 'Comma-separated list of relationships to include. Available includes vary per endpoint, see each endpoint\'s description for supported values.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string'),
+    schema: new OA\Schema(type: 'string', example: 'manufacturer,shops'),
     explode: false,
     allowReserved: true
 )]
 #[OA\Parameter(
     parameter: 'sort',
     name: 'sort',
-    description: 'Comma-separated list of fields to sort by. Prefix with - for descending order (e.g. -name,size).',
+    description: 'Comma-separated sort fields. Prefix with `-` for descending. Supported fields vary per endpoint.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string'),
+    schema: new OA\Schema(type: 'string', example: '-name'),
     explode: false,
     allowReserved: true
 )]
 #[OA\Parameter(
     parameter: 'version',
     name: 'version',
-    description: 'Game version to get data from, if omitted uses default version.',
+    description: 'Game version code to scope results to. Omit to use the current default version. Use `GET /api/game-versions` to list available versions and `GET /api/game-versions/default` to discover the default.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string'),
+    schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE'),
     explode: false,
     allowReserved: true
 )]

@@ -75,9 +75,10 @@ class StarsystemController extends Controller
 
     #[OA\Get(
         path: '/api/starsystems',
+        operationId: 'listStarsystems',
         description: 'Returns paginated starsystems, optionally including related resources.',
         summary: 'Starmap Starsystems Overview',
-        tags: ['Starmap', 'RSI-Website'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -101,10 +102,14 @@ class StarsystemController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Starsystems',
+                description: 'Paginated list of Starsystems',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/starsystem')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/starsystem')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -121,9 +126,10 @@ class StarsystemController extends Controller
 
     #[OA\Get(
         path: '/api/starsystems/{code}',
+        operationId: 'getStarsystem',
         description: 'Retrieve a starsystem by code or identifier, with optional includes.',
         summary: 'Starsystem Detail',
-        tags: ['Starmap', 'RSI-Website'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(
                 name: 'code',
@@ -147,11 +153,17 @@ class StarsystemController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A Starsystem',
-                content: new OA\JsonContent(ref: '#/components/schemas/starsystem')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/starsystem'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'No Starsystem with specified code found.'
+                description: 'No Starsystem with specified code found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -174,12 +186,13 @@ class StarsystemController extends Controller
             ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->firstOrFail();
 
-        return (new StarsystemResource($starsystem))
+        return new StarsystemResource($starsystem)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
     #[OA\Post(
         path: '/api/starsystems/search',
+        operationId: 'searchStarsystemsDeprecated',
         description: 'Deprecated. Use GET /api/starsystems?filter[name]={value} for name search. This endpoint will be removed in a future version.',
         summary: 'Starsystem Search (Deprecated)',
         requestBody: new OA\RequestBody(
@@ -198,7 +211,7 @@ class StarsystemController extends Controller
                 ),
             ],
         ),
-        tags: ['Starmap', 'RSI-Website', 'Search'],
+        tags: ['Starmap', 'Search'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -209,8 +222,10 @@ class StarsystemController extends Controller
                 response: 200,
                 description: 'List of matching Starsystems',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/starsystem')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/starsystem')),
+                    ],
+                    type: 'object'
                 )
             ),
         ],
@@ -242,9 +257,10 @@ class StarsystemController extends Controller
 
     #[OA\Get(
         path: '/api/starsystems/filters',
+        operationId: 'listStarsystemFilters',
         description: 'Return all available filter values for starsystems.',
         summary: 'Starsystem Filters',
-        tags: ['Starmap', 'RSI-Website'],
+        tags: ['Starmap'],
         responses: [
             new OA\Response(
                 response: 200,

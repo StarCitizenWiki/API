@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Game\StarmapLocationController;
 use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Game\VersionChangelogController;
+use App\Http\Controllers\Api\OpenApiController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkController;
 use App\Http\Controllers\Api\Rsi\CommLink\CommLinkSearchController;
 use App\Http\Controllers\Api\Rsi\CommLink\ImageController;
@@ -19,13 +20,12 @@ use App\Http\Controllers\Api\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Api\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Api\StarCitizen\StatController;
 use App\Http\Controllers\Api\StarCitizen\VehicleController as ShipMatrixVehicleController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', static function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('/user', UserController::class)->middleware('auth:sanctum');
 
 Route::get('/v2/openapi', static function () {
     return response(
@@ -33,11 +33,7 @@ Route::get('/v2/openapi', static function () {
     )->header('Content-Type', 'application/yaml');
 });
 
-Route::get('/openapi', static function () {
-    return response(
-        File::get(base_path('swagger.yaml'))
-    )->header('Content-Type', 'application/yaml');
-});
+Route::get('/openapi', OpenApiController::class);
 
 Route::group(
     [],
@@ -170,8 +166,8 @@ Route::group(
         Route::get('comm-links/filters', [CommLinkController::class, 'filters'])->name('comm-links.filters');
         Route::get('comm-links/{id}', [CommLinkController::class, 'show'])->name('comm-links.show');
         Route::post('comm-links/search', [CommLinkSearchController::class, 'searchByTitle'])->name('comm-links.search');
-        Route::post('comm-links/reverse-image-link-search', [CommLinkSearchController::class, 'reverseImageLinkSearch'])->name('comm-links.reverse-link-search');
-        Route::post('comm-links/reverse-image-search', [CommLinkSearchController::class, 'reverseImageSearch'])->name('comm-links.reverse-image-search');
+        Route::post('comm-links/reverse-image-link-search', [CommLinkSearchController::class, 'reverseImageLinkSearch'])->middleware('throttle:reverse-image-search')->name('comm-links.reverse-link-search');
+        Route::post('comm-links/reverse-image-search', [CommLinkSearchController::class, 'reverseImageSearch'])->middleware('throttle:reverse-image-search')->name('comm-links.reverse-image-search');
 
         // CommLink Images
         Route::get('comm-link-images', [ImageController::class, 'index'])->name('comm-link-images.index');

@@ -247,9 +247,10 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations',
-        description: 'Returns paginated versioned starmap locations with optional filters. Each location includes amenities, hierarchy entity tags, parent and star relations, child count, mission count, and resource availability.',
+        operationId: 'listLocations',
+        description: 'Returns paginated versioned starmap locations with optional filters. Results are scoped to the requested or default game version. Each location includes amenities, hierarchy entity tags, parent and star relations, child count, mission count, and resource availability.',
         summary: 'Game Starmap Locations Overview',
-        tags: ['In-Game', 'Starmap'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -368,7 +369,14 @@ class StarmapLocationController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'List of starmap locations',
-                content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/game_starmap_location'))
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_starmap_location')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object'
+                )
             ),
         ]
     )]
@@ -381,9 +389,10 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations/{identifier}',
-        description: 'Retrieve a versioned starmap location by slug or UUID. Use the `include` parameter to load additional relations: `children` (child locations with amenities and tags), `resources` (harvestable resource placements with commodity data), `missions` (available missions with faction data).',
+        operationId: 'getLocation',
+        description: 'Retrieve a versioned starmap location by slug or UUID. Results are scoped to the requested or default game version. Use the `include` parameter to load additional relations: `children` (child locations with amenities and tags), `resources` (harvestable resource placements with commodity data), `missions` (available missions with faction data).',
         summary: 'Game Starmap Location Detail',
-        tags: ['In-Game', 'Starmap'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(
                 name: 'identifier',
@@ -402,11 +411,17 @@ class StarmapLocationController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A starmap location',
-                content: new OA\JsonContent(ref: '#/components/schemas/game_starmap_location')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/game_starmap_location'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
-                description: 'No starmap location with specified identifier found.'
+                description: 'No starmap location with specified identifier found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -458,9 +473,10 @@ class StarmapLocationController extends Controller
 
     #[OA\Get(
         path: '/api/locations/filters',
+        operationId: 'listLocationFilters',
         description: 'Return all available filter facet values for versioned starmap locations. Applies any provided filter parameters to scope the facet counts. Returns facets for: type_name, type_classification, respawn_location_type, jurisdiction_name, affiliation_name, system, parent_name, amenity, and resource.',
         summary: 'Game Starmap Location Filters',
-        tags: ['In-Game', 'Starmap'],
+        tags: ['Starmap'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(

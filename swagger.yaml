@@ -1,21 +1,25 @@
 openapi: 3.0.0
 info:
-  title: 'Star Citizen API'
+  title: 'Star Citizen Wiki API'
+  description: "The community-maintained Star Citizen data API powering [starcitizen.tools](https://starcitizen.tools) and [Star Citizen Wiki](https://star-citizen.wiki).\n\n## Getting Started\n\n- **Base URL:** `https://api.star-citizen.wiki`\n- **Format:** JSON\n- **Auth:** Most endpoints are public and require no authentication. Some endpoints (e.g. similar image search) require a Sanctum bearer token.\n- **Game Versions:** Game data endpoints are version-scoped. Omit the `version` parameter to use the current default version. See `GET /api/game-versions` for available versions.\n- **Pagination:** List endpoints return paginated results using `page[number]` and `page[size]` (max 200). Responses include `links` and `meta` pagination metadata.\n- **Sorting:** Use `sort` with field names. Prefix with `-` for descending (e.g. `-name`).\n- **Filtering:** Use `filter[field]=value` syntax. See each endpoint's filter parameters and the corresponding `/filters` endpoints for valid values.\n- **Rate Limits:** Search endpoints are rate-limited to 60 requests/minute per IP. Image search endpoints are limited to 10 requests/minute.\n\n## OpenAPI Specification\n\n- YAML: `GET /api/openapi`\n- Interactive docs: [docs.star-citizen.wiki](https://docs.star-citizen.wiki)\n\n## Attribution\n\nThis API is maintained by the Star Citizen Wiki community. Data is sourced from game files, RSI website, and community contributions.\n"
   contact:
     email: foxftw@star-citizen.wiki
+  license:
+    name: 'MIT (code only)'
+    url: 'https://opensource.org/licenses/MIT'
   version: 3.0.0
 servers:
   -
     url: 'https://api.star-citizen.wiki'
+    description: 'Production API'
 paths:
   /api/blueprints:
     get:
       tags:
-        - In-Game
         - Blueprints
       summary: 'List Game Blueprints'
       description: 'Returns paginated crafting blueprints, including ingredients, crafted items, and dismantle returns. Results are scoped to the requested or default game version.'
-      operationId: 3033beb74ac207ad11e7683f92d3909f
+      operationId: listBlueprints
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -102,17 +106,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/blueprint'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/blueprint' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   '/api/blueprints/{blueprint}':
     get:
       tags:
-        - In-Game
         - Blueprints
       summary: 'Get Game Blueprint Detail'
       description: 'Returns full detail for a single crafting blueprint, including ingredients, crafted item, dismantle returns, and associated missions. Scoped to the requested or default game version.'
-      operationId: 977cfa4c847352551a7bcb7cdc7e5364
+      operationId: getBlueprint
       parameters:
         -
           name: blueprint
@@ -129,17 +134,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/blueprint'
+                properties:
+                  data: { $ref: '#/components/schemas/blueprint' }
+                type: object
         '404':
           description: 'Blueprint not found for the requested game version'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/blueprints/filters:
     get:
       tags:
-        - In-Game
         - Blueprints
       summary: 'Get Blueprint Filter Options'
       description: 'Returns available filter facets for blueprints (crafted item types, ingredient and resource UUIDs), optionally scoped to the requested or default game version.'
-      operationId: efd168ec954635ed15deb00feaec44d0
+      operationId: listBlueprintFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -155,11 +165,10 @@ paths:
   /api/commodities:
     get:
       tags:
-        - In-Game
         - Commodities
       summary: 'List Game Commodities'
       description: 'Returns paginated game commodities with location data and resource metadata, optionally filtered to only those consumed by blueprints. Results include refined version info and starmap location data scoped to the requested or default game version.'
-      operationId: 82d83a0d96ed204c20bb7e37a6b3a359
+      operationId: listCommodities
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -225,6 +234,13 @@ paths:
           schema:
             type: string
             example: ArcCorp
+          examples:
+            location_arccorp:
+              summary: 'Commodities near ArcCorp'
+              value: ArcCorp
+            location_aberdeen:
+              summary: 'Commodities near Aberdeen'
+              value: Aberdeen
         -
           name: 'filter[query]'
           in: query
@@ -280,17 +296,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/commodity_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/commodity_link' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+              examples:
+                commodities_by_location:
+                  summary: 'Commodities filtered by location'
+                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium }], links: { first: 'https://api.star-citizen.wiki/api/commodities?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
   '/api/commodities/{commodity}':
     get:
       tags:
-        - In-Game
         - Commodities
       summary: 'Show Game Commodity'
-      description: 'Returns full details for a single game commodity including detailed location entries with starmap data, resource composition, areas, clustering data, and raw/refined version info. Optionally include related blueprints and items.'
-      operationId: 8f53b8d73d074148f64cf9fc0972d14a
+      description: 'Returns full details for a single game commodity including detailed location entries with starmap data, resource composition, areas, clustering data, and raw/refined version info. Results are scoped to the requested or default game version. Optionally include related blueprints and items.'
+      operationId: getCommodity
       parameters:
         -
           name: commodity
@@ -299,7 +320,7 @@ paths:
           schema:
             description: 'Commodity UUID or slug'
             type: string
-            example: dc6fbcbb-5990-4ed5-82ee-93152dab7845
+            example: agricium
         -
           $ref: '#/components/parameters/version'
         -
@@ -315,15 +336,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/commodity_show'
+                properties:
+                  data: { $ref: '#/components/schemas/commodity_show' }
+                type: object
+              examples:
+                commodity_detail:
+                  summary: 'Commodity detail response'
+                  value: { data: { uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium } }
+        '404':
+          description: 'Commodity not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/commodities/filters:
     get:
       tags:
-        - In-Game
         - Commodities
       summary: 'Game Commodity Filters'
       description: 'Returns all available filter values for game commodities, scoped to the requested or default game version. Filter values can be combined; providing a system filter will narrow the location facet to that system only.'
-      operationId: 25f5f4334a61558e17a9b075d08a0a90
+      operationId: listCommodityFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -437,11 +469,10 @@ paths:
   /api/factions:
     get:
       tags:
-        - In-Game
         - Factions
       summary: 'List Factions'
       description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded.'
-      operationId: 9d3af437209fd7d1099972b9b9560aa6
+      operationId: listFactions
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -504,17 +535,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/faction_index'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/faction_index' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   '/api/factions/{faction}':
     get:
       tags:
-        - In-Game
         - Factions
       summary: 'Get Faction Detail'
       description: 'Returns full details for a single faction, including reputation ladder with standings when the faction has a reputation system. Factions hidden from the Delphi app are excluded.'
-      operationId: 2ca088d4d7d160632359299fe6b2b521
+      operationId: getFaction
       parameters:
         -
           name: faction
@@ -531,17 +563,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/faction'
+                properties:
+                  data: { $ref: '#/components/schemas/faction' }
+                type: object
         '404':
           description: 'Faction not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/game-versions:
     get:
       tags:
-        - In-Game
-        - 'Game Version'
+        - 'Game Versions'
       summary: 'List Game Versions'
       description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries.'
-      operationId: d50197240879fbad3c30053885d65b9c
+      operationId: listGameVersions
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -579,38 +616,79 @@ paths:
             example: '-released_at'
       responses:
         '200':
-          description: 'List of Game Versions'
+          description: 'Paginated list of Game Versions'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_version'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_version' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   /api/game-versions/default:
     get:
       tags:
-        - In-Game
-        - 'Game Version'
+        - 'Game Versions'
       summary: 'Get Default Game Version'
       description: 'Returns the current default game version. This is the version used by default in version-scoped API queries (see the version query parameter on other endpoints).'
-      operationId: 4264185b623abd31430cebd231e316d8
+      operationId: getDefaultGameVersion
       responses:
         '200':
           description: 'The default game version'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_version'
+                properties:
+                  data: { $ref: '#/components/schemas/game_version' }
+                type: object
+              examples:
+                default_game_version:
+                  summary: 'Current default version'
+                  value: { data: { code: 4.7.0-LIVE.11518367, channel: LIVE, is_default: true } }
         '404':
-          description: 'No default version found'
+          description: 'No default version found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+  '/api/game-versions/{identifier}':
+    get:
+      tags:
+        - 'Game Versions'
+      summary: 'Get Game Version'
+      description: 'Retrieve a specific game version by its code (case-insensitive). Game versions are used to scope version-aware data endpoints via the `version` query parameter.'
+      operationId: getGameVersion
+      parameters:
+        -
+          name: identifier
+          in: path
+          description: 'Game version code (case-insensitive).'
+          required: true
+          schema:
+            type: string
+            example: 4.7.0-LIVE.11518367
+      responses:
+        '200':
+          description: 'A game version'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/game_version' }
+                type: object
+        '404':
+          description: 'Game version not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/weapons:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Weapons Overview'
-      description: 'Alias for /api/items scoped to FPS weapons (WeaponPersonal type). Returns weapon items with manufacturer, game version, and description data.'
-      operationId: b63fd6f0f0bb79cb4d75252663635273
+      description: 'Alias for /api/items scoped to FPS weapons (WeaponPersonal type). Results are scoped to the requested or default game version. Returns weapon items with manufacturer, game version, and description data.'
+      operationId: listWeapons
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -679,17 +757,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/weapon-attachments:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Weapon Attachments Overview'
-      description: 'Alias for /api/items scoped to weapon attachments (WeaponAttachment type, excluding magazines and missiles). Returns attachment items with manufacturer, game version, and description data.'
-      operationId: 4a1284677a3670f175acd4f42f89afcb
+      description: 'Alias for /api/items scoped to weapon attachments (WeaponAttachment type, excluding magazines and missiles). Results are scoped to the requested or default game version. Returns attachment items with manufacturer, game version, and description data.'
+      operationId: listWeaponAttachments
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -744,17 +823,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/clothes:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Clothes Overview'
-      description: 'Alias for /api/items scoped to clothing (FPS.Clothing.* classification). Returns clothing items with manufacturer, game version, and description data.'
-      operationId: 192656e086c5b9a4365451e0c44bb0d8
+      description: 'Alias for /api/items scoped to clothing (FPS.Clothing.* classification). Results are scoped to the requested or default game version. Returns clothing items with manufacturer, game version, and description data.'
+      operationId: listClothes
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -809,17 +889,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/armor:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Armor Overview'
-      description: 'Alias for /api/items scoped to armor (FPS.Armor.* classification). Returns armor items with manufacturer, game version, and description data.'
-      operationId: d68f03ed8444e6fba985d2b5fb6b571f
+      description: 'Alias for /api/items scoped to armor (FPS.Armor.* classification). Results are scoped to the requested or default game version. Returns armor items with manufacturer, game version, and description data.'
+      operationId: listArmor
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -874,17 +955,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/food:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Food Overview'
-      description: 'Alias for /api/items scoped to food and drink (Food, Bottle, Drink types). Returns consumable items with manufacturer, game version, and description data.'
-      operationId: dd61d33e4c2cb96abd0c6449a03b85b2
+      description: 'Alias for /api/items scoped to food and drink (Food, Bottle, Drink types). Results are scoped to the requested or default game version. Returns consumable items with manufacturer, game version, and description data.'
+      operationId: listFood
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -932,17 +1014,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/vehicle-weapons:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Vehicle Weapons Overview'
-      description: 'Alias for /api/items scoped to vehicle weapons (WeaponGun type). Returns ship weapon items with manufacturer, game version, and description data.'
-      operationId: ab5fbfd6efd20dcc6529ec3423ee0b34
+      description: 'Alias for /api/items scoped to vehicle weapons (WeaponGun type). Results are scoped to the requested or default game version. Returns ship weapon items with manufacturer, game version, and description data.'
+      operationId: listVehicleWeapons
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -997,17 +1080,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/vehicle-items:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Vehicle Items Overview'
-      description: 'Alias for /api/items scoped to vehicle components (coolers, shields, power plants, quantum drives, thrusters, etc.). Returns component items with manufacturer, game version, and description data.'
-      operationId: 1bbb2caddc7fe64208588a767e70174b
+      description: 'Alias for /api/items scoped to vehicle components (coolers, shields, power plants, quantum drives, thrusters, etc.). Results are scoped to the requested or default game version. Returns component items with manufacturer, game version, and description data.'
+      operationId: listVehicleItems
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1069,17 +1153,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/items:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Item Overview'
       description: 'Returns paginated in-game items for the requested category and game version. Always includes manufacturer, game version, and description data. Crafting blueprints are loaded automatically. Supports filtering by type, classification, manufacturer, size, grade, and more. Available includes: shops, variants, related_items, blueprints, vehicles, shops.items. Supports 150+ JSON field sorts. (see GET /api/items/filters for valid filter values)'
-      operationId: caa5b59cdee8fe4be0e7aba773065367
+      operationId: listItems
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1160,7 +1245,14 @@ paths:
           description: 'Search items by name or class name.'
           schema:
             type: string
-            example: Arrow
+            example: helmet
+          examples:
+            find_helmet:
+              summary: 'Find helmets'
+              value: helmet
+            find_arrow:
+              summary: 'Find items containing Arrow'
+              value: Arrow
         -
           name: 'filter[classification]'
           in: query
@@ -1230,17 +1322,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+              examples:
+                item_search_page:
+                  summary: 'Search items by text'
+                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: 'Flight Helmet', slug: flight-helmet }], links: { first: 'https://api.star-citizen.wiki/api/items?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
   '/api/weapons/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Weapon Detail'
-      description: 'Retrieve a specific FPS weapon by name or UUID. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: ecb91fcd4ebcf2c6388c86afad2830e0
+      description: 'Retrieve a specific FPS weapon by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getWeapon
       parameters:
         -
           name: identifier
@@ -1262,15 +1359,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Weapon not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/weapon-attachments/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Weapon Attachment Detail'
-      description: 'Retrieve a specific weapon attachment by name or UUID. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: ff43a6f9de05c894d5e118a4b27538f9
+      description: 'Retrieve a specific weapon attachment by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to weapon attachments. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getWeaponAttachment
       parameters:
         -
           name: identifier
@@ -1292,15 +1396,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Weapon attachment not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/clothes/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Clothing Detail'
-      description: 'Retrieve a specific clothing item by name or UUID. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: b76d2e2ab63022697b5ab8e75db172dd
+      description: 'Retrieve a specific clothing item by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to clothing. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getClothingItem
       parameters:
         -
           name: identifier
@@ -1322,15 +1433,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Clothing item not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/armor/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Armor Detail'
-      description: 'Retrieve a specific armor item by name or UUID. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: 25dc767f00b2199b559dc5c0db8e36dc
+      description: 'Retrieve a specific armor item by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to armor. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getArmor
       parameters:
         -
           name: identifier
@@ -1352,15 +1470,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Armor item not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/food/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Food Detail'
-      description: 'Retrieve a specific food or drink item by name or UUID. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: f49f3308c4628c4032bbfa5377e76c97
+      description: 'Retrieve a specific food or drink item by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to food. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getFood
       parameters:
         -
           name: identifier
@@ -1382,15 +1507,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Food item not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/vehicle-weapons/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Vehicle Weapon Detail'
-      description: 'Retrieve a specific vehicle weapon by name or UUID. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: 5ad08d8da9119000f7a8b95d2ce69a52
+      description: 'Retrieve a specific vehicle weapon by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to vehicle weapons. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getVehicleWeapon
       parameters:
         -
           name: identifier
@@ -1412,15 +1544,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Vehicle weapon not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/vehicle-items/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Vehicle Item Detail'
-      description: 'Retrieve a specific vehicle component by name or UUID. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
-      operationId: 149203a08dc06efc7e0a5b57754edf68
+      description: 'Retrieve a specific vehicle component by name or UUID. Results are scoped to the requested or default game version. Alias for /api/items/{identifier} scoped to vehicle items. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items.'
+      operationId: getVehicleItem
       parameters:
         -
           name: identifier
@@ -1442,15 +1581,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Vehicle item not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/items/{identifier}':
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Item Detail'
-      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.'
-      operationId: cc74abcb9fb80ecbe534d6aea93df75c
+      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.'
+      operationId: getItem
       parameters:
         -
           $ref: '#/components/parameters/locale'
@@ -1477,16 +1623,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { $ref: '#/components/schemas/game_item' }
+                type: object
+        '404':
+          description: 'Item not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/items/search:
     post:
       tags:
-        - In-Game
         - Items
         - Search
       summary: 'In-Game Item Search (Deprecated)'
       description: 'Deprecated. Use GET /api/items?filter[name]={value} for name search. Note: OR search across name/uuid/type is no longer supported. This endpoint will be removed in a future version.'
-      operationId: 67e81b3a53d62afe9d3d713e391d6d05
+      operationId: searchItemsDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1605,18 +1758,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_item'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_item' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
       deprecated: true
   /api/items/filters:
     get:
       tags:
-        - In-Game
         - Items
       summary: 'In-Game Item Filters'
       description: 'Returns available filter facet values for in-game items, grouped by field with occurrence counts. Applying other filters narrows the facet results. Use these values as filter[*] parameters on GET /api/items. Scoped to the default item category unless filter[category] is specified.'
-      operationId: 8cd032a0b4591c3e203c00e9e5779194
+      operationId: listItemFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -1737,11 +1891,10 @@ paths:
   /api/manufacturers:
     get:
       tags:
-        - In-Game
         - Manufacturers
       summary: 'In-Game Manufacturers Overview'
       description: 'Returns paginated manufacturers grouped by name with optional pagination.'
-      operationId: 1f9d905a5e89dba1162f35428b92847c
+      operationId: listManufacturers
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1761,17 +1914,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/manufacturer_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/manufacturer_link' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   '/api/manufacturers/{manufacturer}':
     get:
       tags:
-        - In-Game
         - Manufacturers
       summary: 'In-Game Manufacturer Detail'
       description: 'Retrieve a manufacturer by name, UUID, or code together with its products.'
-      operationId: cba9b0f51268f6c1d4309aa573d37a9c
+      operationId: getManufacturer
       parameters:
         -
           name: manufacturer
@@ -1780,22 +1934,30 @@ paths:
           schema:
             description: 'Manufacturer name, uuid, or code'
             type: string
+            example: 'Anvil Aerospace'
       responses:
         '200':
           description: 'A Manufacturer and its products'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/manufacturer'
+                properties:
+                  data: { $ref: '#/components/schemas/manufacturer' }
+                type: object
+        '404':
+          description: 'Manufacturer not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/manufacturers/search:
     post:
       tags:
-        - In-Game
         - Manufacturers
         - Search
       summary: 'In-Game Manufacturer Search (Deprecated)'
       description: 'Deprecated. Use GET /api/manufacturers?filter[name]={value} for name search. This endpoint will be removed in a future version.'
-      operationId: 26ff6a6dbd3785225cf297e83cc1b306
+      operationId: searchManufacturersDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1817,18 +1979,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/manufacturer_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/manufacturer_link' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
       deprecated: true
   /api/missions:
     get:
       tags:
-        - In-Game
         - Missions
       summary: 'List Game Missions'
       description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.'
-      operationId: 209d50edcdf13365e8eb791b4368dc87
+      operationId: listMissions
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -1955,6 +2118,14 @@ paths:
           description: 'Search across title, description, and debug name'
           schema:
             type: string
+            example: delivery
+          examples:
+            delivery_missions:
+              summary: 'Find delivery missions'
+              value: delivery
+            bounty_missions:
+              summary: 'Find bounty missions'
+              value: bounty
         -
           name: 'filter[reward_scope]'
           in: query
@@ -1994,17 +2165,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/mission_index'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/mission_index' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+              examples:
+                delivery_mission_page:
+                  summary: 'Search missions by query'
+                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, title: 'Delivery Contract', slug: delivery-contract }], links: { first: 'https://api.star-citizen.wiki/api/missions?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
   '/api/missions/{mission}':
     get:
       tags:
-        - In-Game
         - Missions
       summary: 'Get Mission Detail'
-      description: 'Returns full details for a single mission, including chain relationships and associated items.'
-      operationId: b0f6c4b9989a3e84f5042ec0648d15e4
+      description: 'Returns full details for a single mission, including chain relationships and associated items. Results are scoped to the requested or default game version.'
+      operationId: getMission
       parameters:
         -
           name: mission
@@ -2021,17 +2197,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/mission'
+                properties:
+                  data: { $ref: '#/components/schemas/mission' }
+                type: object
         '404':
           description: 'Mission not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/missions/filters:
     get:
       tags:
-        - In-Game
         - Missions
       summary: 'Get Mission Filter Options'
       description: 'Returns available filter facets for missions, scoped to the requested or default game version.'
-      operationId: c1bb2317bbefee1d18ecf19d0999eac0
+      operationId: listMissionFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -2191,11 +2372,10 @@ paths:
   /api/locations:
     get:
       tags:
-        - In-Game
         - Starmap
       summary: 'Game Starmap Locations Overview'
-      description: 'Returns paginated versioned starmap locations with optional filters. Each location includes amenities, hierarchy entity tags, parent and star relations, child count, mission count, and resource availability.'
-      operationId: a226a3e5745777c39876fb640a9b3e53
+      description: 'Returns paginated versioned starmap locations with optional filters. Results are scoped to the requested or default game version. Each location includes amenities, hierarchy entity tags, parent and star relations, child count, mission count, and resource availability.'
+      operationId: listLocations
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -2338,17 +2518,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_starmap_location'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_starmap_location' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   '/api/locations/{identifier}':
     get:
       tags:
-        - In-Game
         - Starmap
       summary: 'Game Starmap Location Detail'
-      description: 'Retrieve a versioned starmap location by slug or UUID. Use the `include` parameter to load additional relations: `children` (child locations with amenities and tags), `resources` (harvestable resource placements with commodity data), `missions` (available missions with faction data).'
-      operationId: a94f2428b5133a755b80610db7fa0e90
+      description: 'Retrieve a versioned starmap location by slug or UUID. Results are scoped to the requested or default game version. Use the `include` parameter to load additional relations: `children` (child locations with amenities and tags), `resources` (harvestable resource placements with commodity data), `missions` (available missions with faction data).'
+      operationId: getLocation
       parameters:
         -
           name: identifier
@@ -2368,17 +2549,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/game_starmap_location'
+                properties:
+                  data: { $ref: '#/components/schemas/game_starmap_location' }
+                type: object
         '404':
           description: 'No starmap location with specified identifier found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/locations/filters:
     get:
       tags:
-        - In-Game
         - Starmap
       summary: 'Game Starmap Location Filters'
       description: 'Return all available filter facet values for versioned starmap locations. Applies any provided filter parameters to scope the facet counts. Returns facets for: type_name, type_classification, respawn_location_type, jurisdiction_name, affiliation_name, system, parent_name, amenity, and resource.'
-      operationId: d17a238ab990d199ac57dd8aeeb2b405
+      operationId: listLocationFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -2517,7 +2703,7 @@ paths:
         - Search
       summary: 'Unified Search Across All Game Data'
       description: 'Search across items, vehicles, starmap locations, commodities, blueprints, and missions simultaneously. Returns results grouped by type, limited to 5 results per group.'
-      operationId: 69cac0354375bc4ac499a9110b6914be
+      operationId: searchGameData
       parameters:
         -
           name: 'filter[query]'
@@ -2527,7 +2713,14 @@ paths:
           schema:
             type: string
             minLength: 2
-            example: Arrow
+            example: Carrack
+          examples:
+            ship_search:
+              summary: 'Search for a ship'
+              value: carrack
+            item_search:
+              summary: 'Search for an item'
+              value: arrow
         -
           $ref: '#/components/parameters/version'
       responses:
@@ -2539,16 +2732,56 @@ paths:
                 properties:
                   data: { type: array, items: { properties: { type: { type: string, example: items }, label: { type: string, example: Items }, results: { type: array, items: { properties: { name: { type: string, example: Arrow }, class_name: { type: string, example: AEGS_Arrow, nullable: true }, classification: { type: string, example: fighter, nullable: true }, classification_label: { type: string, example: Fighter, nullable: true }, item_type_label: { type: string, example: Weapon, nullable: true }, extra_label: { type: string, example: Fighter, nullable: true }, web_url: { type: string, example: 'https://example.com/vehicles/arrow' }, api_url: { type: string, example: 'https://example.com/api/vehicles/arrow' } }, type: object } } }, type: object } }
                 type: object
+              examples:
+                ship_search_results:
+                  summary: 'Grouped results for a ship search'
+                  value: { data: [{ type: vehicles, label: Vehicles, results: [{ name: Carrack, class_name: ANVL_Carrack, classification: null, classification_label: null, item_type_label: null, extra_label: Exploration, web_url: 'https://star-citizen.wiki/vehicles/carrack', api_url: 'https://api.star-citizen.wiki/api/vehicles/carrack' }] }] }
         '422':
           description: 'Validation error - filter[query] is required and must be at least 2 characters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
+        '429':
+          description: 'Rate limit exceeded. Search endpoints are limited to 60 requests per minute per IP.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rate_limit_error_response'
+  '/api/search/{query}':
+    get:
+      tags:
+        - Search
+      summary: 'Resolve Search Query'
+      description: 'Resolve a search query to the best-matching entity and redirect to its API URL. Useful for quick lookups where you know the exact name.'
+      operationId: resolveSearchQuery
+      parameters:
+        -
+          name: query
+          in: path
+          description: 'Entity name, class name, or UUID to resolve.'
+          required: true
+          schema:
+            type: string
+            example: Carrack
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '302':
+          description: "Redirect to the matched entity's API URL."
+        '404':
+          description: 'No matching entity found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/ground-vehicles:
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Ground Vehicles Overview'
       description: 'Alias for /api/vehicles scoped to ground vehicles (is_vehicle=true, is_gravlev=false, is_spaceship=false). Returns paginated in-game ground vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus.'
-      operationId: 43efc9b1912daf54d20013f6cb659db7
+      operationId: listGroundVehicles
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -2776,17 +3009,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/gravlev-vehicles:
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Gravlev Vehicles Overview'
       description: 'Alias for /api/vehicles scoped to gravlev vehicles (is_gravlev=true). Returns paginated in-game gravlev vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus.'
-      operationId: 1fd939bdf8b746e0fe4e12bd71769c0b
+      operationId: listGravlevVehicles
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3014,17 +3248,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
   /api/vehicles:
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Vehicles Overview'
       description: 'Returns paginated in-game vehicles for the requested game version. Default includes: vehicle, gameVersion, manufacturer, shipMatrixVehicle.loaner, shipMatrixVehicle.skus. Optional includes: shipMatrixVehicle, components, shipmatrixvehicle.components, hardpoints, ports.'
-      operationId: 64acf0fa3be1afd1fa9ee22c03f755bc
+      operationId: listVehicles
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3077,7 +3312,14 @@ paths:
           description: 'Search vehicles by name or class name.'
           schema:
             type: string
-            example: Nova
+            example: Carrack
+          examples:
+            search_carrack:
+              summary: 'Find the Carrack'
+              value: carrack
+            search_arrow:
+              summary: 'Find the Arrow'
+              value: arrow
         -
           name: 'filter[size]'
           in: query
@@ -3252,17 +3494,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+              examples:
+                vehicle_search_page:
+                  summary: 'Search vehicles by name'
+                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: Carrack, slug: carrack }], links: { first: 'https://api.star-citizen.wiki/api/vehicles?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
   '/api/ground-vehicles/{identifier}':
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Ground Vehicle Detail'
-      description: 'Alias for /api/vehicles/{identifier} scoped to ground vehicles.'
-      operationId: c1f17e6bfdd387ec4c2b5b99ca71d2a3
+      description: 'Alias for /api/vehicles/{identifier} scoped to ground vehicles. Results are scoped to the requested or default game version.'
+      operationId: getGroundVehicle
       parameters:
         -
           name: identifier
@@ -3271,6 +3518,7 @@ paths:
           schema:
             description: 'Vehicle name, class_name, or UUID'
             type: string
+            example: Nova
         -
           $ref: '#/components/parameters/include'
         -
@@ -3281,17 +3529,22 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - { $ref: '#/components/schemas/game_vehicle' }
-                  - { $ref: '#/components/schemas/ship_matrix_vehicle' }
+                properties:
+                  data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                type: object
+        '404':
+          description: 'Vehicle not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/gravlev-vehicles/{identifier}':
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Gravlev Vehicle Detail'
-      description: 'Alias for /api/vehicles/{identifier} scoped to gravlev vehicles.'
-      operationId: 5763019edbc66a8d5f089a4a167bbf14
+      description: 'Alias for /api/vehicles/{identifier} scoped to gravlev vehicles. Results are scoped to the requested or default game version.'
+      operationId: getGravlevVehicle
       parameters:
         -
           name: identifier
@@ -3300,6 +3553,7 @@ paths:
           schema:
             description: 'Vehicle name, class_name, or UUID'
             type: string
+            example: Dragonfly
         -
           $ref: '#/components/parameters/include'
         -
@@ -3310,17 +3564,22 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - { $ref: '#/components/schemas/game_vehicle' }
-                  - { $ref: '#/components/schemas/ship_matrix_vehicle' }
+                properties:
+                  data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                type: object
+        '404':
+          description: 'Vehicle not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/vehicles/{identifier}':
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Vehicle Detail'
-      description: 'Retrieve a vehicle by name, class name, or UUID. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.'
-      operationId: 7bbede0623fe40dc123a58b51718a2c8
+      description: 'Retrieve a vehicle by name, class name, or UUID. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.'
+      operationId: getVehicle
       parameters:
         -
           name: identifier
@@ -3329,6 +3588,14 @@ paths:
           schema:
             description: 'Vehicle name, class_name, or UUID'
             type: string
+            example: Carrack
+          examples:
+            by_slug:
+              summary: 'Lookup by slug'
+              value: carrack
+            by_name:
+              summary: 'Lookup by display name'
+              value: Carrack
         -
           $ref: '#/components/parameters/include'
         -
@@ -3339,18 +3606,23 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - { $ref: '#/components/schemas/game_vehicle' }
-                  - { $ref: '#/components/schemas/ship_matrix_vehicle' }
+                properties:
+                  data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                type: object
+        '404':
+          description: 'Vehicle not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/ground-vehicles/search:
     post:
       tags:
-        - In-Game
         - Vehicles
         - Search
       summary: 'In-Game Ground Vehicle Search (Deprecated)'
-      description: 'Deprecated. Use GET /api/ground-vehicles?filter[name]={value} instead. Scoped to ground vehicles.'
-      operationId: 41e61288fbc249698811a9ef34e6c6e1
+      description: 'Deprecated. Use GET /api/ground-vehicles?filter[name]={value} for name search. Scoped to ground vehicles. This endpoint will be removed in a future version.'
+      operationId: searchGroundVehiclesDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3372,19 +3644,20 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
       deprecated: true
   /api/gravlev-vehicles/search:
     post:
       tags:
-        - In-Game
         - Vehicles
         - Search
       summary: 'In-Game Gravlev Vehicle Search (Deprecated)'
-      description: 'Deprecated. Use GET /api/gravlev-vehicles?filter[name]={value} instead. Scoped to gravlev vehicles.'
-      operationId: f6a2002fa7dc2eca601762b8d8ef11f9
+      description: 'Deprecated. Use GET /api/gravlev-vehicles?filter[name]={value} for name search. Scoped to gravlev vehicles. This endpoint will be removed in a future version.'
+      operationId: searchGravlevVehiclesDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3406,19 +3679,20 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
       deprecated: true
   /api/vehicles/search:
     post:
       tags:
-        - In-Game
         - Vehicles
         - Search
       summary: 'In-Game Vehicle Search (Deprecated)'
       description: 'Deprecated. Use GET /api/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.'
-      operationId: e50aec74b72796ff0e51ce4bf5bf3a9e
+      operationId: searchVehiclesDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3588,18 +3862,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/game_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/game_vehicle' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
       deprecated: true
   /api/vehicles/filters:
     get:
       tags:
-        - In-Game
         - Vehicles
       summary: 'In-Game Vehicle Filters'
       description: 'Return all available filter values for in-game vehicles.'
-      operationId: 57e041d605c3ed0ffabeccf150c51a5e
+      operationId: listVehicleFilters
       parameters:
         -
           $ref: '#/components/parameters/version'
@@ -3615,11 +3890,10 @@ paths:
   '/api/game-versions/{version}/changelog':
     get:
       tags:
-        - In-Game
-        - 'Game Version'
+        - 'Game Versions'
       summary: 'Get Version Changelog'
       description: 'Returns the changelog summary between the specified version and its predecessor.'
-      operationId: 714b128595cfa5df27438df4514a6273
+      operationId: getVersionChangelog
       parameters:
         -
           name: version
@@ -3634,17 +3908,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/version_changelog'
+                properties:
+                  data: { $ref: '#/components/schemas/version_changelog' }
+                type: object
         '404':
           description: 'Version not found or no previous version'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/game-versions/{version}/changelog/changes':
     get:
       tags:
-        - In-Game
-        - 'Game Version'
+        - 'Game Versions'
       summary: 'Get Version Changelog Changes'
       description: 'Returns paginated diff entries for a version changelog. Filter by entity_type and change_type.'
-      operationId: 3d5e74217808c4b3c3cc65bfb717fda7
+      operationId: listVersionChangelogChanges
       parameters:
         -
           name: version
@@ -3679,19 +3958,39 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/version_diff_entry'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/version_diff_entry' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
         '404':
           description: 'Version not found or no previous version'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+  /api/openapi:
+    get:
+      tags:
+        - Meta
+      summary: 'OpenAPI Specification'
+      description: 'Returns the OpenAPI 3.0 specification as YAML. This spec describes all documented API endpoints, parameters, request bodies, and response schemas.'
+      operationId: getOpenApiSpec
+      responses:
+        '200':
+          description: 'OpenAPI specification in YAML format'
+          content:
+            application/yaml:
+              schema:
+                type: string
+                format: binary
   /api/comm-links:
     get:
       tags:
         - Comm-Links
-        - RSI-Website
       summary: 'Comm-Links Overview'
       description: 'Returns paginated comm-links ordered by descending ID by default. Supports filtering by channel, category, series, title, content, and publication date. Results can be sorted by id, title, images_count, links_count, channel, category, series, and created_at. Use the include parameter to embed images or links.'
-      operationId: 2204c384d22cb7168f6dd5830328c4dd
+      operationId: listCommLinks
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -3759,21 +4058,22 @@ paths:
             example: '-id'
       responses:
         '200':
-          description: 'List of Comm-Links'
+          description: 'Paginated list of Comm-Links'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   /api/comm-links/filters:
     get:
       tags:
         - Comm-Links
-        - RSI-Website
       summary: 'Comm-Link Filters'
       description: 'Returns available category, channel, and series filter values for Comm-Links, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.'
-      operationId: 022b883a0bc1e7ae8691f000cb019a02
+      operationId: listCommLinkFilters
       parameters:
         -
           name: 'filter[id]'
@@ -3837,10 +4137,9 @@ paths:
     get:
       tags:
         - Comm-Links
-        - RSI-Website
       summary: 'Comm-Link Detail'
       description: 'Retrieve a single Comm-Link by its CIG ID. Images with hash and metadata are always included. The response contains prev_id and next_id metadata for sequential navigation between Comm-Links.'
-      operationId: 0f21f5e85cfa4d0fe0076f0d4a0d0ffd
+      operationId: getCommLink
       parameters:
         -
           $ref: '#/components/parameters/comm_link_includes'
@@ -3860,17 +4159,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/comm_link'
+                properties:
+                  data: { $ref: '#/components/schemas/comm_link' }
+                type: object
         '404':
           description: 'No Comm-Link with specified ID found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/comm-links/search:
     post:
       tags:
         - Comm-Links
-        - RSI-Website
       summary: 'Comm-Link Search (Deprecated)'
       description: 'Deprecated. Use GET /api/comm-links?filter[title]={value} for title search. This endpoint will be removed in a future version.'
-      operationId: 2efd50e02ba871c509078dcf08701557
+      operationId: searchCommLinksDeprecated
       parameters:
         -
           $ref: '#/components/parameters/locale'
@@ -3920,23 +4224,30 @@ paths:
             example: '{"query": "Banu Merchantman"}'
       responses:
         '200':
-          description: 'A singular Comm-Link'
+          description: 'Search results for Comm-Links'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/comm_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
         '422':
           description: 'Validation error. At least one of keyword or query is required.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
       deprecated: true
   /api/comm-links/reverse-image-link-search:
     post:
       tags:
         - Comm-Links
-        - RSI-Website
         - Search
       summary: 'Comm-Link Reverse Image Link Search'
       description: 'Return comm-links that reference the same RSI-hosted image URL.'
-      operationId: ae85fe68648858545fbb25b4733dcea8
+      operationId: reverseImageLinkSearch
       requestBody:
         description: 'URL to an image hosted on (media.)robertsspaceindustries.com'
         required: true
@@ -3959,22 +4270,35 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link' } }
+                type: object
         '404':
           description: 'No Comm-Link found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
         '422':
           description: 'Validation error. The url field is required and must be a valid URL on robertsspaceindustries.com.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
+        '429':
+          description: 'Rate limit exceeded. Reverse image search is limited to 10 requests per minute.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rate_limit_error_response'
   /api/comm-links/reverse-image-search:
     post:
       tags:
         - Comm-Links
-        - RSI-Website
         - Search
       summary: 'Comm-Link Reverse Image Search'
       description: 'Search comm-links by uploading an image and specifying a similarity threshold. Requires the GD PHP extension.'
-      operationId: e3f44c5e367712652849d459ad7768f7
+      operationId: reverseImageSearch
       requestBody:
         required: true
         content:
@@ -4000,24 +4324,37 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link_image' } }
+                type: object
         '404':
           description: 'No Comm-Link found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
         '422':
           description: 'Validation error. The image field is required and must be a valid image file (max 5 MB).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
         '501':
           description: 'The required GD PHP extension is not loaded on the server.'
+        '429':
+          description: 'Rate limit exceeded. Reverse image search is limited to 10 requests per minute.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rate_limit_error_response'
   '/api/comm-link-images/{image}/similar':
     get:
       tags:
         - Comm-Links
-        - RSI-Website
         - Search
       summary: 'Comm-Link Reverse Image Similar Search'
       description: 'Find Comm-Link images similar to an existing RSI-hosted image.'
-      operationId: fade67e6a8c4629ba8554b85925c1148
+      operationId: findSimilarImages
       parameters:
         -
           name: image
@@ -4043,11 +4380,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link_image' } }
+                type: object
+        '401':
+          description: 'Unauthenticated. Bearer token is required for similar image search.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthenticated_error_response'
         '404':
           description: 'Comm-Link image not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+        '429':
+          description: 'Rate limit exceeded. Similar image search is limited to 10 requests per minute.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rate_limit_error_response'
       security:
         -
           sanctum: []
@@ -4055,11 +4408,10 @@ paths:
     get:
       tags:
         - Comm-Links
-        - RSI-Website
         - Images
       summary: 'Comm-Link Images'
       description: 'List available comm-link images with pagination. Each image includes its associated Comm-Links (with channel, category, series), tags, duplicates, and base image when available.'
-      operationId: a705f668107b86178c6624b972dddefd
+      operationId: listCommLinkImages
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4076,22 +4428,23 @@ paths:
             example: concept
       responses:
         '200':
-          description: 'List of Comm-Link Images'
+          description: 'Paginated list of Comm-Link Images'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link_image' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   '/api/comm-link-images/{image}':
     get:
       tags:
         - Comm-Links
-        - RSI-Website
         - Images
       summary: 'Comm-Link Image Detail'
       description: 'Retrieve a single comm-link image with its associated Comm-Links (with channel, category, series), tags, duplicates, and base image when available.'
-      operationId: e496670c7fe9e04eeb76fb30e6209ab7
+      operationId: getCommLinkImage
       parameters:
         -
           name: image
@@ -4107,18 +4460,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { $ref: '#/components/schemas/comm_link_image' }
+                type: object
         '404':
           description: 'Comm-Link image not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/comm-link-images/random:
     get:
       tags:
         - Comm-Links
-        - RSI-Website
         - Images
       summary: 'Comm-Link Images Random'
       description: 'Retrieve random comm-link images (minimum 250 KB), optionally filtered by tag name. Only images without a base image are included.'
-      operationId: 0b0b5e244ccfb0fe78f81d536ba99257
+      operationId: getRandomCommLinkImage
       parameters:
         -
           name: limit
@@ -4141,19 +4499,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link_image' } }
+                type: object
   /api/comm-link-images/search:
     post:
       tags:
         - Comm-Links
-        - RSI-Website
         - Images
         - Search
       summary: 'Comm-Link Image Search by filename'
       description: 'Search comm-link images by filename with optional tag filtering. Only images without a base image and with non-zero file size are returned.'
-      operationId: dbd72b035105c4dcf17ee654931fe2ff
+      operationId: searchCommLinkImages
       parameters:
         -
           name: 'filter[tags]'
@@ -4184,19 +4541,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/comm_link_image'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/comm_link_image' } }
+                type: object
         '422':
           description: 'Validation error. The query field is required and must be a string between 1 and 255 characters.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/galactapedia:
     get:
       tags:
         - Galactapedia
-        - RSI-Website
       summary: 'Galactapedia Overview'
       description: 'Returns paginated Galactapedia articles ordered by descending ID by default. Each article includes its templates, categories, and tags. Supports filtering by category, tag, template, title, and creation date. Results can be sorted by title, categories_count, tags_count, and related_articles_count.'
-      operationId: 48f80f5118a6ef2670845b9dd1b90357
+      operationId: listGalactapediaArticles
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4248,21 +4608,22 @@ paths:
             example: '-id'
       responses:
         '200':
-          description: 'List of Galactapedia Articles'
+          description: 'Paginated list of Galactapedia Articles'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/galactapedia_article'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/galactapedia_article' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   /api/galactapedia/filters:
     get:
       tags:
         - Galactapedia
-        - RSI-Website
       summary: 'Galactapedia Filters'
       description: 'Returns available category, tag, and template filter values for Galactapedia articles, with occurrence counts. Providing additional filter parameters will narrow the facets accordingly.'
-      operationId: 8087c05b7d87a42900d3c920dcaf1c6e
+      operationId: listGalactapediaFilters
       parameters:
         -
           name: 'filter[category]'
@@ -4312,10 +4673,9 @@ paths:
     get:
       tags:
         - Galactapedia
-        - RSI-Website
       summary: 'Galactapedia Article'
       description: 'Retrieve a Galactapedia article by ID with available includes and translations.'
-      operationId: 541ad0798eef38797ca9a341b81eedac
+      operationId: getGalactapediaArticle
       parameters:
         -
           $ref: '#/components/parameters/locale'
@@ -4348,18 +4708,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/galactapedia_article'
+                properties:
+                  data: { $ref: '#/components/schemas/galactapedia_article' }
+                type: object
         '404':
           description: 'No Article with specified ID found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/galactapedia/search:
     post:
       tags:
         - Galactapedia
-        - RSI-Website
         - Search
       summary: 'Galactapedia Article Search (Deprecated)'
       description: 'Deprecated. Use GET /api/galactapedia?filter[title]={value} for title search. This endpoint will be removed in a future version.'
-      operationId: ed9b1b052b5dd9a03e0f7ee5a21cb8dd
+      operationId: searchGalactapediaDeprecated
       requestBody:
         description: 'Article (partial) title, template or slug'
         required: true
@@ -4374,18 +4739,17 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/galactapedia_article'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/galactapedia_article' } }
+                type: object
       deprecated: true
   /api/celestial-objects:
     get:
       tags:
         - Starmap
-        - RSI-Website
       summary: 'Starmap Celestial Objects Overview'
       description: 'Returns paginated celestial objects with optional relationships.'
-      operationId: cb1abb65b355a5cbf26f23c3b231a676
+      operationId: listCelestialObjects
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4429,21 +4793,22 @@ paths:
             type: string
       responses:
         '200':
-          description: 'List of Celestial Objects'
+          description: 'Paginated list of Celestial Objects'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/celestial_object'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/celestial_object' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   '/api/celestial-objects/{code}':
     get:
       tags:
         - Starmap
-        - RSI-Website
       summary: 'Celestial Object Detail'
       description: 'Retrieve a celestial object by code, optionally including relations.'
-      operationId: a56221ed3240e9c31bd996fb9cf85248
+      operationId: getCelestialObject
       parameters:
         -
           name: code
@@ -4466,18 +4831,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/celestial_object'
+                properties:
+                  data: { $ref: '#/components/schemas/celestial_object' }
+                type: object
         '404':
           description: 'No Celestial Object with specified code found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/celestial-objects/search:
     post:
       tags:
         - Starmap
-        - RSI-Website
         - Search
       summary: 'Celestial Object Search (Deprecated)'
       description: 'Deprecated. Use GET /api/celestial-objects?filter[name]={value} for name search. This endpoint will be removed in a future version.'
-      operationId: 34134c8a7a8bb87a6c6f905cbce9ed42
+      operationId: searchCelestialObjectsDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4502,18 +4872,17 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/celestial_object'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/celestial_object' } }
+                type: object
       deprecated: true
   /api/starsystems:
     get:
       tags:
         - Starmap
-        - RSI-Website
       summary: 'Starmap Starsystems Overview'
       description: 'Returns paginated starsystems, optionally including related resources.'
-      operationId: dfb10343a9a3f85578e98f63dbfa7bf2
+      operationId: listStarsystems
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4566,21 +4935,22 @@ paths:
             type: string
       responses:
         '200':
-          description: 'List of Starsystems'
+          description: 'Paginated list of Starsystems'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/starsystem'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/starsystem' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   '/api/starsystems/{code}':
     get:
       tags:
         - Starmap
-        - RSI-Website
       summary: 'Starsystem Detail'
       description: 'Retrieve a starsystem by code or identifier, with optional includes.'
-      operationId: 1b478c502ef1afe25fbdcc192a8b7fd6
+      operationId: getStarsystem
       parameters:
         -
           name: code
@@ -4603,18 +4973,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/starsystem'
+                properties:
+                  data: { $ref: '#/components/schemas/starsystem' }
+                type: object
         '404':
           description: 'No Starsystem with specified code found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/starsystems/search:
     post:
       tags:
         - Starmap
-        - RSI-Website
         - Search
       summary: 'Starsystem Search (Deprecated)'
       description: 'Deprecated. Use GET /api/starsystems?filter[name]={value} for name search. This endpoint will be removed in a future version.'
-      operationId: ae8a21d883ee8e48ac7be01e3ed3084a
+      operationId: searchStarsystemsDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4639,18 +5014,17 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/starsystem'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/starsystem' } }
+                type: object
       deprecated: true
   /api/starsystems/filters:
     get:
       tags:
         - Starmap
-        - RSI-Website
       summary: 'Starsystem Filters'
       description: 'Return all available filter values for starsystems.'
-      operationId: 7d3e54fa78ec8659a190388720bb5523
+      operationId: listStarsystemFilters
       responses:
         '200':
           description: 'Available filters for starsystems.'
@@ -4664,25 +5038,31 @@ paths:
     get:
       tags:
         - Stats
-        - RSI-Website
       summary: 'Latest Crowdfunding Statistics'
       description: 'Get the most recent Star Citizen crowdfunding statistics snapshot, including funds raised (USD), fan count, and fleet size.'
-      operationId: bd891b16c3cee16ea79438380f9b4f8b
+      operationId: getLatestStats
       responses:
         '200':
           description: 'Latest statistics'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/stat'
+                properties:
+                  data: { $ref: '#/components/schemas/stat' }
+                type: object
+        '404':
+          description: 'No statistics found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/stats:
     get:
       tags:
         - Stats
-        - RSI-Website
       summary: 'Paginated Historical Statistics'
       description: 'Get paginated historical Star Citizen crowdfunding statistics, ordered by most recent first. Supports page-based pagination.'
-      operationId: 5e2fda37059d5c1883d2b7b511c2ac53
+      operationId: listStats
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4692,21 +5072,23 @@ paths:
           $ref: '#/components/parameters/page_size'
       responses:
         '200':
-          description: 'List of stats'
+          description: 'Paginated list of stats'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/stat'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/stat' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   /api/shipmatrix/vehicles:
     get:
       tags:
-        - Ship-Matrix
+        - 'Ship Matrix'
         - Vehicles
       summary: 'Ship Matrix Vehicles Overview'
       description: 'Returns paginated Ship Matrix vehicles with optional filters. SKU variants and loaner vehicles are included by default.'
-      operationId: 3222e355ea1183c3b381f5e039cdfe45
+      operationId: listShipMatrixVehicles
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4762,21 +5144,23 @@ paths:
             example: '-name'
       responses:
         '200':
-          description: 'List of Ship-Matrix Vehicles'
+          description: 'Paginated list of Ship Matrix Vehicles'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ship_matrix_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/ship_matrix_vehicle' } }
+                  links: { allOf: [{ $ref: '#/components/schemas/pagination_links' }] }
+                  meta: { allOf: [{ $ref: '#/components/schemas/pagination_meta' }] }
+                type: object
   /api/shipmatrix/vehicles/filters:
     get:
       tags:
-        - Ship-Matrix
+        - 'Ship Matrix'
         - Vehicles
       summary: 'Ship Matrix Vehicle Filters'
       description: 'Return all available filter values for Ship Matrix vehicles. Supports cross-filtering: pass filter parameters to get filtered facet counts.'
-      operationId: 2906e4ea55463870d8502d869947066f
+      operationId: listShipMatrixFilters
       responses:
         '200':
           description: 'Available filters for Ship Matrix vehicles.'
@@ -4789,11 +5173,11 @@ paths:
   '/api/shipmatrix/vehicles/{slug}':
     get:
       tags:
-        - Ship-Matrix
+        - 'Ship Matrix'
         - Vehicles
       summary: 'Ship Matrix Vehicle Detail'
       description: 'Retrieve a Ship Matrix vehicle by slug. Use the "include" query parameter to load additional relationships: components, loaner, skus.'
-      operationId: e0523e99711c283e722b02838dcad21e
+      operationId: getShipMatrixVehicle
       parameters:
         -
           name: slug
@@ -4810,22 +5194,28 @@ paths:
             type: string
       responses:
         '200':
-          description: 'A Ship-Matrix Vehicle'
+          description: 'A Ship Matrix Vehicle'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ship_matrix_vehicle'
+                properties:
+                  data: { $ref: '#/components/schemas/ship_matrix_vehicle' }
+                type: object
         '404':
           description: 'Vehicle not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   /api/shipmatrix/vehicles/search:
     post:
       tags:
-        - Ship-Matrix
+        - 'Ship Matrix'
         - Vehicles
         - Search
       summary: 'Ship Matrix Vehicle Search (Deprecated)'
       description: 'Deprecated. Use GET /api/shipmatrix/vehicles?filter[name]={value} for name search. This endpoint will be removed in a future version.'
-      operationId: 1405185e569f89147a09bdd1b41b8519
+      operationId: searchShipMatrixVehiclesDeprecated
       parameters:
         -
           $ref: '#/components/parameters/page'
@@ -4875,14 +5265,46 @@ paths:
             example: '{"query": "Avenger"}'
       responses:
         '200':
-          description: 'A List of matching Ship-Matrix Vehicles'
+          description: 'List of matching Ship Matrix Vehicles'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ship_matrix_vehicle'
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/ship_matrix_vehicle' } }
+                type: object
       deprecated: true
+  /api/user:
+    get:
+      tags:
+        - Auth
+      summary: 'Get Authenticated User'
+      description: 'Returns the currently authenticated user. Requires a valid Sanctum bearer token.'
+      operationId: getAuthenticatedUser
+      responses:
+        '200':
+          description: 'The authenticated user'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { type: integer, example: 1 }
+                  name: { type: string, example: 'John Doe' }
+                  email: { type: string, format: email, example: john@example.com }
+                  email_verified_at: { type: string, format: date-time, nullable: true }
+                  is_admin: { type: boolean, example: false }
+                  language_id: { type: integer, example: 1, nullable: true }
+                  created_at: { type: string, format: date-time, nullable: true }
+                  updated_at: { type: string, format: date-time, nullable: true }
+                type: object
+        '401':
+          description: Unauthenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthenticated_error_response'
+      security:
+        -
+          sanctum: []
 components:
   schemas:
     filter_value:
@@ -18004,6 +18426,121 @@ components:
           description: 'Deprecated fields that will be removed in future versions.'
           type: string
       type: object
+    pagination_links:
+      description: 'Pagination navigation links.'
+      properties:
+        first:
+          description: 'URL to the first page.'
+          type: string
+          nullable: true
+        last:
+          description: 'URL to the last page.'
+          type: string
+          nullable: true
+        prev:
+          description: 'URL to the previous page.'
+          type: string
+          nullable: true
+        next:
+          description: 'URL to the next page.'
+          type: string
+          nullable: true
+      type: object
+    pagination_meta:
+      description: 'Pagination metadata.'
+      properties:
+        current_page:
+          description: 'Current page number.'
+          type: integer
+          example: 1
+        from:
+          description: 'Index of the first item in this page.'
+          type: integer
+          example: 1
+        last_page:
+          description: 'Last available page number.'
+          type: integer
+          example: 5
+        per_page:
+          description: 'Number of items per page.'
+          type: integer
+          example: 30
+        to:
+          description: 'Index of the last item in this page.'
+          type: integer
+          example: 30
+        total:
+          description: 'Total number of items across all pages.'
+          type: integer
+          example: 150
+        links:
+          description: 'Pagination navigation links with page URLs.'
+          type: array
+          items:
+            properties:
+              url:
+                type: string
+                nullable: true
+              label:
+                type: string
+              active:
+                type: boolean
+            type: object
+        path:
+          description: 'Base URL path for pagination.'
+          type: string
+          example: 'https://api.star-citizen.wiki/api/vehicles'
+      type: object
+    error_response:
+      description: 'Generic error response.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: 'Not found.'
+      type: object
+    validation_error_response:
+      description: 'Validation error response with field-level details.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: 'The given data was invalid.'
+        errors:
+          description: 'Field-level validation errors.'
+          type: object
+          example:
+            'filter[query]':
+              - 'The filter[query] field is required.'
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      type: object
+    unauthenticated_error_response:
+      description: 'Authentication error response.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: Unauthenticated.
+      type: object
+    rate_limit_error_response:
+      description: 'Rate limit exceeded error response.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: 'Too many requests.'
+      type: object
+    not_found_error_response:
+      description: 'Resource not found error response.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: 'No query results for model.'
+      type: object
     comm_link_link:
       title: 'Comm-Link Link'
       description: "An external hyperlink found within a Comm-Link's content."
@@ -18820,7 +19357,7 @@ components:
     page:
       name: page
       in: query
-      description: 'Page number for pagination (starts at 1).'
+      description: 'Page number for pagination (starts at 1). Prefer using `page[number]` instead.'
       required: false
       schema:
         type: integer
@@ -18835,59 +19372,62 @@ components:
         type: integer
         default: 1
         minimum: 1
+        example: 1
     page_size:
       name: 'page[size]'
       in: query
-      description: 'Number of results to return per page.'
+      description: 'Number of results per page. Maximum 200.'
       required: false
       schema:
         type: integer
         default: 30
         maximum: 200
         minimum: 1
+        example: 50
     locale:
       name: locale
       in: query
-      description: 'Locale code for translated fields (e.g. en, de, zh).'
+      description: 'Locale code for translated fields. Supported values depend on available translations (e.g. en, de, zh).'
       required: false
       schema:
         type: string
+        example: de
     include:
       name: include
       in: query
-      description: 'Comma-separated list of relationships to include (e.g. manufacturer,translations).'
+      description: "Comma-separated list of relationships to include. Available includes vary per endpoint, see each endpoint's description for supported values."
       required: false
       explode: false
       allowReserved: true
       schema:
         type: string
+        example: 'manufacturer,shops'
     sort:
       name: sort
       in: query
-      description: 'Comma-separated list of fields to sort by. Prefix with - for descending order (e.g. -name,size).'
+      description: 'Comma-separated sort fields. Prefix with `-` for descending. Supported fields vary per endpoint.'
       required: false
       explode: false
       allowReserved: true
       schema:
         type: string
+        example: '-name'
     version:
       name: version
       in: query
-      description: 'Game version to get data from, if omitted uses default version.'
+      description: 'Game version code to scope results to. Omit to use the current default version. Use `GET /api/game-versions` to list available versions and `GET /api/game-versions/default` to discover the default.'
       required: false
       explode: false
       allowReserved: true
       schema:
         type: string
+        example: 4.7.0-LIVE
   securitySchemes:
     sanctum:
       type: http
-      bearerFormat: JWT
+      description: 'Bearer token authentication via Laravel Sanctum personal access tokens. Most endpoints are public and do not require authentication.'
       scheme: bearer
 tags:
-  -
-    name: In-Game
-    description: In-Game
   -
     name: Blueprints
     description: Blueprints
@@ -18898,8 +19438,8 @@ tags:
     name: Factions
     description: Factions
   -
-    name: 'Game Version'
-    description: 'Game Version'
+    name: 'Game Versions'
+    description: 'Game Versions'
   -
     name: Items
     description: Items
@@ -18919,11 +19459,11 @@ tags:
     name: Vehicles
     description: Vehicles
   -
+    name: Meta
+    description: Meta
+  -
     name: Comm-Links
     description: Comm-Links
-  -
-    name: RSI-Website
-    description: RSI-Website
   -
     name: Images
     description: Images
@@ -18934,5 +19474,8 @@ tags:
     name: Stats
     description: Stats
   -
-    name: Ship-Matrix
-    description: Ship-Matrix
+    name: 'Ship Matrix'
+    description: 'Ship Matrix'
+  -
+    name: Auth
+    description: Auth

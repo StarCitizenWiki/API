@@ -55,9 +55,10 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities',
+        operationId: 'listCommodities',
         description: 'Returns paginated game commodities with location data and resource metadata, optionally filtered to only those consumed by blueprints. Results include refined version info and starmap location data scoped to the requested or default game version.',
         summary: 'List Game Commodities',
-        tags: ['In-Game', 'Commodities'],
+        tags: ['Commodities'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -80,7 +81,16 @@ class CommodityController extends Controller
             new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Epic')),
             new OA\Parameter(name: 'filter[kind]', description: 'Resource kind (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'mineable')),
             new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name (see GET /api/commodities/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
-            new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name', in: 'query', schema: new OA\Schema(type: 'string', example: 'ArcCorp')),
+            new OA\Parameter(
+                name: 'filter[location]',
+                description: 'Partial match on starmap location name',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', example: 'ArcCorp'),
+                examples: [
+                    new OA\Examples(example: 'location_arccorp', summary: 'Commodities near ArcCorp', value: 'ArcCorp'),
+                    new OA\Examples(example: 'location_aberdeen', summary: 'Commodities near Aberdeen', value: 'Aberdeen'),
+                ],
+            ),
             new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key', in: 'query', schema: new OA\Schema(type: 'string', example: 'Agricium')),
             new OA\Parameter(name: 'filter[ship]', description: 'When true, only show commodities mineable by ships', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
             new OA\Parameter(name: 'filter[ground_vehicle]', description: 'When true, only show commodities mineable by ground vehicles', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
@@ -94,8 +104,25 @@ class CommodityController extends Controller
                 response: 200,
                 description: 'List of commodities',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/commodity_link')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/commodity_link')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object',
+                    examples: [
+                        new OA\Examples(
+                            example: 'commodities_by_location',
+                            summary: 'Commodities filtered by location',
+                            value: [
+                                'data' => [
+                                    ['uuid' => '00000000-0000-0000-0000-000000000000', 'name' => 'Agricium', 'slug' => 'agricium'],
+                                ],
+                                'links' => ['first' => 'https://api.star-citizen.wiki/api/commodities?page[number]=1', 'last' => null, 'prev' => null, 'next' => null],
+                                'meta' => ['current_page' => 1, 'per_page' => 30, 'total' => 1],
+                            ],
+                        ),
+                    ],
                 )
             ),
         ]
@@ -120,9 +147,10 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities/{commodity}',
-        description: 'Returns full details for a single game commodity including detailed location entries with starmap data, resource composition, areas, clustering data, and raw/refined version info. Optionally include related blueprints and items.',
+        operationId: 'getCommodity',
+        description: 'Returns full details for a single game commodity including detailed location entries with starmap data, resource composition, areas, clustering data, and raw/refined version info. Results are scoped to the requested or default game version. Optionally include related blueprints and items.',
         summary: 'Show Game Commodity',
-        tags: ['In-Game', 'Commodities'],
+        tags: ['Commodities'],
         parameters: [
             new OA\Parameter(
                 name: 'commodity',
@@ -131,7 +159,7 @@ class CommodityController extends Controller
                 schema: new OA\Schema(
                     description: 'Commodity UUID or slug',
                     type: 'string',
-                    example: 'dc6fbcbb-5990-4ed5-82ee-93152dab7845',
+                    example: 'agricium',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/version'),
@@ -147,9 +175,20 @@ class CommodityController extends Controller
                 response: 200,
                 description: 'Commodity details',
                 content: new OA\JsonContent(
-                    ref: '#/components/schemas/commodity_show'
+                    examples: [
+                        new OA\Examples(
+                            example: 'commodity_detail',
+                            summary: 'Commodity detail response',
+                            value: ['data' => ['uuid' => '00000000-0000-0000-0000-000000000000', 'name' => 'Agricium', 'slug' => 'agricium']],
+                        ),
+                    ],
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/commodity_show'),
+                    ],
+                    type: 'object',
                 )
             ),
+            new OA\Response(response: 404, description: 'Commodity not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
     public function show(Request $request, string $commodity): JsonResource
@@ -195,9 +234,10 @@ class CommodityController extends Controller
 
     #[OA\Get(
         path: '/api/commodities/filters',
+        operationId: 'listCommodityFilters',
         description: 'Returns all available filter values for game commodities, scoped to the requested or default game version. Filter values can be combined; providing a system filter will narrow the location facet to that system only.',
         summary: 'Game Commodity Filters',
-        tags: ['In-Game', 'Commodities'],
+        tags: ['Commodities'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/version'),
             new OA\Parameter(name: 'filter[used]', description: 'When true, filter facets to only commodities used by blueprint ingredients', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),

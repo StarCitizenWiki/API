@@ -22,9 +22,10 @@ class ImageController extends Controller
 {
     #[OA\Get(
         path: '/api/comm-link-images',
+        operationId: 'listCommLinkImages',
         description: 'List available comm-link images with pagination. Each image includes its associated Comm-Links (with channel, category, series), tags, duplicates, and base image when available.',
         summary: 'Comm-Link Images',
-        tags: ['Comm-Links', 'RSI-Website', 'Images'],
+        tags: ['Comm-Links', 'Images'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
@@ -39,10 +40,14 @@ class ImageController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Comm-Link Images',
+                description: 'Paginated list of Comm-Link Images',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link_image')),
+                        new OA\Property(property: 'links', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_links')]),
+                        new OA\Property(property: 'meta', allOf: [new OA\Schema(ref: '#/components/schemas/pagination_meta')]),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -66,9 +71,10 @@ class ImageController extends Controller
 
     #[OA\Get(
         path: '/api/comm-link-images/{image}',
+        operationId: 'getCommLinkImage',
         description: 'Retrieve a single comm-link image with its associated Comm-Links (with channel, category, series), tags, duplicates, and base image when available.',
         summary: 'Comm-Link Image Detail',
-        tags: ['Comm-Links', 'RSI-Website', 'Images'],
+        tags: ['Comm-Links', 'Images'],
         parameters: [
             new OA\Parameter(
                 name: 'image',
@@ -82,11 +88,17 @@ class ImageController extends Controller
             new OA\Response(
                 response: 200,
                 description: 'A singular Comm-Link Image',
-                content: new OA\JsonContent(ref: '#/components/schemas/comm_link_image')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/comm_link_image'),
+                    ],
+                    type: 'object'
+                )
             ),
             new OA\Response(
                 response: 404,
                 description: 'Comm-Link image not found.',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
         ]
     )]
@@ -110,9 +122,10 @@ class ImageController extends Controller
 
     #[OA\Get(
         path: '/api/comm-link-images/random',
+        operationId: 'getRandomCommLinkImage',
         description: 'Retrieve random comm-link images (minimum 250 KB), optionally filtered by tag name. Only images without a base image are included.',
         summary: 'Comm-Link Images Random',
-        tags: ['Comm-Links', 'RSI-Website', 'Images'],
+        tags: ['Comm-Links', 'Images'],
         parameters: [
             new OA\Parameter(
                 name: 'limit',
@@ -132,8 +145,10 @@ class ImageController extends Controller
                 response: 200,
                 description: 'Retrieve a random Comm-Link Image. Limit parameter sets the number of random images',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link_image')),
+                    ],
+                    type: 'object'
                 )
             ),
         ]
@@ -156,6 +171,7 @@ class ImageController extends Controller
 
     #[OA\Post(
         path: '/api/comm-link-images/search',
+        operationId: 'searchCommLinkImages',
         description: 'Search comm-link images by filename with optional tag filtering. Only images without a base image and with non-zero file size are returned.',
         summary: 'Comm-Link Image Search by filename',
         requestBody: new OA\RequestBody(
@@ -181,7 +197,7 @@ class ImageController extends Controller
                 ),
             ]
         ),
-        tags: ['Comm-Links', 'RSI-Website', 'Images', 'Search'],
+        tags: ['Comm-Links', 'Images', 'Search'],
         parameters: [
             new OA\Parameter(
                 name: 'filter[tags]',
@@ -195,13 +211,16 @@ class ImageController extends Controller
                 response: 200,
                 description: 'Search for a Comm-Link Image by its filename.',
                 content: new OA\JsonContent(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/comm_link_image')
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/comm_link_image')),
+                    ],
+                    type: 'object'
                 )
             ),
             new OA\Response(
                 response: 422,
                 description: 'Validation error. The query field is required and must be a string between 1 and 255 characters.',
+                content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response'),
             ),
         ]
     )]
