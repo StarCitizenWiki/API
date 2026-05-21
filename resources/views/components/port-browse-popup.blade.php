@@ -11,7 +11,7 @@
         x-anchor.bottom-start="anchorEl"
         @click.away="close()"
         @keydown.escape.window="open && close()"
-        class="rounded-box border border-base-300 bg-base-100 shadow-xl w-[480px]"
+        class="rounded-box border border-base-300 bg-base-100 shadow-xl max-w-full"
     >
         <div class="flex items-center justify-between px-3 py-2 border-b border-base-300">
             <span class="text-xs font-semibold uppercase tracking-wider text-muted">
