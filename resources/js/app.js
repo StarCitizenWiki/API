@@ -8,6 +8,7 @@ import { createIcons } from "lucide";
 import {
     Activity,
     AlertCircle,
+    Archive,
     ArrowLeft,
     ArrowRight,
     ArrowUp,
@@ -21,6 +22,7 @@ import {
     ChevronRight,
     CirclePlus,
     Cog,
+    Code2,
     ContactRound,
     Copy,
     Cpu,
@@ -96,6 +98,7 @@ import {
 const icons = {
     Activity,
     AlertCircle,
+    Archive,
     ArrowLeft,
     ArrowRight,
     ArrowUp,
@@ -109,6 +112,7 @@ const icons = {
     ChevronRight,
     CirclePlus,
     Cog,
+    Code2,
     CodeXml,
     ContactRound,
     Copy,

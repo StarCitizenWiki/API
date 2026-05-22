@@ -14,6 +14,8 @@
             [
                 'title' => 'Game Data',
                 'category' => 'In-game database',
+                'icon' => 'rocket',
+                'color' => 'primary',
                 'groups' => [
                     [
                         'title' => 'Vehicles',
@@ -45,6 +47,8 @@
             [
                 'title' => 'RSI Archive',
                 'category' => 'Website data',
+                'icon' => 'archive',
+                'color' => 'secondary',
                 'groups' => [
                     [
                         'title' => 'Comm-Link',
@@ -71,6 +75,8 @@
             [
                 'title' => 'Lore & Starmap',
                 'category' => 'World reference',
+                'icon' => 'book-open',
+                'color' => 'accent',
                 'groups' => [
                     [
                         'title' => 'Galactapedia',
@@ -90,6 +96,8 @@
             [
                 'title' => 'Developers',
                 'category' => 'API access',
+                'icon' => 'code-2',
+                'color' => 'info',
                 'groups' => [
                     [
                         'title' => 'Resources',
@@ -104,17 +112,31 @@
         ];
     @endphp
 
-    <div class="flex flex-col gap-8">
-        <section class="card card-border bg-base-100 shadow-sm">
-            <div class="card-body gap-6 p-6 sm:p-8">
-                <div class="max-w-3xl space-y-3">
-                    <p class="text-sm font-semibold uppercase tracking-wide text-primary">Verse Data Mine</p>
-                    <h1 class="text-3xl font-semibold tracking-tight sm:text-5xl" data-testid="welcome-page-title">
-                        Star Citizen Wiki API
-                    </h1>
+    <div class="mx-auto max-w-6xl py-8 lg:py-12">
+        <div class="md:grid md:grid-cols-2 md:gap-6 md:items-center">
+            <div class="mb-6 md:mb-0">
+                <span class="badge badge-ghost mb-3 text-xs tracking-widest uppercase">Verse Data Mine</span>
+                <h1 class="text-3xl font-bold sm:text-4xl mb-3" data-testid="welcome-page-title">
+                    Star Citizen Wiki API
+                </h1>
+                <p class="text-subtle mb-5 max-w-md">
+                    Browse game data, RSI archives, and starmap systems. Powering starcitizen.tools.
+                </p>
+                <div class="flex flex-row flex-wrap gap-2">
+                    <a href="{{ route('developers.index') }}" class="btn btn-primary btn-sm" data-testid="welcome-developers-link">
+                        <x-icon name="zap" class="size-4" />
+                        Developer Quickstart
+                    </a>
+                    <a href="https://docs.star-citizen.wiki" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+                        <x-icon name="book-open" class="size-4" />
+                        API Documentation
+                        <x-icon name="external-link" class="size-3 opacity-60" />
+                    </a>
                 </div>
+            </div>
 
-                <div class="rounded-box border border-base-300 bg-base-200 p-4 sm:p-5" data-testid="welcome-search-items">
+            <div>
+                <div class="rounded-box border border-base-300 bg-base-100 p-4 sm:p-5" data-testid="welcome-search-items">
                     <form method="GET" action="{{ route('web.items.index') }}" class="space-y-3">
                         <h2 class="text-base font-semibold">Search the Verse</h2>
 
@@ -140,7 +162,7 @@
                                     autocomplete="off"
                                 />
                             </label>
-                            <button class="btn btn-primary sm:shrink-0" type="submit">Search</button>
+                            <button class="btn btn-primary sm:shrink-0 hidden sm:block" type="submit">Search</button>
 
                             <div
                                 x-ref="dropdown"
@@ -198,70 +220,58 @@
                         </p>
                     </form>
                 </div>
-
-                <div class="flex flex-col gap-2 sm:flex-row">
-                    <a class="btn btn-outline" href="{{ route('developers.index') }}">Developer Quickstart</a>
-                    <a class="btn btn-outline" href="https://docs.star-citizen.wiki" rel="noopener noreferrer">API Documentation</a>
-                </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="flex flex-col gap-4">
+    <div class="mx-auto max-w-6xl flex flex-col gap-3 pb-6">
+        @foreach ($categorySections as $section)
+            <div class="rounded-box border border-base-300 bg-base-100 p-4 sm:p-5">
+                <div class="flex flex-col sm:flex-row sm:items-start">
+                    <div class="mb-3 flex items-center gap-2.5 sm:mb-0 sm:w-56 sm:shrink-0">
+                        <div class="rounded-lg bg-{{ $section['color'] }}/10 p-2">
+                            <x-icon name="{{ $section['icon'] }}" class="size-5 text-{{ $section['color'] }}" />
+                        </div>
+                        <div>
+                            <h2 class="text-base font-semibold">{{ $section['title'] }}</h2>
+                            <span class="text-xs text-muted">{{ $section['category'] }}</span>
+                        </div>
+                    </div>
 
-            <div class="grid gap-4 lg:grid-cols-2">
-                @foreach ($categorySections as $section)
-                    <article class="card card-border bg-base-100 shadow-sm">
-                        <div class="card-body gap-3">
-                            <div class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $section['category'] }}</p>
-                                <h3 class="card-title text-base">{{ $section['title'] }}</h3>
-                            </div>
-
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                @foreach ($section['groups'] as $group)
-                                    <div class="rounded-box border border-base-200 bg-base-200 p-2">
-                                        <p class="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ $group['title'] }}</p>
-                                        <ul class="menu menu-sm p-0">
-                                            @foreach ($group['links'] as $link)
-                                                <li>
-                                                    <a
-                                                        href="{{ $link['href'] }}"
-                                                        class="link-primary"
-                                                        @isset($link['testId']) data-testid="{{ $link['testId'] }}" @endisset
-                                                        @if ($link['external'] ?? false) rel="noopener noreferrer" @endif
-                                                    >
-                                                        {{ $link['label'] }}
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-3 flex-1 md:grid-cols-3">
+                        @foreach ($section['groups'] as $group)
+                            <div class="flex flex-col">
+                                <span class="text-xs font-medium uppercase tracking-wider text-muted mb-1">{{ $group['title'] }}</span>
+                                @foreach ($group['links'] as $link)
+                                    <a
+                                        href="{{ $link['href'] }}"
+                                        @isset($link['testId']) data-testid="{{ $link['testId'] }}" @endisset
+                                        @if (($link['external'] ?? false)) target="_blank" rel="noopener noreferrer" @endif
+                                        class="text-sm link-primary hover:underline inline-flex items-center gap-1 py-0.5"
+                                    >
+                                        {{ $link['label'] }}
+                                        @if (($link['external'] ?? false))
+                                            <x-icon name="external-link" class="size-3 opacity-60" />
+                                        @endif
+                                    </a>
                                 @endforeach
                             </div>
-                        </div>
-                    </article>
-                @endforeach
-
-                @can('access-admin')
-                    <article class="card card-border bg-base-100 shadow-sm" data-testid="welcome-admin-card">
-                        <div class="card-body gap-4">
-                            <div class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-muted">Authorized access</p>
-                                <h3 class="card-title text-base">Admin</h3>
-                                <p class="text-sm text-subtle">Open the application home or administration dashboard.</p>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <a class="btn btn-sm btn-outline" data-testid="welcome-home-link" href="{{ route('home') }}">Home</a>
-                                @auth
-                                    @if (Route::has('admin.dashboard'))
-                                        <a class="btn btn-sm btn-outline" data-testid="welcome-admin-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
-                                    @endif
-                                @endauth
-                            </div>
-                        </div>
-                    </article>
-                @endcan
+                        @endforeach
+                    </div>
+                </div>
             </div>
-        </section>
+        @endforeach
+    </div>
+
+    <div class="mx-auto max-w-6xl pb-10">
+        <div class="flex flex-col items-center gap-4 rounded-box border border-base-300 p-4 sm:flex-row sm:p-5">
+            <img src="{{ asset('MadeByTheCommunity_White.png') }}" alt="Made by the Community" class="h-10 shrink-0" />
+            <p class="text-xs text-center text-subtle sm:text-start">
+                This is an unofficial Star Citizen fan site, not affiliated with the
+                <a href="https://robertsspaceindustries.com" target="_blank" rel="noopener noreferrer" class="link-primary">Cloud Imperium</a>
+                group of companies. All content on this site not authored by its host or users are property of their respective owners.
+                Visit the <a href="https://robertsspaceindustries.com" target="_blank" rel="noopener noreferrer" class="link-primary">official Star Citizen website</a>.
+            </p>
+        </div>
     </div>
 @endsection
