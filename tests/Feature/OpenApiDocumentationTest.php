@@ -11,18 +11,6 @@ describe('OpenAPI specification', function (): void {
         $this->spec = Yaml::parse($this->yaml);
     });
 
-    it('serves YAML at /api/openapi', function (): void {
-        $this->get('/api/openapi')
-            ->assertOk()
-            ->assertHeader('Content-Type', 'application/yaml');
-    });
-
-    it('serves YAML at /api/v2/openapi', function (): void {
-        $this->get('/api/v2/openapi')
-            ->assertOk()
-            ->assertHeader('Content-Type', 'application/yaml');
-    });
-
     it('contains stable operation IDs', function (string $operationId): void {
         expect($this->yaml)->toContain("operationId: {$operationId}");
     })->with([

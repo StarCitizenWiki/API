@@ -273,86 +273,23 @@ describe('extractPaintPrefix', function () {
 });
 
 describe('isExcludedItem', function () {
-    it('excludes placeholder name items', function () {
-        $item = ItemData::factory()->make(['name' => '<= PLACEHOLDER =>']);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes invisible_ prefix', function () {
-        $item = ItemData::factory()->make(['class_name' => 'invisible_medium_arms']);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes vanduul_ prefix', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'vanduul_pilot_arms_01_01_01',
-            'name' => 'Vanduul Arms',
+    it('delegates to ItemRelevanceChecker for exclusion semantics', function () {
+        $excluded = ItemData::factory()->make([
+            'class_name' => 'invisible_medium_arms',
+            'name' => 'Invisible Medium Arms',
         ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes customizer_ prefix', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'customizer_pants',
-            'name' => 'Customizer Pants',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes med_body prefix', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'med_body_torso',
-            'name' => 'Med Body',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes med_skeleton prefix', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'med_skeleton_armL',
-            'name' => 'Med Skeleton',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes test_ prefix', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'test_rn_powerplant_no_fuel',
-            'name' => 'Test Powerplant',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes _TEMPLATE in class_name', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'Optics_TEMPLATE',
-            'name' => 'Optics Template',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes items where name equals class_name', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'sc_nvy_bdu_boots_01_01_01',
-            'name' => 'sc_nvy_bdu_boots_01_01_01',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('excludes TEST STRING name', function () {
-        $item = ItemData::factory()->make([
-            'class_name' => 'some_item',
-            'name' => 'TEST STRING',
-        ]);
-        expect(resolver()->isExcludedItem($item))->toBeTrue();
-    });
-
-    it('does not exclude regular items', function () {
-        $item = ItemData::factory()->make([
+        $included = ItemData::factory()->make([
             'class_name' => 'cds_armor_medium_arms_01_01_01',
             'name' => 'ORC-mkX Arms',
         ]);
-        expect(resolver()->isExcludedItem($item))->toBeFalse();
+
+        expect(resolver()->isExcludedItem($excluded))->toBeTrue()
+            ->and(resolver()->isExcludedItem($included))->toBeFalse();
+    });
+
+    it('excludes placeholder name items', function () {
+        $item = ItemData::factory()->make(['name' => '<= PLACEHOLDER =>']);
+        expect(resolver()->isExcludedItem($item))->toBeTrue();
     });
 });
 
