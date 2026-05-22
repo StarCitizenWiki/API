@@ -60,7 +60,6 @@ class ChangelogController extends Controller
             ->pluck('to_version_id');
 
         $allVersionCodes = GameVersion::query()
-            ->where('is_hidden', false)
             ->whereIn('id', $diffVersionIds)
             ->orderBy('id')
             ->pluck('code')
