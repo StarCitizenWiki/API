@@ -47,34 +47,30 @@
         $travelMetrics,
         static fn (array $metric): bool => $metric['value'] !== null
     ));
+
+    $sections = [];
+
+    if ($capacityMetrics !== []) {
+        $sections[] = [
+            'title' => 'Capacity',
+            'rows' => array_map(static fn (array $metric): array => [
+                'label' => $metric['label'],
+                'value' => Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']),
+            ], $capacityMetrics),
+        ];
+    }
+
+    if ($travelMetrics !== []) {
+        $sections[] = [
+            'title' => 'Travel',
+            'rows' => array_map(static fn (array $metric): array => [
+                'label' => $metric['label'],
+                'value' => $metric['formatter']($metric['value']),
+            ], $travelMetrics),
+        ];
+    }
 @endphp
 
-@if ($capacityMetrics !== [] || $travelMetrics !== [])
-    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-        <div class="card-body gap-4">
-            <h2 class="card-title text-base">Fuel & Quantum</h2>
-
-            <div class="grid gap-6 lg:grid-cols-2">
-                @if ($capacityMetrics !== [])
-                    <x-dl-section title="Capacity">
-                        @foreach ($capacityMetrics as $metric)
-                            <x-dt-dd :label="$metric['label']">
-                                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                            </x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endif
-
-                @if ($travelMetrics !== [])
-                    <x-dl-section title="Travel">
-                        @foreach ($travelMetrics as $metric)
-                            <x-dt-dd :label="$metric['label']">
-                                {{ $metric['formatter']($metric['value']) }}
-                            </x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endif
-            </div>
-        </div>
-    </section>
+@if ($sections !== [])
+    <x-data-card title="Fuel & Quantum" :sections="$sections" {{ $attributes }} />
 @endif

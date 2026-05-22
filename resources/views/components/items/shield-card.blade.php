@@ -46,48 +46,52 @@
             ->all()
         : [];
 
+    $primaryRows = array_values(array_filter(
+        collect($primaryMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'], $m['unit'], $m['precision'])])->all(),
+        static fn (array $row): bool => $row['value'] !== '-' && $row['value'] !== null,
+    ));
+
+    $reserveRows = array_values(array_filter(
+        collect($reservePoolMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'], $m['unit'], $m['precision'])])->all(),
+        static fn (array $row): bool => $row['value'] !== '-' && $row['value'] !== null,
+    ));
+
+    $delayRows = array_values(array_filter(
+        collect($regenDelayMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'], $m['unit'], $m['precision'])])->all(),
+        static fn (array $row): bool => $row['value'] !== '-' && $row['value'] !== null,
+    ));
+
+    $absRows = array_values(array_filter(
+        collect($absorptionMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'] * 100, '%', 1)])->all(),
+        static fn (array $row): bool => $row['value'] !== '-',
+    ));
+
+    $resRows = array_values(array_filter(
+        collect($resistanceMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'] * 100, '%', 1), 'class' => Format::colorClass($m['value'], true)])->all(),
+        static fn (array $row): bool => $row['value'] !== '-',
+    ));
+
+    $sections = [];
+
+    if ($primaryRows !== []) {
+        $sections[] = ['title' => 'Info', 'rows' => $primaryRows];
+    }
+
+    if ($reserveRows !== []) {
+        $sections[] = ['title' => 'Reserve Pool', 'rows' => $reserveRows];
+    }
+
+    if ($delayRows !== []) {
+        $sections[] = ['title' => 'Regen Delay', 'rows' => $delayRows];
+    }
+
+    if ($absRows !== []) {
+        $sections[] = ['title' => 'Absorption', 'rows' => $absRows];
+    }
+
+    if ($resRows !== []) {
+        $sections[] = ['title' => 'Resistance', 'rows' => $resRows];
+    }
 @endphp
 
-<x-item-card title="Shield">
-    <x-dl-container>
-        <x-slot:head>
-            @foreach ($primaryMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-slot:head>
-
-        <x-dl-section title="Reserve Pool">
-            @foreach ($reservePoolMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Regen Delay">
-            @foreach ($regenDelayMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Absorption">
-            @foreach ($absorptionMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Resistance">
-            @foreach ($resistanceMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['value'], true)">
-                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Shield" :sections="$sections" />

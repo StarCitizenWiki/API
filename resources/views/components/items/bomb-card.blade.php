@@ -7,56 +7,46 @@
 @php
     $explosion = data_get($bomb, 'explosion', []);
 
-    $timingMetrics = [
-        ['label' => 'Arm Time', 'value' => data_get($bomb, 'arm_time'), 'unit' => 's', 'precision' => 1],
-        ['label' => 'Ignite Time', 'value' => data_get($bomb, 'ignite_time'), 'unit' => 's', 'precision' => 1],
-        ['label' => 'Collision Delay Time', 'value' => data_get($bomb, 'collision_delay_time'), 'unit' => 's', 'precision' => 1],
-        ['label' => 'Maximum Drop Angle', 'value' => data_get($bomb, 'maximum_drop_angle'), 'unit' => 'deg', 'precision' => 0],
-    ];
+    $damageTotal = data_get($bomb, 'damage_total');
 
-    $explosionMetrics = [
-        ['label' => 'Requires Launcher', 'value' => data_get($explosion, 'requires_launcher'), 'type' => 'bool'],
-        ['label' => 'Radius', 'min' => data_get($explosion, 'radius_min'), 'max' => data_get($explosion, 'radius_max'), 'type' => 'range', 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Safety Distance', 'value' => data_get($explosion, 'safety_distance'), 'type' => 'numeric', 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Proximity', 'value' => data_get($explosion, 'proximity'), 'type' => 'numeric', 'unit' => 'm', 'precision' => 2],
-    ];
+    $timingRows = array_values(array_filter([
+        ['label' => 'Arm Time', 'value' => data_get($bomb, 'arm_time') !== null ? Format::valueWithUnit(data_get($bomb, 'arm_time'), 's', 1) : null],
+        ['label' => 'Ignite Time', 'value' => data_get($bomb, 'ignite_time') !== null ? Format::valueWithUnit(data_get($bomb, 'ignite_time'), 's', 1) : null],
+        ['label' => 'Collision Delay Time', 'value' => data_get($bomb, 'collision_delay_time') !== null ? Format::valueWithUnit(data_get($bomb, 'collision_delay_time'), 's', 1) : null],
+        ['label' => 'Maximum Drop Angle', 'value' => data_get($bomb, 'maximum_drop_angle') !== null ? Format::valueWithUnit(data_get($bomb, 'maximum_drop_angle'), 'deg', 0) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    $explosionRows = array_values(array_filter([
+        ['label' => 'Requires Launcher', 'value' => data_get($explosion, 'requires_launcher') !== null ? (data_get($explosion, 'requires_launcher') ? 'Yes' : 'No') : null],
+        ['label' => 'Radius', 'value' => Format::range(data_get($explosion, 'radius_min'), data_get($explosion, 'radius_max'), 'm', 2)],
+        ['label' => 'Safety Distance', 'value' => data_get($explosion, 'safety_distance') !== null ? Format::valueWithUnit(data_get($explosion, 'safety_distance'), 'm', 2) : null],
+        ['label' => 'Proximity', 'value' => data_get($explosion, 'proximity') !== null ? Format::valueWithUnit(data_get($explosion, 'proximity'), 'm', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null && $row['value'] !== '-'));
 
     $damageMap = array_filter(data_get($bomb, 'damage_map', []), static fn ($value): bool => $value != 0);
 
+    $damageRows = [];
+    foreach ($damageMap as $type => $value) {
+        $damageRows[] = ['label' => Str::headline($type), 'value' => Format::numberOrDash($value, 0)];
+    }
+
+    $sections = [];
+
+    if ($damageTotal !== null) {
+        $sections[] = ['title' => 'Info', 'rows' => [['label' => 'Damage Total', 'value' => Format::numberOrDash($damageTotal, 0)]]];
+    }
+
+    if ($timingRows !== []) {
+        $sections[] = ['title' => 'Timing', 'rows' => $timingRows];
+    }
+
+    if ($explosionRows !== []) {
+        $sections[] = ['title' => 'Explosion', 'rows' => $explosionRows];
+    }
+
+    if ($damageRows !== []) {
+        $sections[] = ['title' => 'Damage Breakdown', 'rows' => $damageRows];
+    }
 @endphp
 
-<x-item-card title="Bomb">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Damage Total" :value="data_get($bomb, 'damage_total')">{{ Format::numberOrDash(data_get($bomb, 'damage_total'), 0) }}</x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-section title="Timing">
-            @foreach ($timingMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Explosion">
-            @foreach ($explosionMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['type'] === 'range' ? ($metric['min'] ?? $metric['max']) : $metric['value']">
-                    @if ($metric['type'] === 'bool')
-                        {{ $metric['value'] ? 'Yes' : 'No' }}
-                    @elseif ($metric['type'] === 'range')
-                        {{ Format::range($metric['min'], $metric['max'], $metric['unit'], $metric['precision']) }}
-                    @else
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    @endif
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Damage Breakdown">
-            @foreach ($damageMap as $type => $value)
-                <x-dt-dd label="{{ Str::headline($type) }}">{{ Format::numberOrDash($value, 0) }}</x-dt-dd>
-            @endforeach
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Bomb" :sections="$sections" />

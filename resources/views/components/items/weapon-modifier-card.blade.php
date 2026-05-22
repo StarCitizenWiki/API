@@ -4,11 +4,23 @@
 ])
 
 @php
+    $sections = [];
+
     $activateOnAttach = data_get($weaponModifier, 'activate_on_attach');
     $ignoreWear = data_get($weaponModifier, 'ignore_wear');
 
+    $headRows = array_values(array_filter([
+        ['label' => 'Activate On Attach', 'value' => $activateOnAttach !== null ? ($activateOnAttach ? 'Yes' : 'No') : null],
+        ['label' => 'Ignore Wear', 'value' => $ignoreWear !== null ? ($ignoreWear ? 'Yes' : 'No') : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($headRows !== []) {
+        $sections[] = ['title' => 'Info', 'rows' => $headRows];
+    }
+
+    // Base
     $base = data_get($weaponModifier, 'base', []);
-    $baseMetrics = collect([
+    $baseRows = collect([
         ['key' => 'muzzle_flash', 'label' => 'Muzzle Flash', 'invert' => false],
         ['key' => 'fire_rate', 'label' => 'Fire Rate', 'invert' => true],
         ['key' => 'damage', 'label' => 'Damage', 'invert' => true],
@@ -25,13 +37,17 @@
     ])->filter(fn (array $m): bool => $m['has_multiplier'] && $m['value'] !== null && $m['value'] != 0)
         ->map(fn (array $m): array => [
             'label' => $m['label'],
-            'value' => $m['value'] * 100,
-            'invert' => $m['invert'],
+            'value' => Format::valueWithUnit($m['value'] * 100, '%', 1),
+            'class' => Format::colorClass($m['value'] * 100, $m['invert']),
         ])->values()->all();
 
-    // Recoil change metrics
+    if ($baseRows !== []) {
+        $sections[] = ['title' => 'Base', 'rows' => $baseRows];
+    }
+
+    // Recoil
     $recoil = data_get($weaponModifier, 'recoil', []);
-    $recoilMetrics = collect([
+    $recoilRows = collect([
         ['key' => 'decay', 'label' => 'Decay', 'invert' => true],
         ['key' => 'multiplier', 'label' => 'Randomness', 'invert' => false],
     ])->map(fn (array $m): array => [
@@ -42,13 +58,17 @@
     ])->filter(fn (array $m): bool => $m['has_multiplier'] && $m['value'] !== null && $m['value'] != 0)
         ->map(fn (array $m): array => [
             'label' => $m['label'],
-            'value' => $m['value'] * 100,
-            'invert' => $m['invert'],
+            'value' => Format::valueWithUnit($m['value'] * 100, '%', 1),
+            'class' => Format::colorClass($m['value'] * 100, $m['invert']),
         ])->values()->all();
 
-    // Spread change metrics
+    if ($recoilRows !== []) {
+        $sections[] = ['title' => 'Recoil', 'rows' => $recoilRows];
+    }
+
+    // Spread
     $spread = data_get($weaponModifier, 'spread', []);
-    $spreadMetrics = collect([
+    $spreadRows = collect([
         ['key' => 'min', 'label' => 'Min Spread', 'invert' => false],
         ['key' => 'max', 'label' => 'Max Spread', 'invert' => false],
         ['key' => 'first_attack', 'label' => 'First Attack', 'invert' => false],
@@ -62,13 +82,19 @@
     ])->filter(fn (array $m): bool => $m['has_multiplier'] && $m['value'] !== null && $m['value'] != 0)
         ->map(fn (array $m): array => [
             'label' => $m['label'],
-            'value' => $m['value'] * 100,
-            'invert' => $m['invert'],
+            'value' => Format::valueWithUnit($m['value'] * 100, '%', 1),
+            'class' => Format::colorClass($m['value'] * 100, $m['invert']),
         ])->values()->all();
 
-    // Aim metrics - mixed: zoom_time is a change metric; others are standalone
+    if ($spreadRows !== []) {
+        $sections[] = ['title' => 'Spread', 'rows' => $spreadRows];
+    }
+
+    // Aim
     $aim = data_get($weaponModifier, 'aim', []);
-    $aimChangeMetrics = collect([
+    $aimRows = [];
+
+    $aimChangeRows = collect([
         ['key' => 'zoom_time', 'label' => 'Zoom Time', 'invert' => false],
     ])->map(fn (array $m): array => [
         'label' => $m['label'],
@@ -78,110 +104,59 @@
     ])->filter(fn (array $m): bool => $m['has_multiplier'] && $m['value'] !== null && $m['value'] != 0)
         ->map(fn (array $m): array => [
             'label' => $m['label'],
-            'value' => $m['value'] * 100,
-            'invert' => $m['invert'],
+            'value' => Format::valueWithUnit($m['value'] * 100, '%', 1),
+            'class' => Format::colorClass($m['value'] * 100, $m['invert']),
         ])->values()->all();
 
-    $aimStandaloneMetrics = [
-        ['label' => 'Zoom Scale', 'value' => data_get($aim, 'zoom_scale'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Second Zoom Scale', 'value' => data_get($aim, 'second_zoom_scale'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Hide Weapon In ADS', 'value' => data_get($aim, 'hide_weapon_in_ads') !== null ? (data_get($aim, 'hide_weapon_in_ads') ? 'Yes' : 'No') : null, 'unit' => '', 'precision' => 0],
-        ['label' => 'F-Stop', 'value' => data_get($aim, 'fstop_multiplier'), 'unit' => '', 'precision' => 2],
-    ];
+    $aimStandaloneRows = array_values(array_filter([
+        ['label' => 'Zoom Scale', 'value' => data_get($aim, 'zoom_scale') !== null ? Format::valueWithUnit(data_get($aim, 'zoom_scale'), '', 2) : null],
+        ['label' => 'Second Zoom Scale', 'value' => data_get($aim, 'second_zoom_scale') !== null ? Format::valueWithUnit(data_get($aim, 'second_zoom_scale'), '', 2) : null],
+        ['label' => 'Hide Weapon In ADS', 'value' => data_get($aim, 'hide_weapon_in_ads') !== null ? (data_get($aim, 'hide_weapon_in_ads') ? 'Yes' : 'No') : null],
+        ['label' => 'F-Stop', 'value' => data_get($aim, 'fstop_multiplier') !== null ? Format::valueWithUnit(data_get($aim, 'fstop_multiplier'), '', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
-    $aimMetrics = array_merge($aimChangeMetrics, $aimStandaloneMetrics);
+    $aimRows = array_merge($aimChangeRows, $aimStandaloneRows);
 
+    if ($aimRows !== []) {
+        $sections[] = ['title' => 'Aim', 'rows' => $aimRows];
+    }
+
+    // Regen
     $regen = data_get($weaponModifier, 'regen', []);
-    $regenMetrics = array_values(array_filter([
-        ['label' => 'Power Ratio', 'value' => data_get($regen, 'power_ratio_multiplier'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Max Ammo Load', 'value' => data_get($regen, 'max_ammo_load_multiplier'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Max Regen/sec', 'value' => data_get($regen, 'max_regen_per_sec_multiplier'), 'unit' => '', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
+    $regenRows = array_values(array_filter([
+        ['label' => 'Power Ratio', 'value' => data_get($regen, 'power_ratio_multiplier') !== null ? Format::valueWithUnit(data_get($regen, 'power_ratio_multiplier'), '', 2) : null],
+        ['label' => 'Max Ammo Load', 'value' => data_get($regen, 'max_ammo_load_multiplier') !== null ? Format::valueWithUnit(data_get($regen, 'max_ammo_load_multiplier'), '', 2) : null],
+        ['label' => 'Max Regen/sec', 'value' => data_get($regen, 'max_regen_per_sec_multiplier') !== null ? Format::valueWithUnit(data_get($regen, 'max_regen_per_sec_multiplier'), '', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
+    if ($regenRows !== []) {
+        $sections[] = ['title' => 'Regen', 'rows' => $regenRows];
+    }
+
+    // Salvage
     $salvage = data_get($weaponModifier, 'salvage', []);
-    $salvageMetrics = array_values(array_filter([
-        ['label' => 'Salvage Speed', 'value' => data_get($salvage, 'salvage_speed_multiplier'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Radius', 'value' => data_get($salvage, 'radius_multiplier'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Extraction Efficiency', 'value' => data_get($salvage, 'extraction_efficiency'), 'unit' => '', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
+    $salvageRows = array_values(array_filter([
+        ['label' => 'Salvage Speed', 'value' => data_get($salvage, 'salvage_speed_multiplier') !== null ? Format::valueWithUnit(data_get($salvage, 'salvage_speed_multiplier'), '', 2) : null],
+        ['label' => 'Radius', 'value' => data_get($salvage, 'radius_multiplier') !== null ? Format::valueWithUnit(data_get($salvage, 'radius_multiplier'), '', 2) : null],
+        ['label' => 'Extraction Efficiency', 'value' => data_get($salvage, 'extraction_efficiency') !== null ? Format::valueWithUnit(data_get($salvage, 'extraction_efficiency'), '', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
+    if ($salvageRows !== []) {
+        $sections[] = ['title' => 'Salvage', 'rows' => $salvageRows];
+    }
+
+    // Zeroing
     $zeroing = data_get($weaponModifier, 'zeroing', []);
-    $zeroingMetrics = array_values(array_filter([
-        ['label' => 'Default Range', 'value' => data_get($zeroing, 'default_range'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Max Range', 'value' => data_get($zeroing, 'max_range'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Range Increment', 'value' => data_get($zeroing, 'range_increment'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Auto Zeroing Time', 'value' => data_get($zeroing, 'auto_zeroing_time'), 'unit' => 's', 'precision' => 2],
-    ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
+    $zeroingRows = array_values(array_filter([
+        ['label' => 'Default Range', 'value' => data_get($zeroing, 'default_range') !== null ? Format::valueWithUnit(data_get($zeroing, 'default_range'), 'm', 2) : null],
+        ['label' => 'Max Range', 'value' => data_get($zeroing, 'max_range') !== null ? Format::valueWithUnit(data_get($zeroing, 'max_range'), 'm', 2) : null],
+        ['label' => 'Range Increment', 'value' => data_get($zeroing, 'range_increment') !== null ? Format::valueWithUnit(data_get($zeroing, 'range_increment'), 'm', 2) : null],
+        ['label' => 'Auto Zeroing Time', 'value' => data_get($zeroing, 'auto_zeroing_time') !== null ? Format::valueWithUnit(data_get($zeroing, 'auto_zeroing_time'), 's', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
+    if ($zeroingRows !== []) {
+        $sections[] = ['title' => 'Zeroing', 'rows' => $zeroingRows];
+    }
 @endphp
 
-<x-item-card title="Weapon Modifier">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Activate On Attach" :value="$activateOnAttach">{{ $activateOnAttach ? 'Yes' : 'No' }}</x-dt-dd>
-            <x-dt-dd label="Ignore Wear" :value="$ignoreWear">{{ $ignoreWear ? 'Yes' : 'No' }}</x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-section title="Base">
-            @foreach ($baseMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Recoil">
-            @foreach ($recoilMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Spread">
-            @foreach ($spreadMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Aim">
-            @foreach ($aimMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    @if (isset($metric['invert']))
-                        <span class="{{ Format::colorClass($metric['value'], $metric['invert']) }}">{{ Format::valueWithUnit($metric['value'], '%', 1) }}</span>
-                    @elseif ($metric['label'] === 'Hide Weapon In ADS')
-                        {{ $metric['value'] }}
-                    @else
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    @endif
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Regen">
-            @foreach ($regenMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Salvage">
-            @foreach ($salvageMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Zeroing">
-            @foreach ($zeroingMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Weapon Modifier" :sections="$sections" />

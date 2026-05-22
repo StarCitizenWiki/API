@@ -173,15 +173,6 @@
             </div>
         </div>
 
-        <x-resource-search
-            title="Search locations"
-            description="Find starmap locations by name across the current game version."
-            :route="$indexRoute"
-            placeholder="Search location names"
-            variant="minimal"
-            apiEndpoint="/api/locations"
-        />
-
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
             <x-starmap.locations.hero :location="$location" class="xl:col-span-7" />
             <x-starmap.locations.quick-facts-card

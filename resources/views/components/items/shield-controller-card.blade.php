@@ -9,15 +9,17 @@
     $maxReallocation = data_get($shieldController, 'max_reallocation');
     $electricalChargeDmg = data_get($shieldController, 'max_electrical_charge_damage_rate');
 
+    $sections = [
+        [
+            'title' => 'Info',
+            'rows' => array_values(array_filter([
+                ['label' => 'Face Type', 'value' => $faceType],
+                ['label' => 'Reconfiguration Cooldown', 'value' => Format::valueWithUnit($reconfigurationCooldown, 's', 1)],
+                ['label' => 'Max Reallocation', 'value' => Format::numberOrDash($maxReallocation, 0)],
+                ['label' => 'Electrical Charge Dmg', 'value' => Format::valueWithUnit($electricalChargeDmg, '/s', 1)],
+            ], static fn (array $row): bool => $row['value'] !== '-' && $row['value'] !== null)),
+        ],
+    ];
 @endphp
 
-<x-item-card title="Shield Controller">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Face Type" :value="$faceType">{{ $faceType }}</x-dt-dd>
-            <x-dt-dd label="Reconfiguration Cooldown" :value="$reconfigurationCooldown">{{ Format::valueWithUnit($reconfigurationCooldown, 's', 1) }}</x-dt-dd>
-            <x-dt-dd label="Max Reallocation" :value="$maxReallocation">{{ Format::numberOrDash($maxReallocation, 0) }}</x-dt-dd>
-            <x-dt-dd label="Electrical Charge Dmg" :value="$electricalChargeDmg">{{ Format::valueWithUnit($electricalChargeDmg, '/s', 1) }}</x-dt-dd>
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Shield Controller" :sections="$sections" />

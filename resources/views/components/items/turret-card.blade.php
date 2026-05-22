@@ -7,70 +7,65 @@
     $yawAxis = data_get($turret, 'yaw_axis', []);
     $pitchAxis = data_get($turret, 'pitch_axis', []);
 
-    $primaryMetrics = [
-        ['label' => 'Rotation Style', 'value' => data_get($turret, 'rotation_style'), 'format' => 'text'],
-        ['label' => 'Mounts', 'value' => data_get($turret, 'mounts'), 'format' => 'integer'],
-    ];
+    $sections = [];
 
-    $hasEquippableSize = data_get($turret, 'min_size') !== null || data_get($turret, 'max_size') !== null;
+    $primaryRows = array_values(array_filter([
+        ['label' => 'Rotation Style', 'value' => data_get($turret, 'rotation_style')],
+        data_get($turret, 'mounts') !== null
+            ? ['label' => 'Mounts', 'value' => Format::numberOrDash(data_get($turret, 'mounts'))]
+            : null,
+        (data_get($turret, 'min_size') !== null || data_get($turret, 'max_size') !== null)
+            ? ['label' => 'Equippable Size', 'value' => Format::range(data_get($turret, 'min_size'), data_get($turret, 'max_size'), '')]
+            : null,
+    ], static fn (?array $row): bool => $row !== null));
 
-    $performanceMetrics = [
-        ['label' => 'Yaw Speed', 'value' => data_get($yawAxis, 'speed'), 'unit' => 'deg/s', 'precision' => 2],
-        ['label' => 'Yaw Time to Full Speed', 'value' => data_get($yawAxis, 'time_to_full_speed'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Pitch Speed', 'value' => data_get($pitchAxis, 'speed'), 'unit' => 'deg/s', 'precision' => 2],
-        ['label' => 'Pitch Time to Full Speed', 'value' => data_get($pitchAxis, 'time_to_full_speed'), 'unit' => 's', 'precision' => 2],
-    ];
+    if ($primaryRows !== []) {
+        $sections[] = ['title' => 'Info', 'rows' => $primaryRows];
+    }
 
-    $advancedMetrics = [
-        ['label' => 'Yaw Slaved Only', 'value' => data_get($yawAxis, 'slaved_only'), 'type' => 'bool'],
-        ['label' => 'Yaw Acceleration Decay', 'value' => data_get($yawAxis, 'acceleration_decay'), 'type' => 'numeric', 'precision' => 2],
-        ['label' => 'Yaw Angle Limit', 'min' => data_get($yawAxis, 'angle_limit_min'), 'max' => data_get($yawAxis, 'angle_limit_max'), 'type' => 'range', 'unit' => 'deg', 'precision' => 2],
-        ['label' => 'Pitch Slaved Only', 'value' => data_get($pitchAxis, 'slaved_only'), 'type' => 'bool'],
-        ['label' => 'Pitch Acceleration Decay', 'value' => data_get($pitchAxis, 'acceleration_decay'), 'type' => 'numeric', 'precision' => 2],
-        ['label' => 'Pitch Angle Limit', 'min' => data_get($pitchAxis, 'angle_limit_min'), 'max' => data_get($pitchAxis, 'angle_limit_max'), 'type' => 'range', 'unit' => 'deg', 'precision' => 2],
-    ];
+    $performanceRows = array_values(array_filter([
+        data_get($yawAxis, 'speed') !== null
+            ? ['label' => 'Yaw Speed', 'value' => Format::valueWithUnit(data_get($yawAxis, 'speed'), 'deg/s', 2)]
+            : null,
+        data_get($yawAxis, 'time_to_full_speed') !== null
+            ? ['label' => 'Yaw Time to Full Speed', 'value' => Format::valueWithUnit(data_get($yawAxis, 'time_to_full_speed'), 's', 2)]
+            : null,
+        data_get($pitchAxis, 'speed') !== null
+            ? ['label' => 'Pitch Speed', 'value' => Format::valueWithUnit(data_get($pitchAxis, 'speed'), 'deg/s', 2)]
+            : null,
+        data_get($pitchAxis, 'time_to_full_speed') !== null
+            ? ['label' => 'Pitch Time to Full Speed', 'value' => Format::valueWithUnit(data_get($pitchAxis, 'time_to_full_speed'), 's', 2)]
+            : null,
+    ], static fn (?array $row): bool => $row !== null));
 
+    if ($performanceRows !== []) {
+        $sections[] = ['title' => 'Performance', 'rows' => $performanceRows];
+    }
+
+    $advancedRows = array_values(array_filter([
+        data_get($yawAxis, 'slaved_only') !== null
+            ? ['label' => 'Yaw Slaved Only', 'value' => data_get($yawAxis, 'slaved_only') ? 'Yes' : 'No']
+            : null,
+        data_get($yawAxis, 'acceleration_decay') !== null
+            ? ['label' => 'Yaw Acceleration Decay', 'value' => Format::numberOrDash(data_get($yawAxis, 'acceleration_decay'), 2)]
+            : null,
+        (data_get($yawAxis, 'angle_limit_min') !== null || data_get($yawAxis, 'angle_limit_max') !== null)
+            ? ['label' => 'Yaw Angle Limit', 'value' => Format::range(data_get($yawAxis, 'angle_limit_min'), data_get($yawAxis, 'angle_limit_max'), 'deg', 2)]
+            : null,
+        data_get($pitchAxis, 'slaved_only') !== null
+            ? ['label' => 'Pitch Slaved Only', 'value' => data_get($pitchAxis, 'slaved_only') ? 'Yes' : 'No']
+            : null,
+        data_get($pitchAxis, 'acceleration_decay') !== null
+            ? ['label' => 'Pitch Acceleration Decay', 'value' => Format::numberOrDash(data_get($pitchAxis, 'acceleration_decay'), 2)]
+            : null,
+        (data_get($pitchAxis, 'angle_limit_min') !== null || data_get($pitchAxis, 'angle_limit_max') !== null)
+            ? ['label' => 'Pitch Angle Limit', 'value' => Format::range(data_get($pitchAxis, 'angle_limit_min'), data_get($pitchAxis, 'angle_limit_max'), 'deg', 2)]
+            : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($advancedRows !== []) {
+        $sections[] = ['title' => 'Advanced', 'rows' => $advancedRows];
+    }
 @endphp
 
-<x-item-card title="Turret">
-    <x-dl-container>
-        <x-slot:head>
-            @foreach ($primaryMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    @if ($metric['format'] === 'integer')
-                        {{ Format::numberOrDash($metric['value']) }}
-                    @else
-                        {{ $metric['value'] }}
-                    @endif
-                </x-dt-dd>
-            @endforeach
-            <x-dt-dd label="Equippable Size" :value="$hasEquippableSize">{{ Format::range(data_get($turret, 'min_size'), data_get($turret, 'max_size'), '') }}</x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-details title="Performance" :open="true">
-            <x-dl-section>
-                @foreach ($performanceMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-details>
-
-        <x-dl-details title="Advanced">
-            <x-dl-section>
-                @foreach ($advancedMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        @if ($metric['type'] === 'bool')
-                            {{ $metric['value'] ? 'Yes' : 'No' }}
-                        @elseif ($metric['type'] === 'range')
-                            {{ Format::range($metric['min'], $metric['max'], $metric['unit'], $metric['precision']) }}
-                        @else
-                            {{ Format::numberOrDash($metric['value'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-details>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Turret" :sections="$sections" {{ $attributes }} />

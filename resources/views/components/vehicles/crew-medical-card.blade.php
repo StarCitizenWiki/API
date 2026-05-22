@@ -11,66 +11,44 @@
     $medicalBeds = data_get($seating, 'medical_beds');
     $maxMedicalTier = data_get($vehicle, 'max_medical_tier');
 
-    $stationsSection = [
-        'label' => 'Crew Stations',
-        'help' => 'Stations includes pilot, co-pilot, turret, engineering, and bridge positions',
-        'rows' => array_values(array_filter([
-            ['label' => 'Total Stations', 'value' => Format::numberOrDash($crewStations)],
-            ['label' => 'Ejection Seats', 'value' => $ejectionSeats ? Format::numberOrDash($ejectionSeats) : '-'],
-            ['label' => 'Escape Pods', 'value' => $escapePods !== null ? Format::numberOrDash($escapePods) : '-'],
-            ['label' => 'Jump Seats', 'value' => $jumpSeats !== null ? Format::numberOrDash($jumpSeats) : '-'],
-        ], static fn (array $row): bool => $row['value'] !== '-')),
-        'render' => $crewStations > 0,
-    ];
+    $sections = [];
 
-    $bedsSection = [
-        'label' => 'Beds',
-        'rows' => array_values(array_filter([
-            ['label' => 'Total Beds', 'value' => $beds > 0 ? Format::numberOrDash($beds) : '-'],
-        ], static fn (array $row): bool => $row['value'] !== '-')),
-        'render' => $beds > 0,
-    ];
+    $stationsRows = array_values(array_filter([
+        ['label' => 'Total Stations', 'value' => Format::numberOrDash($crewStations)],
+        ['label' => 'Ejection Seats', 'value' => $ejectionSeats ? Format::numberOrDash($ejectionSeats) : null],
+        ['label' => 'Escape Pods', 'value' => $escapePods !== null ? Format::numberOrDash($escapePods) : null],
+        ['label' => 'Jump Seats', 'value' => $jumpSeats !== null ? Format::numberOrDash($jumpSeats) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
-    $medicalSection = [
-        'label' => 'Medical',
-        'rows' => array_values(array_filter([
-            ['label' => 'Max Tier', 'value' => $maxMedicalTier ?? '-'],
-        ], static fn (array $row): bool => $row['value'] !== '-')),
-        'render' => $maxMedicalTier !== null,
-    ];
+    if ($crewStations > 0 && $stationsRows !== []) {
+        $sections[] = [
+            'title' => 'Crew Stations',
+            'help' => 'Stations includes pilot, co-pilot, turret, engineering, and bridge positions',
+            'rows' => $stationsRows,
+        ];
+    }
+
+    $bedsRows = array_values(array_filter([
+        ['label' => 'Total Beds', 'value' => $beds > 0 ? Format::numberOrDash($beds) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($beds > 0 && $bedsRows !== []) {
+        $sections[] = ['title' => 'Beds', 'rows' => $bedsRows];
+    }
+
+    $medRows = array_values(array_filter([
+        ['label' => 'Max Tier', 'value' => $maxMedicalTier],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
     if (is_array($medicalBeds)) {
         foreach ($medicalBeds as $tier => $count) {
-            $medicalSection['rows'][] = ['label' => "{$tier} Beds", 'value' => (string) $count];
+            $medRows[] = ['label' => "{$tier} Beds", 'value' => (string) $count];
         }
     }
 
-    $sections = array_values(array_filter(
-        [$stationsSection, $bedsSection, $medicalSection],
-        static fn (array $section): bool => $section['render'],
-    ));
+    if ($maxMedicalTier !== null && $medRows !== []) {
+        $sections[] = ['title' => 'Medical', 'rows' => $medRows];
+    }
 @endphp
 
-@if ($sections !== [])
-    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-        <div class="card-body p-5 sm:p-6">
-            <h2 class="card-title text-base">Crew & Medical</h2>
-
-            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                @foreach ($sections as $section)
-                    <div class="min-w-0 space-y-3">
-                        <x-dl-section :title="$section['label']">
-                            @foreach ($section['rows'] as $row)
-                                <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
-                            @endforeach
-                        </x-dl-section>
-
-                        @if (isset($section['help']))
-                            <p class="text-xs text-muted">{{ $section['help'] }}</p>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-@endif
+<x-data-card title="Crew & Medical" :sections="$sections" {{ $attributes }} />

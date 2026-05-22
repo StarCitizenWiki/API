@@ -4,15 +4,16 @@
 ])
 
 @php
-    $powerOutput = data_get($powerPlant, 'power_output');
     $powerSegmentGeneration = data_get($powerPlant, 'power_segment_generation');
 
+    $sections = [
+        [
+            'title' => 'Info',
+            'rows' => array_values(array_filter([
+                ['label' => 'Power Segment Generation', 'value' => Format::valueWithUnit($powerSegmentGeneration, 'Segments', 0)],
+            ], static fn (array $row): bool => $row['value'] !== '-')),
+        ],
+    ];
 @endphp
 
-<x-item-card title="Power Plant">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Power Segment Generation" :value="$powerSegmentGeneration">{{ Format::valueWithUnit($powerSegmentGeneration, 'Segments', 0) }}</x-dt-dd>
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Power Plant" :sections="$sections" />

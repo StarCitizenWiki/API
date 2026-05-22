@@ -1,182 +1,133 @@
 @props([
-    'setItems',
-    'setName',
-    'variants',
-    'baseVariant',
+    'setItems' => [],
+    'setName' => null,
+    'variants' => [],
+    'baseVariant' => null,
     'currentItemUuid',
     'classification',
 ])
 
 @php
-    $setItemCount = is_array($setItems) ? count($setItems) : 0;
-    $variantCount = is_array($variants) ? count($variants) : 0;
-    $baseVariantUuid = data_get($baseVariant, 'uuid');
-    $isSelfReferential = $currentItemUuid !== null && $baseVariantUuid === $currentItemUuid;
+    $setItems = is_array($setItems) ? $setItems : [];
+    $variants = is_array($variants) ? $variants : [];
+    $baseVariant = is_array($baseVariant) ? $baseVariant : null;
 
-    $showBaseVariant = !empty($baseVariant) && (!$isSelfReferential || $variantCount > 0);
-    $showsVariantSection = $showBaseVariant || (is_array($variants) && $variants !== []);
-    $baseVariantCount = $showBaseVariant ? 1 : 0;
-    $totalItemsCount = $setItemCount + $variantCount + $baseVariantCount;
     $isShipItem = is_string($classification) && str_starts_with($classification, 'Ship.');
+    $showBase = ! empty($baseVariant) && ($baseVariant['uuid'] ?? null) !== $currentItemUuid;
+    $familyItems = $showBase ? [$baseVariant, ...$variants] : $variants;
+    $familyCount = count($familyItems);
+
+    $setItemRows = array_map(static fn (array $item): array => [
+        'label' => $item['name'] ?? '-',
+        'meta' => $item['sub_type'] ?? '-',
+        'href' => $item['web_url'] ?? null,
+        'current' => ($item['uuid'] ?? null) === $currentItemUuid,
+    ], $setItems);
+
+    $familyRows = array_map(static fn (array $item): array => [
+        'label' => $item['name'] ?? '-',
+        'meta' => 'Size '.($item['size'] ?? '-').' / Grade '.($item['grade_label'] ?? '-'),
+        'href' => $item['web_url'] ?? null,
+        'current' => ($item['uuid'] ?? null) === $currentItemUuid,
+    ], $familyItems);
+
+    $listSections = [];
+
+    if ($setItemRows !== []) {
+        $listSections[] = [
+            'title' => 'Set Items',
+            'count' => count($setItemRows),
+            'subtitle' => $setName ? '- '.$setName : null,
+            'rows' => $setItemRows,
+        ];
+    }
+
+    if ($isShipItem && $familyRows !== []) {
+        $listSections[] = [
+            'title' => 'Component Family',
+            'count' => $familyCount,
+            'subtitle' => null,
+            'rows' => $familyRows,
+        ];
+    }
+
+    $variantChips = [];
+
+    if ($showBase) {
+        $variantChips[] = [
+            'label' => 'Base',
+            'href' => $baseVariant['web_url'] ?? null,
+            'current' => false,
+        ];
+    }
+
+    foreach ($variants as $variant) {
+        $variantChips[] = [
+            'label' => $variant['variant_name'] ?? '-',
+            'href' => $variant['web_url'] ?? null,
+            'current' => ($variant['uuid'] ?? null) === $currentItemUuid,
+        ];
+    }
 @endphp
 
 <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => 'item-related-items-card']) }}>
     <div class="card-body gap-4 p-5 sm:p-6">
-        <div class="flex items-center gap-2">
-            <h2 class="card-title text-base">Related Items</h2>
-            @if ($totalItemsCount > 0)
-                <span class="badge badge-soft text-xs">{{ $totalItemsCount }}</span>
-            @endif
-        </div>
+        <h2 class="card-title text-base">Related Items</h2>
 
-        <div class="space-y-4 overflow-y-auto pr-1 sm:max-h-96">
-            @if (is_array($setItems) && $setItems !== [])
-                <div class="space-y-2">
-                    <h3 class="font-semibold uppercase text-subtle">Set Items: {{ $setName ?? 'Unknown Set' }}</h3>
-                    <div class="grid gap-2 sm:hidden">
-                        @foreach ($setItems as $setItem)
-                            <div class="card card-border bg-base-100 shadow-sm">
-                                <div class="card-body gap-2 p-3">
-                                    <div class="text-sm font-semibold">{{ $setItem['name'] ?? '-' }}</div>
-                                    <div class="text-xs text-subtle">
-                                        Slot: {{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}
-                                    </div>
-                                    <div class="text-xs">
-                                        @if (! empty($setItem['uuid']))
-                                            <a href="{{ $setItem['web_url'] ?? route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
-                                        @else
-                                            -
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="hidden overflow-x-auto sm:block">
-                        <table class="table table-sm">
-                            <caption class="sr-only">Set items linked to this item</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Slot</th>
-                                    <th scope="col">Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($setItems as $setItem)
-                                    <tr>
-                                        <td class="whitespace-nowrap">{{ $setItem['name'] ?? '-' }}</td>
-                                        <td>{{ array_last(explode('.', $setItem['classification'] ?? '')) ?? '-' }}</td>
-                                        <td>
-                                            @if (! empty($setItem['uuid']))
-                                                <a href="{{ $setItem['web_url'] ?? route('web.items.show', $setItem['uuid']) }}" class="link link-primary">View</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
-
-            @if ($showsVariantSection)
-                <div class="space-y-2">
-                    @if ($isShipItem)
-                        <h3 class="font-semibold uppercase text-subtle">Component Family</h3>
-                        <p class="text-xs text-subtle">Items from the same family, typically differing by size or grade.</p>
-                        <div class="overflow-x-auto">
-                            <table class="table table-sm">
-                                <caption class="sr-only">Component family items sharing the same base model</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Size</th>
-                                        <th scope="col">Grade</th>
-                                        <th scope="col">Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if ($showBaseVariant)
-                                        <tr>
-                                            <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
-                                            <td>{{ $baseVariant['size'] ?? '-' }}</td>
-                                            <td>{{ $baseVariant['grade_label'] ?? '-' }}</td>
-                                            <td>
-                                                @if (! empty($baseVariant['uuid']))
-                                                    <a href="{{ $baseVariant['web_url'] ?? route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @foreach ($variants as $variant)
-                                        <tr>
-                                            <td class="whitespace-nowrap">{{ $variant['name'] ?? '-' }}</td>
-                                            <td>{{ $variant['size'] ?? '-' }}</td>
-                                            <td>{{ $variant['grade_label'] ?? '-' }}</td>
-                                            <td>
-                                                @if (! empty($variant['uuid']))
-                                                    <a href="{{ $variant['web_url'] ?? route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <h3 class="font-semibold uppercase text-subtle">Variants</h3>
-                        <div class="overflow-x-auto">
-                            <table class="table table-sm">
-                                <caption class="sr-only">Variant items for this base item</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Variant</th>
-                                        <th scope="col">Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if ($showBaseVariant)
-                                        <tr>
-                                            <td class="whitespace-nowrap">{{ $baseVariant['name'] ?? '-' }}</td>
-                                            <td>Base Item</td>
-                                            <td>
-                                                @if (! empty($baseVariant['uuid']))
-                                                    <a href="{{ $baseVariant['web_url'] ?? route('web.items.show', $baseVariant['uuid']) }}" class="link link-primary">View</a>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @foreach ($variants as $variant)
-                                        <tr>
-                                            <td class="whitespace-nowrap">{{ $variant['name'] ?? '-' }}</td>
-                                            <td>{{ $variant['variant_name'] ?? $variant['sub_type'] ?? $variant['type'] ?? '-' }}</td>
-                                            <td>
-                                                @if (! empty($variant['uuid']))
-                                                    <a href="{{ $variant['web_url'] ?? route('web.items.show', $variant['uuid']) }}" class="link link-primary">View</a>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+        @foreach ($listSections as $section)
+            <div class="space-y-2">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-semibold text-sm">{{ $section['title'] }}</h3>
+                    <span class="badge badge-ghost badge-sm text-xs">{{ $section['count'] }}</span>
+                    @if ($section['subtitle'])
+                        <span class="text-xs text-subtle truncate">{{ $section['subtitle'] }}</span>
                     @endif
                 </div>
-            @elseif ($setItemCount === 0)
-                <div class="text-sm text-subtle">No related items available.</div>
-            @endif
-        </div>
+
+                <ul>
+                    @foreach ($section['rows'] as $row)
+                        @if (! $row['current'] && filled($row['href']))
+                            <li class="border-b border-base-200 last:border-b-0">
+                                <a href="{{ $row['href'] }}" class="flex items-center gap-3 px-3 py-2.5 hover:bg-base-200 transition-colors">
+                                    <span class="text-sm font-medium truncate link link-primary">{{ $row['label'] }}</span>
+                                    <span class="text-xs text-subtle shrink-0 ms-auto">{{ $row['meta'] }}</span>
+                                    <x-icon name="chevron-right" class="size-4 text-muted shrink-0" />
+                                </a>
+                            </li>
+                        @else
+                            <li class="flex items-center gap-3 px-3 py-2.5 border-b border-base-200 last:border-b-0">
+                                <span class="text-sm font-medium opacity-60 truncate">{{ $row['label'] }}</span>
+                                <span class="text-xs text-subtle shrink-0 ms-auto">{{ $row['meta'] }}</span>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+
+        @if (! $isShipItem && $variantChips !== [])
+            <div class="space-y-2">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-semibold text-sm">Variants</h3>
+                    <span class="badge badge-ghost badge-sm text-xs">{{ $familyCount }}</span>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach ($variantChips as $chip)
+                        @if (! $chip['current'] && filled($chip['href']))
+                            <a href="{{ $chip['href'] }}" class="rounded-lg border border-base-300 px-2.5 py-1 text-sm hover:bg-base-200 transition-colors">
+                                <span class="link link-primary">{{ $chip['label'] }}</span>
+                            </a>
+                        @else
+                            <span class="rounded-lg border border-base-300 px-2.5 py-1 text-sm opacity-60">{{ $chip['label'] }}</span>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        @if ($setItemRows === [] && $familyCount === 0)
+            <div class="text-sm text-subtle">No related items available.</div>
+        @endif
     </div>
 </section>

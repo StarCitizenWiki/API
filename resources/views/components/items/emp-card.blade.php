@@ -9,16 +9,18 @@
     $cooldownDuration = data_get($emp, 'cooldown_duration');
     $distortionDamage = data_get($emp, 'distortion_damage');
 
+    $sections = [
+        [
+            'title' => 'Info',
+            'rows' => array_values(array_filter([
+                ['label' => 'EMP Radius', 'value' => Format::range(data_get($emp, 'min_emp_radius'), data_get($emp, 'emp_radius'), 'm', 2)],
+                ['label' => 'Charge Duration', 'value' => Format::valueWithUnit($chargeDuration, 's', 2)],
+                ['label' => 'Unleash Duration', 'value' => Format::valueWithUnit($unleashDuration, 's', 2)],
+                ['label' => 'Cooldown Duration', 'value' => Format::valueWithUnit($cooldownDuration, 's', 2)],
+                ['label' => 'Distortion Damage', 'value' => Format::valueWithUnit($distortionDamage, 'N', 2)],
+            ], static fn (array $row): bool => $row['value'] !== '-' && $row['value'] !== null)),
+        ],
+    ];
 @endphp
 
-<x-item-card title="EMP Generator">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="EMP Radius" :value="data_get($emp, 'min_emp_radius') ?? data_get($emp, 'emp_radius')">{{ Format::range(data_get($emp, 'min_emp_radius'), data_get($emp, 'emp_radius'), 'm', 2) }}</x-dt-dd>
-            <x-dt-dd label="Charge Duration" :value="$chargeDuration">{{ Format::valueWithUnit($chargeDuration, 's', 2) }}</x-dt-dd>
-            <x-dt-dd label="Unleash Duration" :value="$unleashDuration">{{ Format::valueWithUnit($unleashDuration, 's', 2) }}</x-dt-dd>
-            <x-dt-dd label="Cooldown Duration" :value="$cooldownDuration">{{ Format::valueWithUnit($cooldownDuration, 's', 2) }}</x-dt-dd>
-            <x-dt-dd label="Distortion Damage" :value="$distortionDamage">{{ Format::valueWithUnit($distortionDamage, 'N', 2) }}</x-dt-dd>
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="EMP Generator" :sections="$sections" />

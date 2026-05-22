@@ -16,53 +16,37 @@
     $massHull = data_get($vehicle, 'mass_hull');
     $massLoadout = data_get($vehicle, 'mass_loadout');
 
-    $sections = [
-        [
-            'label' => 'Dimensions',
-            'rows' => [
-                ['label' => 'Length', 'value' => $length !== null ? Format::valueWithUnit($length, 'm', 1) : '-'],
-                ['label' => 'Width', 'value' => $width !== null ? Format::valueWithUnit($width, 'm', 1) : '-'],
-                ['label' => 'Height', 'value' => $height !== null ? Format::valueWithUnit($height, 'm', 1) : '-'],
-            ],
-            'render' => $length !== null || $width !== null || $height !== null,
-        ],
-        [
-            'label' => 'Cross Section',
-            'rows' => [
-                ['label' => 'Length', 'value' => Format::numberOrDash($crossSectionLength)],
-                ['label' => 'Width', 'value' => Format::numberOrDash($crossSectionWidth)],
-                ['label' => 'Height', 'value' => Format::numberOrDash($crossSectionHeight)],
-            ],
-            'render' => $crossSectionLength !== null || $crossSectionWidth !== null || $crossSectionHeight !== null,
-        ],
-        [
-            'label' => 'Mass',
-            'rows' => [
-                ['label' => 'Total', 'value' => $massTotal !== null ? Format::valueWithUnit($massTotal, 'kg', 0) : '-'],
-                ['label' => 'Hull', 'value' => $massHull !== null ? Format::valueWithUnit($massHull, 'kg', 0) : '-'],
-                ['label' => 'Loadout', 'value' => $massLoadout !== null ? Format::valueWithUnit($massLoadout, 'kg', 0) : '-'],
-            ],
-            'render' => $massTotal !== null || $massHull !== null || $massLoadout !== null,
-        ],
-    ];
+    $sections = [];
 
-    $sections = array_values(array_filter($sections, static fn (array $section): bool => $section['render']));
+    $dimRows = array_values(array_filter([
+        $length !== null ? ['label' => 'Length', 'value' => Format::valueWithUnit($length, 'm', 1)] : null,
+        $width !== null ? ['label' => 'Width', 'value' => Format::valueWithUnit($width, 'm', 1)] : null,
+        $height !== null ? ['label' => 'Height', 'value' => Format::valueWithUnit($height, 'm', 1)] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($dimRows !== []) {
+        $sections[] = ['title' => 'Dimensions', 'rows' => $dimRows];
+    }
+
+    $csRows = array_values(array_filter([
+        $crossSectionLength !== null ? ['label' => 'Length', 'value' => Format::numberOrDash($crossSectionLength)] : null,
+        $crossSectionWidth !== null ? ['label' => 'Width', 'value' => Format::numberOrDash($crossSectionWidth)] : null,
+        $crossSectionHeight !== null ? ['label' => 'Height', 'value' => Format::numberOrDash($crossSectionHeight)] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($csRows !== []) {
+        $sections[] = ['title' => 'Cross Section', 'rows' => $csRows];
+    }
+
+    $massRows = array_values(array_filter([
+        $massTotal !== null ? ['label' => 'Total', 'value' => Format::valueWithUnit($massTotal, 'kg', 0)] : null,
+        $massHull !== null ? ['label' => 'Hull', 'value' => Format::valueWithUnit($massHull, 'kg', 0)] : null,
+        $massLoadout !== null ? ['label' => 'Loadout', 'value' => Format::valueWithUnit($massLoadout, 'kg', 0)] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($massRows !== []) {
+        $sections[] = ['title' => 'Mass', 'rows' => $massRows];
+    }
 @endphp
 
-@if ($sections !== [])
-    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-        <div class="card-body p-5 sm:p-6">
-            <h2 class="card-title text-base">Dimensions & Mass</h2>
-
-            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                @foreach ($sections as $section)
-                    <x-dl-section :title="$section['label']" class="min-w-0">
-                        @foreach ($section['rows'] as $row)
-                            <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endforeach
-            </div>
-        </div>
-    </section>
-@endif
+<x-data-card title="Dimensions & Mass" :sections="$sections" {{ $attributes }} />

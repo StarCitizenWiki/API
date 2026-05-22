@@ -12,43 +12,32 @@
     $duration = data_get($miningModifier, 'duration');
     $powerModifier = data_get($miningModifier, 'power_modifier');
 
+    $chargesDisplay = $charges !== null ? Format::number((int) $charges, 0) : 'Unlimited';
+    $powerDisplay = is_numeric($powerModifier)
+        ? Format::valueWithUnit((float) $powerModifier, 'x', 2)
+        : Format::numberOrDash($powerModifier);
+
+    $infoRows = array_values(array_filter([
+        ['label' => 'Type', 'value' => trim(($itemType ?? '') . ' (' . ($type ?? '') . ')', ' ()')],
+        ['label' => 'Charges', 'value' => $chargesDisplay],
+        $duration !== null ? ['label' => 'Duration', 'value' => Format::valueWithUnit($duration, 's', 2)] : null,
+        $powerModifier !== null ? ['label' => 'Power Modifier', 'value' => $powerDisplay] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    $modRows = [];
+    foreach ($modifierMap as $key => $value) {
+        $displayKey = Str::headline($key);
+        $displayValue = is_numeric($value) ? Format::number((float) $value, 0) : Format::numberOrDash($value);
+        $ddClass = is_numeric($value)
+            ? ((float) $value >= 0 ? 'text-success' : 'text-error')
+            : '';
+        $modRows[] = ['label' => $displayKey, 'value' => $displayValue . '%', 'class' => $ddClass];
+    }
+
+    $sections = array_values(array_filter([
+        $infoRows !== [] ? ['title' => 'Info', 'rows' => $infoRows] : null,
+        $modRows !== [] ? ['title' => 'Modifiers', 'rows' => $modRows] : null,
+    ], static fn (?array $s): bool => $s !== null));
 @endphp
 
-<x-item-card title="Mining Modifier">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Type" :value="$itemType ?? $type">{{ $itemType }} ({{ $type }})</x-dt-dd>
-
-            <x-dt-dd label="Charges" :value="$charges ?? true">
-                @if ($charges !== null)
-                    {{ Format::number((int) $charges, 0) }}
-                @else
-                    Unlimited
-                @endif
-            </x-dt-dd>
-
-            <x-dt-dd label="Duration" :value="$duration">{{ Format::valueWithUnit($duration, 's', 2) }}</x-dt-dd>
-
-            <x-dt-dd label="Power Modifier" :value="$powerModifier">
-                @if (is_numeric($powerModifier))
-                    {{ Format::valueWithUnit((float) $powerModifier, 'x', 2) }}
-                @else
-                    {{ Format::numberOrDash($powerModifier) }}
-                @endif
-            </x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-section title="Modifiers">
-            @foreach ($modifierMap as $key => $value)
-                @php
-                    $displayKey = Str::headline($key);
-                    $displayValue = is_numeric($value) ? Format::number((float) $value, 0) : Format::numberOrDash($value);
-                    $ddClass = is_numeric($value)
-                        ? ((float) $value >= 0 ? 'text-success' : 'text-error')
-                        : '';
-                @endphp
-                <x-dt-dd label="{{ $displayKey }}" :ddClass="$ddClass">{{ $displayValue }}%</x-dt-dd>
-            @endforeach
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Mining Modifier" :sections="$sections" {{ $attributes }} />

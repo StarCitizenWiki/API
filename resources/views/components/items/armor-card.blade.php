@@ -1,7 +1,7 @@
 @use('App\Support\Format')
 @props([
     'armor',
- ])
+])
 
 @php
     $health = data_get($armor, 'health');
@@ -44,45 +44,27 @@
         ['label' => 'Stun', 'value' => data_get($penetrationResist, 'stun')],
     ], static fn (array $m): bool => $m['value'] !== null && $m['value'] != 0));
 
+    $sections = [];
 
+    if ($health !== null) {
+        $sections[] = ['title' => 'Info', 'rows' => [['label' => 'Health', 'value' => Format::valueWithUnit($health, 'HP', 0)]]];
+    }
+
+    if ($penetrationMetrics !== []) {
+        $sections[] = ['title' => 'Deflection', 'rows' => collect($penetrationMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::numberOrDash($m['value'], 2)])->all()];
+    }
+
+    if ($signalMetrics !== []) {
+        $sections[] = ['title' => 'Detection Signal', 'rows' => collect($signalMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['change'] * 100, '%', 1, sign: true), 'class' => Format::colorClass($m['change'])])->all()];
+    }
+
+    if ($resistanceMetrics !== []) {
+        $sections[] = ['title' => 'Resistance', 'rows' => collect($resistanceMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['value'] * 100, '%', 1), 'class' => Format::colorClass($m['value'], true)])->all()];
+    }
+
+    if ($damageMetrics !== []) {
+        $sections[] = ['title' => 'Damage Multipliers', 'rows' => collect($damageMetrics)->map(fn ($m) => ['label' => $m['label'], 'value' => Format::valueWithUnit($m['change'] * 100, '%', 1, sign: true), 'class' => Format::colorClass($m['change'])])->all()];
+    }
 @endphp
 
-<x-item-card title="Armor">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Health" :value="$health">{{ Format::valueWithUnit($health, 'HP', 0) }}</x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-section title="Deflection">
-            @foreach ($penetrationMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::numberOrDash($metric['value'], 2) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Detection Signal">
-            @foreach ($signalMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['change'])">
-                    {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Resistance">
-            @foreach ($resistanceMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['value'], true)">
-                    {{ Format::valueWithUnit($metric['value'] * 100, '%', 1) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-section title="Damage Multipliers">
-            @foreach ($damageMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null" :dd-class="Format::colorClass($metric['change'])">
-                    {{ Format::valueWithUnit($metric['change'] * 100, '%', 1, sign: true) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Armor" :sections="$sections" />

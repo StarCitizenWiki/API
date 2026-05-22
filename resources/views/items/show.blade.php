@@ -47,6 +47,21 @@
         $setItems = data_get($item, 'related_items.set_items');
         $setName = data_get($item, 'related_items.set_name');
 
+        if (is_array($setItems) && $setItems !== []) {
+            $currentItemInSet = array_filter($setItems, fn (array $s): bool => ($s['uuid'] ?? null) === $uuid);
+            if ($currentItemInSet === []) {
+                array_unshift($setItems, [
+                    'uuid' => $uuid,
+                    'name' => $itemName,
+                    'classification' => $classification,
+                    'type_label' => data_get($item, 'type_label'),
+                    'sub_type_label' => data_get($item, 'sub_type_label'),
+                    'size' => data_get($item, 'size'),
+                    'web_url' => null,
+                ]);
+            }
+        }
+
         $uexPrices = data_get($item, 'uex_prices.purchase', []);
         $descriptionData = data_get($item, 'description_data', []);
         $entityTagMap = data_get($item, 'entity_tag_map', []);
@@ -127,15 +142,6 @@
             <x-items.item-breadcrumbs :item="$item" :breadcrumbs="$breadcrumbs" />
         </div>
 
-        <x-resource-search
-            title="Search items"
-            description="Find items by name across the universe database."
-            :route="route('web.items.index')"
-            placeholder="Search item names"
-            variant="minimal"
-            apiEndpoint="/api/items"
-        />
-
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
             <x-items.hero :item="$item" :translations="$translations" class="xl:col-span-7" />
             <x-items.quick-facts-card
@@ -153,7 +159,7 @@
                 <h2 class="text-lg font-semibold tracking-tight">Details & Availability</h2>
 
                 @if ($hasDescriptionDataCard || $hasRelatedItemsCard || $hasUexOrBlueprints)
-                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         @if ($hasDescriptionDataCard)
                             <x-items.description-data-card
                                 :description-data="$descriptionData"
@@ -198,12 +204,9 @@
                     <h2 class="text-lg font-semibold tracking-tight">Specifications & Integration</h2>
 
                     <div class="flex flex-col gap-4">
-                        @if ($portsCount > 0)
-                            <x-items.ports-card :ports="$ports" class="w-full" />
-                        @endif
+                        <div class="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
 
                         @if ($fpsSpecsAvailable)
-                            <div class="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
                                 @if ($type === 'WeaponPersonal')
                                     <x-items.personal-weapon-card :personal-weapon="data_get($item, 'personal_weapon')" />
                                 @endif
@@ -232,11 +235,9 @@
                                     <x-items.weapon-modifier-card :weapon-modifier="data_get($item, 'weapon_modifier')" />
                                 @endif
 
-                            </div>
                         @endif
 
                         @if ($vehicleSpecsAvailable)
-                            <div class="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
                                 @if ($type === 'WeaponGun')
                                     <x-items.vehicle-weapon-card :vehicle-weapon="data_get($item, 'vehicle_weapon')" />
                                 @endif
@@ -348,13 +349,18 @@
 
                                 @if (data_get($item, 'resource_network'))
                                     <x-items.resource-network-card :resource-network="data_get($item, 'resource_network')" :item-type="data_get($item, 'type')" />
+
                                 @endif
 
                                 @if ($hasVehiclesCard)
                                     <x-items.standard-loadout-card :vehicles="$vehicles" />
                                 @endif
-                            </div>
                         @endif
+
+                        @if ($portsCount > 0)
+                            <x-items.ports-card :ports="$ports" class="w-full" />
+                        @endif
+                        </div>
                     </div>
                 </section>
             @endif

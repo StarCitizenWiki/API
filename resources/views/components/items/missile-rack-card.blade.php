@@ -4,20 +4,15 @@
 ])
 
 @php
-    $primaryMetrics = [
-        ['label' => 'Missile Count', 'value' => data_get($missileRack, 'missile_count'), 'precision' => 0, 'prefix' => ''],
-        ['label' => 'Missile Size', 'value' => data_get($missileRack, 'missile_size'), 'precision' => 0, 'prefix' => 'S'],
+    $sections = [
+        [
+            'title' => 'Info',
+            'rows' => array_values(array_filter([
+                ['label' => 'Missile Count', 'value' => Format::numberOrDash(data_get($missileRack, 'missile_count'), 0)],
+                ['label' => 'Missile Size', 'value' => data_get($missileRack, 'missile_size') !== null ? 'S' . Format::numberOrDash(data_get($missileRack, 'missile_size'), 0) : '-'],
+            ], static fn (array $row): bool => $row['value'] !== '-')),
+        ],
     ];
 @endphp
 
-<x-item-card title="Missile Rack">
-    <x-dl-container>
-        <x-slot:head>
-            @foreach ($primaryMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ $metric['prefix'] }}{{ Format::numberOrDash($metric['value'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Missile Rack" :sections="$sections" />

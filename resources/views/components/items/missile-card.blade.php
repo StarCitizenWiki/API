@@ -1,7 +1,8 @@
 @use('App\Support\Format')
+@php use Illuminate\Support\Str; @endphp
 @props([
     'missile',
- ])
+])
 
 @php
     $signalType = data_get($missile, 'signal_type');
@@ -15,119 +16,91 @@
     $explosion = data_get($missile, 'explosion', []);
     $delays = data_get($missile, 'delays', []);
 
-    $headMetrics = [
-        ['label' => 'Damage Total', 'value' => $damageTotal, 'unit' => '', 'precision' => 2],
-        ['label' => 'Range', 'value' => data_get($flight, 'range'), 'unit' => 'm', 'precision' => 0],
-        ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time'), 'unit' => 's', 'precision' => 1],
-        ['label' => 'Cluster Size', 'value' => $clusterSize, 'unit' => '', 'precision' => 0],
-    ];
+    $sections = [];
 
-    $targetLockMetrics = [
-        ['label' => 'Lock Angle', 'value' => data_get($targetLock, 'angle'), 'unit' => 'deg', 'precision' => 1],
-        ['label' => 'Tracking Signal Min', 'value' => $trackingSignalMin, 'unit' => '', 'precision' => 2],
-        ['label' => 'Signal Resilience Min', 'value' => data_get($targetLock, 'signal_resilience_min'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Signal Resilience Max', 'value' => data_get($targetLock, 'signal_resilience_max'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Signal Amplifier', 'value' => data_get($targetLock, 'signal_amplifier'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Lock Increase Rate', 'value' => data_get($targetLock, 'increase_rate'), 'unit' => '/s', 'precision' => 2],
-        ['label' => 'Allow Dumb Firing', 'value' => data_get($targetLock, 'allow_dumb_firing'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
-    ];
+    // Info
+    $infoRows = array_values(array_filter([
+        ['label' => 'Signal Type', 'value' => $signalType],
+        ['label' => 'Lock Range', 'value' => (data_get($targetLock, 'range_min') ?? data_get($targetLock, 'range_max')) !== null ? Format::range(data_get($targetLock, 'range_min'), data_get($targetLock, 'range_max'), 'm') : null],
+        ['label' => 'Damage Total', 'value' => $damageTotal !== null ? Format::numberOrDash($damageTotal, 2) : null],
+        ['label' => 'Range', 'value' => data_get($flight, 'range') !== null ? Format::valueWithUnit(data_get($flight, 'range'), 'm', 0) : null],
+        ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time') !== null ? Format::valueWithUnit(data_get($delays, 'arm_time'), 's', 1) : null],
+        ['label' => 'Cluster Size', 'value' => $clusterSize !== null ? Format::numberOrDash($clusterSize, 0) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
-    $flightMetrics = [
-        ['label' => 'Speed', 'value' => data_get($flight, 'speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Max Lifetime', 'value' => data_get($flight, 'max_lifetime'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Boost Speed', 'value' => data_get($flight, 'boost_speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Intercept Speed', 'value' => data_get($flight, 'intercept_speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Terminal Speed', 'value' => data_get($flight, 'terminal_speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Fuel Tank Size', 'value' => data_get($flight, 'fuel_tank_size'), 'unit' => '', 'precision' => 0],
-        ['label' => 'Boost Phase Duration', 'value' => data_get($flight, 'boost_phase_duration'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Terminal Phase Engagement Time', 'value' => data_get($flight, 'terminal_phase_engagement_time'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Terminal Phase Engagement Angle', 'value' => data_get($flight, 'terminal_phase_engagement_angle'), 'unit' => 'deg', 'precision' => 1],
-    ];
+    if ($infoRows !== []) {
+        $sections[] = ['title' => 'Info', 'rows' => $infoRows];
+    }
 
-    $damageMetrics = array_values(array_filter(
-        collect($damageMap)->map(fn (float|int|null $value, string $type): array => [
-            'label' => Str::headline($type),
-            'value' => $value,
-            'unit' => '',
-            'precision' => 2,
-        ])->values()->all(),
-        static fn (array $m): bool => $m['value'] !== null && $m['value'] > 0,
+    // Target Lock
+    $targetLockRows = array_values(array_filter([
+        ['label' => 'Lock Angle', 'value' => data_get($targetLock, 'angle') !== null ? Format::valueWithUnit(data_get($targetLock, 'angle'), 'deg', 1) : null],
+        ['label' => 'Tracking Signal Min', 'value' => $trackingSignalMin !== null ? Format::numberOrDash($trackingSignalMin, 2) : null],
+        ['label' => 'Signal Resilience Min', 'value' => data_get($targetLock, 'signal_resilience_min') !== null ? Format::numberOrDash(data_get($targetLock, 'signal_resilience_min'), 2) : null],
+        ['label' => 'Signal Resilience Max', 'value' => data_get($targetLock, 'signal_resilience_max') !== null ? Format::numberOrDash(data_get($targetLock, 'signal_resilience_max'), 2) : null],
+        ['label' => 'Signal Amplifier', 'value' => data_get($targetLock, 'signal_amplifier') !== null ? Format::numberOrDash(data_get($targetLock, 'signal_amplifier'), 2) : null],
+        ['label' => 'Lock Increase Rate', 'value' => data_get($targetLock, 'increase_rate') !== null ? Format::valueWithUnit(data_get($targetLock, 'increase_rate'), '/s', 2) : null],
+        ['label' => 'Allow Dumb Firing', 'value' => data_get($targetLock, 'allow_dumb_firing') !== null ? (data_get($targetLock, 'allow_dumb_firing') ? 'Yes' : 'No') : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($targetLockRows !== []) {
+        $sections[] = ['title' => 'Target Lock', 'rows' => $targetLockRows];
+    }
+
+    // Damage
+    $damageRows = array_values(array_filter(
+        collect($damageMap)->map(fn (float|int|null $value, string $type): ?array => ($value !== null && $value > 0) ? ['label' => Str::headline($type), 'value' => Format::numberOrDash($value, 2)] : null)->values()->all(),
+        static fn (?array $row): bool => $row !== null,
     ));
 
-    $explosionMetrics = [
-        ['label' => 'Is Cluster', 'value' => data_get($explosion, 'is_cluster'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
-        ['label' => 'Cluster Size', 'value' => data_get($explosion, 'cluster_size'), 'unit' => '', 'precision' => 0],
-        ['label' => 'Requires Launcher', 'value' => data_get($explosion, 'requires_launcher'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
-        ['label' => 'Safety Distance', 'value' => data_get($explosion, 'safety_distance'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Proximity', 'value' => data_get($explosion, 'proximity'), 'unit' => 'm', 'precision' => 2],
-    ];
+    if ($damageRows !== []) {
+        $sections[] = ['title' => 'Damage', 'rows' => $damageRows];
+    }
 
-    $delaysMetrics = [
-        ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Ignite Time', 'value' => data_get($delays, 'ignite_time'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Collision Delay Time', 'value' => data_get($delays, 'collision_delay_time'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Lock Time', 'value' => data_get($delays, 'lock_time'), 'unit' => 's', 'precision' => 2],
-    ];
+    // Flight Performance
+    $flightRows = array_values(array_filter([
+        ['label' => 'Speed', 'value' => data_get($flight, 'speed') !== null ? Format::valueWithUnit(data_get($flight, 'speed'), 'm/s', 2) : null],
+        ['label' => 'Max Lifetime', 'value' => data_get($flight, 'max_lifetime') !== null ? Format::valueWithUnit(data_get($flight, 'max_lifetime'), 's', 2) : null],
+        ['label' => 'Boost Speed', 'value' => data_get($flight, 'boost_speed') !== null ? Format::valueWithUnit(data_get($flight, 'boost_speed'), 'm/s', 2) : null],
+        ['label' => 'Intercept Speed', 'value' => data_get($flight, 'intercept_speed') !== null ? Format::valueWithUnit(data_get($flight, 'intercept_speed'), 'm/s', 2) : null],
+        ['label' => 'Terminal Speed', 'value' => data_get($flight, 'terminal_speed') !== null ? Format::valueWithUnit(data_get($flight, 'terminal_speed'), 'm/s', 2) : null],
+        ['label' => 'Fuel Tank Size', 'value' => data_get($flight, 'fuel_tank_size') !== null ? Format::numberOrDash(data_get($flight, 'fuel_tank_size'), 0) : null],
+        ['label' => 'Boost Phase Duration', 'value' => data_get($flight, 'boost_phase_duration') !== null ? Format::valueWithUnit(data_get($flight, 'boost_phase_duration'), 's', 2) : null],
+        ['label' => 'Terminal Phase Engagement Time', 'value' => data_get($flight, 'terminal_phase_engagement_time') !== null ? Format::valueWithUnit(data_get($flight, 'terminal_phase_engagement_time'), 's', 2) : null],
+        ['label' => 'Terminal Phase Engagement Angle', 'value' => data_get($flight, 'terminal_phase_engagement_angle') !== null ? Format::valueWithUnit(data_get($flight, 'terminal_phase_engagement_angle'), 'deg', 1) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
 
+    if ($flightRows !== []) {
+        $sections[] = ['title' => 'Flight Performance', 'rows' => $flightRows];
+    }
+
+    // Explosion
+    $explosionRadiusMin = data_get($explosion, 'radius_min');
+    $explosionRadiusMax = data_get($explosion, 'radius_max');
+    $explosionRows = array_values(array_filter([
+        ['label' => 'Radius', 'value' => ($explosionRadiusMin ?? $explosionRadiusMax) !== null ? Format::range($explosionRadiusMin, $explosionRadiusMax, 'm', 2) : null],
+        ['label' => 'Is Cluster', 'value' => data_get($explosion, 'is_cluster') !== null ? (data_get($explosion, 'is_cluster') ? 'Yes' : 'No') : null],
+        ['label' => 'Cluster Size', 'value' => data_get($explosion, 'cluster_size') !== null ? Format::numberOrDash(data_get($explosion, 'cluster_size'), 0) : null],
+        ['label' => 'Requires Launcher', 'value' => data_get($explosion, 'requires_launcher') !== null ? (data_get($explosion, 'requires_launcher') ? 'Yes' : 'No') : null],
+        ['label' => 'Safety Distance', 'value' => data_get($explosion, 'safety_distance') !== null ? Format::valueWithUnit(data_get($explosion, 'safety_distance'), 'm', 2) : null],
+        ['label' => 'Proximity', 'value' => data_get($explosion, 'proximity') !== null ? Format::valueWithUnit(data_get($explosion, 'proximity'), 'm', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($explosionRows !== []) {
+        $sections[] = ['title' => 'Explosion', 'rows' => $explosionRows];
+    }
+
+    // Delays
+    $delaysRows = array_values(array_filter([
+        ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time') !== null ? Format::valueWithUnit(data_get($delays, 'arm_time'), 's', 2) : null],
+        ['label' => 'Ignite Time', 'value' => data_get($delays, 'ignite_time') !== null ? Format::valueWithUnit(data_get($delays, 'ignite_time'), 's', 2) : null],
+        ['label' => 'Collision Delay Time', 'value' => data_get($delays, 'collision_delay_time') !== null ? Format::valueWithUnit(data_get($delays, 'collision_delay_time'), 's', 2) : null],
+        ['label' => 'Lock Time', 'value' => data_get($delays, 'lock_time') !== null ? Format::valueWithUnit(data_get($delays, 'lock_time'), 's', 2) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($delaysRows !== []) {
+        $sections[] = ['title' => 'Delays', 'rows' => $delaysRows];
+    }
 @endphp
 
-<x-item-card title="Missile">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Signal Type" :value="$signalType">{{ $signalType }}</x-dt-dd>
-            <x-dt-dd label="Lock Range" :value="data_get($targetLock, 'range_min') ?? data_get($targetLock, 'range_max')">{{ Format::range(data_get($targetLock, 'range_min'), data_get($targetLock, 'range_max'), 'm') }}</x-dt-dd>
-            @foreach ($headMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-slot:head>
-
-        <x-dl-section title="Target Lock">
-            @foreach ($targetLockMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    @if (($metric['format'] ?? '') === 'boolean')
-                        {{ $metric['value'] ? 'Yes' : 'No' }}
-                    @else
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    @endif
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-        <x-dl-section title="Damage">
-            @foreach ($damageMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-        <x-dl-details title="Flight Performance, Explosion & Delays">
-            <x-dl-section title="Flight Performance">
-                @foreach ($flightMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Explosion">
-                <x-dt-dd label="Radius" :value="data_get($explosion, 'radius_min') ?? data_get($explosion, 'radius_max')">{{ Format::range(data_get($explosion, 'radius_min'), data_get($explosion, 'radius_max'), 'm', 2) }}</x-dt-dd>
-                @foreach ($explosionMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        @if (($metric['format'] ?? '') === 'boolean')
-                            {{ $metric['value'] ? 'Yes' : 'No' }}
-                        @else
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-            <x-dl-section title="Delays">
-                @foreach ($delaysMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-details>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Missile" :sections="$sections" {{ $attributes }} />

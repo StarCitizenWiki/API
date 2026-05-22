@@ -6,136 +6,65 @@
     $agility = data_get($vehicle, 'agility', []);
     $afterburner = data_get($vehicle, 'afterburner', []);
 
-    $speedMetrics = [
-        [
-            'label' => 'SCM',
-            'value' => data_get($speed, 'scm'),
-            'unit' => 'm/s',
-            'precision' => 0,
-        ],
-        [
-            'label' => 'NAV',
-            'value' => data_get($speed, 'max'),
-            'unit' => 'm/s',
-            'precision' => 0,
-        ],
+    $sections = [];
+
+    $speedRows = array_values(array_filter([
+        ['label' => 'SCM', 'value' => data_get($speed, 'scm') !== null ? Format::valueWithUnit(data_get($speed, 'scm'), 'm/s', 0) : null],
+        ['label' => 'NAV', 'value' => data_get($speed, 'max') !== null ? Format::valueWithUnit(data_get($speed, 'max'), 'm/s', 0) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($speedRows !== []) {
+        $sections[] = ['title' => 'Speed', 'rows' => $speedRows];
+    }
+
+    $boostForward = data_get($speed, 'boost_forward');
+    $boostBackward = data_get($speed, 'boost_backward');
+    $regenTime = data_get($afterburner, 'regen_time');
+    $regenDelay = data_get($afterburner, 'regen_delay');
+
+    $boostRows = array_values(array_filter([
+        ['label' => 'Forward', 'value' => $boostForward !== null ? Format::valueWithUnit($boostForward, 'm/s', 0) : null],
+        ['label' => 'Reverse', 'value' => $boostBackward !== null ? Format::valueWithUnit($boostBackward, 'm/s', 0) : null],
+        ['label' => 'Regen Time', 'value' => $regenTime !== null ? collect([
+            Format::valueWithUnit($regenTime, 's', 1),
+            $regenDelay !== null ? '(+ ' . Format::valueWithUnit($regenDelay, 's', 1) . ')' : null,
+        ])->filter()->join(' ') : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($boostRows !== []) {
+        $sections[] = ['title' => 'Boost', 'rows' => $boostRows];
+    }
+
+    $agilityKeys = [
+        ['label' => 'Pitch', 'key' => 'pitch', 'boostKey' => 'pitch_boosted'],
+        ['label' => 'Yaw', 'key' => 'yaw', 'boostKey' => 'yaw_boosted'],
+        ['label' => 'Roll', 'key' => 'roll', 'boostKey' => 'roll_boosted'],
     ];
 
-    $speedMetrics = array_values(array_filter(
-        $speedMetrics,
-        static fn (array $metric): bool => $metric['value'] !== null
-    ));
+    $agilityRows = [];
+    foreach ($agilityKeys as $item) {
+        $val = data_get($agility, $item['key']);
+        $boosted = data_get($agility, $item['boostKey']);
 
-    $boostMetrics = [
-        [
-            'label' => 'Forward',
-            'value' => data_get($speed, 'boost_forward'),
-            'unit' => 'm/s',
-            'precision' => 0,
-        ],
-        [
-            'label' => 'Reverse',
-            'value' => data_get($speed, 'boost_backward'),
-            'unit' => 'm/s',
-            'precision' => 0,
-        ],
-        [
-            'label' => 'Regen Time',
-            'value' => data_get($afterburner, 'regen_time'),
-            'delay' => data_get($afterburner, 'regen_delay'),
-            'precision' => 1,
-        ],
-    ];
+        if ($val === null && $boosted === null) {
+            continue;
+        }
 
-    $boostMetrics = array_values(array_filter(
-        $boostMetrics,
-        static fn (array $metric): bool => $metric['value'] !== null
-    ));
+        $parts = [];
+        if ($val !== null) {
+            $parts[] = Format::number((float) $val, 1) . ' °/s';
+        }
 
-    $agilityMetrics = [
-        [
-            'label' => 'Pitch',
-            'value' => data_get($agility, 'pitch'),
-            'boosted' => data_get($agility, 'pitch_boosted'),
-        ],
-        [
-            'label' => 'Yaw',
-            'value' => data_get($agility, 'yaw'),
-            'boosted' => data_get($agility, 'yaw_boosted'),
-        ],
-        [
-            'label' => 'Roll',
-            'value' => data_get($agility, 'roll'),
-            'boosted' => data_get($agility, 'roll_boosted'),
-        ],
-    ];
+        if ($boosted !== null) {
+            $parts[] = ($val !== null ? '(boost ' : 'boost ') . Format::number((float) $boosted, 1) . ' °/s' . ($val !== null ? ')' : '');
+        }
 
-    $agilityMetrics = array_values(array_filter(
-        $agilityMetrics,
-        static fn (array $metric): bool => $metric['value'] !== null || $metric['boosted'] !== null
-    ));
+        $agilityRows[] = ['label' => $item['label'], 'value' => implode(' ', $parts)];
+    }
+
+    if ($agilityRows !== []) {
+        $sections[] = ['title' => 'Agility', 'rows' => $agilityRows];
+    }
 @endphp
 
-@if ($speedMetrics !== [] || $boostMetrics !== [] || $agilityMetrics !== [])
-    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-        <div class="card-body gap-4 p-5 sm:p-6">
-            <h2 class="card-title text-base">Flight Characteristics</h2>
-
-            <div class="grid gap-6 grid-cols-1 lg:grid-cols-{{ $speedMetrics !== [] ? '3' : '2' }}">
-                @if ($speedMetrics !== [])
-                    <x-dl-section title="Speed">
-                        @foreach ($speedMetrics as $metric)
-                            <x-dt-dd :label="$metric['label']">
-                                {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                            </x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endif
-
-                @if ($boostMetrics !== [])
-                    <x-dl-section title="Boost">
-                        @foreach ($boostMetrics as $metric)
-                            <x-dt-dd :label="$metric['label']">
-                                {{ Format::valueWithUnit($metric['value'], $metric['unit'] ?? 's', $metric['precision']) }}
-
-                                @if (array_key_exists('delay', $metric) && $metric['delay'] !== null)
-                                    <span class="inline-block whitespace-nowrap text-muted">
-                                        (+ {{ Format::valueWithUnit($metric['delay'], 's', $metric['precision']) }})
-                                    </span>
-                                @endif
-                            </x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endif
-
-                @if ($agilityMetrics !== [])
-                    <x-dl-section title="Agility">
-                        @foreach ($agilityMetrics as $metric)
-                            <x-dt-dd :label="$metric['label']">
-                                @if ($metric['value'] !== null || $metric['boosted'] !== null)
-                                    <span class="inline-flex flex-nowrap items-baseline justify-end gap-1 whitespace-nowrap">
-                                        @if ($metric['value'] !== null)
-                                            <span>{{ Format::number((float) $metric['value'], 1) }} °/s</span>
-                                        @endif
-
-                                        @if ($metric['boosted'] !== null)
-                                            <span class="text-muted">
-                                                @if ($metric['value'] !== null)
-                                                    (boost {{ Format::number((float) $metric['boosted'], 1) }} °/s)
-                                                @else
-                                                    boost {{ Format::number((float) $metric['boosted'], 1) }} °/s
-                                                @endif
-                                            </span>
-                                        @endif
-                                    </span>
-                                @else
-                                    -
-                                @endif
-                            </x-dt-dd>
-                        @endforeach
-                    </x-dl-section>
-                @endif
-            </div>
-        </div>
-    </section>
-@endif
+<x-data-card title="Flight Characteristics" :sections="$sections" {{ $attributes }} />

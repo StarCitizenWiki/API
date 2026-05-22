@@ -7,13 +7,15 @@
     $fuelPushRate = data_get($fuelIntake, 'fuel_push_rate');
     $minimumRate = data_get($fuelIntake, 'minimum_rate');
 
+    $sections = [
+        [
+            'title' => 'Info',
+            'rows' => array_values(array_filter([
+                ['label' => 'Fuel Push Rate', 'value' => Format::valueWithUnit($fuelPushRate, '/s', 2)],
+                ['label' => 'Minimum Rate', 'value' => Format::valueWithUnit($minimumRate, '/s', 2)],
+            ], static fn (array $row): bool => $row['value'] !== '-')),
+        ],
+    ];
 @endphp
 
-<x-item-card title="Fuel Intake">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Fuel Push Rate" :value="$fuelPushRate">{{ Format::valueWithUnit($fuelPushRate, '/s', 2) }}</x-dt-dd>
-            <x-dt-dd label="Minimum Rate" :value="$minimumRate">{{ Format::valueWithUnit($minimumRate, '/s', 2) }}</x-dt-dd>
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Fuel Intake" :sections="$sections" />

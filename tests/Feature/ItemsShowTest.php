@@ -232,12 +232,6 @@ it('renders the item show view with api data', function (): void {
         ->assertSeeText($item->uuid)
         ->assertSeeText('4.0.0-LIVE');
 
-    $searchForm = itemShowCrawler($response)->filter(sprintf('form[action="%s"]', route('web.items.index')));
-
-    expect($searchForm->count())->toBe(1)
-        ->and($searchForm->filter('input[name="filter[name]"]')->count())->toBe(1)
-        ->and($searchForm->filter('button[type="submit"]')->count())->toBe(1);
-
     assertItemSeoMetadata($response, [
         'meta[name="description"]' => 'Base item description',
         'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Size 2,Small,Star Citizen,SC',
@@ -511,8 +505,8 @@ it('renders variant-heavy item with variants section', function (): void {
     $response->assertOk()
         ->assertSeeText('Laser Cannon')
         ->assertSeeText('Behring')
-        ->assertSeeText('Laser Cannon Variant 1')
-        ->assertSeeText('Laser Cannon Variant 4');
+        ->assertSeeText('Variant 1')
+        ->assertSeeText('Variant 4');
 
     $relatedItemsCard = itemRelatedItemsCard($response);
 

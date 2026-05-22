@@ -87,11 +87,11 @@
             @endphp
 
             @if ($rankIndex !== null)
-                <div class="rounded-xl border border-accent/30 bg-base-200 px-3 py-2.5 sm:shrink-0">
-                    <div class="text-xs font-semibold uppercase tracking-widest text-muted">
+                <div class="shrink-0 text-right">
+                    <div class="text-xs text-subtle uppercase tracking-wide">
                         Rank
                     </div>
-                    <div class="mt-1.5 text-base font-semibold leading-none text-base-content">
+                    <div class="text-lg font-bold">
                         {{ $rankIndex }}
                     </div>
                 </div>

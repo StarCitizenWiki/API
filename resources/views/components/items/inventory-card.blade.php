@@ -2,7 +2,7 @@
 @use('App\Support\ScuBox')
 @props([
     'inventory',
- ])
+])
 
 @php
     $scuConverted = data_get($inventory, 'scu_converted');
@@ -14,15 +14,17 @@
     $length = data_get($inventory, 'length');
     $maxSize = data_get($inventory, 'max_size');
     $maxScuBox = $maxSize !== null ? ScuBox::largestThatFits($maxSize) : null;
+
+    $type = $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-'));
+
+    $rows = array_values(array_filter([
+        $scuConverted !== null ? ['label' => 'Capacity', 'value' => Format::valueWithUnit($scuConverted, data_get($inventory, 'unit', 'SCU'), 1)] : null,
+        $maxScuBox !== null ? ['label' => 'Max Box Size', 'value' => Format::valueWithUnit($maxScuBox, 'SCU', 0)] : null,
+        ['label' => 'Type', 'value' => $type],
+        ($width !== null || $height !== null || $length !== null) ? ['label' => 'Dimensions', 'value' => Format::valueWithUnit($width, 'm', 1) . ' × ' . Format::valueWithUnit($height, 'm', 1) . ' × ' . Format::valueWithUnit($length, 'm', 1)] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    $sections = $rows !== [] ? [['title' => 'Info', 'rows' => $rows]] : [];
 @endphp
 
-<x-item-card title="Inventory">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Capacity" :value="$scuConverted">{{ Format::valueWithUnit($scuConverted, data_get($inventory, 'unit', 'SCU'), 1) }}</x-dt-dd>
-            <x-dt-dd label="Max Box Size" :value="$maxScuBox">{{ Format::valueWithUnit($maxScuBox, 'SCU', 0) }}</x-dt-dd>
-            <x-dt-dd label="Type">{{ $isOpen ? 'Open' : ($isClosed ? 'Closed' : ($isExternal ? 'External' : '-')) }}</x-dt-dd>
-            <x-dt-dd label="Dimensions" :value="$width ?? $height ?? $length">{{ Format::valueWithUnit($width, 'm', 1) }} × {{ Format::valueWithUnit($height, 'm', 1) }} × {{ Format::valueWithUnit($length, 'm', 1) }}</x-dt-dd>
-        </x-slot:head>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Inventory" :sections="$sections" />

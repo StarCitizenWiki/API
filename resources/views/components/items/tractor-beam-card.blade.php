@@ -10,87 +10,68 @@
     $rangeMin = data_get($tractorBeam, 'range.min');
     $rangeMax = data_get($tractorBeam, 'range.max');
 
-    $headMetrics = [
-        ['label' => 'Max Volume', 'value' => data_get($tractorBeam, 'force.max_volume'), 'unit' => 'µSCU', 'precision' => 0],
-    ];
+    $sections = [];
 
-    $towingMetrics = [
-        ['label' => 'Force', 'value' => data_get($tractorBeam, 'towing.force'), 'unit' => 'N', 'precision' => 1],
-        ['label' => 'Max Acceleration', 'value' => data_get($tractorBeam, 'towing.max_acceleration'), 'unit' => 'm/s²', 'precision' => 1],
-        ['label' => 'Max Distance', 'value' => data_get($tractorBeam, 'towing.max_distance'), 'unit' => 'm', 'precision' => 1],
-        ['label' => 'QT Mass Limit', 'value' => data_get($tractorBeam, 'towing.qt_mass_limit'), 'unit' => '', 'precision' => 1],
-    ];
+    // Info
+    $infoRows = array_values(array_filter([
+        ($forceMin !== null || $forceMax !== null) ? ['label' => 'Force', 'value' => Format::range($forceMin, $forceMax, 'N', 0)] : null,
+        ($rangeMin !== null || $rangeMax !== null) ? ['label' => 'Range', 'value' => Format::range($rangeMin, $rangeMax, 'm', 1)] : null,
+        data_get($tractorBeam, 'force.max_volume') !== null ? ['label' => 'Max Volume', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'force.max_volume'), 'µSCU', 0)] : null,
+    ], static fn (?array $row): bool => $row !== null));
 
-    $additionalMetrics = [
-        ['label' => 'Volume Force Coefficient', 'value' => data_get($tractorBeam, 'force.volume_force_coefficient'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Full Strength Distance', 'value' => data_get($tractorBeam, 'range.full_strength_distance'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Max Angle', 'value' => data_get($tractorBeam, 'range.max_angle'), 'unit' => '°', 'precision' => 2],
-        ['label' => 'Hit Radius', 'value' => data_get($tractorBeam, 'range.hit_radius'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Tether Break Time', 'value' => data_get($tractorBeam, 'tether.tether_break_time'), 'unit' => 's', 'precision' => 2],
-        ['label' => 'Safe Range Factor', 'value' => data_get($tractorBeam, 'tether.safe_range_value_factor'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Allow Scrolling Into Breaking Range', 'value' => data_get($tractorBeam, 'tether.allow_scrolling_into_breaking_range'), 'unit' => '', 'precision' => 0, 'format' => 'boolean'],
-    ];
+    if ($infoRows !== []) {
+        $sections[] = ['title' => 'Info', 'rows' => $infoRows];
+    }
 
-    $cargoMetrics = [
-        ['label' => 'Min Force', 'value' => data_get($tractorBeam, 'cargo_mode_override.min_force'), 'unit' => 'N', 'precision' => 2],
-        ['label' => 'Max Force', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_force'), 'unit' => 'N', 'precision' => 2],
-        ['label' => 'Min Acceleration', 'value' => data_get($tractorBeam, 'cargo_mode_override.min_acceleration'), 'unit' => 'm/s²', 'precision' => 2],
-        ['label' => 'Max Acceleration', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_acceleration'), 'unit' => 'm/s²', 'precision' => 2],
-        ['label' => 'Min Speed', 'value' => data_get($tractorBeam, 'cargo_mode_override.min_speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Max Speed', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_speed'), 'unit' => 'm/s', 'precision' => 2],
-        ['label' => 'Acceleration Factor', 'value' => data_get($tractorBeam, 'cargo_mode_override.acceleration_factor'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Degrees Per Action', 'value' => data_get($tractorBeam, 'cargo_mode_override.degrees_per_action'), 'unit' => '°', 'precision' => 2],
-        ['label' => 'Max Angular Acceleration', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_angular_acceleration'), 'unit' => 'deg/s²', 'precision' => 2],
-        ['label' => 'Max Angular Velocity', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_angular_velocity'), 'unit' => 'deg/s', 'precision' => 2],
-        ['label' => 'Degrees Per Action Scroll Wheel', 'value' => data_get($tractorBeam, 'cargo_mode_override.degrees_per_action_scroll_wheel'), 'unit' => '°', 'precision' => 2],
-        ['label' => 'Force Fraction Rotation', 'value' => data_get($tractorBeam, 'cargo_mode_override.force_fraction_rotation'), 'unit' => '', 'precision' => 2],
-        ['label' => 'Min Distance', 'value' => data_get($tractorBeam, 'cargo_mode_override.min_distance'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Max Distance', 'value' => data_get($tractorBeam, 'cargo_mode_override.max_distance'), 'unit' => 'm', 'precision' => 2],
-        ['label' => 'Full Strength Distance', 'value' => data_get($tractorBeam, 'cargo_mode_override.full_strength_distance'), 'unit' => 'm', 'precision' => 2],
-    ];
+    // Towing
+    $towingRows = array_values(array_filter([
+        data_get($tractorBeam, 'towing.force') !== null ? ['label' => 'Force', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'towing.force'), 'N', 1)] : null,
+        data_get($tractorBeam, 'towing.max_acceleration') !== null ? ['label' => 'Max Acceleration', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'towing.max_acceleration'), 'm/s²', 1)] : null,
+        data_get($tractorBeam, 'towing.max_distance') !== null ? ['label' => 'Max Distance', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'towing.max_distance'), 'm', 1)] : null,
+        data_get($tractorBeam, 'towing.qt_mass_limit') !== null ? ['label' => 'QT Mass Limit', 'value' => Format::numberOrDash(data_get($tractorBeam, 'towing.qt_mass_limit'), 1)] : null,
+    ], static fn (?array $row): bool => $row !== null));
 
+    if ($towingRows !== []) {
+        $sections[] = ['title' => 'Towing', 'rows' => $towingRows];
+    }
+
+    // Additional Specifications
+    $additionalRows = array_values(array_filter([
+        data_get($tractorBeam, 'force.volume_force_coefficient') !== null ? ['label' => 'Volume Force Coefficient', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'force.volume_force_coefficient'), '', 2)] : null,
+        data_get($tractorBeam, 'range.full_strength_distance') !== null ? ['label' => 'Full Strength Distance', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'range.full_strength_distance'), 'm', 2)] : null,
+        data_get($tractorBeam, 'range.max_angle') !== null ? ['label' => 'Max Angle', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'range.max_angle'), '°', 2)] : null,
+        data_get($tractorBeam, 'range.hit_radius') !== null ? ['label' => 'Hit Radius', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'range.hit_radius'), 'm', 2)] : null,
+        data_get($tractorBeam, 'tether.tether_break_time') !== null ? ['label' => 'Tether Break Time', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'tether.tether_break_time'), 's', 2)] : null,
+        data_get($tractorBeam, 'tether.safe_range_value_factor') !== null ? ['label' => 'Safe Range Factor', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'tether.safe_range_value_factor'), '', 2)] : null,
+        data_get($tractorBeam, 'tether.allow_scrolling_into_breaking_range') !== null ? ['label' => 'Allow Scrolling Into Breaking Range', 'value' => data_get($tractorBeam, 'tether.allow_scrolling_into_breaking_range') ? 'Yes' : 'No'] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($additionalRows !== []) {
+        $sections[] = ['title' => 'Additional Specifications', 'rows' => $additionalRows];
+    }
+
+    // Cargo Mode Overrides
+    $cargoRows = array_values(array_filter([
+        data_get($tractorBeam, 'cargo_mode_override.min_force') !== null ? ['label' => 'Min Force', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.min_force'), 'N', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_force') !== null ? ['label' => 'Max Force', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_force'), 'N', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.min_acceleration') !== null ? ['label' => 'Min Acceleration', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.min_acceleration'), 'm/s²', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_acceleration') !== null ? ['label' => 'Max Acceleration', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_acceleration'), 'm/s²', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.min_speed') !== null ? ['label' => 'Min Speed', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.min_speed'), 'm/s', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_speed') !== null ? ['label' => 'Max Speed', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_speed'), 'm/s', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.acceleration_factor') !== null ? ['label' => 'Acceleration Factor', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.acceleration_factor'), '', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.degrees_per_action') !== null ? ['label' => 'Degrees Per Action', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.degrees_per_action'), '°', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_angular_acceleration') !== null ? ['label' => 'Max Angular Acceleration', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_angular_acceleration'), 'deg/s²', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_angular_velocity') !== null ? ['label' => 'Max Angular Velocity', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_angular_velocity'), 'deg/s', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.degrees_per_action_scroll_wheel') !== null ? ['label' => 'Degrees Per Action Scroll Wheel', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.degrees_per_action_scroll_wheel'), '°', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.force_fraction_rotation') !== null ? ['label' => 'Force Fraction Rotation', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.force_fraction_rotation'), '', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.min_distance') !== null ? ['label' => 'Min Distance', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.min_distance'), 'm', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.max_distance') !== null ? ['label' => 'Max Distance', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.max_distance'), 'm', 2)] : null,
+        data_get($tractorBeam, 'cargo_mode_override.full_strength_distance') !== null ? ['label' => 'Full Strength Distance', 'value' => Format::valueWithUnit(data_get($tractorBeam, 'cargo_mode_override.full_strength_distance'), 'm', 2)] : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    if ($cargoRows !== []) {
+        $sections[] = ['title' => 'Cargo Mode Overrides', 'rows' => $cargoRows];
+    }
 @endphp
 
-<x-item-card title="Tractor Beam">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Force" :value="$forceMin ?? $forceMax">{{ Format::range($forceMin, $forceMax, 'N', 0) }}</x-dt-dd>
-            <x-dt-dd label="Range" :value="$rangeMin ?? $rangeMax">{{ Format::range($rangeMin, $rangeMax, 'm', 1) }}</x-dt-dd>
-            @foreach ($headMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-slot:head>
-
-        <x-dl-section title="Towing">
-            @foreach ($towingMetrics as $metric)
-                <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                    {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                </x-dt-dd>
-            @endforeach
-        </x-dl-section>
-
-        <x-dl-details title="Additional Specifications">
-            <x-dl-section>
-                @foreach ($additionalMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        @if (($metric['format'] ?? '') === 'boolean')
-                            {{ $metric['value'] ? 'Yes' : 'No' }}
-                        @else
-                            {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                        @endif
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-
-            <x-dl-section title="Cargo Mode Overrides">
-                @foreach ($cargoMetrics as $metric)
-                    <x-dt-dd :label="$metric['label']" :value="$metric['value'] ?? null">
-                        {{ Format::valueWithUnit($metric['value'], $metric['unit'], $metric['precision']) }}
-                    </x-dt-dd>
-                @endforeach
-            </x-dl-section>
-        </x-dl-details>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Tractor Beam" :sections="$sections" />

@@ -1,128 +1,119 @@
-@use('App\Support\Format')
 @php use Illuminate\Support\Str; @endphp
 @props([
     'port',
 ])
 
 @php
-    $portIdentifier = data_get($port, 'name');
-    $portLabel = Str::of($portIdentifier ?? 'Port')->headline();
-    $portHash = substr(md5(json_encode($port)), 0, 8);
-    $portSlug = Str::slug($portIdentifier ?? 'port');
-    $portId = ($portSlug !== '' ? $portSlug : 'port').'-'.$portHash;
+    $portName = data_get($port, 'name');
+    $label = Str::headline($portName ?? 'Port');
 
-    // Extract equipped item stats for summary display
-    $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
-    $showQuickStats = !empty($equippedItem);
+    $isEditable = (bool) data_get($port, 'editable');
+    $isLocked = ! $isEditable;
 
-    $equippedItemName = data_get($equippedItem, 'name');
-    $hasNamedEquippedItem = ! empty($equippedItemName) && $equippedItemName !== 'Placeholder';
-    $displayPortLabel = $hasNamedEquippedItem ? $equippedItemName : $portLabel;
-    $equippedDisplayName = $hasNamedEquippedItem ? $portLabel : ($equippedItemName ?? '-');
-
-    $attachmentSubType = match ($portIdentifier) {
-        'barrel_attach' => 'Barrel',
-        'optics_attach' => 'IronSight',
-        'underbarrel_attach' => 'BottomAttachment',
-        default => null,
-    };
-    $portSizeMin = data_get($port, 'sizes.min');
-    $portSizeMax = data_get($port, 'sizes.max');
-    $showAttachmentBrowse = $attachmentSubType !== null && !$hasNamedEquippedItem && $portSizeMin !== null && $portSizeMax !== null;
-
-    if ($showQuickStats) {
-        $itemSize = data_get($equippedItem, 'size');
-    }
-
+    $size = data_get($port, 'size');
     $sizeMin = data_get($port, 'sizes.min');
     $sizeMax = data_get($port, 'sizes.max');
-    $sizeRange = Format::range($sizeMin, $sizeMax, '');
+    $sizeLabel = $sizeMin === $sizeMax ? "S{$sizeMin}" : "S{$sizeMin}-S{$sizeMax}";
 
-    $portTypes = data_get($port, 'compatible_types', []) ?? [];
-    $portTypeCount = is_array($portTypes) ? count($portTypes) : 0;
+    $equippedItem = data_get($port, 'equipped_item', data_get($port, 'equipped_port_item'));
+    $hasEquipped = ! empty($equippedItem) && filled(data_get($equippedItem, 'name'));
+    $equippedName = $hasEquipped ? data_get($equippedItem, 'name') : null;
+    $equippedUrl = $hasEquipped ? data_get($equippedItem, 'web_url') : null;
 
+    $compatibleTypes = collect(data_get($port, 'compatible_types', []) ?? []);
+    $typeAnnotation = $compatibleTypes
+        ->flatMap(fn (array $ct) => collect(data_get($ct, 'sub_types', []))
+            ->map(fn (string $st) => Str::headline($st)))
+        ->implode(', ');
+
+    $isPlaceholder = $size === 0 && $compatibleTypes->isEmpty();
+
+    // Browse config
+    $browseType = $compatibleTypes->isNotEmpty() ? data_get($compatibleTypes->first(), 'type') : null;
+    $browseSubType = $compatibleTypes->isNotEmpty()
+        ? data_get($compatibleTypes->first(), 'sub_types.0')
+        : null;
+    $canBrowse = $browseType !== null && ! $isLocked;
+
+    $browseConfig = [];
+    $browseFilters = [];
+
+    if ($canBrowse) {
+        $browseConfig = [
+            'type' => $browseType,
+            'subType' => $browseSubType,
+            'sizeMin' => $sizeMin,
+            'sizeMax' => $sizeMax,
+            'portTags' => data_get($port, 'required_tags'),
+        ];
+
+        $browseFilters = array_filter([
+            'type' => $browseType,
+            'sub_type' => $browseSubType,
+        ]);
+
+        if ($sizeMin !== null && $sizeMax !== null) {
+            $browseFilters['size'] = implode(',', range($sizeMin, $sizeMax));
+        }
+
+        $requiredTags = data_get($port, 'required_tags', []);
+        if (! empty($requiredTags)) {
+            $tags = is_array($requiredTags) ? $requiredTags : [$requiredTags];
+            $browseFilters['port_tags'] = count($tags) === 1 ? $tags[0] : $tags;
+        }
+    }
+
+    $browseUrl = $canBrowse
+        ? route('web.items.index', ['filter' => $browseFilters])
+        : null;
 @endphp
 
-<div class="port-entry">
-    <details
-        id="{{ $portIdentifier }}"
-        class="collapse collapse-arrow border border-base-300 bg-base-100"
+@if (! $isPlaceholder)
+    <div
+        @if ($canBrowse)
+            x-data="portEquippable(@js($browseConfig))"
+            @click.stop="toggle($el)"
+        @endif
+        @class([
+            'grid grid-cols-[auto_minmax(0,1fr)] items-stretch overflow-hidden rounded-lg border-2 bg-base-200 border-base-200',
+            'cursor-pointer hover:bg-base-300/50 transition-colors' => $canBrowse,
+        ])
+        data-testid="port-display-details"
     >
-        <summary
-            class="collapse-title min-h-11 py-3 text-sm font-semibold flex items-center justify-between gap-2 flex-wrap"
-            aria-controls="{{ $portIdentifier }}-content"
-        >
-            <span class="flex items-center gap-2">
-                @if(! data_get($port, 'editable'))
-                    <x-icon name="lock" class="size-3"/>
+        <aside class="grid grid-flow-col auto-cols-max items-stretch divide-x divide-base-200 bg-base-100">
+            <div class="flex items-center gap-1 px-2 py-2 font-medium">
+                @if ($isLocked)
+                    <x-icon name="lock" class="size-3 shrink-0 text-muted" />
                 @endif
-                {{ $displayPortLabel ?? 'Port' }}
-                @if ($showAttachmentBrowse)
-                    <x-port-browse-badge
-                        category="weapon-attachments"
-                        :sub-type="$attachmentSubType"
-                        :size-min="$portSizeMin"
-                        :size-max="$portSizeMax"
-                        label="Browse Attachments"
-                    />
-                @endif
-            </span>
 
-            <span class="flex flex-wrap items-center gap-2 text-xs font-normal tabular-nums">
-                @if (! empty($equippedItemName))
-                    <span class="max-w-56 truncate text-subtle" title="{{ $equippedDisplayName }}">
-                        {{ $equippedDisplayName }}
-                    </span>
+                @if ($size !== null && $size > 0)
+                    <span class="text-md" title="Equippable Size">{{ $sizeLabel }}</span>
                 @endif
-                @if ($sizeRange !== '-')
-                    <span class="badge badge-soft badge-sm">S{{ $sizeRange }}</span>
+            </div>
+        </aside>
+
+        <div class="flex min-w-0 flex-col justify-center px-2 py-2">
+            <span class="truncate text-sm">
+                @if ($hasEquipped && $equippedUrl)
+                    <a href="{{ $equippedUrl }}" class="link-primary" @click.stop>{{ $label }}</a>
+                @else
+                    {{ $label }}
+                @endif
+
+                @if ($typeAnnotation)
+                    <span class="text-xs font-normal text-subtle">({{ $typeAnnotation }})</span>
                 @endif
             </span>
-        </summary>
-        <div id="{{ $portId }}-content" class="collapse-content">
-            <dl class="grid gap-3 sm:grid-cols-2 tabular-nums">
-                <div class="space-y-1">
-                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
-                        Equippable Item Size
-                    </dt>
-                    <dd class="text-sm">
-                        S{{ Format::range(data_get($port, 'sizes.min'), data_get($port, 'sizes.max'), '') }}
-                    </dd>
-                </div>
 
-                <div class="space-y-1">
-                    <dt class="text-xs font-light uppercase tracking-wide text-subtle">
-                        Required Type + Sub Type
-                    </dt>
-                    <dd class="text-sm">
-                        <div class="flex flex-col gap-1">
-                            @foreach ($portTypes as $portType)
-                                <div>
-                                    {{ data_get($portType, 'type') ?? '-' }} / {{ implode(', ', data_get($portType, 'sub_types', [])) }}
-                                </div>
-                            @endforeach
-                        </div>
-                    </dd>
-                </div>
-
-                @unless(empty(data_get($port, 'equipped_item')))
-                <div class="space-y-1 col-span-full">
-                    <dt class="font-light text-sm uppercase tracking-wide">
-                        Equipped Item
-                    </dt>
-                    <dd class="text-sm">
-                        <div class="flex items-center gap-2">
-                            <span>{{ data_get($port, 'equipped_item.name') ?? '-' }}</span>
-                            @if (! empty(data_get($port, 'equipped_item.web_url')))
-                                <a href="{{ data_get($port, 'equipped_item.web_url') }}"
-                                   class="link link-primary">View</a>
-                            @endif
-                        </div>
-                    </dd>
-                </div>
-                @endunless
-            </dl>
-
+            @if ($hasEquipped)
+                <span class="truncate text-xs text-subtle">{{ $equippedName }}</span>
+            @else
+                <span class="truncate text-xs text-subtle italic">Empty</span>
+            @endif
         </div>
-    </details>
-</div>
+
+        @if ($canBrowse && $browseUrl)
+            <x-port-browse-popup :type="$browseType" :browse-url="$browseUrl" />
+        @endif
+    </div>
+@endif

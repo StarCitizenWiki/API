@@ -69,7 +69,7 @@ it('renders the resource network card with generation for PowerPlant', function 
     ])->assertDontSee('Power Usage');
 });
 
-it('renders a single state inside a collapsible details element', function (): void {
+it('renders a single state as a flat grid section', function (): void {
     $view = $this->blade('<x-items.resource-network-card :resource-network="$data" :item-type="\'PowerPlant\'" />', [
         'data' => [
             'states' => [
@@ -89,18 +89,16 @@ it('renders a single state inside a collapsible details element', function (): v
     $crawler = new Crawler((string) $view);
 
     $view->assertSeeTextInOrder([
-        'On',
-        'Consumption',
-        'Power consumption',
+        'On - Power consumption',
         'Rate',
         '5.0',
     ]);
 
-    // Single state should use <details> (x-dl-details), not a plain heading
-    expect($crawler->filter('details > summary')->count())->toBeGreaterThanOrEqual(1);
+    // States are rendered as flat grid sections via x-data-card, not collapsible <details>
+    expect($crawler->filter('details > summary')->count())->toBe(0);
 });
 
-it('renders multiple states each inside collapsible details', function (): void {
+it('renders multiple states as separate grid sections', function (): void {
     $view = $this->blade('<x-items.resource-network-card :resource-network="$data" :item-type="\'PowerPlant\'" />', [
         'data' => [
             'states' => [
@@ -121,10 +119,10 @@ it('renders multiple states each inside collapsible details', function (): void 
     ]);
     $crawler = new Crawler((string) $view);
 
-    $view->assertSeeTextInOrder(['On', 'Consumption', '10.0', 'Off', 'Consumption', '0.0']);
+    $view->assertSeeTextInOrder(['On - Power consumption', '10.0', 'Off - Power consumption', '0.0']);
 
-    // Both states should be inside <details> elements
-    expect($crawler->filter('details > summary')->count())->toBeGreaterThanOrEqual(2);
+    // States are rendered as flat grid sections via x-data-card, not collapsible <details>
+    expect($crawler->filter('details > summary')->count())->toBe(0);
 });
 
 it('renders discharge as Yes/No instead of decimals', function (): void {
@@ -181,15 +179,13 @@ it('renders power ranges with Low/Standard/High labels', function (): void {
     ]);
 
     $view->assertSeeTextInOrder([
-        'On',
-        'Power States',
-        'Low',
+        'On - Low',
         'Start', '0',
         'Modifier', '0.50 x',
-        'Standard',
+        'On - Standard',
         'Start', '50',
         'Modifier', '1.00 x',
-        'High (Disabled)',
+        'On - High (Disabled)',
         'Start', '100',
         'Modifier', '2.00 x',
     ]);
@@ -214,14 +210,11 @@ it('renders both deltas and power ranges with group headings', function (): void
     ]);
 
     $view->assertSeeTextInOrder([
-        'On',
-        'Consumption',
-        'Power consumption',
+        'On - Power consumption',
         'Rate',
         '5.0',
-        'Power States',
-        'Low',
-        'Standard',
+        'On - Low',
+        'On - Standard',
     ]);
 });
 it('renders the seat card with primary values and no collapsible sections', function (): void {

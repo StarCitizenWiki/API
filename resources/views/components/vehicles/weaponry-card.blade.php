@@ -15,79 +15,36 @@
     $missileCount = data_get($weaponry, 'missiles.count');
     $totalMissileDamage = data_get($weaponry, 'total_missile_damage');
 
-    $hasPilot = $pilotDps !== null || $pilotAlpha !== null || $pilotSustainedDps !== null;
-    $hasTurrets = $turretDps !== null || $turretAlpha !== null || $turretSustainedDps !== null;
-    $hasMissiles = $missileCount !== null || $totalMissileDamage !== null;
+    $sections = [];
 
-    $hasWeaponryData = $hasPilot || $hasTurrets || $hasMissiles;
+    $pilotRows = array_values(array_filter([
+        ['label' => 'DPS', 'value' => $pilotDps !== null ? Format::numberOrDash($pilotDps, 1) . ' DPS' : null],
+        ['label' => 'Sustained DPS', 'value' => $pilotSustainedDps !== null ? Format::numberOrDash($pilotSustainedDps, 1) . ' DPS' : null],
+        ['label' => 'Alpha', 'value' => $pilotAlpha !== null ? Format::numberOrDash($pilotAlpha, 1) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($pilotRows !== []) {
+        $sections[] = ['title' => 'Pilot Weapons', 'rows' => $pilotRows];
+    }
+
+    $turretRows = array_values(array_filter([
+        ['label' => 'DPS', 'value' => $turretDps !== null ? Format::numberOrDash($turretDps, 1) . ' DPS' : null],
+        ['label' => 'Sustained DPS', 'value' => $turretSustainedDps !== null ? Format::numberOrDash($turretSustainedDps, 1) . ' DPS' : null],
+        ['label' => 'Alpha', 'value' => $turretAlpha !== null ? Format::numberOrDash($turretAlpha, 1) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($turretRows !== []) {
+        $sections[] = ['title' => 'Turrets', 'rows' => $turretRows];
+    }
+
+    $missileRows = array_values(array_filter([
+        ['label' => 'Count', 'value' => $missileCount !== null ? Format::numberOrDash($missileCount) : null],
+        ['label' => 'Total Damage', 'value' => $totalMissileDamage !== null ? Format::numberOrDash($totalMissileDamage) : null],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    if ($missileRows !== []) {
+        $sections[] = ['title' => 'Missiles', 'rows' => $missileRows];
+    }
 @endphp
 
-@if ($hasWeaponryData)
-    <section {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow']) }}>
-        <div class="card-body gap-4">
-            <h2 class="card-title text-base">Weaponry</h2>
-
-            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                @if ($hasPilot)
-                    <x-dl-section title="Pilot Weapons">
-                        @if ($pilotDps !== null)
-                            <x-dt-dd label="DPS">
-                                {{ Format::numberOrDash($pilotDps, 1) }} <span class="text-xs text-muted">DPS</span>
-                            </x-dt-dd>
-                        @endif
-
-                        @if ($pilotSustainedDps !== null)
-                            <x-dt-dd label="Sustained DPS">
-                                {{ Format::numberOrDash($pilotSustainedDps, 1) }} <span class="text-xs text-muted">DPS</span>
-                            </x-dt-dd>
-                        @endif
-
-                        @if ($pilotAlpha !== null)
-                            <x-dt-dd label="Alpha">
-                                {{ Format::numberOrDash($pilotAlpha, 1) }}
-                            </x-dt-dd>
-                        @endif
-                    </x-dl-section>
-                @endif
-
-                @if ($hasTurrets)
-                    <x-dl-section title="Turrets">
-                        @if ($turretDps !== null)
-                            <x-dt-dd label="DPS">
-                                {{ Format::numberOrDash($turretDps, 1) }} <span class="text-xs text-muted">DPS</span>
-                            </x-dt-dd>
-                        @endif
-
-                        @if ($turretSustainedDps !== null)
-                            <x-dt-dd label="Sustained DPS">
-                                {{ Format::numberOrDash($turretSustainedDps, 1) }} <span class="text-xs text-muted">DPS</span>
-                            </x-dt-dd>
-                        @endif
-
-                        @if ($turretAlpha !== null)
-                            <x-dt-dd label="Alpha">
-                                {{ Format::numberOrDash($turretAlpha, 1) }}
-                            </x-dt-dd>
-                        @endif
-                    </x-dl-section>
-                @endif
-
-                @if ($hasMissiles)
-                    <x-dl-section title="Missiles">
-                        @if ($missileCount !== null)
-                            <x-dt-dd label="Count">
-                                {{ Format::numberOrDash($missileCount) }}
-                            </x-dt-dd>
-                        @endif
-
-                        @if ($totalMissileDamage !== null)
-                            <x-dt-dd label="Total Damage">
-                                {{ Format::numberOrDash($totalMissileDamage) }}
-                            </x-dt-dd>
-                        @endif
-                    </x-dl-section>
-                @endif
-            </div>
-        </div>
-    </section>
-@endif
+<x-data-card title="Weaponry" :sections="$sections" {{ $attributes }} />

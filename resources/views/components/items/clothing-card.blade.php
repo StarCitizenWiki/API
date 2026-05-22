@@ -13,24 +13,29 @@
     $scuConverted = data_get($inventory, 'scu_converted');
     $inventoryUnit = data_get($inventory, 'unit', 'SCU');
 
+    $infoRows = array_values(array_filter([
+        ['label' => 'Slot', 'value' => $slot],
+        ['label' => 'Inventory', 'value' => Format::valueWithUnit($scuConverted, $inventoryUnit, 1)],
+    ], static fn (array $row): bool => $row['value'] !== null));
+
+    $gforceRows = $gforceResistance !== null
+        ? [['label' => 'Modifier', 'value' => Format::valueWithUnit($gforceResistance * 100, '%', 1), 'class' => Format::colorClass($gforceResistance)]]
+        : [];
+
+    $tempRows = array_values(array_filter([
+        data_get($temperatureResistance, 'minimum') !== null
+            ? ['label' => 'Min', 'value' => Format::valueWithUnit(data_get($temperatureResistance, 'minimum'), '°C', 1)]
+            : null,
+        data_get($temperatureResistance, 'maximum') !== null
+            ? ['label' => 'Max', 'value' => Format::valueWithUnit(data_get($temperatureResistance, 'maximum'), '°C', 1)]
+            : null,
+    ], static fn (?array $row): bool => $row !== null));
+
+    $sections = array_values(array_filter([
+        $infoRows !== [] ? ['title' => 'Info', 'rows' => $infoRows] : null,
+        $gforceRows !== [] ? ['title' => 'G-Force Resistance', 'rows' => $gforceRows] : null,
+        $tempRows !== [] ? ['title' => 'Temperature Resistance', 'rows' => $tempRows] : null,
+    ], static fn (?array $s): bool => $s !== null));
 @endphp
 
-<x-item-card title="Clothing">
-    <x-dl-container>
-        <x-slot:head>
-            <x-dt-dd label="Slot" :value="$slot">{{ $slot }}</x-dt-dd>
-            <x-dt-dd label="Inventory" :value="$scuConverted">{{ Format::valueWithUnit($scuConverted, $inventoryUnit, 1) }}</x-dt-dd>
-        </x-slot:head>
-
-        <x-dl-section title="G-Force Resistance">
-            <x-dt-dd label="Modifier" :value="$gforceResistance">
-                <span class="{{ Format::colorClass($gforceResistance) }}">{{ Format::valueWithUnit($gforceResistance * 100, '%', 1) }}</span>
-            </x-dt-dd>
-        </x-dl-section>
-
-        <x-dl-section title="Temperature Resistance">
-            <x-dt-dd label="Min" :value="data_get($temperatureResistance, 'minimum')">{{ Format::valueWithUnit(data_get($temperatureResistance, 'minimum'), '°C', 1) }}</x-dt-dd>
-            <x-dt-dd label="Max" :value="data_get($temperatureResistance, 'maximum')">{{ Format::valueWithUnit(data_get($temperatureResistance, 'maximum'), '°C', 1) }}</x-dt-dd>
-        </x-dl-section>
-    </x-dl-container>
-</x-item-card>
+<x-data-card title="Clothing" :sections="$sections" {{ $attributes }} />
