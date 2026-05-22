@@ -68,7 +68,7 @@
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Resource Network</h2>
 
-            <div class="grid gap-12 xl:grid-cols-3">
+            <div class="grid gap-6 xl:grid-cols-3">
                 @if ($signatureSummaryRows !== [])
                     <section class="space-y-4">
                         <div class="space-y-1">

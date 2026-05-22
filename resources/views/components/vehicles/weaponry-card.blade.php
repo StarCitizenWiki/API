@@ -27,7 +27,7 @@
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Weaponry</h2>
 
-            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                 @if ($hasPilot)
                     <x-dl-section title="Pilot Weapons">
                         @if ($pilotDps !== null)

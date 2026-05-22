@@ -34,7 +34,7 @@
                     @foreach($column as $categoryLabel => $categoryPorts)
                         <div class="card card-border bg-base-100 shadow">
                             <div class="card-body gap-2 p-3">
-                                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                <h4 class="text-xs font-semibold uppercase tracking-wider text-subtle">
                                     {{ $categoryLabel }}
                                     <span class="badge badge-ghost badge-sm ml-1">{{ count($categoryPorts) }}</span>
                                 </h4>
@@ -56,7 +56,7 @@
         <details class="collapse collapse-arrow rounded-lg border border-base-300 bg-base-100 shadow-sm" @if($columns->isEmpty()) open @endif>
             <summary class="collapse-title min-h-10 py-2 text-sm">
                 <span class="flex items-center gap-2">
-                    <span class="text-muted">Other hardpoints</span>
+                    <span class="text-subtle">Other hardpoints</span>
                     <span class="badge badge-ghost badge-sm">{{ $otherCount }}</span>
                 </span>
             </summary>
@@ -66,7 +66,7 @@
                     @foreach($otherGroups as $categoryLabel => $categoryPorts)
                         <div class="card card-border bg-base-100 shadow">
                             <div class="card-body gap-2 p-3">
-                                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                <h4 class="text-xs font-semibold uppercase tracking-wider text-subtle">
                                     {{ $categoryLabel }}
                                     <span class="badge badge-ghost badge-sm ml-1">{{ count($categoryPorts) }}</span>
                                 </h4>

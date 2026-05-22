@@ -62,15 +62,6 @@
             <x-vehicles.vehicle-breadcrumbs :vehicle="$vehicle" :manufacturerCode="$manufacturerCode" :breadcrumbs="$breadcrumbs" />
         </div>
 
-        <x-resource-search
-            title="Search vehicles"
-            description="Find vehicles by name across the universe database."
-            :route="route('web.vehicles.index')"
-            placeholder="Search vehicle names"
-            variant="minimal"
-            apiEndpoint="/api/vehicles"
-        />
-
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
             <x-vehicles.hero :vehicle="$vehicle" :translations="data_get($vehicle, 'description')" class="xl:col-span-6" />
             <x-vehicles.quick-facts-card :vehicle="$vehicle" class="xl:col-span-6" />

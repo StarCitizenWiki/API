@@ -24,7 +24,7 @@
         <div class="card-body gap-4">
             <h2 class="card-title text-base">Shield</h2>
 
-            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2">
+            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
                 <x-dl-section title="Info">
                     @if ($faceType !== null)
                         <x-dt-dd label="Face Type">{{ $faceType }}</x-dt-dd>

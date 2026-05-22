@@ -11,7 +11,7 @@
         <div class="card-body p-5 sm:p-6">
             <h2 class="card-title text-base">Storage</h2>
 
-            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2">
+            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
                 @if ($suitStorage !== null)
                     <x-dl-section title="Suit Storage">
                         <x-dt-dd label="Lockers">

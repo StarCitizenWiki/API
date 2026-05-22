@@ -62,7 +62,7 @@
         <div class="card-body gap-4">
             <h2 class="card-title text-base">System Breakdown</h2>
 
-            <div class="grid gap-12 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                 @if ($signatureBreakdownRows !== [])
                     <x-dl-section title="EM Groups" :dlClass="'grid grid-cols-3 gap-x-3 gap-y-2'">
                         <div class="text-xs font-light uppercase tracking-wide text-subtle">System / EM</div>
