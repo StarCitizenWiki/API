@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('game_version_id')->index();
+            $table->foreign('game_version_id')->references('id')->on('game_versions')->cascadeOnDelete();
             $table->unsignedBigInteger('manufacturer_id');
             $table->string('name');
             $table->string('class_name');

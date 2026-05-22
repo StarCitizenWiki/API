@@ -21,6 +21,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('mission_id');
             $table->unsignedBigInteger('game_version_id')->index();
+            $table->foreign('game_version_id')->references('id')->on('game_versions')->cascadeOnDelete();
             $table->string('debug_name')->nullable();
             $table->string('mission_type')->nullable();
             $table->uuid('mission_type_uuid')->nullable();

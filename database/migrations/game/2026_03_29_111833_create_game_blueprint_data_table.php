@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('blueprint_id');
             $table->unsignedBigInteger('game_version_id')->index();
+            $table->foreign('game_version_id')->references('id')->on('game_versions')->cascadeOnDelete();
             $table->string('key');
             $table->uuid('category_uuid');
             $table->uuid('output_item_uuid');
