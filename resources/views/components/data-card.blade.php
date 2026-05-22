@@ -7,6 +7,37 @@
     $hasData = collect($sections)
         ->filter(fn ($s) => ($s['rows'] ?? []) !== [] || ($s['spacer'] ?? false))
         ->isNotEmpty();
+
+    $gridColumnClasses = [
+        1 => 'grid-cols-1',
+        2 => 'grid-cols-2',
+        3 => 'grid-cols-3',
+        4 => 'grid-cols-4',
+        5 => 'grid-cols-5',
+        6 => 'grid-cols-6',
+        7 => 'grid-cols-7',
+        8 => 'grid-cols-8',
+        9 => 'grid-cols-9',
+        10 => 'grid-cols-10',
+        11 => 'grid-cols-11',
+        12 => 'grid-cols-12',
+    ];
+
+    $columnSpanClasses = [
+        1 => 'col-span-1',
+        2 => 'col-span-2',
+        3 => 'col-span-3',
+        4 => 'col-span-4',
+        5 => 'col-span-5',
+        6 => 'col-span-6',
+        7 => 'col-span-7',
+        8 => 'col-span-8',
+        9 => 'col-span-9',
+        10 => 'col-span-10',
+        11 => 'col-span-11',
+        12 => 'col-span-12',
+        'full' => 'col-span-full',
+    ];
 @endphp
 
 @if ($hasData)
@@ -15,15 +46,18 @@
             <h2 class="card-title text-base">{{ $title }}</h2>
 
             @php
-                $gridSections = array_values(array_filter($sections, fn ($s) => ! ($s['fullWidth'] ?? false)));
-                $fullWidthSections = array_values(array_filter($sections, fn ($s) => ($s['fullWidth'] ?? false)));
+                $gridSections = array_values(array_filter($sections, static fn ($s) => ! ($s['fullWidth'] ?? false)));
+                $fullWidthSections = array_values(array_filter($sections, static fn ($s) => ($s['fullWidth'] ?? false)));
             @endphp
 
             @if ($fullWidthSections !== [])
                 @foreach ($fullWidthSections as $section)
                     @if (($section['rows'] ?? []) !== [])
-                        @php $colCount = count($section['columns'] ?? []); @endphp
-                        <dl class="grid grid-cols-{{ $colCount }} gap-x-2 gap-y-1">
+                        @php
+                            $colCount = count($section['columns'] ?? []);
+                            $gridColumnClass = $gridColumnClasses[$colCount] ?? 'grid-cols-1';
+                        @endphp
+                        <dl class="grid {{ $gridColumnClass }} gap-x-2 gap-y-1">
                             @foreach ($section['columns'] as $col)
                                 <dt class="text-xs text-muted border-b border-base-200 pb-1 {{ $loop->first ? '' : 'text-right' }}">{{ $col }}</dt>
                             @endforeach
@@ -44,7 +78,11 @@
                         @if (($section['spacer'] ?? false))
                             <div></div>
                         @elseif (($section['rows'] ?? []) !== [])
-                            <div @if (($section['colSpan'] ?? null)) class="col-span-{{ $section['colSpan'] }}" @endif>
+                            @php
+                                $columnSpan = $section['colSpan'] ?? null;
+                                $columnSpanClass = $columnSpanClasses[$columnSpan] ?? null;
+                            @endphp
+                            <div @if ($columnSpanClass !== null) class="{{ $columnSpanClass }}" @endif>
                                 <div class="flex items-baseline justify-between border-b border-base-200 pb-1 mb-2">
                                     <h3 class="text-xs font-medium uppercase tracking-wider text-muted">{{ $section['title'] ?? '' }}</h3>
                                     @if (($section['header'] ?? null))
@@ -53,8 +91,11 @@
                                 </div>
 
                                 @if (($section['columns'] ?? null) !== null)
-                                    @php $colCount = count($section['columns']) + 1; @endphp
-                                    <dl class="grid grid-cols-{{ $colCount }} gap-x-2 gap-y-1">
+                                    @php
+                                        $colCount = count($section['columns']) + 1;
+                                        $gridColumnClass = $gridColumnClasses[$colCount] ?? 'grid-cols-1';
+                                    @endphp
+                                    <dl class="grid {{ $gridColumnClass }} gap-x-2 gap-y-1">
                                         <dt class="text-xs text-muted">{{ $section['colHeader'] ?? '' }}</dt>
                                         @foreach ($section['columns'] as $col)
                                             <dt class="text-right text-xs text-muted">{{ $col }}</dt>

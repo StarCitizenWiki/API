@@ -18,8 +18,8 @@
     $sections = [];
 
     $pilotRows = array_values(array_filter([
-        ['label' => 'DPS', 'value' => $pilotDps !== null ? Format::numberOrDash($pilotDps, 1) . ' DPS' : null],
-        ['label' => 'Sustained DPS', 'value' => $pilotSustainedDps !== null ? Format::numberOrDash($pilotSustainedDps, 1) . ' DPS' : null],
+        ['label' => 'DPS', 'value' => $pilotDps !== null ? Format::numberOrDash($pilotDps, 1) : null],
+        ['label' => 'Sustained DPS', 'value' => $pilotSustainedDps !== null ? Format::numberOrDash($pilotSustainedDps, 1) : null],
         ['label' => 'Alpha', 'value' => $pilotAlpha !== null ? Format::numberOrDash($pilotAlpha, 1) : null],
     ], static fn (array $row): bool => $row['value'] !== null));
 

@@ -10,6 +10,13 @@
 
 @section('content')
     @php
+        $categoryColorClasses = [
+            'primary' => ['bg' => 'bg-primary/10', 'text' => 'text-primary'],
+            'secondary' => ['bg' => 'bg-secondary/10', 'text' => 'text-secondary'],
+            'accent' => ['bg' => 'bg-accent/10', 'text' => 'text-accent'],
+            'info' => ['bg' => 'bg-info/10', 'text' => 'text-info'],
+        ];
+
         $categorySections = [
             [
                 'title' => 'Game Data',
@@ -229,8 +236,9 @@
             <div class="rounded-box border border-base-300 bg-base-100 p-4 sm:p-5">
                 <div class="flex flex-col sm:flex-row sm:items-start">
                     <div class="mb-3 flex items-center gap-2.5 sm:mb-0 sm:w-56 sm:shrink-0">
-                        <div class="rounded-lg bg-{{ $section['color'] }}/10 p-2">
-                            <x-icon name="{{ $section['icon'] }}" class="size-5 text-{{ $section['color'] }}" />
+                        @php $colorClasses = $categoryColorClasses[$section['color']] ?? $categoryColorClasses['primary']; @endphp
+                        <div class="rounded-lg {{ $colorClasses['bg'] }} p-2">
+                            <x-icon name="{{ $section['icon'] }}" class="size-5 {{ $colorClasses['text'] }}" />
                         </div>
                         <div>
                             <h2 class="text-base font-semibold">{{ $section['title'] }}</h2>
