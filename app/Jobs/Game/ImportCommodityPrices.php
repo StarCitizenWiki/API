@@ -38,7 +38,8 @@ class ImportCommodityPrices implements ShouldQueue
     private const string API_URL = 'https://api.uexcorp.uk/2.0/commodities_prices_all';
 
     public function __construct(
-        private readonly int $gameVersionId
+        private readonly int $gameVersionId,
+        private readonly ?string $previousVersionCode = null,
     ) {}
 
     public function handle(): void
@@ -122,7 +123,7 @@ class ImportCommodityPrices implements ShouldQueue
 
             $pricesData = $prices
                 ->unique('id_terminal')
-                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode, $uexLink): array {
+                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode, $versionPrefixMap, $uexLink): array {
                     $terminalId = (int) $p['id_terminal'];
                     $locationUuid = $locationMapping->get($terminalId);
 
