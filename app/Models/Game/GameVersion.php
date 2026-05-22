@@ -81,7 +81,19 @@ class GameVersion extends Model
         return static::query()
             ->where('code', 'LIKE', "{$matches[1]}%")
             ->where('code', '!=', $this->code)
+            ->when(
+                $this->released_at !== null,
+                fn (Builder $query): Builder => $query->where(function (Builder $query): void {
+                    $query->where('released_at', '<', $this->released_at)
+                        ->orWhere(function (Builder $query): void {
+                            $query->where('released_at', $this->released_at)
+                                ->where('id', '<', $this->id);
+                        });
+                }),
+                fn (Builder $query): Builder => $query->where('id', '<', $this->id),
+            )
             ->orderByDesc('released_at')
+            ->orderByDesc('id')
             ->first();
     }
 
@@ -103,7 +115,19 @@ class GameVersion extends Model
         return static::query()
             ->where('code', 'LIKE', "{$prefix}.%")
             ->where('code', '!=', $this->code)
+            ->when(
+                $this->released_at !== null,
+                fn (Builder $query): Builder => $query->where(function (Builder $query): void {
+                    $query->where('released_at', '<', $this->released_at)
+                        ->orWhere(function (Builder $query): void {
+                            $query->where('released_at', $this->released_at)
+                                ->where('id', '<', $this->id);
+                        });
+                }),
+                fn (Builder $query): Builder => $query->where('id', '<', $this->id),
+            )
             ->orderByDesc('released_at')
+            ->orderByDesc('id')
             ->first();
     }
 }

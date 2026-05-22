@@ -82,6 +82,46 @@ it('findPreviousVersion falls back to previous minor when no patch match', funct
         ->and($result->code)->toBe('4.6.0-LIVE.55555');
 });
 
+it('findPreviousVersion ignores newer patch builds before falling back to previous minor', function (): void {
+    $current = GameVersion::factory()->create([
+        'code' => '4.8.0-LIVE.11825000',
+        'released_at' => '2026-05-14 00:00:00',
+    ]);
+    GameVersion::factory()->create([
+        'code' => '4.8.0-LIVE.11875683',
+        'released_at' => '2026-05-20 00:00:00',
+    ]);
+    GameVersion::factory()->create([
+        'code' => '4.7.2-LIVE.11674325',
+        'released_at' => '2026-05-01 00:00:00',
+    ]);
+
+    $result = $current->findPreviousVersion();
+
+    expect($result)->not->toBeNull()
+        ->and($result->code)->toBe('4.7.2-LIVE.11674325');
+});
+
+it('findPreviousPatchVersion ignores newer patch builds', function (): void {
+    $current = GameVersion::factory()->create([
+        'code' => '4.8.0-LIVE.11825000',
+        'released_at' => '2026-05-14 00:00:00',
+    ]);
+    GameVersion::factory()->create([
+        'code' => '4.8.0-LIVE.11875683',
+        'released_at' => '2026-05-20 00:00:00',
+    ]);
+    GameVersion::factory()->create([
+        'code' => '4.8.0-LIVE.11810000',
+        'released_at' => '2026-05-10 00:00:00',
+    ]);
+
+    $result = $current->findPreviousPatchVersion();
+
+    expect($result)->not->toBeNull()
+        ->and($result->code)->toBe('4.8.0-LIVE.11810000');
+});
+
 it('findPreviousVersion returns null when no match at all', function (): void {
     $current = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE.12345',
