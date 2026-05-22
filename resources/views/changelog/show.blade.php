@@ -13,21 +13,37 @@
 
 @section('content')
     <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2">
-            <div class="breadcrumbs text-sm text-subtle">
-                <ul>
-                    <li>Changelog</li>
-                    <li>{{ $toCode }}</li>
-                </ul>
-            </div>
-
+        <div class="flex flex-col gap-3">
             <h1 class="text-3xl font-bold">Version Changelog</h1>
-            <div class="flex items-center gap-2 text-subtle">
-                <span class="font-mono">{{ $fromCode }}</span>
-                <x-icon name="arrow-right" class="size-4" />
-                <span class="font-mono font-semibold">{{ $toCode }}</span>
-                @if($version->released_at)
-                    <span class="text-sm">· Released {{ $version->released_at->format('M j, Y') }}</span>
+
+            <div class="flex items-center justify-between gap-4">
+                @if($olderVersionCode)
+                    <a href="{{ route('web.changelog.show', array_filter(['version' => $olderVersionCode, 'entity_type' => $entityType !== 'item' ? $entityType : null, 'change_type' => $changeType !== 'all' ? $changeType : null])) }}"
+                       class="btn btn-ghost btn-sm gap-1">
+                        <x-icon name="arrow-left" class="size-4" />
+                        {{ $olderVersionCode }}
+                    </a>
+                @else
+                    <span></span>
+                @endif
+
+                <div class="flex items-center gap-2 text-subtle text-sm">
+                    <span class="font-mono">{{ $fromCode }}</span>
+                    <x-icon name="arrow-right" class="size-4 shrink-0" />
+                    <span class="font-mono font-semibold text-base-content">{{ $toCode }}</span>
+                    @if($version->released_at)
+                        <span class="text-xs">· {{ $version->released_at->format('M j, Y') }}</span>
+                    @endif
+                </div>
+
+                @if($newerVersionCode)
+                    <a href="{{ route('web.changelog.show', array_filter(['version' => $newerVersionCode, 'entity_type' => $entityType !== 'item' ? $entityType : null, 'change_type' => $changeType !== 'all' ? $changeType : null])) }}"
+                       class="btn btn-ghost btn-sm gap-1">
+                        {{ $newerVersionCode }}
+                        <x-icon name="chevron-right" class="size-4" />
+                    </a>
+                @else
+                    <span></span>
                 @endif
             </div>
         </div>
@@ -55,6 +71,7 @@
             @endforeach
         </div>
 
+        {{-- Change type filter --}}
         <div class="flex flex-wrap gap-2 items-center">
             <div class="join">
                 <a href="{{ route('web.changelog.show', ['version' => $version->code, 'entity_type' => $entityType, 'change_type' => 'all']) }}"
@@ -79,7 +96,10 @@
         </div>
 
         @if($changes->isEmpty())
-            <div class="text-center text-subtle py-12">No changes found for this filter.</div>
+            <div class="flex flex-col items-center gap-2 py-16 text-subtle">
+                <x-icon name="search-x" class="size-8 opacity-50" />
+                <span>No changes found for this filter.</span>
+            </div>
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 @foreach($changes as $diff)
@@ -93,7 +113,7 @@
                         $changeTree = $hasDetails ? $diff->buildChangeTree() : [];
                     @endphp
 
-                    <div class="card bg-base-100 shadow-sm">
+                    <div class="card bg-base-100 shadow-sm border border-base-300">
                         <div class="card-body p-3 gap-1">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0">
@@ -137,7 +157,6 @@
             </div>
         @endif
 
-        {{-- Pagination --}}
         <div class="flex justify-center">
             {{ $changes->withQueryString()->links() }}
         </div>

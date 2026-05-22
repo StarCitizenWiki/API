@@ -55,6 +55,19 @@ class ChangelogController extends Controller
 
         $changes = $query->paginate(50)->appends($request->query());
 
+        $diffVersionIds = VersionDiff::query()
+            ->selectRaw('DISTINCT to_version_id')
+            ->pluck('to_version_id');
+
+        $allVersionCodes = GameVersion::query()
+            ->where('is_hidden', false)
+            ->whereIn('id', $diffVersionIds)
+            ->orderBy('id')
+            ->pluck('code')
+            ->values();
+
+        $currentIdx = $allVersionCodes->search($gameVersion->code);
+
         return view('changelog.show', [
             'version' => $gameVersion,
             'previousVersion' => $previousVersion,
@@ -64,6 +77,8 @@ class ChangelogController extends Controller
             'entityType' => $entityType,
             'changeType' => $changeType,
             'pageTitle' => "Changelog: {$previousVersion->code} -> {$gameVersion->code}",
+            'olderVersionCode' => $currentIdx > 0 ? $allVersionCodes[$currentIdx - 1] : null,
+            'newerVersionCode' => $allVersionCodes->has($currentIdx + 1) ? $allVersionCodes[$currentIdx + 1] : null,
         ]);
     }
 }

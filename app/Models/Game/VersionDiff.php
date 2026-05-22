@@ -7,6 +7,7 @@ namespace App\Models\Game;
 use App\Support\Game\DeepDiff;
 use App\Support\Game\EntityTypeConfig;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -14,6 +15,8 @@ use Illuminate\Support\Collection;
 
 class VersionDiff extends Model
 {
+    use HasFactory;
+
     protected $table = 'game_version_diffs';
 
     protected $fillable = [
