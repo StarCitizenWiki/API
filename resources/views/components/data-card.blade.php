@@ -15,7 +15,6 @@
             <h2 class="card-title text-base">{{ $title }}</h2>
 
             @php
-                $hasFullWidth = collect($sections)->contains(fn ($s) => ($s['fullWidth'] ?? false));
                 $gridSections = array_values(array_filter($sections, fn ($s) => ! ($s['fullWidth'] ?? false)));
                 $fullWidthSections = array_values(array_filter($sections, fn ($s) => ($s['fullWidth'] ?? false)));
             @endphp

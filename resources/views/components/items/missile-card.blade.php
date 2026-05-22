@@ -92,7 +92,6 @@
 
     // Delays
     $delaysRows = array_values(array_filter([
-        ['label' => 'Arm Time', 'value' => data_get($delays, 'arm_time') !== null ? Format::valueWithUnit(data_get($delays, 'arm_time'), 's', 2) : null],
         ['label' => 'Ignite Time', 'value' => data_get($delays, 'ignite_time') !== null ? Format::valueWithUnit(data_get($delays, 'ignite_time'), 's', 2) : null],
         ['label' => 'Collision Delay Time', 'value' => data_get($delays, 'collision_delay_time') !== null ? Format::valueWithUnit(data_get($delays, 'collision_delay_time'), 's', 2) : null],
         ['label' => 'Lock Time', 'value' => data_get($delays, 'lock_time') !== null ? Format::valueWithUnit(data_get($delays, 'lock_time'), 's', 2) : null],

@@ -31,7 +31,7 @@
 
     $damageTypes = ['physical', 'energy', 'distortion', 'thermal', 'biochemical', 'stun'];
 
-    $formatMetric = function (array $metric): ?array {
+    $formatMetric = static function (array $metric): ?array {
         $val = $metric['value'] ?? null;
         if ($val === null) {
             return null;
@@ -49,20 +49,8 @@
         return ['label' => $metric['label'], 'value' => Format::numberOrDash($val, $metric['precision'] ?? 0)];
     };
 
-    $formatMetrics = function (array $metrics) use ($formatMetric): array {
+    $formatMetrics = static function (array $metrics) use ($formatMetric): array {
         return array_values(array_filter(array_map($formatMetric, $metrics)));
-    };
-
-    $formatModeMetrics = function (array $metrics) use ($formatMetric): array {
-        $rows = [];
-        foreach ($metrics as $metric) {
-            $row = $formatMetric($metric);
-            if ($row !== null) {
-                $rows[] = $row;
-            }
-        }
-
-        return $rows;
     };
 
     $sections = [];
@@ -195,7 +183,7 @@
 
     // Mode-specific sections (mutually exclusive)
     if ($fireType === 'beam') {
-        $beamRows = $formatModeMetrics([
+        $beamRows = $formatMetrics([
             ['label' => 'Charge Up Time', 'value' => data_get($mode, 'charge_up_time'), 'unit' => 's', 'precision' => 2],
             ['label' => 'Charge Down Time', 'value' => data_get($mode, 'charge_down_time'), 'unit' => 's', 'precision' => 2],
             ['label' => 'Full Damage Range', 'value' => data_get($mode, 'full_damage_range'), 'unit' => 'm', 'precision' => 0],
@@ -207,7 +195,7 @@
             $sections[] = ['title' => 'Beam', 'rows' => $beamRows];
         }
     } elseif ($fireType === 'healingbeam') {
-        $healRows = $formatModeMetrics([
+        $healRows = $formatMetrics([
             ['label' => 'Healing Mode', 'value' => data_get($mode, 'healing_mode')],
             ['label' => 'Healing Per Second', 'value' => data_get($mode, 'healing_per_second'), 'unit' => '/s', 'precision' => 2],
             ['label' => 'Ammo Per MSCU', 'value' => data_get($mode, 'ammo_per_mscu'), 'unit' => '', 'precision' => 2],
@@ -224,7 +212,7 @@
             $sections[] = ['title' => 'Healing Beam', 'rows' => $healRows];
         }
     } elseif (in_array($fireType, ['salvage', 'repair'])) {
-        $salvageRows = $formatModeMetrics([
+        $salvageRows = $formatMetrics([
             ['label' => 'Material Efficiency', 'value' => data_get($mode, 'material_efficiency'), 'unit' => '', 'precision' => 2],
             ['label' => 'Max Health Repair Rate', 'value' => data_get($mode, 'max_health_repair_rate'), 'unit' => '/s', 'precision' => 2],
             ['label' => 'Health To Ammo Ratio', 'value' => data_get($mode, 'health_to_ammo_ratio'), 'unit' => '', 'precision' => 2],
@@ -242,7 +230,7 @@
             $sections[] = ['title' => 'Salvage / Repair', 'rows' => $salvageRows];
         }
     } elseif ($fireType === 'collectionbeam') {
-        $collectRows = $formatModeMetrics([
+        $collectRows = $formatMetrics([
             ['label' => 'Minimum Distance', 'value' => data_get($mode, 'minimum_distance'), 'unit' => 'm', 'precision' => 1],
             ['label' => 'Maximum Distance', 'value' => data_get($mode, 'maximum_distance'), 'unit' => 'm', 'precision' => 1],
             ['label' => 'Beam Radius', 'value' => data_get($mode, 'beam_radius'), 'unit' => 'm', 'precision' => 2],
@@ -254,14 +242,14 @@
             $sections[] = ['title' => 'Collection Beam', 'rows' => $collectRows];
         }
     } elseif ($fireType === 'tractorbeam') {
-        $tractorRows = $formatModeMetrics([
+        $tractorRows = $formatMetrics([
             ['label' => 'Toggle Mode', 'value' => data_get($mode, 'toggle_mode')],
         ]);
         if ($tractorRows !== []) {
             $sections[] = ['title' => 'Tractor Beam', 'rows' => $tractorRows];
         }
     } elseif ($fireType === 'burst') {
-        $burstRows = $formatModeMetrics([
+        $burstRows = $formatMetrics([
             ['label' => 'Shot Count', 'value' => data_get($mode, 'shot_count'), 'unit' => '', 'precision' => 0],
             ['label' => 'Cooldown Time', 'value' => data_get($mode, 'cooldown_time'), 'unit' => 's', 'precision' => 2],
         ]);
@@ -269,14 +257,14 @@
             $sections[] = ['title' => 'Burst', 'rows' => $burstRows];
         }
     } elseif ($fireType === 'rapid') {
-        $rapidRows = $formatModeMetrics([
+        $rapidRows = $formatMetrics([
             ['label' => 'Fire During Spin Up', 'value' => data_get($mode, 'fire_during_spin_up')],
         ]);
         if ($rapidRows !== []) {
             $sections[] = ['title' => 'Rapid', 'rows' => $rapidRows];
         }
     } elseif ($fireType === 'sequence') {
-        $sequenceRows = $formatModeMetrics([
+        $sequenceRows = $formatMetrics([
             ['label' => 'Sequence Mode', 'value' => data_get($mode, 'sequence_mode')],
         ]);
         if ($sequenceRows !== []) {

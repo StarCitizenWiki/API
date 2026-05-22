@@ -357,11 +357,12 @@
                                 @endif
                         @endif
 
-                        @if ($portsCount > 0)
-                            <x-items.ports-card :ports="$ports" class="w-full" />
-                        @endif
                         </div>
                     </div>
+
+                    @if ($portsCount > 0)
+                        <x-items.ports-card :ports="$ports" class="w-full" />
+                    @endif
                 </section>
             @endif
 
