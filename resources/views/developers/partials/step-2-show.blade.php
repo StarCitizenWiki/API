@@ -69,7 +69,7 @@ echo $vehicle['data']['name'];</code></pre>
 
         <p class="text-sm text-subtle">
             <x-icon name="arrow-right" class="inline size-3.5 text-primary" />
-            For lists, use index routes with filters discovered from the API.
+            For lists, use index routes with filters from the OpenAPI documentation or /filters endpoint.
         </p>
     </div>
 </section>

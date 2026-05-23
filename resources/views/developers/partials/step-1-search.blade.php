@@ -38,7 +38,6 @@
             <div class="flex flex-col gap-2">
                 <div class="flex items-center justify-between gap-3">
                     <span class="text-xs font-semibold uppercase tracking-wide text-subtle">Response</span>
-                    <span class="badge badge-outline badge-sm" x-show="resultCount !== null" x-text="`${resultCount} result${resultCount === 1 ? '' : 's'}`" style="display: none;"></span>
                 </div>
                 <div class="min-h-28 rounded-box bg-base-300 p-4" aria-live="polite">
                     <div class="flex items-center gap-2 text-sm text-subtle" x-show="loading" style="display: none;">
