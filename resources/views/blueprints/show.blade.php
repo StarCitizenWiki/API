@@ -215,7 +215,6 @@
                     <div class="lg:col-span-7 xl:col-span-8">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                             <h2 class="text-lg font-semibold tracking-tight">Blueprint inputs</h2>
-                            <span class="badge badge-outline badge-sm">{{ $aspectCount }} recipe input{{ $aspectCount === 1 ? '' : 's' }}</span>
                         </div>
 
                         @if ($aspects === [])

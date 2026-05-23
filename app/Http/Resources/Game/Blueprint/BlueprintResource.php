@@ -59,6 +59,22 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'better_when', description: 'Indicates whether a higher or lower value is desirable', type: 'string', enum: ['higher', 'lower', 'neutral'], nullable: true),
         new OA\Property(property: 'quality_range', ref: '#/components/schemas/blueprint_modifier_quality_range'),
         new OA\Property(property: 'modifier_range', ref: '#/components/schemas/blueprint_modifier_range'),
+        new OA\Property(property: 'value_range_type', description: 'Interpolation type for the modifier value range. When present, value_segments should be used for interpolation instead of the simple quality_range/modifier_range pair.', type: 'string', enum: ['linear'], nullable: true),
+        new OA\Property(
+            property: 'value_segments',
+            description: 'Multi-step interpolation segments. Each segment defines its own quality range and modifier start/end values. When present, use these for interpolation instead of quality_range/modifier_range.',
+            type: 'array',
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(property: 'quality_min', description: 'Start quality for this segment', type: 'integer'),
+                    new OA\Property(property: 'quality_max', description: 'End quality for this segment', type: 'integer'),
+                    new OA\Property(property: 'modifier_at_start', description: 'Modifier value at quality_min', type: 'number', format: 'float'),
+                    new OA\Property(property: 'modifier_at_end', description: 'Modifier value at quality_max', type: 'number', format: 'float'),
+                ],
+                type: 'object',
+            ),
+            nullable: true,
+        ),
     ],
     type: 'object'
 )]

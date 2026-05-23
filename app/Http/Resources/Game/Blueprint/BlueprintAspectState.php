@@ -95,6 +95,47 @@ final class BlueprintAspectState
                 if (is_numeric($atMinQuality) && is_numeric($atMaxQuality) && (float) $atMinQuality !== (float) $atMaxQuality) {
                     $hasDynamicModifiers = true;
                 }
+
+                // Expand slider range to cover value_segments when they extend beyond quality_range
+                $segments = is_array($modifier['value_segments'] ?? null) ? $modifier['value_segments'] : [];
+
+                if ($segments !== []) {
+                    $segEffectiveMin = null;
+                    $segEffectiveMax = null;
+
+                    foreach ($segments as $segment) {
+                        $qMin = $segment['quality_min'] ?? null;
+                        $qMax = $segment['quality_max'] ?? null;
+
+                        if (is_numeric($qMin)) {
+                            $segEffectiveMin = $segEffectiveMin === null ? (int) $qMin : min($segEffectiveMin, (int) $qMin);
+                        }
+
+                        if (is_numeric($qMax)) {
+                            $segEffectiveMax = $segEffectiveMax === null ? (int) $qMax : max($segEffectiveMax, (int) $qMax);
+                        }
+                    }
+
+                    if ($segEffectiveMin !== null) {
+                        $sliderMin = max($sliderMin, $segEffectiveMin);
+                    }
+
+                    if ($segEffectiveMax !== null) {
+                        $sliderMax = max($sliderMin, $segEffectiveMax, $sliderMax);
+                    }
+                }
+
+                if (! $hasDynamicModifiers && $segments !== []) {
+                    foreach ($segments as $segment) {
+                        $segStart = (float) ($segment['modifier_at_start'] ?? 1);
+                        $segEnd = (float) ($segment['modifier_at_end'] ?? 1);
+
+                        if (abs($segStart - $segEnd) > 0.0001) {
+                            $hasDynamicModifiers = true;
+                            break;
+                        }
+                    }
+                }
             }
 
             if ($sliderMax < $sliderMin) {

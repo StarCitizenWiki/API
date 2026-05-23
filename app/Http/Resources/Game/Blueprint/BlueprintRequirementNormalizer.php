@@ -196,7 +196,7 @@ final class BlueprintRequirementNormalizer
             $normalized[] = [
                 'property_key' => $propertyKey,
                 'property_uuid' => $this->arrayNullableString($modifier, 'property_uuid'),
-                'label' => $this->modifierLabel($propertyKey),
+                'label' => $this->resolveModifierLabel($propertyKey, $modifier),
                 'better_when' => $this->modifierBetterWhen($modifier),
                 'quality_range' => [
                     'min' => $this->nullableNumeric(data_get($modifier, 'quality_range.min')),
@@ -206,6 +206,8 @@ final class BlueprintRequirementNormalizer
                     'at_min_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_min_quality') ?? $modifier['value'] ?? null),
                     'at_max_quality' => $this->nullableNumeric(data_get($modifier, 'modifier_range.at_max_quality') ?? $modifier['value'] ?? null),
                 ],
+                'value_range_type' => $this->arrayNullableString($modifier, 'value_range_type'),
+                'value_segments' => $this->normalizeValueSegments($modifier['value_segments'] ?? null),
             ];
         }
 
@@ -233,11 +235,40 @@ final class BlueprintRequirementNormalizer
         return $atMaxQuality > $atMinQuality ? 'higher' : 'lower';
     }
 
-    private function modifierLabel(string $propertyKey): string
+    /**
+     * @return array<int, array{quality_min: int, quality_max: int, modifier_at_start: float, modifier_at_end: float}>|null
+     */
+    private function normalizeValueSegments(mixed $segments): ?array
     {
+        if (! is_array($segments) || $segments === []) {
+            return null;
+        }
+
+        return array_values(array_map(function (array $segment): array {
+            return [
+                'quality_min' => (int) ($segment['quality_min'] ?? 0),
+                'quality_max' => (int) ($segment['quality_max'] ?? 0),
+                'modifier_at_start' => (float) ($segment['modifier_at_start'] ?? 1),
+                'modifier_at_end' => (float) ($segment['modifier_at_end'] ?? 1),
+            ];
+        }, array_filter($segments, 'is_array')));
+    }
+
+    /**
+     * @param  array<string, mixed>  $modifier
+     */
+    private function resolveModifierLabel(string $propertyKey, array $modifier): string
+    {
+        // Use the Name field from the raw data (e.g. "Integrity", "Quantum Speed", "Impact Force")
+        $name = $this->arrayNullableString($modifier, 'name');
+        if ($name !== null && $name !== '') {
+            return $name;
+        }
+
+        // Pre 4.8 data
         $normalizedPropertyKey = str_replace(
-            ['temperaturemax', 'temperaturemin', 'damagemitigation'],
-            ['temperature max', 'temperature min', 'damage mitigation'],
+            ['temperaturemax', 'temperaturemin', 'damagemitigation', 'health_maxhealth', 'quantum_fuelrequirement'],
+            ['temperature max', 'temperature min', 'damage mitigation', 'max_health', 'quantum_fuel_requirement'],
             $propertyKey,
         );
 

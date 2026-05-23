@@ -132,6 +132,13 @@ export function blueprintTuning() {
         // --- Modifier interpolation ---
 
         interpolateModifier(modifier, quality) {
+            // Use value_segments if available
+            const segments = modifier?.value_segments;
+            if (Array.isArray(segments) && segments.length > 0) {
+                return this.interpolateSegments(segments, quality);
+            }
+
+            // Fallback to simple linear interpolation from quality_range/modifier_range
             const qualityMin = num(modifier?.quality_range?.min, 0);
             const qualityMax = num(modifier?.quality_range?.max, 1000);
             const atMin = num(modifier?.modifier_range?.at_min_quality, 1);
@@ -140,6 +147,54 @@ export function blueprintTuning() {
             if (qualityMax === qualityMin) return atMax;
             const ratio = (quality - qualityMin) / (qualityMax - qualityMin);
             return atMin + (atMax - atMin) * ratio;
+        },
+
+        /**
+         * Find the correct segment and linearly interpolate within it.
+         * Segments are ordered by quality. Quality values outside the
+         * segment range clamp to the nearest segment boundary.
+         */
+        interpolateSegments(segments, quality) {
+            let segment = segments[0];
+            let lastBelow = null;
+
+            for (let i = 0; i < segments.length; i++) {
+                const seg = segments[i];
+                const qMin = num(seg.quality_min, 0);
+                const qMax = num(seg.quality_max, 1000);
+
+                if (quality >= qMin && quality <= qMax) {
+                    segment = seg;
+                    break;
+                }
+
+                if (quality > qMax) {
+                    lastBelow = seg;
+                }
+
+                if (quality > qMax && i === segments.length - 1) {
+                    segment = seg;
+                }
+            }
+
+            // Gap between non-first segments: use the nearest lower segment
+            if (segment === segments[0] && lastBelow !== null && quality > num(segments[0].quality_max, 1000)) {
+                segment = lastBelow;
+            }
+
+            const qMin = num(segment.quality_min, 0);
+            const qMax = num(segment.quality_max, 1000);
+            const atStart = num(segment.modifier_at_start, 1);
+            const atEnd = num(segment.modifier_at_end, atStart);
+            const clampedQuality = Math.max(qMin, Math.min(quality, qMax));
+
+            if (qMax === qMin) {
+                return atEnd;
+            }
+
+            const ratio = (clampedQuality - qMin) / (qMax - qMin);
+
+            return atStart + (atEnd - atStart) * ratio;
         },
 
         relativeChange(baseline, current) {

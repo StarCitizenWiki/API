@@ -8,11 +8,6 @@
     $isSelected = (bool) ($aspect['is_selected'] ?? true);
     $input = is_array($aspect['input'] ?? null) ? $aspect['input'] : [];
     $inputKind = is_string($input['kind'] ?? null) ? trim($input['kind']) : '';
-    $inputKindLabel = match ($inputKind) {
-        'item' => 'Item',
-        'resource' => 'Resource',
-        default => 'Input',
-    };
     $inputName = is_string($input['name'] ?? null) && trim($input['name']) !== '' ? trim($input['name']) : 'Unknown input';
     $inputMinQuality = (int) ($input['min_quality'] ?? 0);
     $inputQuantity = $input['quantity'] ?? null;
@@ -26,8 +21,7 @@
             <div class="flex flex-1 flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
                 <div class="min-w-0 space-y-1 lg:w-1/2">
                     <div class="flex flex-wrap items-center gap-2">
-                        <div
-                            class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $aspect['name'] }}</div>
+                        <div class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $aspect['name'] }}</div>
                         @if ($isSelectable)
                             <button
                                 type="button"
@@ -39,35 +33,34 @@
                         @endif
                     </div>
                     @if ($inputWebUrl)
-                        <h3 class="text-base font-semibold leading-snug"><a class="link link-primary link-hover"
-                                                                            href="{{ $inputWebUrl }}">{{ $inputName }}</a>
+                        <h3 class="text-base font-semibold leading-snug">
+                            <a class="link link-primary link-hover" href="{{ $inputWebUrl }}">{{ $inputName }}</a>
+                            @if ($inputQuantityScu !== null)
+                                <span class="text-xs font-normal text-subtle">{{ Format::number((float) $inputQuantityScu, 2) }} SCU</span>
+                            @elseif ($inputQuantity !== null)
+                                <span class="text-xs font-normal text-subtle">
+                                    {{ $inputQuantity }}
+                                    @if ($inputKind === 'item')
+                                        {{ (float) $inputQuantity === 1.0 ? 'item' : 'items' }}
+                                    @endif
+                                </span>
+                            @endif
                         </h3>
                     @else
-                        <h3 class="text-base font-semibold leading-snug"><span
-                                class="link link-primary">{{ $inputName }}</span></h3>
+                        <h3 class="text-base font-semibold leading-snug">
+                            <span class="link link-primary">{{ $inputName }}</span>
+                            @if ($inputQuantityScu !== null)
+                                <span class="text-xs font-normal text-subtle">{{ Format::number((float) $inputQuantityScu, 2) }} SCU</span>
+                            @elseif ($inputQuantity !== null)
+                                <span class="text-xs font-normal text-subtle">
+                                    {{ $inputQuantity }}
+                                    @if ($inputKind === 'item')
+                                        {{ (float) $inputQuantity === 1.0 ? 'item' : 'items' }}
+                                    @endif
+                                </span>
+                            @endif
+                        </h3>
                     @endif
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-subtle">
-                        <span>{{ $inputKindLabel }}</span>
-
-                        @if ($inputQuantityScu !== null)
-                            <span>{{ Format::number((float) $inputQuantityScu, 2) }} SCU</span>
-                        @elseif ($inputQuantity !== null)
-                            <span>
-                                {{ $inputQuantity }}
-                                @if ($inputKind === 'item')
-                                    {{ (float) $inputQuantity === 1.0 ? 'item' : 'items' }}
-                                @endif
-                            </span>
-                        @endif
-
-                        @if ($inputMinQuality > 0)
-                            <span>Min quality {{ $inputMinQuality }}</span>
-                        @endif
-
-                        @if (is_numeric($aspect['required_count']) && $aspect['required_count'] > 1)
-                            <span>{{ $aspect['required_count'] }} required</span>
-                        @endif
-                    </div>
                 </div>
 
                 @if ($aspect['has_dynamic_modifiers'])
@@ -107,15 +100,12 @@
                     </div>
                 @elseif ($aspect['has_modifiers'])
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
-                        <span class="text-xs text-subtle">Fixed modifier band.</span>
-                        <span class="badge badge-soft badge-sm"
-                              x-text="selectedByAspect[{{ $aspectIndex }}] ? 'Fixed' : 'Off'">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'Fixed' : 'Off'">{{ $isSelected ? 'Fixed' : 'Off' }}</span>
                     </div>
                 @else
                     <div class="flex items-center gap-2 lg:w-1/2 lg:justify-end lg:pt-1">
                         <span class="text-xs text-subtle">No modifier data.</span>
-                        <span class="badge badge-soft badge-sm"
-                              x-text="selectedByAspect[{{ $aspectIndex }}] ? 'None' : 'Off'">{{ $isSelected ? 'None' : 'Off' }}</span>
+                        <span class="badge badge-soft badge-sm" x-text="selectedByAspect[{{ $aspectIndex }}] ? 'None' : 'Off'">{{ $isSelected ? 'None' : 'Off' }}</span>
                     </div>
                 @endif
             </div>
@@ -131,13 +121,6 @@
                             <div class="min-w-0">
                                 <div class="truncate text-xs font-medium text-base-content">
                                     {{ data_get($modifier, 'label', data_get($modifier, 'property_key', 'Modifier')) }}
-                                </div>
-                                <div class="mt-0.5 text-xs text-subtle">
-                                    {{ match (data_get($modifier, 'better_when', 'neutral')) {
-                                        'higher' => 'Higher is better',
-                                        'lower' => 'Lower is better',
-                                        default => 'Neutral',
-                                    } }}
                                 </div>
                             </div>
                             <div class="shrink-0 text-right">
