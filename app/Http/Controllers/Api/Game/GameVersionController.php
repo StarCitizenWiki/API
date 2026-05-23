@@ -41,9 +41,9 @@ class GameVersionController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[code]', description: 'Filter by exact version code.', in: 'query', schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
-            new OA\Parameter(name: 'filter[channel]', description: 'Filter by release channel (live, ptu, eptu).', in: 'query', schema: new OA\Schema(type: 'string', example: 'live')),
-            new OA\Parameter(name: 'filter[is_default]', description: 'Filter by default status (1 or 0).', in: 'query', schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'filter[code]', description: 'Filter by exact version code. Example: `4.8.0-LIVE.11825000`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[channel]', description: 'Filter by release channel (live, ptu, eptu), lowercase. Example: `live`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[is_default]', description: 'Filter by default status. Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'sort', description: 'Sort by field. Prefix with - for descending. Supported: code, channel, released_at.', in: 'query', schema: new OA\Schema(type: 'string', example: '-released_at')),
         ],
         responses: [
@@ -90,7 +90,7 @@ class GameVersionController extends Controller
                         new OA\Examples(
                             example: 'default_game_version',
                             summary: 'Current default version',
-                            value: ['data' => ['code' => '4.7.0-LIVE.11518367', 'channel' => 'LIVE', 'is_default' => true]],
+                            value: ['data' => ['code' => '4.8.0-LIVE.11825000', 'channel' => 'live', 'is_default' => true]],
                         ),
                     ],
                     properties: [
@@ -124,7 +124,7 @@ class GameVersionController extends Controller
         summary: 'Get Game Version',
         tags: ['Game Versions'],
         parameters: [
-            new OA\Parameter(name: 'identifier', description: 'Game version code (case-insensitive).', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
+            new OA\Parameter(name: 'identifier', description: 'Game version code (case-insensitive).', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.8.0-LIVE.11825000')),
         ],
         responses: [
             new OA\Response(

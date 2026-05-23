@@ -20,7 +20,7 @@ use OpenApi\Attributes as OA;
     description: 'Page number for pagination (starts at 1).',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'integer', default: 1, minimum: 1, example: 1)
+    schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
 )]
 #[OA\Parameter(
     parameter: 'page_size',
@@ -28,7 +28,7 @@ use OpenApi\Attributes as OA;
     description: 'Number of results per page. Maximum 200.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'integer', default: 30, maximum: 200, minimum: 1, example: 50)
+    schema: new OA\Schema(type: 'integer', default: 30, maximum: 200, minimum: 1)
 )]
 #[OA\Parameter(
     parameter: 'locale',
@@ -36,7 +36,7 @@ use OpenApi\Attributes as OA;
     description: 'Locale code for translated fields. Supported values depend on available translations (e.g. en, de, zh).',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string', example: 'de')
+    schema: new OA\Schema(type: 'string'),
 )]
 #[OA\Parameter(
     parameter: 'include',
@@ -44,7 +44,7 @@ use OpenApi\Attributes as OA;
     description: 'Comma-separated list of relationships to include. Available includes vary per endpoint, see each endpoint\'s description for supported values.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string', example: 'manufacturer,shops'),
+    schema: new OA\Schema(type: 'string'),
     explode: false,
     allowReserved: true
 )]
@@ -54,7 +54,7 @@ use OpenApi\Attributes as OA;
     description: 'Comma-separated sort fields. Prefix with `-` for descending. Supported fields vary per endpoint.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string', example: '-name'),
+    schema: new OA\Schema(type: 'string'),
     explode: false,
     allowReserved: true
 )]
@@ -64,7 +64,7 @@ use OpenApi\Attributes as OA;
     description: 'Game version code to scope results to. Omit to use the current default version. Use `GET /api/game-versions` to list available versions and `GET /api/game-versions/default` to discover the default.',
     in: 'query',
     required: false,
-    schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE'),
+    schema: new OA\Schema(type: 'string'),
     explode: false,
     allowReserved: true
 )]

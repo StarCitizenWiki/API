@@ -25,7 +25,7 @@ class VersionChangelogController extends Controller
         summary: 'Get Version Changelog',
         tags: ['Game Versions'],
         parameters: [
-            new OA\Parameter(name: 'version', description: 'Version code', in: 'path', schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
+            new OA\Parameter(name: 'version', description: 'Version code', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
         ],
         responses: [
             new OA\Response(
@@ -65,7 +65,7 @@ class VersionChangelogController extends Controller
         summary: 'Get Version Changelog Changes',
         tags: ['Game Versions'],
         parameters: [
-            new OA\Parameter(name: 'version', description: 'Version code', in: 'path', schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
+            new OA\Parameter(name: 'version', description: 'Version code', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.7.0-LIVE.11518367')),
             new OA\Parameter(name: 'filter[entity_type]', description: 'Filter by entity type (item, vehicle)', in: 'query', schema: new OA\Schema(type: 'string', example: 'item')),
             new OA\Parameter(name: 'filter[change_type]', description: 'Filter by change type (added, removed, modified)', in: 'query', schema: new OA\Schema(type: 'string', example: 'modified')),
             new OA\Parameter(ref: '#/components/parameters/page'),

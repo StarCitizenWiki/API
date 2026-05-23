@@ -59,20 +59,20 @@ class BlueprintController extends Controller
                 in: 'query',
                 schema: new OA\Schema(type: 'string', example: '-craft_time_seconds')
             ),
-            new OA\Parameter(name: 'filter[query]', description: 'Search blueprints by crafted item name', in: 'query', schema: new OA\Schema(type: 'string', example: 'Distiller')),
-            new OA\Parameter(name: 'filter[output.uuid]', description: 'Filter by crafted item UUID (see GET /api/items)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
-            new OA\Parameter(name: 'filter[output.name]', description: 'Filter by crafted item name', in: 'query', schema: new OA\Schema(type: 'string', example: 'P4-AR Magazine (40 cap)')),
-            new OA\Parameter(name: 'filter[output.class]', description: 'Filter by crafted item class', in: 'query', schema: new OA\Schema(type: 'string', example: 'ksar_smg_energy_01_gold01')),
-            new OA\Parameter(name: 'filter[output.type]', description: 'Filter by crafted item type (see GET /api/blueprints/filters for valid values)', in: 'query', schema: new OA\Schema(type: 'string', example: 'WeaponPersonal')),
-            new OA\Parameter(name: 'filter[default]', description: 'Filter by default availability (true/false)', in: 'query', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'filter[query]', description: 'Search blueprints by crafted item name. Example: `Shotgun`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[output.uuid]', description: 'Filter by crafted item UUID (see GET /api/items). Example: `02d4cd2e-fa98-4086-aee1-6b2dfce8ea27`', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter[output.name]', description: 'Filter by crafted item name. Example: `P4-AR Magazine (40 cap)`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[output.class]', description: 'Filter by crafted item class. Example: `ksar_smg_energy_01_gold01`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[output.type]', description: 'Filter by crafted item type (see GET /api/blueprints/filters for valid values). Example: `WeaponPersonal`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[default]', description: 'Filter by default availability (true/false). Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(
                 name: 'filter[ingredient]',
-                description: 'Matches ingredient resource type by name, key, or UUID before filtering blueprints.',
+                description: 'Matches ingredient resource type by name, key, or UUID before filtering blueprints. Example: `Aluminum`',
                 in: 'query',
                 schema: new OA\Schema(type: 'string')
             ),
-            new OA\Parameter(name: 'filter[ingredient.uuid]', description: 'Filter by ingredient commodity UUID. Accepts comma-separated values (see GET /api/commodities)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid', example: 'a11394c9-ad7c-404d-9209-3a5e57bb4aa4')),
-            new OA\Parameter(name: 'filter[resource.uuid]', description: 'Filter by resource commodity UUID, matching ingredients and dismantle returns. Accepts comma-separated values (see GET /api/commodities)', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid', example: '9b47bacf-8efa-42e2-8d84-dee64983a00a')),
+            new OA\Parameter(name: 'filter[ingredient.uuid]', description: 'Filter by ingredient commodity UUID. Accepts comma-separated values (see GET /api/commodities). Example: `fde0cd65-8827-4b23-804d-cc8845dfa7ac`', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter[resource.uuid]', description: 'Filter by resource commodity UUID, matching ingredients and dismantle returns. Accepts comma-separated values (see GET /api/commodities). Example: `fde0cd65-8827-4b23-804d-cc8845dfa7ac`', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
         ],
         responses: [
             new OA\Response(
@@ -115,6 +115,7 @@ class BlueprintController extends Controller
                 schema: new OA\Schema(
                     description: 'Blueprint UUID',
                     type: 'string',
+                    example: '280f47b7-8434-410c-b854-380768fdccec',
                 ),
             ),
             new OA\Parameter(ref: '#/components/parameters/version'),
