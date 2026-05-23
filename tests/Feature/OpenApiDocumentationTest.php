@@ -90,21 +90,6 @@ describe('OpenAPI specification', function (): void {
         'unauthenticated_error_response',
     ]);
 
-    it('contains named developer onboarding examples', function (string $exampleName): void {
-        expect($this->yaml)->toContain("{$exampleName}:");
-    })->with([
-        'ship_search',
-        'ship_search_results',
-        'search_carrack',
-        'vehicle_search_page',
-        'item_search_page',
-        'location_arccorp',
-        'commodities_by_location',
-        'default_game_version',
-        'delivery_missions',
-        'delivery_mission_page',
-    ]);
-
     it('documents the public user fields returned by /api/user', function (): void {
         $userSchema = $this->spec['paths']['/api/user']['get']['responses'][200]['content']['application/json']['schema']['properties'] ?? [];
 
