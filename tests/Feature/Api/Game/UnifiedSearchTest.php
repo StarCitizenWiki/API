@@ -108,7 +108,7 @@ it('returns grouped results for a query matching multiple domains', function ():
     $itemsGroup = $groups->first(fn ($g) => $g['type'] === 'items');
     expect($itemsGroup['results'][0]['classification_label'])->toBe('Sniper');
 
-    // Vehicle: classification is null → classification_label is null
+    // Vehicle: classification is null -> classification_label is null
     $vehiclesGroup = $groups->first(fn ($g) => $g['type'] === 'vehicles');
     expect($vehiclesGroup['results'][0]['classification_label'])->toBeNull();
 
@@ -116,14 +116,14 @@ it('returns grouped results for a query matching multiple domains', function ():
     $locationsGroup = $groups->first(fn ($g) => $g['type'] === 'locations');
     expect($locationsGroup['results'][0]['classification_label'])->toBe('Outpost');
 
-    // Commodity: classification is null → classification_label is null
+    // Commodity: classification is null -> classification_label is null
     $commoditiesGroup = $groups->first(fn ($g) => $g['type'] === 'commodities');
     expect($commoditiesGroup['results'][0]['classification_label'])->toBeNull();
 
-    // Blueprint: classification is null → classification_label is null
+    // Blueprint: classification is null -> classification_label is null
     $blueprintsGroup = $groups->first(fn ($g) => $g['type'] === 'blueprints');
-    expect($blueprintsGroup['results'][0]['name'])->toBe('Arrow Weapon Blueprint');
-    expect($blueprintsGroup['results'][0]['classification_label'])->toBeNull();
+    expect($blueprintsGroup['results'][0]['name'])->toBe('Arrow Weapon Blueprint')
+        ->and($blueprintsGroup['results'][0]['classification_label'])->toBeNull();
 
     // Mission: classification_label mirrors mission_type
     $missionsGroup = $groups->first(fn ($g) => $g['type'] === 'missions');
@@ -183,8 +183,8 @@ it('omits groups with zero results', function (): void {
 
     $types = collect($response->json('data'))->pluck('type');
 
-    expect($types)->toContain('items');
-    expect($types)->not->toContain('vehicles', 'locations', 'commodities', 'blueprints', 'missions');
+    expect($types)->toContain('items')
+        ->and($types)->not->toContain('vehicles', 'locations', 'commodities', 'blueprints', 'missions');
 });
 
 it('respects version parameter', function (): void {
@@ -238,8 +238,8 @@ it('respects version parameter', function (): void {
         ->pluck('results')
         ->flatten(1)
         ->pluck('name');
-    expect($defaultNames)->toContain('VersionTest Item');
-    expect($defaultNames)->not->toContain('VersionTest Item V2');
+    expect($defaultNames)->toContain('VersionTest Item')
+        ->and($defaultNames)->not->toContain('VersionTest Item V2');
 
     // Explicit v2 should find v2 item
     $v2Response = $this->getJson('/api/search?filter[query]=VersionTest&version=2.0.0-LIVE');
@@ -249,8 +249,8 @@ it('respects version parameter', function (): void {
         ->pluck('results')
         ->flatten(1)
         ->pluck('name');
-    expect($v2Names)->toContain('VersionTest Item V2');
-    expect($v2Names)->not->toContain('VersionTest Item');
+    expect($v2Names)->toContain('VersionTest Item V2')
+        ->and($v2Names)->not->toContain('VersionTest Item');
 });
 
 it('limits each group to max 5 results', function (): void {
@@ -338,14 +338,139 @@ it('generates correct web_url per domain', function (): void {
     $vehiclesGroup = $groups->first(fn ($g) => $g['type'] === 'vehicles');
     $blueprintsGroup = $groups->first(fn ($g) => $g['type'] === 'blueprints');
 
-    expect($itemsGroup['results'][0]['web_url'])->toEndWith('/items/url-test-item');
-    expect($vehiclesGroup['results'][0]['web_url'])->toEndWith('/vehicles/url-test-vehicle');
-    expect($blueprintsGroup['results'][0]['web_url'])->toEndWith('/blueprints/url-test-blueprint');
+    expect($itemsGroup['results'][0]['web_url'])->toEndWith('/items/url-test-item')
+        ->and($vehiclesGroup['results'][0]['web_url'])->toEndWith('/vehicles/url-test-vehicle')
+        ->and($blueprintsGroup['results'][0]['web_url'])->toEndWith('/blueprints/url-test-blueprint')
+        ->and($itemsGroup['results'][0]['api_url'])->toEndWith('/api/items/url-test-item')
+        ->and($vehiclesGroup['results'][0]['api_url'])->toEndWith('/api/vehicles/url-test-vehicle')
+        ->and($blueprintsGroup['results'][0]['api_url'])->toEndWith('/api/blueprints/url-test-blueprint');
+});
 
-    // api_url uses API route names
-    expect($itemsGroup['results'][0]['api_url'])->toEndWith('/api/items/url-test-item');
-    expect($vehiclesGroup['results'][0]['api_url'])->toEndWith('/api/vehicles/url-test-vehicle');
-    expect($blueprintsGroup['results'][0]['api_url'])->toEndWith('/api/blueprints/url-test-blueprint');
+describe('resolve', function (): void {
+    it('resolves a vehicle by exact name', function (): void {
+        $version = GameVersion::factory()->create([
+            'code' => '1.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        $manufacturer = Manufacturer::factory()->create();
+
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        $this->getJson('/api/search/Origin 300i')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
+
+    it('resolves a vehicle by partial name via LIKE fallback', function (): void {
+        $version = GameVersion::factory()->create([
+            'code' => '1.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        $manufacturer = Manufacturer::factory()->create();
+
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        $this->getJson('/api/search/300i')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
+
+    it('resolves a vehicle by partial class name via LIKE fallback', function (): void {
+        $version = GameVersion::factory()->create([
+            'code' => '1.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        $manufacturer = Manufacturer::factory()->create();
+
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        $this->getJson('/api/search/ORIG_300')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
+
+    it('prefers exact match over LIKE match for vehicles', function (): void {
+        $version = GameVersion::factory()->create([
+            'code' => '1.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        $manufacturer = Manufacturer::factory()->create();
+
+        // Vehicle whose name contains "300i"
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        // Another vehicle whose name also contains "300i"
+        $vehicle2 = Vehicle::factory()->create(['slug' => 'origin-315p']);
+        VehicleData::factory()
+            ->for($vehicle2)
+            ->for($version, 'gameVersion')
+            ->for($manufacturer)
+            ->create([
+                'name' => 'Origin 315p',
+                'class_name' => 'ORIG_315p',
+            ]);
+
+        // Exact match should win
+        $this->getJson('/api/search/Origin 300i')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
+
+    it('returns 404 when nothing matches at all', function (): void {
+        GameVersion::factory()->create([
+            'code' => '1.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        $this->getJson('/api/search/NonExistentThing')
+            ->assertStatus(404);
+    });
 });
 
 it('returns empty data array when nothing matches', function (): void {

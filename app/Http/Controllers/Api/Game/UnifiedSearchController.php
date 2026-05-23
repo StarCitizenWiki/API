@@ -270,6 +270,7 @@ class UnifiedSearchController extends Controller
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
         $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
         $eq = static fn (string $col) => "LOWER({$col}) = LOWER(?)";
+        $like = $isPgsql ? 'ILIKE' : 'LIKE';
 
         return <<<SQL
             SELECT * FROM (
@@ -284,7 +285,18 @@ class UnifiedSearchController extends Controller
             UNION ALL
 
             SELECT * FROM (
-                SELECT 2 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
+                SELECT 2 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
+                FROM game_vehicle_data gvd
+                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
+                WHERE gvd.game_version_id = ?
+                  AND (gvd.name {$like} ? OR gvd.class_name {$like} ?)
+                LIMIT 1
+            ) t
+
+            UNION ALL
+
+            SELECT * FROM (
+                SELECT 3 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
                 FROM game_item_data gid
                 JOIN game_items gi ON gi.id = gid.item_id
                 WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
@@ -295,7 +307,7 @@ class UnifiedSearchController extends Controller
             UNION ALL
 
             SELECT * FROM (
-                SELECT 3 AS priority, 'missions' AS type, gm.slug, {$uuidCast('gm.uuid')} AS uuid
+                SELECT 4 AS priority, 'missions' AS type, gm.slug, {$uuidCast('gm.uuid')} AS uuid
                 FROM game_mission_data gmd
                 JOIN game_missions gm ON gm.id = gmd.mission_id
                 WHERE gmd.game_version_id = ?
@@ -306,7 +318,7 @@ class UnifiedSearchController extends Controller
             UNION ALL
 
             SELECT * FROM (
-                SELECT 4 AS priority, 'locations' AS type, {$uuidCast('gsl.uuid')} AS slug, {$uuidCast('gsl.uuid')} AS uuid
+                SELECT 5 AS priority, 'locations' AS type, {$uuidCast('gsl.uuid')} AS slug, {$uuidCast('gsl.uuid')} AS uuid
                 FROM game_starmap_location_data gsld
                 JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
                 WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>'
@@ -317,7 +329,7 @@ class UnifiedSearchController extends Controller
             UNION ALL
 
             SELECT * FROM (
-                SELECT 5 AS priority, 'blueprints' AS type, gb.slug, {$uuidCast('gb.uuid')} AS uuid
+                SELECT 6 AS priority, 'blueprints' AS type, gb.slug, {$uuidCast('gb.uuid')} AS uuid
                 FROM game_blueprint_data gbd
                 JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
                 WHERE gbd.game_version_id = ?
@@ -328,7 +340,7 @@ class UnifiedSearchController extends Controller
             UNION ALL
 
             SELECT * FROM (
-                SELECT 6 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
+                SELECT 7 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
                 FROM game_commodities gc
                 WHERE ({$eq('gc.name')} OR {$eq('gc.key')} OR LOWER({$uuidCast('gc.uuid')}) = LOWER(?))
                 LIMIT 1
@@ -344,12 +356,22 @@ class UnifiedSearchController extends Controller
      */
     private function buildResolveBindings(int $versionId, string $query): array
     {
+        $likeVal = "%{$query}%";
+
         return [
+            // Vehicles exact
             $versionId, $query, $query, $query,
+            // Vehicles LIKE
+            $versionId, $likeVal, $likeVal,
+            // Items
             $versionId, $query, $query, $query,
+            // Missions
             $versionId, $query, $query, $query,
+            // Locations
             $versionId, $query, $query,
+            // Blueprints
             $versionId, $query, $query, $query, $query,
+            // Commodities
             $query, $query, $query,
         ];
     }
