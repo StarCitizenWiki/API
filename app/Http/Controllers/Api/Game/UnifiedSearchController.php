@@ -129,15 +129,15 @@ class UnifiedSearchController extends Controller
         ]);
     }
 
-    public function resolve(string $query): RedirectResponse
+    public function resolve(Request $request, string $query): RedirectResponse
     {
-        return $this->resolveEntity($query, redirectToApi: false);
+        return $this->resolveEntity($request, $query, redirectToApi: false);
     }
 
     #[OA\Get(
         path: '/api/search/{query}',
         operationId: 'resolveSearchQuery',
-        description: 'Resolve a search query to the best-matching entity and redirect to its API URL. Useful for quick lookups where you know the exact name.',
+        description: 'Resolve a search query to the best-matching entity and redirect to its API URL, preserving query parameters such as locale, include, and version. Useful for quick lookups where you know the exact name.',
         summary: 'Resolve Search Query',
         tags: ['Search'],
         parameters: [
@@ -149,12 +149,12 @@ class UnifiedSearchController extends Controller
             new OA\Response(response: 404, description: 'No matching entity found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ],
     )]
-    public function apiResolve(string $query): RedirectResponse
+    public function apiResolve(Request $request, string $query): RedirectResponse
     {
-        return $this->resolveEntity($query, redirectToApi: true);
+        return $this->resolveEntity($request, $query, redirectToApi: true);
     }
 
-    private function resolveEntity(string $query, bool $redirectToApi): RedirectResponse
+    private function resolveEntity(Request $request, string $query, bool $redirectToApi): RedirectResponse
     {
         $versionId = $this->gameVersion()->id;
 
@@ -169,6 +169,12 @@ class UnifiedSearchController extends Controller
         $url = $redirectToApi
             ? $this->apiUrl($match->type, $match)
             : $this->webUrl($match->type, $match);
+
+        $queryString = $request->getQueryString();
+
+        if ($queryString !== null && $queryString !== '') {
+            $url .= str_contains($url, '?') ? '&'.$queryString : '?'.$queryString;
+        }
 
         return redirect($url, 302);
     }
