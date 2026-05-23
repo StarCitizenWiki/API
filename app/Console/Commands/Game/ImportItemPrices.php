@@ -35,7 +35,7 @@ class ImportItemPrices extends Command
             return self::FAILURE;
         }
 
-        $previousVersion = $gameVersion->findPreviousVersion();
+        $previousVersion = $gameVersion->findPreviousVersionFamily();
         $previousVersionCode = $previousVersion?->code;
 
         $chunkSize = (int) $this->option('chunk');

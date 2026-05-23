@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game\Concerns;
 
+use App\Models\Game\GameVersion;
+
 trait FiltersUexVersions
 {
     /**
@@ -13,22 +15,18 @@ trait FiltersUexVersions
     {
         $map = [];
 
-        $map[$this->extractMajorMinor($currentVersionCode)] = $currentVersionCode;
+        $currentPrefix = GameVersion::versionFamily($currentVersionCode);
+        $map[$currentPrefix] = $currentVersionCode;
 
         if ($this->previousVersionCode !== null) {
-            $map[$this->extractMajorMinor($this->previousVersionCode)] = $this->previousVersionCode;
+            $previousPrefix = GameVersion::patchFamily($this->previousVersionCode);
+
+            if ($previousPrefix !== null && ! array_key_exists($previousPrefix, $map)) {
+                $map[$previousPrefix] = $this->previousVersionCode;
+            }
         }
 
         return $map;
-    }
-
-    private function extractMajorMinor(string $version): string
-    {
-        if (preg_match('/^(\d+\.\d+)/', $version, $matches)) {
-            return $matches[1];
-        }
-
-        return $version;
     }
 
     /**

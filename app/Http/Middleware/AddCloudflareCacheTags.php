@@ -75,12 +75,12 @@ readonly class AddCloudflareCacheTags
             return "{$scope}-default";
         }
 
-        $code = $gameVersion->code;
+        $patch = GameVersion::patchFamily($gameVersion->code);
 
-        if ($code === null || ! preg_match('/^(\d+\.\d+\.\d+)/', $code, $matches)) {
+        if ($patch === null) {
             return null;
         }
 
-        return "{$scope}-v{$matches[1]}";
+        return "{$scope}-v{$patch}";
     }
 }

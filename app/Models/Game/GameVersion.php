@@ -67,6 +67,51 @@ class GameVersion extends Model
         return static::where('code', strtoupper($code))->{$fail ? 'firstOrFail' : 'first'}();
     }
 
+    public static function versionFamily(string $code): ?string
+    {
+        if (! preg_match('/^(\d+\.\d+)/', $code, $matches)) {
+            return null;
+        }
+
+        return $matches[1];
+    }
+
+    public static function patchFamily(string $code): ?string
+    {
+        if (! preg_match('/^(\d+\.\d+\.\d+)/', $code, $matches)) {
+            return null;
+        }
+
+        return $matches[1];
+    }
+
+    public function findPreviousVersionFamily(): ?self
+    {
+        $family = static::versionFamily($this->code);
+
+        if ($family === null) {
+            return null;
+        }
+
+        return static::query()
+            ->where('code', 'NOT LIKE', "{$family}.%")
+            ->where('code', 'NOT LIKE', "{$family}-%")
+            ->when(
+                $this->released_at !== null,
+                fn (Builder $query): Builder => $query->where(function (Builder $query): void {
+                    $query->where('released_at', '<', $this->released_at)
+                        ->orWhere(function (Builder $query): void {
+                            $query->where('released_at', $this->released_at)
+                                ->where('id', '<', $this->id);
+                        });
+                }),
+                fn (Builder $query): Builder => $query->where('id', '<', $this->id),
+            )
+            ->orderByDesc('released_at')
+            ->orderByDesc('id')
+            ->first();
+    }
+
     public function findPreviousVersion(): ?self
     {
         return $this->findPreviousPatchVersion() ?? $this->findPreviousMinorVersion();
@@ -74,12 +119,14 @@ class GameVersion extends Model
 
     public function findPreviousPatchVersion(): ?self
     {
-        if (! preg_match('/^(\d+\.\d+\.\d+)/', $this->code, $matches)) {
+        $patch = static::patchFamily($this->code);
+
+        if ($patch === null) {
             return null;
         }
 
         return static::query()
-            ->where('code', 'LIKE', "{$matches[1]}%")
+            ->where('code', 'LIKE', "{$patch}%")
             ->where('code', '!=', $this->code)
             ->when(
                 $this->released_at !== null,
@@ -99,18 +146,20 @@ class GameVersion extends Model
 
     public function findPreviousMinorVersion(): ?self
     {
-        if (! preg_match('/^(\d+)\.(\d+)/', $this->code, $matches)) {
+        $family = static::versionFamily($this->code);
+
+        if ($family === null) {
             return null;
         }
 
-        $major = (int) $matches[1];
-        $previousMinor = ((int) $matches[2]) - 1;
+        $parts = explode('.', $family);
+        $previousMinor = ((int) $parts[1]) - 1;
 
         if ($previousMinor < 0) {
             return null;
         }
 
-        $prefix = "{$major}.{$previousMinor}";
+        $prefix = "{$parts[0]}.{$previousMinor}";
 
         return static::query()
             ->where('code', 'LIKE', "{$prefix}.%")

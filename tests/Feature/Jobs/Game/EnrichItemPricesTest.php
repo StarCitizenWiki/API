@@ -106,6 +106,114 @@ it('enriches item prices from per-item API', function (): void {
     ]);
 });
 
+it('matches current-family prices with major.minor prefix and previous-family with exact patch', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.8.0-LIVE.11875683']);
+    $previousVersionCode = '4.7.2-LIVE.11674325';
+
+    $locationUuid = 'b1e1e1e1-2222-4333-8444-555566667782';
+    $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
+    $starmapLocationData = StarmapLocationData::factory()->create([
+        'starmap_location_id' => $starmapLocation->id,
+        'game_version_id' => $version->id,
+        'name' => 'Area18',
+    ]);
+
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_code' => null,
+                'terminal_name' => 'CenterMass - Area18',
+                'starmap_location_uuid' => $locationUuid,
+                'starmap_location_data_id' => $starmapLocationData->id,
+                'price_buy' => 10000,
+                'price_sell' => 0,
+                'game_version' => $version->code,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 107,
+                        'terminal_name' => 'CenterMass - IO North Tower - Area 18',
+                        'terminal_code' => 'CMA18',
+                        'price_buy' => 15461,
+                        'price_sell' => 0,
+                        'game_version' => '4.8.0',
+                        'date_modified' => 1700000000,
+                    ],
+                    [
+                        'id' => 2,
+                        'id_terminal' => 108,
+                        'terminal_name' => 'CenterMass - New Babbage',
+                        'terminal_code' => 'CMNEW',
+                        'price_buy' => 14000,
+                        'price_sell' => 0,
+                        'game_version' => '4.7.2',
+                        'date_modified' => 1700001000,
+                    ],
+                    [
+                        'id' => 3,
+                        'id_terminal' => 109,
+                        'terminal_name' => 'Grim HEX Weapons',
+                        'terminal_code' => 'GHWEAP',
+                        'price_buy' => 13000,
+                        'price_sell' => 0,
+                        'game_version' => '4.7.1',
+                        'date_modified' => 1700002000,
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 107,
+                        'displayname' => 'Area18',
+                        'name' => 'CenterMass - Area 18',
+                        'code' => 'CMA18',
+                        'star_system_name' => 'Stanton',
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    Bus::fake();
+
+    $job = new EnrichItemPrices($version->id, [$item->uuid], $previousVersionCode);
+    $job->handle();
+
+    $itemData->refresh();
+
+    // Should keep 4.8.0 (current family) and 4.7.2 (previous patch)
+    // Should drop 4.7.1 (wrong previous patch)
+    expect($itemData->uex_prices)->toBeArray()
+        ->and($itemData->uex_prices)->toHaveCount(2)
+        ->and($itemData->uex_prices[0])->toMatchArray([
+            'price_buy' => 15461,
+            'game_version' => $version->code,
+        ])
+        ->and($itemData->uex_prices[1])->toMatchArray([
+            'price_buy' => 14000,
+            'game_version' => $previousVersionCode,
+        ]);
+});
+
 it('skips items without existing prices', function (): void {
     Log::spy();
 

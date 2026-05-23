@@ -54,7 +54,7 @@ describe('buildVersionPrefixMap', function (): void {
                             'terminal_name' => 'Test Terminal',
                             'price_buy' => 100,
                             'price_sell' => 50,
-                            'game_version' => '4.7.1-LIVE.960',
+                            'game_version' => '4.7.0-LIVE.950',
                             'date_modified' => 1700000000,
                         ],
                         [
