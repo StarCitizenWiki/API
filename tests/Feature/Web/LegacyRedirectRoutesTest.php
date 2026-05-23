@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-uses(RefreshDatabase::class);
 
 function assertLegacyAnyRedirect(TestCase $testCase, string $legacyPath, string $targetPath): void
 {

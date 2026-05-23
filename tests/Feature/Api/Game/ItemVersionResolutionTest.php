@@ -8,9 +8,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('resolves default game version when no version parameter is provided', function (): void {
     $olderVersion = GameVersion::factory()->create([

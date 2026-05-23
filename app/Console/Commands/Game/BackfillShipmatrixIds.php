@@ -70,10 +70,10 @@ class BackfillShipmatrixIds extends Command
             if ($shipmatrixId !== null) {
                 $updates[$vehicle->id] = $shipmatrixId;
                 $matched++;
-                $this->line("✓ Matched: {$vehicle->name}");
+                $this->line("Matched: {$vehicle->name}");
             } else {
                 $failed++;
-                $this->line("✗ Failed: {$vehicle->name}");
+                $this->line("Failed: {$vehicle->name}");
             }
         }
 

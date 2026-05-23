@@ -14,9 +14,6 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 afterEach(function (): void {
     foreach (glob(storage_path('app/sitemaps/sitemap*.xml')) as $file) {

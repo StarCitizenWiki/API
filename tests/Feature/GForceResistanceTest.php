@@ -6,9 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('returns gforce_resistance at root level for clothing with GForceResistance data', function (): void {
     $version = GameVersion::factory()->create([

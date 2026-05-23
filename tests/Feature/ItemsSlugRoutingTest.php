@@ -6,10 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\DomCrawler\Crawler;
-
-uses(RefreshDatabase::class);
 
 it('resolves item by slug via web route', function (): void {
     $version = GameVersion::factory()->create([

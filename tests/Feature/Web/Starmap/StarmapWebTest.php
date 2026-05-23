@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     GameVersion::factory()->create([

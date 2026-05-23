@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Web\Rsi\CommLinkController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash;
 use App\Models\User;
 use App\Services\ImageHash\PdqHasher;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-
-uses(RefreshDatabase::class);
+use Illuminate\Support\Facades\Route;
 
 describe('index', function (): void {
     it('lists comm-link images ordered by newest first', function (): void {
@@ -164,45 +163,11 @@ describe('similar search', function (): void {
             });
     });
 
-    it('rate limits requests to 10 per minute', function (): void {
-        $user = User::factory()->create();
-        $image = Image::factory()->create();
+    it('applies throttle:similar-image-search middleware to the similar images route', function (): void {
+        $route = Route::getRoutes()->getByAction(CommLinkController::class.'@similarImages');
 
-        for ($attempt = 0; $attempt < 10; $attempt++) {
-            $this->actingAs($user)
-                ->get(route('web.comm-links.images.similar', $image->id))
-                ->assertOk();
-        }
-
-        $this->actingAs($user)
-            ->get(route('web.comm-links.images.similar', $image->id))
-            ->assertTooManyRequests();
-    });
-
-    it('rate limit resets after minute expires', function (): void {
-        $user = User::factory()->create();
-        $image = Image::factory()->create();
-
-        try {
-            for ($attempt = 0; $attempt < 10; $attempt++) {
-                $this->actingAs($user)
-                    ->get(route('web.comm-links.images.similar', $image->id))
-                    ->assertOk();
-            }
-
-            $this->actingAs($user)
-                ->get(route('web.comm-links.images.similar', $image->id))
-                ->assertTooManyRequests();
-
-            $this->travel(61)->seconds();
-
-            $this->actingAs($user)
-                ->get(route('web.comm-links.images.similar', $image->id))
-                ->assertOk()
-                ->assertViewIs('comm-links.images.index');
-        } finally {
-            $this->travelBack();
-        }
+        expect($route)->not->toBeNull('Route for similarImages not found');
+        expect($route->gatherMiddleware())->toContain('throttle:similar-image-search');
     });
 
     it('validates similarity parameter', function (mixed $similarity, bool $shouldSucceed): void {

@@ -12,11 +12,8 @@ use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
-
-uses(RefreshDatabase::class);
 
 function itemShowCrawler(TestResponse $response): Crawler
 {

@@ -8,11 +8,8 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
-uses(RefreshDatabase::class);
 
 it('imports prices for existing items only', function (): void {
     Log::spy();

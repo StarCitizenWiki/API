@@ -26,4 +26,6 @@ return [
         '/placeholder/i',
     ],
 
+    'throttle_microseconds' => 200_000,
+
 ];

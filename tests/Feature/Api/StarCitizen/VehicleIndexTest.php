@@ -9,9 +9,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('returns the vehicle list without error', function (): void {
     $manufacturer = Manufacturer::query()->create([

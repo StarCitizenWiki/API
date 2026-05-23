@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Galactapedia\Article;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('searches galactapedia by text query without bigint cast errors', function (): void {
     GameVersion::factory()->create([

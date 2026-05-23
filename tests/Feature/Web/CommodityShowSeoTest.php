@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([

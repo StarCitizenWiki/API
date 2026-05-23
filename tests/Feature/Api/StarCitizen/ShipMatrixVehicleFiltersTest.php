@@ -9,10 +9,7 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     app()->instance('env', 'production');

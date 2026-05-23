@@ -8,9 +8,6 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->manufacturer = Manufacturer::factory()->create([

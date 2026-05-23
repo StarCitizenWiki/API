@@ -12,11 +12,8 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
-
-uses(RefreshDatabase::class);
 
 it('dispatches import batch for default game version', function (): void {
     GameVersion::factory()->create(['is_default' => false, 'code' => '4.1.0']);

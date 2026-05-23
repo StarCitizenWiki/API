@@ -17,11 +17,8 @@ use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Support\Filters\FilterCache;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\Fluent\AssertableJson;
-
-uses(RefreshDatabase::class);
 
 function createStarmapLocationData(
     GameVersion $version,

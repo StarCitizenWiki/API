@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\Manufacturer;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 it('fails when the manufacturers file is missing', function (): void {
     Storage::fake('scunpacked');

@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
-
-uses(RefreshDatabase::class);
 
 function commLinksSearchCrawler(TestResponse $response): Crawler
 {

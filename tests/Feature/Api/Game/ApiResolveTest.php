@@ -13,9 +13,6 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 describe('apiResolve', function (): void {
     beforeEach(function (): void {

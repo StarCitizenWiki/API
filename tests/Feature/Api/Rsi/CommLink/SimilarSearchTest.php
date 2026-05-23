@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
-
-uses(RefreshDatabase::class);
 
 it('returns 401 when not authenticated', function (): void {
     $image = Image::factory()->create();

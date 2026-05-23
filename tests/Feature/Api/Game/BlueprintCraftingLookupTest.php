@@ -10,9 +10,6 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create([

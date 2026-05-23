@@ -3,11 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-
-uses(RefreshDatabase::class);
 
 it('displays dashboard stats and admin links', function (): void {
     User::factory()->create();

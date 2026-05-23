@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Models\StarCitizen\ShipMatrix\ProductionNote as ProductionNoteModel;
 use App\Services\Parser\ShipMatrix\ProductionNote as ProductionNoteParser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-
-uses(RefreshDatabase::class);
 
 it('creates and reuses a production note by english translation', function (): void {
     $lowercaseRawData = new Collection([

@@ -7,10 +7,7 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 it('fails when the game version does not exist', function (): void {
     Storage::fake('scunpacked');

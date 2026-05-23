@@ -13,9 +13,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     // Create required reference data
@@ -90,7 +87,7 @@ it('backfills unmatched vehicles successfully', function (): void {
     $this->artisan('game:backfill-shipmatrix-ids')
         ->assertExitCode(Command::SUCCESS)
         ->expectsOutput('Found 1 unmatched vehicles')
-        ->expectsOutput('✓ Matched: Hornet')
+        ->expectsOutput('Matched: Hornet')
         ->expectsOutput('Summary: 1 matched, 0 failed');
 
     expect($gameVehicleData->fresh()->shipmatrix_id)->toBe($shipMatrix->id);
@@ -247,7 +244,7 @@ it('reports failed matches and suggests manual review', function (): void {
 
     $this->artisan('game:backfill-shipmatrix-ids')
         ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('✗ Failed: NonExistent Vehicle')
+        ->expectsOutput('Failed: NonExistent Vehicle')
         ->expectsOutput('Summary: 0 matched, 1 failed')
         ->expectsOutput("Run 'php artisan game:review-vehicle-matches' to manually match failed vehicles");
 });

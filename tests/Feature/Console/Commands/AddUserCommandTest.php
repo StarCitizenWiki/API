@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-
-uses(RefreshDatabase::class);
 
 it('creates a user', function (): void {
     $this->artisan('user:add', [
@@ -20,11 +17,11 @@ it('creates a user', function (): void {
 
     $user = User::query()->first();
 
-    expect($user)->not->toBeNull();
-    expect($user->name)->toBe('Jane Doe');
-    expect($user->email)->toBe('jane@example.com');
-    expect($user->is_admin)->toBeFalse();
-    expect(Hash::check('Password123!', $user->password))->toBeTrue();
+    expect($user)->not->toBeNull()
+        ->and($user->name)->toBe('Jane Doe')
+        ->and($user->email)->toBe('jane@example.com')
+        ->and($user->is_admin)->toBeFalse()
+        ->and(Hash::check('Password123!', $user->password))->toBeTrue();
 });
 
 it('can create an admin user', function (): void {
@@ -39,8 +36,8 @@ it('can create an admin user', function (): void {
 
     $user = User::query()->where('email', 'admin@example.com')->first();
 
-    expect($user)->not->toBeNull();
-    expect($user->is_admin)->toBeTrue();
+    expect($user)->not->toBeNull()
+        ->and($user->is_admin)->toBeTrue();
 });
 
 it('fails when the email already exists', function (): void {

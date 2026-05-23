@@ -20,7 +20,7 @@ it('formats designation from entity tag name with Roman numerals', function (str
 ]);
 
 it('returns null designation when entity tag is not loaded', function (): void {
-    $locationData = StarmapLocationData::factory()->make();
+    $locationData = new StarmapLocationData;
 
     expect($locationData->designation)->toBeNull();
 });

@@ -7,9 +7,6 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->version = GameVersion::factory()->create([

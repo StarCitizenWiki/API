@@ -15,9 +15,6 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('redirects to item web url when matching by name', function (): void {
     $version = GameVersion::factory()->create([

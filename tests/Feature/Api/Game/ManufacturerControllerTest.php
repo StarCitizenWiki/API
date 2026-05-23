@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     GameVersion::factory()->create([

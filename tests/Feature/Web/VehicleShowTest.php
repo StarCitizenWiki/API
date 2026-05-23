@@ -6,9 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('renders nested hardpoints on the vehicle page', function (): void {
     $version = GameVersion::factory()->create([

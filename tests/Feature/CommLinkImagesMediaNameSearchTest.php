@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Rsi\CommLink\Image\Image;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('filters comm-link images by media name and excludes derived or empty matches', function (): void {
     $matchingImage = Image::factory()->create([

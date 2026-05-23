@@ -7,9 +7,6 @@ use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('renders the galactapedia show view with api data', function (): void {
     $article = Article::factory()->create([

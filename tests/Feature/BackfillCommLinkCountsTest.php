@@ -9,9 +9,6 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->channel = Channel::query()->create([

@@ -5,11 +5,8 @@ declare(strict_types=1);
 use App\Http\Resources\TranslationResolver;
 use App\Models\Game\Item;
 use App\Models\System\Language;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
-
-uses(RefreshDatabase::class);
 
 it('returns locale specific translations with english fallback', function (): void {
     Language::query()->insert([

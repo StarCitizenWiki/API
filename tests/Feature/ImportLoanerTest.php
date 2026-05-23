@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\StarCitizen\Vehicle\ImportLoaner;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     // Create a minimal HTML payload matching the RSI article structure.
@@ -109,59 +106,59 @@ it('resolves all loaner relationships without missing vehicles', function (): vo
 
     (new ImportLoaner)->handle();
 
-    // 600i Explorer and Executive → expanded to both variants, loaner = Cyclone
+    // 600i Explorer and Executive -> expanded to both variants, loaner = Cyclone
     expect($this->vehicles['600i Explorer']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['600i Explorer']->fresh()->loaner->first()->name)->toBe('Cyclone')
         ->and($this->vehicles['600i Touring']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['600i Touring']->fresh()->loaner->first()->name)->toBe('Cyclone');
 
-    // 890 Jump → 85X (modelMap: 85x → 85X)
+    // 890 Jump -> 85X (modelMap: 85x -> 85X)
     expect($this->vehicles['890 Jump']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['890 Jump']->fresh()->loaner->first()->name)->toBe('85X');
 
-    // Cyclone Variants → expanded to 5 variants, loaner = Aurora MR (modelMap)
+    // Cyclone Variants -> expanded to 5 variants, loaner = Aurora MR (modelMap)
     foreach (['Cyclone', 'Cyclone TR', 'Cyclone RN', 'Cyclone RC', 'Cyclone AA'] as $variant) {
         expect($this->vehicles[$variant]->fresh()->loaner)->toHaveCount(1)
             ->and($this->vehicles[$variant]->fresh()->loaner->first()->name)->toBe('Aurora Mk I MR');
     }
 
-    // Ironclad (+ Assault) → expanded to both, loaner = Caterpillar
+    // Ironclad (+ Assault) -> expanded to both, loaner = Caterpillar
     expect($this->vehicles['Ironclad']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['Ironclad Assault']->fresh()->loaner)->toHaveCount(1);
 
-    // Pulse (+ LX) → expanded to both, loaner = Aurora MR
+    // Pulse (+ LX) -> expanded to both, loaner = Aurora MR
     expect($this->vehicles['Pulse']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['Pulse LX']->fresh()->loaner)->toHaveCount(1);
 
-    // MPUV-Tractor → modelMap to MPUV Tractor
+    // MPUV-Tractor -> modelMap to MPUV Tractor
     expect($this->vehicles['MPUV Tractor']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['MPUV Tractor']->fresh()->loaner->first()->name)->toBe('Aurora Mk I MR');
 
-    // Constellation Phoenix → P-72 Archimedes + Lynx Rover (modelMap: Lynx Rover → Lynx)
+    // Constellation Phoenix -> P-72 Archimedes + Lynx Rover (modelMap: Lynx Rover -> Lynx)
     expect($this->vehicles['Constellation Phoenix']->fresh()->loaner)->toHaveCount(2);
     $loanerNames = $this->vehicles['Constellation Phoenix']->fresh()->loaner->pluck('name')->sort()->values();
     expect($loanerNames)->toContain('Lynx', 'P-72 Archimedes');
 
-    // Kraken (+ Privateer) → expanded to Kraken + Kraken Privateer, 4 loaners
+    // Kraken (+ Privateer) -> expanded to Kraken + Kraken Privateer, 4 loaners
     expect($this->vehicles['Kraken']->fresh()->loaner)->toHaveCount(4);
     expect($this->vehicles['Kraken Privateer']->fresh()->loaner)->toHaveCount(4);
 
-    // Genesis Starliner → Hercules C2 (modelMap: Hercules C2 → C2 Hercules)
+    // Genesis Starliner -> Hercules C2 (modelMap: Hercules C2 -> C2 Hercules)
     expect($this->vehicles['Genesis']->fresh()->loaner->first()->name)->toBe('C2 Hercules');
 
-    // Liberator → Hercules M2 (modelMap) + F7C-M Super Hornet (LIKE match)
+    // Liberator -> Hercules M2 (modelMap) + F7C-M Super Hornet (LIKE match)
     expect($this->vehicles['Liberator']->fresh()->loaner)->toHaveCount(2);
 
-    // Mantis → Aurora LN (modelMap)
+    // Mantis -> Aurora LN (modelMap)
     expect($this->vehicles['Mantis']->fresh()->loaner->first()->name)->toBe('Aurora Mk I LN');
 
-    // Idris-M & P → MPUV Passenger (modelMap → MPUV Personnel) + F7C-M Super Hornet
+    // Idris-M & P -> MPUV Passenger (modelMap -> MPUV Personnel) + F7C-M Super Hornet
     expect($this->vehicles['Idris-P']->fresh()->loaner)->toHaveCount(2);
     expect($this->vehicles['Idris-M']->fresh()->loaner)->toHaveCount(2);
     $loanerNames = $this->vehicles['Idris-P']->fresh()->loaner->pluck('name')->sort()->values();
     expect($loanerNames)->toContain('MPUV Personnel');
 
-    // Zeus Mk II MR → Zeus Mk II ES (exact match)
+    // Zeus Mk II MR -> Zeus Mk II ES (exact match)
     expect($this->vehicles['Zeus Mk II MR']->fresh()->loaner)->toHaveCount(1)
         ->and($this->vehicles['Zeus Mk II MR']->fresh()->loaner->first()->name)->toBe('Zeus Mk II ES');
 });

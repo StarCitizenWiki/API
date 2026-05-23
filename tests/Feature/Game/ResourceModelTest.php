@@ -8,9 +8,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('creates a resource with uuid only', function (): void {
     $resource = Resource::factory()->create();

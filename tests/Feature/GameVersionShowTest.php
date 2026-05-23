@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 describe('GET /api/game-versions/{identifier}', function (): void {
     it('returns a game version by code', function (): void {

@@ -9,9 +9,6 @@ use App\Models\Game\FactionStanding;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([

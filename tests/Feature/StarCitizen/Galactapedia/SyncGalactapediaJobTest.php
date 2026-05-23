@@ -9,13 +9,10 @@ use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Services\RsiDownloadClient;
 use Illuminate\Bus\PendingBatch;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-
-uses(RefreshDatabase::class);
 
 it('dispatches categories and batches article imports', function (): void {
     Bus::fake();

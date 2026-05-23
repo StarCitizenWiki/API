@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('filters starsystems by code, name, status, and type', function (): void {
     GameVersion::factory()->create([

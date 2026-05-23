@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('redirects guests to login on admin users index', function (): void {
     $response = $this->get(route('admin.users.index'));

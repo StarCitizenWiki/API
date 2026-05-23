@@ -7,11 +7,8 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
-uses(RefreshDatabase::class);
 
 describe('buildVersionPrefixMap', function (): void {
     it('works without previousVersionCode (null default)', function (): void {

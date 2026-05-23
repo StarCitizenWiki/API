@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /*
@@ -18,4 +18,4 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)->in('Feature', 'Unit', 'Browser');
 
-pest()->use(RefreshDatabase::class)->in('Feature', 'Unit');
+pest()->use(LazilyRefreshDatabase::class)->in('Feature');

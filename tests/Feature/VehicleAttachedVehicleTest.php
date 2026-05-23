@@ -6,9 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 describe('Docked Vehicles category', function (): void {
     it('categorizes DockingCollar with attached vehicle child as Docked Vehicles', function (): void {
@@ -165,7 +162,6 @@ describe('attached_vehicle bubbling', function (): void {
             ->is_spaceship->toBeTrue()
             ->web_url->toContain('drak-command-module');
 
-        // Child ports are preserved — true structure is shown
         expect($parentPort['ports'])->not->toBeNull();
         expect($parentPort['ports'])->toHaveCount(1);
 

@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('finds previous patch version matching full base semver', function (): void {
     $current = GameVersion::factory()->create([

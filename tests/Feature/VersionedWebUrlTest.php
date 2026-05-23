@@ -8,9 +8,6 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 describe('PersistSelectedGameVersion middleware', function () {
     it('injects session version into request query when no version query param is present', function (): void {

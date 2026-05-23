@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash;
 use App\Services\ImageHash\PdqHasher;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-
-uses(RefreshDatabase::class);
 
 it('reverse image search finds a matching comm-link image', function () {
     if (! extension_loaded('gd')) {

@@ -11,11 +11,8 @@ use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------

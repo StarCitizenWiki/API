@@ -9,9 +9,6 @@ use App\Models\Game\Mission\MissionPrerequisiteGroup;
 use App\Models\Game\Mission\MissionPrerequisiteGroupMission;
 use App\Models\Game\Mission\MissionUnlockGroup;
 use App\Models\Game\Mission\MissionUnlockGroupMission;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([

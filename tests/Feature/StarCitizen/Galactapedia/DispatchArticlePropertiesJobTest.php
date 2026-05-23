@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Jobs\StarCitizen\Galactapedia\ImportArticleProperty;
 use App\Jobs\StarCitizen\Galactapedia\Sync\DispatchArticleProperties;
 use App\Models\StarCitizen\Galactapedia\Article;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
-
-uses(RefreshDatabase::class);
 
 it('dispatches property jobs for each article', function (): void {
     Bus::fake();

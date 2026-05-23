@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\Game\VersionDiff;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 describe('show', function (): void {
     it('renders the changelog page', function (): void {

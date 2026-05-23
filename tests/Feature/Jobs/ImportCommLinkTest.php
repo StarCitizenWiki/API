@@ -7,10 +7,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\System\Language;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 it('imports comm-link content, images, and links', function () {
     Storage::fake('comm_links');

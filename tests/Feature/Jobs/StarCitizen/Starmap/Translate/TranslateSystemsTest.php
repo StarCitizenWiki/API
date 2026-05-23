@@ -10,9 +10,6 @@ use App\Jobs\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('translates systems without german translation', function () {
     $starsystem = Starsystem::factory()->create();

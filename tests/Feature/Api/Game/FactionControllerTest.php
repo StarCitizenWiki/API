@@ -7,9 +7,6 @@ use App\Models\Game\FactionReputationRef;
 use App\Models\Game\FactionScope;
 use App\Models\Game\FactionStanding;
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([

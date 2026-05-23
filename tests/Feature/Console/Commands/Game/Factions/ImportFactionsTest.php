@@ -6,10 +6,7 @@ use App\Models\Game\Faction;
 use App\Models\Game\FactionReputationRef;
 use App\Models\Game\FactionScope;
 use App\Models\Game\FactionStanding;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Storage::fake('scunpacked');

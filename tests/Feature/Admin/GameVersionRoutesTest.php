@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('redirects guests for get admin/game-versions to login', function (): void {
     $response = $this->get(route('admin.game-versions.index'));

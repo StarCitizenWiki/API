@@ -9,9 +9,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Services\Game\VehicleMatchingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     VehicleMatchingService::resetState();

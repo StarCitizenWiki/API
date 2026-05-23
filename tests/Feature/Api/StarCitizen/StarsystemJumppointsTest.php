@@ -7,9 +7,6 @@ use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Jumppoint;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     GameVersion::factory()->create([

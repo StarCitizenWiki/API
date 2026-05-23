@@ -6,11 +6,8 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Support\UEXcorp\TerminalLocationMapper;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
-uses(RefreshDatabase::class);
 
 it('maps terminal IDs to starmap location UUIDs via exact name match', function (): void {
     Log::spy();

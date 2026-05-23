@@ -13,13 +13,10 @@ use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Services\Game\VehicleMatchingService;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
-use App\Services\Game\VehicleMatchingService;
 
 beforeEach(function (): void {
     VehicleMatchingService::resetState();

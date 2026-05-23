@@ -6,10 +6,7 @@ use App\Jobs\StarCitizen\Vehicle\ImportVehicle;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Component;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-
-uses(RefreshDatabase::class);
 
 it('imports vehicle components from ship matrix data', function (): void {
     $payload = json_decode(

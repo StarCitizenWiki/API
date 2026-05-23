@@ -13,9 +13,6 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use App\Models\Game\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->gameVersion = GameVersion::factory()->create([

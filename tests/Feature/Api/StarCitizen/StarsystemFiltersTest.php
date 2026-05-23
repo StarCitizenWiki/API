@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     app()->instance('env', 'production');

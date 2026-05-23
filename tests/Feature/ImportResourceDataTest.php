@@ -9,10 +9,7 @@ use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 it('fails when the game version does not exist', function (): void {
     Storage::fake('scunpacked');

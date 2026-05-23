@@ -8,10 +8,7 @@ use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-
-uses(RefreshDatabase::class);
 
 it('fails when the game version does not exist', function (): void {
     $this->artisan('game:import-starmap', ['version' => 'missing'])

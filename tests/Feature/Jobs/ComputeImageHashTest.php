@@ -7,12 +7,9 @@ use App\Jobs\Rsi\CommLink\Image\ComputeSimilarImageIds;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash;
 use App\Services\ImageHash\PdqHasher;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-
-uses(RefreshDatabase::class);
 
 it('downloads and stores a pdq hash for a comm-link image', function () {
     if (! extension_loaded('gd')) {

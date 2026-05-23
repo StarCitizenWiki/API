@@ -3,15 +3,13 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(RefreshDatabase::class)
-    ->beforeEach(function (): void {
-        $csrfToken = 'game-version-selection-csrf-token';
+beforeEach(function (): void {
+    $csrfToken = 'game-version-selection-csrf-token';
 
-        $this->withSession(['_token' => $csrfToken])
-            ->withHeader('X-CSRF-TOKEN', $csrfToken);
-    });
+    $this->withSession(['_token' => $csrfToken])
+        ->withHeader('X-CSRF-TOKEN', $csrfToken);
+});
 
 it('stores selected version in session and redirects with query string', function () {
     $version = GameVersion::factory()->create([

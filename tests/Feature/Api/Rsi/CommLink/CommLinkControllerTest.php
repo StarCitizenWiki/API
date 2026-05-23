@@ -10,10 +10,7 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
 use App\Models\System\Language;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-
-uses(RefreshDatabase::class);
 
 describe('index', function (): void {
     it('sorts by images and links count and filters by publication date', function (): void {

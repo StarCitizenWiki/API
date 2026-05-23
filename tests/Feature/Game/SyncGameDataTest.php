@@ -11,13 +11,10 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Storage::fake('scunpacked');

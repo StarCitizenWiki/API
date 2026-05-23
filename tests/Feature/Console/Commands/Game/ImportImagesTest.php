@@ -11,10 +11,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
-
-uses(RefreshDatabase::class);
 
 it('dispatches image import batches for items, vehicles, and starmap locations', function (): void {
     $version = GameVersion::factory()->create(['is_default' => true]);

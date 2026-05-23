@@ -6,9 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('resolves vehicle by slug via web route', function (): void {
     $version = GameVersion::factory()->create([

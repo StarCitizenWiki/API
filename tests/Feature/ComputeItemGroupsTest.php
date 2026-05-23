@@ -11,10 +11,7 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->manufacturer = Manufacturer::query()->create([
@@ -92,7 +89,7 @@ it('computes variant groups from stditem tags when class names do not match', fu
         ],
     ]);
 
-    (new ComputeItemVariantGroupsJob($version->id))->handle();
+    new ComputeItemVariantGroupsJob($version->id)->handle();
 
     expect($variantData->fresh()->base_id)->toBe($baseData->id)
         ->and($baseData->fresh()->base_id)->toBeNull();
@@ -135,7 +132,7 @@ it('prefers a class-name superset when source tags split one variant family', fu
     $bigBiteData = $createItemData('Tailwind Flight Helmet Big Bite', 'vgl_flightsuit_helmet_01_03_01', ['vgl_flightsuit_helmet', 'Set_01', 'Texture_03', 'Color_01', 'Helmet']);
     $blackboltData = $createItemData('Tailwind Flight Helmet Blackbolt', 'vgl_flightsuit_helmet_01_04_01', ['vgl_flightsuit_helmet', 'Set_01', 'Texture_04', 'Color_01', 'Helmet']);
 
-    (new ComputeItemVariantGroupsJob($version->id))->handle();
+    new ComputeItemVariantGroupsJob($version->id)->handle();
 
     $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
     expect($group)->not->toBeNull();
@@ -194,7 +191,7 @@ it('uses item name instead of Base for Ship classification variants', function (
         ],
     ]);
 
-    (new ComputeItemVariantGroupsJob($version->id))->handle();
+    new ComputeItemVariantGroupsJob($version->id)->handle();
 
     $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
     expect($group)->not->toBeNull();
@@ -202,8 +199,8 @@ it('uses item name instead of Base for Ship classification variants', function (
     $items = VariantGroupItem::query()->where('variant_group_id', $group->id)->get()->keyBy('item_data_id');
 
     // Both would normally get "Base" but for Ship.* items should use the item name
-    expect($items[$baseData->id]->variant_name)->toBe('VariPuck S4 Gimbal Mount');
-    expect($items[$variantData->id]->variant_name)->toBe('VariPuck S4 Gimbal Mount');
+    expect($items[$baseData->id]->variant_name)->toBe('VariPuck S4 Gimbal Mount')
+        ->and($items[$variantData->id]->variant_name)->toBe('VariPuck S4 Gimbal Mount');
 });
 
 describe('ship component grouping', function (): void {
@@ -243,7 +240,7 @@ describe('ship component grouping', function (): void {
             'data' => ['stdItem' => ['Tags' => ['flightready', 'gimbal']]],
         ]);
 
-        (new ComputeItemVariantGroupsJob($version->id))->handle();
+        new ComputeItemVariantGroupsJob($version->id)->handle();
 
         $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
         expect($group)->not->toBeNull();
@@ -304,7 +301,7 @@ describe('ship component grouping', function (): void {
             'data' => ['stdItem' => ['Tags' => ['flightready', 'gimbal']]],
         ]);
 
-        (new ComputeItemVariantGroupsJob($version->id))->handle();
+        new ComputeItemVariantGroupsJob($version->id)->handle();
 
         $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
         expect($group)->not->toBeNull();
@@ -313,10 +310,9 @@ describe('ship component grouping', function (): void {
 
         // Generic S4 and S5 should be in the group
         expect($items[$s4Data->id])->not->toBeNull()
-            ->and($items[$s5Data->id])->not->toBeNull();
-
-        // Ship-specific item should NOT be in the group
-        expect($items[$shipSpecificData->id] ?? null)->toBeNull();
+            ->and($items[$s5Data->id])->not->toBeNull()
+            // Ship-specific item should NOT be in the group
+            ->and($items[$shipSpecificData->id] ?? null)->toBeNull();
     });
 });
 
@@ -362,7 +358,7 @@ it('groups clothing color variants by extended class name prefix', function (): 
         ],
     ]);
 
-    (new ComputeItemVariantGroupsJob($version->id))->handle();
+    new ComputeItemVariantGroupsJob($version->id)->handle();
 
     $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
     expect($group)->not->toBeNull();
@@ -374,10 +370,10 @@ it('groups clothing color variants by extended class name prefix', function (): 
     $blackGroupItem = $items->firstWhere('item_data_id', $blackData->id);
 
     expect($whiteGroupItem)->not->toBeNull()
-        ->and($blackGroupItem)->not->toBeNull();
+        ->and($blackGroupItem)->not->toBeNull()
 
-    // White has lower color index so it should be base
-    expect($whiteGroupItem->is_base)->toBeTrue()
+        // White has lower color index so it should be base
+        ->and($whiteGroupItem->is_base)->toBeTrue()
         ->and($blackGroupItem->is_base)->toBeFalse()
         ->and($blackData->fresh()->base_id)->toBe($whiteData->id);
 });
@@ -441,7 +437,7 @@ it('separates different clothing designs within same manufacturer prefix', funct
         ],
     ]);
 
-    (new ComputeItemVariantGroupsJob($version->id))->handle();
+    new ComputeItemVariantGroupsJob($version->id)->handle();
 
     $groups = VariantGroup::query()->where('game_version_id', $version->id)->get();
 

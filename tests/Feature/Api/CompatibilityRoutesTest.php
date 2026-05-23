@@ -6,13 +6,10 @@ use App\Http\Controllers\Api\UserController;
 use App\Models\Game\GameVersion;
 use App\Models\System\Language;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
-
-uses(RefreshDatabase::class);
 
 it('serves the openapi yaml on get /api/openapi', function (): void {
     $response = $this->get('/api/openapi');

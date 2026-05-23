@@ -6,9 +6,6 @@ use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create([
@@ -172,12 +169,12 @@ it('includes item-kind ingredients with links and quantity on index', function (
         ->toHaveKey('resource_type_uuid', $lindiniumUuid)
         ->toHaveKey('quantity_scu', 0.06)
         ->and($resourceIngredient['link'])->toBe(route('commodities.show', ['commodity' => $lindiniumUuid]))
-        ->and($resourceIngredient['web_url'])->toBe(route('web.commodities.show', ['identifier' => $lindiniumUuid]));
-
-    expect($itemIngredient)
+        ->and($resourceIngredient['web_url'])->toBe(route('web.commodities.show', ['identifier' => $lindiniumUuid]))
+        ->and($itemIngredient)
         ->toHaveKey('kind', 'item')
         ->toHaveKey('item_uuid', $hadaniteUuid)
         ->toHaveKey('quantity', 1)
         ->and($itemIngredient['link'])->toBe(route('items.show', ['identifier' => $hadaniteUuid]))
         ->and($itemIngredient['web_url'])->toBe(route('web.items.show', ['item' => $hadaniteUuid]));
+
 });

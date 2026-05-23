@@ -11,9 +11,6 @@ use App\Models\Rsi\CommLink\Category;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('translates comm-links without german translation', function () {
     $category = Category::factory()->create(['name' => 'General']);

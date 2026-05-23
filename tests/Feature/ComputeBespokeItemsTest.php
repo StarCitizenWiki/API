@@ -7,9 +7,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([
@@ -43,7 +40,7 @@ describe('bespoke class-name tokens', function (): void {
                 ],
             ]);
 
-        (new ComputeBespokeItems($this->gameVersion->id))->handle();
+        new ComputeBespokeItems($this->gameVersion->id)->handle();
 
         expect(ItemData::where('class_name', 'MRCK_TALN_Colonial_S3x8')->first()->is_bespoke)->toBeTrue();
     });
@@ -65,7 +62,7 @@ describe('bespoke class-name tokens', function (): void {
                 ],
             ]);
 
-        (new ComputeBespokeItems($this->gameVersion->id))->handle();
+        new ComputeBespokeItems($this->gameVersion->id)->handle();
 
         expect(ItemData::where('class_name', 'Turret_PDC_SCItem_Template')->first()->is_bespoke)->toBeTrue();
     });
@@ -87,7 +84,7 @@ describe('bespoke class-name tokens', function (): void {
                 ],
             ]);
 
-        (new ComputeBespokeItems($this->gameVersion->id))->handle();
+        new ComputeBespokeItems($this->gameVersion->id)->handle();
 
         expect(ItemData::where('class_name', 'BEHR_LaserRepeater_S1')->first()->is_bespoke)->toBeFalse();
     });

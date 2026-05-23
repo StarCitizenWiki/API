@@ -6,9 +6,6 @@ use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 if (! function_exists('attributeForTestId')) {
     function attributeForTestId(string $content, string $testId, string $attribute): ?string

@@ -8,12 +8,9 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
-uses(RefreshDatabase::class);
 
 it('enriches item prices from per-item API', function (): void {
     Log::spy();

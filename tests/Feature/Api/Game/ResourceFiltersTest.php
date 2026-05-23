@@ -10,9 +10,6 @@ use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create([

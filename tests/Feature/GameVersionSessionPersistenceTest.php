@@ -3,11 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
-
-uses(RefreshDatabase::class);
 
 function gameVersionCrawler(TestResponse $response): Crawler
 {

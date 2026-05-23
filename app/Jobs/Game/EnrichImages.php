@@ -116,7 +116,7 @@ class EnrichImages implements ShouldQueue
                     'status' => $response->status(),
                 ]);
 
-                usleep(self::THROTTLE_MICROSECONDS);
+                $this->throttle();
 
                 continue;
             }
@@ -124,7 +124,7 @@ class EnrichImages implements ShouldQueue
             $pages = $response->json('query.pages', []);
 
             if (! is_array($pages)) {
-                usleep(self::THROTTLE_MICROSECONDS);
+                $this->throttle();
 
                 continue;
             }
@@ -170,7 +170,7 @@ class EnrichImages implements ShouldQueue
                 ];
             }
 
-            usleep(self::THROTTLE_MICROSECONDS);
+            $this->throttle();
         }
 
         return $results;
@@ -202,7 +202,7 @@ class EnrichImages implements ShouldQueue
             $response = Http::timeout(30)->get($url);
 
             if (! $response->successful()) {
-                usleep(self::THROTTLE_MICROSECONDS);
+                $this->throttle();
 
                 continue;
             }
@@ -215,7 +215,7 @@ class EnrichImages implements ShouldQueue
                     'url' => $url,
                 ]);
 
-                usleep(self::THROTTLE_MICROSECONDS);
+                $this->throttle();
 
                 continue;
             }
@@ -230,7 +230,7 @@ class EnrichImages implements ShouldQueue
                 'original_height' => $dimensions[1],
             ];
 
-            usleep(self::THROTTLE_MICROSECONDS);
+            $this->throttle();
         }
 
         return $results;
@@ -248,6 +248,15 @@ class EnrichImages implements ShouldQueue
         }
 
         return false;
+    }
+
+    private function throttle(): void
+    {
+        $microseconds = (int) config('images.throttle_microseconds', self::THROTTLE_MICROSECONDS);
+
+        if ($microseconds > 0) {
+            usleep($microseconds);
+        }
     }
 
     /**

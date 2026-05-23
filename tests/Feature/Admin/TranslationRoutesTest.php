@@ -9,9 +9,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\System\Language;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 $resolveTranslationModel = static function (string $type): array {
     return match ($type) {

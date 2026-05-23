@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Static naming violation scanner for Game API resources.
  *
- * Scans resource source files via regex — no DB, no factories, no HTTP.
+ * Scans resource source files via regex: no DB, no factories, no HTTP.
  * Only checks output keys (left side of => in toArray), not source data keys.
  */
 
@@ -73,7 +73,7 @@ function namingExtractOutputKeys(string $filePath): array
 
         // Match output keys: 'key_name' => in the return array
         if (preg_match("/^\s*'([a-zA-Z_][a-zA-Z0-9_]*)'\s*=>/", $line, $matches)) {
-            // Skip match arm patterns — check if 'match (' appears in preceding 15 lines
+            // Skip match arm patterns: check if 'match (' appears in preceding 15 lines
             $isMatchArm = false;
             for ($i = max(0, $lineNum - 15); $i < $lineNum; $i++) {
                 if (preg_match('/\bmatch\s*\(/', $lines[$i])) {
@@ -113,7 +113,7 @@ it('resource output keys use snake_case', function (string $file): void {
             continue;
         }
 
-        $violations[] = "{$entry['file']}:{$entry['line']} — '{$entry['key']}'";
+        $violations[] = "{$entry['file']}:{$entry['line']}: '{$entry['key']}'";
     }
 
     expect($violations)->toBeEmpty(
@@ -135,7 +135,7 @@ it('no resource uses web_link key (must be web_url)', function (): void {
     }
 
     expect($violations)->toBeEmpty(
-        "Found 'web_link' key — use 'web_url' instead:\n  ".implode("\n  ", $violations),
+        "Found 'web_link' key: use 'web_url' instead:\n  ".implode("\n  ", $violations),
     );
 })->group('naming');
 
@@ -151,7 +151,7 @@ it('no resource uses uneditable without editable companion', function (): void {
 
         foreach ($keys as $entry) {
             if ($entry['key'] === 'uneditable' && ! $hasEditable) {
-                $violations[] = "{$entry['file']}:{$entry['line']} — 'uneditable' without 'editable'";
+                $violations[] = "{$entry['file']}:{$entry['line']}: 'uneditable' without 'editable'";
             }
         }
     }
@@ -173,7 +173,7 @@ it('sub-type key is sub_type not bare subtype', function (): void {
 
         foreach ($keys as $entry) {
             if ($entry['key'] === 'subtype' && ! $hasSubType) {
-                $violations[] = "{$entry['file']}:{$entry['line']} — 'subtype' without 'sub_type'";
+                $violations[] = "{$entry['file']}:{$entry['line']}: 'subtype' without 'sub_type'";
             }
         }
     }
@@ -198,10 +198,10 @@ it('min/max keys use prefix_min/prefix_max or bare min/max, not minimum/maximum'
 
         foreach ($keys as $entry) {
             if ($entry['key'] === 'minimum' && ! $hasMin && ! $hasPrefixedMin) {
-                $violations[] = "{$entry['file']}:{$entry['line']} — bare 'minimum' without 'min' or '*_min'";
+                $violations[] = "{$entry['file']}:{$entry['line']}: bare 'minimum' without 'min' or '*_min'";
             }
             if ($entry['key'] === 'maximum' && ! $hasMax && ! $hasPrefixedMax) {
-                $violations[] = "{$entry['file']}:{$entry['line']} — bare 'maximum' without 'max' or '*_max'";
+                $violations[] = "{$entry['file']}:{$entry['line']}: bare 'maximum' without 'max' or '*_max'";
             }
         }
     }

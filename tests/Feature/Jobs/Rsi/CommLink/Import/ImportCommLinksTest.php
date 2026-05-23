@@ -7,12 +7,9 @@ use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
-uses(RefreshDatabase::class);
 
 $storeCommLinkHtml = function (
     string $path,
