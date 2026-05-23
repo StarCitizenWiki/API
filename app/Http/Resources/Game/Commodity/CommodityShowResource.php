@@ -233,6 +233,15 @@ class CommodityShowResource extends CommodityIndexResource
         $resourceDataCollection = $this->resource->resourceData ?? collect();
         $locations = $this->buildDetailedLocations($resourceDataCollection, $this->resource->id);
 
+        $this->setCanonicalResource(
+            'commodity',
+            $this->resource->uuid,
+            $this->resource->slug,
+            $this->urlWithVersion(route('commodities.show', ['commodity' => $this->resource->uuid]), $request),
+            $this->urlWithVersion(route('web.commodities.show', ['identifier' => $this->resource->slug ?? $this->resource->uuid]), $request),
+            $request->query('version'),
+        );
+
         return array_merge(parent::toArray($request), [
             'locations' => $locations,
             'systems' => $this->buildSystems($locations),

@@ -2753,7 +2753,7 @@ paths:
       tags:
         - Search
       summary: 'Resolve Search Query'
-      description: 'Resolve a search query to the best-matching entity and redirect to its API URL. Useful for quick lookups where you know the exact name.'
+      description: 'Resolve a search query to the best-matching entity and redirect to its API URL, preserving query parameters such as locale, include, and version. Useful for quick lookups where you know the exact name.'
       operationId: resolveSearchQuery
       parameters:
         -
@@ -18425,6 +18425,45 @@ components:
         deprecated_fields:
           description: 'Deprecated fields that will be removed in future versions.'
           type: string
+        resource:
+          $ref: '#/components/schemas/canonical_resource_meta'
+      type: object
+    canonical_resource_meta:
+      description: 'Canonical resource identity metadata'
+      properties:
+        type:
+          description: 'Resource type discriminator.'
+          type: string
+          enum:
+            - blueprint
+            - commodity
+            - item
+            - location
+            - mission
+            - vehicle
+          example: item
+        uuid:
+          description: 'Entity UUID.'
+          type: string
+          example: 97648869-5fa5-42da-b804-4d9314289539
+        slug:
+          description: 'URL-friendly slug. Omitted when null.'
+          type: string
+          example: aegs-avenger-stalker
+          nullable: true
+        api_url:
+          description: 'Canonical API URL for this resource.'
+          type: string
+          example: 'https://api.star-citizen.wiki/api/items/aegs-avenger-stalker'
+        web_url:
+          description: 'Canonical web URL for this resource.'
+          type: string
+          example: 'https://star-citizen.wiki/items/aegs-avenger-stalker'
+        version:
+          description: 'Game version code this response is scoped to. Omitted when not applicable.'
+          type: string
+          example: 4.8.0-LIVE.11825000
+          nullable: true
       type: object
     pagination_links:
       description: 'Pagination navigation links.'

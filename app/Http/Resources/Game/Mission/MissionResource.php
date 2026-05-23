@@ -278,6 +278,15 @@ class MissionResource extends AbstractBaseResource
         $mission = $this->resource->mission;
         $data = $this->resource->data;
 
+        $this->setCanonicalResource(
+            'mission',
+            $mission?->uuid ?? '',
+            $mission?->slug,
+            $this->urlWithVersion(route('missions.show', ['mission' => $mission?->uuid]), $request),
+            $this->urlWithVersion(route('web.missions.show', ['mission' => $mission?->slug ?? $mission?->uuid]), $request),
+            $this->resource->gameVersion?->code,
+        );
+
         $makeApiUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
         $makeWebUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
 

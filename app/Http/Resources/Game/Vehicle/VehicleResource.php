@@ -752,6 +752,15 @@ class VehicleResource extends AbstractBaseResource
 
         $vehicleData = $this->resource;
 
+        $this->setCanonicalResource(
+            'vehicle',
+            $this->vehicle->uuid,
+            $this->vehicle->slug,
+            $this->buildApiUrl($request),
+            $this->buildWebUrl($request),
+            $vehicleData->relationLoaded('gameVersion') ? $vehicleData->gameVersion?->code : null,
+        );
+
         $payload = ($vehicleData->data ?? collect())->toArray();
         $flight = Arr::get($payload, 'FlightCharacteristics', []);
 

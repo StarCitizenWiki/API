@@ -302,6 +302,15 @@ class StarmapLocationResource extends AbstractBaseResource
         $locationData = $this->resource;
         $payload = $this->payload($locationData->data);
 
+        $this->setCanonicalResource(
+            'location',
+            $locationData->location?->uuid ?? '',
+            $locationData->location?->slug,
+            $this->buildApiUrl($locationData, $request),
+            $this->buildWebUrl($locationData, $request),
+            $locationData->gameVersion?->code,
+        );
+
         return [
             'uuid' => $locationData->location?->uuid,
             'slug' => $locationData->location?->slug,

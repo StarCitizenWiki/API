@@ -432,6 +432,15 @@ class BlueprintResource extends AbstractBaseResource
         $requirementGroups = $normalizer->requirementGroups($payload);
         $outputItemUuid = $this->nullableString($this->output_item_uuid);
 
+        $this->setCanonicalResource(
+            'blueprint',
+            $this->blueprint->uuid,
+            $this->blueprint->slug,
+            $this->urlWithVersion(route('blueprints.show', ['blueprint' => $this->blueprint->uuid]), $request),
+            $this->urlWithVersion(route('web.blueprints.show', ['blueprint' => $this->blueprint->slug ?? $this->blueprint->uuid]), $request),
+            $this->gameVersion?->code,
+        );
+
         return [
             'uuid' => $this->blueprint->uuid,
             'key' => $this->key,

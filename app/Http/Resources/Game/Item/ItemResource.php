@@ -448,6 +448,15 @@ class ItemResource extends AbstractBaseResource
 
         $itemData = $this->resource;
 
+        $this->setCanonicalResource(
+            'item',
+            $this->item->uuid,
+            $this->item->slug,
+            $this->buildApiUrl($request),
+            $this->buildWebUrl($request),
+            $itemData->relationLoaded('gameVersion') ? $itemData->gameVersion->code : null,
+        );
+
         $type = $this->stripItemTypePrefix($itemData->type);
 
         $this->eagerLoadPortEquippedItems($itemData, $request);

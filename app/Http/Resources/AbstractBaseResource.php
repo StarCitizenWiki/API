@@ -56,6 +56,28 @@ abstract class AbstractBaseResource extends JsonResource
         $this->additional['meta'][$key] = $value;
     }
 
+    /**
+     * Adds canonical resource identity metadata to the meta block
+     *
+     * @param  string  $type  Resource type, e.g. 'item', 'vehicle'
+     * @param  string  $uuid  Entity UUID
+     * @param  string|null  $slug  Entity slug (nullable for resources without slugs)
+     * @param  string  $apiUrl  Canonical API URL for this resource
+     * @param  string  $webUrl  Canonical web URL for this resource
+     * @param  string|null  $version  Game version code, e.g. '4.8.0-LIVE.11825000'
+     */
+    protected function setCanonicalResource(string $type, string $uuid, ?string $slug, string $apiUrl, string $webUrl, ?string $version = null): void
+    {
+        $this->additional['meta']['resource'] = array_filter([
+            'type' => $type,
+            'uuid' => $uuid,
+            'slug' => $slug,
+            'api_url' => $apiUrl,
+            'web_url' => $webUrl,
+            'version' => $version,
+        ], static fn (mixed $value): bool => $value !== null);
+    }
+
     protected function urlWithVersion(string $url, Request $request): string
     {
         $version = $request->query('version');

@@ -725,7 +725,10 @@ class ItemController extends Controller
         }
 
         if (Vehicle::where('uuid', $itemData->item->uuid)->exists()) {
-            return redirect(sprintf('/api/vehicles/%s', $itemData->item->uuid));
+            $url = sprintf('/api/vehicles/%s', $itemData->item->uuid);
+            $qs = $request->server->get('QUERY_STRING');
+
+            return redirect($qs !== null && $qs !== '' ? $url.'?'.$qs : $url);
         }
 
         return new ItemResource($itemData)
