@@ -40,7 +40,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Title</h3>
-                            <p class="text-sm text-subtle">Search by comm-link title or exact CIG ID.</p>
+                            <p class="text-sm text-subtle">Search by Comm-Link title or exact CIG ID.</p>
                         </div>
 
                         <label class="input w-full">
@@ -65,7 +65,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Content</h3>
-                            <p id="content-search-help" class="text-sm text-subtle">Search full comm-link article content.</p>
+                            <p id="content-search-help" class="text-sm text-subtle">Search full Comm-Link article content.</p>
                         </div>
 
                         <label class="input w-full">
@@ -130,7 +130,7 @@
                     <form method="GET" action="{{ route('web.comm-links.images.search') }}" class="card-body gap-4" data-testid="comm-links-search-media-name-form">
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Media Name</h3>
-                            <p class="text-sm text-subtle">Search comm-link images by filename.</p>
+                            <p class="text-sm text-subtle">Search Comm-Link images by filename.</p>
                         </div>
 
                         <label class="input w-full">
@@ -161,7 +161,7 @@
 
                         <div class="flex flex-col gap-1">
                             <h3 class="card-title">Reverse Image Search</h3>
-                            <p class="text-sm text-subtle">Upload an image to find similar comm-link visuals.</p>
+                            <p class="text-sm text-subtle">Upload an image to find similar Comm-Link visuals.</p>
                         </div>
 
                         <div class="flex flex-col gap-1 w-full">
