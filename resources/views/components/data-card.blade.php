@@ -113,7 +113,7 @@
                                         @foreach ($section['rows'] as $row)
                                             <div class="flex items-baseline justify-between gap-2">
                                                 <dt class="text-xs text-subtle">{{ $row['label'] }}</dt>
-                                                <dd class="text-sm font-semibold {{ $row['class'] ?? '' }}">{{ $row['value'] }}</dd>
+                                                <dd class="text-sm font-semibold {{ $row['class'] ?? '' }}" @if (($row['title'] ?? null) !== null) title="{{ $row['title'] }}" @endif>{{ $row['value'] }}</dd>
                                             </div>
                                         @endforeach
                                     </dl>

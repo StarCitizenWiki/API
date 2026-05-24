@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\ItemSpecification;
 
+use App\Support\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -58,10 +59,24 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'jump_range_formatted',
+            description: 'Jump range formatted as human-readable distance (e.g. "~56 GM"). Null when jump_range is null.',
+            type: 'string',
+            example: '~56 GM',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'disconnect_range',
             description: 'Automatic disengage distance when approaching destination in meters (DisconnectRange).',
             type: 'double',
             example: 34693,
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'disconnect_range_formatted',
+            description: 'Disconnect range formatted as human-readable distance (e.g. "35 km"). Null when disconnect_range is null.',
+            type: 'string',
+            example: '35 km',
             nullable: true
         ),
 
@@ -126,8 +141,10 @@ class QuantumDriveResource extends AbstractItemSpecificationResource
 
         return [
             'quantum_fuel_requirement' => Arr::get($quantumDrive, 'QuantumFuelRequirement'),
-            'jump_range' => Arr::get($quantumDrive, 'JumpRange'),
-            'disconnect_range' => Arr::get($quantumDrive, 'DisconnectRange'),
+            'jump_range' => $jumpRange = Arr::get($quantumDrive, 'JumpRange'),
+            'jump_range_formatted' => Format::gigameters($jumpRange),
+            'disconnect_range' => $disconnectRange = Arr::get($quantumDrive, 'DisconnectRange'),
+            'disconnect_range_formatted' => Format::gigameters($disconnectRange),
             'fuel_rate' => Arr::get($quantumDrive, 'FuelRate'),
             'thermal_energy_draw' => [
                 'pre_ramp_up' => Arr::get($heat, 'PreRampUpThermalEnergyDraw'),

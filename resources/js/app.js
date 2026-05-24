@@ -219,6 +219,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
     }
 
+    if (document.querySelector('[x-data^="quantumDriveCalc"]')) {
+        lazyPromises.push(
+            import("./quantumDriveCalc").then(({ quantumDriveCalc }) => {
+                window.Alpine.data("quantumDriveCalc", quantumDriveCalc);
+            }),
+        );
+    }
+
     if (document.querySelector('[x-data="developerQuickstart"], [x-data="developerShowDemo"], [x-data="developerFiltersDemo"]')) {
         lazyPromises.push(
             import("./developerQuickstart").then((mod) => {

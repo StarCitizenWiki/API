@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\ItemSpecification;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Support\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -105,6 +106,34 @@ use OpenApi\Attributes as OA;
             example: 6,
             nullable: true
         ),
+        new OA\Property(
+            property: 'drive_speed_formatted',
+            description: 'Drive speed formatted for display (e.g. "165 Mm/s", "400 km/s"). Null when drive_speed is null.',
+            type: 'string',
+            example: '165 Mm/s',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'stage_one_accel_rate_formatted',
+            description: 'Stage one acceleration formatted for display (e.g. "5.0 Mm/s²"). Null when stage_one_accel_rate is null.',
+            type: 'string',
+            example: '5 Mm/s²',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'stage_two_accel_rate_formatted',
+            description: 'Stage two acceleration formatted for display (e.g. "15 Mm/s²"). Null when stage_two_accel_rate is null.',
+            type: 'string',
+            example: '15 Mm/s²',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'engage_speed_formatted',
+            description: 'Engage speed formatted for display (e.g. "1.5 km/s"). Null when engage_speed is null.',
+            type: 'string',
+            example: '1.5 km/s',
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -119,15 +148,24 @@ class QuantumDriveJumpProfileResource extends AbstractBaseResource
     {
         $profile = is_array($this->resource) ? $this->resource : [];
 
+        $driveSpeed = Arr::get($profile, 'DriveSpeed');
+        $stageOneAccelRate = Arr::get($profile, 'StageOneAccelRate');
+        $stageTwoAccelRate = Arr::get($profile, 'StageTwoAccelRate');
+        $engageSpeed = Arr::get($profile, 'EngageSpeed');
+
         return [
             $this->mergeWhen($this->type !== null, [
                 'type' => $this->type,
             ]),
-            'drive_speed' => Arr::get($profile, 'DriveSpeed'),
+            'drive_speed' => $driveSpeed,
+            'drive_speed_formatted' => Format::velocity($driveSpeed),
             'cooldown_time' => Arr::get($profile, 'CooldownTime'),
-            'stage_one_accel_rate' => Arr::get($profile, 'StageOneAccelRate'),
-            'stage_two_accel_rate' => Arr::get($profile, 'StageTwoAccelRate'),
-            'engage_speed' => Arr::get($profile, 'EngageSpeed'),
+            'stage_one_accel_rate' => $stageOneAccelRate,
+            'stage_one_accel_rate_formatted' => Format::acceleration($stageOneAccelRate),
+            'stage_two_accel_rate' => $stageTwoAccelRate,
+            'stage_two_accel_rate_formatted' => Format::acceleration($stageTwoAccelRate),
+            'engage_speed' => $engageSpeed,
+            'engage_speed_formatted' => Format::velocity($engageSpeed),
             'interdiction_effect_time' => Arr::get($profile, 'InterdictionEffectTime'),
             'calibration_rate' => Arr::get($profile, 'CalibrationRate'),
             'min_calibration_requirement' => Arr::get($profile, 'MinCalibrationRequirement'),

@@ -8,6 +8,7 @@ use App\Enums\Game\ResourceKind;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Mission\MissionSummaryResource;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Format;
 use App\Support\Resources\HasDepositFormatting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -103,9 +104,12 @@ use OpenApi\Attributes as OA;
     description: 'Quantum travel parameters defining how ships interact with this location during quantum travel.',
     properties: [
         new OA\Property(property: 'obstruction_radius', description: 'Radius around the location that obstructs quantum travel.', type: 'number'),
+        new OA\Property(property: 'obstruction_radius_formatted', description: 'Obstruction radius formatted as human-readable distance (GM/km/m).', type: 'string', nullable: true),
         new OA\Property(property: 'arrival_radius', description: 'Radius at which a ship exits quantum travel near this location.', type: 'number'),
+        new OA\Property(property: 'arrival_radius_formatted', description: 'Arrival radius formatted as human-readable distance (GM/km/m).', type: 'string', nullable: true),
         new OA\Property(property: 'arrival_point_detection_offset', description: 'Positional offset for detecting the quantum travel arrival point.', type: 'number'),
         new OA\Property(property: 'adoption_radius', description: 'Radius within which child locations are adopted into the quantum travel zone.', type: 'number'),
+        new OA\Property(property: 'adoption_radius_formatted', description: 'Adoption radius formatted as human-readable distance (GM/km/m).', type: 'string', nullable: true),
         new OA\Property(property: 'sub_point_radius_multiplier', description: 'Multiplier applied to the sub-point radius for quantum travel calculations.', type: 'number'),
     ],
     type: 'object'
@@ -330,7 +334,14 @@ class StarmapLocationResource extends AbstractBaseResource
             'hide_in_world' => (bool) Arr::get($payload, 'HideInWorld', false),
             'block_travel' => (bool) $locationData->block_travel,
             'quantum_travel' => is_array(Arr::get($payload, 'QuantumTravel')) && Arr::get($payload, 'QuantumTravel') !== []
-                ? collect(Arr::get($payload, 'QuantumTravel'))->mapWithKeys(fn (mixed $value, string|int $key) => [str((string) $key)->snake()->value() => $value])->all()
+                ? collect(Arr::get($payload, 'QuantumTravel'))
+                    ->mapWithKeys(fn (mixed $value, string|int $key) => [str((string) $key)->snake()->value() => $value])
+                    ->pipe(fn (Collection $qt) => $qt->merge([
+                        'obstruction_radius_formatted' => Format::gigameters($qt->get('obstruction_radius')),
+                        'arrival_radius_formatted' => Format::gigameters($qt->get('arrival_radius')),
+                        'adoption_radius_formatted' => Format::gigameters($qt->get('adoption_radius')),
+                    ]))
+                    ->all()
                 : null,
             'asteroid_ring' => is_array(Arr::get($payload, 'AsteroidRing')) && Arr::get($payload, 'AsteroidRing') !== []
                 ? collect(Arr::get($payload, 'AsteroidRing'))->mapWithKeys(fn (mixed $value, string|int $key) => [str((string) $key)->snake()->value() => $value])->all()

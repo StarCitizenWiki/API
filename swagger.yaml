@@ -5173,6 +5173,33 @@ components:
           $ref: '#/components/schemas/blueprint_modifier_quality_range'
         modifier_range:
           $ref: '#/components/schemas/blueprint_modifier_range'
+        value_range_type:
+          description: 'Interpolation type for the modifier value range. When present, value_segments should be used for interpolation instead of the simple quality_range/modifier_range pair.'
+          type: string
+          enum:
+            - linear
+          nullable: true
+        value_segments:
+          description: 'Multi-step interpolation segments. Each segment defines its own quality range and modifier start/end values. When present, use these for interpolation instead of quality_range/modifier_range.'
+          type: array
+          items:
+            properties:
+              quality_min:
+                description: 'Start quality for this segment'
+                type: integer
+              quality_max:
+                description: 'End quality for this segment'
+                type: integer
+              modifier_at_start:
+                description: 'Modifier value at quality_min'
+                type: number
+                format: float
+              modifier_at_end:
+                description: 'Modifier value at quality_max'
+                type: number
+                format: float
+            type: object
+          nullable: true
       type: object
     blueprint_summary_property:
       title: 'Blueprint Summary Property'
@@ -11755,6 +11782,26 @@ components:
           format: double
           example: 6
           nullable: true
+        drive_speed_formatted:
+          description: 'Drive speed formatted for display (e.g. "165 Mm/s", "400 km/s"). Null when drive_speed is null.'
+          type: string
+          example: '165 Mm/s'
+          nullable: true
+        stage_one_accel_rate_formatted:
+          description: 'Stage one acceleration formatted for display (e.g. "5.0 Mm/s²"). Null when stage_one_accel_rate is null.'
+          type: string
+          example: '5 Mm/s²'
+          nullable: true
+        stage_two_accel_rate_formatted:
+          description: 'Stage two acceleration formatted for display (e.g. "15 Mm/s²"). Null when stage_two_accel_rate is null.'
+          type: string
+          example: '15 Mm/s²'
+          nullable: true
+        engage_speed_formatted:
+          description: 'Engage speed formatted for display (e.g. "1.5 km/s"). Null when engage_speed is null.'
+          type: string
+          example: '1.5 km/s'
+          nullable: true
       type: object
     quantum_drive_thermal_energy_draw:
       title: 'Quantum Drive Thermal Energy Draw'
@@ -11824,11 +11871,21 @@ components:
           format: double
           example: 3.402823E+38
           nullable: true
+        jump_range_formatted:
+          description: 'Jump range formatted as human-readable distance (e.g. "~56 GM"). Null when jump_range is null.'
+          type: string
+          example: '~56 GM'
+          nullable: true
         disconnect_range:
           description: 'Automatic disengage distance when approaching destination in meters (DisconnectRange).'
           type: number
           format: double
           example: 34693
+          nullable: true
+        disconnect_range_formatted:
+          description: 'Disconnect range formatted as human-readable distance (e.g. "35 km"). Null when disconnect_range is null.'
+          type: string
+          example: '35 km'
           nullable: true
         thermal_energy_draw:
           $ref: '#/components/schemas/quantum_drive_thermal_energy_draw'
@@ -15649,15 +15706,27 @@ components:
         obstruction_radius:
           description: 'Radius around the location that obstructs quantum travel.'
           type: number
+        obstruction_radius_formatted:
+          description: 'Obstruction radius formatted as human-readable distance (GM/km/m).'
+          type: string
+          nullable: true
         arrival_radius:
           description: 'Radius at which a ship exits quantum travel near this location.'
           type: number
+        arrival_radius_formatted:
+          description: 'Arrival radius formatted as human-readable distance (GM/km/m).'
+          type: string
+          nullable: true
         arrival_point_detection_offset:
           description: 'Positional offset for detecting the quantum travel arrival point.'
           type: number
         adoption_radius:
           description: 'Radius within which child locations are adopted into the quantum travel zone.'
           type: number
+        adoption_radius_formatted:
+          description: 'Adoption radius formatted as human-readable distance (GM/km/m).'
+          type: string
+          nullable: true
         sub_point_radius_multiplier:
           description: 'Multiplier applied to the sub-point radius for quantum travel calculations.'
           type: number

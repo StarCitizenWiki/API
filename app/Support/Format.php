@@ -323,6 +323,99 @@ class Format
     }
 
     /**
+     * Format a scaled value with trailing zeros removed.
+     *
+     * Divides the value by `$divisor`, formats with `$decimals` decimal places,
+     * then strips trailing zeros and the trailing decimal point.
+     */
+    private static function formatScaled(float $value, int|float $divisor, int $decimals): string
+    {
+        $formatted = self::number($value / $divisor, $decimals);
+        $formatted = rtrim($formatted, '0');
+
+        return rtrim($formatted, '.');
+    }
+
+    /**
+     * Format a distance in meters as gigameters (GM).
+     *
+     * Returns a human-readable string like "~56 GM", "1.2 GM", or the
+     * raw meter value with unit when below 0.05 GM (50,000 km).
+     *
+     * @param  float|int|null  $meters  Distance in meters
+     * @param  int  $decimals  Maximum decimal places (default 1)
+     */
+    public static function gigameters(float|int|null $meters, int $decimals = 1): ?string
+    {
+        if ($meters === null) {
+            return null;
+        }
+
+        $gm = (float) $meters / 1_000_000_000;
+
+        if ($gm > 1_000_000_000) {
+            return 'Unlimited';
+        }
+
+        if ($gm >= 0.05) {
+            return '~'.self::formatScaled((float) $meters, 1_000_000_000, $decimals).' GM';
+        }
+
+        $km = (float) $meters / 1000;
+        if ($km >= 1) {
+            return self::number((int) round($km)).' km';
+        }
+
+        return self::number((int) round($meters)).' m';
+    }
+
+    /**
+     * Format a velocity or acceleration into the most readable SI prefix.
+     *
+     * >= 1 Mm -> Mm{suffix}  (e.g. 165 Mm/s)
+     * >= 1 km -> km{suffix}  (e.g. 12.5 km/s²)
+     * else   -> m{suffix}   (e.g. 500 m/s)
+     */
+    private static function formatScaledVelocity(float $value, int $decimals, string $suffix, bool $isNull): ?string
+    {
+        if ($isNull) {
+            return null;
+        }
+
+        if ($value >= 1_000_000) {
+            return self::formatScaled($value, 1_000_000, $decimals).' Mm'.$suffix;
+        }
+
+        if ($value >= 1_000) {
+            return self::formatScaled($value, 1_000, $decimals).' km'.$suffix;
+        }
+
+        return self::number($value, 0).' m'.$suffix;
+    }
+
+    /**
+     * Format a velocity from m/s into the most readable SI prefix.
+     *
+     * @param  float|int|null  $metersPerSecond  Velocity in m/s
+     * @param  int  $decimals  Maximum decimal places (default 1)
+     */
+    public static function velocity(float|int|null $metersPerSecond, int $decimals = 1): ?string
+    {
+        return self::formatScaledVelocity((float) $metersPerSecond, $decimals, '/s', $metersPerSecond === null);
+    }
+
+    /**
+     * Format an acceleration from m/s² into the most readable SI prefix.
+     *
+     * @param  float|int|null  $metersPerSecondSquared  Acceleration in m/s²
+     * @param  int  $decimals  Maximum decimal places (default 1)
+     */
+    public static function acceleration(float|int|null $metersPerSecondSquared, int $decimals = 1): ?string
+    {
+        return self::formatScaledVelocity((float) $metersPerSecondSquared, $decimals, '/s²', $metersPerSecondSquared === null);
+    }
+
+    /**
      * Format a value as a signed percentage, where the input is a ratio (1.0 = 0%).
      */
     public static function signedPercent(mixed $value, bool $showPlus = true): string

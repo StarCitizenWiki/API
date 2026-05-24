@@ -43,6 +43,18 @@
                                     @foreach($categoryPorts as $port)
                                         <x-port-display :port="$port" :editable="data_get($port, 'editable', false)" :power-pools="$powerPools" :category-index="$loop->index" :vehicle-name="$vehicleName" :vehicle-port-tags="$vehiclePortTags"/>
                                     @endforeach
+
+                                    @if($categoryLabel === 'Quantum Drives')
+                                        @php
+                                            $qdPort = $categoryPorts->first(fn ($p) => data_get($p, 'type') === 'QuantumDrive');
+                                            $qdItem = data_get($qdPort, 'equipped_item') ?? data_get($qdPort, 'equipped_port_item');
+                                            $qdSpec = data_get($qdItem, 'quantum_drive');
+                                            $qdFuelCapacity = data_get($vehicle, 'quantum.quantum_fuel_capacity');
+                                        @endphp
+                                        @if($qdSpec)
+                                            <x-quantum-drive-travel-calc :quantum-drive="$qdSpec" :fuel-capacity="$qdFuelCapacity"/>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         </div>

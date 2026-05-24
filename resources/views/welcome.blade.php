@@ -25,10 +25,14 @@
                 'color' => 'primary',
                 'groups' => [
                     [
-                        'title' => 'Vehicles',
+                        'title' => 'Vehicles & Components',
                         'links' => [
                             ['label' => 'Ships & Vehicles', 'href' => route('web.vehicles.index'), 'testId' => 'welcome-vehicles-link'],
-                            ['label' => 'Components', 'href' => route('web.items.index', ['filter' => ['category' => 'vehicle-components']])],
+                            ['label' => 'All Components', 'href' => route('web.items.index', ['filter' => ['category' => 'vehicle-components']])],
+                            ['label' => 'Shields', 'href' => route('web.items.index', ['filter' => ['type' => 'Shield']])],
+                            ['label' => 'Quantum Drives', 'href' => route('web.items.index', ['filter' => ['type' => 'QuantumDrive']])],
+                            ['label' => 'Power Plants', 'href' => route('web.items.index', ['filter' => ['type' => 'PowerPlant']])],
+                            ['label' => 'Coolers', 'href' => route('web.items.index', ['filter' => ['type' => 'Cooler']])],
                         ],
                     ],
                     [

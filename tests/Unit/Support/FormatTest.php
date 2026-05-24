@@ -262,3 +262,97 @@ describe('signedPercent', function (): void {
         expect(Format::signedPercent(3.0))->toBe('+200%');
     });
 });
+
+describe('gigameters', function (): void {
+    it('returns null for null', function (): void {
+        expect(Format::gigameters(null))->toBeNull();
+    });
+
+    it('formats 56 billion meters as ~56 GM', function (): void {
+        expect(Format::gigameters(56_000_000_000))->toBe('~56 GM');
+    });
+
+    it('formats 118 million km adoption radius', function (): void {
+        expect(Format::gigameters(118_481_500_000))->toBe('~118.5 GM');
+    });
+
+    it('formats 34 km disconnect range in km', function (): void {
+        expect(Format::gigameters(34_693))->toBe('35 km');
+    });
+
+    it('formats sub-km values in meters', function (): void {
+        expect(Format::gigameters(500))->toBe('500 m');
+    });
+
+    it('formats 1 billion meters as ~1 GM', function (): void {
+        expect(Format::gigameters(1_000_000_000))->toBe('~1 GM');
+    });
+
+    it('formats zero meters', function (): void {
+        expect(Format::gigameters(0))->toBe('0 m');
+    });
+
+    it('formats large jump range value as near-unlimited', function (): void {
+        expect(Format::gigameters(3.402823e+38))->toBe('Unlimited');
+    });
+
+    it('respects decimals parameter', function (): void {
+        expect(Format::gigameters(56_123_000_000, 2))->toBe('~56.12 GM');
+    });
+});
+
+describe('velocity', function (): void {
+    it('returns null for null', function (): void {
+        expect(Format::velocity(null))->toBeNull();
+    });
+
+    it('formats megameters per second', function (): void {
+        expect(Format::velocity(165_000_000))->toBe('165 Mm/s');
+    });
+
+    it('formats megameters per second with decimals', function (): void {
+        expect(Format::velocity(246_500_000))->toBe('246.5 Mm/s');
+    });
+
+    it('formats kilometers per second', function (): void {
+        expect(Format::velocity(500_000))->toBe('500 km/s');
+    });
+
+    it('formats small kilometers per second with decimals', function (): void {
+        expect(Format::velocity(1_500))->toBe('1.5 km/s');
+    });
+
+    it('formats meters per second for sub-km values', function (): void {
+        expect(Format::velocity(250))->toBe('250 m/s');
+    });
+
+    it('formats zero as m/s', function (): void {
+        expect(Format::velocity(0))->toBe('0 m/s');
+    });
+});
+
+describe('acceleration', function (): void {
+    it('returns null for null', function (): void {
+        expect(Format::acceleration(null))->toBeNull();
+    });
+
+    it('formats megameters per second squared', function (): void {
+        expect(Format::acceleration(5_000_000))->toBe('5 Mm/s²');
+    });
+
+    it('formats megameters with decimals', function (): void {
+        expect(Format::acceleration(9_100_000))->toBe('9.1 Mm/s²');
+    });
+
+    it('formats kilometers per second squared', function (): void {
+        expect(Format::acceleration(50_000))->toBe('50 km/s²');
+    });
+
+    it('formats meters per second squared for sub-km', function (): void {
+        expect(Format::acceleration(250))->toBe('250 m/s²');
+    });
+
+    it('formats zero as m/s²', function (): void {
+        expect(Format::acceleration(0))->toBe('0 m/s²');
+    });
+});
