@@ -73,10 +73,17 @@ class CommLinkResource extends AbstractBaseResource
      */
     private function getCommLinkUrl(): string
     {
-        if (str_contains($this->url, 'robertsspaceindustries.com')) {
-            return $this->url;
+        $url = $this->url;
+
+        // Wayback Machine archive
+        if (str_starts_with($url, '/web/') && str_contains($url, 'robertsspaceindustries.com')) {
+            return 'https://web.archive.org'.$url;
         }
 
-        return sprintf('%s%s', config('services.rsi_url'), ($this->url ?? "/comm-link/SCW/{$this->cig_id}-API"));
+        if (str_contains($url, 'robertsspaceindustries.com')) {
+            return $url;
+        }
+
+        return sprintf('%s%s', config('services.rsi_url'), ($url ?? "/comm-link/SCW/{$this->cig_id}-API"));
     }
 }

@@ -198,6 +198,44 @@ describe('show', function (): void {
             ->assertJsonPath('meta.valid_relations.0', 'images')
             ->assertJsonPath('meta.valid_relations.1', 'links');
     });
+
+    it('resolves wayback machine archive urls to internet archive', function (): void {
+        $channel = Channel::factory()->create();
+        $category = Category::factory()->create();
+        $series = Series::factory()->create();
+
+        $commLink = CommLink::factory()->create([
+            'cig_id' => 13077,
+            'channel_id' => $channel->id,
+            'category_id' => $category->id,
+            'series_id' => $series->id,
+            'url' => '/web/20140712013438/https://robertsspaceindustries.com/comm-link/spectrum-dispatch/13077-A-Human-Perspective-Episode-4',
+        ]);
+
+        $this->getJson(route('comm-links.show', ['id' => $commLink->cig_id]))
+            ->assertSuccessful()
+            ->assertJsonPath(
+                'data.rsi_url',
+                'https://web.archive.org/web/20140712013438/https://robertsspaceindustries.com/comm-link/spectrum-dispatch/13077-A-Human-Perspective-Episode-4',
+            );
+    });
+
+    it('resolves regular rsi urls without wayback prefix', function (): void {
+        $channel = Channel::factory()->create();
+        $category = Category::factory()->create();
+        $series = Series::factory()->create();
+
+        $commLink = CommLink::factory()->create([
+            'channel_id' => $channel->id,
+            'category_id' => $category->id,
+            'series_id' => $series->id,
+            'url' => 'https://robertsspaceindustries.com/comm-link/scw/17648-This-Week',
+        ]);
+
+        $this->getJson(route('comm-links.show', ['id' => $commLink->cig_id]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.rsi_url', 'https://robertsspaceindustries.com/comm-link/scw/17648-This-Week');
+    });
 });
 
 describe('search', function (): void {
