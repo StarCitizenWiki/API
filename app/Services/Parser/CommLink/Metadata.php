@@ -273,13 +273,33 @@ class Metadata extends AbstractBaseElement
     {
         $title = (string) $this->metaData->get('title');
 
+        // Try URL-slug-based channel resolution when CSS selectors didn't match
         if ($this->metaData->get('channel_id') === 1) {
-            foreach (self::MANUAL_SETTINGS as $pattern => $settings) {
-                if (preg_match($pattern, $title)) {
-                    $this->extractChannel($settings['channel'] ?? null);
-                    $this->extractCategory($settings['category'] ?? null);
-                    $this->extractSeries($settings['series'] ?? null);
+            $url = $this->metaData->get('url');
+
+            if ($url !== null && preg_match('#/comm-link/([a-z0-9-]+)/#', $url, $matches) === 1) {
+                $slug = $matches[1];
+                $channel = Channel::query()->where('slug', $slug)->first();
+
+                if ($channel !== null) {
+                    $this->extractChannel($channel->name);
                 }
+            }
+        }
+
+        // MANUAL_SETTINGS still apply category/series even if channel was resolved from URL
+        $channelResolved = $this->metaData->get('channel_id') !== 1;
+
+        foreach (self::MANUAL_SETTINGS as $pattern => $settings) {
+            if (preg_match($pattern, $title)) {
+                if (! $channelResolved) {
+                    $this->extractChannel($settings['channel'] ?? null);
+                }
+
+                $this->extractCategory($settings['category'] ?? null);
+                $this->extractSeries($settings['series'] ?? null);
+
+                break;
             }
         }
 

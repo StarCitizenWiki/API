@@ -9,48 +9,43 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
 
 class DownloadMissingCommLinks implements ShouldQueue
 {
     use Queueable;
 
-    public const FIRST_COMM_LINK_ID = 12663;
+    public const int FIRST_COMM_LINK_ID = 12663;
 
-    public int $timeout = 120;
+    private const string ID_PATTERN = '#/comm-link/(?:[a-z0-9-]+)?/(\d+)-#';
 
+    /**
+     * Sentinel string present in hub API responses past the last page.
+     */
+    private const string END_SENTINEL = 'no-results';
+
+    public int $timeout = 600;
+
+    /**
+     * Paginate through the hub API to discover all Comm-Link IDs,
+     * then dispatch download jobs for any missing IDs.
+     */
     public function handle(): void
     {
-        Log::info('Starting Comm-Link missing download scan.');
+        Log::info('Starting Comm-Link missing download scan via hub API.');
 
-        $response = Http::timeout(60)->get($this->hubUrl());
-
-        if ($response->serverError()) {
-            Log::warning('Comm-Link hub request failed with server error.', [
-                'status' => $response->status(),
-            ]);
-
-            $this->release(300);
-
-            return;
-        }
-
-        if ($response->clientError()) {
-            Log::info('Comm-Link hub request failed with client error.', [
-                'status' => $response->status(),
-            ]);
-
-            return;
-        }
-
-        $postIds = $this->extractPostIds($response->body());
+        $postIds = $this->collectAllIds();
 
         if ($postIds === []) {
-            Log::info('Comm-Link hub returned no IDs.');
-            $this->release(60);
+            Log::info('Comm-Link hub API returned no IDs.');
 
             return;
         }
+
+        Log::info('Comm-Link hub API scan complete.', [
+            'total_ids' => count($postIds),
+            'min_id' => min($postIds),
+            'max_id' => max($postIds),
+        ]);
 
         $latestPostId = max($postIds);
         $latestDbId = CommLink::query()->max('cig_id') ?? self::FIRST_COMM_LINK_ID - 1;
@@ -65,35 +60,94 @@ class DownloadMissingCommLinks implements ShouldQueue
         }
     }
 
-    private function hubUrl(): string
+    /**
+     * Paginate through all hub API pages and collect unique Comm-Link IDs.
+     *
+     * @return array<int, int>
+     */
+    private function collectAllIds(): array
     {
-        return rtrim((string) config('services.rsi_url'), '/').'/comm-link';
+        $allIds = [];
+        $page = 1;
+
+        while (true) {
+            $data = $this->fetchPage($page);
+
+            if ($data === null) {
+                break;
+            }
+
+            if (str_contains($data, self::END_SENTINEL)) {
+                break;
+            }
+
+            $pageIds = $this->extractIdsFromData($data);
+            $allIds = [...$allIds, ...$pageIds];
+
+            $page++;
+            usleep(100_000);
+        }
+
+        return array_values(array_unique($allIds));
     }
 
     /**
+     * Fetch a single page from the hub API.
+     * Returns the HTML data string on success, or null on error.
+     */
+    private function fetchPage(int $page): ?string
+    {
+        $response = Http::timeout(60)->asForm()->post($this->hubApiUrl(), [
+            'page' => $page,
+        ]);
+
+        if ($response->serverError()) {
+            Log::warning('Comm-Link hub API request failed with server error.', [
+                'page' => $page,
+                'status' => $response->status(),
+            ]);
+
+            $this->release(300);
+
+            return null;
+        }
+
+        if ($response->clientError()) {
+            Log::info('Comm-Link hub API request failed with client error.', [
+                'page' => $page,
+                'status' => $response->status(),
+            ]);
+
+            return null;
+        }
+
+        if (! $response->json('success')) {
+            Log::warning('Comm-Link hub API returned unsuccessful response.', [
+                'page' => $page,
+            ]);
+
+            return null;
+        }
+
+        return $response->json('data', '');
+    }
+
+    private function hubApiUrl(): string
+    {
+        return rtrim((string) config('services.rsi_url'), '/').'/api/hub/getCommlinkItems';
+    }
+
+    /**
+     * Extract CIG IDs from hub API HTML data.
+     *
      * @return array<int, int>
      */
-    private function extractPostIds(string $body): array
+    private function extractIdsFromData(string $data): array
     {
-        $crawler = new Crawler;
-        $crawler->addHtmlContent($body, 'UTF-8');
+        preg_match_all(self::ID_PATTERN, $data, $matches);
 
-        $ids = $crawler->filter('#channel .hub-blocks .hub-block')
-            ->each(function (Crawler $crawler): int {
-                $href = $crawler->filter('a')->attr('href');
-
-                if ($href === null) {
-                    return 0;
-                }
-
-                $segments = explode('/', $href);
-                $slug = end($segments) ?: '';
-                $parts = explode('-', $slug);
-
-                return (int) ($parts[0] ?? 0);
-            });
-
-        return collect($ids)
+        return collect($matches[1] ?? [])
+            ->map(static fn (string $id) => (int) $id)
             ->filter(static fn (int $id) => $id >= self::FIRST_COMM_LINK_ID)
             ->values()
             ->all();
