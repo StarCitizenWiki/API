@@ -74,7 +74,7 @@ it('handles mixed href formats with and without channel slug', function () {
     Queue::fake();
     CommLink::factory()->create(['cig_id' => 21184]);
 
-    $data = <<<HTML
+    $data = <<<'HTML'
     <a class="hub-block" href="/comm-link/transmission/21184-Roadmap-Roundup"></a>
     <a class="hub-block" href="/comm-link//21119-DefenseCon"></a>
     <a class="hub-block" href="/comm-link/spectrum-dispatch/20952-Roadmap"></a>
@@ -141,7 +141,7 @@ it('filters out IDs below FIRST_COMM_LINK_ID', function () {
     Queue::fake();
     CommLink::factory()->create(['cig_id' => 21184]);
 
-    $data = <<<HTML
+    $data = <<<'HTML'
     <a class="hub-block" href="/comm-link/transmission/100-Too-Low"></a>
     <a class="hub-block" href="/comm-link/transmission/21184-Valid"></a>
     <a class="hub-block" href="/comm-link/transmission/12663-First"></a>
@@ -166,7 +166,7 @@ it('dispatches gap-filling IDs between max db and max api', function () {
     // Simulate DB has up to cig_id 21180
     CommLink::factory()->create(['cig_id' => 21180]);
 
-    $data = <<<HTML
+    $data = <<<'HTML'
     <a class="hub-block" href="/comm-link/transmission/21184-Roadmap"></a>
     HTML;
 
