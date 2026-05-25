@@ -59,6 +59,7 @@ import {
     MoreVertical,
     MousePointer2Off,
     Move,
+    Navigation,
     OctagonAlert,
     Package as PackageIcon,
     PaintBucket,
@@ -151,6 +152,7 @@ const icons = {
     MoreVertical,
     MousePointer2Off,
     Move,
+    Navigation,
     OctagonAlert,
     Package: PackageIcon,
     PaintBucket,
@@ -223,6 +225,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         lazyPromises.push(
             import("./quantumDriveCalc").then(({ quantumDriveCalc }) => {
                 window.Alpine.data("quantumDriveCalc", quantumDriveCalc);
+            }),
+        );
+    }
+
+    if (document.querySelector('[x-data^="routePlanner"]')) {
+        lazyPromises.push(
+            import("./routePlanner").then(({ routePlanner }) => {
+                window.Alpine.data("routePlanner", routePlanner);
             }),
         );
     }

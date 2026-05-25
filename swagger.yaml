@@ -8292,6 +8292,54 @@ components:
               type: string
               example: 4.4.0-LIVE.12340123
           type: object
+    game_port_item_summary:
+      title: 'Equipped Port Item Summary'
+      description: 'Lightweight item summary derived from raw loadout JSON. No database queries are performed. Used on index routes where full item resolution is too expensive.'
+      properties:
+        uuid:
+          type: string
+          nullable: true
+        name:
+          description: 'Item name from loadout data.'
+          type: string
+          nullable: true
+        class_name:
+          description: 'SC class name of the item.'
+          type: string
+          nullable: true
+        type:
+          description: 'Item type (NOITEM_ prefix removed, before dot).'
+          type: string
+          nullable: true
+        sub_type:
+          description: 'Item sub-type (after dot).'
+          type: string
+          nullable: true
+        size:
+          description: 'Maximum port size as proxy for item size.'
+          type: integer
+          nullable: true
+        grade:
+          description: 'Grade from loadout data.'
+          type: integer
+          nullable: true
+        manufacturer:
+          description: 'Manufacturer name from loadout data.'
+          properties:
+            name:
+              type: string
+              nullable: true
+          type: object
+          nullable: true
+        link:
+          description: 'API URL for item detail endpoint.'
+          type: string
+          nullable: true
+        web_url:
+          description: 'Web URL for item detail page.'
+          type: string
+          nullable: true
+      type: object
     resource_container:
       title: 'Resource Container'
       description: 'Container data for items that can hold resources (e.g. cargo or consumables).'
@@ -16500,11 +16548,13 @@ components:
             type: object
           nullable: true
         equipped_item:
+          description: 'Equipped item details. On show routes: fully resolved from database (game_port_item). On index routes: lightweight summary from raw loadout JSON (game_port_item_summary).'
+          nullable: true
           oneOf:
             -
               $ref: '#/components/schemas/game_port_item'
-          nullable: true
-          description: 'Full details of the equipped item, resolved from the game database.'
+            -
+              $ref: '#/components/schemas/game_port_item_summary'
         ports:
           description: 'Nested child ports (hardpoints).'
           type: array
@@ -17893,7 +17943,7 @@ components:
           type: object
           nullable: true
         ports:
-          description: 'Equipment ports from ship loadout. Only included on show route, excluded from index route.'
+          description: 'Equipment ports from ship loadout. On show routes: full ports with resolved items and nested children. On index routes: primary hardpoints only, lightweight items from raw JSON.'
           type: array
           items:
             $ref: '#/components/schemas/game_vehicle_port'

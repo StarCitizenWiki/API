@@ -19,6 +19,7 @@ use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
+use App\Support\Game\HardpointCategory;
 use App\Support\ScuBox;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -475,7 +476,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'ports',
-            description: 'Equipment ports from ship loadout. Only included on show route, excluded from index route.',
+            description: 'Equipment ports from ship loadout. On show routes: full ports with resolved items and nested children. On index routes: primary hardpoints only, lightweight items from raw JSON.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/game_vehicle_port'),
             nullable: true
@@ -1039,6 +1040,10 @@ class VehicleResource extends AbstractBaseResource
                     return [$portKey => $hardpoints];
                 }
             ),
+            $this->mergeWhen(
+                ! $this->isVehicleShowRoute($request),
+                fn () => [$portKey => $this->buildLightweightPorts($payload, $request)]
+            ),
             'parts' => (function () use ($payload) {
                 PartResource::setDamageLimitsLookup($this->buildDamageLimitsLookup($payload));
 
@@ -1172,6 +1177,26 @@ class VehicleResource extends AbstractBaseResource
     private function isVehicleShowRoute(Request $request): bool
     {
         return $request->routeIs('vehicles.show') || $request->routeIs('*.vehicles.show');
+    }
+
+    /**
+     * Build lightweight port data for index routes.
+     *
+     * Filters to primary hardpoint categories only (HardpointCategory::primary()).
+     * Each port is rendered via PortResource which uses PortItemSummaryResource
+     * (no DB queries) instead of the full PortItemResource.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return list<array<string, mixed>>
+     */
+    private function buildLightweightPorts(array $payload, Request $request): array
+    {
+        $primaryCategories = HardpointCategory::primary();
+
+        return collect(PortResource::collection(Arr::get($payload, 'Loadout', []))->resolve($request))
+            ->filter(fn (array $port): bool => in_array($port['category_label'] ?? '', $primaryCategories, true))
+            ->values()
+            ->all();
     }
 
     private function getApiVersion(Request $request): ?string

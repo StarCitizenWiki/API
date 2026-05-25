@@ -576,6 +576,19 @@
 
 
 
+<x-app.sidemenu-group title="Tools">
+    <x-app.sidemenu-item
+        :route="'web.tools.route-planner'"
+        route-is="web.tools.route-planner"
+        :with-version="false"
+    >
+        <x-slot:icon>
+            <x-icon name="navigation" class="size-4" />
+        </x-slot:icon>
+        Route Planner
+    </x-app.sidemenu-item>
+</x-app.sidemenu-group>
+
 <x-app.sidemenu-group title="Explore">
     <x-app.sidemenu-item :route="'developers.index'" :with-version="false">
         <x-slot:icon>

@@ -72,6 +72,8 @@ Route::get('/missions/{mission}', [MissionController::class, 'show'])
 
 Route::get('/changelog/{version}', [ChangelogController::class, 'show'])->name('web.changelog.show');
 
+Route::view('/tools/route-planner', 'tools.route-planner')->name('web.tools.route-planner');
+
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');
 Route::get('/locations/{identifier}', [StarmapLocationController::class, 'show'])

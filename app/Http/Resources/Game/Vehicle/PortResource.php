@@ -9,8 +9,10 @@ use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\NormalizesValues;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\PortItemResource;
+use App\Http\Resources\Game\Item\PortItemSummaryResource;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
 use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
+use App\Models\Game\Item;
 use App\Models\Game\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -46,7 +48,10 @@ use OpenApi\Attributes as OA;
             ], type: 'object'),
             nullable: true
         ),
-        new OA\Property(property: 'equipped_item', ref: '#/components/schemas/game_port_item', description: 'Full details of the equipped item, resolved from the game database.', nullable: true),
+        new OA\Property(property: 'equipped_item', description: 'Equipped item details. On show routes: fully resolved from database (game_port_item). On index routes: lightweight summary from raw loadout JSON (game_port_item_summary).', oneOf: [
+            new OA\Schema(ref: '#/components/schemas/game_port_item'),
+            new OA\Schema(ref: '#/components/schemas/game_port_item_summary'),
+        ], nullable: true),
         new OA\Property(
             property: 'ports',
             description: 'Nested child ports (hardpoints).',
@@ -95,13 +100,13 @@ class PortResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
+        $isShowRoute = $request->routeIs('vehicles.show') ||
+            $request->routeIs('v2.vehicles.show') ||
+            $request->routeIs('v3.vehicles.show');
+
         $resolvedItem = null;
         $attachedVehicle = null;
-        if (
-            $request->routeIs('vehicles.show') ||
-            $request->routeIs('v2.vehicles.show') ||
-            $request->routeIs('v3.vehicles.show')
-        ) {
+        if ($isShowRoute) {
             $resolvedItem = $this->loadEquippedItem();
             $attachedVehicle = $this->resolveAttachedVehicle($request);
         }
@@ -129,14 +134,32 @@ class PortResource extends AbstractBaseResource
             ] : null,
             'compatible_types' => $compatibleTypes !== [] ? $compatibleTypes : null,
             'health' => $health,
-            'equipped_item' => $resolvedItem !== null ? new PortItemResource($resolvedItem) : null,
+            'equipped_item' => $this->resolveEquippedItem($resolvedItem, $isShowRoute),
             'attached_vehicle' => $attachedVehicle,
-            'ports' => $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
+            'ports' => $isShowRoute && $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
             'category_label' => ! $this->isChild ? $this->categorizePort() : null,
             'required_tags' => self::normalizeTagList(Arr::get($this, 'RequiredTags')),
             'port_tags' => $this->buildPortTags(),
             'version' => $this->gameVersionCode(),
         ];
+    }
+
+    /**
+     * Resolve the equipped item representation.
+     */
+    private function resolveEquippedItem(?Item $resolvedItem, bool $isShowRoute): PortItemResource|PortItemSummaryResource|null
+    {
+        if ($isShowRoute) {
+            return $resolvedItem !== null ? new PortItemResource($resolvedItem) : null;
+        }
+
+        $uuid = Arr::get($this->resource, 'UUID');
+
+        if (! is_string($uuid) || $uuid === '') {
+            return null;
+        }
+
+        return new PortItemSummaryResource($this->resource);
     }
 
     private function categorizePort(): string

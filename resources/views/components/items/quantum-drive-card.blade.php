@@ -103,7 +103,7 @@
 
             <div>
                 <div class="flex items-baseline justify-between border-b border-base-200 pb-1 mb-2">
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-muted">Travel Calculator</h3>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-muted">Route Planner</h3>
                 </div>
                 <x-quantum-drive-travel-calc :quantum-drive="$quantumDrive"/>
             </div>
