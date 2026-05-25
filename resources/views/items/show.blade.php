@@ -272,6 +272,21 @@
 
                                 @if ($type === 'Turret')
                                     <x-items.turret-card :turret="data_get($item, 'turret')" />
+                                    @php
+                                        $equippedPortItem = data_get($ports, '0.equipped_item');
+                                    @endphp
+                                    @if (data_get($equippedPortItem, 'vehicle_weapon'))
+                                        <x-items.vehicle-weapon-card :vehicle-weapon="data_get($equippedPortItem, 'vehicle_weapon')" />
+                                    @endif
+                                    @if (data_get($equippedPortItem, 'missile_rack'))
+                                        <x-items.missile-rack-card :missile-rack="data_get($equippedPortItem, 'missile_rack')" />
+                                    @endif
+                                    @if (data_get($equippedPortItem, 'ammunition'))
+                                        <x-items.ammunition-card :ammunition="data_get($equippedPortItem, 'ammunition')" />
+                                    @endif
+                                    @if (data_get($equippedPortItem, 'resource_network'))
+                                        <x-items.resource-network-card :resource-network="data_get($equippedPortItem, 'resource_network')" :item-type="data_get($equippedPortItem, 'type')" />
+                                    @endif
                                 @endif
 
                                 @if ($type === 'Shield')
@@ -357,12 +372,12 @@
                                 @endif
                         @endif
 
+
+                            @if ($portsCount > 0)
+                                <x-items.ports-card :ports="$ports" class="w-full" />
+                            @endif
                         </div>
                     </div>
-
-                    @if ($portsCount > 0)
-                        <x-items.ports-card :ports="$ports" class="w-full" />
-                    @endif
                 </section>
             @endif
 

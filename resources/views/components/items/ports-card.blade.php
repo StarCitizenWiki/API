@@ -17,9 +17,9 @@
 
         <div class="max-h-96 overflow-y-auto">
         @if (is_array($ports) && $ports !== [])
-            <div class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+            <div @class(["grid grid-cols-1 gap-3 sm:gap-4", 'lg:grid-cols-2' => $portsCount > 1])>
                 @foreach ($ports as $port)
-                    <x-item-port-display :port="$port" :depth="0" />
+                    <x-port-display :port="$port" :depth="0" />
                 @endforeach
             </div>
         @else

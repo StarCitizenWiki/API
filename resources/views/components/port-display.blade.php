@@ -31,7 +31,7 @@
     $sizeTitle = 'Item Size';
     $fallbackSizeLabel = ! $row['has_equipped_item'] ? $row['size_label'] : null;
     $annotation = $row['type_annotation'];
-    $subtext = null;
+    $subtext = $row['is_empty_port'] ? $row['compatible_type_label'] : null;
     $detailStats = [];
     $summaryText = null;
     $summaryPrimary = null;

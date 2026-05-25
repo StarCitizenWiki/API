@@ -414,8 +414,8 @@ it('renders ports-heavy item with collapsible ports section', function (): void 
     $response->assertOk()
         ->assertSeeText('Ship Core')
         ->assertSeeText('Drake Interplanetary')
-        ->assertSeeText('Power Port 1')
-        ->assertSeeText('Weapon Port Left');
+        ->assertSeeText('Power')
+        ->assertSeeText('Weapon');
 
     assertItemMetaPanels($response, showsPortsCard: true, portsCount: 6);
     assertTechnicalMetadataVisible($response, $item->uuid, 'Ship.Component', 'ship_core', '4.0.0-LIVE');

@@ -462,6 +462,13 @@ final class SpecificationRegistry
             resourceClass: MiningModifierResource::class,
         );
 
+        // 41. Weapon Rack
+        $registry->register(
+            predicate: fn (ItemData $d): bool => str_starts_with($d->class_name, 'Weapon_Rack_'),
+            specKey: 'weapon_rack',
+            resourceClass: WeaponRackResource::class,
+        );
+
         return $registry;
     }
 }

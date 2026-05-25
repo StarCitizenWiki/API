@@ -69,6 +69,8 @@ trait ResolvesGameVersion
             // The eager-loaded cache stores ItemData instances (keyed by item UUID).
             // Extract the underlying Item relation instead of returning the wrong type.
             if ($cached instanceof ItemData) {
+                $cached->item->setRelation('data', collect([$cached]));
+
                 return $cached->item;
             }
 
@@ -81,7 +83,9 @@ trait ResolvesGameVersion
             ->where('uuid', $uuid)
             ->with([
                 'data' => static function ($builder) use ($version): void {
-                    $builder->where('game_version_id', $version->id);
+                    $builder
+                        ->where('game_version_id', $version->id)
+                        ->with(['manufacturer', 'gameVersion', 'variantGroupItem']);
                 },
             ])
             ->first();
@@ -106,7 +110,7 @@ trait ResolvesGameVersion
         return ItemData::query()
             ->where('game_version_id', $version->id)
             ->whereHas('item', fn (Builder $query) => $query->where('uuid', $uuid))
-            ->with(['item', 'manufacturer', 'gameVersion'])
+            ->with(['item', 'manufacturer', 'gameVersion', 'variantGroupItem'])
             ->first();
     }
 
@@ -125,7 +129,7 @@ trait ResolvesGameVersion
         return ItemData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->whereHas('item', fn (Builder $query) => $query->whereIn('uuid', $uuids))
-            ->with(['item', 'manufacturer', 'gameVersion'])
+            ->with(['item', 'manufacturer', 'gameVersion', 'variantGroupItem'])
             ->get()
             ->keyBy(fn (ItemData $itemData) => $itemData->item->uuid);
     }

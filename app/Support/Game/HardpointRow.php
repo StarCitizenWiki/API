@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Game;
 
 use App\Support\Format;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -33,6 +34,7 @@ final class HardpointRow
         'WeaponDefensive' => ['ammunition.capacity', 'Ammo', '', 'layers'],
         'EMP' => ['emp.radius', 'Radius', '', null],
         'QuantumInterdictionGenerator' => ['quantum_interdiction_generator.range', 'Range', '', null],
+        'FuelIntake' => ['fuel_intake.fuel_push_rate', 'Push rate', '', 'fuel'],
     ];
 
     /**
@@ -87,7 +89,7 @@ final class HardpointRow
      */
     public static function make(array $port, array $powerPools = [], int $categoryIndex = 0): array
     {
-        $equippedItem = Arr::get($port, 'equipped_item') ?? Arr::get($port, 'equipped_port_item');
+        $equippedItem = Arr::get($port, 'equipped_item');
         $type = Arr::get($port, 'type');
         $subType = Arr::get($port, 'sub_type');
         $sizeMin = Arr::get($port, 'sizes.min');
@@ -160,6 +162,7 @@ final class HardpointRow
             'attached_vehicle' => Arr::get($port, 'attached_vehicle'),
             'child_count' => count(Arr::get($port, 'ports') ?? []),
             'compatible_type' => self::extractCompatibleType($port),
+            'compatible_type_label' => $isEmpty ? self::buildCompatibleTypeLabel($port) : null,
             'deactivated' => $deactivated,
             'deactivation_reason' => $deactivationReason,
             'item_size' => $itemSize,
@@ -223,6 +226,12 @@ final class HardpointRow
             return $itemName;
         }
 
+        // Use display_name if available (e.g. "Weapon (Primary)")
+        $displayName = Arr::get($port, 'display_name');
+        if ($displayName !== null && $displayName !== '') {
+            return $displayName;
+        }
+
         $portName = Arr::get($port, 'name', 'Port');
 
         return (string) Str::of($portName)->lower()->replace('hardpoint_', '')->headline();
@@ -275,6 +284,77 @@ final class HardpointRow
     }
 
     /**
+     * Build a compact label describing what types of items a port accepts.
+     * Groups compatible types by type name and merges their sub-types.
+     *
+     * Example: "WeaponPersonal (Medium, Gadget), FPS Deployable (Medium)"
+     */
+    private static function buildCompatibleTypeLabel(array $port): ?string
+    {
+        $types = Arr::get($port, 'compatible_types', []);
+
+        if (empty($types) || ! is_array($types)) {
+            return null;
+        }
+
+        $grouped = [];
+
+        foreach ($types as $entry) {
+            $type = Arr::get($entry, 'type');
+
+            if ($type === null) {
+                continue;
+            }
+
+            $label = self::formatTypeLabel($type);
+            $subTypes = Arr::get($entry, 'sub_types', []);
+
+            if (! isset($grouped[$label])) {
+                $grouped[$label] = [];
+            }
+
+            foreach ($subTypes as $sub) {
+                $grouped[$label][$sub] = self::formatTypeLabel($sub);
+            }
+        }
+
+        if ($grouped === []) {
+            return null;
+        }
+
+        $parts = [];
+
+        foreach ($grouped as $label => $subs) {
+            if ($subs !== []) {
+                $parts[] = $label.' ('.implode(', ', $subs).')';
+            } else {
+                $parts[] = $label;
+            }
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Format a game type/sub-type string into a human-readable label.
+     * Handles common acronyms like FPS that Str::headline would mangle.
+     */
+    private static function formatTypeLabel(string $type): string
+    {
+        // Handle known acronyms before headline splits them
+        $type = Str::of($type)
+            ->replaceMatches('/\bFPS\b/i', 'FPS')
+            ->replaceMatches('/^Char_/', 'Character ')
+            ->replaceMatches('/_/', ' ')
+            ->toString();
+
+        $headline = Str::headline($type);
+
+        // Restore known acronyms that headline lowercased
+        return str_ireplace(['fps ', 'Fps '], 'FPS ', $headline);
+    }
+
+    /**
      * Extract the type annotation string for an equipped item.
      * Shows weapon type, or class/grade for other items.
      */
@@ -291,7 +371,16 @@ final class HardpointRow
             return null;
         }
 
+        // Fuel tank variant from item type
         $equippedItemType = Arr::get($equippedItem, 'type');
+        if ($equippedItemType === 'FuelTank') {
+            return 'Hydrogen';
+        }
+
+        if ($equippedItemType === 'QuantumFuelTank') {
+            return 'Quantum';
+        }
+
         $isWeapon = in_array($equippedItemType, ['WeaponGun', 'WeaponMining', 'WeaponPersonal'], true);
 
         if ($isWeapon) {
@@ -317,13 +406,17 @@ final class HardpointRow
     {
         return match ($type) {
             'Armor' => self::armorStats($item),
+            'CargoGrid' => self::cargoGridStats($item),
             'Shield' => self::shieldStats($item),
             'MissileLauncher', 'BombLauncher' => self::missileRackStats($port),
             'Missile', 'Bomb', 'Torpedo' => self::missileStats($item),
             'FlightController' => self::flightControllerStats($item),
             'WeaponDefensive' => self::counterMeasureStats($item),
             'WeaponGun' => self::weaponGunStats($item),
-            default => self::mapLookup($type, $item),
+            'SelfDestruct' => self::selfDestructStats($item),
+            'FuelTank', 'QuantumFuelTank' => self::fuelTankStats($item),
+            'FuelIntake' => self::fuelIntakeStats($item),
+            default => self::weaponRackOrDefault($type, $item),
         };
     }
 
@@ -345,6 +438,77 @@ final class HardpointRow
             'label' => $label,
             'unit' => $unit,
             'icon' => $icon,
+            'secondaries' => [],
+        ];
+    }
+
+    /**
+     * Check for weapon rack data first, then fall back to STAT_MAP lookup.
+     *
+     * @return array{stat: float|int|null, label: string|null, unit: string, icon: string|null, secondaries: list<string>}
+     */
+    private static function weaponRackOrDefault(?string $type, array $item): array
+    {
+        if (Arr::has($item, 'weapon_rack')) {
+            return self::weaponRackStats($item);
+        }
+
+        return self::mapLookup($type, $item);
+    }
+
+    /**
+     * Weapon rack stats: primary = total slots, secondary = breakdown by category.
+     *
+     * @return array{stat: int, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function weaponRackStats(array $item): array
+    {
+        $rack = Arr::get($item, 'weapon_rack', []);
+
+        if ($rack instanceof JsonResource) {
+            $rack = $rack->resolve();
+        }
+
+        $total = (int) Arr::get($rack, 'total_weapon_slots', 0);
+        $pistols = (int) Arr::get($rack, 'pistols', 0);
+        $rifles = (int) Arr::get($rack, 'rifles', 0);
+        $gadgets = (int) Arr::get($rack, 'gadgets', 0);
+
+        $parts = [];
+
+        if ($pistols > 0) {
+            $parts[] = Format::compact($pistols, 0).' pistol'.($pistols !== 1 ? 's' : '');
+        }
+
+        if ($rifles > 0) {
+            $parts[] = Format::compact($rifles, 0).' rifle'.($rifles !== 1 ? 's' : '');
+        }
+
+        if ($gadgets > 0) {
+            $parts[] = Format::compact($gadgets, 0).' gadget'.($gadgets !== 1 ? 's' : '');
+        }
+
+        return [
+            'stat' => $total,
+            'label' => 'Slots',
+            'unit' => '',
+            'icon' => 'crosshair',
+            'secondaries' => $parts,
+        ];
+    }
+
+    /**
+     * Cargo grid stats
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function cargoGridStats(array $item): array
+    {
+        return [
+            'stat' => Arr::get($item, 'cargo_grid.scu'),
+            'label' => 'SCU',
+            'icon' => '',
+            'unit' => '',
             'secondaries' => [],
         ];
     }
@@ -532,6 +696,83 @@ final class HardpointRow
             'label' => 'DPS',
             'unit' => '',
             'icon' => 'crosshair',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * Self destruct stats with radius and countdown secondaries.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function selfDestructStats(array $item): array
+    {
+        $secondaries = [];
+        $radius = Arr::get($item, 'self_destruct.radius');
+
+        if ($radius !== null) {
+            $secondaries[] = Format::compact($radius, 0).'m radius';
+        }
+
+        $time = Arr::get($item, 'self_destruct.countdown');
+
+        if ($time !== null) {
+            $secondaries[] = Format::compact($time, 0).'s countdown';
+        }
+
+        return [
+            'stat' => Arr::get($item, 'self_destruct.damage'),
+            'label' => 'Dmg',
+            'unit' => '',
+            'icon' => 'zap',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * Fuel tank stats with drain rate secondary.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function fuelTankStats(array $item): array
+    {
+        $secondaries = [];
+        $drainRate = Arr::get($item, 'fuel_tank.drain_rate');
+
+        if ($drainRate !== null && $drainRate > 0) {
+            $secondaries[] = Format::compact($drainRate, 1).' discharge';
+        }
+
+        $scu = Arr::get($item, 'fuel_tank.capacity');
+
+        return [
+            'stat' => $scu,
+            'label' => 'SCU',
+            'unit' => '',
+            'icon' => 'fuel',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * Fuel intake stats with minimum rate secondary.
+     *
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function fuelIntakeStats(array $item): array
+    {
+        $secondaries = [];
+        $minRate = Arr::get($item, 'fuel_intake.minimum_rate');
+
+        if ($minRate !== null) {
+            $secondaries[] = Format::compact($minRate, 1).' min';
+        }
+
+        return [
+            'stat' => Arr::get($item, 'fuel_intake.fuel_push_rate'),
+            'label' => 'Push rate',
+            'unit' => '',
+            'icon' => 'fuel',
             'secondaries' => $secondaries,
         ];
     }

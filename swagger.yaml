@@ -7361,12 +7361,27 @@ components:
           description: 'UUID of the equipped item'
           type: string
           nullable: true
-        equipped_item:
-          oneOf:
-            -
-              $ref: '#/components/schemas/item_link'
+        type:
+          description: 'Port type derived from CompatibleTypes (e.g. WeaponGun, MissileLauncher).'
+          type: string
           nullable: true
-        equipped_port_item:
+        sub_type:
+          description: 'Port sub-type derived from CompatibleTypes.'
+          type: string
+          nullable: true
+        port_tags:
+          description: 'Tags provided by this port. Same as tags field, for vehicle port_tags compat.'
+          type: array
+          items:
+            type: string
+          nullable: true
+        ports:
+          description: 'Sub-ports from the equipped item.'
+          type: array
+          items:
+            $ref: '#/components/schemas/item_port'
+          nullable: true
+        equipped_item:
           oneOf:
             -
               $ref: '#/components/schemas/game_port_item'
@@ -7874,6 +7889,11 @@ components:
             -
               $ref: '#/components/schemas/medicine'
           nullable: true
+        weapon_rack:
+          oneOf:
+            -
+              $ref: '#/components/schemas/weapon_rack'
+          nullable: true
         weapon_modifier:
           oneOf:
             -
@@ -8179,9 +8199,27 @@ components:
               description: 'Human-readable label for the item sub-type'
               type: string
               nullable: true
+            classification:
+              type: string
+              example: FPS.Clothing.Torso
+              nullable: true
+            classification_label:
+              description: 'Human-readable label for the item classification'
+              type: string
+              nullable: true
+            is_base_variant:
+              type: boolean
+            variant_name:
+              description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"'
+              type: string
+              nullable: true
             link:
               description: 'API URL for item detail endpoint'
               type: string
+            web_url:
+              description: 'Web URL for item detail page'
+              type: string
+              nullable: true
             size:
               description: AttachDef@Size
               type: integer
@@ -9883,6 +9921,31 @@ components:
           example: 2
           nullable: true
       type: object
+    flight_no_fuel_params:
+      title: 'No-Fuel Flight Parameters'
+      description: 'Flight parameters applied when the ship has no fuel. These modifiers scale down acceleration and velocity when fuel tanks are empty.'
+      properties:
+        linear_acceleration_modifier:
+          description: 'Multiplier applied to linear acceleration when out of fuel.'
+          type: number
+          example: 0.1
+          nullable: true
+        angular_acceleration_modifier:
+          description: 'Multiplier applied to angular acceleration when out of fuel.'
+          type: number
+          example: 0.1
+          nullable: true
+        angular_velocity_modifier:
+          description: 'Multiplier applied to angular velocity when out of fuel.'
+          type: number
+          example: 0.1
+          nullable: true
+        legacy_max_speed:
+          description: 'Maximum speed in m/s when out of fuel (legacy mode).'
+          type: number
+          example: 20
+          nullable: true
+      type: object
     flight_controller_gravlev:
       title: 'Flight Controller Gravlev'
       description: 'Gravlev-related flight controller settings.'
@@ -10005,6 +10068,12 @@ components:
           description: 'Collision warning thresholds.'
         gravlev:
           $ref: '#/components/schemas/flight_controller_gravlev'
+        no_fuel_params:
+          oneOf:
+            -
+              $ref: '#/components/schemas/flight_no_fuel_params'
+          nullable: true
+          description: 'Flight parameters when the ship has no fuel.'
       type: object
     food_nutrition:
       title: 'Food Nutrition'
@@ -14440,6 +14509,27 @@ components:
           nullable: true
           deprecated: true
       type: object
+    weapon_rack:
+      title: 'Weapon Rack'
+      description: 'Summary of weapon slots on a weapon rack item, grouped by weapon category.'
+      properties:
+        pistols:
+          description: 'Number of small weapon slots (maxSize <= 1, accepts pistols, knives, grenades).'
+          type: integer
+          example: 12
+        rifles:
+          description: 'Number of medium/large weapon slots (maxSize >= 2, accepts rifles, SMGs, shotguns).'
+          type: integer
+          example: 8
+        gadgets:
+          description: 'Number of gadget-only slots (WeaponPersonal.Gadget type).'
+          type: integer
+          example: 2
+        total_weapon_slots:
+          description: 'Total number of weapon slots across all categories.'
+          type: integer
+          example: 22
+      type: object
     manufacturer_link:
       title: 'Link to the detail page of a manufacturer'
       properties:
@@ -17382,6 +17472,12 @@ components:
               type: object
           type: object
           nullable: true
+        no_fuel_params:
+          oneOf:
+            -
+              $ref: '#/components/schemas/flight_no_fuel_params'
+          nullable: true
+          description: 'Flight parameters when the ship has no fuel.'
         afterburner:
           description: 'Afterburner properties from FlightCharacteristics.Afterburner.'
           properties:

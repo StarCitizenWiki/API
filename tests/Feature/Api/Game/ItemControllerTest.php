@@ -429,6 +429,156 @@ it('includes related items when requested', function (): void {
         ->assertJsonCount(0, 'data.related_items.set_items');
 });
 
+it('includes variant names for items equipped in ports', function (): void {
+    $parentItem = Item::factory()->create();
+    $equippedItem = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($parentItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Ported Storage Rack',
+            'type' => 'Container',
+            'class_name' => 'ported_storage_rack',
+            'classification' => 'Test.Container',
+            'data' => [
+                'stdItem' => [
+                    'Ports' => [
+                        [
+                            'PortName' => 'weapon_slot',
+                            'DisplayName' => 'Weapon Slot',
+                            'Position' => 'NOSE',
+                            'MinSize' => 1,
+                            'MaxSize' => 1,
+                            'CompatibleTypes' => [
+                                [
+                                    'Type' => 'WeaponPersonal',
+                                    'SubTypes' => ['Rifle'],
+                                ],
+                            ],
+                            'EquippedItem' => $equippedItem->uuid,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $equippedItemData = ItemData::factory()
+        ->for($equippedItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Shadow Rifle',
+            'type' => 'WeaponPersonal',
+            'sub_type' => 'Rifle',
+            'class_name' => 'shadow_rifle',
+            'classification' => 'FPS.WeaponPersonal',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $this->gameVersion->id,
+        'set_name' => 'Shadow Rifle',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $equippedItemData->id,
+        'variant_name' => 'Shadow',
+        'sort_order' => 0,
+        'is_base' => false,
+    ]);
+
+    $response = $this->getJson("/api/items/{$parentItem->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonStructure([
+            'data' => [
+                'ports' => [
+                    [
+                        'equipped_item' => [
+                            'uuid',
+                            'name',
+                            'variant_name',
+                        ],
+                    ],
+                ],
+            ],
+        ])
+        ->assertJsonPath('data.ports.0.equipped_item.uuid', $equippedItem->uuid)
+        ->assertJsonPath('data.ports.0.equipped_item.variant_name', 'Shadow');
+});
+
+it('counts weapon rack slots from compatible types', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Weapon Rack',
+            'type' => 'WeaponRack',
+            'class_name' => 'Weapon_Rack_Test',
+            'classification' => 'FPS.Utility',
+            'data' => [
+                'stdItem' => [
+                    'Ports' => [
+                        [
+                            'PortName' => 'pistol_slot',
+                            'MaxSize' => 1,
+                            'CompatibleTypes' => [
+                                [
+                                    'Type' => 'WeaponPersonal',
+                                    'SubTypes' => ['Pistol'],
+                                ],
+                            ],
+                        ],
+                        [
+                            'PortName' => 'rifle_slot',
+                            'MaxSize' => 2,
+                            'CompatibleTypes' => [
+                                [
+                                    'Type' => 'WeaponPersonal',
+                                    'SubTypes' => ['Rifle'],
+                                ],
+                            ],
+                        ],
+                        [
+                            'PortName' => 'gadget_slot',
+                            'MaxSize' => 1,
+                            'CompatibleTypes' => [
+                                [
+                                    'Type' => 'WeaponPersonal',
+                                    'SubTypes' => ['Gadget'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}");
+
+    $response->assertSuccessful()
+        ->assertJsonStructure([
+            'data' => [
+                'weapon_rack' => [
+                    'pistols',
+                    'rifles',
+                    'gadgets',
+                    'total_weapon_slots',
+                ],
+            ],
+        ])
+        ->assertJsonPath('data.weapon_rack.pistols', 1)
+        ->assertJsonPath('data.weapon_rack.rifles', 1)
+        ->assertJsonPath('data.weapon_rack.gadgets', 1)
+        ->assertJsonPath('data.weapon_rack.total_weapon_slots', 3);
+});
+
 it('does not include related items when not requested', function (): void {
     $item = Item::factory()->create();
     ItemData::factory()

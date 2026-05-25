@@ -256,6 +256,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'food', ref: '#/components/schemas/food', nullable: true),
         new OA\Property(property: 'medical', ref: '#/components/schemas/medicine', nullable: true),
 
+        new OA\Property(property: 'weapon_rack', ref: '#/components/schemas/weapon_rack', nullable: true),
         new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/weapon_modifier', nullable: true),
         new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', nullable: true),
 
@@ -667,7 +668,27 @@ class ItemResource extends AbstractBaseResource
             return;
         }
 
-        $loaded = $this->eagerLoadPortItemData($uuids);
+        $loaded = collect();
+        $remaining = $uuids;
+
+        while ($remaining !== []) {
+            $batch = $this->eagerLoadPortItemData($remaining);
+            $loaded = collect($loaded->all())->merge($batch);
+
+            $remaining = [];
+            foreach ($batch as $childItemData) {
+                foreach ($this->extractPorts($childItemData) as $subPort) {
+                    $uuid = $subPort['EquippedItem'] ?? null;
+
+                    if ($uuid !== null && $uuid !== '' && ! $loaded->has($uuid)) {
+                        $remaining[] = $uuid;
+                    }
+                }
+            }
+
+            $remaining = array_values(array_unique($remaining));
+        }
+
         request()->attributes->set('eager_loaded_port_items', $loaded);
     }
 

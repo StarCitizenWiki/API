@@ -21,7 +21,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'type_label', description: 'Human-readable label for the item type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', description: 'AttachDef@SubType', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type', type: 'string', nullable: true),
+        new OA\Property(property: 'classification', type: 'string', example: 'FPS.Clothing.Torso', nullable: true),
+        new OA\Property(property: 'classification_label', description: 'Human-readable label for the item classification', type: 'string', nullable: true),
+        new OA\Property(property: 'is_base_variant', type: 'boolean'),
+        new OA\Property(property: 'variant_name', description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"', type: 'string', nullable: true),
         new OA\Property(property: 'link', description: 'API URL for item detail endpoint', type: 'string'),
+        new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string', nullable: true),
         new OA\Property(
             property: 'size',
             description: 'AttachDef@Size',
@@ -91,7 +96,14 @@ class PortItemResource extends ItemResource
             'type_label' => $itemData->type_label,
             'sub_type' => $itemData->sub_type,
             'sub_type_label' => $itemData->sub_type_label,
-            'link' => route('items.show', ['identifier' => $this->uuid]),
+            'classification' => $itemData->classification,
+            'classification_label' => $itemData->classification_label,
+            'is_base_variant' => $itemData->base_id === null,
+            'variant_name' => $itemData->relationLoaded('variantGroupItem') && $itemData->variantGroupItem !== null
+                ? $itemData->variantGroupItem->variant_name
+                : null,
+            'link' => $this->urlWithVersion(route('items.show', ['identifier' => $this->uuid]), $request),
+            'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $this->slug ?? $this->uuid]), $request),
             'size' => $itemData->size,
             'mass' => $this->extractFromStdItem($itemData, 'Mass'),
             'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification)
