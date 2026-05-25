@@ -28,8 +28,8 @@
     }
 
     $turretRows = array_values(array_filter([
-        ['label' => 'DPS', 'value' => $turretDps !== null ? Format::numberOrDash($turretDps, 1) . ' DPS' : null],
-        ['label' => 'Sustained DPS', 'value' => $turretSustainedDps !== null ? Format::numberOrDash($turretSustainedDps, 1) . ' DPS' : null],
+        ['label' => 'DPS', 'value' => $turretDps !== null ? Format::numberOrDash($turretDps, 1) : null],
+        ['label' => 'Sustained DPS', 'value' => $turretSustainedDps !== null ? Format::numberOrDash($turretSustainedDps, 1) : null],
         ['label' => 'Alpha', 'value' => $turretAlpha !== null ? Format::numberOrDash($turretAlpha, 1) : null],
     ], static fn (array $row): bool => $row['value'] !== null));
 

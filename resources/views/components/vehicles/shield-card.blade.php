@@ -14,7 +14,8 @@
     $infoRows = array_values(array_filter([
         ['label' => 'Face Type', 'value' => $faceType],
         ['label' => 'Hit Points', 'value' => $hp !== null ? Format::numberOrDash($hp) . ' HP' : null],
-        ['label' => 'Regeneration', 'value' => $regenerationTime !== null ? trim(Format::valueWithUnit($regenerationTime, 's', 2) . ($regeneration !== null ? ' (' . Format::numberOrDash($regeneration) . ' HP/s)' : '')) : null],
+        ['label' => 'Regeneration', 'value' => $regenerationTime !== null ? trim(Format::valueWithUnit($regenerationTime, 's', 2)) : ''],
+        ['label' => '', 'value' => $regeneration !== null ? Format::numberOrDash($regeneration) . ' HP/s' : null],
     ], static fn (array $row): bool => $row['value'] !== null));
 
     if ($infoRows !== []) {
