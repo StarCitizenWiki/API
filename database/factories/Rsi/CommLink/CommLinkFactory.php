@@ -25,7 +25,7 @@ class CommLinkFactory extends Factory
     public function definition(): array
     {
         return [
-            'cig_id' => fake()->unique()->numberBetween(1000, 99999),
+            'cig_id' => fake()->unique()->numberBetween(12663, 99999),
             'title' => fake()->sentence(),
             'comment_count' => fake()->numberBetween(0, 100),
             'url' => fake()->url(),

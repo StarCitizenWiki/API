@@ -36,15 +36,17 @@ class BackfillChannelFromUrl extends Command
 
         $channels = Channel::query()->pluck('id', 'slug');
 
+        $undefinedId = $channels->get('undefined');
+
         $updated = 0;
         $skipped = 0;
 
-        // Records with channel_id = 1 (Undefined)
-        $this->info('Fixing undefined channels (channel_id = 1)...');
+        // Records with Undefined channel
+        $this->info(sprintf('Fixing undefined channels (channel_id = %d)...', $undefinedId ?? 0));
 
         CommLink::query()
             ->select('id', 'cig_id', 'title', 'url', 'channel_id')
-            ->where('channel_id', 1)
+            ->where('channel_id', $undefinedId ?? -1)
             ->whereNotNull('url')
             ->where('url', 'LIKE', '%/comm-link/%')
             ->orderByDesc('id')

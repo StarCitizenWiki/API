@@ -22,7 +22,7 @@ class ManufacturerFactory extends Factory
         return [
             'cig_id' => fake()->unique()->numberBetween(1, 999999),
             'name' => fake()->company(),
-            'name_short' => strtoupper(fake()->lexify('????')),
+            'name_short' => strtoupper(fake()->unique()->lexify('????')),
             'known_for' => [],
             'description' => [],
         ];
