@@ -15,6 +15,7 @@
     $rangeThrottleMetrics = [
         ['label' => 'Optimal Range', 'value' => data_get($miningLaser, 'optimal_range'), 'unit' => 'm', 'precision' => 2],
         ['label' => 'Maximum Range', 'value' => data_get($miningLaser, 'maximum_range'), 'unit' => 'm', 'precision' => 2],
+        ['label' => 'Collection Point Radius', 'value' => data_get($miningLaser, 'collection_point_radius'), 'unit' => 'm', 'precision' => 2],
         ['label' => 'Throttle Lerp Speed', 'value' => data_get($miningLaser, 'throttle_lerp_speed'), 'unit' => '', 'precision' => 2],
         ['label' => 'Throttle Minimum', 'value' => data_get($miningLaser, 'throttle_minimum'), 'unit' => '', 'precision' => 2],
     ];

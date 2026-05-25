@@ -126,6 +126,13 @@ use OpenApi\Attributes as OA;
             example: 2775.0,
             nullable: true
         ),
+        new OA\Property(
+            property: 'collection_point_radius',
+            description: 'Radius of the collection point beam (CollectionPointRadius).',
+            type: 'double',
+            example: 0.1,
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -179,6 +186,7 @@ class MiningLaserResource extends AbstractItemSpecificationResource
             'maximum_range' => Arr::get($miningLaser, 'MaximumRange'),
 
             'extraction_throughput' => Arr::get($miningLaser, 'ExtractionThroughput'),
+            'collection_point_radius' => Arr::get($miningLaser, 'CollectionPointRadius'),
             'extraction_laser_power' => Arr::get($description, 'Extraction Laser Power'),
             'mining_laser_power' => $this->formatPowerRange(
                 Arr::get($miningLaser, 'MinPowerTransfer'),

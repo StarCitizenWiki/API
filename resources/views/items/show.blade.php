@@ -107,6 +107,7 @@
             $type === 'QuantumInterdictionGenerator' ||
             $type === 'WeaponMining' ||
             $type === 'MiningModifier' ||
+            $type === 'SalvageModifier' ||
             data_get($item, 'tractor_beam') ||
             data_get($item, 'self_destruct') ||
             data_get($item, 'seat') ||
@@ -356,6 +357,10 @@
 
                                 @if (data_get($item, 'cargo_grid'))
                                     <x-items.cargo-grid-card :cargo-grid="data_get($item, 'cargo_grid')" />
+                                @endif
+
+                                @if (data_get($item, 'salvage_modifier'))
+                                    <x-items.salvage-modifier-card :salvage-modifier="data_get($item, 'salvage_modifier')" />
                                 @endif
 
                                 @if (data_get($item, 'weapon_modifier'))

@@ -99,6 +99,7 @@ class MiningModifierResource extends AbstractItemSpecificationResource
                 'laser_instability' => Arr::get($modifiers, 'Instability'),
                 'optimal_charge_window_size' => Arr::get($modifiers, 'OptimalChargeWindow'),
                 'optimal_charge_rate' => Arr::get($modifiers, 'OptimalChargeRate'),
+                'all_charge_rates' => Arr::get($modifiers, 'AllChargeRates'),
                 'cluster_factor' => Arr::get($modifiers, 'ClusterFactor'),
                 'overcharge_rate' => Arr::get($modifiers, 'OverchargeRate'),
                 'shatter_damage' => Arr::get($modifiers, 'ShatterDamage'),
