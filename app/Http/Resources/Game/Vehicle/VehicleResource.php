@@ -262,6 +262,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'no_fuel_params',
+            ref: '#/components/schemas/flight_no_fuel_params',
+            description: 'Flight parameters when the ship has no fuel.',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'afterburner',
             description: 'Afterburner properties from FlightCharacteristics.Afterburner.',
             properties: [
@@ -929,6 +935,11 @@ class VehicleResource extends AbstractBaseResource
                 fn () => ['drive' => $drive]
             ),
 
+            $this->mergeWhen(
+                ($noFuelParams = $this->buildNoFuelParams($flight)) !== null,
+                fn () => ['no_fuel_params' => $noFuelParams]
+            ),
+
             'agility' => $this->flightBuilder->buildAgility($flight),
 
             'armor' => $this->armorBuilder->buildArmor($payload),
@@ -1327,5 +1338,27 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return $lookup;
+    }
+
+    /**
+     * Build no-fuel flight parameters from IFCS data.
+     *
+     * @param  array<string, mixed>  $flight
+     * @return array<string, mixed>|null
+     */
+    private function buildNoFuelParams(array $flight): ?array
+    {
+        $noFuelParams = Arr::get($flight, 'IFCS.NoFuelParams');
+
+        if ($noFuelParams === null) {
+            return null;
+        }
+
+        return [
+            'linear_acceleration_modifier' => Arr::get($noFuelParams, 'LinearAccelerationModifier'),
+            'angular_acceleration_modifier' => Arr::get($noFuelParams, 'AngularAccelerationModifier'),
+            'angular_velocity_modifier' => Arr::get($noFuelParams, 'AngularVelocityModifier'),
+            'legacy_max_speed' => Arr::get($noFuelParams, 'LegacyMaxSpeed'),
+        ];
     }
 }

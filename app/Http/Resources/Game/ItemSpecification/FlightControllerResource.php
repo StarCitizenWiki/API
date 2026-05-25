@@ -125,6 +125,18 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'flight_no_fuel_params',
+    title: 'No-Fuel Flight Parameters',
+    description: 'Flight parameters applied when the ship has no fuel. These modifiers scale down acceleration and velocity when fuel tanks are empty.',
+    properties: [
+        new OA\Property(property: 'linear_acceleration_modifier', description: 'Multiplier applied to linear acceleration when out of fuel.', type: 'number', example: 0.1, nullable: true),
+        new OA\Property(property: 'angular_acceleration_modifier', description: 'Multiplier applied to angular acceleration when out of fuel.', type: 'number', example: 0.1, nullable: true),
+        new OA\Property(property: 'angular_velocity_modifier', description: 'Multiplier applied to angular velocity when out of fuel.', type: 'number', example: 0.1, nullable: true),
+        new OA\Property(property: 'legacy_max_speed', description: 'Maximum speed in m/s when out of fuel (legacy mode).', type: 'number', example: 20, nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
     schema: 'flight_controller_gravlev',
     title: 'Flight Controller Gravlev',
     description: 'Gravlev-related flight controller settings.',
@@ -184,6 +196,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'collision_detection', ref: '#/components/schemas/flight_controller_collision_detection', description: 'Collision warning thresholds.', nullable: true),
 
         new OA\Property(property: 'gravlev', ref: '#/components/schemas/flight_controller_gravlev', description: 'Gravlev-related settings.'),
+        new OA\Property(property: 'no_fuel_params', ref: '#/components/schemas/flight_no_fuel_params', description: 'Flight parameters when the ship has no fuel.', nullable: true),
     ],
     type: 'object'
 )]
@@ -293,6 +306,30 @@ class FlightControllerResource extends AbstractItemSpecificationResource
                 'anti_fall_multiplier' => Arr::get($flightController, 'Gravlev.AntiFallMultiplier'),
                 'lateral_strafe_multiplier' => Arr::get($flightController, 'Gravlev.LateralStafeMultiplier'),
             ],
+
+            'no_fuel_params' => $this->buildNoFuelParams($ifcs),
+        ];
+    }
+
+    /**
+     * Build no-fuel flight parameters from IFCS data.
+     *
+     * @param  array<string, mixed>  $ifcs
+     * @return array<string, mixed>|null
+     */
+    protected function buildNoFuelParams(array $ifcs): ?array
+    {
+        $noFuelParams = Arr::get($ifcs, 'NoFuelParams');
+
+        if ($noFuelParams === null) {
+            return null;
+        }
+
+        return [
+            'linear_acceleration_modifier' => Arr::get($noFuelParams, 'LinearAccelerationModifier'),
+            'angular_acceleration_modifier' => Arr::get($noFuelParams, 'AngularAccelerationModifier'),
+            'angular_velocity_modifier' => Arr::get($noFuelParams, 'AngularVelocityModifier'),
+            'legacy_max_speed' => Arr::get($noFuelParams, 'LegacyMaxSpeed'),
         ];
     }
 
@@ -301,10 +338,8 @@ class FlightControllerResource extends AbstractItemSpecificationResource
      */
     protected function collapseEmpty(array $data): ?array
     {
-        foreach ($data as $value) {
-            if ($value !== null) {
-                return $data;
-            }
+        if (array_any($data, fn ($value) => $value !== null)) {
+            return $data;
         }
 
         return null;
