@@ -416,6 +416,7 @@ final class HardpointRow
             'SelfDestruct' => self::selfDestructStats($item),
             'FuelTank', 'QuantumFuelTank' => self::fuelTankStats($item),
             'FuelIntake' => self::fuelIntakeStats($item),
+            'QuantumDrive' => self::quantumDriveStats($item),
             default => self::weaponRackOrDefault($type, $item),
         };
     }
@@ -773,6 +774,29 @@ final class HardpointRow
             'label' => 'Push rate',
             'unit' => '',
             'icon' => 'fuel',
+            'secondaries' => $secondaries,
+        ];
+    }
+
+    /**
+     * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
+     */
+    private static function quantumDriveStats(array $item): array
+    {
+        $driveSpeed = Arr::get($item, 'quantum_drive.standard_jump.drive_speed');
+
+        $secondaries = [];
+        $fuelConsumption = Arr::get($item, 'quantum_drive.fuel_consumption_scu_per_gm');
+
+        if ($fuelConsumption !== null) {
+            $secondaries[] = Format::compact($fuelConsumption).' SCU/Gm';
+        }
+
+        return [
+            'stat' => $driveSpeed !== null ? $driveSpeed / 1000 : null,
+            'label' => 'max.',
+            'unit' => ' km/s',
+            'icon' => 'gauge',
             'secondaries' => $secondaries,
         ];
     }

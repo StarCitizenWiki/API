@@ -1,4 +1,3 @@
-@use('App\Support\Format')
 @props([
     'quantumDrive',
     'fuelCapacity' => null,
@@ -22,8 +21,8 @@
 
         $precomputed[] = [
             'label' => $route['label'],
-            'distance' => $gm,
-            'time' => $time !== null ? Format::number(floor($time / 60), 0) . 'min ' . round($time % 60) . 's' : '-',
+            'distance' => $gm . ' Gm',
+            'time' => $time !== null ? sprintf('%d:%02d', (int) floor($time / 60), (int) round($time % 60)) : '-',
             'fuel' => $fuel !== null ? number_format($fuel, 2) . ' SCU' : '-',
             'tank' => ($fuel !== null && $fuelCapacity > 0) ? round(($fuel / $fuelCapacity) * 100) . '%' : null,
             'exceeds' => $fuel !== null && $fuelCapacity > 0 && ($fuel / $fuelCapacity) > 1,
@@ -37,36 +36,69 @@
     ];
 @endphp
 
-<div>
-    <div x-data="quantumDriveCalc(@js($calcConfig))" class="flex items-center gap-2 flex-wrap mb-2">
-        <div class="flex items-center gap-1">
-            <input
-                type="number"
-                min="0"
-                step="1"
-                placeholder="0"
-                x-model.number="distanceInput"
-                class="input input-sm input-bordered w-20 text-sm tabular-nums"
-            >
-            <span class="text-xs text-muted">GM</span>
-        </div>
+<div x-data="quantumDriveCalc(@js($calcConfig))" class="card card-border bg-base-200">
+    <div class="flex items-center gap-2 mb-3">
+        <template x-if="!error">
+            <div class="flex items-center gap-2 w-full">
+                <select
+                    x-model="startUuid"
+                    @change="if (startEntity && endEntity && startEntity.system !== endEntity.system) endUuid = null"
+                    class="select select-sm select-bordered flex-1 min-w-0 border-1"
+                    :disabled="loading"
+                >
+                    <option value="" disabled selected x-text="loading ? 'Loading...' : 'From'"></option>
+                    <template x-for="sys in systems" :key="sys">
+                        <optgroup :label="sys.charAt(0).toUpperCase() + sys.slice(1)">
+                            <template x-for="e in entities.filter(e => e.system === sys)" :key="e.uuid">
+                                <option :value="e.uuid" x-text="e.name"></option>
+                            </template>
+                        </optgroup>
+                    </template>
+                </select>
 
-        <template x-if="distance > 0">
-            <div class="flex items-center gap-2 text-xs">
-                <span class="text-subtle">
-                    <x-icon name="clock" size="sm" class="inline opacity-60"/>
-                    <strong class="font-semibold tabular-nums" x-text="travelTimeFormatted"></strong>
-                </span>
-                <span class="text-subtle">
-                    <x-icon name="flame" size="sm" class="inline opacity-60"/>
-                    <strong class="font-semibold tabular-nums" x-text="fuelFormatted"></strong>
-                </span>
-                <template x-if="tankFormatted !== null">
-                    <span :class="exceedsTank ? 'text-warning' : 'text-subtle'">
-                        (<strong class="font-semibold tabular-nums" x-text="tankFormatted"></strong> tank)
-                    </span>
-                </template>
+                <x-icon name="arrow-right" size="sm" class="shrink-0 opacity-40"/>
+
+                <select
+                    x-model="endUuid"
+                    class="select select-sm select-bordered flex-1 min-w-0 border-1"
+                    :disabled="loading"
+                >
+                    <option value=""  selected>Select a destination</option>
+                    <template x-for="sys in systems" :key="sys">
+                        <optgroup :label="sys.charAt(0).toUpperCase() + sys.slice(1)">
+                            <template x-for="e in endOptions.filter(e => e.system === sys)" :key="e.uuid">
+                                <option :value="e.uuid" x-text="e.name"></option>
+                            </template>
+                        </optgroup>
+                    </template>
+                </select>
+
+                @if($fuelCapacity)
+                    <div class="flex items-center gap-2 shrink-0" title="Tank fill level">
+                        <button
+                            type="button"
+                            @click="showTank = !showTank"
+                            class="btn btn-xs btn-ghost gap-1 shadow-none border-1"
+                            :class="tankFill < 100 && 'btn-warning'"
+                        >
+                            <x-icon name="flame" size="sm"/>
+                            <span class="tabular-nums" x-text="tankFill + '%'"></span>
+                        </button>
+                        <div x-show="showTank" x-transition class="flex items-center gap-2">
+                            <input
+                                type="range"
+                                min="1"
+                                max="100"
+                                x-model.number="tankFill"
+                                class="range range-xs range-primary w-20"
+                            >
+                        </div>
+                    </div>
+                @endif
             </div>
+        </template>
+        <template x-if="error">
+            <span class="text-sm text-center text-error">Failed to load position data.</span>
         </template>
     </div>
 
@@ -82,9 +114,23 @@
             </tr>
         </thead>
         <tbody>
+            <template x-if="distanceFromSelection !== null && !sameEntity">
+                <tr class="bg-base-300">
+                    <td class="text-subtle border-base-content border-b-1">
+                        <span x-text="startEntity?.name + ' to ' + endEntity?.name"></span>
+                        <span class="text-muted" x-text="'(' + distanceFromSelection.toFixed(2) + ' Gm)'"></span>
+                    </td>
+                    <td class="text-right font-semibold tabular-nums border-base-content border-b-1" x-text="selectionTimeFormatted"></td>
+                    <td class="text-right font-semibold tabular-nums border-base-content border-b-1" x-text="selectionFuelFormatted"></td>
+                    @if($fuelCapacity)
+                        <td class="text-right font-semibold tabular-nums border-base-content border-b-1" :class="selectionExceedsTank ? 'text-warning' : 'text-subtle'" x-text="selectionTankFormatted"></td>
+                    @endif
+                </tr>
+            </template>
+
             @foreach($precomputed as $route)
                 <tr>
-                    <td class="text-subtle">{{ $route['label'] }} <span class="text-muted">({{ $route['distance'] }} GM)</span></td>
+                    <td class="text-subtle">{{ $route['label'] }} <span class="text-muted">({{ $route['distance'] }})</span></td>
                     <td class="text-right font-semibold tabular-nums">{{ $route['time'] }}</td>
                     <td class="text-right font-semibold tabular-nums">{{ $route['fuel'] }}</td>
                     @if($fuelCapacity)
@@ -92,6 +138,27 @@
                     @endif
                 </tr>
             @endforeach
+
+            <tr>
+                <td>
+                    <div class="join">
+                        <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            x-model.number="distanceInput"
+                            class="input input-xs border-1 pl-2 pr-0 join-item w-16 tabular-nums"
+                        >
+                        <span class="join-item bg-base-200 text-xs text-muted px-2 flex items-center">Gm</span>
+                    </div>
+                </td>
+                <td class="text-right font-semibold tabular-nums" x-text="travelTimeFormatted"></td>
+                <td class="text-right font-semibold tabular-nums" x-text="fuelFormatted"></td>
+                @if($fuelCapacity)
+                    <td class="text-right font-semibold tabular-nums" :class="exceedsTank ? 'text-warning' : 'text-subtle'" x-text="tankFormatted"></td>
+                @endif
+            </tr>
         </tbody>
     </table>
 </div>

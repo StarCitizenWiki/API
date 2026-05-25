@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Game\ItemController;
 use App\Http\Controllers\Api\Game\ManufacturerController;
 use App\Http\Controllers\Api\Game\MissionController;
 use App\Http\Controllers\Api\Game\StarmapLocationController;
+use App\Http\Controllers\Api\Game\StarmapPositionController;
 use App\Http\Controllers\Api\Game\UnifiedSearchController;
 use App\Http\Controllers\Api\Game\VehicleController;
 use App\Http\Controllers\Api\Game\VersionChangelogController;
@@ -105,6 +106,7 @@ Route::group(
             Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
 
+            Route::get('locations/positions', [StarmapPositionController::class, '__invoke'])->name('locations.positions');
             Route::get('locations', [StarmapLocationController::class, 'index'])->name('locations.index');
             Route::get('locations/filters', [StarmapLocationController::class, 'filters'])->name('locations.filters');
             Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->name('locations.show');
