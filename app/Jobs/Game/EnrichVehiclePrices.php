@@ -41,12 +41,14 @@ class EnrichVehiclePrices implements ShouldQueue
 
     /**
      * @param  array<int, string>  $vehicleUuids  wiki UUIDs
-     * @param  array<string, string>  $wikiToUexMap  wikiUUID => uexUUID
+     * @param  array<string, string>  $uuidToUexUuidMap  vehicleUUID => uexUUID
+     * @param  array<string, int>  $uuidToUexIdMap  vehicleUUID => uexId (for vehicles with empty UUID in UEX)
      */
     public function __construct(
         private readonly int $gameVersionId,
         private readonly array $vehicleUuids,
-        private readonly array $wikiToUexMap = [],
+        private readonly array $uuidToUexUuidMap = [],
+        private readonly array $uuidToUexIdMap = [],
         private readonly ?string $previousVersionCode = null,
     ) {}
 
@@ -64,7 +66,8 @@ class EnrichVehiclePrices implements ShouldQueue
 
         $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
 
-        $reverseMap = collect($this->wikiToUexMap);
+        $uuidMap = collect($this->uuidToUexUuidMap);
+        $idMap = collect($this->uuidToUexIdMap);
 
         $vehicles = Vehicle::query()
             ->whereIn('uuid', $this->vehicleUuids)
@@ -101,9 +104,18 @@ class EnrichVehiclePrices implements ShouldQueue
                 continue;
             }
 
-            $uexUuid = $reverseMap->get($wikiUuid, $wikiUuid) ?? $wikiUuid;
+            $uexUuid = $uuidMap->get($wikiUuid, $wikiUuid) ?? $wikiUuid;
+            $uexId = $idMap->get($wikiUuid);
 
-            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
+            if ($uexUuid === $wikiUuid && $uexId !== null) {
+                $uexUuid = '';
+            }
+
+            if ($uexUuid === '' && $uexId === null) {
+                continue;
+            }
+
+            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $uexId, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -127,14 +139,35 @@ class EnrichVehiclePrices implements ShouldQueue
     private function enrichVehicle(
         string $apiUrl,
         string $uexUuid,
+        ?int $uexId,
         VehicleData $vehicleData,
         Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         array $versionPrefixMap,
     ): bool {
-        $purchaseResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_purchases_prices", ['uuid' => $uexUuid]);
-        $rentalResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_rentals_prices", ['uuid' => $uexUuid]);
+        $query = ($uexUuid !== '')
+            ? ['uuid' => $uexUuid]
+            : ['id_vehicle' => $uexId];
+
+        $purchaseResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_purchases_prices", $query);
+        $rentalResponse = Http::timeout(30)->get("{$apiUrl}/vehicles_rentals_prices", $query);
+
+        if (! $purchaseResponse->successful()) {
+            Log::warning('UEX vehicle purchase price API failed', [
+                'uuid' => $uexUuid,
+                'uex_id' => $uexId,
+                'status' => $purchaseResponse->status(),
+            ]);
+        }
+
+        if (! $rentalResponse->successful()) {
+            Log::warning('UEX vehicle rental price API failed', [
+                'uuid' => $uexUuid,
+                'uex_id' => $uexId,
+                'status' => $rentalResponse->status(),
+            ]);
+        }
 
         $purchaseData = $purchaseResponse->successful() ? $purchaseResponse->json('data', []) : [];
         $rentalData = $rentalResponse->successful() ? $rentalResponse->json('data', []) : [];

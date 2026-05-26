@@ -58,6 +58,7 @@ it('dispatches item enrichment batch for items with prices', function (): void {
     ]);
 
     Bus::fake();
+    Http::fake(['api.uexcorp.uk/*' => Http::response(['data' => []])]);
 
     ImportItemPrices::dispatchEnrichmentBatches($version, 50, null);
 
@@ -105,6 +106,7 @@ it('chunks item enrichment jobs correctly', function (): void {
     }
 
     Bus::fake();
+    Http::fake(['api.uexcorp.uk/*' => Http::response(['data' => []])]);
 
     ImportItemPrices::dispatchEnrichmentBatches($version, 2, null);
 

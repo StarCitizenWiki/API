@@ -80,7 +80,7 @@ it('enriches item prices from per-item API', function (): void {
 
     Bus::fake();
 
-    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], null);
     $job->handle();
 
     $itemData->refresh();
@@ -195,7 +195,7 @@ it('matches current-family prices with major.minor prefix and previous-family wi
 
     Bus::fake();
 
-    $job = new EnrichItemPrices($version->id, [$item->uuid], $previousVersionCode);
+    $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], $previousVersionCode);
     $job->handle();
 
     $itemData->refresh();
@@ -230,7 +230,7 @@ it('skips items without existing prices', function (): void {
         'api.uexcorp.uk/*' => Http::response(['data' => []]),
     ]);
 
-    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], null);
     $job->handle();
 
     Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
@@ -266,7 +266,7 @@ it('handles API failures gracefully', function (): void {
         'api.uexcorp.uk/*' => Http::response(status: 500),
     ]);
 
-    $job = new EnrichItemPrices($version->id, [$item->uuid]);
+    $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], null);
     $job->handle();
 
     Log::shouldHaveReceived('warning')->with('UEX per-item price API failed', [
@@ -362,7 +362,7 @@ it('processes multiple UUIDs in a single chunk', function (): void {
         return Http::response(status: 404);
     });
 
-    $job = new EnrichItemPrices($version->id, [$item1->uuid, $item2->uuid]);
+    $job = new EnrichItemPrices($version->id, [$item1->uuid, $item2->uuid], [], [], null);
     $job->handle();
 
     expect($callCount)->toBe(2);
@@ -370,6 +370,149 @@ it('processes multiple UUIDs in a single chunk', function (): void {
     Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
         'count' => 2,
         'chunk_size' => 2,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('skips blank UUID overrides so UEX does not return all item prices', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $wikiUuid = 'b616b3ad-123c-40f2-80bd-b8f4109633aa';
+    $item = Item::factory()->create(['uuid' => $wikiUuid]);
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_id' => 149,
+                'terminal_code' => 'NDLOR',
+                'terminal_name' => 'New Deal Lorville',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 1005480,
+                'price_sell' => 0,
+                'game_version' => '4.7.1',
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) {
+        $url = $request->url();
+
+        if (str_contains($url, 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        if (str_contains($url, 'items_prices')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 149,
+                        'terminal_name' => 'New Deal - Teasa Spaceport - Lorville',
+                        'terminal_code' => 'NDLOR',
+                        'price_buy' => 34466600,
+                        'price_sell' => 0,
+                        'game_version' => '4.7.1',
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    // Empty UUID in map, no ID map, item should be skipped entirely
+    $job = new EnrichItemPrices($version->id, [$wikiUuid], [$wikiUuid => ''], []);
+    $job->handle();
+
+    $itemData->refresh();
+
+    expect($itemData->uex_prices)->toHaveCount(1)
+        ->and($itemData->uex_prices[0]['price_buy'])->toBe(1005480);
+
+    Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
+        'count' => 0,
+        'chunk_size' => 1,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('enriches item prices using id_item fallback for empty-UUID items', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $wikiUuid = 'b616b3ad-123c-40f2-80bd-b8f4109633aa';
+    $uexId = 987;
+    $item = Item::factory()->create(['uuid' => $wikiUuid]);
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_id' => 149,
+                'terminal_code' => 'NDLOR',
+                'terminal_name' => 'New Deal Lorville',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 1005480,
+                'price_sell' => 0,
+                'game_version' => '4.7.1',
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    $capturedQueryParams = [];
+
+    Http::fake(function ($request) use (&$capturedQueryParams) {
+        $url = $request->url();
+
+        if (str_contains($url, 'items_prices')) {
+            parse_str(parse_url($url, PHP_URL_QUERY) ?: '', $params);
+            $capturedQueryParams = $params;
+
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 149,
+                        'terminal_name' => 'New Deal - Teasa Spaceport - Lorville',
+                        'terminal_code' => 'NDLOR',
+                        'price_buy' => 1005480,
+                        'price_sell' => 0,
+                        'game_version' => '4.7.1',
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    // Empty UUID in map, but provide UEX id for fallback
+    $job = new EnrichItemPrices($version->id, [$wikiUuid], [$wikiUuid => ''], [$wikiUuid => $uexId]);
+    $job->handle();
+
+    // Verify id_item was used, not uuid
+    expect($capturedQueryParams)->toHaveKey('id_item')
+        ->and($capturedQueryParams['id_item'])->toBe('987')
+        ->and($capturedQueryParams)->not->toHaveKey('uuid');
+
+    $itemData->refresh();
+
+    expect($itemData->uex_prices)->toHaveCount(1)
+        ->and($itemData->uex_prices[0]['price_buy'])->toBe(1005480);
+
+    Log::shouldHaveReceived('info')->with('UEX item prices enrichment chunk completed', [
+        'count' => 1,
+        'chunk_size' => 1,
         'game_version_id' => $version->id,
     ]);
 });
@@ -437,7 +580,7 @@ it('uses reverse UUID override for per-item API calls', function (): void {
         '5d6c1c28-1589-4c72-8cc3-ff90f998dca3' => '02d4cd2e-fa98-4086-aee1-6b2dfce8ea27',
     ]]);
 
-    $job = new EnrichItemPrices($version->id, ['02d4cd2e-fa98-4086-aee1-6b2dfce8ea27']);
+    $job = new EnrichItemPrices($version->id, ['02d4cd2e-fa98-4086-aee1-6b2dfce8ea27'], [], [], null);
     $job->handle();
 
     expect($requestedUuid)->toBe('5d6c1c28-1589-4c72-8cc3-ff90f998dca3');

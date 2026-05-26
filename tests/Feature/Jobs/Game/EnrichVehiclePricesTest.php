@@ -182,6 +182,150 @@ it('uses reverse UUID override for mismatched vehicles', function (): void {
     expect($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(200);
 });
 
+it('skips blank UUID overrides so UEX does not return all vehicle prices', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $wikiUuid = 'b616b3ad-123c-40f2-80bd-b8f4109633aa';
+    $vehicle = Vehicle::factory()->create(['uuid' => $wikiUuid]);
+    $vehicleData = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => [
+            [
+                'terminal_id' => 149,
+                'terminal_code' => 'NDLOR',
+                'terminal_name' => 'New Deal Lorville',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 1005480,
+                'game_version' => '4.7.1',
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) {
+        $url = $request->url();
+
+        if (str_contains($url, 'terminals') || str_contains($url, 'vehicles_rentals_prices')) {
+            return Http::response(['data' => []]);
+        }
+
+        if (str_contains($url, 'vehicles_purchases_prices')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 149,
+                        'terminal_name' => 'New Deal - Teasa Spaceport - Lorville',
+                        'terminal_code' => 'NDLOR',
+                        'price_buy' => 34466600,
+                        'game_version' => '4.7.1',
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    // Empty UUID in map, no ID map, vehicle should be skipped entirely
+    $job = new EnrichVehiclePrices($version->id, [$wikiUuid], [$wikiUuid => ''], []);
+    $job->handle();
+
+    $vehicleData->refresh();
+
+    expect($vehicleData->uex_purchase_prices)->toHaveCount(1)
+        ->and($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(1005480);
+
+    Log::shouldHaveReceived('info')->with('UEX vehicle prices enrichment chunk completed', [
+        'count' => 0,
+        'chunk_size' => 1,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('enriches vehicle prices using id_vehicle fallback for empty-UUID vehicles', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $wikiUuid = 'b616b3ad-123c-40f2-80bd-b8f4109633aa';
+    $uexId = 251; // Golem's UEX id
+    $vehicle = Vehicle::factory()->create(['uuid' => $wikiUuid]);
+    $vehicleData = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => [
+            [
+                'terminal_id' => 149,
+                'terminal_code' => 'NDLOR',
+                'terminal_name' => 'New Deal Lorville',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 1005480,
+                'game_version' => '4.7.1',
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    $capturedQueryParams = [];
+
+    Http::fake(function ($request) use (&$capturedQueryParams) {
+        $url = $request->url();
+
+        // Capture query params to verify id_vehicle is used
+        if (str_contains($url, 'vehicles_purchases_prices')) {
+            parse_str(parse_url($url, PHP_URL_QUERY) ?: '', $params);
+            $capturedQueryParams = $params;
+
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 149,
+                        'terminal_name' => 'New Deal - Teasa Spaceport - Lorville',
+                        'terminal_code' => 'NDLOR',
+                        'price_buy' => 1005480,
+                        'game_version' => '4.7.1',
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($url, 'vehicles_rentals_prices')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    // Empty UUID in map, but provide UEX id for fallback
+    $job = new EnrichVehiclePrices($version->id, [$wikiUuid], [$wikiUuid => ''], [$wikiUuid => $uexId]);
+    $job->handle();
+
+    // Verify id_vehicle was used, not uuid
+    expect($capturedQueryParams)->toHaveKey('id_vehicle')
+        ->and($capturedQueryParams['id_vehicle'])->toBe('251')
+        ->and($capturedQueryParams)->not->toHaveKey('uuid');
+
+    $vehicleData->refresh();
+
+    expect($vehicleData->uex_purchase_prices)->toHaveCount(1)
+        ->and($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(1005480);
+
+    Log::shouldHaveReceived('info')->with('UEX vehicle prices enrichment chunk completed', [
+        'count' => 1,
+        'chunk_size' => 1,
+        'game_version_id' => $version->id,
+    ]);
+});
+
 it('skips vehicles without existing prices', function (): void {
     Log::spy();
 

@@ -41,10 +41,14 @@ class EnrichItemPrices implements ShouldQueue
 
     /**
      * @param  array<int, string>  $itemUuids
+     * @param  array<string, string>  $uuidToUexUuidMap  itemUUID => uexUUID
+     * @param  array<string, int>  $uuidToUexIdMap  itemUUID => uexId (for items with empty UUID in UEX)
      */
     public function __construct(
         private readonly int $gameVersionId,
         private readonly array $itemUuids,
+        private readonly array $uuidToUexUuidMap = [],
+        private readonly array $uuidToUexIdMap = [],
         private readonly ?string $previousVersionCode = null,
     ) {}
 
@@ -81,9 +85,11 @@ class EnrichItemPrices implements ShouldQueue
             ->where('game_starmap_location_data.game_version_id', $this->gameVersionId)
             ->pluck('game_starmap_location_data.id', 'game_starmap_locations.uuid');
 
-        $updatedCount = 0;
-
+        $uuidMap = collect($this->uuidToUexUuidMap);
+        $idMap = collect($this->uuidToUexIdMap);
         $reverseOverrides = collect(config('uexcorp.item_uuid_overrides', []))->flip();
+
+        $updatedCount = 0;
 
         foreach ($this->itemUuids as $uuid) {
             $itemId = $items->get($uuid);
@@ -98,9 +104,19 @@ class EnrichItemPrices implements ShouldQueue
                 continue;
             }
 
-            $apiUuid = $reverseOverrides->get($uuid, $uuid);
+            $apiUuid = $uuidMap->get($uuid) ?? $reverseOverrides->get($uuid, $uuid);
 
-            $enriched = $this->enrichItem($apiUuid, $itemData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
+            if ($apiUuid === '' || ($apiUuid === $uuid && $idMap->has($uuid))) {
+                $apiUuid = '';
+            }
+
+            $uexId = $idMap->get($uuid);
+
+            if ($apiUuid === '' && $uexId === null) {
+                continue;
+            }
+
+            $enriched = $this->enrichItem($apiUuid, $uexId, $itemData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -121,6 +137,7 @@ class EnrichItemPrices implements ShouldQueue
      */
     private function enrichItem(
         string $uuid,
+        ?int $uexId,
         ItemData $itemData,
         Collection $locationMapping,
         TerminalLocationMapper $mapper,
@@ -129,7 +146,11 @@ class EnrichItemPrices implements ShouldQueue
     ): bool {
         $apiUrl = config('uexcorp.api_url');
 
-        $response = Http::timeout(30)->get("{$apiUrl}/items_prices", ['uuid' => $uuid]);
+        $query = ($uuid !== '')
+            ? ['uuid' => $uuid]
+            : ['id_item' => $uexId];
+
+        $response = Http::timeout(30)->get("{$apiUrl}/items_prices", $query);
 
         if (! $response->successful()) {
             Log::warning('UEX per-item price API failed', [

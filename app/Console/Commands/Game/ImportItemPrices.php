@@ -11,11 +11,14 @@ use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
 use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
+use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ImportItemPrices extends Command
 {
@@ -82,10 +85,12 @@ class ImportItemPrices extends Command
             return;
         }
 
+        $maps = self::buildItemUuidToUexMaps();
+
         $chunks = collect($itemUuids)->chunk($chunkSize);
 
         $jobs = $chunks->map(
-            fn ($chunk): EnrichItemPricesJob => new EnrichItemPricesJob($gameVersion->id, $chunk->values()->toArray(), $previousVersionCode),
+            fn ($chunk): EnrichItemPricesJob => new EnrichItemPricesJob($gameVersion->id, $chunk->values()->toArray(), $maps['uuidToUexUuid'], $maps['uuidToUexId'], $previousVersionCode),
         )->all();
 
         Bus::batch($jobs)->allowFailures()->dispatch();
@@ -106,12 +111,12 @@ class ImportItemPrices extends Command
             return;
         }
 
-        $wikiToUexMap = self::buildWikiToUexUuidMap();
+        $maps = self::buildUuidToUexMaps();
 
         $chunks = collect($vehicleUuids)->chunk($chunkSize);
 
         $jobs = $chunks->map(
-            fn ($chunk): EnrichVehiclePricesJob => new EnrichVehiclePricesJob($gameVersion->id, $chunk->values()->toArray(), $wikiToUexMap, $previousVersionCode),
+            fn ($chunk): EnrichVehiclePricesJob => new EnrichVehiclePricesJob($gameVersion->id, $chunk->values()->toArray(), $maps['uuidToUexUuid'], $maps['uuidToUexId'], $previousVersionCode),
         )->all();
 
         Bus::batch($jobs)->allowFailures()->dispatch();
@@ -139,23 +144,28 @@ class ImportItemPrices extends Command
     }
 
     /**
-     * @return array<string, string> wikiUUID => uexUUID
+     * @return array{uuidToUexUuid: array<string, string>, uuidToUexId: array<string, int>}
      */
-    private static function buildWikiToUexUuidMap(): array
+    private static function buildUuidToUexMaps(): array
     {
         $apiUrl = config('uexcorp.api_url');
 
         $response = Http::timeout(60)->get("{$apiUrl}/vehicles");
 
         if (! $response->successful()) {
-            return [];
+            Log::warning('UEX vehicles API call failed during map building', [
+                'status' => $response->status(),
+            ]);
+
+            return ['uuidToUexUuid' => [], 'uuidToUexId' => []];
         }
 
         $vehiclesList = collect($response->json('data', []));
         $uuidOverrides = collect(config('uexcorp.vehicle_uuid_overrides', []));
         $nameOverrides = collect(config('uexcorp.vehicle_name_to_uuid_overrides', []));
 
-        $wikiToUex = [];
+        $uuidToUexUuid = [];
+        $uuidToUexId = [];
 
         foreach ($vehiclesList as $vehicle) {
             if (! is_array($vehicle) || ! array_key_exists('id', $vehicle)) {
@@ -163,10 +173,17 @@ class ImportItemPrices extends Command
             }
 
             $uexUuid = $vehicle['uuid'] ?? null;
+            $uexId = (int) $vehicle['id'];
             $vehicleName = $vehicle['name'] ?? null;
 
             if ($nameOverrides->has($vehicleName)) {
-                $wikiToUex[$nameOverrides->get($vehicleName)] = $uexUuid;
+                $wikiUuid = $nameOverrides->get($vehicleName);
+
+                if ($uexUuid !== null && $uexUuid !== '') {
+                    $uuidToUexUuid[$wikiUuid] = $uexUuid;
+                } else {
+                    $uuidToUexId[$wikiUuid] = $uexId;
+                }
 
                 continue;
             }
@@ -178,10 +195,78 @@ class ImportItemPrices extends Command
             $wikiUuid = $uuidOverrides->get($uexUuid, $uexUuid);
 
             if ($wikiUuid !== $uexUuid) {
-                $wikiToUex[$wikiUuid] = $uexUuid;
+                $uuidToUexUuid[$wikiUuid] = $uexUuid;
             }
         }
 
-        return $wikiToUex;
+        return ['uuidToUexUuid' => $uuidToUexUuid, 'uuidToUexId' => $uuidToUexId];
+    }
+
+    /**
+     * @return array{uuidToUexUuid: array<string, string>, uuidToUexId: array<string, int>}
+     */
+    private static function buildItemUuidToUexMaps(): array
+    {
+        $apiUrl = config('uexcorp.api_url');
+
+        $response = Http::timeout(120)->get("{$apiUrl}/items_prices_all");
+
+        if (! $response->successful()) {
+            return ['uuidToUexUuid' => [], 'uuidToUexId' => []];
+        }
+
+        $itemsList = collect($response->json('data', []));
+        $nameOverrides = collect(config('uexcorp.item_name_to_uuid_overrides', []));
+
+        // Build slug => uuid lookup from DB items
+        $dbItemSlugs = Item::query()
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->pluck('uuid', 'slug');
+
+        $uuidToUexUuid = [];
+        $uuidToUexId = [];
+
+        foreach ($itemsList as $item) {
+            if (! is_array($item) || ! array_key_exists('id', $item)) {
+                continue;
+            }
+
+            $uexUuid = $item['uuid'] ?? null;
+            $uexId = (int) $item['id'];
+            $itemName = $item['name'] ?? null;
+
+            // Check name overrides first
+            if ($nameOverrides->has($itemName)) {
+                $wikiUuid = $nameOverrides->get($itemName);
+
+                if ($uexUuid !== null && $uexUuid !== '') {
+                    $uuidToUexUuid[$wikiUuid] = $uexUuid;
+                } else {
+                    $uuidToUexId[$wikiUuid] = $uexId;
+                }
+
+                continue;
+            }
+
+            // Auto-match by slug
+            if ($itemName !== null) {
+                $slug = Str::slug($itemName);
+                $wikiUuid = $dbItemSlugs->get($slug);
+
+                if ($wikiUuid !== null) {
+
+                    if ($uexUuid !== null && $uexUuid !== '') {
+                        if ($wikiUuid !== $uexUuid) {
+                            $uuidToUexUuid[$wikiUuid] = $uexUuid;
+                        }
+                    } else {
+                        $uuidToUexId[$wikiUuid] = $uexId;
+                    }
+                }
+            }
+        }
+
+        return ['uuidToUexUuid' => $uuidToUexUuid, 'uuidToUexId' => $uuidToUexId];
     }
 }
