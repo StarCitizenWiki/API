@@ -99,6 +99,7 @@ it('imports prices for existing items only', function (): void {
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 1,
         'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 0,
     ]);
 });
 
@@ -150,6 +151,7 @@ it('updates only the specified game version', function (): void {
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 1,
         'game_version_id' => $targetVersion->id,
+        'slug_matched_empty_uuid' => 0,
     ]);
 });
 
@@ -200,6 +202,7 @@ it('applies item UUID overrides from config', function (): void {
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 1,
         'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 0,
     ]);
 });
 
@@ -293,6 +296,7 @@ it('logs when item data is missing for the requested game version', function ():
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 0,
         'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 0,
     ]);
 });
 
@@ -351,5 +355,88 @@ it('deduplicates prices by terminal_id', function (): void {
     Log::shouldHaveReceived('info')->with('UEX prices imported', [
         'count' => 1,
         'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 0,
+    ]);
+});
+
+it('imports prices for items with empty UUID via slug matching', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    // Item in DB with slug matching UEX item_name
+    $item = Item::factory()->create(['slug' => 'm2c-swarm']);
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    StarmapLocation::factory()->create(['uuid' => 'ddd11111-2222-3333-4444-555566667777']);
+    StarmapLocationData::factory()->create([
+        'starmap_location_id' => StarmapLocation::factory()->create()->id,
+        'game_version_id' => $version->id,
+        'name' => 'Ship Parts Station',
+    ]);
+
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            return Http::response([
+                'data' => [
+                    // slug match
+                    [
+                        'item_uuid' => '',
+                        'id_item' => 5139,
+                        'id_terminal' => 42,
+                        'terminal_name' => 'Ship Parts Stanton',
+                        'price_buy' => 45760,
+                        'price_sell' => 22880,
+                        'date_modified' => 1700000000,
+                        'item_name' => 'M2C "Swarm"',
+                    ],
+                    // Different terminal for same item
+                    [
+                        'item_uuid' => '',
+                        'id_item' => 5139,
+                        'id_terminal' => 43,
+                        'terminal_name' => 'Ship Parts Pyro',
+                        'price_buy' => 46000,
+                        'price_sell' => 23000,
+                        'date_modified' => 1700000000,
+                        'item_name' => 'M2C "Swarm"',
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $job = new ImportItemPrices($version->id);
+    $job->handle();
+
+    $itemData = $itemData->refresh();
+
+    expect($itemData->uex_prices)->toBeArray()
+        ->and($itemData->uex_prices)->toHaveCount(2)
+        ->and($itemData->uex_prices[0])->toMatchArray([
+            'terminal_id' => 42,
+            'price_buy' => 45760,
+            'price_sell' => 22880,
+            'game_version' => $version->code,
+        ])
+        ->and($itemData->uex_prices[1])->toMatchArray([
+            'terminal_id' => 43,
+            'price_buy' => 46000,
+            'price_sell' => 23000,
+        ]);
+
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 1,
+        'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 1,
     ]);
 });

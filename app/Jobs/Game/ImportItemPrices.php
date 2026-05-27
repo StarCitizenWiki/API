@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ImportItemPrices implements ShouldQueue
@@ -86,7 +87,12 @@ class ImportItemPrices implements ShouldQueue
 
     private function processPrices(array $apiData, TerminalLocationMapper $mapper, string $gameVersionCode): void
     {
-        $grouped = collect($apiData)->groupBy('item_uuid');
+        $allPrices = collect($apiData);
+
+        $uuidPrices = $allPrices->filter(fn (array $p): bool => ($p['item_uuid'] ?? '') !== '');
+        $emptyUuidPrices = $allPrices->filter(fn (array $p): bool => ($p['item_uuid'] ?? '') === '');
+
+        $grouped = $uuidPrices->groupBy('item_uuid');
 
         $itemUuidOverrides = collect(config('uexcorp.item_uuid_overrides', []));
 
@@ -98,6 +104,47 @@ class ImportItemPrices implements ShouldQueue
                 $remapped->put($targetUuid, $existing->merge($prices));
             }
             $grouped = $remapped;
+        }
+
+        $slugMatched = collect();
+
+        if ($emptyUuidPrices->isNotEmpty()) {
+            $nameOverrides = collect(config('uexcorp.item_name_to_uuid_overrides', []));
+
+            $byIdItem = $emptyUuidPrices->groupBy('id_item');
+
+            $slugs = $byIdItem->map(fn (Collection $prices): string => Str::slug($prices->first()['item_name'] ?? ''))
+                ->filter()
+                ->unique()
+                ->values();
+
+            $dbSlugToUuid = $slugs->isNotEmpty()
+                ? Item::query()->whereIn('slug', $slugs->toArray())->pluck('uuid', 'slug')
+                : collect();
+
+            foreach ($byIdItem as $prices) {
+                $itemName = $prices->first()['item_name'] ?? null;
+
+                if ($nameOverrides->has($itemName)) {
+                    $slugMatched->put($nameOverrides->get($itemName), $prices);
+
+                    continue;
+                }
+
+                if ($itemName !== null) {
+                    $slug = Str::slug($itemName);
+                    $wikiUuid = $dbSlugToUuid->get($slug);
+
+                    if ($wikiUuid !== null) {
+                        $slugMatched->put($wikiUuid, $prices);
+                    }
+                }
+            }
+        }
+
+        foreach ($slugMatched as $uuid => $prices) {
+            $existing = $grouped->get($uuid, collect());
+            $grouped->put($uuid, $existing->merge($prices));
         }
 
         $uuids = $grouped->keys()->filter()->unique()->toArray();
@@ -153,29 +200,7 @@ class ImportItemPrices implements ShouldQueue
                 continue;
             }
 
-            $pricesData = collect($prices)
-                ->unique('id_terminal')
-                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode): array {
-                    $terminalId = (int) $p['id_terminal'];
-                    $locationUuid = $locationMapping->get($terminalId);
-
-                    return [
-                        'terminal_id' => $terminalId,
-                        'terminal_code' => $mapper->terminalCodes()->get($terminalId),
-                        'terminal_name' => $p['terminal_name'],
-                        'starmap_location_uuid' => $locationUuid,
-                        'starmap_location_data_id' => $locationUuid !== null
-                            ? $locationDataLookup->get($locationUuid)
-                            : null,
-                        'price_buy' => $p['price_buy'],
-                        'price_sell' => $p['price_sell'],
-                        'game_version' => $gameVersionCode,
-                        'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
-                        'uex_link' => self::buildItemLink($p['item_name'] ?? null),
-                    ];
-                })
-                ->values()
-                ->toArray();
+            $pricesData = $this->mapItemPrices($prices, $locationMapping, $mapper, $locationDataLookup, $gameVersionCode);
 
             $itemData->uex_prices = $pricesData;
             $itemData->save();
@@ -186,6 +211,7 @@ class ImportItemPrices implements ShouldQueue
         Log::info('UEX prices imported', [
             'count' => $updatedCount,
             'game_version_id' => $this->gameVersionId,
+            'slug_matched_empty_uuid' => $slugMatched->count(),
         ]);
     }
 
@@ -333,6 +359,44 @@ class ImportItemPrices implements ShouldQueue
         }
 
         return collect($response->json('data', []));
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $prices
+     * @param  Collection<int, string>  $locationMapping
+     * @param  Collection<int, int|null>  $locationDataLookup
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapItemPrices(
+        Collection $prices,
+        Collection $locationMapping,
+        TerminalLocationMapper $mapper,
+        Collection $locationDataLookup,
+        string $gameVersionCode,
+    ): array {
+        return $prices
+            ->unique('id_terminal')
+            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode): array {
+                $terminalId = (int) $p['id_terminal'];
+                $locationUuid = $locationMapping->get($terminalId);
+
+                return [
+                    'terminal_id' => $terminalId,
+                    'terminal_code' => $mapper->terminalCodes()->get($terminalId),
+                    'terminal_name' => $p['terminal_name'],
+                    'starmap_location_uuid' => $locationUuid,
+                    'starmap_location_data_id' => $locationUuid !== null
+                        ? $locationDataLookup->get($locationUuid)
+                        : null,
+                    'price_buy' => $p['price_buy'],
+                    'price_sell' => $p['price_sell'],
+                    'game_version' => $gameVersionCode,
+                    'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
+                    'uex_link' => self::buildItemLink($p['item_name'] ?? null),
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     /**
