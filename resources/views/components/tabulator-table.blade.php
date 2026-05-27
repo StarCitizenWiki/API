@@ -11,16 +11,73 @@
     $apiUrlEndpoint = $config['endpoint'] ?? '#';
 @endphp
 
+@if (!empty($config['columnBuilder']) && !empty($config['fieldCatalog']))
+    <div
+        class="rounded-box border border-base-300 bg-base-100 px-3 py-2 -my-4"
+        data-tabulator-column-builder="{{ $id }}"
+        data-testid="tabulator-column-builder-{{ $id }}"
+    >
+        <div class="flex flex-wrap items-center gap-2">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline"
+                aria-haspopup="dialog"
+                aria-controls="{{ $id }}-column-builder-dialog"
+                data-column-builder-open
+                data-testid="tabulator-column-builder-open-{{ $id }}"
+            >
+                Columns
+                <span class="badge badge-sm" data-column-builder-count>0</span>
+            </button>
+            <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Defaults</button>
+            <span class="text-xs text-subtle" data-column-builder-status aria-live="polite"></span>
+        </div>
+
+        <dialog id="{{ $id }}-column-builder-dialog" class="modal" data-column-builder-dialog>
+            <div class="modal-box flex h-5/6 w-11/12 max-w-6xl flex-col gap-0 p-0">
+                <div class="flex items-center justify-between gap-3 border-b border-base-300 p-3">
+                    <h2 class="text-base font-semibold">Customize columns</h2>
+                    <button type="button" class="btn btn-sm btn-ghost" aria-label="Close column builder" data-column-builder-cancel>✕</button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 border-b border-base-300 p-2">
+                    <label class="input input-sm input-bordered min-w-56 flex-1 items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-subtle">Search</span>
+                        <input
+                            type="search"
+                            class="grow"
+                            placeholder="vehicle weapon damage, quantum drive..."
+                            data-column-builder-search
+                            data-testid="tabulator-column-builder-search-{{ $id }}"
+                        >
+                    </label>
+                    <button type="button" class="btn btn-xs btn-ghost" data-column-builder-core>Name only</button>
+                    <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Defaults</button>
+                </div>
+
+                <div
+                    class="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-base-200/20 p-2"
+                    data-column-builder-list
+                    data-testid="tabulator-column-builder-list-{{ $id }}"
+                ></div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button type="submit" data-column-builder-backdrop>Close</button>
+            </form>
+        </dialog>
+    </div>
+@endif
+
 @if (!empty($config['externalFilters']))
     <div class="card card-border bg-base-100" data-testid="tabulator-external-filters-{{ $id }}">
         <div class="flex flex-wrap items-end gap-3 px-4 pt-4" data-testid="tabulator-external-filters-bar-{{ $id }}">
             @foreach ($config['externalFilters'] as $filter)
                 <label class="form-control">
-                    <div class="label">
+                    <span class="label">
                         <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">
                             {{ $filter['title'] }}
                         </span>
-                    </div>
+                    </span>
                     <select
                         class="select select-bordered select-sm"
                         data-external-filter="{{ $filter['field'] }}"

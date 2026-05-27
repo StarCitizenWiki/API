@@ -254,7 +254,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     createIcons({ icons });
 
     if (document.querySelector("[data-tabulator]")) {
-        const { initTabulatorTables } = await import("./tables/baseTable");
-        initTabulatorTables();
+        const tableModule = await import("./tables/baseTable");
+
+        if (document.querySelector("[data-tabulator-column-builder]")) {
+            const { registerColumnBuilder } = await import("./tables/columnBuilder");
+            registerColumnBuilder(tableModule);
+        }
+
+        tableModule.initTabulatorTables();
     }
 });

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Game;
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
+use App\Support\Items\ItemFieldCatalog;
 use App\Support\Items\ItemTableConfig;
 use App\Support\Seo\ItemIndexSeoData;
 use App\Support\Seo\ItemShowSeoData;
@@ -25,6 +26,7 @@ class ItemController extends Controller
     public function __construct(
         private readonly ApiJsonRequest $apiJsonRequest,
         private readonly ItemTableConfig $itemTableConfig,
+        private readonly ItemFieldCatalog $itemFieldCatalog,
         private readonly ItemShowSeoData $itemShowSeoData,
         private readonly ItemIndexSeoData $itemIndexSeoData,
     ) {}
@@ -42,6 +44,19 @@ class ItemController extends Controller
         $filterOptions = Arr::get($filterPayload, 'filters', []);
 
         $tableConfig = $this->itemTableConfig->build($resolvedType);
+        $tableConfig['columnBuilder'] = true;
+        $tableConfig['columnBuilderCoreFields'] = ['name'];
+        $tableConfig['fieldCatalog'] = $this->itemFieldCatalog->forTableBuilder();
+        $fieldCatalogFilterMap = collect($tableConfig['fieldCatalog'])
+            ->filter(fn (array $field): bool => (bool) ($field['filterable'] ?? false))
+            ->mapWithKeys(fn (array $field): array => [
+                $field['field'] => $field['filterField'] ?? $field['field'],
+            ])
+            ->all();
+        $tableConfig['headerFilterOptionsMap'] = array_merge(
+            $fieldCatalogFilterMap,
+            $tableConfig['headerFilterOptionsMap'],
+        );
 
         $tableConfig['externalFilters'] = array_merge($tableConfig['externalFilters'] ?? [], [
             ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => [
@@ -61,6 +76,9 @@ class ItemController extends Controller
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'externalFilters' => $tableConfig['externalFilters'] ?? [],
+            'fieldCatalog' => $tableConfig['fieldCatalog'] ?? [],
+            'columnBuilder' => $tableConfig['columnBuilder'] ?? false,
+            'columnBuilderCoreFields' => $tableConfig['columnBuilderCoreFields'] ?? [],
             'endpointRouteName' => 'items.index',
             'endpointFilters' => $endpointFilters,
             'seo' => $this->itemIndexSeoData->build([

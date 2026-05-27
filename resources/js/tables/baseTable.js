@@ -73,6 +73,17 @@ Tabulator.registerModule([
 ]);
 
 const tabulatorTables = new Map();
+const tabulatorBeforeInitCallbacks = [];
+
+export function registerTabulatorBeforeInit(callback) {
+	if (typeof callback === "function") {
+		tabulatorBeforeInitCallbacks.push(callback);
+	}
+}
+
+function runTabulatorBeforeInitCallbacks(context) {
+	tabulatorBeforeInitCallbacks.forEach((callback) => callback(context));
+}
 
 export function getTabulatorTable(id) {
 	return tabulatorTables.get(id);
@@ -384,8 +395,13 @@ function syncBrowserUrl(
 		const apiUrl = new URL(urlString, window.location.origin);
 		const pageUrl = new URL(window.location.href);
 
+		const preservedTableColumns = pageUrl.searchParams.get("columns");
+
 		if (historySyncScope === "all") {
 			pageUrl.search = apiUrl.search;
+			if (preservedTableColumns) {
+				pageUrl.searchParams.set("columns", preservedTableColumns);
+			}
 		} else {
 			for (const key of [...pageUrl.searchParams.keys()]) {
 				if (key.startsWith("filter[")) pageUrl.searchParams.delete(key);
@@ -416,124 +432,155 @@ function formatYesNo(value, trueLabel = "Yes", falseLabel = "No") {
 	return value ? trueLabel : falseLabel;
 }
 
+const COLUMN_FORMATTERS = {
+	yesNo: (cell, params) => {
+		const trueLabel = params?.trueLabel ?? "Yes";
+		const falseLabel = params?.falseLabel ?? "No";
+
+		if (!cell.getValue()) {
+			return "";
+		}
+
+		return formatYesNo(cell.getValue(), trueLabel, falseLabel);
+	},
+	pct: (cell, params) => {
+		if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
+			return "";
+		}
+
+		const val = cell.getValue() * 100;
+
+		if (params.suffix === false) {
+			return val.toFixed(0);
+		}
+
+		return `${val.toFixed(0)}%`;
+	},
+	pctDelta: (cell, params) => {
+		if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
+			return "";
+		}
+
+		const val = cell.getValue() * 100;
+
+		if (val === 0) {
+			return "";
+		}
+
+		if (params.suffix === false) {
+			return val.toFixed(0);
+		}
+
+		return `${val > 0 ? "+" : ""}${val.toFixed(0)}%`;
+	},
+	volumeWithUnit: (cell, params) => {
+		const value = cell.getValue();
+
+		if (value === null || value === undefined || value === "") {
+			return "";
+		}
+
+		const unitField = params?.unitField ?? "dimension.volume_converted_unit";
+		const unit = unitField ? get(cell.getData(), unitField, null) : null;
+		const numericValue = typeof value === "number" ? value : Number(value);
+		const formatted = Number.isFinite(numericValue)
+			? new Intl.NumberFormat(params?.locale, {
+					minimumFractionDigits: params?.minimumFractionDigits ?? 0,
+					maximumFractionDigits: params?.maximumFractionDigits ?? 2,
+				}).format(numericValue)
+			: String(value);
+
+		if (!unit) {
+			return formatted;
+		}
+
+		return `${formatted}${params?.separator ?? " "}${unit}`;
+	},
+	labelList: (cell, params) => {
+		const value = cell.getValue();
+
+		if (!Array.isArray(value) || value.length === 0) {
+			return "";
+		}
+
+		const labelField = params?.labelField ?? "label";
+		const fallbackField = params?.fallbackField ?? "name";
+		const separator = params?.separator ?? ", ";
+
+		const labels = value
+			.map((entry) => {
+				if (!entry || typeof entry !== "object") {
+					return "";
+				}
+
+				const preferred = get(entry, labelField, null);
+				const fallback = get(entry, fallbackField, null);
+				const resolved = preferred ?? fallback;
+
+				return typeof resolved === "string" ? resolved.trim() : "";
+			})
+			.filter((label) => label !== "");
+
+		return labels.join(separator);
+	},
+	viewButton: (cell, params) => {
+		const label = params?.label ?? "View";
+		const hrefField = params?.hrefField ?? null;
+		const fallbackHref = params?.href ?? "#";
+		const href = hrefField
+			? get(cell.getData(), hrefField, fallbackHref)
+			: fallbackHref;
+		const isDisabled = params?.disabled ?? false;
+		const classes = params?.class ?? "btn btn-sm btn-ghost";
+
+		if (isDisabled) {
+			return `<span class="${classes} pointer-events-none opacity-50" aria-disabled="true">${label}</span>`;
+		}
+
+		return `<a class="${classes}" href="${href}">${label}</a>`;
+	},
+};
+
+function populateSelect(select, values) {
+	select.innerHTML = "";
+
+	if (Array.isArray(values)) {
+		values.forEach((group) => {
+			if (group?.options) {
+				const optgroup = document.createElement("optgroup");
+				optgroup.label = group.label;
+				group.options.forEach((opt) => {
+					const o = document.createElement("option");
+					o.value = opt.value;
+					o.textContent = opt.label;
+					optgroup.appendChild(o);
+				});
+				select.appendChild(optgroup);
+			} else {
+				const o = document.createElement("option");
+				o.value = group.value;
+				o.textContent = group.label;
+				select.appendChild(o);
+			}
+		});
+	} else if (typeof values === "object") {
+		Object.entries(values).forEach(([val, label]) => {
+			const o = document.createElement("option");
+			o.value = val;
+			o.textContent = label;
+			select.appendChild(o);
+		});
+	}
+}
+
 function normalizeColumns(columns) {
-	const formatters = {
-		yesNo: (cell, params) => {
-			const trueLabel = params?.trueLabel ?? "Yes";
-			const falseLabel = params?.falseLabel ?? "No";
-
-			if (!cell.getValue()) {
-				return "";
-			}
-
-			return formatYesNo(cell.getValue(), trueLabel, falseLabel);
-		},
-		pct: (cell, params) => {
-			if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
-				return "";
-			}
-
-			const val = cell.getValue() * 100;
-
-			if (params.suffix === false) {
-				return val.toFixed(0);
-			}
-
-			return `${val.toFixed(0)}%`;
-		},
-		// Shows + / -N% values and hides 0%
-		pctDelta: (cell, params) => {
-			if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {
-				return "";
-			}
-
-			const val = cell.getValue() * 100;
-
-			if (val === 0) {
-				return "";
-			}
-
-			if (params.suffix === false) {
-				return val.toFixed(0);
-			}
-
-			return `${val > 0 ? "+" : ""}${val.toFixed(0)}%`;
-		},
-		volumeWithUnit: (cell, params) => {
-			const value = cell.getValue();
-
-			if (value === null || value === undefined || value === "") {
-				return "";
-			}
-
-			const unitField = params?.unitField ?? "dimension.volume_converted_unit";
-			const unit = unitField ? get(cell.getData(), unitField, null) : null;
-			const numericValue = typeof value === "number" ? value : Number(value);
-			const formatted = Number.isFinite(numericValue)
-				? new Intl.NumberFormat(params?.locale, {
-						minimumFractionDigits: params?.minimumFractionDigits ?? 0,
-						maximumFractionDigits: params?.maximumFractionDigits ?? 2,
-					}).format(numericValue)
-				: String(value);
-
-			if (!unit) {
-				return formatted;
-			}
-
-			return `${formatted}${params?.separator ?? " "}${unit}`;
-		},
-		labelList: (cell, params) => {
-			const value = cell.getValue();
-
-			if (!Array.isArray(value) || value.length === 0) {
-				return "";
-			}
-
-			const labelField = params?.labelField ?? "label";
-			const fallbackField = params?.fallbackField ?? "name";
-			const separator = params?.separator ?? ", ";
-
-			const labels = value
-				.map((entry) => {
-					if (!entry || typeof entry !== "object") {
-						return "";
-					}
-
-					const preferred = get(entry, labelField, null);
-					const fallback = get(entry, fallbackField, null);
-					const resolved = preferred ?? fallback;
-
-					return typeof resolved === "string" ? resolved.trim() : "";
-				})
-				.filter((label) => label !== "");
-
-			return labels.join(separator);
-		},
-		viewButton: (cell, params) => {
-			const label = params?.label ?? "View";
-			const hrefField = params?.hrefField ?? null;
-			const fallbackHref = params?.href ?? "#";
-			const href = hrefField
-				? get(cell.getData(), hrefField, fallbackHref)
-				: fallbackHref;
-			const isDisabled = params?.disabled ?? false;
-			const classes = params?.class ?? "btn btn-sm btn-ghost";
-
-			if (isDisabled) {
-				return `<span class="${classes} pointer-events-none opacity-50" aria-disabled="true">${label}</span>`;
-			}
-
-			return `<a class="${classes}" href="${href}">${label}</a>`;
-		},
-	};
-
 	return (columns ?? []).map((column) => {
 		if (Array.isArray(column.columns) && column.columns.length > 0) {
 			return { ...column, columns: normalizeColumns(column.columns) };
 		}
 
-		if (typeof column.formatter === "string" && formatters[column.formatter]) {
-			return { ...column, formatter: formatters[column.formatter] };
+		if (typeof column.formatter === "string" && COLUMN_FORMATTERS[column.formatter]) {
+			return { ...column, formatter: COLUMN_FORMATTERS[column.formatter] };
 		}
 
 		return column;
@@ -695,38 +742,8 @@ function applyHeaderFilterOptionsToColumnComponents(
 
 			const facetData = filters[filterKey];
 			const current = select.value;
-			const values = buildSelectValues(facetData ?? []);
 
-			select.innerHTML = "";
-
-			if (Array.isArray(values)) {
-				values.forEach((group) => {
-					if (group?.options) {
-						const optgroup = document.createElement("optgroup");
-						optgroup.label = group.label;
-						group.options.forEach((opt) => {
-							const o = document.createElement("option");
-							o.value = opt.value;
-							o.textContent = opt.label;
-							optgroup.appendChild(o);
-						});
-						select.appendChild(optgroup);
-					} else {
-						const o = document.createElement("option");
-						o.value = group.value;
-						o.textContent = group.label;
-						select.appendChild(o);
-					}
-				});
-			} else if (typeof values === "object") {
-				Object.entries(values).forEach(([val, label]) => {
-					const o = document.createElement("option");
-					o.value = val;
-					o.textContent = label;
-					select.appendChild(o);
-				});
-			}
-
+			populateSelect(select, buildSelectValues(facetData ?? []));
 			select.value = current;
 		});
 	}
@@ -772,6 +789,10 @@ function buildSortFieldMap(columns, map = {}) {
 	return map;
 }
 
+function mobileSafeColumns(columns) {
+	return isMobile() ? stripFrozen(columns) : columns;
+}
+
 export function initTabulatorTables() {
 	document.querySelectorAll("[data-tabulator]").forEach((mount) => {
 		const id = mount.dataset.tabulatorId;
@@ -805,8 +826,7 @@ export function initTabulatorTables() {
 		// - historySyncScope: "filters" (default) | "all"
 		const historySyncMode = config.historySyncMode ?? "replace";
 		const historySyncScope = config.historySyncScope ?? "all";
-		const sortFieldMap = buildSortFieldMap(config.columns ?? []);
-		const apiToColumnSortFieldMap = buildInverseSortFieldMap(sortFieldMap);
+		let sortFieldMap = buildSortFieldMap(config.columns ?? []);
 		const apiToColumnFilterFieldMap = columnToApiFilterFieldMap
 			? Object.entries(columnToApiFilterFieldMap).reduce(
 					(acc, [columnField, apiField]) => {
@@ -819,7 +839,7 @@ export function initTabulatorTables() {
 				)
 			: null;
 
-		const columns =
+		const defaultColumns =
 			headerFilterOptionsSeed && headerFilterOptionsMap
 				? applyHeaderFilterOptionsToColumns(
 						config.columns ?? [],
@@ -829,6 +849,31 @@ export function initTabulatorTables() {
 						},
 					)
 				: (config.columns ?? []);
+		const afterReadyCallbacks = [];
+		const beforeInitContext = {
+			id,
+			mount,
+			config,
+			defaultColumns,
+			columns: defaultColumns,
+			sortFieldMap,
+			headerFilterOptionsMap,
+			headerFilterOptionsSeed,
+			applyHeaderFilterOptionsToColumns,
+			normalizeColumns,
+			mobileSafeColumns,
+			onReady(callback) {
+				if (typeof callback === "function") {
+					afterReadyCallbacks.push(callback);
+				}
+			},
+		};
+
+		runTabulatorBeforeInitCallbacks(beforeInitContext);
+
+		sortFieldMap = beforeInitContext.sortFieldMap;
+		const columns = beforeInitContext.columns ?? defaultColumns;
+		const apiToColumnSortFieldMap = buildInverseSortFieldMap(sortFieldMap);
 
 		const externalFilters = config.externalFilters ?? null;
 		const externalFilterFields = new Set(
@@ -874,10 +919,6 @@ export function initTabulatorTables() {
 		const effectivePaginationInitialPage =
 			urlState.paginationInitialPage ?? null;
 
-		// Use ajaxRequestFunc so we can:
-		// - serve initial payload without an extra HTTP request
-		// - build JSON:API query params ourselves
-		// - normalize response into {last_page, data}
 		let servedInitial = false;
 		let latestFilterOptionsRequestId = 0;
 
@@ -937,7 +978,7 @@ export function initTabulatorTables() {
 				...(mobile ? {} : { frozen: true }),
 			},
 
-			columns: normalizeColumns(mobile ? stripFrozen(columns) : columns),
+			columns: normalizeColumns(mobileSafeColumns(columns)),
 			movableColumns: true,
 			movableRows: true,
 			selectableRows: true,
@@ -945,7 +986,7 @@ export function initTabulatorTables() {
 			pagination: true,
 			paginationMode: "remote",
 			paginationSize: effectivePaginationSize,
-			paginationSizeSelector: [25, 50, 100],
+			paginationSizeSelector: [25, 50, 100, 200],
 			...(effectivePaginationInitialPage
 				? { paginationInitialPage: effectivePaginationInitialPage }
 				: {}),
@@ -971,10 +1012,8 @@ export function initTabulatorTables() {
 			},
 
 			ajaxRequestFunc: (url, ajaxConfig, params) => {
-				// Do not mutate Tabulator's params object.
 				const requestParams = { ...params };
 
-				// Track filters as "managed" once seen (important when cleared later).
 				const requestFilters =
 					requestParams.filter ?? requestParams.filters ?? [];
 				for (const f of requestFilters) {
@@ -1035,6 +1074,9 @@ export function initTabulatorTables() {
 		});
 
 		tabulatorTables.set(id, table);
+		afterReadyCallbacks.forEach((callback) =>
+			callback({ id, table, mount, config }),
+		);
 		window.dispatchEvent(
 			new CustomEvent("tabulator:ready", { detail: { id, table, mount } }),
 		);
@@ -1062,36 +1104,7 @@ export function initTabulatorTables() {
 						const facetData = seedFilters?.[filterKey];
 						if (!facetData) return;
 
-						const values = buildSelectValues(facetData);
-						select.innerHTML = "";
-
-						if (Array.isArray(values)) {
-							values.forEach((group) => {
-								if (group?.options) {
-									const optgroup = document.createElement("optgroup");
-									optgroup.label = group.label;
-									group.options.forEach((opt) => {
-										const o = document.createElement("option");
-										o.value = opt.value;
-										o.textContent = opt.label;
-										optgroup.appendChild(o);
-									});
-									select.appendChild(optgroup);
-								} else {
-									const o = document.createElement("option");
-									o.value = group.value;
-									o.textContent = group.label;
-									select.appendChild(o);
-								}
-							});
-						} else if (typeof values === "object") {
-							Object.entries(values).forEach(([val, label]) => {
-								const o = document.createElement("option");
-								o.value = val;
-								o.textContent = label;
-								select.appendChild(o);
-							});
-						}
+						populateSelect(select, buildSelectValues(facetData));
 					});
 				}
 

@@ -48,6 +48,9 @@
             'apiUrlTargetId' => 'items-api-url',
             'columns' => $tableColumns,
             'externalFilters' => $externalFilters,
+            'columnBuilder' => $columnBuilder ?? false,
+            'columnBuilderCoreFields' => $columnBuilderCoreFields ?? [],
+            'fieldCatalog' => $fieldCatalog ?? [],
         ];
 
         $filterQuery = request()->query('filter', []);
