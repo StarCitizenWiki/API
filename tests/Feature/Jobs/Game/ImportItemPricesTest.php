@@ -365,7 +365,7 @@ it('imports prices for items with empty UUID via slug matching', function (): vo
     $version = GameVersion::factory()->create(['is_default' => true]);
 
     // Item in DB with slug matching UEX item_name
-    $item = Item::factory()->create(['slug' => 'm2c-swarm']);
+    $item = Item::factory()->create(['slug' => 'test-empty-uuid-item']);
     $itemData = ItemData::factory()->create([
         'item_id' => $item->id,
         'game_version_id' => $version->id,
@@ -391,7 +391,7 @@ it('imports prices for items with empty UUID via slug matching', function (): vo
                         'price_buy' => 45760,
                         'price_sell' => 22880,
                         'date_modified' => 1700000000,
-                        'item_name' => 'M2C "Swarm"',
+                        'item_name' => 'Test Empty UUID Item',
                     ],
                     // Different terminal for same item
                     [
@@ -402,7 +402,7 @@ it('imports prices for items with empty UUID via slug matching', function (): vo
                         'price_buy' => 46000,
                         'price_sell' => 23000,
                         'date_modified' => 1700000000,
-                        'item_name' => 'M2C "Swarm"',
+                        'item_name' => 'Test Empty UUID Item',
                     ],
                 ],
             ]);
@@ -432,6 +432,76 @@ it('imports prices for items with empty UUID via slug matching', function (): vo
             'terminal_id' => 43,
             'price_buy' => 46000,
             'price_sell' => 23000,
+        ]);
+
+    Log::shouldHaveReceived('info')->with('UEX prices imported', [
+        'count' => 1,
+        'game_version_id' => $version->id,
+        'slug_matched_empty_uuid' => 1,
+    ]);
+});
+
+it('prefers name override over slug match for empty-UUID items', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    // Use fake values that won't collide with production data
+    $slugItem = Item::factory()->create(['slug' => 'test-weapon-variant']);
+    ItemData::factory()->create([
+        'item_id' => $slugItem->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    $overrideItem = Item::factory()->create([
+        'slug' => 'test-turret-variant',
+        'uuid' => 'dead0000-0000-0000-0000-000000000001',
+    ]);
+    $overrideItemData = ItemData::factory()->create([
+        'item_id' => $overrideItem->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    // Override: map the UEX name to the turret variant instead of slug-matched weapon
+    config(['uexcorp.item_name_to_uuid_overrides' => [
+        'Test Override Item' => 'dead0000-0000-0000-0000-000000000001',
+    ]]);
+
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'item_uuid' => '',
+                        'id_item' => 99999,
+                        'id_terminal' => 42,
+                        'terminal_name' => 'Ship Parts',
+                        'price_buy' => 45760,
+                        'price_sell' => 22880,
+                        'date_modified' => 1700000000,
+                        'item_name' => 'Test Override Item',
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $job = new ImportItemPrices($version->id);
+    $job->handle();
+
+    // Override target gets prices, not the slug-matched item
+    expect($overrideItemData->refresh()->uex_prices)->toBeArray()
+        ->and($overrideItemData->uex_prices)->toHaveCount(1)
+        ->and($overrideItemData->uex_prices[0])->toMatchArray([
+            'terminal_id' => 42,
+            'price_buy' => 45760,
+            'game_version' => $version->code,
         ]);
 
     Log::shouldHaveReceived('info')->with('UEX prices imported', [

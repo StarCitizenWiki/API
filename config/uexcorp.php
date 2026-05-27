@@ -101,5 +101,7 @@ return [
         'UTV' => 'bfdf94df-32fc-497c-b9fa-c98f3fa4c83b',
     ],
 
-    'item_name_to_uuid_overrides' => [],
+    'item_name_to_uuid_overrides' => [
+        'M2C "Swarm"' => 'a113eb5a-2759-4a55-ac48-7170c7d17f50',
+    ],
 ];
