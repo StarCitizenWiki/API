@@ -55,9 +55,12 @@
     $sections = [];
 
     // Info
+    $magazineVolume = data_get($vehicleWeapon, 'magazine_volume');
+
     $infoRows = array_values(array_filter([
         ['label' => 'Class', 'value' => trim(($class ?? '') . ' ' . ($type ?? '')) ?: null],
         ['label' => 'Capacity', 'value' => $capacity !== null ? ($capacity === 0 ? 'Infinite' : Format::valueWithUnit($capacity, 'rounds', 0)) : null],
+        $magazineVolume !== null ? ['label' => 'Magazine Volume', 'value' => Format::compact(data_get($magazineVolume, 'scu'), 6) . ' SCU'] : null,
         $range !== null ? ['label' => 'Range', 'value' => Format::valueWithUnit($range, 'm', 0)] : null,
         $rpm !== null ? ['label' => 'RPM', 'value' => Format::valueWithUnit($rpm, 'RPM', 0)] : null,
     ], static fn (?array $row): bool => $row !== null && ($row['value'] ?? null) !== null && $row['value'] !== ''));

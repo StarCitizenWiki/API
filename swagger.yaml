@@ -8884,122 +8884,137 @@ components:
         damage_drop_min_distance:
           description: 'Per-type distance (m) before damage falloff begins.'
           properties:
-            Physical:
+            physical:
               type: number
               format: double
               example: 0
               nullable: true
-            Energy:
+            energy:
               type: number
               format: double
               example: 200
               nullable: true
-            Distortion:
+            distortion:
               type: number
               format: double
               example: 200
               nullable: true
-            Thermal:
+            thermal:
               type: number
               format: double
               example: 0
               nullable: true
-            Biochemical:
+            biochemical:
               type: number
               format: double
               example: 0
               nullable: true
-            Stun:
+            stun:
               type: number
               format: double
               example: 200
+              nullable: true
+            total:
+              type: number
+              format: double
+              example: 400
               nullable: true
           type: object
           nullable: true
         damage_drop_per_meter:
           description: 'Per-type damage reduction applied each meter after min distance.'
           properties:
-            Physical:
+            physical:
               type: number
               format: double
               example: 0
               nullable: true
-            Energy:
+            energy:
               type: number
               format: double
               example: 0.01
               nullable: true
-            Distortion:
+            distortion:
               type: number
               format: double
               example: 0.01
               nullable: true
-            Thermal:
+            thermal:
               type: number
               format: double
               example: 0
               nullable: true
-            Biochemical:
+            biochemical:
               type: number
               format: double
               example: 0
               nullable: true
-            Stun:
+            stun:
               type: number
               format: double
               example: 0.01
+              nullable: true
+            total:
+              type: number
+              format: double
+              example: 0.03
               nullable: true
           type: object
           nullable: true
         damage_drop_min_damage:
           description: 'Floor values for damage after falloff.'
           properties:
-            Physical:
+            physical:
               type: number
               format: double
               example: 10
               nullable: true
-            Energy:
+            energy:
               type: number
               format: double
               example: 10
               nullable: true
-            Distortion:
+            distortion:
               type: number
               format: double
               example: 5
               nullable: true
-            Thermal:
+            thermal:
               type: number
               format: double
               example: 0
               nullable: true
-            Biochemical:
+            biochemical:
               type: number
               format: double
               example: 0
               nullable: true
-            Stun:
+            stun:
               type: number
               format: double
               example: 6
+              nullable: true
+            total:
+              type: number
+              format: double
+              example: 31
               nullable: true
           type: object
           nullable: true
         bullet_impulse_falloff:
           description: 'Impact impulse falloff parameters.'
           properties:
-            MinDistance:
+            min_distance:
               type: number
               format: double
               example: 0
               nullable: true
-            DropFalloff:
+            drop_falloff:
               type: number
               format: double
               example: 0.005
               nullable: true
-            MaxFalloff:
+            max_falloff:
               type: number
               format: double
               example: 0.3
@@ -9009,21 +9024,26 @@ components:
         bullet_electron:
           description: 'Electron chain parameters for weapons that jump between targets.'
           properties:
-            JumpRange:
+            jump_range:
               type: number
               format: double
               example: 0
               nullable: true
-            MaximumJumps:
+            maximum_jumps:
               type: integer
               example: 0
               nullable: true
-            ResidualChargeMultiplier:
+            residual_charge_multiplier:
               type: number
               format: double
               example: 0
               nullable: true
           type: object
+          nullable: true
+        conversion_rate:
+          description: 'Cargo volume consumed per round in microSCU.'
+          type: integer
+          example: 129
           nullable: true
         damage_falloffs:
           description: 'Deprecated: Use damage_drop* data.'
@@ -14049,6 +14069,22 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/vehicle_weapon_charge_modifier'
+          nullable: true
+        magazine_volume:
+          description: 'Total cargo volume consumed by a full magazine of ammunition. Derived from capacity x conversion rate.'
+          properties:
+            micro_scu:
+              description: 'Volume in microSCU.'
+              type: integer
+              example: 574560
+              nullable: true
+            scu:
+              description: 'Volume in SCU.'
+              type: number
+              format: double
+              example: 0.57456
+              nullable: true
+          type: object
           nullable: true
       type: object
     weapon_attachment_rgb_color:

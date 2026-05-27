@@ -288,6 +288,17 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'capacitor', ref: '#/components/schemas/vehicle_weapon_capacitor', nullable: true),
         new OA\Property(property: 'charge', ref: '#/components/schemas/vehicle_weapon_charge', nullable: true),
         new OA\Property(property: 'charge_modifier', ref: '#/components/schemas/vehicle_weapon_charge_modifier', nullable: true),
+
+        new OA\Property(
+            property: 'magazine_volume',
+            description: 'Total cargo volume consumed by a full magazine of ammunition. Derived from capacity x conversion rate.',
+            properties: [
+                new OA\Property(property: 'micro_scu', description: 'Volume in microSCU.', type: 'integer', example: 574560, nullable: true),
+                new OA\Property(property: 'scu', description: 'Volume in SCU.', type: 'double', example: 0.574560, nullable: true),
+            ],
+            type: 'object',
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -395,7 +406,7 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
             ->values()
             ->toArray();
 
-        return [
+        $result = [
             'class' => Arr::get($weapon, 'WeaponClass'),
             'type' => $this->extractFromStdItem($this->resource, 'DescriptionData.Item Type'),
             'capacity' => Arr::get($ammo, 'Capacity'),
@@ -499,5 +510,18 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
 
             'ammunition' => new AmmunitionResource($this->resource),
         ];
+
+        $capacity = Arr::get($ammo, 'Capacity');
+        $conversionRate = Arr::get($ammo, 'ConversionRateMicroScu');
+
+        if ($capacity !== null && $conversionRate !== null) {
+            $totalMicroScu = (int) $capacity * (int) $conversionRate;
+            $result['magazine_volume'] = [
+                'micro_scu' => $totalMicroScu,
+                'scu' => round($totalMicroScu / 1_000_000, 6),
+            ];
+        }
+
+        return $result;
     }
 }

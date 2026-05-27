@@ -113,12 +113,13 @@ use OpenApi\Attributes as OA;
             property: 'damage_drop_min_distance',
             description: 'Per-type distance (m) before damage falloff begins.',
             properties: [
-                new OA\Property(property: 'Physical', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Energy', type: 'double', example: 200, nullable: true),
-                new OA\Property(property: 'Distortion', type: 'double', example: 200, nullable: true),
-                new OA\Property(property: 'Thermal', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Biochemical', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Stun', type: 'double', example: 200, nullable: true),
+                new OA\Property(property: 'physical', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'energy', type: 'double', example: 200, nullable: true),
+                new OA\Property(property: 'distortion', type: 'double', example: 200, nullable: true),
+                new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'stun', type: 'double', example: 200, nullable: true),
+                new OA\Property(property: 'total', type: 'double', example: 400, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -127,12 +128,13 @@ use OpenApi\Attributes as OA;
             property: 'damage_drop_per_meter',
             description: 'Per-type damage reduction applied each meter after min distance.',
             properties: [
-                new OA\Property(property: 'Physical', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Energy', type: 'double', example: 0.01, nullable: true),
-                new OA\Property(property: 'Distortion', type: 'double', example: 0.01, nullable: true),
-                new OA\Property(property: 'Thermal', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Biochemical', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Stun', type: 'double', example: 0.01, nullable: true),
+                new OA\Property(property: 'physical', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'energy', type: 'double', example: 0.01, nullable: true),
+                new OA\Property(property: 'distortion', type: 'double', example: 0.01, nullable: true),
+                new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'stun', type: 'double', example: 0.01, nullable: true),
+                new OA\Property(property: 'total', type: 'double', example: 0.03, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -141,12 +143,13 @@ use OpenApi\Attributes as OA;
             property: 'damage_drop_min_damage',
             description: 'Floor values for damage after falloff.',
             properties: [
-                new OA\Property(property: 'Physical', type: 'double', example: 10, nullable: true),
-                new OA\Property(property: 'Energy', type: 'double', example: 10, nullable: true),
-                new OA\Property(property: 'Distortion', type: 'double', example: 5, nullable: true),
-                new OA\Property(property: 'Thermal', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Biochemical', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'Stun', type: 'double', example: 6, nullable: true),
+                new OA\Property(property: 'physical', type: 'double', example: 10, nullable: true),
+                new OA\Property(property: 'energy', type: 'double', example: 10, nullable: true),
+                new OA\Property(property: 'distortion', type: 'double', example: 5, nullable: true),
+                new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'stun', type: 'double', example: 6, nullable: true),
+                new OA\Property(property: 'total', type: 'double', example: 31, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -155,9 +158,9 @@ use OpenApi\Attributes as OA;
             property: 'bullet_impulse_falloff',
             description: 'Impact impulse falloff parameters.',
             properties: [
-                new OA\Property(property: 'MinDistance', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'DropFalloff', type: 'double', example: 0.005, nullable: true),
-                new OA\Property(property: 'MaxFalloff', type: 'double', example: 0.3, nullable: true),
+                new OA\Property(property: 'min_distance', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'drop_falloff', type: 'double', example: 0.005, nullable: true),
+                new OA\Property(property: 'max_falloff', type: 'double', example: 0.3, nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -166,11 +169,19 @@ use OpenApi\Attributes as OA;
             property: 'bullet_electron',
             description: 'Electron chain parameters for weapons that jump between targets.',
             properties: [
-                new OA\Property(property: 'JumpRange', type: 'double', example: 0, nullable: true),
-                new OA\Property(property: 'MaximumJumps', type: 'integer', example: 0, nullable: true),
-                new OA\Property(property: 'ResidualChargeMultiplier', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'jump_range', type: 'double', example: 0, nullable: true),
+                new OA\Property(property: 'maximum_jumps', type: 'integer', example: 0, nullable: true),
+                new OA\Property(property: 'residual_charge_multiplier', type: 'double', example: 0, nullable: true),
             ],
             type: 'object',
+            nullable: true
+        ),
+
+        new OA\Property(
+            property: 'conversion_rate',
+            description: 'Cargo volume consumed per round in microSCU.',
+            type: 'integer',
+            example: 129,
             nullable: true
         ),
 
@@ -207,23 +218,13 @@ class AmmunitionResource extends AbstractItemSpecificationResource
         $impactDamage = $this->buildDamageArray(Arr::get($ammunition, 'ImpactDamage', []), 'ImpactDamage');
         $detonationDamage = $this->buildDamageArray(Arr::get($ammunition, 'DetonationDamage', []), 'DetonationDamage');
 
-        $mapper = static fn ($value, $key) => [Str::snake($key) => $value];
+        $legacyDamageDropMinDistance = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropMinDistance', []));
+        $legacyDamageDropPerMeter = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropPerMeter', []));
+        $legacyDamageDropMinDamage = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropMinDamage', []));
 
-        $damageDropMinDistance = collect(Arr::get($ammunition, 'DamageDropMinDistance', []))->mapWithKeys($mapper);
-        $damageDropPerMeter = collect(Arr::get($ammunition, 'DamageDropPerMeter', []))->mapWithKeys($mapper);
-        $damageDropMinDamage = collect(Arr::get($ammunition, 'DamageDropMinDamage', []))->mapWithKeys($mapper);
-
-        if ($damageDropMinDamage->isNotEmpty()) {
-            $damageDropMinDamage = $damageDropMinDamage->put('total', $damageDropMinDamage->sum())->toArray();
-        }
-
-        if ($damageDropPerMeter->isNotEmpty()) {
-            $damageDropPerMeter = $damageDropPerMeter->put('total', $damageDropPerMeter->sum())->toArray();
-        }
-
-        if ($damageDropMinDistance->isNotEmpty()) {
-            $damageDropMinDistance = $damageDropMinDistance->put('total', $damageDropMinDistance->sum())->toArray();
-        }
+        $damageDropMinDistance = $this->damageDropMap($legacyDamageDropMinDistance);
+        $damageDropPerMeter = $this->damageDropMap($legacyDamageDropPerMeter);
+        $damageDropMinDamage = $this->damageDropMap($legacyDamageDropMinDamage);
 
         $penetration = Arr::get($ammunition, 'Penetration');
 
@@ -234,9 +235,9 @@ class AmmunitionResource extends AbstractItemSpecificationResource
         ];
 
         $damageFalloffs = [
-            'min_distance' => $damageDropMinDistance,
-            'per_meter' => $damageDropPerMeter,
-            'min_damage' => $damageDropMinDamage,
+            'min_distance' => $legacyDamageDropMinDistance,
+            'per_meter' => $legacyDamageDropPerMeter,
+            'min_damage' => $legacyDamageDropMinDamage,
         ];
 
         return [
@@ -300,6 +301,8 @@ class AmmunitionResource extends AbstractItemSpecificationResource
                 ],
             ]),
 
+            'conversion_rate' => Arr::get($ammunition, 'ConversionRateMicroScu'),
+
             'impulse_scale' => Arr::get($ammunition, 'ImpulseScale'),
             'bullet_type' => Arr::get($ammunition, 'BulletType'),
 
@@ -307,5 +310,31 @@ class AmmunitionResource extends AbstractItemSpecificationResource
                 'damage_falloffs' => $damageFalloffs,
             ]),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function legacyDamageFalloff(mixed $values): array
+    {
+        return is_array($values) ? $values : [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    private function damageDropMap(array $values): array
+    {
+        if ($values === []) {
+            return [];
+        }
+
+        $damageDrop = collect($values)
+            ->mapWithKeys(static fn ($value, $key): array => [Str::snake((string) $key) => $value]);
+
+        return $damageDrop
+            ->put('total', $damageDrop->sum())
+            ->toArray();
     }
 }
