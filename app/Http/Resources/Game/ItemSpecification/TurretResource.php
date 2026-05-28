@@ -11,11 +11,11 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'turret_axis',
     title: 'Turret Axis',
-    description: 'Axis configuration for turret yaw or pitch as emitted by this resource.',
+    description: 'Axis configuration for turret yaw or pitch.',
     properties: [
         new OA\Property(
             property: 'slaved_only',
-            description: 'Whether the axis is slaved-only (computed from `*.SlavedOnly === 1`).',
+            description: 'Whether the axis is slaved-only.',
             type: 'boolean',
             example: false,
             nullable: true
@@ -25,14 +25,16 @@ use OpenApi\Attributes as OA;
             description: 'Axis rotation speed.',
             type: 'double',
             example: 60,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °/s']
         ),
         new OA\Property(
             property: 'time_to_full_speed',
-            description: 'Seconds to reach full speed (AccelerationTimeToFullSpeed).',
+            description: 'Seconds to reach full rotation speed.',
             type: 'double',
             example: 0.5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'acceleration_decay',
@@ -46,14 +48,16 @@ use OpenApi\Attributes as OA;
             description: 'Minimum target angle when RestrictTargetAngles is enabled.',
             type: 'double',
             example: -180,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °']
         ),
         new OA\Property(
             property: 'angle_limit_max',
             description: 'Maximum target angle when RestrictTargetAngles is enabled.',
             type: 'double',
             example: 180,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °']
         ),
     ],
     type: 'object'
@@ -61,27 +65,27 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'turret',
     title: 'Turret & Gimbal',
-    description: 'Turret/gimbal configuration sourced from stdItem.Turret plus derived mount/size information from extracted ports.',
+    description: 'Turret or gimbal configuration including rotation style, weapon size constraints, and axis parameters.',
     properties: [
-        new OA\Property(property: 'rotation_style', description: 'Rotation style from stdItem.Turret.RotationStyle.', type: 'string', nullable: true),
+        new OA\Property(property: 'rotation_style', description: 'Turret rotation style.', type: 'string', nullable: true),
 
         new OA\Property(
             property: 'mounts',
-            description: 'Number of weapon mounts derived from the extracted ports count.',
+            description: 'Number of weapon mounts.',
             type: 'integer',
             example: 2,
             nullable: true
         ),
         new OA\Property(
             property: 'min_size',
-            description: 'Minimum supported weapon size derived from port MinSize/min_size.',
+            description: 'Minimum supported weapon size.',
             type: 'integer',
             example: 1,
             nullable: true
         ),
         new OA\Property(
             property: 'max_size',
-            description: 'Maximum supported weapon size derived from port MaxSize/max_size.',
+            description: 'Maximum supported weapon size.',
             type: 'integer',
             example: 3,
             nullable: true

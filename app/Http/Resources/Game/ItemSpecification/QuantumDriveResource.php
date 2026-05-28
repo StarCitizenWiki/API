@@ -27,7 +27,7 @@ use OpenApi\Attributes as OA;
     title: 'Quantum Drive Travel Time 10GM',
     description: 'Travel time for a 10GM reference distance as provided by the source data.',
     properties: [
-        new OA\Property(property: 'seconds', description: 'Travel time in seconds.', type: 'double', example: 56.0, nullable: true),
+        new OA\Property(property: 'seconds', description: 'Travel time in seconds.', type: 'double', example: 56.0, nullable: true, x: ['suffix' => ' s']),
         new OA\Property(property: 'formatted', description: 'Formatted travel time string.', type: 'string', example: '00:56', nullable: true),
     ],
     type: 'object'
@@ -42,7 +42,8 @@ use OpenApi\Attributes as OA;
             description: 'Total quantum fuel consumed to complete a spool (QuantumFuelRequirement).',
             type: 'double',
             example: 0.006758,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' SCU']
         ),
         new OA\Property(
             property: 'fuel_rate',
@@ -56,7 +57,8 @@ use OpenApi\Attributes as OA;
             description: 'Maximum permitted quantum jump distance in meters (JumpRange).',
             type: 'double',
             example: 3.402823e+38,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'jump_range_formatted',
@@ -70,7 +72,8 @@ use OpenApi\Attributes as OA;
             description: 'Automatic disengage distance when approaching destination in meters (DisconnectRange).',
             type: 'double',
             example: 34693,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'disconnect_range_formatted',

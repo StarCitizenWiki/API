@@ -11,12 +11,12 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'shield_controller',
     title: 'Shield Controller',
-    description: '',
+    description: 'Shield controller parameters.',
     properties: [
-        new OA\Property(property: 'face_type', type: 'string', nullable: true),
-        new OA\Property(property: 'max_reallocation', type: 'double', nullable: true),
-        new OA\Property(property: 'reconfiguration_cooldown', type: 'double', nullable: true),
-        new OA\Property(property: 'max_electrical_charge_damage_rate', type: 'double', nullable: true),
+        new OA\Property(property: 'face_type', description: 'Shield face layout type.', type: 'string', nullable: true),
+        new OA\Property(property: 'max_reallocation', description: 'Maximum shield reallocation fraction.', type: 'double', nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'reconfiguration_cooldown', description: 'Cooldown after shield reconfiguration in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'max_electrical_charge_damage_rate', description: 'Maximum electrical charge damage rate.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]

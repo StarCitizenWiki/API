@@ -56,7 +56,8 @@ use OpenApi\Attributes as OA;
             description: 'Lifetime/duration in seconds (MiningModule.Lifetime).',
             type: 'double',
             example: 60.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'power_modifier',

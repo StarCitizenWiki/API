@@ -15,19 +15,19 @@ use OpenApi\Attributes as OA;
     description: 'Missile flight performance and phase timings.',
     properties: [
         new OA\Property(property: 'enable_lifetime', description: 'Whether the maximum lifetime limit is enforced.', type: 'boolean', example: true, nullable: true),
-        new OA\Property(property: 'max_lifetime', description: 'Maximum flight time in seconds before missile self-destructs.', type: 'double', example: 15.0, nullable: true),
+        new OA\Property(property: 'max_lifetime', description: 'Maximum flight time in seconds before missile self-destructs.', type: 'double', example: 15.0, nullable: true, x: ['suffix' => ' s']),
         new OA\Property(property: 'range', description: 'Maximum travel distance/range as provided by the source data.', type: 'double', example: 10000.0, nullable: true),
 
-        new OA\Property(property: 'speed', description: 'Linear cruise velocity in meters per second (LinearSpeed).', type: 'double', example: 1372.0, nullable: true),
-        new OA\Property(property: 'boost_speed', description: 'Initial boost phase velocity in meters per second (BoostSpeed).', type: 'double', example: 165.0, nullable: true),
-        new OA\Property(property: 'intercept_speed', description: 'Intercept phase speed in meters per second (InterceptSpeed).', type: 'double', example: 400.0, nullable: true),
-        new OA\Property(property: 'terminal_speed', description: 'Terminal phase speed in meters per second (TerminalSpeed).', type: 'double', example: 475.0, nullable: true),
+        new OA\Property(property: 'speed', description: 'Linear cruise velocity in meters per second.', type: 'double', example: 1372.0, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'boost_speed', description: 'Initial boost phase velocity in meters per second.', type: 'double', example: 165.0, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'intercept_speed', description: 'Intercept phase speed in meters per second.', type: 'double', example: 400.0, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'terminal_speed', description: 'Terminal phase speed in meters per second.', type: 'double', example: 475.0, nullable: true, x: ['suffix' => ' m/s']),
 
-        new OA\Property(property: 'boost_phase_duration', description: 'Duration of the boost phase in seconds (BoostPhaseDuration).', type: 'double', example: 1.5, nullable: true),
-        new OA\Property(property: 'terminal_phase_engagement_time', description: 'Seconds before impact when terminal phase activates (TerminalPhaseEngagementTime).', type: 'double', example: 5.0, nullable: true),
-        new OA\Property(property: 'terminal_phase_engagement_angle', description: 'Maximum engagement angle in degrees for terminal phase (TerminalPhaseEngagementAngle).', type: 'double', example: 35.0, nullable: true),
+        new OA\Property(property: 'boost_phase_duration', description: 'Duration of the boost phase in seconds.', type: 'double', example: 1.5, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'terminal_phase_engagement_time', description: 'Seconds before impact when terminal phase activates.', type: 'double', example: 5.0, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'terminal_phase_engagement_angle', description: 'Maximum engagement angle in degrees for terminal phase.', type: 'double', example: 35.0, nullable: true, x: ['suffix' => ' °']),
 
-        new OA\Property(property: 'fuel_tank_size', description: 'Fuel capacity in arbitrary units (FuelTankSize).', type: 'double', example: 25000.0, nullable: true),
+        new OA\Property(property: 'fuel_tank_size', description: 'Fuel capacity in arbitrary units.', type: 'double', example: 25000.0, nullable: true),
     ],
     type: 'object'
 )]
@@ -39,12 +39,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'signal_resilience_min', description: 'Minimum countermeasure resistance factor.', type: 'double', example: 1.0, nullable: true),
         new OA\Property(property: 'signal_resilience_max', description: 'Maximum countermeasure resistance factor.', type: 'double', example: 1.7, nullable: true),
 
-        new OA\Property(property: 'range_max', description: 'Maximum lock acquisition range in meters.', type: 'double', example: 10000.0, nullable: true),
-        new OA\Property(property: 'range_min', description: 'Minimum lock acquisition range in meters.', type: 'double', example: 1700.0, nullable: true),
-        new OA\Property(property: 'angle', description: 'Maximum lock acquisition angle in degrees (cone of acquisition).', type: 'double', example: 60.0, nullable: true),
+        new OA\Property(property: 'range_max', description: 'Maximum lock acquisition range in meters.', type: 'double', example: 10000.0, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'range_min', description: 'Minimum lock acquisition range in meters.', type: 'double', example: 1700.0, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'angle', description: 'Maximum lock acquisition angle in degrees (cone of acquisition).', type: 'double', example: 60.0, nullable: true, x: ['suffix' => ' °']),
 
         new OA\Property(property: 'signal_amplifier', description: 'Signal amplification factor applied during lock acquisition.', type: 'double', example: 2.5, nullable: true),
-        new OA\Property(property: 'increase_rate', description: 'Rate at which lock strength increases per second.', type: 'double', example: 1.6, nullable: true),
+        new OA\Property(property: 'increase_rate', description: 'Rate at which lock strength increases per second.', type: 'double', example: 1.6, nullable: true, x: ['suffix' => ' /s']),
 
         new OA\Property(property: 'allow_dumb_firing', description: 'Whether the missile can be manually fired without a target lock.', type: 'boolean', example: true, nullable: true),
     ],
@@ -60,10 +60,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'requires_launcher', description: 'Whether the missile must be fired from a dedicated launcher/rack.', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'allow_dumb_firing', description: 'Whether the missile can be fired without a lock.', type: 'boolean', example: true, nullable: true),
 
-        new OA\Property(property: 'radius_min', description: 'Minimum explosion damage radius in meters.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'radius_max', description: 'Maximum explosion damage radius in meters.', type: 'double', example: 2.0, nullable: true),
+        new OA\Property(property: 'radius_min', description: 'Minimum explosion damage radius in meters.', type: 'double', example: 1.0, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'radius_max', description: 'Maximum explosion damage radius in meters.', type: 'double', example: 2.0, nullable: true, x: ['suffix' => ' m']),
 
-        new OA\Property(property: 'safety_distance', description: 'Minimum safe distance in meters from the explosion center.', type: 'double', example: 2.0, nullable: true),
+        new OA\Property(property: 'safety_distance', description: 'Minimum safe distance in meters from the explosion center.', type: 'double', example: 2.0, nullable: true, x: ['suffix' => ' m']),
         new OA\Property(property: 'proximity', description: 'Proximity fuse / projectile proximity value (as provided by source data).', type: 'double', example: 0.0, nullable: true),
     ],
     type: 'object'
@@ -73,10 +73,10 @@ use OpenApi\Attributes as OA;
     title: 'Missile Delays',
     description: 'Arming/ignition/collision and lock timing delays.',
     properties: [
-        new OA\Property(property: 'arm_time', description: 'Time in seconds after launch before warhead arms.', type: 'double', example: 0.8, nullable: true),
-        new OA\Property(property: 'ignite_time', description: 'Delay in seconds between launch and engine ignition.', type: 'double', example: 0.1, nullable: true),
-        new OA\Property(property: 'collision_delay_time', description: 'Delay in seconds before collision detection is active after launch.', type: 'double', example: 0.5, nullable: true),
-        new OA\Property(property: 'lock_time', description: 'Time in seconds required to establish a target lock.', type: 'double', example: 0.5, nullable: true),
+        new OA\Property(property: 'arm_time', description: 'Time in seconds after launch before warhead arms.', type: 'double', example: 0.8, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'ignite_time', description: 'Delay in seconds between launch and engine ignition.', type: 'double', example: 0.1, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'collision_delay_time', description: 'Delay in seconds before collision detection is active after launch.', type: 'double', example: 0.5, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'lock_time', description: 'Time in seconds required to establish a target lock.', type: 'double', example: 0.5, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]

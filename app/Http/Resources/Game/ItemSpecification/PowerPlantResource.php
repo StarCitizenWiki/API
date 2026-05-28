@@ -13,10 +13,10 @@ use OpenApi\Attributes as OA;
     title: 'Power Plant',
     description: 'Power plant specifications including power output and segment generation from resource network.',
     properties: [
-        new OA\Property(property: 'power_output', type: 'double', nullable: true),
+        new OA\Property(property: 'power_output', description: 'Power draw value. Deprecated in favor of power_segment_generation for actual output measurement.', type: 'double', nullable: true),
         new OA\Property(
             property: 'power_segment_generation',
-            description: 'Power segment generation rate from resource network. Use this for actual power segment generation.',
+            description: 'Power segment generation rate from the resource network. This is the primary power output metric.',
             type: 'double',
             example: 1000,
             nullable: true

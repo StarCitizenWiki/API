@@ -11,11 +11,12 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'cargo_grid',
     title: 'Cargo Grid',
-    description: 'Cargo grid dimensions derived from inventory container data.',
+    description: 'Cargo grid capacity and dimensions derived from inventory container data.',
     properties: [
-        new OA\Property(property: 'x', type: 'double', nullable: true),
-        new OA\Property(property: 'y', type: 'double', nullable: true),
-        new OA\Property(property: 'z', type: 'double', nullable: true),
+        new OA\Property(property: 'scu', description: 'Cargo capacity in Standard Cargo Units.', type: 'double', nullable: true, x: ['suffix' => ' SCU']),
+        new OA\Property(property: 'x', description: 'Interior width in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'y', description: 'Interior depth in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'z', description: 'Interior height in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
     ],
     type: 'object'
 )]

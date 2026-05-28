@@ -13,14 +13,15 @@ use OpenApi\Attributes as OA;
     title: 'Tractor Beam Force',
     description: 'Push / pull strength and volume scaling for the beam.',
     properties: [
-        new OA\Property(property: 'min', type: 'double', example: 1500, nullable: true),
-        new OA\Property(property: 'max', type: 'double', example: 500000, nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum force output.', type: 'double', example: 1500, nullable: true, x: ['suffix' => ' N']),
+        new OA\Property(property: 'max', description: 'Maximum force output.', type: 'double', example: 500000, nullable: true, x: ['suffix' => ' N']),
         new OA\Property(
             property: 'max_volume',
             description: 'Maximum object volume the beam can handle (µSCU).',
             type: 'double',
             example: 300000,
             nullable: true,
+            x: ['suffix' => ' µSCU']
         ),
         new OA\Property(
             property: 'volume_force_coefficient',
@@ -37,11 +38,11 @@ use OpenApi\Attributes as OA;
     title: 'Tractor Beam Range',
     description: 'Effective distances and cone limits.',
     properties: [
-        new OA\Property(property: 'min', description: 'Minimum effective distance.', type: 'double', example: 0.5, nullable: true),
-        new OA\Property(property: 'max', description: 'Maximum effective distance.', type: 'double', example: 135, nullable: true),
-        new OA\Property(property: 'full_strength_distance', type: 'double', example: 68, nullable: true),
-        new OA\Property(property: 'max_angle', type: 'double', example: 80, nullable: true),
-        new OA\Property(property: 'hit_radius', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum effective distance.', type: 'double', example: 0.5, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'max', description: 'Maximum effective distance.', type: 'double', example: 135, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'full_strength_distance', description: 'Distance at which full beam strength is maintained, in meters.', type: 'double', example: 68, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'max_angle', description: 'Maximum beam cone angle in degrees.', type: 'double', example: 80, nullable: true, x: ['suffix' => ' °']),
+        new OA\Property(property: 'hit_radius', description: 'Beam hit detection radius.', type: 'double', example: 0.1, nullable: true),
     ],
     type: 'object'
 )]
@@ -55,10 +56,11 @@ use OpenApi\Attributes as OA;
             type: 'double',
             example: 2.25,
             nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'safe_range_value_factor',
-            description: 'Safety factor used to determine stable range (typically 0.85).',
+            description: 'Safety factor used to determine stable range.',
             type: 'double',
             example: 0.85,
             nullable: true,
@@ -78,21 +80,21 @@ use OpenApi\Attributes as OA;
     title: 'Cargo Mode Overrides',
     description: 'Stronger cargo-handling profile used when grappling cargo or containers.',
     properties: [
-        new OA\Property(property: 'min_force', type: 'double', example: 9450001, nullable: true),
-        new OA\Property(property: 'max_force', type: 'double', example: 9500001, nullable: true),
-        new OA\Property(property: 'min_acceleration', type: 'double', example: 15, nullable: true),
-        new OA\Property(property: 'max_acceleration', type: 'double', example: 75, nullable: true),
-        new OA\Property(property: 'min_speed', type: 'double', example: 12.25, nullable: true),
-        new OA\Property(property: 'max_speed', type: 'double', example: 24.5, nullable: true),
-        new OA\Property(property: 'acceleration_factor', type: 'double', example: 10, nullable: true),
-        new OA\Property(property: 'degrees_per_action', type: 'double', example: 10, nullable: true),
-        new OA\Property(property: 'max_angular_acceleration', type: 'double', example: 150, nullable: true),
-        new OA\Property(property: 'max_angular_velocity', type: 'double', example: 55, nullable: true),
-        new OA\Property(property: 'degrees_per_action_scroll_wheel', type: 'double', example: 1000, nullable: true),
-        new OA\Property(property: 'force_fraction_rotation', type: 'double', example: 0.1, nullable: true),
-        new OA\Property(property: 'min_distance', type: 'double', example: 0.5, nullable: true),
-        new OA\Property(property: 'max_distance', type: 'double', example: 225, nullable: true),
-        new OA\Property(property: 'full_strength_distance', type: 'double', example: 100, nullable: true),
+        new OA\Property(property: 'min_force', description: 'Cargo mode override for minimum force.', type: 'double', example: 9450001, nullable: true),
+        new OA\Property(property: 'max_force', description: 'Cargo mode override for maximum force.', type: 'double', example: 9500001, nullable: true),
+        new OA\Property(property: 'min_acceleration', description: 'Cargo mode override for minimum acceleration.', type: 'double', example: 15, nullable: true),
+        new OA\Property(property: 'max_acceleration', description: 'Cargo mode override for maximum acceleration.', type: 'double', example: 75, nullable: true),
+        new OA\Property(property: 'min_speed', description: 'Cargo mode override for minimum speed.', type: 'double', example: 12.25, nullable: true),
+        new OA\Property(property: 'max_speed', description: 'Cargo mode override for maximum speed.', type: 'double', example: 24.5, nullable: true),
+        new OA\Property(property: 'acceleration_factor', description: 'Cargo mode override for acceleration factor.', type: 'double', example: 10, nullable: true),
+        new OA\Property(property: 'degrees_per_action', description: 'Cargo mode override for rotation degrees per action.', type: 'double', example: 10, nullable: true),
+        new OA\Property(property: 'max_angular_acceleration', description: 'Cargo mode override for maximum angular acceleration.', type: 'double', example: 150, nullable: true),
+        new OA\Property(property: 'max_angular_velocity', description: 'Cargo mode override for maximum angular velocity.', type: 'double', example: 55, nullable: true),
+        new OA\Property(property: 'degrees_per_action_scroll_wheel', description: 'Cargo mode override for scroll wheel degrees per action.', type: 'double', example: 1000, nullable: true),
+        new OA\Property(property: 'force_fraction_rotation', description: 'Cargo mode override for rotation force fraction.', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'min_distance', description: 'Cargo mode override for minimum distance.', type: 'double', example: 0.5, nullable: true),
+        new OA\Property(property: 'max_distance', description: 'Cargo mode override for maximum distance.', type: 'double', example: 225, nullable: true),
+        new OA\Property(property: 'full_strength_distance', description: 'Cargo mode override for full strength distance.', type: 'double', example: 100, nullable: true),
     ],
     type: 'object'
 )]
@@ -101,17 +103,17 @@ use OpenApi\Attributes as OA;
     title: 'Tractor Beam Towing',
     description: 'Towing parameters emitted under the `towing` key.',
     properties: [
-        new OA\Property(property: 'force', description: 'Towing force (Towing.TowingForce).', type: 'double', example: 100000, nullable: true),
-        new OA\Property(property: 'max_acceleration', description: 'Maximum towing acceleration (Towing.TowingMaxAcceleration).', type: 'double', example: 10, nullable: true),
-        new OA\Property(property: 'max_distance', description: 'Maximum towing distance (Towing.TowingMaxDistance).', type: 'double', example: 100, nullable: true),
-        new OA\Property(property: 'qt_mass_limit', description: 'Quantum tow mass limit (Towing.QuantumTowMassLimit).', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'force', description: 'Towing force.', type: 'double', example: 100000, nullable: true),
+        new OA\Property(property: 'max_acceleration', description: 'Maximum towing acceleration.', type: 'double', example: 10, nullable: true),
+        new OA\Property(property: 'max_distance', description: 'Maximum towing distance.', type: 'double', example: 100, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'qt_mass_limit', description: 'Quantum tow mass limit.', type: 'double', example: 0, nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'tractor_beam',
     title: 'Tractor Beam',
-    description: 'Star Citizen tractor / towing beam gameplay stats from stdItem.TractorBeam.',
+    description: 'Tractor beam and towing gameplay stats.',
     properties: [
         new OA\Property(property: 'force', ref: '#/components/schemas/tractor_beam_force', nullable: true),
         new OA\Property(property: 'range', ref: '#/components/schemas/tractor_beam_range', nullable: true),

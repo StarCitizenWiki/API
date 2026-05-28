@@ -26,7 +26,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'infrared', description: 'Infrared signature end value emitted by the counter measure.', type: 'double', nullable: true),
                 new OA\Property(property: 'cross_section', description: 'Radar cross-section signature end value emitted by the counter measure.', type: 'double', nullable: true),
                 new OA\Property(property: 'electromagnetic', description: 'Electromagnetic signature end value emitted by the counter measure.', type: 'double', nullable: true),
-                new OA\Property(property: 'decibel', description: 'Audio signature (decibel) end value emitted by the counter measure.', type: 'double', nullable: true),
+                new OA\Property(property: 'decibel', description: 'Audio signature (decibel) end value emitted by the counter measure.', type: 'double', nullable: true, x: ['suffix' => ' dB']),
             ],
             type: 'object',
             nullable: true

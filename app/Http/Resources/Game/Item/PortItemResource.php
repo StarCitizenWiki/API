@@ -14,16 +14,16 @@ use OpenApi\Attributes as OA;
     title: 'Equipped Port Item',
     description: 'Item equipped in a port, with basic item data, optional manufacturer, and conditional resource network and emission details.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'class_name', type: 'string'),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the item.', type: 'string'),
+        new OA\Property(property: 'name', description: 'Display name of the item.', type: 'string'),
+        new OA\Property(property: 'class_name', description: 'Internal class name of the item definition.', type: 'string'),
         new OA\Property(property: 'type', description: 'AttachDef@Type (NOITEM_ prefix removed)', type: 'string', nullable: true),
         new OA\Property(property: 'type_label', description: 'Human-readable label for the item type', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type', description: 'AttachDef@SubType', type: 'string', nullable: true),
         new OA\Property(property: 'sub_type_label', description: 'Human-readable label for the item sub-type', type: 'string', nullable: true),
-        new OA\Property(property: 'classification', type: 'string', example: 'FPS.Clothing.Torso', nullable: true),
+        new OA\Property(property: 'classification', description: 'Dot-separated classification path (e.g. FPS.Clothing.Torso).', type: 'string', example: 'FPS.Clothing.Torso', nullable: true),
         new OA\Property(property: 'classification_label', description: 'Human-readable label for the item classification', type: 'string', nullable: true),
-        new OA\Property(property: 'is_base_variant', type: 'boolean'),
+        new OA\Property(property: 'is_base_variant', description: 'Whether this item is the base variant (has no parent variant).', type: 'boolean'),
         new OA\Property(property: 'variant_name', description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"', type: 'string', nullable: true),
         new OA\Property(property: 'link', description: 'API URL for item detail endpoint', type: 'string'),
         new OA\Property(property: 'web_url', description: 'Web URL for item detail page', type: 'string', nullable: true),
@@ -37,7 +37,8 @@ use OpenApi\Attributes as OA;
             property: 'mass',
             description: 'Generated from SEntityRigidPhysicsControllerParams',
             type: 'double',
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' kg']
         ),
         new OA\Property(
             property: 'grade',

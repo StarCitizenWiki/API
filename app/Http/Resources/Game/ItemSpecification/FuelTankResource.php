@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'fill_rate',
-            description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25-10.',
+            description: 'Maximum generation/refill rate in standard resource units per second.',
             type: 'double',
             example: 10,
             nullable: true
@@ -36,7 +36,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'discharge_rate',
-            description: 'Deprecated: Use capacity.',
+            description: 'Deprecated: No longer meaningful.',
             type: 'double',
             nullable: true,
             deprecated: true

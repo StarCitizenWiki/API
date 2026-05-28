@@ -13,11 +13,11 @@ use OpenApi\Attributes as OA;
     title: 'Radar Sensitivity Block',
     description: 'Per-signal sensitivity values as provided by game data.',
     properties: [
-        new OA\Property(property: 'infrared', type: 'double', nullable: true),
-        new OA\Property(property: 'cross_section', type: 'double', nullable: true),
-        new OA\Property(property: 'electromagnetic', type: 'double', nullable: true),
-        new OA\Property(property: 'resource', type: 'double', nullable: true),
-        new OA\Property(property: 'db', type: 'double', nullable: true),
+        new OA\Property(property: 'infrared', description: 'Infrared signature detection sensitivity.', type: 'double', nullable: true),
+        new OA\Property(property: 'cross_section', description: 'Cross-section signature detection sensitivity.', type: 'double', nullable: true),
+        new OA\Property(property: 'electromagnetic', description: 'Electromagnetic signature detection sensitivity.', type: 'double', nullable: true),
+        new OA\Property(property: 'resource', description: 'Resource signature detection sensitivity.', type: 'double', nullable: true),
+        new OA\Property(property: 'db', description: 'Decibel signature detection sensitivity.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -26,16 +26,16 @@ use OpenApi\Attributes as OA;
     title: 'Radar Aim Assist Block',
     description: 'Aim assist range parameters as provided by game data.',
     properties: [
-        new OA\Property(property: 'distance_min_assignment', type: 'double', nullable: true),
-        new OA\Property(property: 'distance_max_assignment', type: 'double', nullable: true),
-        new OA\Property(property: 'outside_range_buffer_distance', type: 'double', nullable: true),
+        new OA\Property(property: 'distance_min_assignment', description: 'Minimum distance for aim assist target assignment in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'distance_max_assignment', description: 'Maximum distance for aim assist target assignment in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'outside_range_buffer_distance', description: 'Buffer distance beyond max range in meters.', type: 'double', nullable: true, x: ['suffix' => ' m']),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'radar',
     title: 'Radar',
-    description: 'Radar specification sourced from stdItem.Radar.',
+    description: 'Radar detection parameters including sensitivity, piercing, and aim assist.',
     properties: [
         // Legacy placeholders (always null in this resource)
         new OA\Property(
@@ -62,34 +62,35 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(
             property: 'cooldown',
-            description: 'Cooldown value (Radar.Cooldown).',
+            description: 'Radar ping cooldown in seconds.',
             type: 'double',
             example: 1.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
 
         new OA\Property(
             property: 'sensitivity',
             ref: '#/components/schemas/radar_sensitivity_block',
-            description: 'General detection sensitivity (Radar.Sensitivity.*).',
+            description: 'Detection sensitivity per signature type.',
             nullable: true
         ),
         new OA\Property(
             property: 'ground_vehicle_sensitivity',
             ref: '#/components/schemas/radar_sensitivity_block',
-            description: 'Ground vehicle detection sensitivity (Radar.GroundVehicleDetectionSensitivity.*).',
+            description: 'Detection sensitivity for ground vehicles, derived from sensitivity modifiers.',
             nullable: true
         ),
         new OA\Property(
             property: 'piercing',
             ref: '#/components/schemas/radar_sensitivity_block',
-            description: 'Signal "piercing" values (Radar.Piercing.*).',
+            description: 'Signal piercing strength per signature type, controlling detection through occlusion.',
             nullable: true
         ),
         new OA\Property(
             property: 'aim_assist',
             ref: '#/components/schemas/radar_aim_assist_block',
-            description: 'Aim assist range parameters (Radar.AimAssist.*).',
+            description: 'Aim assist range parameters.',
             nullable: true
         ),
     ],

@@ -20,49 +20,56 @@ use OpenApi\Attributes as OA;
             description: 'Max cruise velocity for the jump profile (m/s). Standard jumps range ~138,000,000-876,000,000; spline jumps ~400,000-500,000.',
             type: 'double',
             example: 218000000,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m/s']
         ),
         new OA\Property(
             property: 'cooldown_time',
             description: 'Cooldown after exit in seconds; dataset ranges 0-92.07.',
             type: 'double',
             example: 41.4,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'stage_one_accel_rate',
             description: 'Initial acceleration phase (m/s²). Standard ~1.75M; spline as low as 250.',
             type: 'double',
             example: 1750000,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m/s²']
         ),
         new OA\Property(
             property: 'stage_two_accel_rate',
             description: 'Secondary acceleration phase (m/s²). Standard up to 11,000,000; spline around 50,000.',
             type: 'double',
             example: 11000000,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m/s²']
         ),
         new OA\Property(
             property: 'engage_speed',
             description: 'Minimum ship speed to engage QT (m/s).',
             type: 'double',
             example: 1500,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m/s']
         ),
         new OA\Property(
             property: 'interdiction_effect_time',
             description: 'Duration of interdiction effect (seconds).',
             type: 'double',
             example: 5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'calibration_rate',
             description: 'Calibration progress per second.',
             type: 'double',
             example: 1000,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' /s']
         ),
         new OA\Property(
             property: 'min_calibration_requirement',
@@ -83,28 +90,32 @@ use OpenApi\Attributes as OA;
             description: 'Angular tolerance during calibration (degrees).',
             type: 'double',
             example: 5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °']
         ),
         new OA\Property(
             property: 'calibration_warning_angle_limit',
             description: 'Warning threshold for calibration cone (degrees).',
             type: 'double',
             example: 8,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °']
         ),
         new OA\Property(
             property: 'calibration_delay_in_seconds',
             description: 'Delay applied before calibration proceeds (seconds).',
             type: 'double',
             example: 1.5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'spool_up_time',
             description: 'Time to spool from idle to ready (seconds).',
             type: 'double',
             example: 6,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'drive_speed_formatted',

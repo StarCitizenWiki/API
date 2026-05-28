@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'type', description: 'Damage phase bucket.', type: 'string', example: 'impact', nullable: true),
         new OA\Property(property: 'name', description: 'Damage type name (lowercase).', type: 'string', example: 'physical', nullable: true),
-        new OA\Property(property: 'damage', type: 'double', example: 11.5, nullable: true),
+        new OA\Property(property: 'damage', description: 'Damage value.', type: 'double', example: 11.5, nullable: true),
     ],
     type: 'object'
 )]
@@ -24,14 +24,14 @@ use OpenApi\Attributes as OA;
     title: 'Vehicle Weapon Mode',
     description: 'Fire mode entry as emitted by the resource. Type-specific fields are only present when the mode type matches (e.g. beam fields only appear for type=beam).',
     properties: [
-        new OA\Property(property: 'mode', type: 'string', example: 'Rapid', nullable: true),
-        new OA\Property(property: 'localised', type: 'string', example: '[AUTO]', nullable: true),
-        new OA\Property(property: 'type', type: 'string', example: 'rapid', nullable: true),
-        new OA\Property(property: 'rpm', type: 'double', example: 925, nullable: true),
+        new OA\Property(property: 'mode', description: 'Mode name.', type: 'string', example: 'Rapid', nullable: true),
+        new OA\Property(property: 'localised', description: 'Localized label.', type: 'string', example: '[AUTO]', nullable: true),
+        new OA\Property(property: 'type', description: 'Fire type.', type: 'string', example: 'rapid', nullable: true),
+        new OA\Property(property: 'rpm', description: 'Rounds per minute.', type: 'double', example: 925, nullable: true),
         new OA\Property(property: 'rounds_per_minute', description: 'Deprecated: Use rpm.', type: 'double', example: 925, nullable: true, deprecated: true),
-        new OA\Property(property: 'ammo_per_shot', type: 'integer', example: 1, nullable: true),
-        new OA\Property(property: 'pellets_per_shot', type: 'integer', example: 1, nullable: true),
-        new OA\Property(property: 'damage_per_second', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'ammo_per_shot', description: 'Ammo consumed per shot.', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'pellets_per_shot', description: 'Pellets per shot.', type: 'integer', example: 1, nullable: true),
+        new OA\Property(property: 'damage_per_second', description: 'Damage per second.', type: 'double', example: 0, nullable: true),
 
         // Heat / wear (projectile modes)
         new OA\Property(property: 'heat_per_shot', description: 'Heat generated per shot (projectile modes).', type: 'double', nullable: true),
@@ -46,16 +46,16 @@ use OpenApi\Attributes as OA;
 
         // Burst
         new OA\Property(property: 'shot_count', description: 'Number of shots per burst (burst mode).', type: 'integer', nullable: true),
-        new OA\Property(property: 'cooldown_time', description: 'Cooldown time between bursts in seconds (burst mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'cooldown_time', description: 'Cooldown time between bursts in seconds (burst mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
 
         // Sequence
         new OA\Property(property: 'sequence_mode', description: 'Sequence mode identifier (sequence mode).', type: 'string', nullable: true),
 
         // Beam (combat)
-        new OA\Property(property: 'charge_up_time', description: 'Beam spool-up time in seconds (beam mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'charge_down_time', description: 'Beam spool-down time in seconds (beam mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'full_damage_range', description: 'Range at which full damage is applied (beam mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'zero_damage_range', description: 'Range at which damage drops to zero (beam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'charge_up_time', description: 'Beam spool-up time in seconds (beam mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'charge_down_time', description: 'Beam spool-down time in seconds (beam mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'full_damage_range', description: 'Range at which full damage is applied (beam mode).', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'zero_damage_range', description: 'Range at which damage drops to zero (beam mode).', type: 'double', nullable: true, x: ['suffix' => ' m']),
         new OA\Property(property: 'hit_type', description: 'Beam hit registration type (beam mode).', type: 'string', nullable: true),
         new OA\Property(property: 'hit_radius', description: 'Beam impact radius (beam / salvage mode).', type: 'double', nullable: true),
         new OA\Property(property: 'min_energy_draw', description: 'Minimum power draw (beam / salvage mode).', type: 'double', nullable: true),
@@ -68,10 +68,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'medical_ammo_type', description: 'Medical ammo type tag (healingbeam mode).', type: 'string', nullable: true),
         new OA\Property(property: 'external_healing', description: 'External healing mode (healingbeam mode).', type: 'string', nullable: true),
         new OA\Property(property: 'toggle', description: 'Toggle mode flag (healingbeam mode).', type: 'boolean', nullable: true),
-        new OA\Property(property: 'max_distance', description: 'Maximum healing distance (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'max_distance', description: 'Maximum healing distance (healingbeam mode).', type: 'double', nullable: true, x: ['suffix' => ' m']),
         new OA\Property(property: 'max_sensor_distance', description: 'Maximum sensor range for target detection (healingbeam mode).', type: 'double', nullable: true),
         new OA\Property(property: 'auto_dosage_modifier', description: 'Auto-dosage BDL modifier (healingbeam mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'healing_break_time', description: 'Time before healing breaks in seconds (healingbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'healing_break_time', description: 'Time before healing breaks in seconds (healingbeam mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
         new OA\Property(property: 'max_dose_for_auto_adjustment', description: 'Max dose for auto-adjustment (healingbeam mode).', type: 'double', nullable: true),
         new OA\Property(property: 'battery_drain_per_second', description: 'Battery drain per second (healingbeam mode).', type: 'double', nullable: true),
 
@@ -80,16 +80,16 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'max_health_repair_rate', description: 'Max hull repair rate (salvage mode).', type: 'double', nullable: true),
         new OA\Property(property: 'max_damage_map_repair_rate', description: 'Max damage-map repair rate (salvage mode).', type: 'double', nullable: true),
         new OA\Property(property: 'health_to_ammo_ratio', description: 'Health restored per ammo unit (salvage mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'ramp_up_time', description: 'Beam ramp-up time in seconds (salvage mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'ramp_down_time', description: 'Beam ramp-down time in seconds (salvage mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'ramp_up_time', description: 'Beam ramp-up time in seconds (salvage mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'ramp_down_time', description: 'Beam ramp-down time in seconds (salvage mode).', type: 'double', nullable: true, x: ['suffix' => ' s']),
         new OA\Property(property: 'max_vehicle_damage_ratio', description: 'Max vehicle damage ratio (salvage mode).', type: 'double', nullable: true),
         new OA\Property(property: 'repaired_material_ratio', description: 'Ratio of repaired material (salvage mode).', type: 'double', nullable: true),
         new OA\Property(property: 'salvage_can_fire_on_full', description: 'Can fire when target is at full health (salvage mode).', type: 'boolean', nullable: true),
         new OA\Property(property: 'damage_threshold', description: 'Damage threshold for salvage operations (salvage mode).', type: 'double', nullable: true),
 
         // Collection beam (mining)
-        new OA\Property(property: 'minimum_distance', description: 'Minimum mining distance (collectionbeam mode).', type: 'double', nullable: true),
-        new OA\Property(property: 'maximum_distance', description: 'Maximum mining distance (collectionbeam mode).', type: 'double', nullable: true),
+        new OA\Property(property: 'minimum_distance', description: 'Minimum mining distance (collectionbeam mode).', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'maximum_distance', description: 'Maximum mining distance (collectionbeam mode).', type: 'double', nullable: true, x: ['suffix' => ' m']),
         new OA\Property(property: 'beam_radius', description: 'Collection beam radius (collectionbeam mode).', type: 'double', nullable: true),
         new OA\Property(property: 'collection_rate', description: 'Ore collection rate (collectionbeam mode).', type: 'double', nullable: true),
         new OA\Property(property: 'energy_draw', description: 'Power consumption (collectionbeam mode).', type: 'double', nullable: true),
@@ -105,24 +105,24 @@ use OpenApi\Attributes as OA;
     title: 'Vehicle Weapon Damage Types',
     description: 'Damage values split by type.',
     properties: [
-        new OA\Property(property: 'physical', type: 'double', nullable: true),
-        new OA\Property(property: 'energy', type: 'double', nullable: true),
-        new OA\Property(property: 'distortion', type: 'double', nullable: true),
-        new OA\Property(property: 'thermal', type: 'double', nullable: true),
-        new OA\Property(property: 'biochemical', type: 'double', nullable: true),
-        new OA\Property(property: 'stun', type: 'double', nullable: true),
+        new OA\Property(property: 'physical', description: 'Physical damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'energy', description: 'Energy damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'distortion', description: 'Distortion damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal', description: 'Thermal damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'biochemical', description: 'Biochemical damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'stun', description: 'Stun damage.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
 #[OA\Schema(
     schema: 'vehicle_weapon_damage',
     title: 'Vehicle Weapon Damage',
-    description: 'Damage summary block from stdItem.Weapon plus per-type alpha and dps from the primary mode.',
+    description: 'Damage summary and per-type alpha breakdown.',
     properties: [
-        new OA\Property(property: 'sustained_60s', type: 'double', nullable: true),
-        new OA\Property(property: 'burst', type: 'double', nullable: true),
-        new OA\Property(property: 'alpha_total', type: 'double', nullable: true),
-        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'sustained_60s', description: 'Sustained damage over 60 seconds.', type: 'double', nullable: true),
+        new OA\Property(property: 'burst', description: 'Burst damage.', type: 'double', nullable: true),
+        new OA\Property(property: 'alpha_total', description: 'Total alpha damage per shot.', type: 'double', nullable: true),
+        new OA\Property(property: 'max', description: 'Maximum damage per magazine.', type: 'double', nullable: true),
         new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'alpha', ref: '#/components/schemas/vehicle_weapon_damage_types', nullable: true),
     ],
@@ -132,13 +132,13 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_spread',
     title: 'Vehicle Weapon Spread',
     properties: [
-        new OA\Property(property: 'min', type: 'double', nullable: true),
-        new OA\Property(property: 'max', type: 'double', nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum spread angle.', type: 'double', nullable: true, x: ['suffix' => ' °']),
+        new OA\Property(property: 'max', description: 'Maximum spread angle.', type: 'double', nullable: true, x: ['suffix' => ' °']),
         new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
         new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'first_attack', type: 'double', nullable: true),
-        new OA\Property(property: 'per_attack', type: 'double', nullable: true),
-        new OA\Property(property: 'decay', type: 'double', nullable: true),
+        new OA\Property(property: 'first_attack', description: 'Spread added on the first shot.', type: 'double', nullable: true, x: ['suffix' => ' °']),
+        new OA\Property(property: 'per_attack', description: 'Spread added per subsequent shot.', type: 'double', nullable: true, x: ['suffix' => ' °']),
+        new OA\Property(property: 'decay', description: 'Rate at which spread recovers between shots.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -146,8 +146,8 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_barrel_spin_time',
     title: 'Vehicle Weapon Barrel Spin Time',
     properties: [
-        new OA\Property(property: 'up', type: 'double', nullable: true),
-        new OA\Property(property: 'down', type: 'double', nullable: true),
+        new OA\Property(property: 'up', description: 'Spin-up time in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'down', description: 'Spin-down time in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -155,12 +155,12 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_heat',
     title: 'Vehicle Weapon Heat',
     properties: [
-        new OA\Property(property: 'per_shot', type: 'double', nullable: true),
-        new OA\Property(property: 'cooling_delay', type: 'double', nullable: true),
-        new OA\Property(property: 'cooling_per_second', type: 'double', nullable: true),
-        new OA\Property(property: 'overheat_max_shots', type: 'double', nullable: true),
-        new OA\Property(property: 'overheat_max_time', type: 'double', nullable: true),
-        new OA\Property(property: 'overheat_cooldown', type: 'double', nullable: true),
+        new OA\Property(property: 'per_shot', description: 'Heat generated per shot.', type: 'double', nullable: true),
+        new OA\Property(property: 'cooling_delay', description: 'Delay before cooling begins in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'cooling_per_second', description: 'Cooling rate per second.', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_max_shots', description: 'Number of shots to trigger overheat.', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_max_time', description: 'Time to trigger overheat in seconds.', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_cooldown', description: 'Overheat recovery time in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -168,11 +168,11 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_capacitor',
     title: 'Vehicle Weapon Capacitor',
     properties: [
-        new OA\Property(property: 'max_ammo_load', type: 'double', nullable: true),
-        new OA\Property(property: 'regen_per_second', type: 'double', nullable: true),
-        new OA\Property(property: 'cooldown', type: 'double', nullable: true),
-        new OA\Property(property: 'requested_ammo_load', type: 'double', nullable: true),
-        new OA\Property(property: 'costs_per_shot', type: 'double', nullable: true),
+        new OA\Property(property: 'max_ammo_load', description: 'Maximum capacitor ammo load.', type: 'double', nullable: true),
+        new OA\Property(property: 'regen_per_second', description: 'Capacitor regeneration per second.', type: 'double', nullable: true),
+        new OA\Property(property: 'cooldown', description: 'Capacitor cooldown in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'requested_ammo_load', description: 'Requested ammo load from capacitor.', type: 'double', nullable: true),
+        new OA\Property(property: 'costs_per_shot', description: 'Capacitor cost per shot.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -180,10 +180,10 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_charge',
     title: 'Vehicle Weapon Charge',
     properties: [
-        new OA\Property(property: 'time', type: 'double', nullable: true),
-        new OA\Property(property: 'overcharge_time', type: 'double', nullable: true),
-        new OA\Property(property: 'overcharged_time', type: 'double', nullable: true),
-        new OA\Property(property: 'cooldown_time', type: 'double', nullable: true),
+        new OA\Property(property: 'time', description: 'Time to reach full charge in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'overcharge_time', description: 'Overcharge window in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'overcharged_time', description: 'Duration of overcharged state in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'cooldown_time', description: 'Cooldown after firing in seconds.', type: 'double', nullable: true, x: ['suffix' => ' s']),
         new OA\Property(property: 'auto_fire', description: 'Auto-fire when fully charged.', type: 'boolean', nullable: true),
         new OA\Property(property: 'require_full_charge', description: 'Must be fully charged before firing.', type: 'boolean', nullable: true),
         new OA\Property(property: 'auto_charge', description: 'Auto-charges when held.', type: 'boolean', nullable: true),
@@ -195,9 +195,9 @@ use OpenApi\Attributes as OA;
     schema: 'vehicle_weapon_charge_modifier',
     title: 'Vehicle Weapon Charge Modifier',
     properties: [
-        new OA\Property(property: 'damage', type: 'double', nullable: true),
-        new OA\Property(property: 'fire_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'ammo_speed', type: 'double', nullable: true),
+        new OA\Property(property: 'damage', description: 'Damage multiplier at full charge.', type: 'double', nullable: true),
+        new OA\Property(property: 'fire_rate', description: 'Fire rate multiplier at full charge.', type: 'double', nullable: true),
+        new OA\Property(property: 'ammo_speed', description: 'Projectile speed multiplier at full charge.', type: 'double', nullable: true),
         new OA\Property(property: 'fire_rate_override', description: 'Override fire rate at full charge.', type: 'double', nullable: true),
         new OA\Property(property: 'pellets_override', description: 'Override pellet count at full charge.', type: 'integer', nullable: true),
         new OA\Property(property: 'burst_shots_override', description: 'Override burst shot count at full charge.', type: 'integer', nullable: true),
@@ -208,28 +208,28 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'vehicle_weapon',
     title: 'Vehicle Weapon',
-    description: 'Vehicle weapon stats derived from stdItem.Weapon and stdItem.Ammunition. Conditional blocks (spread, barrel_spin_time, heat, capacitor, charge, charge_modifier) may be omitted when source data is absent.',
+    description: 'Vehicle weapon stats including damage, fire modes, spread, heat, and capacitor data.',
     properties: [
         new OA\Property(
             property: 'class',
-            description: 'Weapon class from stdItem.Weapon.WeaponClass.',
+            description: 'Weapon class.',
             type: 'string',
             example: 'LaserCannon',
             nullable: true
         ),
         new OA\Property(
             property: 'type',
-            description: 'Item type from DescriptionData.Item Type.',
+            description: 'Item type.',
             type: 'string',
             example: 'Weapon',
             nullable: true
         ),
-        new OA\Property(property: 'capacity', description: 'Ammunition capacity (stdItem.Ammunition.Capacity).', type: 'integer', example: 50, nullable: true),
-        new OA\Property(property: 'range', description: 'Effective range in meters (stdItem.Weapon.EffectiveRange).', type: 'double', example: 1800, nullable: true),
+        new OA\Property(property: 'capacity', description: 'Ammunition capacity.', type: 'integer', example: 50, nullable: true),
+        new OA\Property(property: 'range', description: 'Effective range in meters.', type: 'double', example: 1800, nullable: true, x: ['suffix' => ' m']),
 
         new OA\Property(
             property: 'rpm',
-            description: 'Primary mode rounds per minute (Modes.0.RoundsPerMinute).',
+            description: 'Primary mode rounds per minute.',
             type: 'double',
             example: 400,
             nullable: true
@@ -293,8 +293,8 @@ use OpenApi\Attributes as OA;
             property: 'magazine_volume',
             description: 'Total cargo volume consumed by a full magazine of ammunition. Derived from capacity x conversion rate.',
             properties: [
-                new OA\Property(property: 'micro_scu', description: 'Volume in microSCU.', type: 'integer', example: 574560, nullable: true),
-                new OA\Property(property: 'scu', description: 'Volume in SCU.', type: 'double', example: 0.574560, nullable: true),
+                new OA\Property(property: 'micro_scu', description: 'Volume in microSCU.', type: 'integer', example: 574560, nullable: true, x: ['suffix' => ' µSCU']),
+                new OA\Property(property: 'scu', description: 'Volume in SCU.', type: 'double', example: 0.574560, nullable: true, x: ['suffix' => ' SCU']),
             ],
             type: 'object',
             nullable: true

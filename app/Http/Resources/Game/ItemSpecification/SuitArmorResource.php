@@ -15,8 +15,8 @@ use OpenApi\Attributes as OA;
     description: 'Per-damage-type resistance entry as returned by the resource.',
     properties: [
         new OA\Property(property: 'type', description: 'Damage type identifier (lowercase).', type: 'string', example: 'physical', nullable: true),
-        new OA\Property(property: 'multiplier', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'threshold', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'multiplier', description: 'Damage multiplier. Incoming damage is scaled by this value (1.0 = no resistance, <1.0 = reduced damage).', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'threshold', description: 'Damage threshold before resistance applies.', type: 'double', example: 0, nullable: true),
     ],
     type: 'object'
 )]
@@ -42,26 +42,26 @@ use OpenApi\Attributes as OA;
     title: 'Suit Armor Damage Resistance Map',
     description: 'Flattened resistance values and deltas (multiplier change vs 1.0). Returned for convenience.',
     properties: [
-        new OA\Property(property: 'impact', type: 'double', example: 0.6925, nullable: true),
-        new OA\Property(property: 'impact_change', type: 'double', example: -0.3075, nullable: true),
+        new OA\Property(property: 'impact', description: 'Impact damage multiplier.', type: 'double', example: 0.6925, nullable: true),
+        new OA\Property(property: 'impact_change', description: 'Impact multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3075, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'physical', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'physical_change', type: 'double', example: -0.3, nullable: true),
+        new OA\Property(property: 'physical', description: 'Physical damage multiplier.', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'physical_change', description: 'Physical multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'energy', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'energy_change', type: 'double', example: -0.3, nullable: true),
+        new OA\Property(property: 'energy', description: 'Energy damage multiplier.', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'energy_change', description: 'Energy multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'distortion', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'distortion_change', type: 'double', example: -0.3, nullable: true),
+        new OA\Property(property: 'distortion', description: 'Distortion damage multiplier.', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'distortion_change', description: 'Distortion multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'thermal', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'thermal_change', type: 'double', example: -0.3, nullable: true),
+        new OA\Property(property: 'thermal', description: 'Thermal damage multiplier.', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'thermal_change', description: 'Thermal multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'biochemical', type: 'double', example: 0.7, nullable: true),
-        new OA\Property(property: 'biochemical_change', type: 'double', example: -0.3, nullable: true),
+        new OA\Property(property: 'biochemical', description: 'Biochemical damage multiplier.', type: 'double', example: 0.7, nullable: true),
+        new OA\Property(property: 'biochemical_change', description: 'Biochemical multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.3, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'stun', type: 'double', example: 0.55, nullable: true),
-        new OA\Property(property: 'stun_change', type: 'double', example: -0.45, nullable: true),
+        new OA\Property(property: 'stun', description: 'Stun damage multiplier.', type: 'double', example: 0.55, nullable: true),
+        new OA\Property(property: 'stun_change', description: 'Stun multiplier delta from 1.0 (negative = resistance).', type: 'double', example: -0.45, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
     ],
     type: 'object'
 )]
@@ -158,7 +158,8 @@ use OpenApi\Attributes as OA;
             description: 'G-force tolerance modifier from root. Positive increases tolerance, negative reduces it.',
             type: 'double',
             example: 0.9,
-            nullable: true
+            nullable: true,
+            x: ['tabulator-formatter' => 'pct']
         ),
     ],
     type: 'object'

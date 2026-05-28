@@ -14,9 +14,9 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Attachment RGB Color',
     description: 'RGB color triplet as provided by the game data.',
     properties: [
-        new OA\Property(property: 'r', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'g', type: 'double', example: 0.0, nullable: true),
-        new OA\Property(property: 'b', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'r', description: 'Red component.', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'g', description: 'Green component.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'b', description: 'Blue component.', type: 'double', example: 0.0, nullable: true),
     ],
     type: 'object'
 )]
@@ -24,15 +24,15 @@ use OpenApi\Attributes as OA;
     schema: 'weapon_attachment_iron_sight',
     title: 'Weapon Attachment Iron Sight',
     properties: [
-        new OA\Property(property: 'default_range', type: 'double', nullable: true),
-        new OA\Property(property: 'max_range', type: 'double', nullable: true),
-        new OA\Property(property: 'range_increment', type: 'double', nullable: true),
-        new OA\Property(property: 'auto_zeroing_time', type: 'double', nullable: true),
-        new OA\Property(property: 'zoom_scale', type: 'double', nullable: true),
-        new OA\Property(property: 'zoom_time_scale', type: 'double', nullable: true),
+        new OA\Property(property: 'default_range', description: 'Default zeroing range in meters.', type: 'double', nullable: true),
+        new OA\Property(property: 'max_range', description: 'Maximum zeroing range in meters.', type: 'double', nullable: true),
+        new OA\Property(property: 'range_increment', description: 'Zeroing range increment in meters.', type: 'double', nullable: true),
+        new OA\Property(property: 'auto_zeroing_time', description: 'Auto-zeroing time in seconds.', type: 'double', nullable: true),
+        new OA\Property(property: 'zoom_scale', description: 'Zoom magnification scale.', type: 'double', nullable: true),
+        new OA\Property(property: 'zoom_time_scale', description: 'Zoom transition time scale.', type: 'double', nullable: true),
         new OA\Property(
             property: 'zoom_time_change',
-            description: 'Computed as `zoom_time_scale - 1`.',
+            description: 'Zoom transition time change.',
             type: 'double',
             nullable: true
         ),
@@ -43,9 +43,9 @@ use OpenApi\Attributes as OA;
     schema: 'weapon_attachment_magazine',
     title: 'Weapon Attachment Magazine',
     properties: [
-        new OA\Property(property: 'initial_ammo_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_ammo_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_restock_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'initial_ammo_count', description: 'Initial ammo count.', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_ammo_count', description: 'Maximum ammo count.', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_restock_count', description: 'Maximum restock count.', type: 'integer', nullable: true),
     ],
     type: 'object'
 )]
@@ -53,9 +53,9 @@ use OpenApi\Attributes as OA;
     schema: 'weapon_attachment_laser_pointer',
     title: 'Weapon Attachment Laser Pointer',
     properties: [
-        new OA\Property(property: 'range', type: 'double', nullable: true),
+        new OA\Property(property: 'range', description: 'Laser range in meters.', type: 'double', nullable: true),
         new OA\Property(property: 'color', ref: '#/components/schemas/weapon_attachment_rgb_color', nullable: true),
-        new OA\Property(property: 'color_css', type: 'string', nullable: true),
+        new OA\Property(property: 'color_css', description: 'CSS color string.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
@@ -64,11 +64,11 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Attachment Flashlight Profile',
     description: 'Single flashlight profile (typically keyed as `narrow` or `wide`).',
     properties: [
-        new OA\Property(property: 'port_name', type: 'string', nullable: true),
-        new OA\Property(property: 'name', type: 'string', nullable: true),
-        new OA\Property(property: 'light_type', type: 'string', nullable: true),
-        new OA\Property(property: 'light_radius', type: 'double', nullable: true),
-        new OA\Property(property: 'intensity', type: 'double', nullable: true),
+        new OA\Property(property: 'port_name', description: 'Light port name.', type: 'string', nullable: true),
+        new OA\Property(property: 'name', description: 'Profile name.', type: 'string', nullable: true),
+        new OA\Property(property: 'light_type', description: 'Light type.', type: 'string', nullable: true),
+        new OA\Property(property: 'light_radius', description: 'Light radius in meters.', type: 'double', nullable: true),
+        new OA\Property(property: 'intensity', description: 'Light intensity.', type: 'double', nullable: true),
         new OA\Property(property: 'color', ref: '#/components/schemas/weapon_attachment_rgb_color', nullable: true),
         new OA\Property(property: 'color_css', type: 'string', nullable: true),
     ],
@@ -86,10 +86,10 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Attachment Barrel Attachment',
     description: 'Barrel attachment map. Keys reflect the raw barrel fields (snake_cased), plus `attachment_point` and `type` injected by the resource.',
     properties: [
-        new OA\Property(property: 'attachment_point', type: 'string', nullable: true),
+        new OA\Property(property: 'attachment_point', description: 'Attachment point name.', type: 'string', nullable: true),
         new OA\Property(
             property: 'type',
-            description: 'Currently mirrors `attachment_point` (overrides any snake-cased barrel `Type` field).',
+            description: 'Barrel attachment type.',
             type: 'string',
             nullable: true
         ),
@@ -99,7 +99,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'weapon_attachment',
     title: 'Weapon Attachment',
-    description: 'Weapon attachment details derived from stdItem.WeaponAttachment. Only non-empty blocks are returned.',
+    description: 'Weapon attachment details. Only non-empty blocks are returned.',
     properties: [
         new OA\Property(property: 'iron_sight', ref: '#/components/schemas/weapon_attachment_iron_sight', nullable: true),
         new OA\Property(property: 'laser_pointer', ref: '#/components/schemas/weapon_attachment_laser_pointer', nullable: true),

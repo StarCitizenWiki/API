@@ -14,11 +14,11 @@ use OpenApi\Attributes as OA;
     title: 'Item EM / IR Emission',
     description: 'EM and IR Emission calculated from Resource Network',
     properties: [
-        new OA\Property(property: 'ir', description: 'IR emission', type: 'double', nullable: true),
-        new OA\Property(property: 'em_min', description: 'Minimum EM emission', type: 'double', nullable: true),
-        new OA\Property(property: 'em_max', description: 'Maximum EM emission', type: 'double', nullable: true),
-        new OA\Property(property: 'em_decay', description: 'EM decay', type: 'double', nullable: true),
-        new OA\Property(property: 'em_per_segment', description: 'EM decay per segment', type: 'double', nullable: true),
+        new OA\Property(property: 'ir', description: 'Infrared (thermal) emission signature. Higher values make the item easier to detect.', type: 'double', nullable: true, x: ['suffix' => ' IR']),
+        new OA\Property(property: 'em_min', description: 'Electromagnetic emission at idle/low power (Maximum * minConsumptionFraction * lowPowerRangeModifier).', type: 'double', nullable: true, x: ['suffix' => ' EM']),
+        new OA\Property(property: 'em_max', description: 'Electromagnetic emission at full power from EMSignature.nominalSignature.', type: 'double', nullable: true, x: ['suffix' => ' EM']),
+        new OA\Property(property: 'em_decay', description: 'Rate at which EM drops when the item powers down (typically 0.15).', type: 'double', nullable: true, x: ['suffix' => ' /s']),
+        new OA\Property(property: 'em_per_segment', description: 'EM per power segment unit (PowerPlant only: Maximum / Generation.Power).', type: 'double', nullable: true, x: ['suffix' => ' EM/Seg']),
     ],
     type: 'object'
 )]

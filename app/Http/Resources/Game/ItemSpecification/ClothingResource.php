@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'clothing',
     title: 'Clothing',
-    description: 'Wearable clothing like shirts, pants, gloves, etc., little to no damage reduction capabilities. Generated from SCItemClothingParams.',
+    description: 'DEPRECATED: Use suit_armor instead. Wearable clothing like shirts, pants, gloves, etc., little to no damage reduction capabilities. Generated from SCItemClothingParams.',
     properties: [
         new OA\Property(
             property: 'clothing_type',
@@ -82,7 +82,8 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
     ],
-    type: 'object'
+    type: 'object',
+    deprecated: true
 )]
 class ClothingResource extends AbstractBaseResource
 {

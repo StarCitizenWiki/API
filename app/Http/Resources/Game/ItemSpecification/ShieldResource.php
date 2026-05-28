@@ -13,8 +13,8 @@ use OpenApi\Attributes as OA;
     title: 'Shield Damage Range',
     description: 'Minimum/maximum absorption or resistance values for a given damage type.',
     properties: [
-        new OA\Property(property: 'min', type: 'double', example: 0.0, nullable: true),
-        new OA\Property(property: 'max', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'min', description: 'Minimum value.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'max', description: 'Maximum value.', type: 'double', example: 1.0, nullable: true),
     ],
     type: 'object'
 )]
@@ -39,23 +39,23 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'regen_rate',
-            description: 'Reserve pool max regen rate (ReservePool.MaxShieldRegen).',
+            description: 'Reserve pool maximum regeneration rate.',
             type: 'double',
             example: 211,
             nullable: true
         ),
         new OA\Property(
             property: 'regen_time',
-            description: 'Reserve pool regeneration time (ReservePool.RegenerationTime).',
+            description: 'Reserve pool regeneration time in seconds.',
             type: 'double',
             example: 20.0,
             nullable: true
         ),
 
-        new OA\Property(property: 'initial_health_ratio', type: 'double', example: 1, nullable: true),
-        new OA\Property(property: 'max_health_ratio', type: 'double', example: 1, nullable: true),
-        new OA\Property(property: 'regen_rate_ratio', type: 'double', example: 1, nullable: true),
-        new OA\Property(property: 'drain_rate_ratio', type: 'double', example: 2.5, nullable: true),
+        new OA\Property(property: 'initial_health_ratio', description: 'Reserve pool initial health ratio.', type: 'double', example: 1, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'max_health_ratio', description: 'Reserve pool maximum health ratio.', type: 'double', example: 1, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'regen_rate_ratio', description: 'Reserve pool regeneration rate ratio.', type: 'double', example: 1, nullable: true),
+        new OA\Property(property: 'drain_rate_ratio', description: 'Reserve pool drain rate ratio.', type: 'double', example: 2.5, nullable: true),
     ],
     type: 'object'
 )]
@@ -64,8 +64,8 @@ use OpenApi\Attributes as OA;
     title: 'Shield Regen Delay',
     description: 'Delay before shield regeneration starts.',
     properties: [
-        new OA\Property(property: 'downed', description: 'Delay after shields are fully downed.', type: 'double', example: 8.47, nullable: true),
-        new OA\Property(property: 'damage', description: 'Delay after taking damage (without being fully downed).', type: 'double', example: 4.24, nullable: true),
+        new OA\Property(property: 'downed', description: 'Delay after shields are fully downed.', type: 'double', example: 8.47, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'damage', description: 'Delay after taking damage (without being fully downed).', type: 'double', example: 4.24, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -76,31 +76,34 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'max_health',
-            description: 'Total shield hit points across all faces (MaxShieldHealth).',
+            description: 'Total shield hit points across all faces.',
             type: 'double',
             example: 4410,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' HP']
         ),
         new OA\Property(
             property: 'regen_rate',
-            description: 'Maximum shield regeneration per second (MaxShieldRegen).',
+            description: 'Maximum shield regeneration per second.',
             type: 'double',
             example: 211,
             nullable: true
         ),
         new OA\Property(
             property: 'regen_time',
-            description: 'Shield regeneration time in seconds (RegenerationTime), rounded to 2 decimals.',
+            description: 'Shield regeneration time in seconds.',
             type: 'double',
             example: 20.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'decay_ratio',
-            description: 'Portion of regen lost when shield is taking damage (DecayRatio).',
+            description: 'Portion of regeneration lost when shield is taking damage.',
             type: 'double',
             example: 0.25,
-            nullable: true
+            nullable: true,
+            x: ['tabulator-formatter' => 'pct']
         ),
 
         new OA\Property(
@@ -116,7 +119,7 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(
             property: 'electrical_charge_damage_resistance',
-            description: 'Additional resistance applied to electrical/EMP style damage (ElectricalChargeDamageResistance).',
+            description: 'Additional resistance to electrical charge damage.',
             type: 'double',
             example: 0,
             nullable: true
@@ -125,13 +128,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'absorption',
             ref: '#/components/schemas/shield_damage_map',
-            description: 'Absorption ranges by damage type (from Shield.Absorption.*). Null when no absorption block exists.',
+            description: 'Absorption ranges by damage type.',
             nullable: true
         ),
         new OA\Property(
             property: 'resistance',
             ref: '#/components/schemas/shield_damage_map',
-            description: 'Resistance ranges by damage type (from Shield.Resistance.*). Null when no resistance block exists.',
+            description: 'Resistance ranges by damage type.',
             nullable: true
         ),
 

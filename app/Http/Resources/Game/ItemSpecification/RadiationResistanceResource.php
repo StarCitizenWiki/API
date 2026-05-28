@@ -16,13 +16,13 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'maximum_radiation_capacity',
-            description: 'MaximumRadiationCapacity attribute (e.g. radiation protection).',
+            description: 'Maximum radiation capacity.',
             type: 'double',
             nullable: true
         ),
         new OA\Property(
             property: 'radiation_dissipation_rate',
-            description: 'RadiationDissipationRate attribute (scrub rate).',
+            description: 'Radiation dissipation rate.',
             type: 'double',
             nullable: true
         ),

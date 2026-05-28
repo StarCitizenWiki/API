@@ -25,14 +25,16 @@ use OpenApi\Attributes as OA;
             description: 'Maximum effective distortion radius in meters. Current items range from 400m (S1) up to 1100m (large ship EMPs).',
             type: 'double',
             example: 400.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'min_emp_radius',
             description: 'Inner radius (m) guaranteed to receive full EMP effect before falloff begins. Presently 150m-250m.',
             type: 'double',
             example: 150.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
 
         new OA\Property(
@@ -40,21 +42,24 @@ use OpenApi\Attributes as OA;
             description: 'Seconds required to fully charge before firing. Current game data ranges 12-26 seconds across EMP sizes.',
             type: 'double',
             example: 12.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'unleash_duration',
             description: 'Duration in seconds the pulse is actively released after charging completes. Values are either 0.75s (small) or 1.5s (large).',
             type: 'double',
             example: 0.75,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'cooldown_duration',
             description: 'Cooldown in seconds before charging can restart. Current data spans 6-40 seconds depending on size and variant.',
             type: 'double',
             example: 6.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
     ],
     type: 'object'

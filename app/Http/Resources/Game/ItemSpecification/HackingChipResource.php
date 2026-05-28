@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'max_charges',
-            description: 'Number of uses before the chip depletes. Current game data sets this to 3 on all chips.',
+            description: 'Number of uses before the chip depletes.',
             type: 'integer',
             example: 3,
             nullable: true
@@ -32,7 +32,8 @@ use OpenApi\Attributes as OA;
             description: 'Probability (0-1) that a hack attempt fails or produces an error. Higher values indicate more risk. Example 0.9 = 90% error chance.',
             type: 'double',
             example: 0.9,
-            nullable: true
+            nullable: true,
+            x: ['tabulator-formatter' => 'pct']
         ),
         new OA\Property(
             property: 'access_tag',

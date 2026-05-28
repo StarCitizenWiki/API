@@ -16,46 +16,49 @@ use OpenApi\Attributes as OA;
     title: 'Item Inventory',
     description: 'Container (Inventory) of an item, resolved from SCItemInventoryContainerComponentParams',
     properties: [
-        new OA\Property(property: 'uuid', description: 'Value of containerParams', type: 'string', nullable: true),
-        new OA\Property(property: 'width', description: 'interiorDimensions@x', type: 'double', nullable: true),
-        new OA\Property(property: 'height', description: 'interiorDimensions@z', type: 'double', nullable: true),
-        new OA\Property(property: 'length', description: 'interiorDimensions@y', type: 'double', nullable: true),
-        new OA\Property(property: 'volume', description: 'x*y*z', type: 'double', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the referenced InventoryContainer.', type: 'string', nullable: true),
+        new OA\Property(property: 'width', description: 'Interior width in meters (interiorDimensions.x).', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'height', description: 'Interior height in meters (interiorDimensions.z).', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'length', description: 'Interior depth in meters (interiorDimensions.y).', type: 'double', nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'volume', description: 'Interior volume in cubic meters (width * height * length).', type: 'double', nullable: true, x: ['suffix' => ' m³']),
         new OA\Property(
             property: 'scu',
-            description: 'Amount of SCU this container can hold. This is the raw value as set in the game data.',
+            description: 'Raw SCU capacity as set in game data.',
             type: 'double',
             example: 0.002,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' SCU']
         ),
         new OA\Property(
             property: 'scu_converted',
-            description: 'Raw SCU value (for example µSCU) converted to SCU',
+            description: 'SCU capacity converted to the unit specified in the unit field (e.g. µSCU, cSCU, or SCU).',
             type: 'double',
-            nullable: true
+            nullable: true,
+            x: ['tabulator-formatter' => 'volumeWithUnit', 'formatter-params' => ['unitField' => 'inventory.unit']]
         ),
-        new OA\Property(property: 'unit', description: 'Unit as shown in the UI for example µSCU', type: 'string', nullable: true),
+        new OA\Property(property: 'unit', description: 'Unit label displayed in the UI, e.g. "µSCU" or "SCU".', type: 'string', nullable: true),
         new OA\Property(
             property: 'micro_scu',
-            description: 'µSCU version of SCU. Only calculated when unit is 0.',
+            description: 'Capacity in µSCU. Only present when unit exponent is 0 (standard SCU).',
             type: 'double',
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' µSCU']
         ),
-        new OA\Property(property: 'open', description: 'IsOpenContainer', type: 'boolean', nullable: true),
-        new OA\Property(property: 'external', description: 'IsExternalContainer', type: 'boolean', nullable: true),
-        new OA\Property(property: 'closed', description: 'IsClosedContainer', type: 'boolean', nullable: true),
-        new OA\Property(property: 'min_size', description: 'Minimum item dimensions accepted by this container.', properties: [
-            new OA\Property(property: 'x', type: 'number', nullable: true),
-            new OA\Property(property: 'y', type: 'number', nullable: true),
-            new OA\Property(property: 'z', type: 'number', nullable: true),
+        new OA\Property(property: 'open', description: 'Whether this is an open container (e.g. a cargo grid).', type: 'boolean', nullable: true),
+        new OA\Property(property: 'external', description: 'Whether this container is externally accessible (e.g. a cargo pod).', type: 'boolean', nullable: true),
+        new OA\Property(property: 'closed', description: 'Whether this is a closed container (e.g. a locker or personal storage).', type: 'boolean', nullable: true),
+        new OA\Property(property: 'min_size', description: 'Minimum item dimensions accepted by this container in meters.', properties: [
+            new OA\Property(property: 'x', description: 'Width in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
+            new OA\Property(property: 'y', description: 'Depth in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
+            new OA\Property(property: 'z', description: 'Height in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
         ], type: 'object', nullable: true),
-        new OA\Property(property: 'max_size', description: 'Maximum item dimensions accepted by this container.', properties: [
-            new OA\Property(property: 'x', type: 'number', nullable: true),
-            new OA\Property(property: 'y', type: 'number', nullable: true),
-            new OA\Property(property: 'z', type: 'number', nullable: true),
+        new OA\Property(property: 'max_size', description: 'Maximum item dimensions accepted by this container in meters.', properties: [
+            new OA\Property(property: 'x', description: 'Width in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
+            new OA\Property(property: 'y', description: 'Depth in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
+            new OA\Property(property: 'z', description: 'Height in meters.', type: 'number', nullable: true, x: ['suffix' => ' m']),
         ], type: 'object', nullable: true),
-        new OA\Property(property: 'min_scu_box', description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32', type: 'number', example: 1, nullable: true),
-        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32', type: 'number', example: 8, nullable: true),
+        new OA\Property(property: 'min_scu_box', description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32.', type: 'number', example: 1, nullable: true, x: ['suffix' => ' SCU']),
+        new OA\Property(property: 'max_scu_box', description: 'Largest standard SCU box that fits within the max item size and interior dimensions. Powers of two: 0.125, 1, 2, 4, 8, 16, 32.', type: 'number', example: 8, nullable: true, x: ['suffix' => ' SCU']),
     ],
     type: 'object'
 )]
@@ -86,7 +89,7 @@ class ItemInventoryResource extends AbstractBaseResource
             'height' => Arr::get($container, 'Z'),
             'length' => Arr::get($container, 'Y'),
             'volume' => Arr::has($container, ['X', 'Z', 'Y'])
-                ? Arr::get($container, 'X') * Arr::get($container, 'Z') * Arr::get($container, 'Y')
+                ? round(Arr::get($container, 'X') * Arr::get($container, 'Z') * Arr::get($container, 'Y'), 4)
                 : null,
             'scu' => Arr::get($container, 'SCU'),
             'scu_converted' => Arr::has($container, ['SCU', 'Unit'])

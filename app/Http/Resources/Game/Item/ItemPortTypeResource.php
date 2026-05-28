@@ -13,9 +13,10 @@ use OpenApi\Attributes as OA;
     schema: 'item_port_type',
     title: 'Item Port Compatible Types',
     properties: [
-        new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'type', description: 'Major item type this port accepts (e.g. WeaponGun, Paints, Seat).', type: 'string', nullable: true),
         new OA\Property(
             property: 'sub_types',
+            description: 'Sub-types within the major type that this port accepts (e.g. Small, Medium).',
             type: 'array',
             items: new OA\Items(type: 'string'),
             nullable: true,

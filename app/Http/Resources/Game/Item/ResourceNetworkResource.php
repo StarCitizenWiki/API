@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'type', description: 'Delta type (Consumption, Generation, Conversion, Storage, NetworkReflection).', type: 'string', example: 'Consumption', nullable: true),
         new OA\Property(property: 'resource', description: 'Target resource affected (Power, Fuel, Coolant, QuantumFuel, Shield, LifeSupport).', type: 'string', example: 'Power', nullable: true),
         new OA\Property(property: 'rate', description: 'Rate applied per tick (game native units). Typical power draw ~2-5; fuel draw often 0.01.', type: 'double', example: 2.2, nullable: true),
-        new OA\Property(property: 'minimum_fraction', description: 'Minimum fraction of the resource that must be available before the delta applies.', type: 'double', example: 0.25, nullable: true),
+        new OA\Property(property: 'minimum_fraction', description: 'Minimum fraction of the resource that must be available before the delta applies.', type: 'double', example: 0.25, nullable: true, x: ['tabulator-formatter' => 'progress']),
         new OA\Property(property: 'generated_resource', description: 'Resource produced by conversion/storage deltas.', type: 'string', example: 'Coolant', nullable: true),
         new OA\Property(property: 'generated_rate', description: 'Rate of the generated resource.', type: 'double', example: 22, nullable: true),
         new OA\Property(property: 'discharge', description: 'Whether stored resource is discharged (0/1 flag).', type: 'double', example: 0, nullable: true),
@@ -29,8 +29,8 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(
                 properties: [
-                    new OA\Property(property: 'container_resource', type: 'string', example: 'bcc8cde9-de58-4e6b-8ee9-37d4aaa507eb', nullable: true),
-                    new OA\Property(property: 'ratio', type: 'double', example: 1, nullable: true),
+                    new OA\Property(property: 'container_resource', description: 'UUID of the container resource.', type: 'string', example: 'bcc8cde9-de58-4e6b-8ee9-37d4aaa507eb', nullable: true),
+                    new OA\Property(property: 'ratio', description: 'Ratio of this resource in the composition.', type: 'double', example: 1, nullable: true),
                 ],
                 type: 'object'
             ),
@@ -49,8 +49,8 @@ use OpenApi\Attributes as OA;
             property: 'signature',
             description: 'Electromagnetic/infrared signature while in this state.',
             properties: [
-                new OA\Property(property: 'em', type: 'double', example: 1490, nullable: true),
-                new OA\Property(property: 'ir', type: 'double', example: 7260, nullable: true),
+                new OA\Property(property: 'em', description: 'Electromagnetic signature value in this state.', type: 'double', example: 1490, nullable: true, x: ['suffix' => ' EM']),
+                new OA\Property(property: 'ir', description: 'Infrared signature value in this state.', type: 'double', example: 7260, nullable: true, x: ['suffix' => ' IR']),
             ],
             type: 'object',
             nullable: true,
@@ -98,8 +98,8 @@ use OpenApi\Attributes as OA;
             description: 'Repair configuration for this networked item.',
             properties: [
                 new OA\Property(property: 'max_repair_count', description: 'Maximum number of repairs allowed.', type: 'integer', nullable: true),
-                new OA\Property(property: 'time_to_repair', description: 'Time required to perform a repair (seconds).', type: 'double', nullable: true),
-                new OA\Property(property: 'health_ratio', description: 'Health ratio threshold for repair eligibility.', type: 'double', nullable: true),
+                new OA\Property(property: 'time_to_repair', description: 'Time required to perform a repair (seconds).', type: 'double', nullable: true, x: ['suffix' => ' s']),
+                new OA\Property(property: 'health_ratio', description: 'Health ratio threshold for repair eligibility.', type: 'double', nullable: true, x: ['tabulator-formatter' => 'progress']),
             ],
             type: 'object',
             nullable: true,
@@ -112,8 +112,8 @@ use OpenApi\Attributes as OA;
                     property: 'power',
                     description: 'Power usage range.',
                     properties: [
-                        new OA\Property(property: 'min', description: 'Minimum power usage (game units, typically 2-5).', type: 'double', nullable: true),
-                        new OA\Property(property: 'max', description: 'Maximum power usage (game units, typically 2-5).', type: 'double', nullable: true),
+                        new OA\Property(property: 'min', description: 'Minimum power usage.', type: 'double', nullable: true, x: ['suffix' => ' pwr']),
+                        new OA\Property(property: 'max', description: 'Maximum power usage.', type: 'double', nullable: true, x: ['suffix' => ' pwr']),
                         new OA\Property(property: 'minimum', description: 'Deprecated: Use min.', type: 'double', nullable: true, deprecated: true),
                         new OA\Property(property: 'maximum', description: 'Deprecated: Use max.', type: 'double', nullable: true, deprecated: true),
                     ],
@@ -141,7 +141,7 @@ use OpenApi\Attributes as OA;
             description: 'Resource generation configuration defining production rates.',
             properties: [
                 new OA\Property(property: 'coolant', description: 'Coolant generation rate.', type: 'double', nullable: true),
-                new OA\Property(property: 'power', description: 'Power generation rate.', type: 'double', nullable: true),
+                new OA\Property(property: 'power', description: 'Power generation rate.', type: 'double', nullable: true, x: ['suffix' => ' pwr']),
             ],
             type: 'object',
             nullable: true,

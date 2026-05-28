@@ -13,9 +13,9 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Rack',
     description: 'Summary of weapon slots on a weapon rack item, grouped by weapon category.',
     properties: [
-        new OA\Property(property: 'pistols', description: 'Number of small weapon slots (maxSize <= 1, accepts pistols, knives, grenades).', type: 'integer', example: 12),
-        new OA\Property(property: 'rifles', description: 'Number of medium/large weapon slots (maxSize >= 2, accepts rifles, SMGs, shotguns).', type: 'integer', example: 8),
-        new OA\Property(property: 'gadgets', description: 'Number of gadget-only slots (WeaponPersonal.Gadget type).', type: 'integer', example: 2),
+        new OA\Property(property: 'pistols', description: 'Number of small weapon slots.', type: 'integer', example: 12),
+        new OA\Property(property: 'rifles', description: 'Number of medium and large weapon slots.', type: 'integer', example: 8),
+        new OA\Property(property: 'gadgets', description: 'Number of gadget slots.', type: 'integer', example: 2),
         new OA\Property(property: 'total_weapon_slots', description: 'Total number of weapon slots across all categories.', type: 'integer', example: 22),
     ],
     type: 'object'

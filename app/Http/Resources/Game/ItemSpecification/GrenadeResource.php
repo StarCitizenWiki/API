@@ -18,14 +18,16 @@ use OpenApi\Attributes as OA;
             description: 'Minimum effective/lethal radius in meters.',
             type: 'double',
             example: 4.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'max',
             description: 'Maximum effective/lethal radius in meters.',
             type: 'double',
             example: 5.5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'minimum',

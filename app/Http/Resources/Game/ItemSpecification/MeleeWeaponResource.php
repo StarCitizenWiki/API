@@ -13,12 +13,12 @@ use OpenApi\Attributes as OA;
     title: 'Melee Weapon Attack Damages',
     description: 'Damage breakdown for a melee attack mode.',
     properties: [
-        new OA\Property(property: 'physical', type: 'double', example: 30, nullable: true),
-        new OA\Property(property: 'energy', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'distortion', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'thermal', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'biochemical', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'stun', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'physical', description: 'Physical damage.', type: 'double', example: 30, nullable: true),
+        new OA\Property(property: 'energy', description: 'Energy damage.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'distortion', description: 'Distortion damage.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'thermal', description: 'Thermal damage.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'biochemical', description: 'Biochemical damage.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'stun', description: 'Stun damage.', type: 'double', example: 0, nullable: true),
     ],
     type: 'object'
 )]
@@ -27,16 +27,16 @@ use OpenApi\Attributes as OA;
     title: 'Melee Weapon Attack Mode',
     description: 'Single attack configuration as returned by the resource.',
     properties: [
-        new OA\Property(property: 'category', type: 'string', example: 'BladeSlash', nullable: true),
+        new OA\Property(property: 'category', description: 'Attack animation category (e.g., BladeSlash, BladeStab, SyringeStab).', type: 'string', example: 'BladeSlash', nullable: true),
         new OA\Property(property: 'damage', description: 'Total damage value (DamageTotal).', type: 'double', example: 30, nullable: true),
 
-        new OA\Property(property: 'stun_recovery_modifier', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'block_stun_reduction_modifier', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'block_stun_stamina_modifier', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'stun_recovery_modifier', description: 'Modifier applied to stun recovery time.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'block_stun_reduction_modifier', description: 'Modifier reducing stun duration when blocking.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'block_stun_stamina_modifier', description: 'Modifier applied to stamina cost of blocking a stun.', type: 'double', example: 0, nullable: true),
 
-        new OA\Property(property: 'attack_impulse', type: 'double', example: 20, nullable: true),
-        new OA\Property(property: 'ignore_body_part_impulse_scale', type: 'boolean', example: false, nullable: true),
-        new OA\Property(property: 'force_knockdown', type: 'string', example: 'None', nullable: true),
+        new OA\Property(property: 'attack_impulse', description: 'Physical impulse applied to the target on hit.', type: 'double', example: 20, nullable: true),
+        new OA\Property(property: 'ignore_body_part_impulse_scale', description: 'Whether impulse ignores body-part-specific scaling.', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'force_knockdown', description: 'Knockdown behavior (e.g., None).', type: 'string', example: 'None', nullable: true),
 
         new OA\Property(
             property: 'damages',
@@ -51,11 +51,11 @@ use OpenApi\Attributes as OA;
     title: 'Melee Weapon',
     description: 'Melee weapon specification sourced from Item.stdItem.MeleeWeapon (or meleeWeapon).',
     properties: [
-        new OA\Property(property: 'can_be_used_for_take_down', type: 'boolean', example: true, nullable: true),
-        new OA\Property(property: 'can_block', type: 'boolean', example: true, nullable: true),
-        new OA\Property(property: 'can_be_used_in_prone', type: 'boolean', example: false, nullable: true),
-        new OA\Property(property: 'can_dodge', type: 'boolean', example: true, nullable: true),
-        new OA\Property(property: 'stance_transition_melee_delay', type: 'double', example: 0.6, nullable: true),
+        new OA\Property(property: 'can_be_used_for_take_down', description: 'Whether this weapon can be used for takedown attacks.', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'can_block', description: 'Whether the wielder can block incoming attacks.', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'can_be_used_in_prone', description: 'Whether the weapon can be used while prone.', type: 'boolean', example: false, nullable: true),
+        new OA\Property(property: 'can_dodge', description: 'Whether the wielder can dodge while equipped.', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'stance_transition_melee_delay', description: 'Delay in seconds when transitioning to a melee stance.', type: 'double', example: 0.6, nullable: true, x: ['suffix' => ' s']),
         new OA\Property(
             property: 'melee_combat_config',
             description: 'UUID reference to the melee combat config record.',

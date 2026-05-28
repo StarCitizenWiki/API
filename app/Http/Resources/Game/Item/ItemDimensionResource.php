@@ -23,6 +23,7 @@ use OpenApi\Attributes as OA;
             example: 0.52,
             nullable: true,
             deprecated: true,
+            x: ['suffix' => ' m'],
         ),
         new OA\Property(
             property: 'height',
@@ -31,6 +32,7 @@ use OpenApi\Attributes as OA;
             example: 0.18,
             nullable: true,
             deprecated: true,
+            x: ['suffix' => ' m'],
         ),
         new OA\Property(
             property: 'length',
@@ -39,6 +41,7 @@ use OpenApi\Attributes as OA;
             example: 1.12,
             nullable: true,
             deprecated: true,
+            x: ['suffix' => ' m'],
         ),
         new OA\Property(
             property: 'volume',
@@ -46,6 +49,7 @@ use OpenApi\Attributes as OA;
             type: 'double',
             example: 0.11,
             nullable: true,
+            x: ['suffix' => ' SCU'],
         ),
         new OA\Property(
             property: 'volume_converted',
@@ -101,9 +105,9 @@ use OpenApi\Attributes as OA;
     title: 'Item Dimension Block',
     description: 'A dimension block with width, height, and length in meters.',
     properties: [
-        new OA\Property(property: 'width', description: 'Width in meters.', type: 'double', example: 0.52),
-        new OA\Property(property: 'height', description: 'Height in meters.', type: 'double', example: 0.18),
-        new OA\Property(property: 'length', description: 'Length in meters.', type: 'double', example: 1.12),
+        new OA\Property(property: 'width', description: 'Width in meters.', type: 'double', example: 0.52, x: ['suffix' => ' m']),
+        new OA\Property(property: 'height', description: 'Height in meters.', type: 'double', example: 0.18, x: ['suffix' => ' m']),
+        new OA\Property(property: 'length', description: 'Length in meters.', type: 'double', example: 1.12, x: ['suffix' => ' m']),
     ],
     type: 'object',
 )]

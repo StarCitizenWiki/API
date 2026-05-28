@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'item_power_connection',
     title: 'Item Power Connection',
-    description: 'Power connection information, generated from EntityComponentPowerConnection attributes.',
+    description: 'DEPRECATED: EntityComponentPowerConnection has been removed from game data (4.7.0). Power data is available via ResourceNetwork.',
     properties: [
         new OA\Property(property: 'power_base', type: 'double', nullable: true),
         new OA\Property(property: 'power_draw', type: 'double', nullable: true),
@@ -27,7 +27,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'em_min', description: 'PowerBase * PowerToEm. Use ResourceNetwork data instead.', type: 'double', nullable: true),
         new OA\Property(property: 'em_max', description: 'PowerDraw * PowerToEm. Use ResourceNetwork data instead.', type: 'double', nullable: true),
     ],
-    type: 'object'
+    deprecated: true,
 )]
 /** @param array $resource Raw power connection data from stdItem.PowerConnection sub-array */
 class ItemPowerConnectionResource extends AbstractBaseResource

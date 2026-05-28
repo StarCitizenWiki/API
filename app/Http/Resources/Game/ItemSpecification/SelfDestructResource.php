@@ -11,42 +11,46 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'self_destruct',
     title: 'Self-Destruct Module',
-    description: 'Countdown-activated self-destruct charges found on ships. Values are pulled directly from in-game item definitions. Data focuses on the live `Item` payload (not Raw).',
+    description: 'Self-destruct charge parameters.',
     properties: [
         new OA\Property(
             property: 'damage',
-            description: 'Peak blast damage dealt at the center of the explosion. Examples: 2,500 (RSI 20s charge), 15,000 (MISC 45s charge).',
+            description: 'Peak blast damage at the center of the explosion.',
             type: 'double',
             example: 15000,
             nullable: true
         ),
         new OA\Property(
             property: 'radius',
-            description: 'Maximum damage radius in meters where the explosion can apply. Examples: 30m (RSI 20s), 80m (MISC 45s).',
+            description: 'Maximum damage radius in meters.',
             type: 'double',
             example: 80,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'min_radius',
-            description: 'Inner radius in meters that always receives full damage before falloff begins. Examples: 10m (RSI 20s), 30m (MISC 45s).',
+            description: 'Inner radius in meters that always receives full damage before falloff begins.',
             type: 'double',
             example: 30,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'phys_radius',
-            description: 'Physical/kinetic impact radius in meters. Examples: 30m (RSI 20s), 50m (MISC 45s).',
+            description: 'Physical impact radius in meters.',
             type: 'double',
             example: 50,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'min_phys_radius',
-            description: 'Inner physical impact radius in meters guaranteed to apply full kinetic effect. Examples: 15m (RSI 20s), 30m (MISC 45s).',
+            description: 'Inner physical impact radius in meters.',
             type: 'double',
             example: 30,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'time',
@@ -58,10 +62,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'countdown',
-            description: 'Countdown duration in seconds before detonation once armed (replacement for `time`). Examples: 20s, 45s.',
+            description: 'Countdown duration in seconds before detonation.',
             type: 'double',
             example: 20,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
     ],
     type: 'object'

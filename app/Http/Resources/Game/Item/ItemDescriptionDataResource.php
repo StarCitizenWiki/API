@@ -13,8 +13,8 @@ use OpenApi\Attributes as OA;
     title: 'Item Description Data',
     description: 'Data found in the description of an item, e.g. "Carrying Capacity: 2kµSCU".',
     properties: [
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'value', type: 'string'),
+        new OA\Property(property: 'name', description: 'The label of the description entry, e.g. "Carrying Capacity".', type: 'string'),
+        new OA\Property(property: 'value', description: 'The value of the description entry, e.g. "2kµSCU".', type: 'string'),
         new OA\Property(property: 'type', description: 'Deprecated: Use "value" key.', type: 'string', deprecated: true),
     ],
     type: 'object'

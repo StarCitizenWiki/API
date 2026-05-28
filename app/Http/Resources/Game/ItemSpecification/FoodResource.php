@@ -40,7 +40,7 @@ use OpenApi\Attributes as OA;
     title: 'Food Consumption',
     description: 'Consumption settings from stdItem.Food.Consumption.',
     properties: [
-        new OA\Property(property: 'volume', description: 'Consumption volume (unit as defined by game data).', type: 'double', example: 0.25, nullable: true),
+        new OA\Property(property: 'volume', description: 'Consumption volume in microSCU.', type: 'double', example: 0.25, nullable: true, x: ['suffix' => ' µSCU']),
         new OA\Property(property: 'one_shot_consume', description: 'Whether the item is consumed in one action.', type: 'boolean', nullable: true),
     ],
     type: 'object'

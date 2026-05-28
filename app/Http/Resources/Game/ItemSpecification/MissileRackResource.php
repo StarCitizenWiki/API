@@ -13,8 +13,8 @@ use OpenApi\Attributes as OA;
     title: 'Missile Rack',
     description: 'Missile rack capacity derived from port configuration.',
     properties: [
-        new OA\Property(property: 'missile_count', type: 'integer', nullable: true),
-        new OA\Property(property: 'missile_size', type: 'integer', nullable: true),
+        new OA\Property(property: 'missile_count', description: 'Number of missile slots on the rack, derived from port configuration.', type: 'integer', nullable: true),
+        new OA\Property(property: 'missile_size', description: 'Maximum missile size supported (from the first port MaxSize).', type: 'integer', nullable: true),
     ],
     type: 'object'
 )]

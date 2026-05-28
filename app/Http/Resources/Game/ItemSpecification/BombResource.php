@@ -19,21 +19,24 @@ use OpenApi\Attributes as OA;
             description: 'Time in seconds after release before the bomb is armed and can detonate. Scales with bomb size (0.5s for S3, 5.0s for S10).',
             type: 'double',
             example: 3.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'ignite_time',
             description: 'Time in seconds between arming and detonation.',
             type: 'double',
             example: 0.2,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'collision_delay_time',
             description: 'Delay in seconds before collision detection becomes active after release.',
             type: 'double',
             example: 0.5,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' s']
         ),
         new OA\Property(
             property: 'explosion_safety_distance',
@@ -64,7 +67,8 @@ use OpenApi\Attributes as OA;
             description: 'Maximum angle in degrees from level flight at which the bomb can be deployed. Typically 90 degrees.',
             type: 'double',
             example: 90.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' °']
         ),
         new OA\Property(
             property: 'damage',
@@ -94,10 +98,10 @@ use OpenApi\Attributes as OA;
             description: 'Grouped explosion parameters. Replacement for individual explosion_* fields.',
             properties: [
                 new OA\Property(property: 'requires_launcher', description: 'Whether the bomb requires a launcher to deploy.', type: 'boolean', nullable: true),
-                new OA\Property(property: 'radius_min', description: 'Minimum explosion radius in meters. Replacement for explosion_radius_min.', type: 'double', nullable: true),
-                new OA\Property(property: 'radius_max', description: 'Maximum explosion radius in meters. Replacement for explosion_radius_max.', type: 'double', nullable: true),
-                new OA\Property(property: 'safety_distance', description: 'Minimum safe distance in meters from the explosion. Replacement for explosion_safety_distance.', type: 'double', nullable: true),
-                new OA\Property(property: 'proximity', description: 'Proximity trigger distance for detonation.', type: 'double', nullable: true),
+                new OA\Property(property: 'radius_min', description: 'Minimum explosion radius in meters. Replacement for explosion_radius_min.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+                new OA\Property(property: 'radius_max', description: 'Maximum explosion radius in meters. Replacement for explosion_radius_max.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+                new OA\Property(property: 'safety_distance', description: 'Minimum safe distance in meters from the explosion. Replacement for explosion_safety_distance.', type: 'double', nullable: true, x: ['suffix' => ' m']),
+                new OA\Property(property: 'proximity', description: 'Proximity trigger distance for detonation.', type: 'double', nullable: true, x: ['suffix' => ' m']),
             ],
             type: 'object',
             nullable: true
@@ -106,9 +110,9 @@ use OpenApi\Attributes as OA;
             property: 'delays',
             description: 'Grouped timing parameters for bomb arming and detonation.',
             properties: [
-                new OA\Property(property: 'arm_time', description: 'Time in seconds after release before the bomb is armed. Same as top-level arm_time.', type: 'double', nullable: true),
-                new OA\Property(property: 'ignite_time', description: 'Time in seconds between arming and detonation. Same as top-level ignite_time.', type: 'double', nullable: true),
-                new OA\Property(property: 'collision_delay_time', description: 'Delay before collision detection becomes active. Same as top-level collision_delay_time.', type: 'double', nullable: true),
+                new OA\Property(property: 'arm_time', description: 'Time in seconds after release before the bomb is armed. Same as top-level arm_time.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+                new OA\Property(property: 'ignite_time', description: 'Time in seconds between arming and detonation. Same as top-level ignite_time.', type: 'double', nullable: true, x: ['suffix' => ' s']),
+                new OA\Property(property: 'collision_delay_time', description: 'Delay before collision detection becomes active. Same as top-level collision_delay_time.', type: 'double', nullable: true, x: ['suffix' => ' s']),
             ],
             type: 'object',
             nullable: true

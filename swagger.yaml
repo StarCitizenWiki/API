@@ -6867,8 +6867,10 @@ components:
       description: 'Data found in the description of an item, e.g. "Carrying Capacity: 2kµSCU".'
       properties:
         name:
+          description: 'The label of the description entry, e.g. "Carrying Capacity".'
           type: string
         value:
+          description: 'The value of the description entry, e.g. "2kµSCU".'
           type: string
         type:
           description: 'Deprecated: Use "value" key.'
@@ -6886,6 +6888,7 @@ components:
           example: 0.52
           nullable: true
           deprecated: true
+          x-suffix: ' m'
         height:
           description: 'Deprecated: Use dimensions, cargo_dimension, or ui_dimension instead. Height in meters, either from UIDimensions or Dimensions.'
           type: number
@@ -6893,6 +6896,7 @@ components:
           example: 0.18
           nullable: true
           deprecated: true
+          x-suffix: ' m'
         length:
           description: 'Deprecated: Use dimensions, cargo_dimension, or ui_dimension instead. Length in meters, either from UIDimensions or Dimensions.'
           type: number
@@ -6900,12 +6904,14 @@ components:
           example: 1.12
           nullable: true
           deprecated: true
+          x-suffix: ' m'
         volume:
           description: 'Cubic volume derived from the dimensions (SCU).'
           type: number
           format: double
           example: 0.11
           nullable: true
+          x-suffix: ' SCU'
         volume_converted:
           description: 'Converted volume value from game data (e.g. in µSCU).'
           type: number
@@ -6960,30 +6966,38 @@ components:
           type: number
           format: double
           example: 0.52
+          x-suffix: ' m'
         height:
           description: 'Height in meters.'
           type: number
           format: double
           example: 0.18
+          x-suffix: ' m'
         length:
           description: 'Length in meters.'
           type: number
           format: double
           example: 1.12
+          x-suffix: ' m'
       type: object
     item_distortion:
       title: 'Item Distortion'
       description: 'Distortion information from stdItem.Distortion.'
       properties:
         decay_rate:
+          description: 'Rate at which distortion damage recovers per second. Higher values mean faster recovery.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' /s'
         decay_delay:
+          description: 'Delay in seconds before distortion recovery begins after taking damage.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max:
+          description: 'Maximum distortion pool capacity, total distortion damage the item can absorb before shutting down.'
           type: number
           format: double
           nullable: true
@@ -6994,59 +7008,112 @@ components:
           nullable: true
           deprecated: true
         overload_ratio:
-          description: 'Deprecated, does not exist anymore.'
+          description: 'Deprecated: Does not exist in game data.'
           type: number
           format: double
           nullable: true
           deprecated: true
         warning_ratio:
+          description: 'Ratio of max at which a distortion warning indicator triggers (e.g. 0.75 = warning at 75%).'
           type: number
           format: double
           nullable: true
+          x-tabulator-formatter: progress
         recovery_ratio:
+          description: 'Threshold below which distortion must fall before the item reactivates after overload. 0 = immediate recovery.'
           type: number
           format: double
           nullable: true
+          x-tabulator-formatter: progress
         recovery_time:
-          description: 'Deprecated, does not exist anymore.'
+          description: 'Deprecated: Does not exist in game data.'
           type: number
           format: double
           nullable: true
           deprecated: true
         power_ratio_at_max_distortion:
+          description: 'Power output ratio at maximum distortion. Currently always 0 (reserved for future use).'
           type: number
           format: double
           nullable: true
         power_change_only_at_max_distortion:
+          description: 'Whether power output only changes when distortion reaches maximum (1 = yes, 0 = gradual).'
           type: integer
           nullable: true
         shutdown_time:
+          description: 'Computed duration in seconds the item remains shut down (Maximum / DecayRate + DecayDelay).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
       type: object
     item_durability:
       title: 'Item Durability'
-      description: 'Durability information of an item, generated from SHealthComponentParams (health, repairable, salvageable) and SWearAccumulatorParams (max_lifetime).'
+      description: 'Durability information of an item, generated from SHealthComponentParams (health, repairable, salvageable) and SDegradationParams (lifetime).'
       properties:
         health:
-          description: SHealthComponentParams@Health
+          description: 'Hit points of the item from SHealthComponentParams.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' HP'
+        lifetime:
+          description: 'Wear lifetime in hours from SDegradationParams.MaxLifetimeHours.'
+          type: number
+          format: double
+          nullable: true
+          x-suffix: ' h'
         max_lifetime:
-          description: 'MaxLifetimeHours attribute on SWearAccumulatorParams'
+          description: 'Deprecated: Use lifetime.'
           type: number
           format: double
           nullable: true
+          deprecated: true
         repairable:
-          description: SHealthComponentParams@IsRepairable
+          description: 'Whether the item can be repaired.'
           type: boolean
         salvageable:
-          description: SHealthComponentParams@IsSalvagable
+          description: 'Whether the item can be salvaged.'
           type: boolean
         resistance:
-          description: 'Resistance attributes on SHealthComponentParams'
+          description: 'Damage resistance multipliers per type (Physical, Energy, Distortion, Thermal, Biochemical, Stun). The multiplier scales incoming damage: 1.0 = full damage, <1.0 = reduced damage, 0 = immune, >1.0 = increased damage.'
+          properties:
+            physical:
+              description: 'Physical damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
+            energy:
+              description: 'Energy damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
+            distortion:
+              description: 'Distortion damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
+            thermal:
+              description: 'Thermal damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
+            biochemical:
+              description: 'Biochemical damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
+            stun:
+              description: 'Stun damage multiplier. Incoming damage is scaled by this value.'
+              type: number
+              format: double
+              nullable: true
+              x-suffix: ' ×'
           type: object
           nullable: true
       type: object
@@ -7055,34 +7122,39 @@ components:
       description: 'EM and IR Emission calculated from Resource Network'
       properties:
         ir:
-          description: 'IR emission'
+          description: 'Infrared (thermal) emission signature. Higher values make the item easier to detect.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' IR'
         em_min:
-          description: 'Minimum EM emission'
+          description: 'Electromagnetic emission at idle/low power (Maximum * minConsumptionFraction * lowPowerRangeModifier).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' EM'
         em_max:
-          description: 'Maximum EM emission'
+          description: 'Electromagnetic emission at full power from EMSignature.nominalSignature.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' EM'
         em_decay:
-          description: 'EM decay'
+          description: 'Rate at which EM drops when the item powers down (typically 0.15).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' /s'
         em_per_segment:
-          description: 'EM decay per segment'
+          description: 'EM per power segment unit (PowerPlant only: Maximum / Generation.Power).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' EM/Seg'
       type: object
     item_heat_connection:
       title: 'Item Heat Connection'
-      description: 'Heat connection information, generated from EntityComponentHeatConnection attributes.'
+      description: 'DEPRECATED: EntityComponentHeatConnection has been removed from game data'
       properties:
         temperature_to_ir:
           type: number
@@ -7093,6 +7165,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         overpower_heat:
           type: number
           format: double
@@ -7125,14 +7198,17 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' kg'
         surface_area:
           type: number
           format: double
           nullable: true
+          x-suffix: ' m²'
         start_cooling_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         max_cooling_rate:
           type: number
           format: double
@@ -7141,130 +7217,160 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         min_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         overheat_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         recovery_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         misfire_min_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         misfire_max_temperature:
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         ir_emission:
           description: '(StartCoolingTemperature - StartIRTemperature) * TemperatureToIR'
           type: number
           format: double
           nullable: true
       type: object
+      deprecated: true
     item_inventory:
       title: 'Item Inventory'
       description: 'Container (Inventory) of an item, resolved from SCItemInventoryContainerComponentParams'
       properties:
         uuid:
-          description: 'Value of containerParams'
+          description: 'Unique identifier of the referenced InventoryContainer.'
           type: string
           nullable: true
         width:
-          description: interiorDimensions@x
+          description: 'Interior width in meters (interiorDimensions.x).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         height:
-          description: interiorDimensions@z
+          description: 'Interior height in meters (interiorDimensions.z).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         length:
-          description: interiorDimensions@y
+          description: 'Interior depth in meters (interiorDimensions.y).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         volume:
-          description: 'x*y*z'
+          description: 'Interior volume in cubic meters (width * height * length).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m³'
         scu:
-          description: 'Amount of SCU this container can hold. This is the raw value as set in the game data.'
+          description: 'Raw SCU capacity as set in game data.'
           type: number
           format: double
           example: 0.002
           nullable: true
+          x-suffix: ' SCU'
         scu_converted:
-          description: 'Raw SCU value (for example µSCU) converted to SCU'
+          description: 'SCU capacity converted to the unit specified in the unit field (e.g. µSCU, cSCU, or SCU).'
           type: number
           format: double
           nullable: true
+          x-tabulator-formatter: volumeWithUnit
+          x-formatter-params:
+            unitField: inventory.unit
         unit:
-          description: 'Unit as shown in the UI for example µSCU'
+          description: 'Unit label displayed in the UI, e.g. "µSCU" or "SCU".'
           type: string
           nullable: true
         micro_scu:
-          description: 'µSCU version of SCU. Only calculated when unit is 0.'
+          description: 'Capacity in µSCU. Only present when unit exponent is 0 (standard SCU).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' µSCU'
         open:
-          description: IsOpenContainer
+          description: 'Whether this is an open container (e.g. a cargo grid).'
           type: boolean
           nullable: true
         external:
-          description: IsExternalContainer
+          description: 'Whether this container is externally accessible (e.g. a cargo pod).'
           type: boolean
           nullable: true
         closed:
-          description: IsClosedContainer
+          description: 'Whether this is a closed container (e.g. a locker or personal storage).'
           type: boolean
           nullable: true
         min_size:
-          description: 'Minimum item dimensions accepted by this container.'
+          description: 'Minimum item dimensions accepted by this container in meters.'
           properties:
             x:
+              description: 'Width in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
             'y':
+              description: 'Depth in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
             z:
+              description: 'Height in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
           type: object
           nullable: true
         max_size:
-          description: 'Maximum item dimensions accepted by this container.'
+          description: 'Maximum item dimensions accepted by this container in meters.'
           properties:
             x:
+              description: 'Width in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
             'y':
+              description: 'Depth in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
             z:
+              description: 'Height in meters.'
               type: number
               nullable: true
+              x-suffix: ' m'
           type: object
           nullable: true
         min_scu_box:
-          description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32'
+          description: 'Smallest standard SCU box whose dimensions satisfy the min item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32.'
           type: number
           example: 1
           nullable: true
+          x-suffix: ' SCU'
         max_scu_box:
-          description: 'Largest standard SCU box that fits within the max item size. Powers of two: 0.125, 1, 2, 4, 8, 16, 32'
+          description: 'Largest standard SCU box that fits within the max item size and interior dimensions. Powers of two: 0.125, 1, 2, 4, 8, 16, 32.'
           type: number
           example: 8
           nullable: true
+          x-suffix: ' SCU'
       type: object
     item_link:
       title: 'Item Link'
@@ -7274,55 +7380,65 @@ components:
         -
           properties:
             uuid:
+              description: 'Unique identifier of the item.'
               type: string
             name:
+              description: 'Display name of the item.'
               type: string
             class_name:
+              description: 'Internal class name of the item definition.'
               type: string
               example: 987_jacket_03_01_04
             type:
+              description: 'Item type identifier (e.g. Weapon, Armor, Clothing).'
               type: string
             type_label:
-              description: 'Human-readable label for the item type'
+              description: 'Human-readable label for the item type.'
               type: string
               nullable: true
             sub_type:
+              description: 'Item sub-type identifier.'
               type: string
               nullable: true
             sub_type_label:
-              description: 'Human-readable label for the item sub-type'
+              description: 'Human-readable label for the item sub-type.'
               type: string
               nullable: true
             classification:
+              description: 'Dot-separated classification path (e.g. FPS.Clothing.Torso).'
               type: string
               example: FPS.Clothing.Torso
               nullable: true
             classification_label:
-              description: 'Human-readable label for the item classification'
+              description: 'Human-readable label for the item classification.'
               type: string
               nullable: true
             is_base_variant:
+              description: 'Whether this item is the base variant.'
               type: boolean
             variant_name:
-              description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"'
+              description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua".'
               type: string
               nullable: true
             manufacturer:
               $ref: '#/components/schemas/manufacturer_link'
             link:
+              description: 'API URL for the full item resource.'
               type: string
             web_url:
               description: 'Web URL for the item detail page.'
               type: string
               nullable: true
             size:
+              description: 'Item size (1-12 for vehicle items, smaller for FPS).'
               type: integer
               nullable: true
             base_variant:
-              description: 'Link to base variant item'
+              description: 'API URL of the base variant item. Only present for variant items.'
               type: string
               nullable: true
             variants:
+              description: 'List of variant items sharing the same base item.'
               type: array
               items:
                 $ref: '#/components/schemas/item_link'
@@ -7334,22 +7450,29 @@ components:
       title: 'Item Port'
       properties:
         name:
+          description: 'Internal port identifier (e.g. hardpoint_weapon_wing_right).'
           type: string
         display_name:
+          description: 'Human-readable port name, resolved from localization key.'
           type: string
           nullable: true
         position:
+          description: 'Derived position label (e.g. magazine_well, optics, underbarrel, barrel).'
           type: string
           nullable: true
         size:
+          description: 'Maximum item size this port accepts (same as sizes.max).'
           type: integer
           nullable: true
         sizes:
+          description: 'Size range of items this port accepts.'
           properties:
             min:
+              description: 'Minimum item size.'
               type: integer
               nullable: true
             max:
+              description: 'Maximum item size.'
               type: integer
               nullable: true
           type: object
@@ -7359,23 +7482,25 @@ components:
             $ref: '#/components/schemas/item_port_type'
           nullable: true
         types:
-          description: 'Raw type strings as provided by the game data'
+          description: 'Structured compatible type entries with type and sub-types.'
           type: array
           items:
             type: string
           nullable: true
         tags:
+          description: 'Tags provided by this port to attached items (from PortTags attribute).'
           type: array
           items:
             type: string
           nullable: true
         required_tags:
+          description: 'Tags an item must have to attach to this port (from RequiredPortTags, $ prefix stripped).'
           type: array
           items:
             type: string
           nullable: true
         flags:
-          description: 'Port flags from game data'
+          description: 'Port flags controlling behavior (e.g. editable, uneditable, invisible, select).'
           type: array
           items:
             type: string
@@ -7423,9 +7548,11 @@ components:
       title: 'Item Port Compatible Types'
       properties:
         type:
+          description: 'Major item type this port accepts (e.g. WeaponGun, Paints, Seat).'
           type: string
           nullable: true
         sub_types:
+          description: 'Sub-types within the major type that this port accepts (e.g. Small, Medium).'
           type: array
           items:
             type: string
@@ -7433,7 +7560,7 @@ components:
       type: object
     item_power_connection:
       title: 'Item Power Connection'
-      description: 'Power connection information, generated from EntityComponentPowerConnection attributes.'
+      description: 'DEPRECATED: EntityComponentPowerConnection has been removed from game data (4.7.0). Power data is available via ResourceNetwork.'
       properties:
         power_base:
           type: number
@@ -7486,22 +7613,26 @@ components:
           format: double
           nullable: true
       type: object
+      deprecated: true
     game_item:
       title: Item
       description: 'An item in Star Citizen, based on EntityClassDefinition XML files.'
       properties:
         uuid:
+          description: 'Unique identifier of the item.'
           type: string
         slug:
           description: 'URL-friendly slug for the item.'
           type: string
           nullable: true
         name:
+          description: 'Display name of the item.'
           type: string
         class_name:
+          description: 'Internal class name of the item definition.'
           type: string
         classification:
-          description: 'Not actually found in the game data, but generated by ScDataDumper.'
+          description: 'Classification generated by ScDataDumper.'
           type: string
           example: FPS.Clothing.Torso
         classification_label:
@@ -7509,6 +7640,7 @@ components:
           type: string
           nullable: true
         description:
+          description: 'Item description text, or a translation object with localized strings.'
           nullable: true
           oneOf:
             -
@@ -7518,16 +7650,17 @@ components:
               items:
                 $ref: '#/components/schemas/translation'
         size:
-          description: AttachDef@Size
+          description: 'Item size from AttachDef. Vehicle items range 1-12, FPS items are smaller.'
           type: integer
           example: 1
           nullable: true
         mass:
-          description: 'Generated from SEntityRigidPhysicsControllerParams'
+          description: 'Physical mass in kilograms from SEntityRigidPhysicsControllerParams.'
           type: number
           format: double
           example: 1000
           nullable: true
+          x-suffix: ' kg'
         rarity:
           description: 'Item rarity from stdItem.Rarity. Only present when the item has rarity data.'
           type: string
@@ -7540,8 +7673,10 @@ components:
           example: Common
           nullable: true
         is_base_variant:
+          description: 'Whether this item is the base variant (has no parent variant).'
           type: boolean
         is_craftable:
+          description: 'Whether this item can be crafted via blueprints.'
           type: boolean
         blueprint:
           description: 'Crafting blueprints that produce this item. Only returned when the item is craftable. Use include=blueprints to get full blueprint data instead of links.'
@@ -7568,7 +7703,7 @@ components:
             $ref: '#/components/schemas/item_description_data'
           nullable: true
         manufacturer_description:
-          description: 'Manufacturer set in the description'
+          description: 'Manufacturer name extracted from the description data entries.'
           type: string
           nullable: true
         manufacturer:
@@ -7577,7 +7712,7 @@ components:
               $ref: '#/components/schemas/manufacturer_link'
           nullable: true
         type:
-          description: 'AttachDef@Type (NOITEM_ prefix removed)'
+          description: 'Item type identifier (NOITEM_ prefix removed), e.g. Weapon, Armor, Clothing.'
           type: string
           nullable: true
         type_label:
@@ -7589,7 +7724,7 @@ components:
           type: string
           nullable: true
         sub_type:
-          description: AttachDef@SubType
+          description: 'Item sub-type identifier, e.g. Small, Medium, Rocket.'
           type: string
           nullable: true
         sub_type_label:
@@ -7629,13 +7764,13 @@ components:
               $ref: '#/components/schemas/item_inventory'
           nullable: true
         tags:
-          description: AttachDef@Tags
+          description: 'Item tags from AttachDef.'
           type: array
           items:
             type: string
           nullable: true
         required_tags:
-          description: AttachDef@RequiredTags
+          description: 'Required tags an item must match to attach.'
           type: array
           items:
             type: string
@@ -7652,8 +7787,10 @@ components:
           items:
             properties:
               uuid:
+                description: 'Unique identifier of the entity tag.'
                 type: string
               name:
+                description: 'Name of the entity tag.'
                 type: string
             type: object
           nullable: true
@@ -7999,21 +8136,27 @@ components:
                 type: string
                 example: starcitizen.tools
               thumbnail_url:
+                description: 'URL of the thumbnail image.'
                 type: string
                 nullable: true
               thumbnail_width:
+                description: 'Thumbnail width in pixels.'
                 type: integer
                 nullable: true
               thumbnail_height:
+                description: 'Thumbnail height in pixels.'
                 type: integer
                 nullable: true
               original_url:
+                description: 'URL of the original full-size image.'
                 type: string
                 nullable: true
               original_width:
+                description: 'Original image width in pixels.'
                 type: integer
                 nullable: true
               original_height:
+                description: 'Original image height in pixels.'
                 type: integer
                 nullable: true
             type: object
@@ -8052,11 +8195,14 @@ components:
       title: 'Item Blueprint Link'
       properties:
         uuid:
+          description: 'Unique identifier of the blueprint.'
           type: string
           format: uuid
         name:
+          description: 'Display name of the blueprint.'
           type: string
         link:
+          description: 'API URL for the blueprint detail endpoint.'
           type: string
           format: uri
       type: object
@@ -8065,13 +8211,17 @@ components:
       description: 'Link information for a related item with full classification'
       properties:
         uuid:
+          description: 'Unique identifier of the related item.'
           type: string
         name:
+          description: 'Display name of the related item.'
           type: string
         class_name:
+          description: 'Internal class name of the related item.'
           type: string
           nullable: true
         type:
+          description: 'Item type identifier.'
           type: string
           nullable: true
         type_label:
@@ -8079,6 +8229,7 @@ components:
           type: string
           nullable: true
         sub_type:
+          description: 'Item sub-type identifier.'
           type: string
           nullable: true
         sub_type_label:
@@ -8086,6 +8237,7 @@ components:
           type: string
           nullable: true
         classification:
+          description: 'Dot-separated classification path.'
           type: string
           nullable: true
         classification_label:
@@ -8093,8 +8245,10 @@ components:
           type: string
           nullable: true
         is_base_variant:
+          description: 'Whether this related item is the base variant.'
           type: boolean
         variant_name:
+          description: 'Variant name if this is a variant item.'
           type: string
           nullable: true
         manufacturer:
@@ -8111,23 +8265,29 @@ components:
           type: object
           nullable: true
         version:
+          description: 'Game version code.'
           type: string
           nullable: true
         link:
+          description: 'API URL for the related item.'
           type: string
         web_url:
+          description: 'Web URL for the related item.'
           type: string
         size:
+          description: 'Item size.'
           type: integer
           nullable: true
         grade:
+          description: 'Item grade.'
           type: integer
           nullable: true
         grade_label:
-          description: 'Human-readable grade (A/B/C/D for Ship items)'
+          description: 'Grade (A/B/C/D for Ship items)'
           type: string
           nullable: true
         class:
+          description: 'Item class.'
           type: string
           nullable: true
       type: object
@@ -8162,27 +8322,30 @@ components:
       type: object
     item_temperature:
       title: 'Item Temperature'
-      description: 'Calculated temperature information, generated from Temperature attributes.'
+      description: 'Temperature thresholds in Celsius, converted from the SEntityPhysicsControllerParams temperature system.'
       properties:
         unit:
-          description: 'Temperature unit (e.g. "K" for Kelvin).'
+          description: 'Temperature unit (always "C" for Celsius).'
           type: string
           nullable: true
         cooling_threshold:
-          description: 'Calculated cooling threshold'
+          description: 'Temperature in Celsius at which active cooling begins.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         ir_threshold:
-          description: 'Calculated IR threshold'
+          description: 'Temperature in Celsius above which IR emission becomes detectable.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         overheat_threshold:
-          description: 'Calculated overheat threshold'
+          description: 'Temperature in Celsius at which the overheat warning triggers (before full overheat).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         overheat_temperature:
           description: 'Deprecated: Use overheat_threshold.'
           type: number
@@ -8190,15 +8353,17 @@ components:
           nullable: true
           deprecated: true
         max_temperature:
-          description: 'Calculated maximum temperature'
+          description: 'Temperature in Celsius at which the item fully overheats and shuts down.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
         recovery_temperature:
-          description: 'Calculated recovery temperature'
+          description: 'Temperature in Celsius the item must cool to before recovering from overheat.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °C'
       type: object
     game_port_item:
       title: 'Equipped Port Item'
@@ -8210,10 +8375,13 @@ components:
         -
           properties:
             uuid:
+              description: 'Unique identifier of the item.'
               type: string
             name:
+              description: 'Display name of the item.'
               type: string
             class_name:
+              description: 'Internal class name of the item definition.'
               type: string
             type:
               description: 'AttachDef@Type (NOITEM_ prefix removed)'
@@ -8232,6 +8400,7 @@ components:
               type: string
               nullable: true
             classification:
+              description: 'Dot-separated classification path (e.g. FPS.Clothing.Torso).'
               type: string
               example: FPS.Clothing.Torso
               nullable: true
@@ -8240,6 +8409,7 @@ components:
               type: string
               nullable: true
             is_base_variant:
+              description: 'Whether this item is the base variant (has no parent variant).'
               type: boolean
             variant_name:
               description: 'Extracted variant name, e.g. "Executive Edition" or "Aqua"'
@@ -8261,6 +8431,7 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' kg'
             grade:
               description: 'Derived formatting for ship grades (A, B, C, D) or extracted from DescriptionData.Grade'
               type: string
@@ -8297,6 +8468,7 @@ components:
       description: 'Lightweight item summary derived from raw loadout JSON. No database queries are performed. Used on index routes where full item resolution is too expensive.'
       properties:
         uuid:
+          description: 'Unique identifier of the equipped item.'
           type: string
           nullable: true
         name:
@@ -8327,6 +8499,7 @@ components:
           description: 'Manufacturer name from loadout data.'
           properties:
             name:
+              description: 'Manufacturer display name.'
               type: string
               nullable: true
           type: object
@@ -8345,10 +8518,13 @@ components:
       description: 'Container data for items that can hold resources (e.g. cargo or consumables).'
       properties:
         mass:
+          description: 'Container mass in kilograms.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' kg'
         immutable:
+          description: 'Whether the container contents cannot be changed.'
           type: boolean
           nullable: true
         default_fill_fraction:
@@ -8356,22 +8532,28 @@ components:
           type: number
           format: double
           nullable: true
+          x-tabulator-formatter: progress
         capacity:
           properties:
             value:
+              description: 'Raw capacity value.'
               type: number
               format: double
               nullable: true
             unit:
+              description: 'Unit abbreviation (e.g. "SCU").'
               type: string
               nullable: true
             unit_name:
+              description: 'Full unit name (e.g. "Standard Cargo Units").'
               type: string
               nullable: true
             scu:
+              description: 'Capacity converted to SCU.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' SCU'
           type: object
           nullable: true
         inclusive_resources:
@@ -8391,9 +8573,11 @@ components:
       title: 'Resource Container Composition Entry'
       properties:
         entry:
+          description: 'UUID of the resource/commodity in this composition entry.'
           type: string
           nullable: true
         weight:
+          description: 'Weight or proportion of this entry in the composition.'
           type: number
           format: double
           nullable: true
@@ -8408,14 +8592,18 @@ components:
       description: 'Link to the commodity that this composition entry references.'
       properties:
         uuid:
+          description: 'Unique identifier of the commodity.'
           type: string
           format: uuid
         name:
+          description: 'Display name of the commodity.'
           type: string
         slug:
+          description: 'URL-friendly slug for the commodity.'
           type: string
           nullable: true
         link:
+          description: 'API URL for the commodity detail endpoint.'
           type: string
           nullable: true
       type: object
@@ -8445,6 +8633,7 @@ components:
           format: double
           example: 0.25
           nullable: true
+          x-tabulator-formatter: progress
         generated_resource:
           description: 'Resource produced by conversion/storage deltas.'
           type: string
@@ -8480,10 +8669,12 @@ components:
           items:
             properties:
               container_resource:
+                description: 'UUID of the container resource.'
                 type: string
                 example: bcc8cde9-de58-4e6b-8ee9-37d4aaa507eb
                 nullable: true
               ratio:
+                description: 'Ratio of this resource in the composition.'
                 type: number
                 format: double
                 example: 1
@@ -8504,15 +8695,19 @@ components:
           description: 'Electromagnetic/infrared signature while in this state.'
           properties:
             em:
+              description: 'Electromagnetic signature value in this state.'
               type: number
               format: double
               example: 1490
               nullable: true
+              x-suffix: ' EM'
             ir:
+              description: 'Infrared signature value in this state.'
               type: number
               format: double
               example: 7260
               nullable: true
+              x-suffix: ' IR'
           type: object
           nullable: true
         deltas:
@@ -8579,11 +8774,13 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' s'
             health_ratio:
               description: 'Health ratio threshold for repair eligibility.'
               type: number
               format: double
               nullable: true
+              x-tabulator-formatter: progress
           type: object
           nullable: true
         usage:
@@ -8593,15 +8790,17 @@ components:
               description: 'Power usage range.'
               properties:
                 min:
-                  description: 'Minimum power usage (game units, typically 2-5).'
+                  description: 'Minimum power usage.'
                   type: number
                   format: double
                   nullable: true
+                  x-suffix: ' pwr'
                 max:
-                  description: 'Maximum power usage (game units, typically 2-5).'
+                  description: 'Maximum power usage.'
                   type: number
                   format: double
                   nullable: true
+                  x-suffix: ' pwr'
                 minimum:
                   description: 'Deprecated: Use min.'
                   type: number
@@ -8658,6 +8857,7 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' pwr'
           type: object
           nullable: true
       type: object
@@ -8705,18 +8905,21 @@ components:
           format: double
           example: 600
           nullable: true
+          x-suffix: ' m/s'
         lifetime:
           description: 'Lifetime in seconds before the projectile despawns.'
           type: number
           format: double
           example: 2
           nullable: true
+          x-suffix: ' s'
         range:
           description: 'Effective range in meters (speed × lifetime when provided by the game).'
           type: number
           format: double
           example: 1200
           nullable: true
+          x-suffix: ' m'
         size:
           description: 'Projectile size used by the game for collision/damage logic.'
           type: integer
@@ -8733,29 +8936,33 @@ components:
           example: 80
           nullable: true
         damage_falloff_level_1:
-          description: 'Legacy piercability falloff level 1 value.'
+          description: 'Damage retention percentage at penetration level 1.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pct
         damage_falloff_level_2:
-          description: 'Legacy piercability falloff level 2 value.'
+          description: 'Damage retention percentage at penetration level 2.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pct
         damage_falloff_level_3:
-          description: 'Legacy piercability falloff level 3 value.'
+          description: 'Damage retention percentage at penetration level 3.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pct
         max_penetration_thickness:
           description: 'Maximum armor or material thickness (m) this round can pierce.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' m'
         penetration:
           description: 'Penetration behaviour detailing distance and angle effectiveness.'
           properties:
@@ -8765,22 +8972,26 @@ components:
               format: double
               example: 60
               nullable: true
+              x-suffix: ' m'
             near_radius:
               description: 'Near radius for penetration falloff.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             far_radius:
               description: 'Far radius for penetration falloff.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             angle:
               description: 'Maximum impact angle (degrees) before ricochet/stop.'
               type: number
               format: double
               example: 14.6
               nullable: true
+              x-suffix: ' °'
           type: object
           nullable: true
         impact_damage:
@@ -8798,29 +9009,35 @@ components:
           nullable: true
           deprecated: true
         impact_damage_map:
-          description: 'Direct hit damage mapped by snake_case damage type keys (e.g., physical, energy, distortion). Replacement for impact_damage array.'
+          description: 'Direct hit damage mapped by snake_case damage type keys. Replacement for impact_damage array.'
           properties:
             physical:
+              description: 'Physical impact damage.'
               type: number
               format: double
               nullable: true
             energy:
+              description: 'Energy impact damage.'
               type: number
               format: double
               nullable: true
             distortion:
+              description: 'Distortion impact damage.'
               type: number
               format: double
               nullable: true
             thermal:
+              description: 'Thermal impact damage.'
               type: number
               format: double
               nullable: true
             biochemical:
+              description: 'Biochemical impact damage.'
               type: number
               format: double
               nullable: true
             stun:
+              description: 'Stun impact damage.'
               type: number
               format: double
               nullable: true
@@ -8830,26 +9047,32 @@ components:
           description: 'Explosion damage mapped by snake_case damage type keys. Replacement for detonation_damage array.'
           properties:
             physical:
+              description: 'Physical explosion damage.'
               type: number
               format: double
               nullable: true
             energy:
+              description: 'Energy explosion damage.'
               type: number
               format: double
               nullable: true
             distortion:
+              description: 'Distortion explosion damage.'
               type: number
               format: double
               nullable: true
             thermal:
+              description: 'Thermal explosion damage.'
               type: number
               format: double
               nullable: true
             biochemical:
+              description: 'Biochemical explosion damage.'
               type: number
               format: double
               nullable: true
             stun:
+              description: 'Stun explosion damage.'
               type: number
               format: double
               nullable: true
@@ -8863,58 +9086,67 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             max:
               description: 'Maximum explosion radius (meters).'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
           type: object
           nullable: true
         impulse_scale:
-          description: 'Impulse multiplier applied on impact (engine value).'
+          description: 'Impulse multiplier applied on impact. Typically always 1.'
           type: number
           format: double
           example: 1
           nullable: true
         bullet_type:
-          description: 'Internal bullet type identifier.'
+          description: 'Projectile type: 2 = ballistic, -1 = energy/laser.'
           type: integer
           example: -1
           nullable: true
         damage_drop_min_distance:
-          description: 'Per-type distance (m) before damage falloff begins.'
+          description: 'Damage values at the distance where falloff begins. Damage remains constant up to this point.'
           properties:
             physical:
+              description: 'Physical damage at start of falloff.'
               type: number
               format: double
               example: 0
               nullable: true
             energy:
+              description: 'Energy damage at start of falloff.'
               type: number
               format: double
               example: 200
               nullable: true
             distortion:
+              description: 'Distortion damage at start of falloff.'
               type: number
               format: double
               example: 200
               nullable: true
             thermal:
+              description: 'Thermal damage at start of falloff.'
               type: number
               format: double
               example: 0
               nullable: true
             biochemical:
+              description: 'Biochemical damage at start of falloff.'
               type: number
               format: double
               example: 0
               nullable: true
             stun:
+              description: 'Stun damage at start of falloff.'
               type: number
               format: double
               example: 200
               nullable: true
             total:
+              description: 'Sum of all damage types.'
               type: number
               format: double
               example: 400
@@ -8922,39 +9154,46 @@ components:
           type: object
           nullable: true
         damage_drop_per_meter:
-          description: 'Per-type damage reduction applied each meter after min distance.'
+          description: 'Damage reduction per meter after the min distance is exceeded.'
           properties:
             physical:
+              description: 'Physical damage lost per meter.'
               type: number
               format: double
               example: 0
               nullable: true
             energy:
+              description: 'Energy damage lost per meter.'
               type: number
               format: double
               example: 0.01
               nullable: true
             distortion:
+              description: 'Distortion damage lost per meter.'
               type: number
               format: double
               example: 0.01
               nullable: true
             thermal:
+              description: 'Thermal damage lost per meter.'
               type: number
               format: double
               example: 0
               nullable: true
             biochemical:
+              description: 'Biochemical damage lost per meter.'
               type: number
               format: double
               example: 0
               nullable: true
             stun:
+              description: 'Stun damage lost per meter.'
               type: number
               format: double
               example: 0.01
               nullable: true
             total:
+              description: 'Sum of all damage drop rates.'
               type: number
               format: double
               example: 0.03
@@ -8962,39 +9201,46 @@ components:
           type: object
           nullable: true
         damage_drop_min_damage:
-          description: 'Floor values for damage after falloff.'
+          description: 'Floor damage values that the projectile never drops below regardless of distance.'
           properties:
             physical:
+              description: 'Minimum physical damage floor.'
               type: number
               format: double
               example: 10
               nullable: true
             energy:
+              description: 'Minimum energy damage floor.'
               type: number
               format: double
               example: 10
               nullable: true
             distortion:
+              description: 'Minimum distortion damage floor.'
               type: number
               format: double
               example: 5
               nullable: true
             thermal:
+              description: 'Minimum thermal damage floor.'
               type: number
               format: double
               example: 0
               nullable: true
             biochemical:
+              description: 'Minimum biochemical damage floor.'
               type: number
               format: double
               example: 0
               nullable: true
             stun:
+              description: 'Minimum stun damage floor.'
               type: number
               format: double
               example: 6
               nullable: true
             total:
+              description: 'Sum of all minimum damage floors.'
               type: number
               format: double
               example: 31
@@ -9002,38 +9248,47 @@ components:
           type: object
           nullable: true
         bullet_impulse_falloff:
-          description: 'Impact impulse falloff parameters.'
+          description: 'How impact force (impulse) diminishes with distance.'
           properties:
             min_distance:
+              description: 'Distance in meters before impulse falloff begins.'
               type: number
               format: double
               example: 0
               nullable: true
+              x-suffix: ' m'
             drop_falloff:
+              description: 'Impulse reduction rate per meter after min distance.'
               type: number
               format: double
               example: 0.005
               nullable: true
             max_falloff:
+              description: 'Maximum impulse reduction fraction (0-1).'
               type: number
               format: double
               example: 0.3
               nullable: true
+              x-tabulator-formatter: progress
           type: object
           nullable: true
         bullet_electron:
-          description: 'Electron chain parameters for weapons that jump between targets.'
+          description: 'Electron chain parameters for weapons that arc between targets.'
           properties:
             jump_range:
+              description: 'Maximum range of each electron jump in meters.'
               type: number
               format: double
               example: 0
               nullable: true
+              x-suffix: ' m'
             maximum_jumps:
+              description: 'Maximum number of chain jumps to additional targets.'
               type: integer
               example: 0
               nullable: true
             residual_charge_multiplier:
+              description: 'Damage multiplier for each subsequent jump.'
               type: number
               format: double
               example: 0
@@ -9045,6 +9300,7 @@ components:
           type: integer
           example: 129
           nullable: true
+          x-suffix: ' µSCU'
         damage_falloffs:
           description: 'Deprecated: Use damage_drop* data.'
           properties:
@@ -9399,18 +9655,21 @@ components:
           format: double
           example: 3
           nullable: true
+          x-suffix: ' s'
         ignite_time:
           description: 'Time in seconds between arming and detonation.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-suffix: ' s'
         collision_delay_time:
           description: 'Delay in seconds before collision detection becomes active after release.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
         explosion_safety_distance:
           description: 'Deprecated: Use explosion.safety_distance instead. Minimum safe distance in meters from the explosion. Typically 50m for all bomb sizes.'
           type: number
@@ -9438,6 +9697,7 @@ components:
           format: double
           example: 90
           nullable: true
+          x-suffix: ' °'
         damage:
           description: 'Deprecated: use damage_total.'
           type: number
@@ -9470,21 +9730,25 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             radius_max:
               description: 'Maximum explosion radius in meters. Replacement for explosion_radius_max.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             safety_distance:
               description: 'Minimum safe distance in meters from the explosion. Replacement for explosion_safety_distance.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
             proximity:
               description: 'Proximity trigger distance for detonation.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' m'
           type: object
           nullable: true
         delays:
@@ -9495,16 +9759,19 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' s'
             ignite_time:
               description: 'Time in seconds between arming and detonation. Same as top-level ignite_time.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' s'
             collision_delay_time:
               description: 'Delay before collision detection becomes active. Same as top-level collision_delay_time.'
               type: number
               format: double
               nullable: true
+              x-suffix: ' s'
           type: object
           nullable: true
         damage_map:
@@ -9545,24 +9812,36 @@ components:
       type: object
     cargo_grid:
       title: 'Cargo Grid'
-      description: 'Cargo grid dimensions derived from inventory container data.'
+      description: 'Cargo grid capacity and dimensions derived from inventory container data.'
       properties:
+        scu:
+          description: 'Cargo capacity in Standard Cargo Units.'
+          type: number
+          format: double
+          nullable: true
+          x-suffix: ' SCU'
         x:
+          description: 'Interior width in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         'y':
+          description: 'Interior depth in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         z:
+          description: 'Interior height in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
       type: object
     clothing:
       title: Clothing
-      description: 'Wearable clothing like shirts, pants, gloves, etc., little to no damage reduction capabilities. Generated from SCItemClothingParams.'
+      description: 'DEPRECATED: Use suit_armor instead. Wearable clothing like shirts, pants, gloves, etc., little to no damage reduction capabilities. Generated from SCItemClothingParams.'
       properties:
         clothing_type:
           description: 'Property is set if resource is of type "clothing". Superseded by type.'
@@ -9632,6 +9911,7 @@ components:
           example: -0.125
           nullable: true
       type: object
+      deprecated: true
     cooler:
       title: Cooler
       description: 'Ship cooler specifications including heat dissipation capacity, signature suppression factors, and coolant segment generation.'
@@ -9692,6 +9972,7 @@ components:
               type: number
               format: double
               nullable: true
+              x-suffix: ' dB'
           type: object
           nullable: true
       type: object
@@ -9711,37 +9992,42 @@ components:
           format: double
           example: 400
           nullable: true
+          x-suffix: ' m'
         min_emp_radius:
           description: 'Inner radius (m) guaranteed to receive full EMP effect before falloff begins. Presently 150m-250m.'
           type: number
           format: double
           example: 150
           nullable: true
+          x-suffix: ' m'
         charge_duration:
           description: 'Seconds required to fully charge before firing. Current game data ranges 12-26 seconds across EMP sizes.'
           type: number
           format: double
           example: 12
           nullable: true
+          x-suffix: ' s'
         unleash_duration:
           description: 'Duration in seconds the pulse is actively released after charging completes. Values are either 0.75s (small) or 1.5s (large).'
           type: number
           format: double
           example: 0.75
           nullable: true
+          x-suffix: ' s'
         cooldown_duration:
           description: 'Cooldown in seconds before charging can restart. Current data spans 6-40 seconds depending on size and variant.'
           type: number
           format: double
           example: 6
           nullable: true
+          x-suffix: ' s'
       type: object
     flight_controller_boost_capacitor:
       title: 'Flight Controller Boost Capacitor'
       description: 'Afterburner (boost) capacitor configuration and regeneration settings.'
       properties:
         capacity:
-          description: 'Maximum afterburner capacitor capacity.'
+          description: 'Total afterburner fuel pool. Combined with cost rates, determines total boost time available before depletion.'
           type: number
           format: double
           example: 20
@@ -9752,6 +10038,7 @@ components:
           format: double
           example: 0.1
           nullable: true
+          x-tabulator-formatter: pct
         idle_cost:
           description: 'Capacitor drain per second while afterburner is armed but not thrusting.'
           type: number
@@ -9776,18 +10063,21 @@ components:
           format: double
           example: 0.75
           nullable: true
+          x-suffix: ' /s'
         regen_delay:
           description: 'Seconds of delay after disengaging before capacitor regen resumes.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-suffix: ' s'
         regen_time:
           description: 'Seconds required to fully regenerate the capacitor from empty (if provided by data).'
           type: number
           format: double
           example: 10
           nullable: true
+          x-suffix: ' s'
       type: object
     flight_controller_boost_activation:
       title: 'Flight Controller Boost Activation'
@@ -9799,18 +10089,21 @@ components:
           format: double
           example: 0
           nullable: true
+          x-suffix: ' s'
         ramp_up_time:
           description: 'Seconds to reach full afterburner output.'
           type: number
           format: double
           example: 0.6
           nullable: true
+          x-suffix: ' s'
         ramp_down_time:
           description: 'Seconds to decay from afterburner to normal thrust.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-suffix: ' s'
       type: object
     flight_controller_thruster_decay:
       title: 'Flight Controller Thruster Decay'
@@ -9840,7 +10133,7 @@ components:
           example: 0.3
           nullable: true
         lift:
-          description: 'Lift multiplier applied to thruster output.'
+          description: 'Vertical thrust multiplier affecting VTOL and hover authority. Higher values increase upward thrust strength.'
           type: number
           format: double
           example: 7
@@ -9938,24 +10231,28 @@ components:
           format: double
           example: 10
           nullable: true
+          x-suffix: ' m/s'
         max_speed_zero_proximity_assist:
           description: 'Precision mode max speed (m/s) when proximity assist is disabled.'
           type: number
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m/s'
         min_distance:
           description: 'Minimum distance in meters where precision landing assist calculations begin.'
           type: number
           format: double
           example: 5
           nullable: true
+          x-suffix: ' m'
         max_distance:
           description: 'Maximum distance in meters where precision landing assist calculations apply.'
           type: number
           format: double
           example: 50
           nullable: true
+          x-suffix: ' m'
       type: object
     flight_controller_recall_params:
       title: 'Flight Controller Recall Params'
@@ -9967,36 +10264,42 @@ components:
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m'
         forward_offset:
           description: 'Forward offset in meters from the destination point where the ship stages before final landing.'
           type: number
           format: double
           example: 20
           nullable: true
+          x-suffix: ' m'
         obstruction_detection_range:
           description: 'Range in meters to scan for obstacles while recalling.'
           type: number
           format: double
           example: 1.2
           nullable: true
+          x-suffix: ' m'
         default_platform_detection_range:
           description: 'Detection radius in meters to locate a viable landing platform.'
           type: number
           format: double
           example: 50
           nullable: true
+          x-suffix: ' m'
         minimum_recall_distance:
           description: 'Minimum distance in meters from the player before recall engages.'
           type: number
           format: double
           example: 400
           nullable: true
+          x-suffix: ' m'
         braking_distance_offset:
           description: 'Extra buffer distance in meters used to start braking during recall approach.'
           type: number
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m'
       type: object
     flight_controller_collision_detection:
       title: 'Flight Controller Collision Detection'
@@ -10008,18 +10311,21 @@ components:
           format: double
           example: 6
           nullable: true
+          x-suffix: ' m/s'
         collision_warn_time:
           description: 'Seconds until projected impact when general collision warning fires.'
           type: number
           format: double
           example: 4
           nullable: true
+          x-suffix: ' s'
         collision_danger_close_warn_time:
           description: 'Seconds until impact for the urgent/danger-close warning stage.'
           type: number
           format: double
           example: 2
           nullable: true
+          x-suffix: ' s'
       type: object
     flight_no_fuel_params:
       title: 'No-Fuel Flight Parameters'
@@ -10045,6 +10351,7 @@ components:
           type: number
           example: 20
           nullable: true
+          x-suffix: ' m/s'
       type: object
     flight_controller_gravlev:
       title: 'Flight Controller Gravlev'
@@ -10056,6 +10363,7 @@ components:
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m/s'
         turn_friction:
           description: 'Turning friction factor for gravlev.'
           type: number
@@ -10091,57 +10399,67 @@ components:
           format: double
           example: 227
           nullable: true
+          x-suffix: ' m/s'
         boost_speed_forward:
           description: 'Forward boost speed cap in m/s.'
           type: number
           format: double
           example: 470
           nullable: true
+          x-suffix: ' m/s'
         boost_speed_backward:
           description: 'Reverse boost speed cap in m/s.'
           type: number
           format: double
           example: 240
           nullable: true
+          x-suffix: ' m/s'
         max_speed:
           description: 'Absolute flight envelope speed cap in m/s.'
           type: number
           format: double
           example: 1230
           nullable: true
+          x-suffix: ' m/s'
         pitch:
           description: 'Maximum pitch rate in degrees per second.'
           type: number
           format: double
           example: 59
           nullable: true
+          x-suffix: ' °/s'
         yaw:
           description: 'Maximum yaw rate in degrees per second.'
           type: number
           format: double
           example: 51
           nullable: true
+          x-suffix: ' °/s'
         roll:
           description: 'Maximum roll rate in degrees per second.'
           type: number
           format: double
           example: 137
           nullable: true
+          x-suffix: ' °/s'
         pitch_boosted:
           description: 'Derived boosted pitch rate (rounded): pitch * boost_multiplier.pitch (defaults to 1 if missing).'
           type: integer
           example: 59
           nullable: false
+          x-suffix: ' °/s'
         yaw_boosted:
           description: 'Derived boosted yaw rate (rounded): yaw * boost_multiplier.yaw (defaults to 1 if missing).'
           type: integer
           example: 51
           nullable: false
+          x-suffix: ' °/s'
         roll_boosted:
           description: 'Derived boosted roll rate (rounded): roll * boost_multiplier.roll (defaults to 1 if missing).'
           type: integer
           example: 137
           nullable: false
+          x-suffix: ' °/s'
         boost_capacitor:
           $ref: '#/components/schemas/flight_controller_boost_capacitor'
         boost_activation:
@@ -10213,11 +10531,12 @@ components:
       description: 'Consumption settings from stdItem.Food.Consumption.'
       properties:
         volume:
-          description: 'Consumption volume (unit as defined by game data).'
+          description: 'Consumption volume in microSCU.'
           type: number
           format: double
           example: 0.25
           nullable: true
+          x-suffix: ' µSCU'
         one_shot_consume:
           description: 'Whether the item is consumed in one action.'
           type: boolean
@@ -10277,10 +10596,12 @@ components:
       description: 'Fuel intake flow rates sourced from stdItem.FuelIntake.'
       properties:
         fuel_push_rate:
+          description: 'Fuel push rate into the fuel tanks. A value of 0 means no active push capability.'
           type: number
           format: double
           nullable: true
         minimum_rate:
+          description: 'Minimum fuel collection rate.'
           type: number
           format: double
           nullable: true
@@ -10290,7 +10611,7 @@ components:
       description: 'Fuel and quantum fuel tank characteristics.'
       properties:
         fill_rate:
-          description: 'Maximum generation/refill rate in standard resource units per second. Typical civilian tanks are 0.25-10.'
+          description: 'Maximum generation/refill rate in standard resource units per second.'
           type: number
           format: double
           example: 10
@@ -10308,7 +10629,7 @@ components:
           example: 5000
           nullable: true
         discharge_rate:
-          description: 'Deprecated: Use capacity.'
+          description: 'Deprecated: No longer meaningful.'
           type: number
           format: double
           nullable: true
@@ -10324,12 +10645,14 @@ components:
           format: double
           example: 4
           nullable: true
+          x-suffix: ' m'
         max:
           description: 'Maximum effective/lethal radius in meters.'
           type: number
           format: double
           example: 5.5
           nullable: true
+          x-suffix: ' m'
         minimum:
           description: 'Deprecated: Use min.'
           type: number
@@ -10374,7 +10697,7 @@ components:
       description: 'Cryptokey / hacking chip stats pulled from in-game item definitions. Controls charge count, hack duration scaling, failure risk, and access gating tags applied during missions.'
       properties:
         max_charges:
-          description: 'Number of uses before the chip depletes. Current game data sets this to 3 on all chips.'
+          description: 'Number of uses before the chip depletes.'
           type: integer
           example: 3
           nullable: true
@@ -10390,6 +10713,7 @@ components:
           format: double
           example: 0.9
           nullable: true
+          x-tabulator-formatter: pct
         access_tag:
           description: 'Gameplay access tag required/assigned when the chip is used (e.g., MissionQuestItem to mark mission-only keys).'
           type: string
@@ -10398,25 +10722,30 @@ components:
       type: object
     jump_drive:
       title: 'Jump Drive'
-      description: ''
+      description: 'Jump drive alignment, tuning, and fuel efficiency stats sourced from SCItemJumpDriveParams.'
       properties:
         alignment_rate:
+          description: 'Rate at which the drive aligns to a jump point. Higher values mean faster alignment.'
           type: number
           format: double
           nullable: true
         alignment_decay_rate:
+          description: 'Rate at which alignment decays when not actively aligning.'
           type: number
           format: double
           nullable: true
         tuning_rate:
+          description: 'Tuning speed. Higher values mean faster calibration.'
           type: number
           format: double
           nullable: true
         tuning_decay_rate:
+          description: 'Rate at which tuning decays when not actively tuning.'
           type: number
           format: double
           nullable: true
         fuel_usage_efficiency_multiplier:
+          description: 'Fuel efficiency multiplier. Higher values mean less fuel consumed per jump.'
           type: number
           format: double
           nullable: true
@@ -10464,11 +10793,12 @@ components:
               description: 'Consumption settings from stdItem.Medical.Consumption.'
               properties:
                 volume:
-                  description: 'Consumption volume (unit as defined by game data).'
+                  description: 'Consumption volume in microSCU.'
                   type: number
                   format: double
                   example: 0.25
                   nullable: true
+                  x-suffix: ' µSCU'
                 one_shot_consume:
                   description: 'Whether the item is consumed in one action.'
                   type: boolean
@@ -10490,31 +10820,37 @@ components:
       description: 'Damage breakdown for a melee attack mode.'
       properties:
         physical:
+          description: 'Physical damage.'
           type: number
           format: double
           example: 30
           nullable: true
         energy:
+          description: 'Energy damage.'
           type: number
           format: double
           example: 0
           nullable: true
         distortion:
+          description: 'Distortion damage.'
           type: number
           format: double
           example: 0
           nullable: true
         thermal:
+          description: 'Thermal damage.'
           type: number
           format: double
           example: 0
           nullable: true
         biochemical:
+          description: 'Biochemical damage.'
           type: number
           format: double
           example: 0
           nullable: true
         stun:
+          description: 'Stun damage.'
           type: number
           format: double
           example: 0
@@ -10525,6 +10861,7 @@ components:
       description: 'Single attack configuration as returned by the resource.'
       properties:
         category:
+          description: 'Attack animation category (e.g., BladeSlash, BladeStab, SyringeStab).'
           type: string
           example: BladeSlash
           nullable: true
@@ -10535,30 +10872,36 @@ components:
           example: 30
           nullable: true
         stun_recovery_modifier:
+          description: 'Modifier applied to stun recovery time.'
           type: number
           format: double
           example: 0
           nullable: true
         block_stun_reduction_modifier:
+          description: 'Modifier reducing stun duration when blocking.'
           type: number
           format: double
           example: 0
           nullable: true
         block_stun_stamina_modifier:
+          description: 'Modifier applied to stamina cost of blocking a stun.'
           type: number
           format: double
           example: 0
           nullable: true
         attack_impulse:
+          description: 'Physical impulse applied to the target on hit.'
           type: number
           format: double
           example: 20
           nullable: true
         ignore_body_part_impulse_scale:
+          description: 'Whether impulse ignores body-part-specific scaling.'
           type: boolean
           example: false
           nullable: true
         force_knockdown:
+          description: 'Knockdown behavior (e.g., None).'
           type: string
           example: None
           nullable: true
@@ -10570,26 +10913,32 @@ components:
       description: 'Melee weapon specification sourced from Item.stdItem.MeleeWeapon (or meleeWeapon).'
       properties:
         can_be_used_for_take_down:
+          description: 'Whether this weapon can be used for takedown attacks.'
           type: boolean
           example: true
           nullable: true
         can_block:
+          description: 'Whether the wielder can block incoming attacks.'
           type: boolean
           example: true
           nullable: true
         can_be_used_in_prone:
+          description: 'Whether the weapon can be used while prone.'
           type: boolean
           example: false
           nullable: true
         can_dodge:
+          description: 'Whether the wielder can dodge while equipped.'
           type: boolean
           example: true
           nullable: true
         stance_transition_melee_delay:
+          description: 'Delay in seconds when transitioning to a melee stance.'
           type: number
           format: double
           example: 0.6
           nullable: true
+          x-suffix: ' s'
         melee_combat_config:
           description: 'UUID reference to the melee combat config record.'
           type: string
@@ -10672,13 +11021,13 @@ components:
           example: 2
           nullable: true
         throttle_lerp_speed:
-          description: 'Throttle lerp speed (ThrottleLerpSpeed).'
+          description: 'How quickly the throttle responds to input changes.'
           type: number
           format: double
           example: 6.5
           nullable: true
         throttle_minimum:
-          description: 'Minimum throttle value (ThrottleMinimum).'
+          description: 'Minimum throttle value when firing.'
           type: number
           format: double
           example: 0.1
@@ -10697,6 +11046,7 @@ components:
           nullable: true
           deprecated: true
         modifier_map:
+          description: 'Key-value map of mining laser modifier names to their numeric values.'
           type: object
           nullable: false
           additionalProperties:
@@ -10713,20 +11063,22 @@ components:
           format: double
           example: 45
           nullable: true
+          x-suffix: ' m'
         maximum_range:
           description: 'Maximum effective range in meters (MaximumRange).'
           type: number
           format: double
           example: 135
           nullable: true
+          x-suffix: ' m'
         extraction_throughput:
-          description: 'Extraction throughput metric (ExtractionThroughput).'
+          description: 'Rate at which ore is extracted from the target.'
           type: number
           format: double
           example: 2775
           nullable: true
         collection_point_radius:
-          description: 'Radius of the collection point beam (CollectionPointRadius).'
+          description: 'Radius of the mining beam at the collection point.'
           type: number
           format: double
           example: 0.1
@@ -10775,6 +11127,7 @@ components:
           format: double
           example: 60
           nullable: true
+          x-suffix: ' s'
         power_modifier:
           description: 'Power modifier value from Modifiers.DamageMultiplierChange. Returned as-is from the source data.'
           example: 1.1
@@ -10957,9 +11310,11 @@ components:
       description: 'Missile rack capacity derived from port configuration.'
       properties:
         missile_count:
+          description: 'Number of missile slots on the rack, derived from port configuration.'
           type: integer
           nullable: true
         missile_size:
+          description: 'Maximum missile size supported (from the first port MaxSize).'
           type: integer
           nullable: true
       type: object
@@ -10978,6 +11333,7 @@ components:
           format: double
           example: 15
           nullable: true
+          x-suffix: ' s'
         range:
           description: 'Maximum travel distance/range as provided by the source data.'
           type: number
@@ -10985,49 +11341,56 @@ components:
           example: 10000
           nullable: true
         speed:
-          description: 'Linear cruise velocity in meters per second (LinearSpeed).'
+          description: 'Linear cruise velocity in meters per second.'
           type: number
           format: double
           example: 1372
           nullable: true
+          x-suffix: ' m/s'
         boost_speed:
-          description: 'Initial boost phase velocity in meters per second (BoostSpeed).'
+          description: 'Initial boost phase velocity in meters per second.'
           type: number
           format: double
           example: 165
           nullable: true
+          x-suffix: ' m/s'
         intercept_speed:
-          description: 'Intercept phase speed in meters per second (InterceptSpeed).'
+          description: 'Intercept phase speed in meters per second.'
           type: number
           format: double
           example: 400
           nullable: true
+          x-suffix: ' m/s'
         terminal_speed:
-          description: 'Terminal phase speed in meters per second (TerminalSpeed).'
+          description: 'Terminal phase speed in meters per second.'
           type: number
           format: double
           example: 475
           nullable: true
+          x-suffix: ' m/s'
         boost_phase_duration:
-          description: 'Duration of the boost phase in seconds (BoostPhaseDuration).'
+          description: 'Duration of the boost phase in seconds.'
           type: number
           format: double
           example: 1.5
           nullable: true
+          x-suffix: ' s'
         terminal_phase_engagement_time:
-          description: 'Seconds before impact when terminal phase activates (TerminalPhaseEngagementTime).'
+          description: 'Seconds before impact when terminal phase activates.'
           type: number
           format: double
           example: 5
           nullable: true
+          x-suffix: ' s'
         terminal_phase_engagement_angle:
-          description: 'Maximum engagement angle in degrees for terminal phase (TerminalPhaseEngagementAngle).'
+          description: 'Maximum engagement angle in degrees for terminal phase.'
           type: number
           format: double
           example: 35
           nullable: true
+          x-suffix: ' °'
         fuel_tank_size:
-          description: 'Fuel capacity in arbitrary units (FuelTankSize).'
+          description: 'Fuel capacity in arbitrary units.'
           type: number
           format: double
           example: 25000
@@ -11055,18 +11418,21 @@ components:
           format: double
           example: 10000
           nullable: true
+          x-suffix: ' m'
         range_min:
           description: 'Minimum lock acquisition range in meters.'
           type: number
           format: double
           example: 1700
           nullable: true
+          x-suffix: ' m'
         angle:
           description: 'Maximum lock acquisition angle in degrees (cone of acquisition).'
           type: number
           format: double
           example: 60
           nullable: true
+          x-suffix: ' °'
         signal_amplifier:
           description: 'Signal amplification factor applied during lock acquisition.'
           type: number
@@ -11079,6 +11445,7 @@ components:
           format: double
           example: 1.6
           nullable: true
+          x-suffix: ' /s'
         allow_dumb_firing:
           description: 'Whether the missile can be manually fired without a target lock.'
           type: boolean
@@ -11115,18 +11482,21 @@ components:
           format: double
           example: 1
           nullable: true
+          x-suffix: ' m'
         radius_max:
           description: 'Maximum explosion damage radius in meters.'
           type: number
           format: double
           example: 2
           nullable: true
+          x-suffix: ' m'
         safety_distance:
           description: 'Minimum safe distance in meters from the explosion center.'
           type: number
           format: double
           example: 2
           nullable: true
+          x-suffix: ' m'
         proximity:
           description: 'Proximity fuse / projectile proximity value (as provided by source data).'
           type: number
@@ -11144,24 +11514,28 @@ components:
           format: double
           example: 0.8
           nullable: true
+          x-suffix: ' s'
         ignite_time:
           description: 'Delay in seconds between launch and engine ignition.'
           type: number
           format: double
           example: 0.1
           nullable: true
+          x-suffix: ' s'
         collision_delay_time:
           description: 'Delay in seconds before collision detection is active after launch.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
         lock_time:
           description: 'Time in seconds required to establish a target lock.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
       type: object
     missile_damage_map:
       title: 'Missile Damage Map'
@@ -11279,38 +11653,38 @@ components:
       description: 'Fire mode entries as returned by the game data mapping. Type-specific fields are only present when the mode type matches.'
       properties:
         mode:
-          description: 'Mode name (Modes[].Name).'
+          description: 'Mode name.'
           type: string
           example: Rapid
           nullable: true
         localised:
-          description: 'Localized label (Modes[].LocalisedName).'
+          description: 'Localized label.'
           type: string
           example: '[AUTO]'
           nullable: true
         type:
-          description: 'Fire type (Modes[].FireType).'
+          description: 'Fire type.'
           type: string
           example: rapid
           nullable: true
         rpm:
-          description: 'Rounds per minute (Modes[].RoundsPerMinute).'
+          description: 'Rounds per minute.'
           type: number
           format: double
           example: 925
           nullable: true
         ammo_per_shot:
-          description: 'Ammo consumed per shot (Modes[].AmmoPerShot).'
+          description: 'Ammo consumed per shot.'
           type: integer
           example: 1
           nullable: true
         pellets_per_shot:
-          description: 'Pellets per shot (Modes[].PelletsPerShot).'
+          description: 'Pellets per shot.'
           type: integer
           example: 12
           nullable: true
         damage_per_second:
-          description: 'Mode DPS as provided (Modes[].DamagePerSecond).'
+          description: 'Damage per second.'
           type: number
           format: double
           example: 0
@@ -11348,6 +11722,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         sequence_mode:
           description: 'Sequence mode identifier (sequence mode).'
           type: string
@@ -11357,21 +11732,25 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         charge_down_time:
           description: 'Beam spool-down time in seconds (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         full_damage_range:
           description: 'Range at which full damage is applied (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         zero_damage_range:
           description: 'Range at which damage drops to zero (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         hit_type:
           description: 'Beam hit registration type (beam mode).'
           type: string
@@ -11422,6 +11801,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         max_sensor_distance:
           description: 'Maximum sensor range for target detection (healingbeam mode).'
           type: number
@@ -11437,6 +11817,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max_dose_for_auto_adjustment:
           description: 'Max dose for auto-adjustment (healingbeam mode).'
           type: number
@@ -11472,11 +11853,13 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         ramp_down_time:
           description: 'Beam ramp-down time in seconds (salvage mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max_vehicle_damage_ratio:
           description: 'Max vehicle damage ratio (salvage mode).'
           type: number
@@ -11501,11 +11884,13 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         maximum_distance:
           description: 'Maximum mining distance (collectionbeam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         beam_radius:
           description: 'Collection beam radius (collectionbeam mode).'
           type: number
@@ -11535,31 +11920,37 @@ components:
       description: 'Damage values broken down by damage type.'
       properties:
         physical:
+          description: 'Physical damage.'
           type: number
           format: double
           example: 11.5
           nullable: true
         energy:
+          description: 'Energy damage.'
           type: number
           format: double
           example: 0
           nullable: true
         distortion:
+          description: 'Distortion damage.'
           type: number
           format: double
           example: 0
           nullable: true
         thermal:
+          description: 'Thermal damage.'
           type: number
           format: double
           example: 0
           nullable: true
         biochemical:
+          description: 'Biochemical damage.'
           type: number
           format: double
           example: 0
           nullable: true
         stun:
+          description: 'Stun damage.'
           type: number
           format: double
           example: 0
@@ -11570,17 +11961,19 @@ components:
       description: 'Weapon damage totals and per-type breakdowns from Weapon.Damage.'
       properties:
         dps_total:
+          description: 'Total damage per second across all types.'
           type: number
           format: double
           example: 1150
           nullable: true
         alpha_total:
+          description: 'Total damage per shot across all types.'
           type: number
           format: double
           example: 11.5
           nullable: true
         max:
-          description: 'Maximum damage per magazine (Damage.MaxPerMag).'
+          description: 'Maximum damage per magazine.'
           type: number
           format: double
           example: 575
@@ -11608,15 +12001,19 @@ components:
       description: 'Spread configuration. Only present when spread data exists in the source.'
       properties:
         min:
+          description: 'Minimum spread angle.'
           type: number
           format: double
           example: 0.1
           nullable: true
+          x-suffix: ' °'
         max:
+          description: 'Maximum spread angle.'
           type: number
           format: double
           example: 1.2
           nullable: true
+          x-suffix: ' °'
         minimum:
           description: 'Deprecated: Use min.'
           type: number
@@ -11632,16 +12029,21 @@ components:
           nullable: true
           deprecated: true
         first_attack:
+          description: 'Spread added on the first shot.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-suffix: ' °'
         per_attack:
+          description: 'Spread added per subsequent shot.'
           type: number
           format: double
           example: 0.05
           nullable: true
+          x-suffix: ' °'
         decay:
+          description: 'Rate at which spread recovers between shots.'
           type: number
           format: double
           example: 0.3
@@ -11652,25 +12054,33 @@ components:
       description: 'Charge timings. Only present when charge data exists in the source.'
       properties:
         time:
+          description: 'Time to reach full charge in seconds.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-suffix: ' s'
         overcharge_time:
+          description: 'Time window for overcharge in seconds.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
         overcharged_time:
+          description: 'Duration of overcharged state in seconds.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
         cooldown_time:
+          description: 'Cooldown after firing in seconds.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-suffix: ' s'
         auto_fire:
           description: 'Auto-fire when fully charged.'
           type: boolean
@@ -11693,16 +12103,19 @@ components:
       description: 'Charge modifiers. Only present when charge data exists in the source.'
       properties:
         damage:
+          description: 'Damage multiplier at full charge.'
           type: number
           format: double
           example: 1
           nullable: true
         fire_rate:
+          description: 'Fire rate multiplier at full charge.'
           type: number
           format: double
           example: 1
           nullable: true
         ammo_speed:
+          description: 'Projectile speed multiplier at full charge.'
           type: number
           format: double
           example: 1
@@ -11759,16 +12172,17 @@ components:
           nullable: true
           deprecated: true
         capacity:
-          description: 'Weapon capacity (Weapon.Capacity).'
+          description: 'Weapon magazine capacity.'
           type: integer
           example: 50
           nullable: true
         range:
-          description: 'Effective range in meters (Weapon.EffectiveRange).'
+          description: 'Effective range in meters.'
           type: number
           format: double
           example: 950
           nullable: true
+          x-suffix: ' m'
         damage_per_shot:
           description: 'Deprecated: use `damage.alpha_total` (or per-type `damage.alpha.*`) instead.'
           type: number
@@ -11777,7 +12191,7 @@ components:
           nullable: true
           deprecated: true
         pellets_per_shot:
-          description: 'Pellets per shot (Weapon.PelletsPerShot).'
+          description: 'Pellets per shot.'
           type: integer
           example: 12
           nullable: true
@@ -11789,7 +12203,7 @@ components:
           nullable: true
           deprecated: true
         rpm:
-          description: 'Rounds per minute for the first mode (Modes[0].RoundsPerMinute).'
+          description: 'Rounds per minute for the first fire mode.'
           type: number
           format: double
           example: 925
@@ -11808,7 +12222,7 @@ components:
             $ref: '#/components/schemas/personal_weapon_mode'
           nullable: true
         fire_mode:
-          description: 'Weapon fire mode (Weapon.FireMode).'
+          description: 'Weapon fire mode.'
           type: string
           example: Auto
           nullable: true
@@ -11855,6 +12269,7 @@ components:
           example: physical
           nullable: true
         damage:
+          description: 'Damage value.'
           type: number
           format: double
           example: 11.5
@@ -11865,11 +12280,12 @@ components:
       description: 'Power plant specifications including power output and segment generation from resource network.'
       properties:
         power_output:
+          description: 'Power draw value. Deprecated in favor of power_segment_generation for actual output measurement.'
           type: number
           format: double
           nullable: true
         power_segment_generation:
-          description: 'Power segment generation rate from resource network. Use this for actual power segment generation.'
+          description: 'Power segment generation rate from the resource network. This is the primary power output metric.'
           type: number
           format: double
           example: 1000
@@ -11885,42 +12301,49 @@ components:
           format: double
           example: 218000000
           nullable: true
+          x-suffix: ' m/s'
         cooldown_time:
           description: 'Cooldown after exit in seconds; dataset ranges 0-92.07.'
           type: number
           format: double
           example: 41.4
           nullable: true
+          x-suffix: ' s'
         stage_one_accel_rate:
           description: 'Initial acceleration phase (m/s²). Standard ~1.75M; spline as low as 250.'
           type: number
           format: double
           example: 1750000
           nullable: true
+          x-suffix: ' m/s²'
         stage_two_accel_rate:
           description: 'Secondary acceleration phase (m/s²). Standard up to 11,000,000; spline around 50,000.'
           type: number
           format: double
           example: 11000000
           nullable: true
+          x-suffix: ' m/s²'
         engage_speed:
           description: 'Minimum ship speed to engage QT (m/s).'
           type: number
           format: double
           example: 1500
           nullable: true
+          x-suffix: ' m/s'
         interdiction_effect_time:
           description: 'Duration of interdiction effect (seconds).'
           type: number
           format: double
           example: 5
           nullable: true
+          x-suffix: ' s'
         calibration_rate:
           description: 'Calibration progress per second.'
           type: number
           format: double
           example: 1000
           nullable: true
+          x-suffix: ' /s'
         min_calibration_requirement:
           description: 'Minimum calibration distance gate.'
           type: number
@@ -11939,24 +12362,28 @@ components:
           format: double
           example: 5
           nullable: true
+          x-suffix: ' °'
         calibration_warning_angle_limit:
           description: 'Warning threshold for calibration cone (degrees).'
           type: number
           format: double
           example: 8
           nullable: true
+          x-suffix: ' °'
         calibration_delay_in_seconds:
           description: 'Delay applied before calibration proceeds (seconds).'
           type: number
           format: double
           example: 1.5
           nullable: true
+          x-suffix: ' s'
         spool_up_time:
           description: 'Time to spool from idle to ready (seconds).'
           type: number
           format: double
           example: 6
           nullable: true
+          x-suffix: ' s'
         drive_speed_formatted:
           description: 'Drive speed formatted for display (e.g. "165 Mm/s", "400 km/s"). Null when drive_speed is null.'
           type: string
@@ -12018,6 +12445,7 @@ components:
           format: double
           example: 56
           nullable: true
+          x-suffix: ' s'
         formatted:
           description: 'Formatted travel time string.'
           type: string
@@ -12034,6 +12462,7 @@ components:
           format: double
           example: 0.006758
           nullable: true
+          x-suffix: ' SCU'
         fuel_rate:
           description: 'Continuous quantum fuel burn per meter travelled (FuelRate).'
           type: number
@@ -12046,6 +12475,7 @@ components:
           format: double
           example: 3.402823E+38
           nullable: true
+          x-suffix: ' m'
         jump_range_formatted:
           description: 'Jump range formatted as human-readable distance (e.g. "~56 GM"). Null when jump_range is null.'
           type: string
@@ -12057,6 +12487,7 @@ components:
           format: double
           example: 34693
           nullable: true
+          x-suffix: ' m'
         disconnect_range_formatted:
           description: 'Disconnect range formatted as human-readable distance (e.g. "35 km"). Null when disconnect_range is null.'
           type: string
@@ -12093,20 +12524,26 @@ components:
       description: 'Fractions of the generator total power budget reserved for base/idle, pulse, and jammer phases.'
       properties:
         base:
+          description: 'Power fraction allocated to base idle operation.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-tabulator-formatter: pct
         pulse:
+          description: 'Power fraction allocated to pulse operations.'
           type: number
           format: double
           example: 0.8
           nullable: true
+          x-tabulator-formatter: pct
         jammer:
+          description: 'Power fraction allocated to jammer operations.'
           type: number
           format: double
           example: 0.4
           nullable: true
+          x-tabulator-formatter: pct
       type: object
     quantum_interdiction_generator_jamming:
       title: 'Quantum Interdiction Generator Jamming'
@@ -12118,6 +12555,7 @@ components:
           format: double
           example: 12000
           nullable: true
+          x-suffix: ' m'
         max_power_draw:
           description: 'Peak power draw while the jammer is active.'
           type: number
@@ -12130,6 +12568,7 @@ components:
           format: double
           example: 4000
           nullable: true
+          x-suffix: ' m'
       type: object
     quantum_interdiction_generator_pulse:
       title: 'Quantum Interdiction Generator Pulse'
@@ -12141,48 +12580,56 @@ components:
           format: double
           example: 90
           nullable: true
+          x-suffix: ' s'
         discharge_time:
           description: 'Duration of the active pulse.'
           type: number
           format: double
           example: 30
           nullable: true
+          x-suffix: ' s'
         cooldown_time:
           description: 'Cooldown before the next charge cycle.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-suffix: ' s'
         radius:
           description: 'Pulse radius in meters.'
           type: number
           format: double
           example: 20000
           nullable: true
+          x-suffix: ' m'
         decrease_charge_rate_time:
           description: 'Seconds to ramp down charging rate.'
           type: number
           format: double
           example: 1.5
           nullable: true
+          x-suffix: ' s'
         increase_charge_rate_time:
           description: 'Seconds to ramp up charging rate.'
           type: number
           format: double
           example: 3.5
           nullable: true
+          x-suffix: ' s'
         activation_phase_duration:
           description: 'Activation animation/FX phase length.'
           type: number
           format: double
           example: 3
           nullable: true
+          x-suffix: ' s'
         disperse_charge_time:
           description: 'Time to disperse the pulse if cancelled.'
           type: number
           format: double
           example: 5
           nullable: true
+          x-suffix: ' s'
         max_power_draw:
           description: 'Maximum power draw during pulse operations.'
           type: number
@@ -12195,34 +12642,39 @@ components:
           format: double
           example: 0.2
           nullable: true
+          x-tabulator-formatter: pct
         max_charge_rate_power_fraction:
           description: 'Peak charge-rate power fraction.'
           type: number
           format: double
           example: 0.85
           nullable: true
+          x-tabulator-formatter: pct
         active_power_fraction:
           description: 'Power fraction while pulse is active.'
           type: number
           format: double
           example: 0.95
           nullable: true
+          x-tabulator-formatter: pct
         tethering_power_fraction:
           description: 'Power fraction while maintaining tether.'
           type: number
           format: double
           example: 0.8
           nullable: true
+          x-tabulator-formatter: pct
         green_zone_check_range:
           description: 'Safety buffer used for pulse firing checks.'
           type: number
           format: double
           example: 30000
           nullable: true
+          x-suffix: ' m'
       type: object
     quantum_interdiction_generator:
       title: 'Quantum Interdiction Generator'
-      description: 'Gameplay-facing interdiction and jamming stats sourced from stdItem.QuantumInterdictionGenerator in the game data. Does not include RAW/engineering fields.'
+      description: 'Interdiction and jamming stats including power budget, jamming field, and pulse burst data.'
       properties:
         power_fractions:
           oneOf:
@@ -12297,22 +12749,27 @@ components:
       description: 'Per-signal sensitivity values as provided by game data.'
       properties:
         infrared:
+          description: 'Infrared signature detection sensitivity.'
           type: number
           format: double
           nullable: true
         cross_section:
+          description: 'Cross-section signature detection sensitivity.'
           type: number
           format: double
           nullable: true
         electromagnetic:
+          description: 'Electromagnetic signature detection sensitivity.'
           type: number
           format: double
           nullable: true
         resource:
+          description: 'Resource signature detection sensitivity.'
           type: number
           format: double
           nullable: true
         db:
+          description: 'Decibel signature detection sensitivity.'
           type: number
           format: double
           nullable: true
@@ -12322,21 +12779,27 @@ components:
       description: 'Aim assist range parameters as provided by game data.'
       properties:
         distance_min_assignment:
+          description: 'Minimum distance for aim assist target assignment in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         distance_max_assignment:
+          description: 'Maximum distance for aim assist target assignment in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         outside_range_buffer_distance:
+          description: 'Buffer distance beyond max range in meters.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
       type: object
     radar:
       title: Radar
-      description: 'Radar specification sourced from stdItem.Radar.'
+      description: 'Radar detection parameters including sensitivity, piercing, and aim assist.'
       properties:
         detection_lifetime:
           description: 'Deprecated legacy field. Always null in this resource output.'
@@ -12356,47 +12819,48 @@ components:
           nullable: true
           deprecated: true
         cooldown:
-          description: 'Cooldown value (Radar.Cooldown).'
+          description: 'Radar ping cooldown in seconds.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-suffix: ' s'
         sensitivity:
           oneOf:
             -
               $ref: '#/components/schemas/radar_sensitivity_block'
           nullable: true
-          description: 'General detection sensitivity (Radar.Sensitivity.*).'
+          description: 'Detection sensitivity per signature type.'
         ground_vehicle_sensitivity:
           oneOf:
             -
               $ref: '#/components/schemas/radar_sensitivity_block'
           nullable: true
-          description: 'Ground vehicle detection sensitivity (Radar.GroundVehicleDetectionSensitivity.*).'
+          description: 'Detection sensitivity for ground vehicles, derived from sensitivity modifiers.'
         piercing:
           oneOf:
             -
               $ref: '#/components/schemas/radar_sensitivity_block'
           nullable: true
-          description: 'Signal "piercing" values (Radar.Piercing.*).'
+          description: 'Signal piercing strength per signature type, controlling detection through occlusion.'
         aim_assist:
           oneOf:
             -
               $ref: '#/components/schemas/radar_aim_assist_block'
           nullable: true
-          description: 'Aim assist range parameters (Radar.AimAssist.*).'
+          description: 'Aim assist range parameters.'
       type: object
     radiation_resistance:
       title: 'Radiation Resistance'
       description: 'Radiation resistance values used by clothing and armor.'
       properties:
         maximum_radiation_capacity:
-          description: 'MaximumRadiationCapacity attribute (e.g. radiation protection).'
+          description: 'Maximum radiation capacity.'
           type: number
           format: double
           nullable: true
         radiation_dissipation_rate:
-          description: 'RadiationDissipationRate attribute (scrub rate).'
+          description: 'Radiation dissipation rate.'
           type: number
           format: double
           nullable: true
@@ -12426,10 +12890,12 @@ components:
       description: 'Minimum and maximum values for a yaw or pitch axis.'
       properties:
         min:
+          description: 'Minimum axis limit.'
           type: number
           format: double
           nullable: true
         max:
+          description: 'Maximum axis limit.'
           type: number
           format: double
           nullable: true
@@ -12451,31 +12917,40 @@ components:
       description: 'Ejection system capabilities when equipped.'
       properties:
         max_linear_velocity:
+          description: 'Maximum linear ejection velocity in meters per second.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m/s'
         max_linear_acceleration:
+          description: 'Maximum linear ejection acceleration in meters per second squared.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m/s²'
         max_angular_velocity:
+          description: 'Maximum angular ejection velocity.'
           type: number
           format: double
           nullable: true
         max_angular_acceleration:
+          description: 'Maximum angular ejection acceleration.'
           type: number
           format: double
           nullable: true
         ejection_loop_time:
+          description: 'Ejection sequence duration in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
       type: object
     seat:
       title: Seat
-      description: 'Seat data sourced from stdItem.Seat for manned components.'
+      description: 'Seat parameters including type, axis limits, and ejection system.'
       properties:
         seat_type:
+          description: 'Seat control type.'
           type: string
           nullable: true
         yaw:
@@ -12483,15 +12958,19 @@ components:
             -
               $ref: '#/components/schemas/seat_axis'
           nullable: true
+          description: 'Yaw axis rotation limits.'
         pitch:
           oneOf:
             -
               $ref: '#/components/schemas/seat_axis'
           nullable: true
+          description: 'Pitch axis rotation limits.'
         set_yaw_pitch_limits:
+          description: 'Whether yaw and pitch limits are enforced.'
           type: boolean
           nullable: true
         has_ejection:
+          description: 'Whether the seat has an ejection system.'
           type: boolean
           nullable: true
         ejection:
@@ -12499,41 +12978,46 @@ components:
             -
               $ref: '#/components/schemas/seat_ejection'
           nullable: true
+          description: 'Ejection system parameters.'
       type: object
     self_destruct:
       title: 'Self-Destruct Module'
-      description: 'Countdown-activated self-destruct charges found on ships. Values are pulled directly from in-game item definitions. Data focuses on the live `Item` payload (not Raw).'
+      description: 'Self-destruct charge parameters.'
       properties:
         damage:
-          description: 'Peak blast damage dealt at the center of the explosion. Examples: 2,500 (RSI 20s charge), 15,000 (MISC 45s charge).'
+          description: 'Peak blast damage at the center of the explosion.'
           type: number
           format: double
           example: 15000
           nullable: true
         radius:
-          description: 'Maximum damage radius in meters where the explosion can apply. Examples: 30m (RSI 20s), 80m (MISC 45s).'
+          description: 'Maximum damage radius in meters.'
           type: number
           format: double
           example: 80
           nullable: true
+          x-suffix: ' m'
         min_radius:
-          description: 'Inner radius in meters that always receives full damage before falloff begins. Examples: 10m (RSI 20s), 30m (MISC 45s).'
+          description: 'Inner radius in meters that always receives full damage before falloff begins.'
           type: number
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m'
         phys_radius:
-          description: 'Physical/kinetic impact radius in meters. Examples: 30m (RSI 20s), 50m (MISC 45s).'
+          description: 'Physical impact radius in meters.'
           type: number
           format: double
           example: 50
           nullable: true
+          x-suffix: ' m'
         min_phys_radius:
-          description: 'Inner physical impact radius in meters guaranteed to apply full kinetic effect. Examples: 15m (RSI 20s), 30m (MISC 45s).'
+          description: 'Inner physical impact radius in meters.'
           type: number
           format: double
           example: 30
           nullable: true
+          x-suffix: ' m'
         time:
           description: 'Countdown duration in seconds before detonation once armed.'
           type: number
@@ -12542,28 +13026,35 @@ components:
           nullable: true
           deprecated: true
         countdown:
-          description: 'Countdown duration in seconds before detonation once armed (replacement for `time`). Examples: 20s, 45s.'
+          description: 'Countdown duration in seconds before detonation.'
           type: number
           format: double
           example: 20
           nullable: true
+          x-suffix: ' s'
       type: object
     shield_controller:
       title: 'Shield Controller'
-      description: ''
+      description: 'Shield controller parameters.'
       properties:
         face_type:
+          description: 'Shield face layout type.'
           type: string
           nullable: true
         max_reallocation:
+          description: 'Maximum shield reallocation fraction.'
           type: number
           format: double
           nullable: true
+          x-tabulator-formatter: pct
         reconfiguration_cooldown:
+          description: 'Cooldown after shield reconfiguration in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max_electrical_charge_damage_rate:
+          description: 'Maximum electrical charge damage rate.'
           type: number
           format: double
           nullable: true
@@ -12573,11 +13064,13 @@ components:
       description: 'Minimum/maximum absorption or resistance values for a given damage type.'
       properties:
         min:
+          description: 'Minimum value.'
           type: number
           format: double
           example: 0
           nullable: true
         max:
+          description: 'Maximum value.'
           type: number
           format: double
           example: 1
@@ -12623,33 +13116,39 @@ components:
       description: 'Reserve pool behavior for shield health and regen.'
       properties:
         regen_rate:
-          description: 'Reserve pool max regen rate (ReservePool.MaxShieldRegen).'
+          description: 'Reserve pool maximum regeneration rate.'
           type: number
           format: double
           example: 211
           nullable: true
         regen_time:
-          description: 'Reserve pool regeneration time (ReservePool.RegenerationTime).'
+          description: 'Reserve pool regeneration time in seconds.'
           type: number
           format: double
           example: 20
           nullable: true
         initial_health_ratio:
+          description: 'Reserve pool initial health ratio.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         max_health_ratio:
+          description: 'Reserve pool maximum health ratio.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         regen_rate_ratio:
+          description: 'Reserve pool regeneration rate ratio.'
           type: number
           format: double
           example: 1
           nullable: true
         drain_rate_ratio:
+          description: 'Reserve pool drain rate ratio.'
           type: number
           format: double
           example: 2.5
@@ -12665,47 +13164,52 @@ components:
           format: double
           example: 8.47
           nullable: true
+          x-suffix: ' s'
         damage:
           description: 'Delay after taking damage (without being fully downed).'
           type: number
           format: double
           example: 4.24
           nullable: true
+          x-suffix: ' s'
       type: object
     shield:
       title: Shield
       description: 'Ship shield generator statistics covering health pool, regeneration, reserve pool behavior, recharge delays, and damage absorption/resistance.'
       properties:
         max_health:
-          description: 'Total shield hit points across all faces (MaxShieldHealth).'
+          description: 'Total shield hit points across all faces.'
           type: number
           format: double
           example: 4410
           nullable: true
+          x-suffix: ' HP'
         regen_rate:
-          description: 'Maximum shield regeneration per second (MaxShieldRegen).'
+          description: 'Maximum shield regeneration per second.'
           type: number
           format: double
           example: 211
           nullable: true
         regen_time:
-          description: 'Shield regeneration time in seconds (RegenerationTime), rounded to 2 decimals.'
+          description: 'Shield regeneration time in seconds.'
           type: number
           format: double
           example: 20
           nullable: true
+          x-suffix: ' s'
         decay_ratio:
-          description: 'Portion of regen lost when shield is taking damage (DecayRatio).'
+          description: 'Portion of regeneration lost when shield is taking damage.'
           type: number
           format: double
           example: 0.25
           nullable: true
+          x-tabulator-formatter: pct
         reserve_pool:
           $ref: '#/components/schemas/shield_reserve_pool'
         regen_delay:
           $ref: '#/components/schemas/shield_regen_delay'
         electrical_charge_damage_resistance:
-          description: 'Additional resistance applied to electrical/EMP style damage (ElectricalChargeDamageResistance).'
+          description: 'Additional resistance to electrical charge damage.'
           type: number
           format: double
           example: 0
@@ -12715,13 +13219,13 @@ components:
             -
               $ref: '#/components/schemas/shield_damage_map'
           nullable: true
-          description: 'Absorption ranges by damage type (from Shield.Absorption.*). Null when no absorption block exists.'
+          description: 'Absorption ranges by damage type.'
         resistance:
           oneOf:
             -
               $ref: '#/components/schemas/shield_damage_map'
           nullable: true
-          description: 'Resistance ranges by damage type (from Shield.Resistance.*). Null when no resistance block exists.'
+          description: 'Resistance ranges by damage type.'
         max_shield_health:
           description: 'Deprecated. Use `max_health`.'
           type: number
@@ -12745,11 +13249,13 @@ components:
           example: physical
           nullable: true
         multiplier:
+          description: 'Damage multiplier. Incoming damage is scaled by this value (1.0 = no resistance, <1.0 = reduced damage).'
           type: number
           format: double
           example: 0.7
           nullable: true
         threshold:
+          description: 'Damage threshold before resistance applies.'
           type: number
           format: double
           example: 0
@@ -12801,75 +13307,96 @@ components:
       description: 'Flattened resistance values and deltas (multiplier change vs 1.0). Returned for convenience.'
       properties:
         impact:
+          description: 'Impact damage multiplier.'
           type: number
           format: double
           example: 0.6925
           nullable: true
         impact_change:
+          description: 'Impact multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3075
           nullable: true
+          x-tabulator-formatter: pctDelta
         physical:
+          description: 'Physical damage multiplier.'
           type: number
           format: double
           example: 0.7
           nullable: true
         physical_change:
+          description: 'Physical multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3
           nullable: true
+          x-tabulator-formatter: pctDelta
         energy:
+          description: 'Energy damage multiplier.'
           type: number
           format: double
           example: 0.7
           nullable: true
         energy_change:
+          description: 'Energy multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3
           nullable: true
+          x-tabulator-formatter: pctDelta
         distortion:
+          description: 'Distortion damage multiplier.'
           type: number
           format: double
           example: 0.7
           nullable: true
         distortion_change:
+          description: 'Distortion multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3
           nullable: true
+          x-tabulator-formatter: pctDelta
         thermal:
+          description: 'Thermal damage multiplier.'
           type: number
           format: double
           example: 0.7
           nullable: true
         thermal_change:
+          description: 'Thermal multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3
           nullable: true
+          x-tabulator-formatter: pctDelta
         biochemical:
+          description: 'Biochemical damage multiplier.'
           type: number
           format: double
           example: 0.7
           nullable: true
         biochemical_change:
+          description: 'Biochemical multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.3
           nullable: true
+          x-tabulator-formatter: pctDelta
         stun:
+          description: 'Stun damage multiplier.'
           type: number
           format: double
           example: 0.55
           nullable: true
         stun_change:
+          description: 'Stun multiplier delta from 1.0 (negative = resistance).'
           type: number
           format: double
           example: -0.45
           nullable: true
+          x-tabulator-formatter: pctDelta
       type: object
     suit_armor_signature:
       title: 'Suit Armor Signature'
@@ -12951,6 +13478,7 @@ components:
           format: double
           example: 0.9
           nullable: true
+          x-tabulator-formatter: pct
       type: object
     temperature_resistance:
       title: 'Temperature Resistance'
@@ -12983,13 +13511,14 @@ components:
       title: 'Thruster Performance'
       properties:
         thrust_capacity:
-          description: 'Maximum thrust output in newtons. Main thrusters on capital ships can exceed 300M N, while S1 maneuver thrusters are around 1.4M N.'
+          description: 'Maximum thrust output in newtons.'
           type: number
           format: double
           example: 1431557
           nullable: true
+          x-suffix: ' N'
         max_supported_atmospheric_efficiency:
-          description: 'Cap for atmospheric efficiency scaling. Currently 2 across available thrusters.'
+          description: 'Cap for atmospheric efficiency scaling.'
           type: number
           format: double
           example: 2
@@ -13005,7 +13534,7 @@ components:
       title: 'Thruster Fuel Use'
       properties:
         burn_rate_per_10k_newton:
-          description: 'Fuel consumed per 10,000 newtons of thrust. Lower is more efficient; common maneuver thrusters burn around 0.125.'
+          description: 'Fuel consumed per 10,000 newtons of thrust.'
           type: number
           format: double
           example: 0.125
@@ -13030,6 +13559,7 @@ components:
           format: double
           example: 80
           nullable: true
+          x-suffix: ' m/s'
         max_density:
           description: 'Max atmospheric density where backwash is considered.'
           type: number
@@ -13094,21 +13624,25 @@ components:
               $ref: '#/components/schemas/thruster_handling'
           nullable: true
         thrust_capacity:
+          description: 'Deprecated. Use performance.thrust_capacity.'
           type: number
           format: double
           nullable: true
           deprecated: true
         min_health_thrust_multiplier:
+          description: 'Deprecated. Use performance.min_health_thrust_multiplier.'
           type: number
           format: double
           nullable: true
           deprecated: true
         fuel_burn_per_10k_newton:
+          description: 'Deprecated. Use fuel.burn_rate_per_10k_newton.'
           type: number
           format: double
           nullable: true
           deprecated: true
         type:
+          description: 'Deprecated. Use role.'
           type: string
           nullable: true
           deprecated: true
@@ -13118,21 +13652,26 @@ components:
       description: 'Push / pull strength and volume scaling for the beam.'
       properties:
         min:
+          description: 'Minimum force output.'
           type: number
           format: double
           example: 1500
           nullable: true
+          x-suffix: ' N'
         max:
+          description: 'Maximum force output.'
           type: number
           format: double
           example: 500000
           nullable: true
+          x-suffix: ' N'
         max_volume:
           description: 'Maximum object volume the beam can handle (µSCU).'
           type: number
           format: double
           example: 300000
           nullable: true
+          x-suffix: ' µSCU'
         volume_force_coefficient:
           description: 'Force falloff based on target volume.'
           type: number
@@ -13150,23 +13689,30 @@ components:
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' m'
         max:
           description: 'Maximum effective distance.'
           type: number
           format: double
           example: 135
           nullable: true
+          x-suffix: ' m'
         full_strength_distance:
+          description: 'Distance at which full beam strength is maintained, in meters.'
           type: number
           format: double
           example: 68
           nullable: true
+          x-suffix: ' m'
         max_angle:
+          description: 'Maximum beam cone angle in degrees.'
           type: number
           format: double
           example: 80
           nullable: true
+          x-suffix: ' °'
         hit_radius:
+          description: 'Beam hit detection radius.'
           type: number
           format: double
           example: 0.1
@@ -13181,8 +13727,9 @@ components:
           format: double
           example: 2.25
           nullable: true
+          x-suffix: ' s'
         safe_range_value_factor:
-          description: 'Safety factor used to determine stable range (typically 0.85).'
+          description: 'Safety factor used to determine stable range.'
           type: number
           format: double
           example: 0.85
@@ -13198,76 +13745,91 @@ components:
       description: 'Stronger cargo-handling profile used when grappling cargo or containers.'
       properties:
         min_force:
+          description: 'Cargo mode override for minimum force.'
           type: number
           format: double
           example: 9450001
           nullable: true
         max_force:
+          description: 'Cargo mode override for maximum force.'
           type: number
           format: double
           example: 9500001
           nullable: true
         min_acceleration:
+          description: 'Cargo mode override for minimum acceleration.'
           type: number
           format: double
           example: 15
           nullable: true
         max_acceleration:
+          description: 'Cargo mode override for maximum acceleration.'
           type: number
           format: double
           example: 75
           nullable: true
         min_speed:
+          description: 'Cargo mode override for minimum speed.'
           type: number
           format: double
           example: 12.25
           nullable: true
         max_speed:
+          description: 'Cargo mode override for maximum speed.'
           type: number
           format: double
           example: 24.5
           nullable: true
         acceleration_factor:
+          description: 'Cargo mode override for acceleration factor.'
           type: number
           format: double
           example: 10
           nullable: true
         degrees_per_action:
+          description: 'Cargo mode override for rotation degrees per action.'
           type: number
           format: double
           example: 10
           nullable: true
         max_angular_acceleration:
+          description: 'Cargo mode override for maximum angular acceleration.'
           type: number
           format: double
           example: 150
           nullable: true
         max_angular_velocity:
+          description: 'Cargo mode override for maximum angular velocity.'
           type: number
           format: double
           example: 55
           nullable: true
         degrees_per_action_scroll_wheel:
+          description: 'Cargo mode override for scroll wheel degrees per action.'
           type: number
           format: double
           example: 1000
           nullable: true
         force_fraction_rotation:
+          description: 'Cargo mode override for rotation force fraction.'
           type: number
           format: double
           example: 0.1
           nullable: true
         min_distance:
+          description: 'Cargo mode override for minimum distance.'
           type: number
           format: double
           example: 0.5
           nullable: true
         max_distance:
+          description: 'Cargo mode override for maximum distance.'
           type: number
           format: double
           example: 225
           nullable: true
         full_strength_distance:
+          description: 'Cargo mode override for full strength distance.'
           type: number
           format: double
           example: 100
@@ -13278,25 +13840,26 @@ components:
       description: 'Towing parameters emitted under the `towing` key.'
       properties:
         force:
-          description: 'Towing force (Towing.TowingForce).'
+          description: 'Towing force.'
           type: number
           format: double
           example: 100000
           nullable: true
         max_acceleration:
-          description: 'Maximum towing acceleration (Towing.TowingMaxAcceleration).'
+          description: 'Maximum towing acceleration.'
           type: number
           format: double
           example: 10
           nullable: true
         max_distance:
-          description: 'Maximum towing distance (Towing.TowingMaxDistance).'
+          description: 'Maximum towing distance.'
           type: number
           format: double
           example: 100
           nullable: true
+          x-suffix: ' m'
         qt_mass_limit:
-          description: 'Quantum tow mass limit (Towing.QuantumTowMassLimit).'
+          description: 'Quantum tow mass limit.'
           type: number
           format: double
           example: 0
@@ -13304,7 +13867,7 @@ components:
       type: object
     tractor_beam:
       title: 'Tractor Beam'
-      description: 'Star Citizen tractor / towing beam gameplay stats from stdItem.TractorBeam.'
+      description: 'Tractor beam and towing gameplay stats.'
       properties:
         force:
           oneOf:
@@ -13394,10 +13957,10 @@ components:
       type: object
     turret_axis:
       title: 'Turret Axis'
-      description: 'Axis configuration for turret yaw or pitch as emitted by this resource.'
+      description: 'Axis configuration for turret yaw or pitch.'
       properties:
         slaved_only:
-          description: 'Whether the axis is slaved-only (computed from `*.SlavedOnly === 1`).'
+          description: 'Whether the axis is slaved-only.'
           type: boolean
           example: false
           nullable: true
@@ -13407,12 +13970,14 @@ components:
           format: double
           example: 60
           nullable: true
+          x-suffix: ' °/s'
         time_to_full_speed:
-          description: 'Seconds to reach full speed (AccelerationTimeToFullSpeed).'
+          description: 'Seconds to reach full rotation speed.'
           type: number
           format: double
           example: 0.5
           nullable: true
+          x-suffix: ' s'
         acceleration_decay:
           description: 'Acceleration decay value.'
           type: number
@@ -13425,33 +13990,35 @@ components:
           format: double
           example: -180
           nullable: true
+          x-suffix: ' °'
         angle_limit_max:
           description: 'Maximum target angle when RestrictTargetAngles is enabled.'
           type: number
           format: double
           example: 180
           nullable: true
+          x-suffix: ' °'
       type: object
     turret:
       title: 'Turret & Gimbal'
-      description: 'Turret/gimbal configuration sourced from stdItem.Turret plus derived mount/size information from extracted ports.'
+      description: 'Turret or gimbal configuration including rotation style, weapon size constraints, and axis parameters.'
       properties:
         rotation_style:
-          description: 'Rotation style from stdItem.Turret.RotationStyle.'
+          description: 'Turret rotation style.'
           type: string
           nullable: true
         mounts:
-          description: 'Number of weapon mounts derived from the extracted ports count.'
+          description: 'Number of weapon mounts.'
           type: integer
           example: 2
           nullable: true
         min_size:
-          description: 'Minimum supported weapon size derived from port MinSize/min_size.'
+          description: 'Minimum supported weapon size.'
           type: integer
           example: 1
           nullable: true
         max_size:
-          description: 'Maximum supported weapon size derived from port MaxSize/max_size.'
+          description: 'Maximum supported weapon size.'
           type: integer
           example: 3
           nullable: true
@@ -13481,6 +14048,7 @@ components:
           example: physical
           nullable: true
         damage:
+          description: 'Damage value.'
           type: number
           format: double
           example: 11.5
@@ -13491,18 +14059,22 @@ components:
       description: 'Fire mode entry as emitted by the resource. Type-specific fields are only present when the mode type matches (e.g. beam fields only appear for type=beam).'
       properties:
         mode:
+          description: 'Mode name.'
           type: string
           example: Rapid
           nullable: true
         localised:
+          description: 'Localized label.'
           type: string
           example: '[AUTO]'
           nullable: true
         type:
+          description: 'Fire type.'
           type: string
           example: rapid
           nullable: true
         rpm:
+          description: 'Rounds per minute.'
           type: number
           format: double
           example: 925
@@ -13515,14 +14087,17 @@ components:
           nullable: true
           deprecated: true
         ammo_per_shot:
+          description: 'Ammo consumed per shot.'
           type: integer
           example: 1
           nullable: true
         pellets_per_shot:
+          description: 'Pellets per shot.'
           type: integer
           example: 1
           nullable: true
         damage_per_second:
+          description: 'Damage per second.'
           type: number
           format: double
           example: 0
@@ -13560,6 +14135,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         sequence_mode:
           description: 'Sequence mode identifier (sequence mode).'
           type: string
@@ -13569,21 +14145,25 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         charge_down_time:
           description: 'Beam spool-down time in seconds (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         full_damage_range:
           description: 'Range at which full damage is applied (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         zero_damage_range:
           description: 'Range at which damage drops to zero (beam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         hit_type:
           description: 'Beam hit registration type (beam mode).'
           type: string
@@ -13634,6 +14214,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         max_sensor_distance:
           description: 'Maximum sensor range for target detection (healingbeam mode).'
           type: number
@@ -13649,6 +14230,7 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max_dose_for_auto_adjustment:
           description: 'Max dose for auto-adjustment (healingbeam mode).'
           type: number
@@ -13684,11 +14266,13 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         ramp_down_time:
           description: 'Beam ramp-down time in seconds (salvage mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         max_vehicle_damage_ratio:
           description: 'Max vehicle damage ratio (salvage mode).'
           type: number
@@ -13713,11 +14297,13 @@ components:
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         maximum_distance:
           description: 'Maximum mining distance (collectionbeam mode).'
           type: number
           format: double
           nullable: true
+          x-suffix: ' m'
         beam_radius:
           description: 'Collection beam radius (collectionbeam mode).'
           type: number
@@ -13747,47 +14333,57 @@ components:
       description: 'Damage values split by type.'
       properties:
         physical:
+          description: 'Physical damage.'
           type: number
           format: double
           nullable: true
         energy:
+          description: 'Energy damage.'
           type: number
           format: double
           nullable: true
         distortion:
+          description: 'Distortion damage.'
           type: number
           format: double
           nullable: true
         thermal:
+          description: 'Thermal damage.'
           type: number
           format: double
           nullable: true
         biochemical:
+          description: 'Biochemical damage.'
           type: number
           format: double
           nullable: true
         stun:
+          description: 'Stun damage.'
           type: number
           format: double
           nullable: true
       type: object
     vehicle_weapon_damage:
       title: 'Vehicle Weapon Damage'
-      description: 'Damage summary block from stdItem.Weapon plus per-type alpha and dps from the primary mode.'
+      description: 'Damage summary and per-type alpha breakdown.'
       properties:
         sustained_60s:
+          description: 'Sustained damage over 60 seconds.'
           type: number
           format: double
           nullable: true
         burst:
+          description: 'Burst damage.'
           type: number
           format: double
           nullable: true
         alpha_total:
+          description: 'Total alpha damage per shot.'
           type: number
           format: double
           nullable: true
         max:
+          description: 'Maximum damage per magazine.'
           type: number
           format: double
           nullable: true
@@ -13807,13 +14403,17 @@ components:
       title: 'Vehicle Weapon Spread'
       properties:
         min:
+          description: 'Minimum spread angle.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °'
         max:
+          description: 'Maximum spread angle.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °'
         minimum:
           description: 'Deprecated: Use min.'
           type: number
@@ -13827,14 +14427,19 @@ components:
           nullable: true
           deprecated: true
         first_attack:
+          description: 'Spread added on the first shot.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °'
         per_attack:
+          description: 'Spread added per subsequent shot.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' °'
         decay:
+          description: 'Rate at which spread recovers between shots.'
           type: number
           format: double
           nullable: true
@@ -13843,62 +14448,80 @@ components:
       title: 'Vehicle Weapon Barrel Spin Time'
       properties:
         up:
+          description: 'Spin-up time in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         down:
+          description: 'Spin-down time in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
       type: object
     vehicle_weapon_heat:
       title: 'Vehicle Weapon Heat'
       properties:
         per_shot:
+          description: 'Heat generated per shot.'
           type: number
           format: double
           nullable: true
         cooling_delay:
+          description: 'Delay before cooling begins in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         cooling_per_second:
+          description: 'Cooling rate per second.'
           type: number
           format: double
           nullable: true
         overheat_max_shots:
+          description: 'Number of shots to trigger overheat.'
           type: number
           format: double
           nullable: true
         overheat_max_time:
+          description: 'Time to trigger overheat in seconds.'
           type: number
           format: double
           nullable: true
         overheat_cooldown:
+          description: 'Overheat recovery time in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
       type: object
     vehicle_weapon_capacitor:
       title: 'Vehicle Weapon Capacitor'
       properties:
         max_ammo_load:
+          description: 'Maximum capacitor ammo load.'
           type: number
           format: double
           nullable: true
         regen_per_second:
+          description: 'Capacitor regeneration per second.'
           type: number
           format: double
           nullable: true
         cooldown:
+          description: 'Capacitor cooldown in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         requested_ammo_load:
+          description: 'Requested ammo load from capacitor.'
           type: number
           format: double
           nullable: true
         costs_per_shot:
+          description: 'Capacitor cost per shot.'
           type: number
           format: double
           nullable: true
@@ -13907,21 +14530,29 @@ components:
       title: 'Vehicle Weapon Charge'
       properties:
         time:
+          description: 'Time to reach full charge in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         overcharge_time:
+          description: 'Overcharge window in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         overcharged_time:
+          description: 'Duration of overcharged state in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         cooldown_time:
+          description: 'Cooldown after firing in seconds.'
           type: number
           format: double
           nullable: true
+          x-suffix: ' s'
         auto_fire:
           description: 'Auto-fire when fully charged.'
           type: boolean
@@ -13943,14 +14574,17 @@ components:
       title: 'Vehicle Weapon Charge Modifier'
       properties:
         damage:
+          description: 'Damage multiplier at full charge.'
           type: number
           format: double
           nullable: true
         fire_rate:
+          description: 'Fire rate multiplier at full charge.'
           type: number
           format: double
           nullable: true
         ammo_speed:
+          description: 'Projectile speed multiplier at full charge.'
           type: number
           format: double
           nullable: true
@@ -13975,31 +14609,32 @@ components:
       type: object
     vehicle_weapon:
       title: 'Vehicle Weapon'
-      description: 'Vehicle weapon stats derived from stdItem.Weapon and stdItem.Ammunition. Conditional blocks (spread, barrel_spin_time, heat, capacitor, charge, charge_modifier) may be omitted when source data is absent.'
+      description: 'Vehicle weapon stats including damage, fire modes, spread, heat, and capacitor data.'
       properties:
         class:
-          description: 'Weapon class from stdItem.Weapon.WeaponClass.'
+          description: 'Weapon class.'
           type: string
           example: LaserCannon
           nullable: true
         type:
-          description: 'Item type from DescriptionData.Item Type.'
+          description: 'Item type.'
           type: string
           example: Weapon
           nullable: true
         capacity:
-          description: 'Ammunition capacity (stdItem.Ammunition.Capacity).'
+          description: 'Ammunition capacity.'
           type: integer
           example: 50
           nullable: true
         range:
-          description: 'Effective range in meters (stdItem.Weapon.EffectiveRange).'
+          description: 'Effective range in meters.'
           type: number
           format: double
           example: 1800
           nullable: true
+          x-suffix: ' m'
         rpm:
-          description: 'Primary mode rounds per minute (Modes.0.RoundsPerMinute).'
+          description: 'Primary mode rounds per minute.'
           type: number
           format: double
           example: 400
@@ -14078,12 +14713,14 @@ components:
               type: integer
               example: 574560
               nullable: true
+              x-suffix: ' µSCU'
             scu:
               description: 'Volume in SCU.'
               type: number
               format: double
               example: 0.57456
               nullable: true
+              x-suffix: ' SCU'
           type: object
           nullable: true
       type: object
@@ -14092,16 +14729,19 @@ components:
       description: 'RGB color triplet as provided by the game data.'
       properties:
         r:
+          description: 'Red component.'
           type: number
           format: double
           example: 1
           nullable: true
         g:
+          description: 'Green component.'
           type: number
           format: double
           example: 0
           nullable: true
         b:
+          description: 'Blue component.'
           type: number
           format: double
           example: 0
@@ -14111,31 +14751,37 @@ components:
       title: 'Weapon Attachment Iron Sight'
       properties:
         default_range:
+          description: 'Default zeroing range in meters.'
           type: number
           format: double
           nullable: true
         max_range:
+          description: 'Maximum zeroing range in meters.'
           type: number
           format: double
           nullable: true
         range_increment:
+          description: 'Zeroing range increment in meters.'
           type: number
           format: double
           nullable: true
         auto_zeroing_time:
+          description: 'Auto-zeroing time in seconds.'
           type: number
           format: double
           nullable: true
         zoom_scale:
+          description: 'Zoom magnification scale.'
           type: number
           format: double
           nullable: true
         zoom_time_scale:
+          description: 'Zoom transition time scale.'
           type: number
           format: double
           nullable: true
         zoom_time_change:
-          description: 'Computed as `zoom_time_scale - 1`.'
+          description: 'Zoom transition time change.'
           type: number
           format: double
           nullable: true
@@ -14144,12 +14790,15 @@ components:
       title: 'Weapon Attachment Magazine'
       properties:
         initial_ammo_count:
+          description: 'Initial ammo count.'
           type: integer
           nullable: true
         max_ammo_count:
+          description: 'Maximum ammo count.'
           type: integer
           nullable: true
         max_restock_count:
+          description: 'Maximum restock count.'
           type: integer
           nullable: true
       type: object
@@ -14157,6 +14806,7 @@ components:
       title: 'Weapon Attachment Laser Pointer'
       properties:
         range:
+          description: 'Laser range in meters.'
           type: number
           format: double
           nullable: true
@@ -14166,6 +14816,7 @@ components:
               $ref: '#/components/schemas/weapon_attachment_rgb_color'
           nullable: true
         color_css:
+          description: 'CSS color string.'
           type: string
           nullable: true
       type: object
@@ -14174,19 +14825,24 @@ components:
       description: 'Single flashlight profile (typically keyed as `narrow` or `wide`).'
       properties:
         port_name:
+          description: 'Light port name.'
           type: string
           nullable: true
         name:
+          description: 'Profile name.'
           type: string
           nullable: true
         light_type:
+          description: 'Light type.'
           type: string
           nullable: true
         light_radius:
+          description: 'Light radius in meters.'
           type: number
           format: double
           nullable: true
         intensity:
+          description: 'Light intensity.'
           type: number
           format: double
           nullable: true
@@ -14210,16 +14866,17 @@ components:
       description: 'Barrel attachment map. Keys reflect the raw barrel fields (snake_cased), plus `attachment_point` and `type` injected by the resource.'
       properties:
         attachment_point:
+          description: 'Attachment point name.'
           type: string
           nullable: true
         type:
-          description: 'Currently mirrors `attachment_point` (overrides any snake-cased barrel `Type` field).'
+          description: 'Barrel attachment type.'
           type: string
           nullable: true
       type: object
     weapon_attachment:
       title: 'Weapon Attachment'
-      description: 'Weapon attachment details derived from stdItem.WeaponAttachment. Only non-empty blocks are returned.'
+      description: 'Weapon attachment details. Only non-empty blocks are returned.'
       properties:
         iron_sight:
           oneOf:
@@ -14257,89 +14914,97 @@ components:
       description: 'Core scalar adjustments and derived delta fields (`*_change`). Only emitted when the modifier meaningfully differs from defaults.'
       properties:
         muzzle_flash_multiplier:
+          description: 'Muzzle flash scale multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         muzzle_flash_change:
-          description: 'Computed as `round(muzzle_flash_multiplier - 1, 2)`.'
+          description: 'Muzzle flash scale change.'
           type: number
           format: double
           example: 0
           nullable: true
         fire_rate_multiplier:
+          description: 'Fire rate multiplier.'
           type: number
           format: double
           example: 1.1
           nullable: true
         fire_rate_change:
-          description: 'Computed as `round(fire_rate_multiplier - 1, 2)`.'
+          description: 'Fire rate change.'
           type: number
           format: double
           example: 0.1
           nullable: true
         damage_multiplier:
+          description: 'Damage multiplier.'
           type: number
           format: double
           example: 0.92
           nullable: true
         damage_change:
-          description: 'Computed as `round(damage_multiplier - 1, 2)`.'
+          description: 'Damage change.'
           type: number
           format: double
           example: -0.08
           nullable: true
         projectile_speed_multiplier:
+          description: 'Projectile speed multiplier.'
           type: number
           format: double
           example: 0.875
           nullable: true
         projectile_speed_change:
-          description: 'Computed as `round(projectile_speed_multiplier - 1, 2)`.'
+          description: 'Projectile speed change.'
           type: number
           format: double
           example: -0.13
           nullable: true
         ammo_cost_multiplier:
+          description: 'Ammo cost multiplier.'
           type: number
           format: double
           example: 2
           nullable: true
         ammo_cost_change:
-          description: 'Computed as `round(ammo_cost_multiplier - 1, 2)`.'
+          description: 'Ammo cost change.'
           type: number
           format: double
           example: 1
           nullable: true
         heat_generation_multiplier:
+          description: 'Heat generation multiplier.'
           type: number
           format: double
           example: 0.2
           nullable: true
         heat_generation_change:
-          description: 'Computed as `round(heat_generation_multiplier - 1, 2)`.'
+          description: 'Heat generation change.'
           type: number
           format: double
           example: -0.8
           nullable: true
         sound_radius_multiplier:
+          description: 'Sound radius multiplier.'
           type: number
           format: double
           example: 1.2
           nullable: true
         sound_radius_change:
-          description: 'Computed as `round(sound_radius_multiplier - 1, 2)`.'
+          description: 'Sound radius change.'
           type: number
           format: double
           example: 0.2
           nullable: true
         charge_time_multiplier:
+          description: 'Charge time multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         charge_time_change:
-          description: 'Computed as `round(charge_time_multiplier - 1, 2)`.'
+          description: 'Charge time change.'
           type: number
           format: double
           example: 0
@@ -14350,24 +15015,25 @@ components:
       description: 'Reduced recoil block as emitted by this resource (not a full recoil model export). Only emitted when values differ from defaults.'
       properties:
         decay_multiplier:
+          description: 'Recoil decay multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         decay_change:
-          description: 'Computed as `round(decay_multiplier - 1, 2)`.'
+          description: 'Recoil decay change.'
           type: number
           format: double
           example: 0
           nullable: true
         multiplier:
-          description: 'Maps to source `RandomnessMultiplier`.'
+          description: 'Recoil randomness multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         multiplier_change:
-          description: 'Computed as `round(multiplier - 1, 2)`.'
+          description: 'Recoil randomness change.'
           type: number
           format: double
           example: 0
@@ -14378,56 +15044,61 @@ components:
       description: 'Spread tuning multipliers and derived deltas. Only emitted when values differ from defaults.'
       properties:
         min_multiplier:
+          description: 'Minimum spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         min_change:
-          description: 'Computed as `round(min_multiplier - 1, 2)`.'
+          description: 'Minimum spread change.'
           type: number
           format: double
           example: 0
           nullable: true
         max_multiplier:
+          description: 'Maximum spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         max_change:
-          description: 'Computed as `round(max_multiplier - 1, 2)`.'
+          description: 'Maximum spread change.'
           type: number
           format: double
           example: 0
           nullable: true
         first_attack_multiplier:
+          description: 'First shot spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         first_attack_change:
-          description: 'Computed as `round(first_attack_multiplier - 1, 2)`.'
+          description: 'First shot spread change.'
           type: number
           format: double
           example: 0
           nullable: true
         per_attack_multiplier:
+          description: 'Per-shot spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         per_attack_change:
-          description: 'Computed as `round(per_attack_multiplier - 1, 2)`.'
+          description: 'Per-shot spread change.'
           type: number
           format: double
           example: 0
           nullable: true
         decay_multiplier:
+          description: 'Spread decay multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         decay_change:
-          description: 'Computed as `round(decay_multiplier - 1, 2)`.'
+          description: 'Spread decay change.'
           type: number
           format: double
           example: 0
@@ -14438,31 +15109,36 @@ components:
       description: 'ADS/zoom adjustments. Only emitted when values differ from defaults.'
       properties:
         zoom_scale:
+          description: 'Zoom magnification scale.'
           type: number
           format: double
           example: 4
           nullable: true
         second_zoom_scale:
+          description: 'Secondary zoom magnification scale.'
           type: number
           format: double
           example: 6
           nullable: true
         zoom_time_scale:
+          description: 'Zoom transition time scale.'
           type: number
           format: double
           example: 1.25
           nullable: true
         zoom_time_change:
-          description: 'Computed as `round(zoom_time_scale - 1, 2)`.'
+          description: 'Zoom transition time change.'
           type: number
           format: double
           example: 0.25
           nullable: true
         hide_weapon_in_ads:
+          description: 'Whether the weapon is hidden while aiming.'
           type: boolean
           example: false
           nullable: true
         fstop_multiplier:
+          description: 'Aperture stop multiplier.'
           type: number
           format: double
           example: 1
@@ -14473,16 +15149,19 @@ components:
       description: 'Regeneration modifiers. Only emitted when values differ from defaults.'
       properties:
         power_ratio_multiplier:
+          description: 'Power ratio multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         max_ammo_load_multiplier:
+          description: 'Maximum ammo load multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         max_regen_per_sec_multiplier:
+          description: 'Maximum regeneration per second multiplier.'
           type: number
           format: double
           example: 1
@@ -14493,16 +15172,19 @@ components:
       description: 'Salvage-related multipliers. Only emitted when present per resource logic.'
       properties:
         salvage_speed_multiplier:
+          description: 'Salvage speed multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         radius_multiplier:
+          description: 'Salvage radius multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
         extraction_efficiency:
+          description: 'Extraction efficiency multiplier.'
           type: number
           format: double
           example: 1
@@ -14513,21 +15195,25 @@ components:
       description: 'Zeroing distances supported by the optic or attachment. Only emitted when present per resource logic.'
       properties:
         default_range:
+          description: 'Default zeroing range in meters.'
           type: number
           format: double
           example: 0
           nullable: true
         max_range:
+          description: 'Maximum zeroing range in meters.'
           type: number
           format: double
           example: 500
           nullable: true
         range_increment:
+          description: 'Zeroing range increment in meters.'
           type: number
           format: double
           example: 100
           nullable: true
         auto_zeroing_time:
+          description: 'Auto-zeroing time in seconds.'
           type: number
           format: double
           example: 0
@@ -14535,7 +15221,7 @@ components:
       type: object
     weapon_modifier:
       title: 'Weapon Modifier'
-      description: 'Attachment and weapon modifier stats taken directly from Item.stdItem.WeaponModifier. Legacy v2 fields are kept (deprecated) for backwards compatibility.'
+      description: 'Weapon modifier stats. Legacy v2 fields are kept for backwards compatibility.'
       properties:
         activate_on_attach:
           description: 'Whether the modifier becomes active as soon as it is attached.'
@@ -14636,15 +15322,15 @@ components:
       description: 'Summary of weapon slots on a weapon rack item, grouped by weapon category.'
       properties:
         pistols:
-          description: 'Number of small weapon slots (maxSize <= 1, accepts pistols, knives, grenades).'
+          description: 'Number of small weapon slots.'
           type: integer
           example: 12
         rifles:
-          description: 'Number of medium/large weapon slots (maxSize >= 2, accepts rifles, SMGs, shotguns).'
+          description: 'Number of medium and large weapon slots.'
           type: integer
           example: 8
         gadgets:
-          description: 'Number of gadget-only slots (WeaponPersonal.Gadget type).'
+          description: 'Number of gadget slots.'
           type: integer
           example: 2
         total_weapon_slots:

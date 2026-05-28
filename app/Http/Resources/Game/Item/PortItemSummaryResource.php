@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     title: 'Equipped Port Item Summary',
     description: 'Lightweight item summary derived from raw loadout JSON. No database queries are performed. Used on index routes where full item resolution is too expensive.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the equipped item.', type: 'string', nullable: true),
         new OA\Property(property: 'name', description: 'Item name from loadout data.', type: 'string', nullable: true),
         new OA\Property(property: 'class_name', description: 'SC class name of the item.', type: 'string', nullable: true),
         new OA\Property(property: 'type', description: 'Item type (NOITEM_ prefix removed, before dot).', type: 'string', nullable: true),
@@ -26,7 +26,7 @@ use OpenApi\Attributes as OA;
             property: 'manufacturer',
             description: 'Manufacturer name from loadout data.',
             properties: [
-                new OA\Property(property: 'name', type: 'string', nullable: true),
+                new OA\Property(property: 'name', description: 'Manufacturer display name.', type: 'string', nullable: true),
             ],
             type: 'object',
             nullable: true

@@ -14,14 +14,15 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'thrust_capacity',
-            description: 'Maximum thrust output in newtons. Main thrusters on capital ships can exceed 300M N, while S1 maneuver thrusters are around 1.4M N.',
+            description: 'Maximum thrust output in newtons.',
             type: 'double',
             example: 1431557,
             nullable: true,
+            x: ['suffix' => ' N']
         ),
         new OA\Property(
             property: 'max_supported_atmospheric_efficiency',
-            description: 'Cap for atmospheric efficiency scaling. Currently 2 across available thrusters.',
+            description: 'Cap for atmospheric efficiency scaling.',
             type: 'double',
             example: 2,
             nullable: true,
@@ -42,7 +43,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: 'burn_rate_per_10k_newton',
-            description: 'Fuel consumed per 10,000 newtons of thrust. Lower is more efficient; common maneuver thrusters burn around 0.125.',
+            description: 'Fuel consumed per 10,000 newtons of thrust.',
             type: 'double',
             example: 0.125,
             nullable: true,
@@ -56,7 +57,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'enabled', description: 'Whether backwash effects are enabled.', type: 'boolean', example: true, nullable: true),
         new OA\Property(property: 'automate_size', description: 'Automatically size backwash based on output.', type: 'boolean', example: false, nullable: true),
-        new OA\Property(property: 'max_speed', description: 'Max speed (m/s) at which backwash applies.', type: 'double', example: 80, nullable: true),
+        new OA\Property(property: 'max_speed', description: 'Max speed (m/s) at which backwash applies.', type: 'double', example: 80, nullable: true, x: ['suffix' => ' m/s']),
         new OA\Property(property: 'max_density', description: 'Max atmospheric density where backwash is considered.', type: 'double', example: 7, nullable: true),
         new OA\Property(property: 'max_resistance', description: 'Max resistance value for backwash interaction.', type: 'double', example: 100, nullable: true),
         new OA\Property(property: 'afterburner_multiplier', description: 'Backwash intensity multiplier while afterburning.', type: 'double', example: 1.1, nullable: true),
@@ -96,10 +97,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'handling', ref: '#/components/schemas/thruster_handling', nullable: true),
 
         // Legacy flat keys kept for backward compatibility
-        new OA\Property(property: 'thrust_capacity', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'min_health_thrust_multiplier', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'fuel_burn_per_10k_newton', type: 'double', nullable: true, deprecated: true),
-        new OA\Property(property: 'type', type: 'string', nullable: true, deprecated: true),
+        new OA\Property(property: 'thrust_capacity', description: 'Deprecated. Use performance.thrust_capacity.', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'min_health_thrust_multiplier', description: 'Deprecated. Use performance.min_health_thrust_multiplier.', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'fuel_burn_per_10k_newton', description: 'Deprecated. Use fuel.burn_rate_per_10k_newton.', type: 'double', nullable: true, deprecated: true),
+        new OA\Property(property: 'type', description: 'Deprecated. Use role.', type: 'string', nullable: true, deprecated: true),
     ],
     type: 'object'
 )]

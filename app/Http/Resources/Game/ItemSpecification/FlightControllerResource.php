@@ -13,14 +13,14 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Boost Capacitor',
     description: 'Afterburner (boost) capacitor configuration and regeneration settings.',
     properties: [
-        new OA\Property(property: 'capacity', description: 'Maximum afterburner capacitor capacity.', type: 'double', example: 20, nullable: true),
-        new OA\Property(property: 'threshold_ratio', description: 'Minimum capacitor fraction required to engage afterburner (0-1).', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'capacity', description: 'Total afterburner fuel pool. Combined with cost rates, determines total boost time available before depletion.', type: 'double', example: 20, nullable: true),
+        new OA\Property(property: 'threshold_ratio', description: 'Minimum capacitor fraction required to engage afterburner (0-1).', type: 'double', example: 0.1, nullable: true, x: ['tabulator-formatter' => 'pct']),
         new OA\Property(property: 'idle_cost', description: 'Capacitor drain per second while afterburner is armed but not thrusting.', type: 'double', example: 1, nullable: true),
         new OA\Property(property: 'linear_cost', description: 'Capacitor drain per second for linear afterburner thrust.', type: 'double', example: 0, nullable: true),
         new OA\Property(property: 'angular_cost', description: 'Capacitor drain per second for angular afterburner thrust.', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'regen_per_sec', description: 'Capacitor regeneration rate per second.', type: 'double', example: 0.75, nullable: true),
-        new OA\Property(property: 'regen_delay', description: 'Seconds of delay after disengaging before capacitor regen resumes.', type: 'double', example: 0.2, nullable: true),
-        new OA\Property(property: 'regen_time', description: 'Seconds required to fully regenerate the capacitor from empty (if provided by data).', type: 'double', example: 10, nullable: true),
+        new OA\Property(property: 'regen_per_sec', description: 'Capacitor regeneration rate per second.', type: 'double', example: 0.75, nullable: true, x: ['suffix' => ' /s']),
+        new OA\Property(property: 'regen_delay', description: 'Seconds of delay after disengaging before capacitor regen resumes.', type: 'double', example: 0.2, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'regen_time', description: 'Seconds required to fully regenerate the capacitor from empty (if provided by data).', type: 'double', example: 10, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -29,9 +29,9 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Boost Activation',
     description: 'Afterburner (boost) activation timings.',
     properties: [
-        new OA\Property(property: 'pre_delay_time', description: 'Seconds of delay before afterburner thrust begins once activated.', type: 'double', example: 0.0, nullable: true),
-        new OA\Property(property: 'ramp_up_time', description: 'Seconds to reach full afterburner output.', type: 'double', example: 0.6, nullable: true),
-        new OA\Property(property: 'ramp_down_time', description: 'Seconds to decay from afterburner to normal thrust.', type: 'double', example: 0.2, nullable: true),
+        new OA\Property(property: 'pre_delay_time', description: 'Seconds of delay before afterburner thrust begins once activated.', type: 'double', example: 0.0, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'ramp_up_time', description: 'Seconds to reach full afterburner output.', type: 'double', example: 0.6, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'ramp_down_time', description: 'Seconds to decay from afterburner to normal thrust.', type: 'double', example: 0.2, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -51,7 +51,7 @@ use OpenApi\Attributes as OA;
     description: 'Flight model multipliers sourced from IFCS.',
     properties: [
         new OA\Property(property: 'torque_imbalance', description: 'Multiplier applied when torque imbalance is detected to stabilize rotation.', type: 'double', example: 0.3, nullable: true),
-        new OA\Property(property: 'lift', description: 'Lift multiplier applied to thruster output.', type: 'double', example: 7, nullable: true),
+        new OA\Property(property: 'lift', description: 'Vertical thrust multiplier affecting VTOL and hover authority. Higher values increase upward thrust strength.', type: 'double', example: 7, nullable: true),
         new OA\Property(property: 'drag', description: 'Drag multiplier scaling atmospheric drag calculations.', type: 'double', example: 5, nullable: true),
         new OA\Property(property: 'scm_max_drag', description: 'Drag multiplier applied specifically while in SCM flight.', type: 'double', example: 4, nullable: true),
         new OA\Property(property: 'precision_landing', description: 'Multiplier applied to maneuvering inputs during precision landing to soften responses.', type: 'double', example: 0.7, nullable: true),
@@ -92,10 +92,10 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Precision Mode',
     description: 'Precision mode speed caps and distance thresholds.',
     properties: [
-        new OA\Property(property: 'max_speed_full_proximity_assist', description: 'Precision mode max speed (m/s) with full proximity assist enabled.', type: 'double', example: 10, nullable: true),
-        new OA\Property(property: 'max_speed_zero_proximity_assist', description: 'Precision mode max speed (m/s) when proximity assist is disabled.', type: 'double', example: 30, nullable: true),
-        new OA\Property(property: 'min_distance', description: 'Minimum distance in meters where precision landing assist calculations begin.', type: 'double', example: 5, nullable: true),
-        new OA\Property(property: 'max_distance', description: 'Maximum distance in meters where precision landing assist calculations apply.', type: 'double', example: 50, nullable: true),
+        new OA\Property(property: 'max_speed_full_proximity_assist', description: 'Precision mode max speed (m/s) with full proximity assist enabled.', type: 'double', example: 10, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'max_speed_zero_proximity_assist', description: 'Precision mode max speed (m/s) when proximity assist is disabled.', type: 'double', example: 30, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'min_distance', description: 'Minimum distance in meters where precision landing assist calculations begin.', type: 'double', example: 5, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'max_distance', description: 'Maximum distance in meters where precision landing assist calculations apply.', type: 'double', example: 50, nullable: true, x: ['suffix' => ' m']),
     ],
     type: 'object'
 )]
@@ -104,12 +104,12 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Recall Params',
     description: 'Automated ship recall approach parameters used by docking AI. Can be null if all values are null.',
     properties: [
-        new OA\Property(property: 'hover_height_at_destination', description: 'Target hover height in meters when arriving at the recall destination.', type: 'double', example: 30, nullable: true),
-        new OA\Property(property: 'forward_offset', description: 'Forward offset in meters from the destination point where the ship stages before final landing.', type: 'double', example: 20, nullable: true),
-        new OA\Property(property: 'obstruction_detection_range', description: 'Range in meters to scan for obstacles while recalling.', type: 'double', example: 1.2, nullable: true),
-        new OA\Property(property: 'default_platform_detection_range', description: 'Detection radius in meters to locate a viable landing platform.', type: 'double', example: 50, nullable: true),
-        new OA\Property(property: 'minimum_recall_distance', description: 'Minimum distance in meters from the player before recall engages.', type: 'double', example: 400, nullable: true),
-        new OA\Property(property: 'braking_distance_offset', description: 'Extra buffer distance in meters used to start braking during recall approach.', type: 'double', example: 30, nullable: true),
+        new OA\Property(property: 'hover_height_at_destination', description: 'Target hover height in meters when arriving at the recall destination.', type: 'double', example: 30, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'forward_offset', description: 'Forward offset in meters from the destination point where the ship stages before final landing.', type: 'double', example: 20, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'obstruction_detection_range', description: 'Range in meters to scan for obstacles while recalling.', type: 'double', example: 1.2, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'default_platform_detection_range', description: 'Detection radius in meters to locate a viable landing platform.', type: 'double', example: 50, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'minimum_recall_distance', description: 'Minimum distance in meters from the player before recall engages.', type: 'double', example: 400, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'braking_distance_offset', description: 'Extra buffer distance in meters used to start braking during recall approach.', type: 'double', example: 30, nullable: true, x: ['suffix' => ' m']),
     ],
     type: 'object'
 )]
@@ -118,9 +118,9 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Collision Detection',
     description: 'Collision warning thresholds calculated by IFCS. Can be null if all values are null.',
     properties: [
-        new OA\Property(property: 'collision_warn_speed', description: 'Relative speed in m/s that triggers a collision warning.', type: 'double', example: 6, nullable: true),
-        new OA\Property(property: 'collision_warn_time', description: 'Seconds until projected impact when general collision warning fires.', type: 'double', example: 4, nullable: true),
-        new OA\Property(property: 'collision_danger_close_warn_time', description: 'Seconds until impact for the urgent/danger-close warning stage.', type: 'double', example: 2, nullable: true),
+        new OA\Property(property: 'collision_warn_speed', description: 'Relative speed in m/s that triggers a collision warning.', type: 'double', example: 6, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'collision_warn_time', description: 'Seconds until projected impact when general collision warning fires.', type: 'double', example: 4, nullable: true, x: ['suffix' => ' s']),
+        new OA\Property(property: 'collision_danger_close_warn_time', description: 'Seconds until impact for the urgent/danger-close warning stage.', type: 'double', example: 2, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
@@ -132,7 +132,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'linear_acceleration_modifier', description: 'Multiplier applied to linear acceleration when out of fuel.', type: 'number', example: 0.1, nullable: true),
         new OA\Property(property: 'angular_acceleration_modifier', description: 'Multiplier applied to angular acceleration when out of fuel.', type: 'number', example: 0.1, nullable: true),
         new OA\Property(property: 'angular_velocity_modifier', description: 'Multiplier applied to angular velocity when out of fuel.', type: 'number', example: 0.1, nullable: true),
-        new OA\Property(property: 'legacy_max_speed', description: 'Maximum speed in m/s when out of fuel (legacy mode).', type: 'number', example: 20, nullable: true),
+        new OA\Property(property: 'legacy_max_speed', description: 'Maximum speed in m/s when out of fuel (legacy mode).', type: 'number', example: 20, nullable: true, x: ['suffix' => ' m/s']),
     ],
     type: 'object'
 )]
@@ -141,7 +141,7 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller Gravlev',
     description: 'Gravlev-related flight controller settings.',
     properties: [
-        new OA\Property(property: 'max_speed', description: 'Maximum gravlev hover speed.', type: 'double', example: 30, nullable: true),
+        new OA\Property(property: 'max_speed', description: 'Maximum gravlev hover speed.', type: 'double', example: 30, nullable: true, x: ['suffix' => ' m/s']),
         new OA\Property(property: 'turn_friction', description: 'Turning friction factor for gravlev.', type: 'double', example: 1.0, nullable: true),
         new OA\Property(property: 'air_controller_multiplier', description: 'Multiplier for air control when using gravlev.', type: 'double', example: 1.0, nullable: true),
         new OA\Property(property: 'anti_fall_multiplier', description: 'Multiplier used to counteract falling behaviour.', type: 'double', example: 1.0, nullable: true),
@@ -154,35 +154,38 @@ use OpenApi\Attributes as OA;
     title: 'Flight Controller',
     description: 'IFCS (flight controller) performance data sourced from in-game item files.',
     properties: [
-        new OA\Property(property: 'scm_speed', description: 'Space Combat Maneuvering (cruise) speed in meters per second.', type: 'double', example: 227, nullable: true),
-        new OA\Property(property: 'boost_speed_forward', description: 'Forward boost speed cap in m/s.', type: 'double', example: 470, nullable: true),
-        new OA\Property(property: 'boost_speed_backward', description: 'Reverse boost speed cap in m/s.', type: 'double', example: 240, nullable: true),
-        new OA\Property(property: 'max_speed', description: 'Absolute flight envelope speed cap in m/s.', type: 'double', example: 1230, nullable: true),
+        new OA\Property(property: 'scm_speed', description: 'Space Combat Maneuvering (cruise) speed in meters per second.', type: 'double', example: 227, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'boost_speed_forward', description: 'Forward boost speed cap in m/s.', type: 'double', example: 470, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'boost_speed_backward', description: 'Reverse boost speed cap in m/s.', type: 'double', example: 240, nullable: true, x: ['suffix' => ' m/s']),
+        new OA\Property(property: 'max_speed', description: 'Absolute flight envelope speed cap in m/s.', type: 'double', example: 1230, nullable: true, x: ['suffix' => ' m/s']),
 
-        new OA\Property(property: 'pitch', description: 'Maximum pitch rate in degrees per second.', type: 'double', example: 59, nullable: true),
-        new OA\Property(property: 'yaw', description: 'Maximum yaw rate in degrees per second.', type: 'double', example: 51, nullable: true),
-        new OA\Property(property: 'roll', description: 'Maximum roll rate in degrees per second.', type: 'double', example: 137, nullable: true),
+        new OA\Property(property: 'pitch', description: 'Maximum pitch rate in degrees per second.', type: 'double', example: 59, nullable: true, x: ['suffix' => ' °/s']),
+        new OA\Property(property: 'yaw', description: 'Maximum yaw rate in degrees per second.', type: 'double', example: 51, nullable: true, x: ['suffix' => ' °/s']),
+        new OA\Property(property: 'roll', description: 'Maximum roll rate in degrees per second.', type: 'double', example: 137, nullable: true, x: ['suffix' => ' °/s']),
 
         new OA\Property(
             property: 'pitch_boosted',
             description: 'Derived boosted pitch rate (rounded): pitch * boost_multiplier.pitch (defaults to 1 if missing).',
             type: 'integer',
             example: 59,
-            nullable: false
+            nullable: false,
+            x: ['suffix' => ' °/s']
         ),
         new OA\Property(
             property: 'yaw_boosted',
             description: 'Derived boosted yaw rate (rounded): yaw * boost_multiplier.yaw (defaults to 1 if missing).',
             type: 'integer',
             example: 51,
-            nullable: false
+            nullable: false,
+            x: ['suffix' => ' °/s']
         ),
         new OA\Property(
             property: 'roll_boosted',
             description: 'Derived boosted roll rate (rounded): roll * boost_multiplier.roll (defaults to 1 if missing).',
             type: 'integer',
             example: 137,
-            nullable: false
+            nullable: false,
+            x: ['suffix' => ' °/s']
         ),
 
         new OA\Property(property: 'boost_capacitor', ref: '#/components/schemas/flight_controller_boost_capacitor', description: 'Boost capacitor stats.'),

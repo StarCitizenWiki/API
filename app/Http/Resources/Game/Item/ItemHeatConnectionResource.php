@@ -12,10 +12,10 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'item_heat_connection',
     title: 'Item Heat Connection',
-    description: 'Heat connection information, generated from EntityComponentHeatConnection attributes.',
+    description: 'DEPRECATED: EntityComponentHeatConnection has been removed from game data',
     properties: [
         new OA\Property(property: 'temperature_to_ir', type: 'double', nullable: true),
-        new OA\Property(property: 'ir_temperature_threshold', description: 'StartIRTemperature', type: 'double', nullable: true),
+        new OA\Property(property: 'ir_temperature_threshold', description: 'StartIRTemperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
         new OA\Property(property: 'overpower_heat', type: 'double', nullable: true),
         new OA\Property(property: 'overclock_threshold_min', type: 'double', nullable: true),
         new OA\Property(property: 'overclock_threshold_max', type: 'double', nullable: true),
@@ -23,19 +23,19 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'thermal_energy_draw', type: 'double', nullable: true),
         new OA\Property(property: 'thermal_conductivity', type: 'double', nullable: true),
         new OA\Property(property: 'specific_heat_capacity', type: 'double', nullable: true),
-        new OA\Property(property: 'mass', type: 'double', nullable: true),
-        new OA\Property(property: 'surface_area', type: 'double', nullable: true),
-        new OA\Property(property: 'start_cooling_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'mass', type: 'double', nullable: true, x: ['suffix' => ' kg']),
+        new OA\Property(property: 'surface_area', type: 'double', nullable: true, x: ['suffix' => ' m²']),
+        new OA\Property(property: 'start_cooling_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
         new OA\Property(property: 'max_cooling_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'max_temperature', type: 'double', nullable: true),
-        new OA\Property(property: 'min_temperature', type: 'double', nullable: true),
-        new OA\Property(property: 'overheat_temperature', type: 'double', nullable: true),
-        new OA\Property(property: 'recovery_temperature', type: 'double', nullable: true),
-        new OA\Property(property: 'misfire_min_temperature', type: 'double', nullable: true),
-        new OA\Property(property: 'misfire_max_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'max_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
+        new OA\Property(property: 'min_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
+        new OA\Property(property: 'overheat_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
+        new OA\Property(property: 'recovery_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
+        new OA\Property(property: 'misfire_min_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
+        new OA\Property(property: 'misfire_max_temperature', type: 'double', nullable: true, x: ['suffix' => ' °C']),
         new OA\Property(property: 'ir_emission', description: '(StartCoolingTemperature - StartIRTemperature) * TemperatureToIR', type: 'double', nullable: true),
     ],
-    type: 'object'
+    deprecated: true,
 )]
 /** @param array $resource Raw heat connection data from stdItem.HeatConnection sub-array */
 class ItemHeatConnectionResource extends AbstractBaseResource

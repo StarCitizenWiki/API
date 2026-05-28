@@ -11,13 +11,13 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'jump_drive',
     title: 'Jump Drive',
-    description: '',
+    description: 'Jump drive alignment, tuning, and fuel efficiency stats sourced from SCItemJumpDriveParams.',
     properties: [
-        new OA\Property(property: 'alignment_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'alignment_decay_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'tuning_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'tuning_decay_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'fuel_usage_efficiency_multiplier', type: 'double', nullable: true),
+        new OA\Property(property: 'alignment_rate', description: 'Rate at which the drive aligns to a jump point. Higher values mean faster alignment.', type: 'double', nullable: true),
+        new OA\Property(property: 'alignment_decay_rate', description: 'Rate at which alignment decays when not actively aligning.', type: 'double', nullable: true),
+        new OA\Property(property: 'tuning_rate', description: 'Tuning speed. Higher values mean faster calibration.', type: 'double', nullable: true),
+        new OA\Property(property: 'tuning_decay_rate', description: 'Rate at which tuning decays when not actively tuning.', type: 'double', nullable: true),
+        new OA\Property(property: 'fuel_usage_efficiency_multiplier', description: 'Fuel efficiency multiplier. Higher values mean less fuel consumed per jump.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]

@@ -16,13 +16,13 @@ use OpenApi\Attributes as OA;
     schema: 'item_port',
     title: 'Item Port',
     properties: [
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'display_name', type: 'string', nullable: true),
-        new OA\Property(property: 'position', type: 'string', nullable: true),
-        new OA\Property(property: 'size', type: 'integer', nullable: true),
-        new OA\Property(property: 'sizes', properties: [
-            new OA\Property(property: 'min', type: 'integer', nullable: true),
-            new OA\Property(property: 'max', type: 'integer', nullable: true),
+        new OA\Property(property: 'name', description: 'Internal port identifier (e.g. hardpoint_weapon_wing_right).', type: 'string'),
+        new OA\Property(property: 'display_name', description: 'Human-readable port name, resolved from localization key.', type: 'string', nullable: true),
+        new OA\Property(property: 'position', description: 'Derived position label (e.g. magazine_well, optics, underbarrel, barrel).', type: 'string', nullable: true),
+        new OA\Property(property: 'size', description: 'Maximum item size this port accepts (same as sizes.max).', type: 'integer', nullable: true),
+        new OA\Property(property: 'sizes', description: 'Size range of items this port accepts.', properties: [
+            new OA\Property(property: 'min', description: 'Minimum item size.', type: 'integer', nullable: true),
+            new OA\Property(property: 'max', description: 'Maximum item size.', type: 'integer', nullable: true),
         ], type: 'object'),
         new OA\Property(
             property: 'compatible_types',
@@ -32,26 +32,28 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'types',
-            description: 'Raw type strings as provided by the game data',
+            description: 'Structured compatible type entries with type and sub-types.',
             type: 'array',
             items: new OA\Items(type: 'string'),
             nullable: true,
         ),
         new OA\Property(
             property: 'tags',
+            description: 'Tags provided by this port to attached items (from PortTags attribute).',
             type: 'array',
             items: new OA\Items(type: 'string'),
             nullable: true,
         ),
         new OA\Property(
             property: 'required_tags',
+            description: 'Tags an item must have to attach to this port (from RequiredPortTags, $ prefix stripped).',
             type: 'array',
             items: new OA\Items(type: 'string'),
             nullable: true,
         ),
         new OA\Property(
             property: 'flags',
-            description: 'Port flags from game data',
+            description: 'Port flags controlling behavior (e.g. editable, uneditable, invisible, select).',
             type: 'array',
             items: new OA\Items(type: 'string'),
             nullable: true,

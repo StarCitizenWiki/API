@@ -13,8 +13,8 @@ use OpenApi\Attributes as OA;
     title: 'Fuel Intake',
     description: 'Fuel intake flow rates sourced from stdItem.FuelIntake.',
     properties: [
-        new OA\Property(property: 'fuel_push_rate', type: 'double', nullable: true),
-        new OA\Property(property: 'minimum_rate', type: 'double', nullable: true),
+        new OA\Property(property: 'fuel_push_rate', description: 'Fuel push rate into the fuel tanks. A value of 0 means no active push capability.', type: 'double', nullable: true),
+        new OA\Property(property: 'minimum_rate', description: 'Minimum fuel collection rate.', type: 'double', nullable: true),
     ],
     type: 'object'
 )]

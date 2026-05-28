@@ -61,14 +61,14 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(
             property: 'throttle_lerp_speed',
-            description: 'Throttle lerp speed (ThrottleLerpSpeed).',
+            description: 'How quickly the throttle responds to input changes.',
             type: 'double',
             example: 6.5,
             nullable: true
         ),
         new OA\Property(
             property: 'throttle_minimum',
-            description: 'Minimum throttle value (ThrottleMinimum).',
+            description: 'Minimum throttle value when firing.',
             type: 'double',
             example: 0.1,
             nullable: true
@@ -92,6 +92,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'modifier_map',
+            description: 'Key-value map of mining laser modifier names to their numeric values.',
             type: 'object',
             nullable: false,
             additionalProperties: new OA\AdditionalProperties(type: 'number'),
@@ -110,25 +111,27 @@ use OpenApi\Attributes as OA;
             description: 'Optimal mining distance in meters (OptimalRange).',
             type: 'double',
             example: 45.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'maximum_range',
             description: 'Maximum effective range in meters (MaximumRange).',
             type: 'double',
             example: 135.0,
-            nullable: true
+            nullable: true,
+            x: ['suffix' => ' m']
         ),
         new OA\Property(
             property: 'extraction_throughput',
-            description: 'Extraction throughput metric (ExtractionThroughput).',
+            description: 'Rate at which ore is extracted from the target.',
             type: 'double',
             example: 2775.0,
             nullable: true
         ),
         new OA\Property(
             property: 'collection_point_radius',
-            description: 'Radius of the collection point beam (CollectionPointRadius).',
+            description: 'Radius of the mining beam at the collection point.',
             type: 'double',
             example: 0.1,
             nullable: true

@@ -16,21 +16,22 @@ use OpenApi\Attributes as OA;
     title: 'Resource Container',
     description: 'Container data for items that can hold resources (e.g. cargo or consumables).',
     properties: [
-        new OA\Property(property: 'mass', type: 'double', nullable: true),
-        new OA\Property(property: 'immutable', type: 'boolean', nullable: true),
+        new OA\Property(property: 'mass', description: 'Container mass in kilograms.', type: 'double', nullable: true, x: ['suffix' => ' kg']),
+        new OA\Property(property: 'immutable', description: 'Whether the container contents cannot be changed.', type: 'boolean', nullable: true),
         new OA\Property(
             property: 'default_fill_fraction',
             description: 'Initial fill fraction (0-1).',
             type: 'double',
-            nullable: true
+            nullable: true,
+            x: ['tabulator-formatter' => 'progress']
         ),
         new OA\Property(
             property: 'capacity',
             properties: [
-                new OA\Property(property: 'value', type: 'double', nullable: true),
-                new OA\Property(property: 'unit', type: 'string', nullable: true),
-                new OA\Property(property: 'unit_name', type: 'string', nullable: true),
-                new OA\Property(property: 'scu', type: 'double', nullable: true),
+                new OA\Property(property: 'value', description: 'Raw capacity value.', type: 'double', nullable: true),
+                new OA\Property(property: 'unit', description: 'Unit abbreviation (e.g. "SCU").', type: 'string', nullable: true),
+                new OA\Property(property: 'unit_name', description: 'Full unit name (e.g. "Standard Cargo Units").', type: 'string', nullable: true),
+                new OA\Property(property: 'scu', description: 'Capacity converted to SCU.', type: 'double', nullable: true, x: ['suffix' => ' SCU']),
             ],
             type: 'object',
             nullable: true,
@@ -58,8 +59,8 @@ use OpenApi\Attributes as OA;
     schema: 'resource_container_composition_entry',
     title: 'Resource Container Composition Entry',
     properties: [
-        new OA\Property(property: 'entry', type: 'string', nullable: true),
-        new OA\Property(property: 'weight', type: 'double', nullable: true),
+        new OA\Property(property: 'entry', description: 'UUID of the resource/commodity in this composition entry.', type: 'string', nullable: true),
+        new OA\Property(property: 'weight', description: 'Weight or proportion of this entry in the composition.', type: 'double', nullable: true),
         new OA\Property(
             property: 'commodity',
             ref: '#/components/schemas/resource_container_commodity_link',
@@ -73,10 +74,10 @@ use OpenApi\Attributes as OA;
     title: 'Commodity Link',
     description: 'Link to the commodity that this composition entry references.',
     properties: [
-        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'slug', type: 'string', nullable: true),
-        new OA\Property(property: 'link', type: 'string', nullable: true),
+        new OA\Property(property: 'uuid', description: 'Unique identifier of the commodity.', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'name', description: 'Display name of the commodity.', type: 'string'),
+        new OA\Property(property: 'slug', description: 'URL-friendly slug for the commodity.', type: 'string', nullable: true),
+        new OA\Property(property: 'link', description: 'API URL for the commodity detail endpoint.', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
