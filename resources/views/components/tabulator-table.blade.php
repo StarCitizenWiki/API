@@ -13,24 +13,30 @@
 
 @if (!empty($config['columnBuilder']) && !empty($config['fieldCatalog']))
     <div
-        class="rounded-box border border-base-300 bg-base-100 px-3 py-2 -my-4"
+        class="rounded-box border border-base-300 bg-base-100 px-4 py-3 -my-4"
         data-tabulator-column-builder="{{ $id }}"
         data-testid="tabulator-column-builder-{{ $id }}"
     >
-        <div class="flex flex-wrap items-center gap-2">
-            <button
-                type="button"
-                class="btn btn-sm btn-outline"
-                aria-haspopup="dialog"
-                aria-controls="{{ $id }}-column-builder-dialog"
-                data-column-builder-open
-                data-testid="tabulator-column-builder-open-{{ $id }}"
-            >
-                Columns
-                <span class="badge badge-sm" data-column-builder-count>0</span>
-            </button>
-            <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Defaults</button>
-            <span class="text-xs text-subtle" data-column-builder-status aria-live="polite"></span>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                <span class="text-xs font-semibold uppercase tracking-wide text-subtle">Columns</span>
+                <span class="badge badge-sm badge-ghost"><span data-column-builder-count>0</span> shown</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary btn-outline"
+                    aria-haspopup="dialog"
+                    aria-controls="{{ $id }}-column-builder-dialog"
+                    data-column-builder-open
+                    data-testid="tabulator-column-builder-open-{{ $id }}"
+                >
+                    Customize columns
+                </button>
+                <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Reset</button>
+                <span class="text-xs text-subtle" data-column-builder-status aria-live="polite"></span>
+            </div>
         </div>
 
         <dialog id="{{ $id }}-column-builder-dialog" class="modal" data-column-builder-dialog>
@@ -52,7 +58,7 @@
                         >
                     </label>
                     <button type="button" class="btn btn-xs btn-ghost" data-column-builder-core>Name only</button>
-                    <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Defaults</button>
+                    <button type="button" class="btn btn-xs btn-ghost" data-column-builder-defaults>Restore defaults</button>
                 </div>
 
                 <div

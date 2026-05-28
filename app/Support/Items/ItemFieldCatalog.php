@@ -127,6 +127,13 @@ final class ItemFieldCatalog
                 return $field;
             })
             ->sortBy([
+                fn (array $a, array $b) => match (true) {
+                    $a['group'] === 'Core' => -1,
+                    $b['group'] === 'Core' => 1,
+                    $a['group'] === 'Manufacturer' => -1,
+                    $b['group'] === 'Manufacturer' => 1,
+                    default => 0,
+                },
                 ['group', 'asc'],
                 ['field', 'asc'],
             ])

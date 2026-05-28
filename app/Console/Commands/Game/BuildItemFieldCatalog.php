@@ -97,6 +97,8 @@ class BuildItemFieldCatalog extends Command
 
         ksort($this->fields, SORT_STRING);
 
+        $this->fields = array_filter($this->fields, static fn (array $field): bool => ! ($field['deprecated'] ?? false));
+
         $fields = array_values(array_map(static function (array $field): array {
             $field['types'] = array_values($field['types']);
             $field['schemas'] = array_values($field['schemas']);
@@ -185,6 +187,9 @@ class BuildItemFieldCatalog extends Command
                     array: true,
                     deprecated: $deprecated,
                     columnable: false,
+                    suffix: $this->schemaSuffix($schema),
+                    formatter: $this->schemaFormatter($schema),
+                    formatterParams: $this->schemaFormatterParams($schema),
                 );
             }
 
@@ -223,6 +228,9 @@ class BuildItemFieldCatalog extends Command
                 array: false,
                 deprecated: $deprecated,
                 columnable: true,
+                suffix: $this->schemaSuffix($schema),
+                formatter: $this->schemaFormatter($schema),
+                formatterParams: $this->schemaFormatterParams($schema),
             );
         }
     }
@@ -336,6 +344,36 @@ class BuildItemFieldCatalog extends Command
         return is_string($description) && $description !== '' ? $description : null;
     }
 
+    /**
+     * @param  array<string, mixed>  $schema
+     */
+    private function schemaSuffix(array $schema): ?string
+    {
+        $suffix = $schema['x-suffix'] ?? null;
+
+        return is_string($suffix) && $suffix !== '' ? $suffix : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $schema
+     */
+    private function schemaFormatter(array $schema): ?string
+    {
+        $formatter = $schema['x-tabulator-formatter'] ?? null;
+
+        return is_string($formatter) && $formatter !== '' ? $formatter : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $schema
+     */
+    private function schemaFormatterParams(array $schema): ?array
+    {
+        $params = $schema['x-formatter-params'] ?? null;
+
+        return is_array($params) && $params !== [] ? $params : null;
+    }
+
     private function addField(
         string $field,
         string $type,
@@ -345,6 +383,9 @@ class BuildItemFieldCatalog extends Command
         bool $array,
         bool $deprecated,
         bool $columnable,
+        ?string $suffix = null,
+        ?string $formatter = null,
+        ?array $formatterParams = null,
     ): void {
         $entry = $this->fields[$field] ?? [
             'field' => $field,
@@ -358,6 +399,7 @@ class BuildItemFieldCatalog extends Command
             'schema' => $sourceSchema,
             'schemas' => [],
             'deprecated' => false,
+            'formatter_params' => null,
         ];
 
         $entry['types'][] = $type;
@@ -372,6 +414,18 @@ class BuildItemFieldCatalog extends Command
         $entry['array'] = $entry['array'] || $array;
         $entry['columnable'] = $entry['columnable'] && $columnable;
         $entry['deprecated'] = $entry['deprecated'] || $deprecated;
+
+        if ($suffix !== null && ($entry['suffix'] ?? null) === null) {
+            $entry['suffix'] = $suffix;
+        }
+
+        if ($formatter !== null && ($entry['formatter'] ?? null) === null) {
+            $entry['formatter'] = $formatter;
+        }
+
+        if ($formatterParams !== null && ($entry['formatter_params'] ?? null) === null) {
+            $entry['formatter_params'] = $formatterParams;
+        }
 
         $entry['schemas'][] = $sourceSchema;
         $entry['schemas'] = $this->sortedUnique($entry['schemas']);
