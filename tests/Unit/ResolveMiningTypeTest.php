@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit;
+
 use App\Support\Resources\HasDepositFormatting;
 
-class TestDepositFormatting
+class ResolveMiningTypeTest
 {
     use HasDepositFormatting;
 
@@ -15,7 +17,7 @@ class TestDepositFormatting
 }
 
 it('resolves mining type from group name', function (string $groupName, string $expectedLabel, int $expectedSortOrder): void {
-    $result = TestDepositFormatting::testMiningType($groupName);
+    $result = ResolveMiningTypeTest::testMiningType($groupName);
 
     expect($result)->toBe(['label' => $expectedLabel, 'sort_order' => $expectedSortOrder]);
 })->with([
@@ -32,7 +34,7 @@ it('resolves mining type from group name', function (string $groupName, string $
 ]);
 
 it('falls back to raw group name for unknown groups', function (): void {
-    $result = TestDepositFormatting::testMiningType('SomeUnknownGroup');
+    $result = ResolveMiningTypeTest::testMiningType('SomeUnknownGroup');
 
     expect($result)->toBe(['label' => 'SomeUnknownGroup', 'sort_order' => 99]);
 });
