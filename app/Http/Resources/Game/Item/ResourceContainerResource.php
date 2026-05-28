@@ -23,7 +23,7 @@ use OpenApi\Attributes as OA;
             description: 'Initial fill fraction (0-1).',
             type: 'double',
             nullable: true,
-            x: ['tabulator-formatter' => 'progress']
+            x: ['tabulator-formatter' => 'pct']
         ),
         new OA\Property(
             property: 'capacity',

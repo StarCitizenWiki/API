@@ -160,7 +160,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'min_distance', description: 'Distance in meters before impulse falloff begins.', type: 'double', example: 0, nullable: true, x: ['suffix' => ' m']),
                 new OA\Property(property: 'drop_falloff', description: 'Impulse reduction rate per meter after min distance.', type: 'double', example: 0.005, nullable: true),
-                new OA\Property(property: 'max_falloff', description: 'Maximum impulse reduction fraction (0-1).', type: 'double', example: 0.3, nullable: true, x: ['tabulator-formatter' => 'progress']),
+                new OA\Property(property: 'max_falloff', description: 'Maximum impulse reduction fraction (0-1).', type: 'double', example: 0.3, nullable: true, x: ['tabulator-formatter' => 'pct']),
             ],
             type: 'object',
             nullable: true

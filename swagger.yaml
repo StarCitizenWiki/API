@@ -7018,13 +7018,13 @@ components:
           type: number
           format: double
           nullable: true
-          x-tabulator-formatter: progress
+          x-tabulator-formatter: pct
         recovery_ratio:
           description: 'Threshold below which distortion must fall before the item reactivates after overload. 0 = immediate recovery.'
           type: number
           format: double
           nullable: true
-          x-tabulator-formatter: progress
+          x-tabulator-formatter: pct
         recovery_time:
           description: 'Deprecated: Does not exist in game data.'
           type: number
@@ -8532,7 +8532,7 @@ components:
           type: number
           format: double
           nullable: true
-          x-tabulator-formatter: progress
+          x-tabulator-formatter: pct
         capacity:
           properties:
             value:
@@ -8633,7 +8633,7 @@ components:
           format: double
           example: 0.25
           nullable: true
-          x-tabulator-formatter: progress
+          x-tabulator-formatter: pct
         generated_resource:
           description: 'Resource produced by conversion/storage deltas.'
           type: string
@@ -8780,7 +8780,7 @@ components:
               type: number
               format: double
               nullable: true
-              x-tabulator-formatter: progress
+              x-tabulator-formatter: pct
           type: object
           nullable: true
         usage:
@@ -9269,7 +9269,7 @@ components:
               format: double
               example: 0.3
               nullable: true
-              x-tabulator-formatter: progress
+              x-tabulator-formatter: pct
           type: object
           nullable: true
         bullet_electron:
@@ -14919,96 +14919,112 @@ components:
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         muzzle_flash_change:
           description: 'Muzzle flash scale change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         fire_rate_multiplier:
           description: 'Fire rate multiplier.'
           type: number
           format: double
           example: 1.1
           nullable: true
+          x-tabulator-formatter: pct
         fire_rate_change:
           description: 'Fire rate change.'
           type: number
           format: double
           example: 0.1
           nullable: true
+          x-tabulator-formatter: pctDelta
         damage_multiplier:
           description: 'Damage multiplier.'
           type: number
           format: double
           example: 0.92
           nullable: true
+          x-tabulator-formatter: pct
         damage_change:
           description: 'Damage change.'
           type: number
           format: double
           example: -0.08
           nullable: true
+          x-tabulator-formatter: pctDelta
         projectile_speed_multiplier:
           description: 'Projectile speed multiplier.'
           type: number
           format: double
           example: 0.875
           nullable: true
+          x-tabulator-formatter: pct
         projectile_speed_change:
           description: 'Projectile speed change.'
           type: number
           format: double
           example: -0.13
           nullable: true
+          x-tabulator-formatter: pctDelta
         ammo_cost_multiplier:
           description: 'Ammo cost multiplier.'
           type: number
           format: double
           example: 2
           nullable: true
+          x-tabulator-formatter: pct
         ammo_cost_change:
           description: 'Ammo cost change.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pctDelta
         heat_generation_multiplier:
           description: 'Heat generation multiplier.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-tabulator-formatter: pct
         heat_generation_change:
           description: 'Heat generation change.'
           type: number
           format: double
           example: -0.8
           nullable: true
+          x-tabulator-formatter: pctDelta
         sound_radius_multiplier:
           description: 'Sound radius multiplier.'
           type: number
           format: double
           example: 1.2
           nullable: true
+          x-tabulator-formatter: pct
         sound_radius_change:
           description: 'Sound radius change.'
           type: number
           format: double
           example: 0.2
           nullable: true
+          x-tabulator-formatter: pctDelta
         charge_time_multiplier:
           description: 'Charge time multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         charge_time_change:
           description: 'Charge time change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
       type: object
     weapon_modifier_recoil:
       title: 'Weapon Modifier Recoil'
@@ -15020,24 +15036,28 @@ components:
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         decay_change:
           description: 'Recoil decay change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         multiplier:
           description: 'Recoil randomness multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         multiplier_change:
           description: 'Recoil randomness change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
       type: object
     weapon_modifier_spread:
       title: 'Weapon Modifier Spread'
@@ -15049,60 +15069,70 @@ components:
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         min_change:
           description: 'Minimum spread change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         max_multiplier:
           description: 'Maximum spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         max_change:
           description: 'Maximum spread change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         first_attack_multiplier:
           description: 'First shot spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         first_attack_change:
           description: 'First shot spread change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         per_attack_multiplier:
           description: 'Per-shot spread multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         per_attack_change:
           description: 'Per-shot spread change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
         decay_multiplier:
           description: 'Spread decay multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         decay_change:
           description: 'Spread decay change.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-tabulator-formatter: pctDelta
       type: object
     weapon_modifier_aim:
       title: 'Weapon Modifier Aim'
@@ -15126,12 +15156,14 @@ components:
           format: double
           example: 1.25
           nullable: true
+          x-tabulator-formatter: pct
         zoom_time_change:
           description: 'Zoom transition time change.'
           type: number
           format: double
           example: 0.25
           nullable: true
+          x-tabulator-formatter: pctDelta
         hide_weapon_in_ads:
           description: 'Whether the weapon is hidden while aiming.'
           type: boolean
@@ -15154,18 +15186,21 @@ components:
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         max_ammo_load_multiplier:
           description: 'Maximum ammo load multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         max_regen_per_sec_multiplier:
           description: 'Maximum regeneration per second multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
       type: object
     weapon_modifier_salvage:
       title: 'Weapon Modifier Salvage'
@@ -15177,18 +15212,21 @@ components:
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         radius_multiplier:
           description: 'Salvage radius multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
         extraction_efficiency:
           description: 'Extraction efficiency multiplier.'
           type: number
           format: double
           example: 1
           nullable: true
+          x-tabulator-formatter: pct
       type: object
     weapon_modifier_zeroing:
       title: 'Weapon Modifier Zeroing'
@@ -15200,24 +15238,28 @@ components:
           format: double
           example: 0
           nullable: true
+          x-suffix: ' m'
         max_range:
           description: 'Maximum zeroing range in meters.'
           type: number
           format: double
           example: 500
           nullable: true
+          x-suffix: ' m'
         range_increment:
           description: 'Zeroing range increment in meters.'
           type: number
           format: double
           example: 100
           nullable: true
+          x-suffix: ' m'
         auto_zeroing_time:
           description: 'Auto-zeroing time in seconds.'
           type: number
           format: double
           example: 0
           nullable: true
+          x-suffix: ' s'
       type: object
     weapon_modifier:
       title: 'Weapon Modifier'

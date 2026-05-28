@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'type', description: 'Delta type (Consumption, Generation, Conversion, Storage, NetworkReflection).', type: 'string', example: 'Consumption', nullable: true),
         new OA\Property(property: 'resource', description: 'Target resource affected (Power, Fuel, Coolant, QuantumFuel, Shield, LifeSupport).', type: 'string', example: 'Power', nullable: true),
         new OA\Property(property: 'rate', description: 'Rate applied per tick (game native units). Typical power draw ~2-5; fuel draw often 0.01.', type: 'double', example: 2.2, nullable: true),
-        new OA\Property(property: 'minimum_fraction', description: 'Minimum fraction of the resource that must be available before the delta applies.', type: 'double', example: 0.25, nullable: true, x: ['tabulator-formatter' => 'progress']),
+        new OA\Property(property: 'minimum_fraction', description: 'Minimum fraction of the resource that must be available before the delta applies.', type: 'double', example: 0.25, nullable: true, x: ['tabulator-formatter' => 'pct']),
         new OA\Property(property: 'generated_resource', description: 'Resource produced by conversion/storage deltas.', type: 'string', example: 'Coolant', nullable: true),
         new OA\Property(property: 'generated_rate', description: 'Rate of the generated resource.', type: 'double', example: 22, nullable: true),
         new OA\Property(property: 'discharge', description: 'Whether stored resource is discharged (0/1 flag).', type: 'double', example: 0, nullable: true),
@@ -99,7 +99,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'max_repair_count', description: 'Maximum number of repairs allowed.', type: 'integer', nullable: true),
                 new OA\Property(property: 'time_to_repair', description: 'Time required to perform a repair (seconds).', type: 'double', nullable: true, x: ['suffix' => ' s']),
-                new OA\Property(property: 'health_ratio', description: 'Health ratio threshold for repair eligibility.', type: 'double', nullable: true, x: ['tabulator-formatter' => 'progress']),
+                new OA\Property(property: 'health_ratio', description: 'Health ratio threshold for repair eligibility.', type: 'double', nullable: true, x: ['tabulator-formatter' => 'pct']),
             ],
             type: 'object',
             nullable: true,

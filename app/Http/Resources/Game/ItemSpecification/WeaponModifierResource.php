@@ -14,29 +14,29 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Base',
     description: 'Core scalar adjustments and derived delta fields (`*_change`). Only emitted when the modifier meaningfully differs from defaults.',
     properties: [
-        new OA\Property(property: 'muzzle_flash_multiplier', description: 'Muzzle flash scale multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'muzzle_flash_change', description: 'Muzzle flash scale change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'muzzle_flash_multiplier', description: 'Muzzle flash scale multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'muzzle_flash_change', description: 'Muzzle flash scale change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'fire_rate_multiplier', description: 'Fire rate multiplier.', type: 'double', example: 1.1, nullable: true),
-        new OA\Property(property: 'fire_rate_change', description: 'Fire rate change.', type: 'double', example: 0.1, nullable: true),
+        new OA\Property(property: 'fire_rate_multiplier', description: 'Fire rate multiplier.', type: 'double', example: 1.1, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'fire_rate_change', description: 'Fire rate change.', type: 'double', example: 0.1, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'damage_multiplier', description: 'Damage multiplier.', type: 'double', example: 0.92, nullable: true),
-        new OA\Property(property: 'damage_change', description: 'Damage change.', type: 'double', example: -0.08, nullable: true),
+        new OA\Property(property: 'damage_multiplier', description: 'Damage multiplier.', type: 'double', example: 0.92, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'damage_change', description: 'Damage change.', type: 'double', example: -0.08, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'projectile_speed_multiplier', description: 'Projectile speed multiplier.', type: 'double', example: 0.875, nullable: true),
-        new OA\Property(property: 'projectile_speed_change', description: 'Projectile speed change.', type: 'double', example: -0.13, nullable: true),
+        new OA\Property(property: 'projectile_speed_multiplier', description: 'Projectile speed multiplier.', type: 'double', example: 0.875, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'projectile_speed_change', description: 'Projectile speed change.', type: 'double', example: -0.13, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'ammo_cost_multiplier', description: 'Ammo cost multiplier.', type: 'double', example: 2.0, nullable: true),
-        new OA\Property(property: 'ammo_cost_change', description: 'Ammo cost change.', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'ammo_cost_multiplier', description: 'Ammo cost multiplier.', type: 'double', example: 2.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'ammo_cost_change', description: 'Ammo cost change.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'heat_generation_multiplier', description: 'Heat generation multiplier.', type: 'double', example: 0.2, nullable: true),
-        new OA\Property(property: 'heat_generation_change', description: 'Heat generation change.', type: 'double', example: -0.8, nullable: true),
+        new OA\Property(property: 'heat_generation_multiplier', description: 'Heat generation multiplier.', type: 'double', example: 0.2, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'heat_generation_change', description: 'Heat generation change.', type: 'double', example: -0.8, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'sound_radius_multiplier', description: 'Sound radius multiplier.', type: 'double', example: 1.2, nullable: true),
-        new OA\Property(property: 'sound_radius_change', description: 'Sound radius change.', type: 'double', example: 0.2, nullable: true),
+        new OA\Property(property: 'sound_radius_multiplier', description: 'Sound radius multiplier.', type: 'double', example: 1.2, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'sound_radius_change', description: 'Sound radius change.', type: 'double', example: 0.2, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'charge_time_multiplier', description: 'Charge time multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'charge_time_change', description: 'Charge time change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'charge_time_multiplier', description: 'Charge time multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'charge_time_change', description: 'Charge time change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
     ],
     type: 'object'
 )]
@@ -45,11 +45,11 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Recoil',
     description: 'Reduced recoil block as emitted by this resource (not a full recoil model export). Only emitted when values differ from defaults.',
     properties: [
-        new OA\Property(property: 'decay_multiplier', description: 'Recoil decay multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'decay_change', description: 'Recoil decay change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'decay_multiplier', description: 'Recoil decay multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'decay_change', description: 'Recoil decay change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'multiplier', description: 'Recoil randomness multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'multiplier_change', description: 'Recoil randomness change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'multiplier', description: 'Recoil randomness multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'multiplier_change', description: 'Recoil randomness change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
     ],
     type: 'object'
 )]
@@ -58,20 +58,20 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Spread',
     description: 'Spread tuning multipliers and derived deltas. Only emitted when values differ from defaults.',
     properties: [
-        new OA\Property(property: 'min_multiplier', description: 'Minimum spread multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'min_change', description: 'Minimum spread change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'min_multiplier', description: 'Minimum spread multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'min_change', description: 'Minimum spread change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'max_multiplier', description: 'Maximum spread multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'max_change', description: 'Maximum spread change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'max_multiplier', description: 'Maximum spread multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'max_change', description: 'Maximum spread change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'first_attack_multiplier', description: 'First shot spread multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'first_attack_change', description: 'First shot spread change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'first_attack_multiplier', description: 'First shot spread multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'first_attack_change', description: 'First shot spread change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'per_attack_multiplier', description: 'Per-shot spread multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'per_attack_change', description: 'Per-shot spread change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'per_attack_multiplier', description: 'Per-shot spread multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'per_attack_change', description: 'Per-shot spread change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
 
-        new OA\Property(property: 'decay_multiplier', description: 'Spread decay multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'decay_change', description: 'Spread decay change.', type: 'double', example: 0.0, nullable: true),
+        new OA\Property(property: 'decay_multiplier', description: 'Spread decay multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'decay_change', description: 'Spread decay change.', type: 'double', example: 0.0, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
     ],
     type: 'object'
 )]
@@ -82,8 +82,8 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'zoom_scale', description: 'Zoom magnification scale.', type: 'double', example: 4, nullable: true),
         new OA\Property(property: 'second_zoom_scale', description: 'Secondary zoom magnification scale.', type: 'double', example: 6, nullable: true),
-        new OA\Property(property: 'zoom_time_scale', description: 'Zoom transition time scale.', type: 'double', example: 1.25, nullable: true),
-        new OA\Property(property: 'zoom_time_change', description: 'Zoom transition time change.', type: 'double', example: 0.25, nullable: true),
+        new OA\Property(property: 'zoom_time_scale', description: 'Zoom transition time scale.', type: 'double', example: 1.25, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'zoom_time_change', description: 'Zoom transition time change.', type: 'double', example: 0.25, nullable: true, x: ['tabulator-formatter' => 'pctDelta']),
         new OA\Property(property: 'hide_weapon_in_ads', description: 'Whether the weapon is hidden while aiming.', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'fstop_multiplier', description: 'Aperture stop multiplier.', type: 'double', example: 1.0, nullable: true),
     ],
@@ -94,9 +94,9 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Regen',
     description: 'Regeneration modifiers. Only emitted when values differ from defaults.',
     properties: [
-        new OA\Property(property: 'power_ratio_multiplier', description: 'Power ratio multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'max_ammo_load_multiplier', description: 'Maximum ammo load multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'max_regen_per_sec_multiplier', description: 'Maximum regeneration per second multiplier.', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'power_ratio_multiplier', description: 'Power ratio multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'max_ammo_load_multiplier', description: 'Maximum ammo load multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'max_regen_per_sec_multiplier', description: 'Maximum regeneration per second multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
     ],
     type: 'object'
 )]
@@ -105,9 +105,9 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Salvage',
     description: 'Salvage-related multipliers. Only emitted when present per resource logic.',
     properties: [
-        new OA\Property(property: 'salvage_speed_multiplier', description: 'Salvage speed multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'radius_multiplier', description: 'Salvage radius multiplier.', type: 'double', example: 1.0, nullable: true),
-        new OA\Property(property: 'extraction_efficiency', description: 'Extraction efficiency multiplier.', type: 'double', example: 1.0, nullable: true),
+        new OA\Property(property: 'salvage_speed_multiplier', description: 'Salvage speed multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'radius_multiplier', description: 'Salvage radius multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
+        new OA\Property(property: 'extraction_efficiency', description: 'Extraction efficiency multiplier.', type: 'double', example: 1.0, nullable: true, x: ['tabulator-formatter' => 'pct']),
     ],
     type: 'object'
 )]
@@ -116,10 +116,10 @@ use OpenApi\Attributes as OA;
     title: 'Weapon Modifier Zeroing',
     description: 'Zeroing distances supported by the optic or attachment. Only emitted when present per resource logic.',
     properties: [
-        new OA\Property(property: 'default_range', description: 'Default zeroing range in meters.', type: 'double', example: 0, nullable: true),
-        new OA\Property(property: 'max_range', description: 'Maximum zeroing range in meters.', type: 'double', example: 500, nullable: true),
-        new OA\Property(property: 'range_increment', description: 'Zeroing range increment in meters.', type: 'double', example: 100, nullable: true),
-        new OA\Property(property: 'auto_zeroing_time', description: 'Auto-zeroing time in seconds.', type: 'double', example: 0, nullable: true),
+        new OA\Property(property: 'default_range', description: 'Default zeroing range in meters.', type: 'double', example: 0, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'max_range', description: 'Maximum zeroing range in meters.', type: 'double', example: 500, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'range_increment', description: 'Zeroing range increment in meters.', type: 'double', example: 100, nullable: true, x: ['suffix' => ' m']),
+        new OA\Property(property: 'auto_zeroing_time', description: 'Auto-zeroing time in seconds.', type: 'double', example: 0, nullable: true, x: ['suffix' => ' s']),
     ],
     type: 'object'
 )]
