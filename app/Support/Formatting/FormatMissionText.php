@@ -6,8 +6,73 @@ namespace App\Support\Formatting;
 
 use Illuminate\Support\Str;
 
-class FormatMissionTitle
+class FormatMissionText
 {
+    public static function description(?string $description): ?string
+    {
+        if ($description === null) {
+            return null;
+        }
+
+        $description = preg_replace('/\R{2,}/', "\n", $description);
+
+        $description = preg_replace_callback(
+            '/<EM4>(.*?)<\/EM4>/s',
+            static function (array $matches): string {
+                return '%%EM4_SPAN_START%%'.e($matches[1]).'%%EM4_SPAN_END%%';
+            },
+            $description,
+        );
+
+        $description = self::replaceTemplateTokens($description);
+
+        $description = self::escapePreservingSpans($description);
+
+        return nl2br($description);
+    }
+
+    /**
+     * Escape HTML entities while preserving our injected <span> tags.
+     */
+    private static function escapePreservingSpans(string $html): string
+    {
+        $spanPlaceholders = [];
+        $html = preg_replace_callback(
+            '/%%EM4_SPAN_START%%(.*?)%%EM4_SPAN_END%%/s',
+            static function (array $matches) use (&$spanPlaceholders): string {
+                $key = '%%SPAN_'.count($spanPlaceholders).'%%';
+                $spanPlaceholders[$key] = '<span class="text-secondary font-mono">'.$matches[1].'</span>';
+
+                return $key;
+            },
+            $html,
+        );
+
+        $bracketPlaceholders = [];
+        $html = preg_replace_callback(
+            '/\[([^\]]*)\]/',
+            static function (array $matches) use (&$bracketPlaceholders): string {
+                $key = '%%BRACKET_'.count($bracketPlaceholders).'%%';
+                $bracketPlaceholders[$key] = '<span class="text-secondary font-mono">['.e($matches[1]).']</span>';
+
+                return $key;
+            },
+            $html,
+        );
+
+        $html = e($html);
+
+        foreach ($bracketPlaceholders as $key => $value) {
+            $html = str_replace(e($key), $value, $html);
+        }
+
+        foreach ($spanPlaceholders as $key => $value) {
+            $html = str_replace(e($key), $value, $html);
+        }
+
+        return $html;
+    }
+
     public static function format(?string $title, ?string $debugName = null): ?string
     {
         if ($title === null && $debugName === null) {
@@ -46,7 +111,7 @@ class FormatMissionTitle
         return str_contains($title, '~mission(');
     }
 
-    private static function replaceTemplateTokens(string $title): string
+    private static function replaceTemplateTokens(string $text): string
     {
         return (string) preg_replace_callback(
             '/~mission\(([^)]+)\)/',
@@ -58,7 +123,7 @@ class FormatMissionTitle
 
                 return '['.Str::headline($label).']';
             },
-            $title,
+            $text,
         );
     }
 

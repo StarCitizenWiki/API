@@ -7,7 +7,7 @@ namespace App\Http\Resources\Game\Blueprint;
 use App\Http\Resources\AbstractBaseResource;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatDuration;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -563,7 +563,7 @@ class BlueprintResource extends AbstractBaseResource
         $missions = $this->loadedRelation('missions');
 
         return $missions->map(fn ($mission): array => [
-            'title' => FormatMissionTitle::format(
+            'title' => FormatMissionText::format(
                 $this->nullableString($mission->title),
                 $this->nullableString($mission->debug_name),
             ),

@@ -100,7 +100,7 @@
 
         @if ($description)
             <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="mission-hero-description">
-                {!! nl2br(e($description)) !!}
+                {!! \App\Support\Formatting\FormatMissionText::description($description) !!}
             </div>
         @endif
         <div class="card-actions justify-end pt-4">

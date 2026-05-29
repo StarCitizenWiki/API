@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api\Game;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Support\Filters\ItemFilterLabel;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -111,7 +111,7 @@ class UnifiedSearchController extends Controller
                 'label' => $this->typeLabel($type),
                 'results' => collect($items)->map(fn ($row) => [
                     'name' => $type === 'missions'
-                        ? FormatMissionTitle::format($row->name, $row->extra_label)
+                        ? FormatMissionText::format($row->name, $row->extra_label)
                         : $row->name,
                     'class_name' => $row->class_name,
                     'classification' => $row->classification,

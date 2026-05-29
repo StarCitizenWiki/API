@@ -16,7 +16,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Services\Game\SlugService;
 use App\Support\Filters\MissionScopeMapping;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -298,8 +298,8 @@ class ImportMissionData implements ShouldQueue
             'mission_type' => $missionType,
             'mission_type_uuid' => $this->trimOrNull(Arr::get($payload, 'MissionType.UUID')),
             'mission_giver' => $this->trimOrNull(Arr::get($payload, 'MissionGiver')),
-            'title' => $this->trimOrNull(Arr::get($payload, 'Title')),
-            'description' => $this->trimOrNull(Arr::get($payload, 'Description')),
+            'title' => $this->trimOrNull(Arr::get($payload, 'DisplayTitle')) ?? $this->trimOrNull(Arr::get($payload, 'Title')),
+            'description' => $this->trimOrNull(Arr::get($payload, 'DisplayDescription')) ?? $this->trimOrNull(Arr::get($payload, 'Description')),
             'faction_id' => $factionId,
             'generator_class' => $generatorClass,
             'entry_type' => $this->trimOrNull(Arr::get($payload, 'entry_type')),
@@ -758,7 +758,7 @@ class ImportMissionData implements ShouldQueue
     {
         $title = $this->trimOrNull(Arr::get($payload, 'Title'));
         $debugName = $this->trimOrNull(Arr::get($payload, 'DebugName'));
-        $formatted = FormatMissionTitle::format($title, $debugName);
+        $formatted = FormatMissionText::format($title, $debugName);
 
         app(SlugService::class)->assignUniqueSlug(
             $mission,

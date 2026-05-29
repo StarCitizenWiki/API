@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -42,7 +42,7 @@ class MissionSummaryResource extends AbstractBaseResource
 
         return [
             'uuid' => $mission?->uuid,
-            'title' => FormatMissionTitle::format($this->resource->title, $this->resource->debug_name),
+            'title' => FormatMissionText::format($this->resource->title, $this->resource->debug_name),
             'mission_type' => $this->resource->mission_type,
             'illegal' => $this->resource->illegal,
             'has_combat' => $this->resource->has_combat,

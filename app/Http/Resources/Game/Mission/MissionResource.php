@@ -6,7 +6,7 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -296,7 +296,7 @@ class MissionResource extends AbstractBaseResource
 
         return [
             'uuid' => $mission?->uuid,
-            'title' => FormatMissionTitle::format($this->resource->title, $this->resource->debug_name),
+            'title' => FormatMissionText::format($this->resource->title, $this->resource->debug_name),
             'description' => $this->resource->description,
             'mission_type' => $this->resource->mission_type,
             'mission_giver' => $this->resource->mission_giver,
@@ -533,6 +533,22 @@ class MissionResource extends AbstractBaseResource
 
     private function computeHasRewards($data): bool
     {
+        if ($this->hasPositiveRewardAmount($this->resource->reward_min) || $this->hasPositiveRewardAmount($this->resource->reward_max)) {
+            return true;
+        }
+
+        $fixedReward = $data?->get('FixedReward');
+        if (is_array($fixedReward) && (
+            $this->hasPositiveRewardAmount($fixedReward['Amount'] ?? null)
+            || $this->hasPositiveRewardAmount($fixedReward['Max'] ?? null)
+        )) {
+            return true;
+        }
+
+        if ($this->resource->calculated_reward || $data?->get('CalculatedReward') === true) {
+            return true;
+        }
+
         if ($this->resource->relationLoaded('rewardItems') && ($this->resource->rewardItems?->isNotEmpty() ?? false)) {
             return true;
         }
@@ -546,6 +562,11 @@ class MissionResource extends AbstractBaseResource
         }
 
         return is_array($data?->get('ReputationLost')) && $data->get('ReputationLost') !== [];
+    }
+
+    private function hasPositiveRewardAmount(mixed $value): bool
+    {
+        return is_numeric($value) && (int) $value > 0;
     }
 
     private function computeHasCombatSection($data): bool

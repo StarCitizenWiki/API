@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -166,7 +166,7 @@ class MissionChainResource extends AbstractBaseResource
 
             return [
                 'uuid' => $linked?->mission?->uuid,
-                'title' => FormatMissionTitle::format($linked?->title, $linked?->debug_name),
+                'title' => FormatMissionText::format($linked?->title, $linked?->debug_name),
                 'raw_title' => $linked?->title,
                 'mission_type' => $linked?->mission_type,
                 'link' => $linked?->mission?->uuid !== null

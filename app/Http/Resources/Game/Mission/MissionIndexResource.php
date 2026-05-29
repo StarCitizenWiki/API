@@ -7,7 +7,7 @@ namespace App\Http\Resources\Game\Mission;
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
 use App\Support\Formatting\FormatDuration;
-use App\Support\Formatting\FormatMissionTitle;
+use App\Support\Formatting\FormatMissionText;
 use Exception;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -192,7 +192,7 @@ class MissionIndexResource extends AbstractBaseResource
 
         return [
             'uuid' => $mission?->uuid,
-            'title' => FormatMissionTitle::format($this->resource->title, $this->resource->debug_name),
+            'title' => FormatMissionText::format($this->resource->title, $this->resource->debug_name),
             'description' => $this->resource->description,
             'mission_giver' => $this->resource->mission_giver,
             'debug_name' => $this->resource->debug_name,
