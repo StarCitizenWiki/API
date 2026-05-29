@@ -180,6 +180,237 @@ function collectManagedHeaderFilterApiFields(
 	return set;
 }
 
+function isMultiselectListFilter(column) {
+	return (
+		column?.headerFilter === "list" &&
+		column?.headerFilterParams?.multiselect !== false
+	);
+}
+
+function collectMultiselectListFilterFields(columns, set = new Set()) {
+	(columns ?? []).forEach((column) => {
+		if (Array.isArray(column?.columns) && column.columns.length > 0) {
+			collectMultiselectListFilterFields(column.columns, set);
+		} else if (isMultiselectListFilter(column) && column?.field) {
+			set.add(column.field);
+		}
+	});
+	return set;
+}
+
+function normalizeListFilterValue(value) {
+	return (Array.isArray(value) ? value : [value]).filter(
+		(item) => item !== null && item !== undefined && String(item).length > 0,
+	);
+}
+
+function isEmptyListFilterValue(value) {
+	return normalizeListFilterValue(value).length === 0;
+}
+
+function serializeFilterValue(value) {
+	if (!Array.isArray(value)) {
+		return value == null || String(value).length === 0 ? null : String(value);
+	}
+
+	const values = normalizeListFilterValue(value);
+	return values.length > 0 ? values.join(",") : null;
+}
+
+function flattenListOptions(values, depth = 0) {
+	if (Array.isArray(values)) {
+		return values.flatMap((option) => {
+			if (Array.isArray(option?.options)) {
+				return [
+					{ group: String(option.label ?? "Group") },
+					...flattenListOptions(option.options, depth + 1),
+				];
+			}
+
+			const value = option && typeof option === "object" && "value" in option
+				? option.value
+				: option;
+			const label = option && typeof option === "object" && "label" in option
+				? option.label
+				: value;
+
+			return [{ value: String(value ?? ""), label: String(label ?? value ?? ""), depth }];
+		});
+	}
+
+	return Object.entries(values ?? {}).map(([value, label]) => ({
+		value: String(value),
+		label: String(label),
+		depth,
+	}));
+}
+
+function listOptionsWithAll(values) {
+	const options = flattenListOptions(values);
+
+	return options.some((option) => option.value === "")
+		? options
+		: [{ value: "", label: "All", depth: 0 }, ...options];
+}
+
+function sameStringSet(left, right) {
+	return left.length === right.length && left.every((value) => right.includes(value));
+}
+
+function positionDropdownPanel(panel, anchor) {
+	const gutter = 4;
+	const rect = anchor.getBoundingClientRect();
+	const width = Math.max(rect.width, 220);
+
+	panel.style.top = `${rect.bottom + gutter}px`;
+	panel.style.left = `${Math.max(
+		gutter,
+		Math.min(rect.left, window.innerWidth - width - gutter),
+	)}px`;
+	panel.style.width = `${width}px`;
+}
+
+let activeMultiListDropdownClose = null;
+
+function multiListDropdownHeaderFilter(cell, onRendered, success, cancel, params) {
+	const options = listOptionsWithAll(params?.values ?? { "": "All" });
+	const root = document.createElement("div");
+	const button = document.createElement("button");
+	let draftValue = normalizeListFilterValue(cell.getValue()).map(String);
+	let appliedValue = [...draftValue];
+	let panel = null;
+	let panelListeners = null;
+
+	root.className = "w-full";
+	button.type = "button";
+	button.className = "tabulator-multiselect-filter";
+	root.appendChild(button);
+
+	const optionLabel = (value) =>
+		options.find((option) => option.value === value)?.label ?? value;
+
+	const updateButton = () => {
+		button.textContent = draftValue.length === 0
+			? optionLabel("")
+			: draftValue.length === 1
+				? optionLabel(draftValue[0])
+				: `${draftValue.length} selected`;
+	};
+
+	const setDraftValue = (value) => {
+		draftValue = normalizeListFilterValue(value).map(String);
+		updateButton();
+	};
+
+	const closePanel = ({ apply = true } = {}) => {
+		const shouldApply = apply && !sameStringSet(draftValue, appliedValue);
+
+		panel?.remove();
+		panel = null;
+		panelListeners?.abort();
+		panelListeners = null;
+
+		if (activeMultiListDropdownClose === closePanel) {
+			activeMultiListDropdownClose = null;
+		}
+
+		if (shouldApply) {
+			appliedValue = [...draftValue];
+			success([...appliedValue]);
+		}
+	};
+
+	const renderPanel = () => {
+		if (!panel) return;
+
+		panel.replaceChildren();
+		options.forEach((option) => {
+			if (option.group) {
+				const group = document.createElement("div");
+				group.className = "px-2 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-subtle";
+				group.textContent = option.group;
+				panel.appendChild(group);
+				return;
+			}
+
+			const row = document.createElement("label");
+			const checkbox = document.createElement("input");
+			const text = document.createElement("span");
+			const isAllOption = option.value === "";
+
+			row.className = "flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-base-200";
+			row.style.paddingLeft = `${0.5 + (option.depth ?? 0) * 0.75}rem`;
+			checkbox.type = "checkbox";
+			checkbox.className = "checkbox checkbox-xs";
+			checkbox.checked = isAllOption ? draftValue.length === 0 : draftValue.includes(option.value);
+			text.textContent = option.label;
+
+			checkbox.addEventListener("change", () => {
+				if (isAllOption) {
+					setDraftValue([]);
+				} else {
+					const selected = new Set(draftValue);
+					checkbox.checked ? selected.add(option.value) : selected.delete(option.value);
+					setDraftValue(Array.from(selected));
+				}
+
+				renderPanel();
+			});
+
+			row.append(checkbox, text);
+			panel.appendChild(row);
+		});
+	};
+
+	const openPanel = () => {
+		if (panel) {
+			closePanel();
+			return;
+		}
+
+		activeMultiListDropdownClose?.();
+
+		panel = document.createElement("div");
+		panel.className = "rounded-box border border-base-300 bg-base-100 p-1 shadow-lg";
+		Object.assign(panel.style, {
+			position: "fixed",
+			zIndex: "9999",
+			maxHeight: "20rem",
+			overflowY: "auto",
+		});
+		renderPanel();
+		document.body.appendChild(panel);
+
+		const positionPanel = () => positionDropdownPanel(panel, button);
+		positionPanel();
+
+		panelListeners = new AbortController();
+		const { signal } = panelListeners;
+		document.addEventListener("mousedown", (event) => {
+			if (!root.contains(event.target) && !panel?.contains(event.target)) {
+				closePanel();
+			}
+		}, { signal });
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape") closePanel();
+		}, { signal });
+		window.addEventListener("resize", positionPanel, { signal });
+		document.addEventListener("scroll", positionPanel, {
+			capture: true,
+			passive: true,
+			signal,
+		});
+
+		activeMultiListDropdownClose = closePanel;
+	};
+
+	root.addEventListener("mousedown", (event) => event.stopPropagation());
+	button.addEventListener("click", openPanel);
+	updateButton();
+
+	return root;
+}
+
 function buildInverseSortFieldMap(sortFieldMap) {
 	const inverse = {};
 	Object.entries(sortFieldMap ?? {}).forEach(([columnField, apiField]) => {
@@ -203,6 +434,7 @@ function parseJsonApiStateFromLocation({
 	columnFields,
 	apiToColumnSortFieldMap,
 	apiToColumnFilterFieldMap,
+	listFilterFields,
 }) {
 	const pageUrl = new URL(window.location.href);
 
@@ -244,7 +476,13 @@ function parseJsonApiStateFromLocation({
 		);
 		if (!columnFields.has(columnField)) continue;
 
-		initialHeaderFilter.push({ field: columnField, value: String(value) });
+		const filterValue = listFilterFields?.has(columnField)
+			? normalizeListFilterValue(value.split(","))
+			: String(value);
+
+		if (Array.isArray(filterValue) && filterValue.length === 0) continue;
+
+		initialHeaderFilter.push({ field: columnField, value: filterValue });
 	}
 
 	// JSON:API pagination
@@ -344,10 +582,11 @@ function buildJsonApiUrl(baseUrl, params, defaults = {}) {
 
 	// Then add/override with Tabulator's filters
 	for (const f of filters) {
-		if (f?.field && f?.value != null && String(f.value).length) {
-			const name = mapFilterFieldToApiField(f.field, columnToApiFilterFieldMap);
-			u.searchParams.set(`filter[${name}]`, String(f.value));
-		}
+		const value = serializeFilterValue(f?.value);
+		if (!f?.field || value === null) continue;
+
+		const name = mapFilterFieldToApiField(f.field, columnToApiFilterFieldMap);
+		u.searchParams.set(`filter[${name}]`, value);
 	}
 
 	return u.toString();
@@ -579,11 +818,30 @@ function normalizeColumns(columns) {
 			return { ...column, columns: normalizeColumns(column.columns) };
 		}
 
+		const normalized = { ...column };
+
 		if (typeof column.formatter === "string" && COLUMN_FORMATTERS[column.formatter]) {
-			return { ...column, formatter: COLUMN_FORMATTERS[column.formatter] };
+			normalized.formatter = COLUMN_FORMATTERS[column.formatter];
 		}
 
-		return column;
+		if (column.headerFilter === "list") {
+			const headerFilterParams = {
+				clearable: true,
+				multiselect: true,
+				...(column.headerFilterParams ?? {}),
+			};
+
+			if (headerFilterParams.multiselect !== false) {
+				normalized.headerFilter = multiListDropdownHeaderFilter;
+				normalized.headerFilterLiveFilter = false;
+				normalized.headerFilterEmptyCheck ??= isEmptyListFilterValue;
+				normalized.headerFilterFunc ??= "in";
+			}
+
+			normalized.headerFilterParams = headerFilterParams;
+		}
+
+		return normalized;
 	});
 }
 
@@ -593,20 +851,18 @@ function buildSelectValues(options) {
 	);
 
 	if (!hasGroups) {
-		const values = { "": "All" };
-
-		(options ?? []).forEach((option) => {
-			if (option?.value === null || option?.value === "") {
-				return;
-			}
-
-			values[option.value] =
-				typeof option?.count === "number"
-					? `${option.label} (${option.count})`
-					: option.label;
-		});
-
-		return values;
+		return [
+			{ label: "All", value: "" },
+			...(options ?? [])
+				.filter((option) => option?.value !== null && option?.value !== "")
+				.map((option) => ({
+					label:
+						typeof option?.count === "number"
+							? `${option.label} (${option.count})`
+							: option.label,
+					value: option.value,
+				})),
+		];
 	}
 
 	const grouped = {};
@@ -709,7 +965,14 @@ function applyHeaderFilterOptionsToColumnComponents(
 		const filterKey = optionsMap?.[field];
 		const definition = column?.getDefinition?.();
 
-		if (!filterKey || !definition || definition.headerFilter !== "list") {
+		if (
+			!filterKey ||
+			!definition ||
+			(
+				definition.headerFilter !== "list" &&
+				definition.headerFilter !== multiListDropdownHeaderFilter
+			)
+		) {
 			return;
 		}
 
@@ -881,6 +1144,7 @@ export function initTabulatorTables() {
 		);
 
 		const columnFields = collectColumnFields(columns, externalFilters);
+		const listFilterFields = collectMultiselectListFilterFields(columns);
 
 		// Persistent set of API filter fields that Tabulator manages for this table instance.
 		// This is what prevents "sticky" filter[...] params when a header filter is cleared.
@@ -895,6 +1159,7 @@ export function initTabulatorTables() {
 			columnFields,
 			apiToColumnSortFieldMap,
 			apiToColumnFilterFieldMap,
+			listFilterFields,
 		});
 
 		const effectiveInitialHeaderFilter =

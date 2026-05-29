@@ -218,7 +218,8 @@
 }
 .tabulator.tabulator .tabulator-header-filter input,
 .tabulator.tabulator .tabulator-header-filter select,
-.tabulator.tabulator .tabulator-header-filter textarea {
+.tabulator.tabulator .tabulator-header-filter textarea,
+.tabulator.tabulator .tabulator-header-filter .tabulator-multiselect-filter {
     width: 100%;
     background-color: color-mix(in oklab, var(--tb-bg) 85%, var(--tb-bg));
     color: var(--tb-text);
@@ -227,9 +228,22 @@
     border-radius: var(--tb-radius-field);
     padding: 0.45rem 0.65rem;
 }
+.tabulator.tabulator .tabulator-header-filter .tabulator-multiselect-filter {
+    appearance: none;
+    box-sizing: border-box;
+    display: block;
+    line-height: inherit;
+    overflow: hidden;
+    padding-block: 0.225rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: inherit;
+}
 .tabulator.tabulator .tabulator-header-filter input:focus,
 .tabulator.tabulator .tabulator-header-filter select:focus,
-.tabulator.tabulator .tabulator-header-filter textarea:focus {
+.tabulator.tabulator .tabulator-header-filter textarea:focus,
+.tabulator.tabulator .tabulator-header-filter .tabulator-multiselect-filter:focus {
     outline: 2px solid var(--tb-focus);
     outline-offset: 2px;
     border-color: var(--tb-focus);
