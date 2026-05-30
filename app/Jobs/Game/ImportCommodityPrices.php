@@ -91,7 +91,7 @@ class ImportCommodityPrices implements ShouldQueue
     private function processPrices(array $apiData, string $gameVersionCode, array $versionPrefixMap): void
     {
         $filtered = collect($apiData)
-            ->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap))
+            ->filter(fn (array $p): bool => ($p['game_version'] ?? null) === null || $this->matchesKnownVersion($p['game_version'], $versionPrefixMap))
             ->filter(fn (array $p): bool => ($p['price_buy'] ?? 0) > 0 || ($p['price_sell'] ?? 0) > 0);
 
         $commodityNames = $filtered->pluck('commodity_name')->unique()->filter()->values()->toArray();

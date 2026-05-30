@@ -68,10 +68,11 @@ class ImportCommodities extends Command
             })
             ->keyBy(fn (array $commodity): string => (string) $commodity['UUID']);
 
+        $payloadUuids = $commodities->keys()->values()->all();
         $slugService = app(SlugService::class);
         $usedSlugs = [];
         $slugMap = [];
-        $commodities->each(function (array $commodity) use ($slugService, &$usedSlugs, &$slugMap): void {
+        $commodities->each(function (array $commodity) use ($payloadUuids, $slugService, &$usedSlugs, &$slugMap): void {
             $name = (string) ($commodity['Name'] ?? '');
             $baseSlug = Str::slug($name);
 
@@ -79,7 +80,12 @@ class ImportCommodities extends Command
                 $baseSlug = Str::slug((string) ($commodity['Key'] ?? 'commodity'));
             }
 
-            $slug = $slugService->generateUniqueSlugForBatch($baseSlug, $usedSlugs, Commodity::class);
+            $slug = $slugService->generateUniqueSlugForBatch(
+                $baseSlug,
+                $usedSlugs,
+                Commodity::class,
+                ignoredValuesByColumn: ['uuid' => $payloadUuids],
+            );
             $slugMap[$commodity['UUID']] = $slug;
         });
 
@@ -119,10 +125,8 @@ class ImportCommodities extends Command
             return self::SUCCESS;
         }
 
-        $uuids = $commodities->keys()->all();
-
         $existing = Commodity::query()
-            ->whereIn('uuid', $uuids)
+            ->whereIn('uuid', $payloadUuids)
             ->pluck('uuid')
             ->all();
 
@@ -150,7 +154,7 @@ class ImportCommodities extends Command
             ]
         );
 
-        $created = count(array_diff($uuids, $existing));
+        $created = count(array_diff($payloadUuids, $existing));
         $updated = $commodities->count() - $created;
 
         $this->info(sprintf(

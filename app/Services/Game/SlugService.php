@@ -77,13 +77,19 @@ class SlugService
      * @param  class-string<Model>  $modelClass
      * @param  list<string>  $localMap  Slugs already claimed in this batch (passed by reference)
      * @param  string  $slugColumn  The column holding the slug
+     * @param  array<string, list<string>>  $ignoredValuesByColumn  Existing rows to ignore while checking database conflicts
      */
-    public function generateUniqueSlugForBatch(string $baseSlug, array &$localMap, string $modelClass, string $slugColumn = 'slug'): string
-    {
+    public function generateUniqueSlugForBatch(
+        string $baseSlug,
+        array &$localMap,
+        string $modelClass,
+        string $slugColumn = 'slug',
+        array $ignoredValuesByColumn = [],
+    ): string {
         $slug = $baseSlug;
         $counter = 2;
 
-        while (in_array($slug, $localMap, true) || $modelClass::query()->where($slugColumn, $slug)->exists()) {
+        while (in_array($slug, $localMap, true) || $this->slugExists($modelClass, $slugColumn, $slug, $ignoredValuesByColumn)) {
             $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
@@ -91,5 +97,22 @@ class SlugService
         $localMap[] = $slug;
 
         return $slug;
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     * @param  array<string, list<string>>  $ignoredValuesByColumn
+     */
+    private function slugExists(string $modelClass, string $slugColumn, string $slug, array $ignoredValuesByColumn): bool
+    {
+        $query = $modelClass::query()->where($slugColumn, $slug);
+
+        foreach ($ignoredValuesByColumn as $column => $values) {
+            if ($values !== []) {
+                $query->whereNotIn($column, $values);
+            }
+        }
+
+        return $query->exists();
     }
 }

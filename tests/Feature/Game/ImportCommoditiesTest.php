@@ -79,6 +79,68 @@ it('imports commodities and resolves refined versions', function (): void {
         ->and($commodity->data->get('Name'))->toBe('Agricium (Ore)');
 });
 
+it('does not suffix an existing commodity slug when reimporting the same commodity', function (): void {
+    Storage::fake('scunpacked');
+
+    $uuid = fake()->uuid();
+
+    Commodity::query()->create([
+        'uuid' => $uuid,
+        'key' => 'Aslarite',
+        'name' => 'Aslarite',
+        'slug' => 'aslarite',
+        'description' => 'Existing description',
+        'refined_version_uuid' => null,
+        'validate_default_cargo_box' => false,
+        'has_default_cargo_containers' => false,
+        'box_sizes_scu' => [],
+        'data' => ['Name' => 'Aslarite'],
+    ]);
+
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([[
+        'UUID' => $uuid,
+        'Key' => 'Aslarite',
+        'Name' => 'Aslarite',
+        'Description' => 'Updated description',
+    ]], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-commodities')
+        ->assertExitCode(Command::SUCCESS);
+
+    expect(Commodity::query()->where('uuid', $uuid)->value('slug'))->toBe('aslarite');
+});
+
+it('repairs a previously suffixed slug when no real conflict exists', function (): void {
+    Storage::fake('scunpacked');
+
+    $uuid = fake()->uuid();
+
+    Commodity::query()->create([
+        'uuid' => $uuid,
+        'key' => 'Aslarite',
+        'name' => 'Aslarite',
+        'slug' => 'aslarite-2',
+        'description' => 'Existing description',
+        'refined_version_uuid' => null,
+        'validate_default_cargo_box' => false,
+        'has_default_cargo_containers' => false,
+        'box_sizes_scu' => [],
+        'data' => ['Name' => 'Aslarite'],
+    ]);
+
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([[
+        'UUID' => $uuid,
+        'Key' => 'Aslarite',
+        'Name' => 'Aslarite',
+        'Description' => 'Updated description',
+    ]], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-commodities')
+        ->assertExitCode(Command::SUCCESS);
+
+    expect(Commodity::query()->where('uuid', $uuid)->value('slug'))->toBe('aslarite');
+});
+
 it('upserts existing commodities when the payload changes', function (): void {
     Storage::fake('scunpacked');
 

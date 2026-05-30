@@ -140,7 +140,6 @@ describe('handle', function (): void {
                             'terminal_name' => 'Test Terminal',
                             'price_buy' => 500,
                             'price_sell' => 250,
-                            'game_version' => '4.8.0-LIVE.1190',
                             'date_modified' => 1700000000,
                         ],
                     ],
