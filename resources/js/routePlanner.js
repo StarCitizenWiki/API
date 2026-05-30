@@ -1,3 +1,5 @@
+const TYPE_ORDER = { Planet: 0, Moon: 1, LandingZone: 2, Manmade: 3, Manmade_VisibleOnInteraction: 3, Outpost: 4, PointOfInterest: 5, Anomaly: 6 };
+
 export function routePlanner() {
     return {
         entities: [],
@@ -37,11 +39,23 @@ export function routePlanner() {
         tankFill: 100,
 
         // Trip
+        mode: 'stellar',
+        stellarSystem: '',
         waypoints: [
-            { id: 0, system: '', uuid: '' },
-            { id: 1, system: '', uuid: '' },
+            { id: 0, system: '', uuid: '', query: '', results: [], showDropdown: false },
+            { id: 1, system: '', uuid: '', query: '', results: [], showDropdown: false },
         ],
         nextWaypointId: 2,
+        locationDebounceTimers: {},
+
+        // Cargo run mode
+        cargoMissions: [],
+        nextMissionId: 0,
+        cargoDebounceTimers: {},
+        cargoDropdowns: {},
+
+        // Route optimization
+        optimizing: false,
 
         get effectiveTankCapacity() {
             if (this.fuelTankCapacity) {
@@ -82,9 +96,9 @@ export function routePlanner() {
         },
 
         get selectableEntities() {
-            const types = ['Planet', 'Moon', 'Manmade', 'Manmade_VisibleOnInteraction', 'Anomaly'];
+            const types = Object.keys(TYPE_ORDER);
 
-            return this.entities.filter(e => types.includes(e.type));
+            return this.entities.filter(e => types.includes(e.type) && !e.hidden && e.qt_valid);
         },
 
         get hasEnoughWaypoints() {
@@ -112,89 +126,16 @@ export function routePlanner() {
                 allLegs.push(...routeLegs);
             }
 
-            const enriched = allLegs.map(leg => this.enrichLeg(leg));
-
-            const tank = this.effectiveTankCapacity;
-
-            if (tank) {
-                let cumulativeFuel = 0;
-                let routeBroken = false;
-
-                // First pass: compute cumulative fuel and tank remaining
-                for (const leg of enriched) {
-                    if (routeBroken) {
-                        leg.impossible = leg.fuel !== null;
-                        leg.needsRefuel = false;
-                        leg.refuelAt = null;
-                        leg.tankRemaining = leg.fuel !== null ? 0 : null;
-                        continue;
-                    }
-
-                    if (leg.fuel !== null) {
-                        if (leg.fuel > tank) {
-                            leg.impossible = true;
-                            leg.needsRefuel = false;
-                            leg.refuelAt = null;
-                            leg.tankRemaining = 0;
-                            routeBroken = true;
-                        } else if (cumulativeFuel + leg.fuel > tank) {
-                            // Refuel needed before this leg
-                            leg.needsRefuel = false;
-                            leg.refuelAt = null;
-                            leg.impossible = false;
-                            cumulativeFuel = leg.fuel;
-                            leg.tankRemaining = Math.max(0, tank - cumulativeFuel);
-                        } else {
-                            leg.needsRefuel = false;
-                            leg.refuelAt = null;
-                            leg.impossible = false;
-                            cumulativeFuel += leg.fuel;
-                            leg.tankRemaining = Math.max(0, tank - cumulativeFuel);
-                        }
-                    } else {
-                        leg.tankRemaining = null;
-                        leg.needsRefuel = false;
-                        leg.refuelAt = null;
-                        leg.impossible = false;
-                    }
-                }
-
-                // Second pass: mark legs where refuel is needed at their destination
-                for (let i = 0; i < enriched.length; i++) {
-                    const leg = enriched[i];
-
-                    if (leg.fuel === null || leg.impossible) {
-                        continue;
-                    }
-
-                    // Check if the next leg with fuel needs a refuel
-                    for (let j = i + 1; j < enriched.length; j++) {
-                        const nextLeg = enriched[j];
-
-                        if (nextLeg.fuel === null || nextLeg.impossible) {
-                            continue;
-                        }
-
-                        if (leg.tankRemaining < nextLeg.fuel && leg.tankRemaining !== 0) {
-                            leg.needsRefuel = true;
-                            leg.refuelAt = leg.toName;
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return enriched;
+            return this.applyFuelTracking(allLegs);
         },
 
-        get tripSummary() {
-            const qtLegs = this.legs.filter(l => l.type === 'qt');
-            const jpLegs = this.legs.filter(l => l.type === 'jp');
+        summarizeLegs(legs) {
+            const qtLegs = legs.filter(l => l.type === 'qt');
+            const jpLegs = legs.filter(l => l.type === 'jp');
 
             const totalDistance = qtLegs.reduce((sum, l) => sum + (l.distance ?? 0), 0);
             const totalTime = qtLegs.reduce((sum, l) => sum + (l.time ?? 0), 0);
-            const totalFuel = this.legs.reduce((sum, l) => sum + (l.fuel ?? 0), 0);
+            const totalFuel = legs.reduce((sum, l) => sum + (l.fuel ?? 0), 0);
 
             return {
                 distance: totalDistance,
@@ -208,27 +149,23 @@ export function routePlanner() {
             };
         },
 
-        get refuelInfo() {
-            const tank = this.effectiveTankCapacity;
-
+        computeRefuelInfo(legs, tank) {
             if (!tank) {
                 return null;
             }
 
-            // Check for impossible legs first
-            const hasImpossible = this.legs.some(l => l.impossible);
+            const hasImpossible = legs.some(l => l.impossible);
 
             let cumulative = 0;
             let refuels = 0;
             const refuelPoints = [];
 
-            for (const leg of this.legs) {
+            for (const leg of legs) {
                 if (leg.fuel === null) {
                     continue;
                 }
 
                 if (leg.fuel > tank) {
-                    // Impossible
                     break;
                 }
 
@@ -248,6 +185,14 @@ export function routePlanner() {
                 remainingFuel: Math.max(0, tank - cumulative),
                 remainingPercent: Math.round(Math.max(0, ((tank - cumulative) / tank)) * 100),
             };
+        },
+
+        get tripSummary() {
+            return this.summarizeLegs(this.legs);
+        },
+
+        get refuelInfo() {
+            return this.computeRefuelInfo(this.legs, this.effectiveTankCapacity);
         },
 
 
@@ -378,7 +323,6 @@ export function routePlanner() {
             const qdPort = ports.find(p => p.type === 'QuantumDrive');
 
             if (qdPort) {
-                this.hasQdHardpoint = true;
                 this.qdMaxSize = qdPort.sizes?.max ?? null;
                 this.qdMinSize = qdPort.sizes?.min ?? null;
                 this.shipQdPortSize = this.qdMaxSize;
@@ -492,7 +436,8 @@ export function routePlanner() {
 
 
         addWaypoint() {
-            this.waypoints.push({ id: this.nextWaypointId++, system: '', uuid: '' });
+            const wp = { id: this.nextWaypointId++, system: '', uuid: '', query: '', results: [], showDropdown: false };
+            this.waypoints.push(wp);
         },
 
         removeWaypoint(index) {
@@ -506,13 +451,11 @@ export function routePlanner() {
                 return [];
             }
 
-            const typeOrder = { Planet: 0, Moon: 1, Manmade: 2, Manmade_VisibleOnInteraction: 3, Anomaly: 4 };
-
             return this.selectableEntities
                 .filter(e => e.system === system)
                 .sort((a, b) => {
-                    const ta = typeOrder[a.type] ?? 99;
-                    const tb = typeOrder[b.type] ?? 99;
+                    const ta = TYPE_ORDER[a.type] ?? 99;
+                    const tb = TYPE_ORDER[b.type] ?? 99;
 
                     if (ta !== tb) {
                         return ta - tb;
@@ -520,6 +463,46 @@ export function routePlanner() {
 
                     return a.name.localeCompare(b.name);
                 });
+        },
+
+        wpSystem(wp) {
+            return this.mode === 'stellar' ? this.stellarSystem : wp.system;
+        },
+
+        clearLocationFields(wp) {
+            wp.uuid = '';
+            wp.query = '';
+            wp.results = [];
+            wp.showDropdown = false;
+        },
+
+        setMode(mode) {
+            this.mode = mode;
+
+            for (const wp of this.waypoints) {
+                this.clearLocationFields(wp);
+            }
+
+            this.stellarSystem = '';
+
+            if (mode === 'cargo' && this.cargoMissions.length === 0) {
+                this.addCargoMission();
+            }
+        },
+
+        onStellarSystemChange() {
+            for (const wp of this.waypoints) {
+                this.clearLocationFields(wp);
+            }
+
+            for (const m of this.cargoMissions) {
+                m.pickupUuid = '';
+                m.pickupQuery = '';
+                m.deliveryUuid = '';
+                m.deliveryQuery = '';
+            }
+
+            this.cargoDropdowns = {};
         },
 
         entitiesGroupedByType(system) {
@@ -540,7 +523,96 @@ export function routePlanner() {
         },
 
         onSystemChange(wp) {
-            wp.uuid = '';
+            this.clearLocationFields(wp);
+        },
+
+        searchEntities(system, query) {
+            const q = query.toLowerCase().trim();
+            const groups = this.entitiesGroupedByType(system);
+            const results = [];
+
+            for (const group of groups) {
+                const matches = group.items.filter(e => e.name.toLowerCase().includes(q));
+
+                for (const e of matches) {
+                    results.push({ ...e, groupLabel: group.label });
+                }
+            }
+
+            results.sort((a, b) => {
+                const aExact = a.name.toLowerCase() === q ? 0 : 1;
+                const bExact = b.name.toLowerCase() === q ? 0 : 1;
+
+                if (aExact !== bExact) {
+                    return aExact - bExact;
+                }
+
+                const ta = TYPE_ORDER[a.type] ?? 99;
+                const tb = TYPE_ORDER[b.type] ?? 99;
+
+                if (ta !== tb) {
+                    return ta - tb;
+                }
+
+                return a.name.localeCompare(b.name);
+            });
+
+            return results.slice(0, 30);
+        },
+
+        // Searchable location dropdown
+
+        handleLocationInput(wp) {
+            clearTimeout(this.locationDebounceTimers[wp.id]);
+
+            if (!this.wpSystem(wp) || wp.query.length < 1) {
+                wp.results = [];
+                wp.showDropdown = false;
+                return;
+            }
+
+            this.locationDebounceTimers[wp.id] = setTimeout(() => {
+                this.searchLocations(wp);
+            }, 150);
+        },
+
+        searchLocations(wp) {
+            wp.results = this.searchEntities(this.wpSystem(wp), wp.query);
+            wp.showDropdown = wp.results.length > 0;
+        },
+
+        selectLocation(wp, entity) {
+            wp.uuid = entity.uuid;
+            wp.query = entity.name;
+            wp.showDropdown = false;
+            wp.results = [];
+        },
+
+        clearLocation(wp) {
+            this.clearLocationFields(wp);
+        },
+
+        onLocationFocus(wp) {
+            if (wp.uuid) {
+                return;
+            }
+
+            if (wp.results.length) {
+                wp.showDropdown = true;
+            } else if (wp.query.length >= 1) {
+                this.searchLocations(wp);
+            }
+        },
+
+        closeLocationDropdown(wp) {
+            setTimeout(() => {
+                wp.showDropdown = false;
+
+                if (!wp.uuid) {
+                    wp.query = '';
+                    wp.results = [];
+                }
+            }, 200);
         },
 
         capitalize(str) {
@@ -555,45 +627,449 @@ export function routePlanner() {
             const map = {
                 Planet: 'Planet',
                 Moon: 'Moon',
+                LandingZone: 'Landing Zone',
                 Manmade: 'Station',
                 Manmade_VisibleOnInteraction: 'Station',
+                Outpost: 'Outpost',
+                PointOfInterest: 'POI',
                 Anomaly: 'Jump Point',
             };
 
             return map[type] ?? type;
         },
 
-        // Path Resolution
+        // Cargo Run Mode
 
-        getAnchor(entity) {
-            if (!entity) {
-                return null;
-            }
+        cargoPasteText: '',
 
-            if (entity.type === 'Planet' || entity.type === 'Anomaly') {
-                return entity;
-            }
-
-            if (entity.type === 'Star') {
-                return null;
-            }
-
-            if (!entity.parent_uuid) {
-                return entity;
-            }
-
-            const parent = this.entityMap.get(entity.parent_uuid);
-
-            if (!parent) {
-                return entity;
-            }
-
-            if (parent.type === 'Star') {
-                return entity;
-            }
-
-            return this.getAnchor(parent);
+        addCargoMission() {
+            this.cargoMissions.push({
+                id: this.nextMissionId++,
+                pickupUuid: '',
+                pickupQuery: '',
+                pickupResults: [],
+                deliveryUuid: '',
+                deliveryQuery: '',
+                deliveryResults: [],
+                scu: '',
+            });
         },
+
+        removeCargoMission(index) {
+
+            if (this.cargoMissions.length > 1) {
+                this.cargoMissions.splice(index, 1);
+            }
+        },
+
+        cargoLocationInput(mission, field) {
+            const key = `${mission.id}-${field}`;
+            clearTimeout(this.cargoDebounceTimers[key]);
+
+            const query = this._cargoGet(mission, field, 'Query');
+
+            if (!this.stellarSystem || query.length < 1) {
+                this._cargoSet(mission, field, 'Results', []);
+                this.cargoDropdowns[key] = false;
+                return;
+            }
+
+            this.cargoDebounceTimers[key] = setTimeout(() => {
+                this.cargoSearch(mission, field);
+            }, 150);
+        },
+
+        _cargoKey(mission, field) {
+            return `${mission.id}-${field}`;
+        },
+
+        _cargoGet(mission, field, suffix) {
+            return mission[`${field}${suffix}`];
+        },
+
+        _cargoSet(mission, field, suffix, value) {
+            mission[`${field}${suffix}`] = value;
+        },
+
+        cargoSearch(mission, field) {
+            const query = this._cargoGet(mission, field, 'Query');
+            const sliced = this.searchEntities(this.stellarSystem, query);
+            this._cargoSet(mission, field, 'Results', sliced);
+            this.cargoDropdowns[this._cargoKey(mission, field)] = sliced.length > 0;
+        },
+
+        cargoSelectLocation(mission, field, entity) {
+            this._cargoSet(mission, field, 'Uuid', entity.uuid);
+            this._cargoSet(mission, field, 'Query', entity.name);
+            this._cargoSet(mission, field, 'Results', []);
+            this.cargoDropdowns[this._cargoKey(mission, field)] = false;
+        },
+
+        cargoClearLocation(mission, field) {
+            this._cargoSet(mission, field, 'Uuid', '');
+            this._cargoSet(mission, field, 'Query', '');
+            this._cargoSet(mission, field, 'Results', []);
+            this.cargoDropdowns[this._cargoKey(mission, field)] = false;
+        },
+
+        cargoOnFocus(mission, field) {
+            if (this._cargoGet(mission, field, 'Uuid')) {
+                return;
+            }
+
+            if (this._cargoGet(mission, field, 'Results').length) {
+                this.cargoDropdowns[this._cargoKey(mission, field)] = true;
+            } else if (this._cargoGet(mission, field, 'Query').length >= 1) {
+                this.cargoSearch(mission, field);
+            }
+        },
+
+        cargoOnBlur(mission, field) {
+            const key = this._cargoKey(mission, field);
+
+            setTimeout(() => {
+                this.cargoDropdowns[key] = false;
+
+                if (!this._cargoGet(mission, field, 'Uuid')) {
+                    this._cargoSet(mission, field, 'Query', '');
+                    this._cargoSet(mission, field, 'Results', []);
+                }
+            }, 200);
+        },
+
+        get cargoCompleteMissions() {
+            return this.cargoMissions.filter(m => m.pickupUuid && m.deliveryUuid);
+        },
+
+        // Build the optimized route from cargo missions
+        get cargoRoute() {
+            const complete = this.cargoCompleteMissions;
+
+            if (complete.length === 0) {
+                return { stops: [], legs: [], cargoPlan: [] };
+            }
+
+            const tasks = [];
+
+            for (let i = 0; i < complete.length; i++) {
+                tasks.push({ missionIdx: i, type: 'pickup', uuid: complete[i].pickupUuid });
+                tasks.push({ missionIdx: i, type: 'delivery', uuid: complete[i].deliveryUuid });
+            }
+
+            // Nearest-neighbor respecting pickup-before-delivery constraints
+            const remaining = new Set(tasks.map((_, i) => i));
+            const pickupsDone = new Set();
+            const orderedTasks = [];
+
+            // Start at the location with the most pickup tasks
+            const pickupCounts = {};
+
+            for (const t of tasks) {
+
+                if (t.type === 'pickup') {
+                    pickupCounts[t.uuid] = (pickupCounts[t.uuid] ?? 0) + 1;
+                }
+            }
+
+            let startIdx = 0;
+            let bestPickupCount = 0;
+
+            for (let i = 0; i < tasks.length; i++) {
+
+                if (tasks[i].type === 'pickup') {
+                    const count = pickupCounts[tasks[i].uuid] ?? 0;
+
+                    if (count > bestPickupCount) {
+                        bestPickupCount = count;
+                        startIdx = i;
+                    }
+                }
+            }
+
+            let currentUuid = tasks[startIdx].uuid;
+            orderedTasks.push(tasks[startIdx]);
+            remaining.delete(startIdx);
+
+            if (tasks[startIdx].type === 'pickup') {
+                pickupsDone.add(tasks[startIdx].missionIdx);
+            }
+
+            while (remaining.size > 0) {
+                const currentEntity = this.entityMap.get(currentUuid);
+                let bestIdx = null;
+                let bestDist = Infinity;
+
+                for (const idx of remaining) {
+                    const task = tasks[idx];
+
+                    if (task.type === 'delivery' && !pickupsDone.has(task.missionIdx)) {
+                        continue;
+                    }
+
+                    const targetEntity = this.entityMap.get(task.uuid);
+                    const dist = currentEntity && targetEntity
+                        ? this.calculateDistance(currentEntity, targetEntity)
+                        : Infinity;
+
+                    // Prefer pickups so cargo is loaded before hauling
+                    const adjusted = task.type === 'pickup' ? dist * 0.85 : dist;
+
+                    if (adjusted < bestDist) {
+                        bestDist = adjusted;
+                        bestIdx = idx;
+                    }
+                }
+
+                if (bestIdx === null) {
+                    for (const idx of remaining) {
+                        const task = tasks[idx];
+                        const targetEntity = this.entityMap.get(task.uuid);
+                        const dist = currentEntity && targetEntity
+                            ? this.calculateDistance(currentEntity, targetEntity)
+                            : Infinity;
+
+                        if (dist < bestDist) {
+                            bestDist = dist;
+                            bestIdx = idx;
+                        }
+                    }
+                }
+
+                if (bestIdx === null) {
+                    break;
+                }
+
+                const chosen = tasks[bestIdx];
+                orderedTasks.push(chosen);
+                remaining.delete(bestIdx);
+
+                if (chosen.type === 'pickup') {
+                    pickupsDone.add(chosen.missionIdx);
+                }
+                currentUuid = chosen.uuid;
+            }
+
+            // Collapse consecutive tasks at the same location into stops
+            const stops = [];
+
+            for (const task of orderedTasks) {
+                const last = stops[stops.length - 1];
+
+                if (last && last.uuid === task.uuid) {
+                    const entry = { missionIdx: task.missionIdx + 1, from: complete[task.missionIdx].pickupQuery, to: complete[task.missionIdx].deliveryQuery };
+
+                    if (task.type === 'pickup') {
+                        last.pickups.push(entry);
+                    } else {
+                        last.deliveries.push(entry);
+                    }
+                } else {
+                    const entity = this.entityMap.get(task.uuid);
+                    const entry = { missionIdx: task.missionIdx + 1, from: complete[task.missionIdx].pickupQuery, to: complete[task.missionIdx].deliveryQuery };
+
+                    stops.push({
+                        uuid: task.uuid,
+                        name: entity?.name ?? '?',
+                        pickups: task.type === 'pickup' ? [entry] : [],
+                        deliveries: task.type === 'delivery' ? [entry] : [],
+                    });
+                }
+            }
+
+            // Build legs between consecutive stops
+            const allLegs = [];
+
+            for (let i = 0; i < stops.length - 1; i++) {
+                const fromEntity = this.entityMap.get(stops[i].uuid);
+                const toEntity = this.entityMap.get(stops[i + 1].uuid);
+
+                if (!fromEntity || !toEntity) {
+                    continue;
+                }
+
+                allLegs.push(...this.resolveRoute(fromEntity, toEntity));
+            }
+
+            // SCU tracking per stop
+            let runningScu = 0;
+            const hasAnyScu = complete.some(m => parseFloat(m.scu) > 0);
+
+            for (const stop of stops) {
+                const scuIn = stop.pickups.reduce((sum, p) => {
+                    const v = parseFloat(complete[p.missionIdx - 1]?.scu);
+                    return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+                }, 0);
+                const scuOut = stop.deliveries.reduce((sum, d) => {
+                    const v = parseFloat(complete[d.missionIdx - 1]?.scu);
+                    return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+                }, 0);
+                runningScu += scuIn - scuOut;
+                stop.scuIn = scuIn;
+                stop.scuOut = scuOut;
+                stop.scuTotal = runningScu;
+                stop.hasScu = hasAnyScu;
+            }
+
+            return { stops: stops.map(s => s.uuid), legs: allLegs, cargoPlan: stops };
+        },
+
+        get cargoLegs() {
+
+            if (this.mode !== 'cargo') {
+                return [];
+            }
+
+            return this.cargoRoute.legs;
+        },
+
+        get cargoEnrichedLegs() {
+            const rawLegs = this.cargoLegs;
+
+            if (rawLegs.length === 0) {
+                return [];
+            }
+
+            return this.applyFuelTracking(rawLegs);
+        },
+
+        get cargoTripSummary() {
+            const base = this.summarizeLegs(this.cargoEnrichedLegs);
+
+            const totalScu = this.cargoCompleteMissions.reduce((sum, m) => {
+                const v = parseFloat(m.scu);
+                return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+            }, 0);
+
+            return {
+                ...base,
+                stopCount: this.cargoRoute.cargoPlan?.length ?? 0,
+                missionCount: this.cargoCompleteMissions.length,
+                totalScu,
+                hasScuData: totalScu > 0,
+            };
+        },
+
+        get cargoRefuelInfo() {
+            return this.computeRefuelInfo(this.cargoEnrichedLegs, this.effectiveTankCapacity);
+        },
+
+        // Route Optimization
+        optimizeRoute() {
+            if (this.optimizing) {
+                return;
+            }
+
+            const validWps = this.waypoints.filter(wp => wp.uuid);
+
+            if (validWps.length < 3) {
+                return;
+            }
+
+            this.optimizing = true;
+
+            setTimeout(() => {
+                try {
+                    const first = validWps[0];
+                    const rest = validWps.slice(1);
+
+                    let bestOrder = null;
+                    let bestCost = Infinity;
+
+                    if (rest.length <= 6) {
+                        const arr = rest.slice();
+
+                        const permute = (a, l) => {
+                            if (l === a.length - 1) {
+                                const cost = this.computeRouteCost([first, ...a]);
+
+                                if (cost < bestCost) {
+                                    bestCost = cost;
+                                    bestOrder = a.map(x => x);
+                                }
+                                return;
+                            }
+
+                            for (let i = l; i < a.length; i++) {
+                                [a[l], a[i]] = [a[i], a[l]];
+                                permute(a, l + 1);
+                                [a[l], a[i]] = [a[i], a[l]];
+                            }
+                        };
+
+                        permute(arr, 0);
+                    } else {
+                        bestOrder = this.nearestNeighborSort(first, rest);
+                    }
+
+                    if (bestOrder) {
+                        this.waypoints = [first, ...bestOrder];
+                    }
+                } finally {
+                    this.optimizing = false;
+                }
+            }, 0);
+        },
+
+        computeRouteCost(waypoints) {
+            let total = 0;
+
+            for (let i = 0; i < waypoints.length - 1; i++) {
+                const fromEntity = this.entityMap.get(waypoints[i].uuid);
+                const toEntity = this.entityMap.get(waypoints[i + 1].uuid);
+
+                if (!fromEntity || !toEntity) {
+                    continue;
+                }
+
+                const routeLegs = this.resolveRoute(fromEntity, toEntity);
+
+                for (const leg of routeLegs) {
+                    const enriched = this.enrichLeg(leg);
+                    total += enriched.distance ?? 0;
+                }
+            }
+
+            return total;
+        },
+
+        nearestNeighborSort(start, points) {
+            const remaining = points.slice();
+            const ordered = [];
+            let current = start;
+
+            while (remaining.length > 0) {
+                let bestIdx = 0;
+                let bestDist = Infinity;
+
+                for (let i = 0; i < remaining.length; i++) {
+                    const cost = this.pairwiseDistance(current, remaining[i]);
+
+                    if (cost < bestDist) {
+                        bestDist = cost;
+                        bestIdx = i;
+                    }
+                }
+
+                ordered.push(remaining[bestIdx]);
+                current = remaining[bestIdx];
+                remaining.splice(bestIdx, 1);
+            }
+
+            return ordered;
+        },
+
+        pairwiseDistance(wpA, wpB) {
+            const a = this.entityMap.get(wpA.uuid);
+            const b = this.entityMap.get(wpB.uuid);
+
+            if (!a || !b) {
+                return Infinity;
+            }
+
+            return this.computeRouteCost([wpA, wpB]);
+        },
+
+        // Path Resolution
 
         findSystemPath(fromSystem, toSystem) {
             if (fromSystem === toSystem) {
@@ -628,91 +1104,75 @@ export function routePlanner() {
             }
 
             const legs = [];
-            const anchorA = this.getAnchor(entityA);
-            const anchorB = this.getAnchor(entityB);
 
-            if (entityA.uuid !== anchorA.uuid) {
-                legs.push({
-                    type: 'qt',
-                    from: entityA,
-                    to: anchorA,
-                    fromName: entityA.name,
-                    toName: anchorA.name,
-                });
-            }
-
-            if (anchorA.system === anchorB.system) {
-                if (anchorA.uuid !== anchorB.uuid) {
+            if (entityA.system === entityB.system) {
+                if (entityA.uuid !== entityB.uuid) {
                     legs.push({
                         type: 'qt',
-                        from: anchorA,
-                        to: anchorB,
-                        fromName: anchorA.name,
-                        toName: anchorB.name,
+                        from: entityA,
+                        to: entityB,
+                        fromName: entityA.name,
+                        toName: entityB.name,
                     });
                 }
-            } else {
-                const systemPath = this.findSystemPath(anchorA.system, anchorB.system);
 
-                if (!systemPath) {
-                    legs.push({
-                        type: 'no_route',
-                        from: anchorA,
-                        to: anchorB,
-                        fromName: anchorA.name,
-                        toName: anchorB.name,
-                    });
+                return legs;
+            }
+
+            const systemPath = this.findSystemPath(entityA.system, entityB.system);
+
+            if (!systemPath) {
+                return [{
+                    type: 'no_route',
+                    from: entityA,
+                    to: entityB,
+                    fromName: entityA.name,
+                    toName: entityB.name,
+                }];
+            }
+
+            let current = entityA;
+
+            for (const hop of systemPath) {
+                const entryJP = this.entityMap.get(hop.entryUuid);
+                const exitJP = this.entityMap.get(hop.exitUuid);
+
+                if (!entryJP || !exitJP) {
+                    legs.push({ type: 'no_route', from: current, to: entityB, fromName: current.name, toName: entityB.name });
 
                     return legs;
                 }
 
-                let current = anchorA;
-
-                for (const hop of systemPath) {
-                    const entryJP = this.entityMap.get(hop.entryUuid);
-                    const exitJP = this.entityMap.get(hop.exitUuid);
-
-                    if (current.uuid !== entryJP.uuid) {
-                        legs.push({
-                            type: 'qt',
-                            from: current,
-                            to: entryJP,
-                            fromName: current.name,
-                            toName: entryJP.name,
-                        });
-                    }
-
-                    legs.push({
-                        type: 'jp',
-                        from: entryJP,
-                        to: exitJP,
-                        fromSystem: entryJP.system,
-                        toSystem: exitJP.system,
-                        fuelCost: hop.fuelCost,
-                        fromName: entryJP.name,
-                        toName: exitJP.name,
-                    });
-
-                    current = exitJP;
-                }
-
-                if (current.uuid !== anchorB.uuid) {
+                if (current.uuid !== entryJP.uuid) {
                     legs.push({
                         type: 'qt',
                         from: current,
-                        to: anchorB,
+                        to: entryJP,
                         fromName: current.name,
-                        toName: anchorB.name,
+                        toName: entryJP.name,
                     });
                 }
+
+                legs.push({
+                    type: 'jp',
+                    from: entryJP,
+                    to: exitJP,
+                    fromSystem: entryJP.system,
+                    toSystem: exitJP.system,
+                    fuelCost: hop.fuelCost,
+                    fromName: entryJP.name,
+                    toName: exitJP.name,
+                });
+
+                current = exitJP;
             }
 
-            if (entityB.uuid !== anchorB.uuid) {
+            if (current.uuid !== entityB.uuid) {
                 legs.push({
                     type: 'qt',
-                    from: anchorB,
+                    from: current,
                     to: entityB,
-                    fromName: anchorB.name,
+                    fromName: current.name,
                     toName: entityB.name,
                 });
             }
@@ -767,6 +1227,70 @@ export function routePlanner() {
                 fuelFormatted: this.formatFuel(fuel),
                 tankPercent,
             };
+        },
+
+        applyFuelTracking(rawLegs) {
+            const enriched = rawLegs.map(leg => this.enrichLeg(leg));
+            const tank = this.effectiveTankCapacity;
+
+            if (!tank) {
+                return enriched;
+            }
+
+            let cumulativeFuel = 0;
+            let routeBroken = false;
+
+            for (const leg of enriched) {
+                if (routeBroken) {
+                    leg.impossible = leg.fuel !== null;
+                    leg.needsRefuel = false;
+                    leg.refuelAt = null;
+                    leg.tankRemaining = leg.fuel !== null ? 0 : null;
+                    continue;
+                }
+
+                leg.impossible = false;
+                leg.needsRefuel = false;
+                leg.refuelAt = null;
+
+                if (leg.fuel === null) {
+                    leg.tankRemaining = null;
+                } else if (leg.fuel > tank) {
+                    leg.impossible = true;
+                    leg.tankRemaining = 0;
+                    routeBroken = true;
+                } else if (cumulativeFuel + leg.fuel > tank) {
+                    cumulativeFuel = leg.fuel;
+                    leg.tankRemaining = Math.max(0, tank - cumulativeFuel);
+                } else {
+                    cumulativeFuel += leg.fuel;
+                    leg.tankRemaining = Math.max(0, tank - cumulativeFuel);
+                }
+            }
+
+            for (let i = 0; i < enriched.length; i++) {
+                const leg = enriched[i];
+
+                if (leg.fuel === null || leg.impossible) {
+                    continue;
+                }
+
+                for (let j = i + 1; j < enriched.length; j++) {
+                    const nextLeg = enriched[j];
+
+                    if (nextLeg.fuel === null || nextLeg.impossible) {
+                        continue;
+                    }
+
+                    if (leg.tankRemaining < nextLeg.fuel && leg.tankRemaining !== 0) {
+                        leg.needsRefuel = true;
+                        leg.refuelAt = leg.toName;
+                    }
+                    break;
+                }
+            }
+
+            return enriched;
         },
 
 
