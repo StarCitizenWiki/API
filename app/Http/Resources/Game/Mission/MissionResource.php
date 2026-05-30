@@ -17,6 +17,19 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
         new OA\Property(property: 'title', type: 'string', nullable: true),
         new OA\Property(property: 'description', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'description_html',
+            description: 'HTML-rendered mission description. Escapes raw text, preserves EM4 styling, and renders exact mission token placeholders as tooltip spans.',
+            type: 'string',
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'description_variants',
+            description: 'Rendered HTML variants when the raw description is a single mission token with multiple possible values.',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
         new OA\Property(property: 'mission_type', type: 'string', nullable: true),
         new OA\Property(property: 'mission_giver', type: 'string', nullable: true),
         new OA\Property(
@@ -96,11 +109,13 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'mission_tokens',
-            properties: [
-                new OA\Property(property: 'destinations', type: 'array', items: new OA\Items(type: 'string')),
-            ],
+            description: 'Resolved mission token values. Keys are token identifiers (e.g. "Location|Address", "Danger", "Contractor"). Values are arrays of possible resolved strings. Keys preserve original case and pipe syntax exactly.',
             type: 'object',
-            nullable: true
+            nullable: true,
+            additionalProperties: new OA\AdditionalProperties(
+                type: 'array',
+                items: new OA\Items(type: 'string'),
+            ),
         ),
         new OA\Property(
             property: 'deadline',
@@ -293,11 +308,14 @@ class MissionResource extends AbstractBaseResource
         $haulingResource = new MissionHaulingResource(null, $makeApiUrl, $makeWebUrl);
         $chainResource = new MissionChainResource(null, $makeApiUrl, $makeWebUrl);
         $locationResource = new MissionLocationResource(null, $makeApiUrl, $makeWebUrl);
+        $tokens = MissionDataBlockResource::mapMissionTokens($data?->get('MissionTokens'));
 
         return [
             'uuid' => $mission?->uuid,
             'title' => FormatMissionText::format($this->resource->title, $this->resource->debug_name),
             'description' => $this->resource->description,
+            'description_html' => FormatMissionText::description($this->resource->description, $tokens),
+            'description_variants' => FormatMissionText::descriptionVariants($this->resource->description, $tokens),
             'mission_type' => $this->resource->mission_type,
             'mission_giver' => $this->resource->mission_giver,
             'faction' => $this->resource->faction ? [
@@ -359,7 +377,7 @@ class MissionResource extends AbstractBaseResource
             'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')),
             'min_standing' => MissionDataBlockResource::mapStanding($data?->get('MinStanding')),
             'max_standing' => MissionDataBlockResource::mapStanding($data?->get('MaxStanding')),
-            'mission_tokens' => MissionDataBlockResource::mapMissionTokens($data?->get('MissionTokens')),
+            'mission_tokens' => $tokens,
             'deadline' => MissionDataBlockResource::mapDeadline($data?->get('Deadline')),
             'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites($data?->get('BrokerReputationPrerequisites')),
             'item_counts' => MissionDataBlockResource::mapItemCounts($data?->get('ItemCounts')),

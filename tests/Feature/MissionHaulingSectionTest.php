@@ -49,7 +49,7 @@ describe('regular orders', function (): void {
         $response->assertSuccessful()
             ->assertSee('Hauling Orders')
             ->assertSee('Laranite')
-            ->assertSee('(Commodity)')
+            ->assertSee('Commodity')
             ->assertSee('10 - 24 SCU')
             ->assertSee('badge-info', escape: false);
     });
@@ -208,8 +208,7 @@ describe('regular orders', function (): void {
             ->assertSee('21 SCU')
             ->assertSee('18 SCU')
             ->assertSee('badge-info', escape: false)
-            ->assertSee('class="list"', escape: false)
-            ->assertSee('class="list-row"', escape: false);
+            ->assertSee('rounded-box', escape: false);
     });
 });
 
@@ -260,13 +259,11 @@ describe('choice orders', function (): void {
         $response = $this->get("/missions/{$mission->slug}");
 
         $response->assertSuccessful()
-            ->assertSee('Choice')
-            ->assertSee('Deliver one of the following')
+            ->assertSee('haul one of')
             ->assertSee('Construction Rubble')
             ->assertSee('Construction Pieces')
             ->assertSee('10 SCU')
             ->assertSee('15 SCU')
-            ->assertSee('collapse', escape: false)
             ->assertSee('badge-info', escape: false);
     });
 
@@ -332,7 +329,174 @@ describe('choice orders', function (): void {
             ->assertSee('Construction Rubble')
             ->assertSee('Construction Pieces')
             ->assertSee('Commodity')
-            ->assertSee('Choice');
+            ->assertSee('haul one of');
+    });
+});
+
+describe('exact value display', function (): void {
+    it('shows exact SCU when one bound is zero', function (): void {
+        $commodity = Commodity::factory()->create(['name' => 'E\'tam']);
+        $mission = Mission::factory()->create();
+        MissionData::factory()
+            ->forVersion($this->gameVersion)
+            ->forMission($mission)
+            ->create([
+                'title' => 'Cargo Haul',
+                'reward_scope' => 'Hauling',
+                'data' => [
+                    'HaulingOrders' => [
+                        [
+                            'Kind' => 'Resource',
+                            'Name' => "E'tam",
+                            'UUID' => $commodity->uuid,
+                            'MinScu' => 4,
+                            'MaxScu' => 0,
+                            'MinAmount' => 0,
+                            'MaxAmount' => 0,
+                            'MaxContainerSize' => 2,
+                            'Items' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $response = $this->get("/missions/{$mission->slug}");
+
+        $response->assertSuccessful()
+            ->assertSee('4 SCU')
+            ->assertDontSee('≤ 4 SCU');
+    });
+
+    it('shows exact amount when one bound is zero', function (): void {
+        $item = ItemData::factory()->create(['name' => 'Data Pad']);
+        $mission = Mission::factory()->create();
+        MissionData::factory()
+            ->forVersion($this->gameVersion)
+            ->forMission($mission)
+            ->create([
+                'title' => 'Courier Run',
+                'reward_scope' => 'Hauling',
+                'data' => [
+                    'HaulingOrders' => [
+                        [
+                            'Kind' => 'Entity',
+                            'Name' => 'Data Pad',
+                            'UUID' => $item->uuid,
+                            'MinScu' => 0,
+                            'MaxScu' => 0,
+                            'MinAmount' => 3,
+                            'MaxAmount' => 0,
+                            'MaxContainerSize' => -1,
+                            'Items' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $response = $this->get("/missions/{$mission->slug}");
+
+        $response->assertSuccessful()
+            ->assertSee('3 ×')
+            ->assertDontSee('≤ 3 ×');
+    });
+
+    it('shows range when both bounds differ', function (): void {
+        $commodity = Commodity::factory()->create(['name' => 'Aphorite']);
+        $mission = Mission::factory()->create();
+        MissionData::factory()
+            ->forVersion($this->gameVersion)
+            ->forMission($mission)
+            ->create([
+                'title' => 'Mining Haul',
+                'reward_scope' => 'Hauling',
+                'data' => [
+                    'HaulingOrders' => [
+                        [
+                            'Kind' => 'Resource',
+                            'Name' => 'Aphorite',
+                            'UUID' => $commodity->uuid,
+                            'MinScu' => 9,
+                            'MaxScu' => 16,
+                            'MinAmount' => 0,
+                            'MaxAmount' => 0,
+                            'MaxContainerSize' => -1,
+                            'Items' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $response = $this->get("/missions/{$mission->slug}");
+
+        $response->assertSuccessful()
+            ->assertSee('9 - 16 SCU');
+    });
+});
+
+describe('container size', function (): void {
+    it('shows container size badge when positive', function (): void {
+        $commodity = Commodity::factory()->create(['name' => 'E\'tam']);
+        $mission = Mission::factory()->create();
+        MissionData::factory()
+            ->forVersion($this->gameVersion)
+            ->forMission($mission)
+            ->create([
+                'title' => 'Cargo Haul',
+                'reward_scope' => 'Hauling',
+                'data' => [
+                    'HaulingOrders' => [
+                        [
+                            'Kind' => 'Resource',
+                            'Name' => "E'tam",
+                            'UUID' => $commodity->uuid,
+                            'MinScu' => 4,
+                            'MaxScu' => 4,
+                            'MinAmount' => 0,
+                            'MaxAmount' => 0,
+                            'MaxContainerSize' => 2,
+                            'Items' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $response = $this->get("/missions/{$mission->slug}");
+
+        $response->assertSuccessful()
+            ->assertSee('2 SCU container')
+            ->assertSee('badge-ghost', escape: false);
+    });
+
+    it('hides container size when negative or zero', function (): void {
+        $commodity = Commodity::factory()->create(['name' => 'Quartz']);
+        $mission = Mission::factory()->create();
+        MissionData::factory()
+            ->forVersion($this->gameVersion)
+            ->forMission($mission)
+            ->create([
+                'title' => 'Mining Run',
+                'reward_scope' => 'Hauling',
+                'data' => [
+                    'HaulingOrders' => [
+                        [
+                            'Kind' => 'Resource',
+                            'Name' => 'Quartz',
+                            'UUID' => $commodity->uuid,
+                            'MinScu' => 2,
+                            'MaxScu' => 2,
+                            'MinAmount' => 0,
+                            'MaxAmount' => 0,
+                            'MaxContainerSize' => -1,
+                            'Items' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $response = $this->get("/missions/{$mission->slug}");
+
+        $response->assertSuccessful()
+            ->assertDontSee('SCU container');
     });
 });
 

@@ -21,6 +21,10 @@
     $hasBlueprints = ! empty($blueprints);
     $reputationGained = data_get($resource, 'reputation_gained') ?? [];
     $reputationLost = data_get($resource, 'reputation_lost') ?? [];
+    $rewardMin = data_get($resource, 'reward_min');
+    $rewardMax = data_get($resource, 'reward_max');
+    $rewardCurrency = data_get($resource, 'reward_currency');
+    $hasMonetaryReward = $rewardMin > 0 || $rewardMax > 0;
     $combat = data_get($resource, 'combat');
     $entitySpawns = data_get($resource, 'entity_spawns') ?? [];
     $haulingOrders = data_get($resource, 'hauling_orders') ?? [];
@@ -86,6 +90,10 @@
         </div>
 
         <div class="flex flex-col gap-8">
+            @if ($haulingOrders !== [])
+                <x-missions.hauling-section :hauling-orders="$haulingOrders"/>
+            @endif
+
             @if ($hasRewards)
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
@@ -196,10 +204,16 @@
                             </div>
                         @endif
 
-                        @if ($reputationGained !== [] || $reputationLost !== [])
+                        @if ($hasMonetaryReward || $reputationGained !== [] || $reputationLost !== [])
                             <div class="card card-border bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
                                     <div class="space-y-6">
+                                        @if ($hasMonetaryReward)
+                                            <div>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reward</h3>
+                                                <span class="text-success font-semibold">{{ ($rewardMin > 0 && $rewardMax > 0 && $rewardMin !== $rewardMax) ? Format::range($rewardMin, $rewardMax, 'a' . $rewardCurrency) : Format::valueWithUnit(max($rewardMin, $rewardMax), 'a' . $rewardCurrency, 0) }}</span>
+                                            </div>
+                                        @endif
                                         @if ($reputationGained !== [])
                                             <div>
                                                 <h3 class="font-semibold uppercase text-subtle mb-3">Reputation
@@ -238,8 +252,7 @@
 
                                         @if ($reputationLost !== [])
                                             <div>
-                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation
-                                                    Lost</h3>
+                                                <h3 class="font-semibold uppercase text-subtle mb-3">Reputation Lost</h3>
                                                 <div class="overflow-x-auto">
                                                     <table class="table table-sm table-zebra">
                                                         <thead>
@@ -281,86 +294,14 @@
 
             <x-missions.chain-flow :resource="$resource"/>
 
-            @if ($haulingOrders !== [])
-                <x-missions.hauling-section :hauling-orders="$haulingOrders"/>
-            @endif
-
             @if ($hasCombatSection)
                 <x-missions.combat-card :resource="$resource"/>
-            @endif
-
-            @if (data_get($resource, 'faction') !== null)
-                @php
-                    $factionData = data_get($resource, 'faction');
-                    $reputationLadder = data_get($factionData, 'reputation_ladder');
-                    $reputationLadderStandings = data_get($reputationLadder, 'standings') ?? [];
-                    $hasLadder = $reputationLadder !== null && $reputationLadderStandings !== [];
-                @endphp
-
-                <section class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-lg font-semibold tracking-tight">Faction</h2>
-                        <span class="text-base text-subtle">{{ data_get($factionData, 'name') }}</span>
-                    </div>
-
-                    <div class="card card-border bg-base-100 shadow">
-                        <div class="card-body p-5 sm:p-6">
-                            <div class="grid gap-6 {{ $hasLadder ? 'lg:grid-cols-2' : '' }}">
-                                <div>
-                                    <h3 class="font-semibold uppercase text-subtle mb-3">Overview</h3>
-                                    <x-dl-section>
-                                        @foreach ([
-                                            ['label' => 'Type', 'value' => data_get($factionData, 'faction_type')],
-                                            ['label' => 'Headquarters', 'value' => data_get($factionData, 'headquarters')],
-                                            ['label' => 'Area', 'value' => data_get($factionData, 'area')],
-                                            ['label' => 'Focus', 'value' => data_get($factionData, 'focus')],
-                                            ['label' => 'Founded', 'value' => data_get($factionData, 'founded')],
-                                            ['label' => 'Leadership', 'value' => data_get($factionData, 'leadership')],
-                                        ] as $row)
-                                            @if ($row['value'] !== null)
-                                                <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
-                                            @endif
-                                        @endforeach
-                                    </x-dl-section>
-                                </div>
-
-                                @if ($hasLadder)
-                                    <div>
-                                        <h3 class="font-semibold uppercase text-subtle mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
-                                        <div class="overflow-x-auto">
-                                            <table class="table table-sm table-zebra">
-                                                <thead>
-                                                <tr>
-                                                    <th>Rank</th>
-                                                    <th>XP Required</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach ($reputationLadderStandings as $standing)
-                                                    <tr>
-                                                        <td>{{ data_get($standing, 'display_name') ?? data_get($standing, 'name', '-') }}</td>
-                                                        <td>{{ Format::number(data_get($standing, 'min_reputation', 0)) }}</td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </section>
             @endif
 
             @if ($hasLocations)
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
                         <h2 class="text-lg font-semibold tracking-tight">Locations</h2>
-                        @php
-                            $totalLocations = array_sum(array_map(fn (array $locs): int => count($locs), $mergedLocations));
-                        @endphp
-                        <span class="badge badge-soft badge-sm">{{ $totalLocations }} locations</span>
                     </div>
 
                     @foreach ($mergedLocations as $groupLabel => $locations)
@@ -377,9 +318,8 @@
                                  @endif data-testid="mission-location-group-{{ Str::slug($groupLabel) }}">
                             <summary class="collapse-title min-h-11 text-sm font-semibold flex items-center gap-3">
                                 {{ $groupLabel }}
-                                <span class="badge badge-outline badge-sm">{{ $groupCount }}</span>
                                 @if (isset($purposeHelpText[$groupLabel]))
-                                    <span class="text-xs text-muted">{{ $purposeHelpText[$groupLabel] }}</span>
+                                    <span class="text-xs text-muted font-normal">{{ $purposeHelpText[$groupLabel] }}</span>
                                 @endif
                             </summary>
 
@@ -447,6 +387,70 @@
                     @endforeach
                 </section>
             @endif
+
+            @if (data_get($resource, 'faction') !== null)
+                @php
+                    $factionData = data_get($resource, 'faction');
+                    $reputationLadder = data_get($factionData, 'reputation_ladder');
+                    $reputationLadderStandings = data_get($reputationLadder, 'standings') ?? [];
+                    $hasLadder = $reputationLadder !== null && $reputationLadderStandings !== [];
+                @endphp
+
+                <section class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-lg font-semibold tracking-tight">Faction</h2>
+                        <span class="text-base text-subtle">{{ data_get($factionData, 'name') }}</span>
+                    </div>
+
+                    <div class="card card-border bg-base-100 shadow">
+                        <div class="card-body p-5 sm:p-6">
+                            <div class="grid gap-6 {{ $hasLadder ? 'lg:grid-cols-2' : '' }}">
+                                <div>
+                                    <h3 class="font-semibold uppercase text-subtle mb-3">Overview</h3>
+                                    <x-dl-section>
+                                        @foreach ([
+                                            ['label' => 'Type', 'value' => data_get($factionData, 'faction_type')],
+                                            ['label' => 'Headquarters', 'value' => data_get($factionData, 'headquarters')],
+                                            ['label' => 'Area', 'value' => data_get($factionData, 'area')],
+                                            ['label' => 'Focus', 'value' => data_get($factionData, 'focus')],
+                                            ['label' => 'Founded', 'value' => data_get($factionData, 'founded')],
+                                            ['label' => 'Leadership', 'value' => data_get($factionData, 'leadership')],
+                                        ] as $row)
+                                            @if ($row['value'] !== null)
+                                                <x-dt-dd :label="$row['label']">{{ $row['value'] }}</x-dt-dd>
+                                            @endif
+                                        @endforeach
+                                    </x-dl-section>
+                                </div>
+
+                                @if ($hasLadder)
+                                    <div>
+                                        <h3 class="font-semibold uppercase text-subtle mb-3">{{ data_get($reputationLadder, 'scope_name', 'Reputation') }}</h3>
+                                        <div class="overflow-x-auto">
+                                            <table class="table table-sm table-zebra">
+                                                <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>XP Required</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach ($reputationLadderStandings as $standing)
+                                                    <tr>
+                                                        <td>{{ data_get($standing, 'display_name') ?? data_get($standing, 'name', '-') }}</td>
+                                                        <td>{{ Format::number(data_get($standing, 'min_reputation', 0)) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </section>
+        @endif
 
             <x-technical-section :entries="$technicalEntries" testId="mission-technical-card">
                 @if ($completionTags !== [])

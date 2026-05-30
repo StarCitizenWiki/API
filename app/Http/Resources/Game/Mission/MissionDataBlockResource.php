@@ -30,15 +30,24 @@ class MissionDataBlockResource extends AbstractBaseResource
             return null;
         }
 
-        $destinations = $tokens['Destination'] ?? [];
+        $filtered = [];
 
-        if (! is_array($destinations) || empty($destinations)) {
-            return null;
+        foreach ($tokens as $key => $values) {
+            if (! is_string($key) || ! is_array($values)) {
+                continue;
+            }
+
+            $clean = array_values(array_filter(
+                $values,
+                static fn (mixed $value): bool => is_string($value) && trim($value) !== '',
+            ));
+
+            if ($clean !== []) {
+                $filtered[$key] = $clean;
+            }
         }
 
-        return [
-            'destinations' => $destinations,
-        ];
+        return $filtered === [] ? null : $filtered;
     }
 
     public static function mapDeadline(mixed $deadline): ?array

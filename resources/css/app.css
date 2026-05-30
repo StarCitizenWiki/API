@@ -252,4 +252,8 @@
             font-size: var(--text-sm);
         }
     }
+
+    .mission-token {
+        @apply text-primary font-mono tracking-tighter text-nowrap;
+    }
 }

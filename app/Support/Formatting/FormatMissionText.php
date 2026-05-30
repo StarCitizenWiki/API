@@ -8,69 +8,55 @@ use Illuminate\Support\Str;
 
 class FormatMissionText
 {
-    public static function description(?string $description): ?string
+    private const string SPAN_CLASS = 'mission-token';
+
+    /**
+     * Render mission text as safe HTML.
+     */
+    public static function description(?string $description, ?array $tokens = null): ?string
     {
         if ($description === null) {
             return null;
         }
 
-        $description = preg_replace('/\R{2,}/', "\n", $description);
+        $text = preg_replace('/\R{2,}/', "\n", $description) ?? $description;
+        $fragments = [];
 
-        $description = preg_replace_callback(
-            '/<EM4>(.*?)<\/EM4>/s',
-            static function (array $matches): string {
-                return '%%EM4_SPAN_START%%'.e($matches[1]).'%%EM4_SPAN_END%%';
-            },
-            $description,
-        );
+        $text = self::replaceTokenPlaceholders($text, $tokens, $fragments);
+        $text = self::replaceEm4Tags($text, $fragments);
 
-        $description = self::replaceTemplateTokens($description);
+        $html = e($text);
 
-        $description = self::escapePreservingSpans($description);
+        foreach (array_reverse($fragments, true) as $marker => $fragment) {
+            $html = str_replace(e($marker), $fragment, $html);
+        }
 
-        return nl2br($description);
+        return nl2br($html);
     }
 
     /**
-     * Escape HTML entities while preserving our injected <span> tags.
+     * If the whole description is a single mission-token placeholder, expose each possible token value as its own rendered HTML variant.
      */
-    private static function escapePreservingSpans(string $html): string
+    public static function descriptionVariants(?string $description, ?array $tokens = null): ?array
     {
-        $spanPlaceholders = [];
-        $html = preg_replace_callback(
-            '/%%EM4_SPAN_START%%(.*?)%%EM4_SPAN_END%%/s',
-            static function (array $matches) use (&$spanPlaceholders): string {
-                $key = '%%SPAN_'.count($spanPlaceholders).'%%';
-                $spanPlaceholders[$key] = '<span class="text-secondary font-mono">'.$matches[1].'</span>';
-
-                return $key;
-            },
-            $html,
-        );
-
-        $bracketPlaceholders = [];
-        $html = preg_replace_callback(
-            '/\[([^\]]*)\]/',
-            static function (array $matches) use (&$bracketPlaceholders): string {
-                $key = '%%BRACKET_'.count($bracketPlaceholders).'%%';
-                $bracketPlaceholders[$key] = '<span class="text-secondary font-mono">['.e($matches[1]).']</span>';
-
-                return $key;
-            },
-            $html,
-        );
-
-        $html = e($html);
-
-        foreach ($bracketPlaceholders as $key => $value) {
-            $html = str_replace(e($key), $value, $html);
+        if ($description === null || $tokens === null) {
+            return null;
         }
 
-        foreach ($spanPlaceholders as $key => $value) {
-            $html = str_replace(e($key), $value, $html);
+        if (! preg_match('/^\[([^]]+)]$/', trim($description), $matches)) {
+            return null;
         }
 
-        return $html;
+        $values = self::tokenValues($tokens[$matches[1]] ?? null);
+
+        if (count($values) <= 1) {
+            return null;
+        }
+
+        return array_map(
+            static fn (string $value): string => self::description($value, $tokens) ?? '',
+            $values,
+        );
     }
 
     public static function format(?string $title, ?string $debugName = null): ?string
@@ -79,100 +65,124 @@ class FormatMissionText
             return null;
         }
 
-        if ($title !== null && ! self::containsTemplateToken($title)) {
-            return $title;
-        }
-
-        if ($title !== null) {
-            $replaced = self::replaceTemplateTokens($title);
-
-            if (self::isReadableProse($replaced)) {
-                return $replaced;
-            }
-        }
-
-        if ($title !== null && self::isEntirelyTemplate($title)) {
-            $key = self::extractTemplateKey($title);
-
-            if ($key !== null) {
-                return self::formatKeyAsTitle($key);
-            }
-        }
-
-        if ($debugName !== null) {
-            return self::formatDebugName($debugName);
-        }
-
-        return $title;
+        return $title ?? ($debugName !== null ? self::formatDebugName($debugName) : null);
     }
 
-    private static function containsTemplateToken(string $title): bool
+    /**
+     * @param  array<string, mixed>|null  $tokens
+     * @param  array<string, string>  $fragments
+     */
+    private static function replaceTokenPlaceholders(string $text, ?array $tokens, array &$fragments): string
     {
-        return str_contains($title, '~mission(');
+        if ($tokens === null || $tokens === []) {
+            return $text;
+        }
+
+        foreach ($tokens as $key => $rawValues) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            $values = self::tokenValues($rawValues);
+
+            if ($values === []) {
+                continue;
+            }
+
+            $placeholder = '['.$key.']';
+
+            if (! str_contains($text, $placeholder)) {
+                continue;
+            }
+
+            $marker = self::marker($fragments, 'TOKEN');
+            $fragments[$marker] = self::tokenSpan($key, $values);
+            $text = str_replace($placeholder, $marker, $text);
+        }
+
+        return $text;
     }
 
-    private static function replaceTemplateTokens(string $text): string
+    /**
+     * @param  array<string, string>  $fragments
+     */
+    private static function replaceEm4Tags(string $text, array &$fragments): string
     {
-        return (string) preg_replace_callback(
-            '/~mission\(([^)]+)\)/',
-            static function (array $matches): string {
-                $inner = $matches[1];
-                $label = str_contains($inner, '|')
-                    ? Str::after($inner, '|')
-                    : $inner;
+        return preg_replace_callback(
+            '/<EM4>(.*?)<\/EM4>/s',
+            static function (array $matches) use (&$fragments): string {
+                $marker = self::marker($fragments, 'EM4');
+                $fragments[$marker] = '<span class="'.self::SPAN_CLASS.'">'.e($matches[1]).'</span>';
 
-                return '['.Str::headline($label).']';
+                return $marker;
             },
             $text,
+        ) ?? $text;
+    }
+
+    /**
+     * @param  list<string>  $values
+     */
+    private static function tokenSpan(string $tokenKey, array $values): string
+    {
+        if (count($values) === 1) {
+            return '<span class="'.self::SPAN_CLASS.'">'.e($values[0]).'</span>';
+        }
+
+        return sprintf(
+            '<span class="%s" title="%s">%s</span>',
+            self::SPAN_CLASS,
+            e(implode(' / ', $values)),
+            e(self::tokenLabel($tokenKey)),
         );
     }
 
-    private static function isReadableProse(string $text): bool
+    private static function tokenLabel(string $tokenKey): string
     {
-        $trimmed = trim($text);
+        $parts = explode('|', $tokenKey);
 
-        if ($trimmed === '' || ! preg_match('/[a-zA-Z]{2,}/', $trimmed)) {
-            return false;
+        if (! isset($parts[1]) || $parts[1] === '') {
+            return '['.$tokenKey.']';
         }
 
-        $withoutBrackets = trim((string) preg_replace('/\[[^\]]*\]/', '', $trimmed));
+        $lastPart = $parts[array_key_last($parts)];
+        $label = strcasecmp($lastPart, 'Address') === 0 ? $parts[0] : $parts[1];
 
-        return $withoutBrackets !== '';
+        return '['.$label.']';
     }
 
-    private static function isEntirelyTemplate(string $title): bool
+    /**
+     * @return list<string>
+     */
+    private static function tokenValues(mixed $rawValues): array
     {
-        $stripped = self::stripTemplateTokens($title);
-
-        return trim($stripped) === '';
-    }
-
-    private static function stripTemplateTokens(string $title): string
-    {
-        return (string) preg_replace('/~mission\([^)]*\)/', '', $title);
-    }
-
-    private static function extractTemplateKey(string $title): ?string
-    {
-        if (! preg_match('/~mission\((?:[^|]*\|)?([^)]+)\)/', $title, $matches)) {
-            return null;
+        if (! is_array($rawValues)) {
+            return [];
         }
 
-        return $matches[1];
+        $values = [];
+
+        foreach ($rawValues as $value) {
+            if (! is_scalar($value)) {
+                continue;
+            }
+
+            $value = trim((string) $value);
+
+            if ($value !== '') {
+                $values[$value] = true;
+            }
+        }
+
+        return array_keys($values);
     }
 
-    private static function formatKeyAsTitle(string $key): string
+    /**
+     * @param  array<string, string>  $fragments
+     */
+    private static function marker(array $fragments, string $prefix): string
     {
-        $cleaned = Str::replaceLast('TitleVeryHard', 'Very Hard', $key);
-        $cleaned = Str::replaceLast('TitleVeryEasy', 'Very Easy', $cleaned);
-        $cleaned = Str::replaceLast('TitleSuper', 'Super Hard', $cleaned);
-        $cleaned = Str::replaceLast('TitleHard', 'Hard', $cleaned);
-        $cleaned = Str::replaceLast('TitleEasy', 'Easy', $cleaned);
-        $cleaned = Str::replaceLast('TitleMedium', 'Medium', $cleaned);
-        $cleaned = Str::replaceLast('TitleIntro', 'Intro', $cleaned);
-        $cleaned = Str::replaceLast('Title', '', $cleaned);
-
-        return self::headline($cleaned);
+        return '%%MISSION_'.$prefix.'_'.count($fragments).'%%';
     }
 
     private static function formatDebugName(string $debugName): string

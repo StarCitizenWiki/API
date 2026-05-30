@@ -2,7 +2,7 @@
 
 @php
     $title = data_get($resource, 'title', 'Mission');
-    $description = data_get($resource, 'description');
+    $descriptionHtml = data_get($resource, 'description_html');
     $faction = data_get($resource, 'faction');
     $factionName = data_get($faction, 'name');
     $rewardScope = data_get($resource, 'reward_scope');
@@ -98,9 +98,31 @@
             @endif
         </div>
 
-        @if ($description)
+        @php
+            $descriptionVariants = data_get($resource, 'description_variants');
+        @endphp
+
+        @if ($descriptionVariants !== null && count($descriptionVariants) > 1)
+            <div class="max-w-3xl" data-testid="mission-hero-description">
+                <div role="tablist" class="tabs tabs-bordered">
+                    @foreach ($descriptionVariants as $index => $variantHtml)
+                        <input
+                            type="radio"
+                            name="desc_variant_{{ crc32(implode('|', $descriptionVariants)) }}"
+                            role="tab"
+                            class="tab p-0 !pr-3"
+                            aria-label="Variant {{ $index + 1 }}"
+                            {{ $loop->first ? 'checked' : '' }}
+                        />
+                        <div role="tabpanel" class="tab-content max-h-48 overflow-y-auto text-sm leading-relaxed whitespace-pre-line text-subtle">
+                            {!! $variantHtml !!}
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @elseif ($descriptionHtml)
             <div class="max-h-48 max-w-3xl overflow-y-auto text-sm leading-6 whitespace-pre-line text-subtle sm:text-base" data-testid="mission-hero-description">
-                {!! \App\Support\Formatting\FormatMissionText::description($description) !!}
+                {!! $descriptionHtml !!}
             </div>
         @endif
         <div class="card-actions justify-end pt-4">

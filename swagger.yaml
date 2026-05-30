@@ -15991,6 +15991,16 @@ components:
         description:
           type: string
           nullable: true
+        description_html:
+          description: 'HTML-rendered mission description. Escapes raw text, preserves EM4 styling, and renders exact mission token placeholders as tooltip spans.'
+          type: string
+          nullable: true
+        description_variants:
+          description: 'Rendered HTML variants when the raw description is a single mission token with multiple possible values.'
+          type: array
+          items:
+            type: string
+          nullable: true
         mission_type:
           type: string
           nullable: true
@@ -16176,13 +16186,13 @@ components:
           type: object
           nullable: true
         mission_tokens:
-          properties:
-            destinations:
-              type: array
-              items:
-                type: string
+          description: 'Resolved mission token values. Keys are token identifiers (e.g. "Location|Address", "Danger", "Contractor"). Values are arrays of possible resolved strings. Keys preserve original case and pipe syntax exactly.'
           type: object
           nullable: true
+          additionalProperties:
+            type: array
+            items:
+              type: string
         deadline:
           properties:
             auto_end:
