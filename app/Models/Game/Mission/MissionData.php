@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
 class MissionData extends Model
@@ -166,17 +167,13 @@ class MissionData extends Model
             return $query;
         }
 
-        return $query->where(function (Builder $q) use ($gameVersionId) {
-            $q->whereIn('game_mission_data.id', function ($sub) use ($gameVersionId) {
-                $sub->selectRaw('MIN(id)')
-                    ->from('game_mission_data')
-                    ->where('game_version_id', $gameVersionId)
-                    ->whereNotNull('title')
-                    ->where('title', '!=', '')
-                    ->groupBy(...self::GROUP_COLUMNS);
-            })->orWhere(function (Builder $q) {
-                $q->whereNull('game_mission_data.title')->orWhere('game_mission_data.title', '');
-            });
+        $representatives = $this->groupRepresentativeSubquery($query, $gameVersionId);
+
+        return $query->where(function (Builder $q) use ($representatives) {
+            $q->whereIn('game_mission_data.id', $representatives)
+                ->orWhere(function (Builder $q) {
+                    $q->whereNull('game_mission_data.title')->orWhere('game_mission_data.title', '');
+                });
         });
     }
 
@@ -188,15 +185,20 @@ class MissionData extends Model
 
         $aggregates = DB::table('game_mission_data')
             ->select([
+                ...$this->qualifiedGroupColumns(),
                 DB::raw('MIN(id) as representative_id'),
                 DB::raw('COUNT(*) - 1 as variant_count'),
             ])
-            ->groupBy(...self::GROUP_COLUMNS);
+            ->whereNotNull('title')
+            ->where('title', '!=', '')
+            ->groupBy(...$this->qualifiedGroupColumns());
 
         $match = $this->groupMatchExpression();
 
         return $query
-            ->leftJoinSub($aggregates, 'mission_group', 'mission_group.representative_id', '=', 'game_mission_data.id')
+            ->leftJoinSub($aggregates, 'mission_group', function (JoinClause $join): void {
+                $join->whereRaw($this->groupJoinExpression('mission_group'));
+            })
             ->addSelect([
                 DB::raw('game_mission_data.*'),
                 'mission_group.variant_count',
@@ -210,10 +212,41 @@ class MissionData extends Model
             ]);
     }
 
+    private function groupRepresentativeSubquery(Builder $query, int $gameVersionId): Builder
+    {
+        $subquery = clone $query;
+
+        return $subquery
+            ->withoutEagerLoads()
+            ->reorder()
+            ->select(DB::raw('MIN(game_mission_data.id)'))
+            ->where('game_mission_data.game_version_id', $gameVersionId)
+            ->whereNotNull('game_mission_data.title')
+            ->where('game_mission_data.title', '!=', '')
+            ->groupBy(...$this->qualifiedGroupColumns());
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function qualifiedGroupColumns(string $alias = 'game_mission_data'): array
+    {
+        return collect(self::GROUP_COLUMNS)
+            ->map(fn (string $col): string => "{$alias}.{$col}")
+            ->all();
+    }
+
     private function groupMatchExpression(string $alias = 'gmd2'): string
     {
         return collect(self::GROUP_COLUMNS)
             ->map(fn (string $col) => "{$alias}.{$col} IS NOT DISTINCT FROM game_mission_data.{$col}")
-            ->implode(PHP_EOL.'                AND ');
+            ->implode(PHP_EOL.' AND ');
+    }
+
+    private function groupJoinExpression(string $alias): string
+    {
+        return collect(self::GROUP_COLUMNS)
+            ->map(fn (string $col) => "{$alias}.{$col} IS NOT DISTINCT FROM game_mission_data.{$col}")
+            ->implode(' AND ');
     }
 }

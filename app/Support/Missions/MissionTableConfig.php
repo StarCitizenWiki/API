@@ -42,15 +42,17 @@ final class MissionTableConfig
                 'has_prerequisites' => 'has_prerequisites',
                 'shareable' => 'shareable',
                 'reputation_scope' => 'reputation_scope',
+                'grouped' => 'grouped',
             ],
             'externalFilters' => [
                 [
-                    'title' => 'System',
-                    'field' => 'star_systems',
-                ],
-                [
-                    'title' => 'Category',
-                    'field' => 'reward_scope',
+                    'title' => 'Grouping',
+                    'field' => 'grouped',
+                    'options' => [
+                        ['value' => '', 'label' => 'Auto'],
+                        ['value' => 'true', 'label' => 'Grouped'],
+                        ['value' => 'false', 'label' => 'All variants'],
+                    ],
                 ],
                 [
                     'title' => 'Blueprint',
@@ -62,13 +64,13 @@ final class MissionTableConfig
                     'options' => $legalityFilterOptions,
                 ],
                 [
+                    'title' => 'Reputation Scope',
+                    'field' => 'reputation_scope',
+                ],
+                [
                     'title' => 'Shareable',
                     'field' => 'shareable',
                     'options' => $booleanFilterOptions,
-                ],
-                [
-                    'title' => 'Reputation Scope',
-                    'field' => 'reputation_scope',
                 ],
             ],
             'columns' => [

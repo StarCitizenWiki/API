@@ -35,7 +35,7 @@ class MissionController extends Controller
     #[OA\Get(
         path: '/api/missions',
         operationId: 'listMissions',
-        description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.',
+        description: 'Returns paginated missions for the requested or default game version. Results are grouped by mission variant key by default. Grouping is automatically disabled when filters are active unless filter[grouped]=true is set explicitly. Includes mission, game version, faction, and blueprint relationships.',
         summary: 'List Game Missions',
         tags: ['Missions'],
         parameters: [
@@ -77,6 +77,7 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[reputation_scope]', description: 'Reputation reward scope from ReputationGained data. Example: `FactionReputation`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[blueprint_name]', description: 'Filter by crafted item name from mission blueprint rewards. Example: `Arclight Pistol`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[location]', description: 'Filter by starmap location UUID. Example: `2bf56608-62ea-4d1a-9e9b-38377004dc1b`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[grouped]', description: 'Control mission variant grouping. Defaults to true (grouped) when no filters are active, false (ungrouped) when filters are active. Set explicitly to true to keep grouping with filters, or false to always ungroup.', in: 'query', schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [
             new OA\Response(
@@ -108,8 +109,18 @@ class MissionController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $hasActiveFiltersOrSorts = $request->filled('filter') || $request->filled('sort');
-        $grouped = ! $hasActiveFiltersOrSorts;
+        $groupedParam = $request->input('filter.grouped');
+
+        if (is_array($groupedParam)) {
+            $groupedParam = end($groupedParam);
+        }
+
+        if ($groupedParam !== null && $groupedParam !== '' && is_scalar($groupedParam)) {
+            $grouped = filter_var($groupedParam, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== false;
+        } else {
+            $hasActiveFilters = FilterCache::hasEffectiveFilters($request->input('filter', []), ['grouped']);
+            $grouped = ! $hasActiveFilters;
+        }
 
         $missions = $this->buildIndexQuery($request, $grouped)
             ->with(['mission', 'gameVersion', 'faction', 'blueprints.blueprint'])
@@ -474,7 +485,7 @@ class MissionController extends Controller
             return $out;
         };
 
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
+        if (FilterCache::hasEffectiveFilters($request->input('filter', []), ['grouped'])) {
             $filters = $resolver();
         } else {
             $filters = FilterCache::rememberForever(
@@ -493,8 +504,8 @@ class MissionController extends Controller
     {
         return QueryBuilder::for(MissionData::class, $request)
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
-            ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id)->withGroupedAggregates())
             ->allowedFilters(...$this->allowedFilters())
+            ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id)->withGroupedAggregates())
             ->allowedSorts(...$this->allowedSorts());
     }
 
@@ -510,6 +521,7 @@ class MissionController extends Controller
     private function allowedFilters(): array
     {
         return [
+            AllowedFilter::callback('grouped', static function (): void {}),
             AllowedFilter::exact('mission_giver'),
             AllowedFilter::callback('faction', static function (Builder $query, mixed $value): void {
                 $values = is_array($value) ? $value : [$value];

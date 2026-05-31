@@ -193,7 +193,7 @@ it('shows variant count when grouped', function (): void {
         ->and($delivery['variant_count'])->toBe(2);
 });
 
-it('disables grouping when filter is active', function (): void {
+it('ungroups when a filter is active without explicit grouped param', function (): void {
     $mission1 = Mission::factory()->create();
     $mission2 = Mission::factory()->create();
     $mission3 = Mission::factory()->create();
@@ -230,7 +230,89 @@ it('disables grouping when filter is active', function (): void {
     expect($data)->toHaveCount(3);
 });
 
-it('disables grouping when sort is active', function (): void {
+it('disables grouping when explicitly requested', function (): void {
+    $mission1 = Mission::factory()->create();
+    $mission2 = Mission::factory()->create();
+    $mission3 = Mission::factory()->create();
+
+    MissionData::factory()->forVersion($this->version)->forMission($mission1)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+    MissionData::factory()->forVersion($this->version)->forMission($mission2)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+    MissionData::factory()->forVersion($this->version)->forMission($mission3)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+
+    $response = $this->getJson('/api/missions?filter[grouped]=false');
+
+    $response->assertSuccessful();
+    $data = $response->json('data');
+    expect($data)->toHaveCount(3);
+});
+
+it('keeps grouping when filter is active and grouped is explicitly true', function (): void {
+    if (DB::connection()->getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('Mission grouping requires PostgreSQL.');
+    }
+
+    $mission1 = Mission::factory()->create();
+    $mission2 = Mission::factory()->create();
+    $mission3 = Mission::factory()->create();
+
+    MissionData::factory()->forVersion($this->version)->forMission($mission1)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+    MissionData::factory()->forVersion($this->version)->forMission($mission2)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+    MissionData::factory()->forVersion($this->version)->forMission($mission3)->create([
+        'title' => 'Hauler Needed',
+        'generator_class' => 'Covalex_Hauling',
+        'mission_giver' => 'Covalex Shipping',
+        'faction_id' => null,
+        'illegal' => false,
+        'has_combat' => false,
+    ]);
+
+    $response = $this->getJson('/api/missions?filter[has_combat]=false&filter[grouped]=true');
+
+    $response->assertSuccessful();
+    $data = $response->json('data');
+    expect($data)->toHaveCount(1);
+});
+
+it('keeps missions grouped when sort is active', function (): void {
+    if (DB::connection()->getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('Mission grouping requires PostgreSQL.');
+    }
+
     $mission1 = Mission::factory()->create();
     $mission2 = Mission::factory()->create();
 
@@ -253,7 +335,7 @@ it('disables grouping when sort is active', function (): void {
 
     $response->assertSuccessful();
     $data = $response->json('data');
-    expect($data)->toHaveCount(2);
+    expect($data)->toHaveCount(1);
 });
 
 it('shows empty title missions individually', function (): void {
@@ -342,7 +424,7 @@ it('does not show variant count when ungrouped', function (): void {
         'illegal' => false,
     ]);
 
-    $response = $this->getJson('/api/missions?sort=title');
+    $response = $this->getJson('/api/missions?filter[grouped]=false');
 
     $response->assertSuccessful();
     $data = $response->json('data');
