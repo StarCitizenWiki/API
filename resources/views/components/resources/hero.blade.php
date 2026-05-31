@@ -1,7 +1,7 @@
 @props(['resource'])
 
 @php
-    $name = data_get($resource, 'name', 'Resource');
+    $name = data_get($resource, 'display_name', data_get($resource, 'name', 'Resource'));
     $description = data_get($resource, 'description');
     $tier = data_get($resource, 'tier');
 

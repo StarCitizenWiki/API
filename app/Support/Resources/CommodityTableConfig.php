@@ -25,6 +25,7 @@ final class CommodityTableConfig
         return [
             'title' => 'Commodities',
             'headerFilterOptionsMap' => [
+                'commodity_groups' => 'group',
                 'tier' => 'rarity',
                 'kind' => 'kind',
                 'systems' => 'system',
@@ -83,6 +84,14 @@ final class CommodityTableConfig
                         'labelField' => 'name',
                         'urlField' => 'web_url',
                     ],
+                ],
+                [
+                    'title' => 'Group',
+                    'field' => 'commodity_groups',
+                    'headerFilter' => 'list',
+                    'headerSort' => false,
+                    'formatter' => 'plaintext',
+                    'formatterParams' => [],
                 ],
                 [
                     'title' => 'Rarity',

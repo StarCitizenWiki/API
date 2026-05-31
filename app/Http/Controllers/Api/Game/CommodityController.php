@@ -80,6 +80,7 @@ class CommodityController extends Controller
             new OA\Parameter(name: 'filter[type]', description: 'Location type name (see GET /api/commodities/filters for valid values). Example: `Planet`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level, lowercase (see GET /api/commodities/filters for valid values). Example: `epic`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[kind]', description: 'Resource kind (see GET /api/commodities/filters for valid values). Example: `mineable`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[group]', description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name (see GET /api/commodities/filters for valid values). Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'filter[location]',
@@ -241,6 +242,7 @@ class CommodityController extends Controller
             new OA\Parameter(name: 'filter[type]', description: 'Location type name. Example: `Planet`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level, lowercase. Example: `epic`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[kind]', description: 'Resource kind. Example: `mineable`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[group]', description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name. Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name. Example: `ArcCorp`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key. Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -265,6 +267,7 @@ class CommodityController extends Controller
                                 new OA\Property(property: 'rarity', description: 'Commodity tier/rarity levels', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'kind', description: 'Resource kinds', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'refined_version', description: 'Refined version names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'group', description: 'Commodity groups', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'location', description: 'Starmap locations grouped by system', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
@@ -349,6 +352,21 @@ class CommodityController extends Controller
                 ->get();
 
             $out['location'] = FilterValues::fromRows($locationRows, groupColumn: 'grp');
+
+            if (DB::getDriverName() === 'pgsql') {
+                $groupRows = QueryBuilder::for(Commodity::class, $request)
+                    ->allowedFilters(...$this->allowedFilters())
+                    ->select([
+                        DB::raw("jsonb_array_elements_text(data->'CommodityGroups') as value"),
+                        DB::raw('count(*) as count'),
+                    ])
+                    ->whereRaw("data->'CommodityGroups' IS NOT NULL")
+                    ->groupByRaw('value')
+                    ->orderBy('value')
+                    ->get();
+
+                $out['group'] = FilterValues::fromRows($groupRows);
+            }
 
             return $out;
         };
@@ -457,6 +475,15 @@ class CommodityController extends Controller
                 });
             }),
             AllowedFilter::exact('rarity', 'tier'),
+            AllowedFilter::callback('group', static function (Builder $query, mixed $value): void {
+                $groups = is_array($value) ? $value : explode(',', (string) $value);
+                $query->where(function (Builder $q) use ($groups): void {
+                    foreach ($groups as $group) {
+                        $encoded = json_encode([$group]);
+                        $q->orWhereRaw("data->'CommodityGroups' @> ?::jsonb", [$encoded]);
+                    }
+                });
+            }),
             AllowedFilter::callback('kind', function (Builder $query, mixed $value): void {
                 $query->whereHas('resourceData', function (Builder $q) use ($value): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())

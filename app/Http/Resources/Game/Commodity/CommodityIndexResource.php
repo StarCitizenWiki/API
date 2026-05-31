@@ -56,6 +56,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', description: 'Unique commodity identifier.', type: 'string', format: 'uuid'),
         new OA\Property(property: 'key', description: 'Internal commodity key (e.g. "Quartz").', type: 'string'),
         new OA\Property(property: 'name', description: 'Display name of the commodity.', type: 'string'),
+        new OA\Property(property: 'display_name', description: 'Name with leaf commodity group in parentheses, e.g. "WiDoW (Vice)".', type: 'string'),
         new OA\Property(property: 'slug', description: 'URL-friendly slug for the commodity.', type: 'string'),
         new OA\Property(property: 'description', description: 'In-game lore description.', type: 'string', nullable: true),
         new OA\Property(property: 'tier', description: 'Refinement tier (e.g. "Raw", "Refined").', type: 'string', nullable: true),
@@ -90,6 +91,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'has_salvage', description: 'Whether salvage deposits exist for this commodity.', type: 'boolean'),
         new OA\Property(property: 'signature', description: 'Electromagnetic signature strength, used for scanner detection.', type: 'integer', nullable: true),
         new OA\Property(property: 'kind', description: 'Resource kind classification (e.g. "Mineable", "Harvestable").', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'commodity_groups',
+            description: 'Ordered commodity groups from root to leaf (e.g. ["ProcessedGoods", "Vice"]).',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true
+        ),
         new OA\Property(
             property: 'methods',
             description: 'Available extraction methods (e.g. ["Ship", "Ground Vehicle", "FPS"]).',
@@ -141,10 +149,18 @@ class CommodityIndexResource extends AbstractBaseResource
 
         $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
+        $commodityGroups = $this->resource->data?->get('CommodityGroups');
+        $commodityGroups = is_array($commodityGroups) ? $commodityGroups : null;
+        $leafGroup = $commodityGroups !== null && $commodityGroups !== [] ? end($commodityGroups) : null;
+        $displayName = $leafGroup !== false && $leafGroup !== null
+            ? $this->resource->name.' ('.$leafGroup.')'
+            : $this->resource->name;
+
         return [
             'uuid' => $this->resource->uuid,
             'key' => $this->resource->key,
             'name' => $this->resource->name,
+            'display_name' => $displayName,
             'slug' => $this->resource->slug,
             'description' => $this->resource->description,
             'tier' => $this->resource->tier,
@@ -182,6 +198,8 @@ class CommodityIndexResource extends AbstractBaseResource
             'methods' => $this->buildMethodsFromFlags($hasShip, $hasGround, $hasFps, $hasHarvestable, $hasSalvage),
             'systems' => $this->buildSystems($locations),
             'locations' => $locations,
+
+            'commodity_groups' => $commodityGroups,
 
             'link' => $this->urlWithVersion(
                 route('commodities.show', ['commodity' => $this->resource->uuid]),

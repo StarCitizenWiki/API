@@ -73,7 +73,7 @@ class ImportCommodities extends Command
         $usedSlugs = [];
         $slugMap = [];
         $commodities->each(function (array $commodity) use ($payloadUuids, $slugService, &$usedSlugs, &$slugMap): void {
-            $name = (string) ($commodity['Name'] ?? '');
+            $name = strip_tags((string) ($commodity['Name'] ?? ''));
             $baseSlug = Str::slug($name);
 
             if ($baseSlug === '') {
@@ -99,8 +99,8 @@ class ImportCommodities extends Command
             return [
                 'uuid' => (string) $commodity['UUID'],
                 'key' => (string) $commodity['Key'],
-                'name' => (string) ($commodity['Name'] ?? ''),
-                'slug' => $slugMap[$commodity['UUID']] ?? Str::slug((string) ($commodity['Name'] ?? '')),
+                'name' => strip_tags((string) ($commodity['Name'] ?? '')),
+                'slug' => $slugMap[$commodity['UUID']] ?? Str::slug(strip_tags((string) ($commodity['Name'] ?? ''))),
                 'description' => (string) ($commodity['Description'] ?? ''),
                 'refined_version_uuid' => $commodity['RefinedVersionUUID'] ?? null,
                 'refined_version_name' => $commodity['RefinedVersionName'] ?? null,

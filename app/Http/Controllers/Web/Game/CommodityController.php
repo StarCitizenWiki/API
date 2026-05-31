@@ -62,7 +62,7 @@ class CommodityController extends Controller
 
         return view('commodities.show', [
             'resource' => $commodityData,
-            'pageTitle' => Arr::get($commodityData, 'name', 'Commodity'),
+            'pageTitle' => Arr::get($commodityData, 'display_name', Arr::get($commodityData, 'name', 'Commodity')),
             'seo' => $this->commodityShowSeoData->build($commodityData, $request),
         ]);
     }
