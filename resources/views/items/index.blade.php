@@ -100,3 +100,44 @@
         <x-column-source-map :columns="$tableColumns"/>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    const h1 = document.querySelector('h1[data-testid="items-index-heading"]');
+
+    const setPageTitle = (title) => {
+        if (!h1) {
+            return;
+        }
+
+        if (typeof title === 'undefined' || title.length === 0) {
+            h1.textContent = 'Items';
+        } else {
+            h1.textContent = `${title.map(val => val.replaceAll('_', ' ')).join(', ')} Items`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const url = new URL(window.location.href);
+        const typeFilter = url.searchParams.get('filter[type]');
+
+        if (!typeFilter) {
+            return;
+        }
+
+        setPageTitle(typeFilter.split(','));
+    });
+
+    window.addEventListener('tabulator:ready', (event) => {
+        const { id, table } = event.detail;
+
+        if (id !== 'items-table' || !h1) {
+            return;
+        }
+
+        table.on('dataFiltering', function (filterParams) {
+            setPageTitle(filterParams.find(filter => filter.field === 'type')?.value);
+        });
+    });
+</script>
+@endpush

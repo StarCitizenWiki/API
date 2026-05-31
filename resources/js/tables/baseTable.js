@@ -659,18 +659,6 @@ function syncBrowserUrl(
 	} catch (e) {}
 }
 
-function formatYesNo(value, trueLabel = "Yes", falseLabel = "No") {
-	if (Array.isArray(value)) {
-		return value.length ? trueLabel : falseLabel;
-	}
-
-	if (value && typeof value === "object") {
-		return Object.keys(value).length ? trueLabel : falseLabel;
-	}
-
-	return value ? trueLabel : falseLabel;
-}
-
 const COLUMN_FORMATTERS = {
 	yesNo: (cell, params) => {
 		const trueLabel = params?.trueLabel ?? "Yes";
@@ -680,7 +668,17 @@ const COLUMN_FORMATTERS = {
 			return "";
 		}
 
-		return formatYesNo(cell.getValue(), trueLabel, falseLabel);
+        const value = cell.getValue();
+
+        if (Array.isArray(value)) {
+            return value.length ? trueLabel : falseLabel;
+        }
+
+        if (value && typeof value === "object") {
+            return Object.keys(value).length ? trueLabel : falseLabel;
+        }
+
+        return value ? trueLabel : falseLabel;
 	},
 	pct: (cell, params) => {
 		if (typeof cell.getValue() !== "number" || isNaN(cell.getValue())) {

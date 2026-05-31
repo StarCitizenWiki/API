@@ -50,14 +50,9 @@ final class ItemTableConfig
             $addColumnsInsertAt = Arr::get($overrides, 'add_columns_insert_at');
 
             if ($sharedGroups !== [] && is_array($additionalColumns) && $additionalColumns !== []) {
-                if ($this->isPositiveInsertAt($addColumnsInsertAt) && $this->isPositiveInsertAt($sharedInsertAt)) {
-                    if ($addColumnsInsertAt < $sharedInsertAt) {
-                        $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
-                        $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
-                    } else {
-                        $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
-                        $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
-                    }
+                if ($this->isPositiveInsertAt($addColumnsInsertAt) && $this->isPositiveInsertAt($sharedInsertAt) && $addColumnsInsertAt < $sharedInsertAt) {
+                    $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
+                    $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
                 } else {
                     $columns = $this->insertColumnsAt($columns, $sharedGroups, $sharedInsertAt, true);
                     $columns = $this->insertColumnsAt($columns, $additionalColumns, $addColumnsInsertAt, true);
@@ -73,7 +68,8 @@ final class ItemTableConfig
             }
         }
 
-        if ($type !== null) {
+        // Only unset type column if it has a single value
+        if ($type !== null && !str_contains($type, ',')) {
             $columns = $this->removeColumns($columns, ['type']);
         }
 
@@ -97,8 +93,8 @@ final class ItemTableConfig
             $headerFilterOptionsMap = array_merge($headerFilterOptionsMap, $overrideMap);
         }
 
-        if ($type !== null) {
-            $headerFilterOptionsMap = Arr::except($headerFilterOptionsMap, ['type']);
+        if ($type !== null && !str_contains($type, ',')) {
+           $headerFilterOptionsMap = Arr::except($headerFilterOptionsMap, ['type']);
         }
 
         return $headerFilterOptionsMap;
