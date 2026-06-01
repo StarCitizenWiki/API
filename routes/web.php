@@ -18,6 +18,7 @@ use App\Http\Controllers\Web\StarCitizen\ShipMatrixVehicleController;
 use App\Http\Controllers\Web\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Web\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Web\StarCitizen\StatController;
+use App\Http\Controllers\Web\Tools\RoutePlannerController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -72,7 +73,7 @@ Route::get('/missions/{mission}', [MissionController::class, 'show'])
 
 Route::get('/changelog/{version}', [ChangelogController::class, 'show'])->name('web.changelog.show');
 
-Route::view('/tools/route-planner', 'tools.route-planner')->name('web.tools.route-planner');
+Route::get('/tools/route-planner', RoutePlannerController::class)->name('web.tools.route-planner');
 
 Route::get('/locations', [StarmapLocationController::class, 'index'])
     ->name('web.locations.index');

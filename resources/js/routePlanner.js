@@ -1,6 +1,6 @@
 const TYPE_ORDER = { Planet: 0, Moon: 1, LandingZone: 2, Manmade: 3, Manmade_VisibleOnInteraction: 3, Outpost: 4, PointOfInterest: 5, Anomaly: 6 };
 
-export function routePlanner() {
+export function routePlanner(systemOrder = ['stanton', 'pyro', 'nyx']) {
     return {
         entities: [],
         connections: [],
@@ -53,6 +53,8 @@ export function routePlanner() {
         nextMissionId: 0,
         cargoDebounceTimers: {},
         cargoDropdowns: {},
+        cargoStartPoint: { uuid: '', query: '', results: [], showDropdown: false },
+        cargoReturnPoint: { uuid: '', query: '', results: [], showDropdown: false },
 
         // Route optimization
         optimizing: false,
@@ -72,12 +74,11 @@ export function routePlanner() {
         },
 
         get systems() {
-            const order = ['stanton', 'pyro', 'nyx'];
             const all = [...new Set(this.entities.map(e => e.system))];
 
             return all.sort((a, b) => {
-                const ia = order.indexOf(a.toLowerCase());
-                const ib = order.indexOf(b.toLowerCase());
+                const ia = systemOrder.indexOf(a.toLowerCase());
+                const ib = systemOrder.indexOf(b.toLowerCase());
 
                 if (ia === -1 && ib === -1) {
                     return a.localeCompare(b);
@@ -503,6 +504,8 @@ export function routePlanner() {
             }
 
             this.cargoDropdowns = {};
+            this.cargoStartPoint = { uuid: '', query: '', results: [], showDropdown: false };
+            this.cargoReturnPoint = { uuid: '', query: '', results: [], showDropdown: false };
         },
 
         entitiesGroupedByType(system) {
@@ -639,9 +642,6 @@ export function routePlanner() {
         },
 
         // Cargo Run Mode
-
-        cargoPasteText: '',
-
         addCargoMission() {
             this.cargoMissions.push({
                 id: this.nextMissionId++,
@@ -737,6 +737,120 @@ export function routePlanner() {
             }, 200);
         },
 
+        // Start point input handlers
+
+        startLocationInput() {
+            clearTimeout(this.cargoDebounceTimers['startpoint']);
+
+            if (!this.stellarSystem || this.cargoStartPoint.query.length < 1) {
+                this.cargoStartPoint.results = [];
+                this.cargoDropdowns['startpoint'] = false;
+                return;
+            }
+
+            this.cargoDebounceTimers['startpoint'] = setTimeout(() => {
+                const sliced = this.searchEntities(this.stellarSystem, this.cargoStartPoint.query);
+                this.cargoStartPoint.results = sliced;
+                this.cargoDropdowns['startpoint'] = sliced.length > 0;
+            }, 150);
+        },
+
+        startLocationSelect(entity) {
+            this.cargoStartPoint.uuid = entity.uuid;
+            this.cargoStartPoint.query = entity.name;
+            this.cargoStartPoint.results = [];
+            this.cargoDropdowns['startpoint'] = false;
+        },
+
+        startLocationClear() {
+            this.cargoStartPoint.uuid = '';
+            this.cargoStartPoint.query = '';
+            this.cargoStartPoint.results = [];
+            this.cargoDropdowns['startpoint'] = false;
+        },
+
+        startLocationFocus() {
+            if (this.cargoStartPoint.uuid) {
+                return;
+            }
+
+            if (this.cargoStartPoint.results.length) {
+                this.cargoDropdowns['startpoint'] = true;
+            } else if (this.cargoStartPoint.query.length >= 1) {
+                const sliced = this.searchEntities(this.stellarSystem, this.cargoStartPoint.query);
+                this.cargoStartPoint.results = sliced;
+                this.cargoDropdowns['startpoint'] = sliced.length > 0;
+            }
+        },
+
+        startLocationBlur() {
+            setTimeout(() => {
+                this.cargoDropdowns['startpoint'] = false;
+
+                if (!this.cargoStartPoint.uuid) {
+                    this.cargoStartPoint.query = '';
+                    this.cargoStartPoint.results = [];
+                }
+            }, 200);
+        },
+
+        // Return point input handlers
+
+        returnLocationInput() {
+            clearTimeout(this.cargoDebounceTimers['returnpoint']);
+
+            if (!this.stellarSystem || this.cargoReturnPoint.query.length < 1) {
+                this.cargoReturnPoint.results = [];
+                this.cargoDropdowns['returnpoint'] = false;
+                return;
+            }
+
+            this.cargoDebounceTimers['returnpoint'] = setTimeout(() => {
+                const sliced = this.searchEntities(this.stellarSystem, this.cargoReturnPoint.query);
+                this.cargoReturnPoint.results = sliced;
+                this.cargoDropdowns['returnpoint'] = sliced.length > 0;
+            }, 150);
+        },
+
+        returnLocationSelect(entity) {
+            this.cargoReturnPoint.uuid = entity.uuid;
+            this.cargoReturnPoint.query = entity.name;
+            this.cargoReturnPoint.results = [];
+            this.cargoDropdowns['returnpoint'] = false;
+        },
+
+        returnLocationClear() {
+            this.cargoReturnPoint.uuid = '';
+            this.cargoReturnPoint.query = '';
+            this.cargoReturnPoint.results = [];
+            this.cargoDropdowns['returnpoint'] = false;
+        },
+
+        returnLocationFocus() {
+            if (this.cargoReturnPoint.uuid) {
+                return;
+            }
+
+            if (this.cargoReturnPoint.results.length) {
+                this.cargoDropdowns['returnpoint'] = true;
+            } else if (this.cargoReturnPoint.query.length >= 1) {
+                const sliced = this.searchEntities(this.stellarSystem, this.cargoReturnPoint.query);
+                this.cargoReturnPoint.results = sliced;
+                this.cargoDropdowns['returnpoint'] = sliced.length > 0;
+            }
+        },
+
+        returnLocationBlur() {
+            setTimeout(() => {
+                this.cargoDropdowns['returnpoint'] = false;
+
+                if (!this.cargoReturnPoint.uuid) {
+                    this.cargoReturnPoint.query = '';
+                    this.cargoReturnPoint.results = [];
+                }
+            }, 200);
+        },
+
         get cargoCompleteMissions() {
             return this.cargoMissions.filter(m => m.pickupUuid && m.deliveryUuid);
         },
@@ -761,37 +875,42 @@ export function routePlanner() {
             const pickupsDone = new Set();
             const orderedTasks = [];
 
-            // Start at the location with the most pickup tasks
-            const pickupCounts = {};
+            let currentUuid;
+            let startPointProvided = false;
 
-            for (const t of tasks) {
+            if (this.cargoStartPoint.uuid) {
+                currentUuid = this.cargoStartPoint.uuid;
+                startPointProvided = true;
+            } else {
+                const pickupCounts = {};
 
-                if (t.type === 'pickup') {
-                    pickupCounts[t.uuid] = (pickupCounts[t.uuid] ?? 0) + 1;
-                }
-            }
-
-            let startIdx = 0;
-            let bestPickupCount = 0;
-
-            for (let i = 0; i < tasks.length; i++) {
-
-                if (tasks[i].type === 'pickup') {
-                    const count = pickupCounts[tasks[i].uuid] ?? 0;
-
-                    if (count > bestPickupCount) {
-                        bestPickupCount = count;
-                        startIdx = i;
+                for (const t of tasks) {
+                    if (t.type === 'pickup') {
+                        pickupCounts[t.uuid] = (pickupCounts[t.uuid] ?? 0) + 1;
                     }
                 }
-            }
 
-            let currentUuid = tasks[startIdx].uuid;
-            orderedTasks.push(tasks[startIdx]);
-            remaining.delete(startIdx);
+                let startIdx = 0;
+                let bestPickupCount = 0;
 
-            if (tasks[startIdx].type === 'pickup') {
-                pickupsDone.add(tasks[startIdx].missionIdx);
+                for (let i = 0; i < tasks.length; i++) {
+                    if (tasks[i].type === 'pickup') {
+                        const count = pickupCounts[tasks[i].uuid] ?? 0;
+
+                        if (count > bestPickupCount) {
+                            bestPickupCount = count;
+                            startIdx = i;
+                        }
+                    }
+                }
+
+                currentUuid = tasks[startIdx].uuid;
+                orderedTasks.push(tasks[startIdx]);
+                remaining.delete(startIdx);
+
+                if (tasks[startIdx].type === 'pickup') {
+                    pickupsDone.add(tasks[startIdx].missionIdx);
+                }
             }
 
             while (remaining.size > 0) {
@@ -821,22 +940,7 @@ export function routePlanner() {
                 }
 
                 if (bestIdx === null) {
-                    for (const idx of remaining) {
-                        const task = tasks[idx];
-                        const targetEntity = this.entityMap.get(task.uuid);
-                        const dist = currentEntity && targetEntity
-                            ? this.calculateDistance(currentEntity, targetEntity)
-                            : Infinity;
-
-                        if (dist < bestDist) {
-                            bestDist = dist;
-                            bestIdx = idx;
-                        }
-                    }
-                }
-
-                if (bestIdx === null) {
-                    break;
+                    throw new Error('cargoRoute: no valid candidate found, but remaining tasks exist');
                 }
 
                 const chosen = tasks[bestIdx];
@@ -851,6 +955,18 @@ export function routePlanner() {
 
             // Collapse consecutive tasks at the same location into stops
             const stops = [];
+
+            // Prepend start point as a virtual stop if provided
+            if (startPointProvided) {
+                const startEntity = this.entityMap.get(this.cargoStartPoint.uuid);
+                stops.push({
+                    uuid: this.cargoStartPoint.uuid,
+                    name: startEntity?.name ?? '?',
+                    pickups: [],
+                    deliveries: [],
+                    isStartPoint: true,
+                });
+            }
 
             for (const task of orderedTasks) {
                 const last = stops[stops.length - 1];
@@ -872,6 +988,21 @@ export function routePlanner() {
                         name: entity?.name ?? '?',
                         pickups: task.type === 'pickup' ? [entry] : [],
                         deliveries: task.type === 'delivery' ? [entry] : [],
+                    });
+                }
+            }
+
+            // Append return point as a virtual stop if provided
+            if (this.cargoReturnPoint.uuid) {
+                const lastStop = stops[stops.length - 1];
+                if (!lastStop || lastStop.uuid !== this.cargoReturnPoint.uuid) {
+                    const returnEntity = this.entityMap.get(this.cargoReturnPoint.uuid);
+                    stops.push({
+                        uuid: this.cargoReturnPoint.uuid,
+                        name: returnEntity?.name ?? '?',
+                        pickups: [],
+                        deliveries: [],
+                        isReturnPoint: true,
                     });
                 }
             }

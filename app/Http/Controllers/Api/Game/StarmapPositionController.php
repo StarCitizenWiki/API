@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Support\Starmap\SystemOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use OpenApi\Attributes as OA;
@@ -83,8 +83,8 @@ class StarmapPositionController
 
         $entities = collect($data['entities'] ?? []);
 
-        $type = $request->input('filter.type') ?? $request->input('filter[type]');
-        $system = $request->input('filter.system') ?? $request->input('filter[system]');
+        $type = $request->input('filter.type');
+        $system = $request->input('filter.system');
 
         if ($type !== null && $type !== '') {
             $entities = $entities->where('type', $type);
@@ -94,7 +94,7 @@ class StarmapPositionController
             $entities = $entities->where('system', $system);
         }
 
-        $systemOrder = ['stanton', 'pyro', 'nyx'];
+        $systemOrder = SystemOrder::SYSTEMS;
 
         $sorted = $entities->sortBy(function (array $entity) use ($systemOrder): array {
             $sysIndex = array_search($entity['system'], $systemOrder, true);
@@ -115,14 +115,12 @@ class StarmapPositionController
      */
     private function loadData(): array
     {
-        return Cache::rememberForever('starmap_positions', function (): array {
-            $contents = Storage::disk('scunpacked')->get('starmap_positions.json');
+        $contents = Storage::disk('scunpacked')->get('starmap_positions.json');
 
-            if ($contents === null) {
-                abort(503, 'Starmap position data is currently unavailable.');
-            }
+        if ($contents === null) {
+            abort(503, 'Starmap position data is currently unavailable.');
+        }
 
-            return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        });
+        return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
     }
 }
