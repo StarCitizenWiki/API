@@ -69,7 +69,7 @@ final class ItemTableConfig
         }
 
         // Only unset type column if it has a single value
-        if ($type !== null && !str_contains($type, ',')) {
+        if ($type !== null && ! str_contains($type, ',')) {
             $columns = $this->removeColumns($columns, ['type']);
         }
 
@@ -93,8 +93,8 @@ final class ItemTableConfig
             $headerFilterOptionsMap = array_merge($headerFilterOptionsMap, $overrideMap);
         }
 
-        if ($type !== null && !str_contains($type, ',')) {
-           $headerFilterOptionsMap = Arr::except($headerFilterOptionsMap, ['type']);
+        if ($type !== null && ! str_contains($type, ',')) {
+            $headerFilterOptionsMap = Arr::except($headerFilterOptionsMap, ['type']);
         }
 
         return $headerFilterOptionsMap;

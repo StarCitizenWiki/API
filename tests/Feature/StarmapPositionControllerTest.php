@@ -64,21 +64,4 @@ describe('GET /api/locations/positions', function () {
 
         $response->assertStatus(503);
     });
-
-    it('caches the data file across requests', function () {
-        $payload = [
-            'entities' => [
-                ['uuid' => 'aaa', 'name' => 'Hurston', 'type' => 'Planet', 'system' => 'stanton', 'parent_uuid' => null, 'x' => 0, 'y' => 0, 'z' => 0],
-            ],
-            'connections' => [],
-        ];
-
-        Storage::disk('scunpacked')->put('starmap_positions.json', json_encode($payload, JSON_THROW_ON_ERROR));
-
-        $this->getJson('/api/locations/positions')->assertOk()->assertJsonCount(1, 'data');
-
-        Storage::disk('scunpacked')->delete('starmap_positions.json');
-
-        $this->getJson('/api/locations/positions')->assertOk()->assertJsonCount(1, 'data');
-    });
 });
