@@ -18,22 +18,19 @@ class DownloadMissingCommLinks implements ShouldQueue
 
     private const string ID_PATTERN = '#/comm-link/(?:[a-z0-9-]+)?/(\d+)-#';
 
-    /**
-     * Sentinel string present in hub API responses past the last page.
-     */
-    private const string END_SENTINEL = 'no-results';
+    public int $timeout = 120;
 
-    public int $timeout = 600;
-
-    /**
-     * Paginate through the hub API to discover all Comm-Link IDs,
-     * then dispatch download jobs for any missing IDs.
-     */
     public function handle(): void
     {
-        Log::info('Starting Comm-Link missing download scan via hub API.');
+        Log::info('Starting Comm-Link missing download scan via latest hub API page.');
 
-        $postIds = $this->collectAllIds();
+        $data = $this->fetchLatestPage();
+
+        if ($data === null) {
+            return;
+        }
+
+        $postIds = $this->extractIdsFromData($data);
 
         if ($postIds === []) {
             Log::info('Comm-Link hub API returned no IDs.');
@@ -41,69 +38,32 @@ class DownloadMissingCommLinks implements ShouldQueue
             return;
         }
 
-        Log::info('Comm-Link hub API scan complete.', [
-            'total_ids' => count($postIds),
-            'min_id' => min($postIds),
-            'max_id' => max($postIds),
+        $candidateIds = $this->candidateDownloadIds($postIds);
+
+        Log::info('Comm-Link latest hub API page scan complete.', [
+            'api_ids' => count($postIds),
+            'candidate_ids' => count($candidateIds),
+            'max_api_id' => max($postIds),
         ]);
 
-        $latestPostId = max($postIds);
-        $latestDbId = CommLink::query()->max('cig_id') ?? self::FIRST_COMM_LINK_ID - 1;
-
-        foreach ($postIds as $postId) {
+        foreach ($candidateIds as $postId) {
             dispatch(new DownloadCommLink($postId, true));
         }
-
-        $startId = max(self::FIRST_COMM_LINK_ID, $latestDbId + 1);
-        for ($id = $startId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink($id, true));
-        }
     }
 
     /**
-     * Paginate through all hub API pages and collect unique Comm-Link IDs.
-     *
-     * @return array<int, int>
-     */
-    private function collectAllIds(): array
-    {
-        $allIds = [];
-        $page = 1;
-
-        while (true) {
-            $data = $this->fetchPage($page);
-
-            if ($data === null) {
-                break;
-            }
-
-            if (str_contains($data, self::END_SENTINEL)) {
-                break;
-            }
-
-            $pageIds = $this->extractIdsFromData($data);
-            $allIds = [...$allIds, ...$pageIds];
-
-            $page++;
-            usleep(100_000);
-        }
-
-        return array_values(array_unique($allIds));
-    }
-
-    /**
-     * Fetch a single page from the hub API.
+     * Fetch the latest hub API page.
      * Returns the HTML data string on success, or null on error.
      */
-    private function fetchPage(int $page): ?string
+    private function fetchLatestPage(): ?string
     {
         $response = Http::timeout(60)->asForm()->post($this->hubApiUrl(), [
-            'page' => $page,
+            'page' => 1,
         ]);
 
         if ($response->serverError()) {
             Log::warning('Comm-Link hub API request failed with server error.', [
-                'page' => $page,
+                'page' => 1,
                 'status' => $response->status(),
             ]);
 
@@ -114,7 +74,7 @@ class DownloadMissingCommLinks implements ShouldQueue
 
         if ($response->clientError()) {
             Log::info('Comm-Link hub API request failed with client error.', [
-                'page' => $page,
+                'page' => 1,
                 'status' => $response->status(),
             ]);
 
@@ -123,7 +83,7 @@ class DownloadMissingCommLinks implements ShouldQueue
 
         if (! $response->json('success')) {
             Log::warning('Comm-Link hub API returned unsuccessful response.', [
-                'page' => $page,
+                'page' => 1,
             ]);
 
             return null;
@@ -149,6 +109,42 @@ class DownloadMissingCommLinks implements ShouldQueue
         return collect($matches[1] ?? [])
             ->map(static fn (string $id) => (int) $id)
             ->filter(static fn (int $id) => $id >= self::FIRST_COMM_LINK_ID)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Build the bounded set of IDs to try in the frequent missing-download job.
+     *
+     * This includes IDs from the latest API page that are absent from the DB and
+     * the numeric gap between the current max DB ID and latest listed API ID.
+     *
+     * @param  array<int, int>  $apiIds
+     * @return array<int, int>
+     */
+    private function candidateDownloadIds(array $apiIds): array
+    {
+        $apiIds = collect($apiIds)->unique()->values();
+        $latestApiId = $apiIds->max();
+
+        if ($latestApiId === null) {
+            return [];
+        }
+
+        $existingApiIds = CommLink::query()
+            ->whereIn('cig_id', $apiIds)
+            ->pluck('cig_id');
+
+        $missingApiIds = $apiIds->diff($existingApiIds);
+        $latestDbId = CommLink::query()->max('cig_id') ?? self::FIRST_COMM_LINK_ID - 1;
+        $gapStartId = max(self::FIRST_COMM_LINK_ID, $latestDbId + 1);
+        $gapIds = $gapStartId <= $latestApiId ? range($gapStartId, $latestApiId) : [];
+
+        return $missingApiIds
+            ->merge($gapIds)
+            ->unique()
+            ->sort()
             ->values()
             ->all();
     }
