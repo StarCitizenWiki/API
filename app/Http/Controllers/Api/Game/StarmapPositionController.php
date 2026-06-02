@@ -63,7 +63,7 @@ use OpenApi\Attributes as OA;
                                 new OA\Property(property: 'exit_uuid', type: 'string', format: 'uuid'),
                                 new OA\Property(property: 'entry_system', type: 'string'),
                                 new OA\Property(property: 'exit_system', type: 'string'),
-                                new OA\Property(property: 'fuel_cost', type: 'integer'),
+                                new OA\Property(property: 'fuel_cost', description: 'Fuel cost in SCU', type: 'number'),
                                 new OA\Property(property: 'size_class', type: 'string', enum: ['small', 'large', 'unknown']),
                             ],
                             type: 'object'
