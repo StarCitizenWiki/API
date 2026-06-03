@@ -43,7 +43,6 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
             ?? $this->fallbackShowUrl($slug ?? $uuid, $version);
         $breadcrumbs = $this->buildBreadcrumbs(
             locationName: $locationName,
-            locationIdentifier: $slug ?? $uuid,
             canonicalUrl: $canonicalUrl,
             starName: $starName,
             starIdentifier: $starSlug ?? $starUuid,
@@ -94,7 +93,6 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
      */
     private function buildBreadcrumbs(
         string $locationName,
-        string $locationIdentifier,
         string $canonicalUrl,
         ?string $starName,
         ?string $starIdentifier,
