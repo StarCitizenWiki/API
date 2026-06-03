@@ -19,6 +19,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -128,6 +129,10 @@ class MissionController extends Controller
             ->defaultSort('title')
             ->jsonPaginate()
             ->appends($request->query());
+
+        if ($grouped) {
+            $this->attachGroupedAggregates($missions->getCollection());
+        }
 
         $factionUuids = $missions->getCollection()
             ->pluck('data')
@@ -505,8 +510,22 @@ class MissionController extends Controller
         return QueryBuilder::for(MissionData::class, $request)
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->allowedFilters(...$this->allowedFilters())
-            ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id)->withGroupedAggregates())
+            ->when($grouped, fn (Builder $q) => $q->groupByTitle($this->gameVersion()->id))
             ->allowedSorts(...$this->allowedSorts());
+    }
+
+    /**
+     * @param  Collection<int, MissionData>  $missions
+     */
+    private function attachGroupedAggregates(Collection $missions): void
+    {
+        $aggregates = MissionData::loadGroupedAggregates($missions);
+
+        $missions->each(static function (MissionData $mission) use ($aggregates): void {
+            $mission->setAttribute('grouped_star_systems', $aggregates['grouped_star_systems'][$mission->id] ?? null);
+            $mission->setAttribute('variant_uuids', $aggregates['variant_uuids'][$mission->id] ?? null);
+            $mission->setAttribute('variant_count', $aggregates['variant_counts'][$mission->id] ?? null);
+        });
     }
 
     private function buildFiltersBaseQuery(Request $request, string $versionCode): QueryBuilder

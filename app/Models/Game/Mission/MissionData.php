@@ -17,7 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\JoinClause;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class MissionData extends Model
@@ -178,39 +179,72 @@ class MissionData extends Model
         });
     }
 
-    public function scopeWithGroupedAggregates(Builder $query): Builder
+    /**
+     * @param  Collection<int, self>  $missions
+     * @return array{grouped_star_systems: array<int, string>, variant_uuids: array<int, string>, variant_counts: array<int, int>}
+     */
+    public static function loadGroupedAggregates(Collection $missions): array
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return $query;
+        if (DB::connection()->getDriverName() !== 'pgsql' || $missions->isEmpty()) {
+            return ['grouped_star_systems' => [], 'variant_uuids' => [], 'variant_counts' => []];
         }
 
-        $aggregates = DB::table('game_mission_data')
-            ->select([
-                ...$this->qualifiedGroupColumns(),
-                DB::raw('MIN(id) as representative_id'),
-                DB::raw('COUNT(*) - 1 as variant_count'),
-            ])
-            ->whereNotNull('title')
-            ->where('title', '!=', '')
-            ->groupBy(...$this->qualifiedGroupColumns());
+        $groupedMissions = $missions
+            ->filter(static fn (self $mission): bool => $mission->title !== null && $mission->title !== '')
+            ->values();
 
-        $match = $this->groupMatchExpression();
+        if ($groupedMissions->isEmpty()) {
+            return ['grouped_star_systems' => [], 'variant_uuids' => [], 'variant_counts' => []];
+        }
 
-        return $query
-            ->leftJoinSub($aggregates, 'mission_group', function (JoinClause $join): void {
-                $join->whereRaw($this->groupJoinExpression('mission_group'));
+        $groupsByKey = $groupedMissions->groupBy(
+            static fn (self $mission): string => self::groupKey($mission->groupValues()),
+        );
+
+        $rows = DB::table('game_mission_data as gmd')
+            ->join('game_missions as m', 'm.id', '=', 'gmd.mission_id')
+            ->leftJoin(DB::raw('LATERAL jsonb_array_elements_text(gmd.star_systems) AS sys(value)'), DB::raw('true'), '=', DB::raw('true'))
+            ->whereNotNull('gmd.title')
+            ->where('gmd.title', '!=', '')
+            ->where(function (QueryBuilder $query) use ($groupedMissions): void {
+                $groupedMissions->each(function (self $mission) use ($query): void {
+                    $query->orWhere(function (QueryBuilder $groupQuery) use ($mission): void {
+                        foreach ($mission->groupValues('gmd') as $column => $value) {
+                            $value === null
+                                ? $groupQuery->whereNull($column)
+                                : $groupQuery->where($column, $value);
+                        }
+                    });
+                });
             })
-            ->addSelect([
-                DB::raw('game_mission_data.*'),
-                'mission_group.variant_count',
-                DB::raw("(SELECT to_jsonb(array_agg(DISTINCT sys)) FROM (SELECT jsonb_array_elements_text(gmd2.star_systems) AS sys FROM game_mission_data gmd2 WHERE {$match}) sub WHERE sys IS NOT NULL) as grouped_star_systems"),
-                DB::raw("(SELECT to_jsonb(array_agg(DISTINCT m.uuid))
-                    FROM game_mission_data gmd2
-                    JOIN game_missions m ON m.id = gmd2.mission_id
-                    WHERE {$match}
-                      AND gmd2.id != game_mission_data.id
-                ) as variant_uuids"),
-            ]);
+            ->select([
+                ...collect(self::GROUP_COLUMNS)->map(fn (string $column): string => "gmd.{$column}")->all(),
+                DB::raw("COALESCE(to_jsonb(array_agg(DISTINCT sys.value) FILTER (WHERE sys.value IS NOT NULL)), '[]'::jsonb) as grouped_star_systems"),
+                DB::raw("COALESCE(jsonb_agg(DISTINCT jsonb_build_object('id', gmd.id, 'uuid', m.uuid)) FILTER (WHERE m.uuid IS NOT NULL), '[]'::jsonb) as variant_missions"),
+                DB::raw('COUNT(DISTINCT gmd.id) - 1 as variant_count'),
+            ])
+            ->groupBy(...collect(self::GROUP_COLUMNS)->map(fn (string $column): string => "gmd.{$column}")->all())
+            ->get();
+
+        $starSystems = [];
+        $variantUuids = [];
+        $variantCounts = [];
+
+        foreach ($rows as $row) {
+            $missionsForGroup = $groupsByKey->get(self::groupKeyFromRow($row), collect());
+
+            $missionsForGroup->each(static function (self $mission) use ($row, &$starSystems, &$variantUuids, &$variantCounts): void {
+                $starSystems[$mission->id] = (string) $row->grouped_star_systems;
+                $variantUuids[$mission->id] = self::variantUuidsJson((string) $row->variant_missions, $mission->id);
+                $variantCounts[$mission->id] = max(0, (int) $row->variant_count);
+            });
+        }
+
+        return [
+            'grouped_star_systems' => $starSystems,
+            'variant_uuids' => $variantUuids,
+            'variant_counts' => $variantCounts,
+        ];
     }
 
     private function groupRepresentativeSubquery(Builder $query, int $gameVersionId): Builder
@@ -237,17 +271,55 @@ class MissionData extends Model
             ->all();
     }
 
-    private function groupMatchExpression(string $alias = 'gmd2'): string
+    /**
+     * @return array<string, mixed>
+     */
+    private function groupValues(?string $alias = null): array
     {
-        return collect(self::GROUP_COLUMNS)
-            ->map(fn (string $col) => "{$alias}.{$col} IS NOT DISTINCT FROM game_mission_data.{$col}")
-            ->implode(PHP_EOL.' AND ');
+        $values = [];
+
+        foreach (self::GROUP_COLUMNS as $column) {
+            $values[$alias === null ? $column : "{$alias}.{$column}"] = $this->{$column};
+        }
+
+        return $values;
     }
 
-    private function groupJoinExpression(string $alias): string
+    /**
+     * @param  array<string, mixed>  $values
+     */
+    private static function groupKey(array $values): string
     {
-        return collect(self::GROUP_COLUMNS)
-            ->map(fn (string $col) => "{$alias}.{$col} IS NOT DISTINCT FROM game_mission_data.{$col}")
-            ->implode(' AND ');
+        return json_encode(array_values($values)) ?: '[]';
+    }
+
+    private static function groupKeyFromRow(object $row): string
+    {
+        $values = [];
+
+        foreach (self::GROUP_COLUMNS as $column) {
+            $values[$column] = $row->{$column};
+        }
+
+        return self::groupKey($values);
+    }
+
+    private static function variantUuidsJson(string $variantMissions, int $representativeId): string
+    {
+        $variants = json_decode($variantMissions, true);
+
+        if (! is_array($variants)) {
+            return '[]';
+        }
+
+        $uuids = collect($variants)
+            ->filter(static fn (mixed $variant): bool => is_array($variant) && (int) ($variant['id'] ?? 0) !== $representativeId)
+            ->pluck('uuid')
+            ->filter(static fn (mixed $uuid): bool => is_string($uuid) && $uuid !== '')
+            ->unique()
+            ->values()
+            ->all();
+
+        return json_encode($uuids) ?: '[]';
     }
 }
