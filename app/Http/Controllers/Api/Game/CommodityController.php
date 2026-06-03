@@ -459,18 +459,22 @@ class CommodityController extends Controller
                 });
             }),
             AllowedFilter::callback('system', function (Builder $query, mixed $value): void {
-                $query->whereHas('resourceData', function (Builder $q) use ($value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($value): void {
-                            $q->where('system', $value);
+                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
+                            $q->whereIn('system', $values);
                         });
                 });
             }),
             AllowedFilter::callback('type', function (Builder $query, mixed $value): void {
-                $query->whereHas('resourceData', function (Builder $q) use ($value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($value): void {
-                            $q->where('type_name', $value);
+                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
+                            $q->whereIn('type_name', $values);
                         });
                 });
             }),
@@ -485,17 +489,25 @@ class CommodityController extends Controller
                 });
             }),
             AllowedFilter::callback('kind', function (Builder $query, mixed $value): void {
-                $query->whereHas('resourceData', function (Builder $q) use ($value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->where('kind', $value);
+                        ->whereIn('kind', $values);
                 });
             }),
             AllowedFilter::exact('refined_version', 'refined_version_name'),
             AllowedFilter::callback('location', function (Builder $query, mixed $value): void {
-                $query->whereHas('resourceData', function (Builder $q) use ($value): void {
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($value): void {
-                            $q->whereLike('name', '%'.$value.'%');
+                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
+                            $q->where(static function (Builder $inner) use ($values): void {
+                                foreach ($values as $v) {
+                                    $inner->orWhereLike('name', '%'.$v.'%');
+                                }
+                            });
                         });
                 });
             }),

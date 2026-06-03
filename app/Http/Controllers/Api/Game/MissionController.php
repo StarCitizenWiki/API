@@ -531,9 +531,11 @@ class MissionController extends Controller
                 });
             }),
             AllowedFilter::callback('star_system', static function (Builder $query, mixed $value): void {
-                $query->whereHas('starmapLocations', static function (Builder $q) use ($value): void {
-                    $q->where('system', $value)
-                        ->orWhere('system', $value.' System');
+                $values = is_array($value) ? $value : [$value];
+
+                $query->whereHas('starmapLocations', static function (Builder $q) use ($values): void {
+                    $q->whereIn('system', $values)
+                        ->orWhereIn('system', array_map(static fn (string $v): string => $v.' System', $values));
                 });
             }),
             AllowedFilter::exact('illegal'),

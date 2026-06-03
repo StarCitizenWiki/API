@@ -855,18 +855,23 @@ class VehicleController extends Controller
                 }
             }),
             AllowedFilter::callback('max_medical_tier', function (Builder $query, mixed $value): void {
+                $values = is_array($value) ? $value : [$value];
                 $driver = DB::connection()->getDriverName();
                 $tableName = $this->getJsonTableName();
                 $columnName = $this->getJsonColumnName();
                 $column = $this->laravelJsonColumn("{$tableName}.{$columnName}", 'Seating.MedicalBeds');
 
-                if ($driver === 'sqlite') {
-                    $query->where($column, 'like', '%{"Tier":"'.$value.'"%');
-                } else {
-                    $query->whereRaw("{$tableName}.{$columnName}->'Seating'->'MedicalBeds' @> ?::jsonb", [
-                        json_encode([['Tier' => $value]]),
-                    ]);
-                }
+                $query->where(static function (Builder $q) use ($values, $driver, $tableName, $columnName, $column): void {
+                    foreach ($values as $tier) {
+                        if ($driver === 'sqlite') {
+                            $q->orWhere($column, 'like', '%{"Tier":"'.$tier.'"%');
+                        } else {
+                            $q->orWhereRaw("{$tableName}.{$columnName}->'Seating'->'MedicalBeds' @> ?::jsonb", [
+                                json_encode([['Tier' => $tier]]),
+                            ]);
+                        }
+                    }
+                });
             }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
