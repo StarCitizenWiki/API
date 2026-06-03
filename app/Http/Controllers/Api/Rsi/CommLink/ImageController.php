@@ -56,6 +56,7 @@ class ImageController extends Controller
     {
         $query = QueryBuilder::for(Image::class, $request)
             ->with([
+                'metadata',
                 'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
                 'tags',
                 'duplicates',
@@ -106,6 +107,7 @@ class ImageController extends Controller
     {
         $model = Image::query()
             ->with([
+                'metadata',
                 'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
                 'tags',
                 'duplicates',
@@ -161,6 +163,7 @@ class ImageController extends Controller
             ->allowedFilters(...[
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
+            ->with(['metadata'])
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->inRandomOrder()
             ->limit($limit)
@@ -230,6 +233,7 @@ class ImageController extends Controller
             ->allowedFilters(...[
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
+            ->with(['metadata'])
             ->whereNull('base_image_id')
             ->whereRaw('src ILIKE ?', [sprintf('%%%s%%', $request->validated('query'))])
             ->whereRelation('metadata', 'size', '>', 0)

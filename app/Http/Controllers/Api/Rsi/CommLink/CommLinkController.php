@@ -102,6 +102,7 @@ class CommLinkController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(CommLink::class, $request)
+            ->with(['channel', 'category', 'series'])
             ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts(AllowedSort::field('id', 'cig_id'), 'title', 'images_count', 'links_count', AllowedSort::custom('channel', new SortByRelation, 'channel.name'), AllowedSort::custom('category', new SortByRelation, 'category.name'), AllowedSort::custom('series', new SortByRelation, 'series.name'), 'created_at');
@@ -320,6 +321,7 @@ class CommLinkController extends Controller
         try {
             $commLink = QueryBuilder::for(CommLink::class)
                 ->where('cig_id', $commLink)
+                ->with(['channel', 'category', 'series'])
                 ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
                 ->with(['images.hash', 'images.metadata'])
                 ->withNavigation()

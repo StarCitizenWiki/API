@@ -287,6 +287,25 @@ it('shows an item by class_name permutations', function (string $requestPath): v
     'class_name with spaces converted to underscores' => ['/api/items/cds armor heavy arms 01 02 01'],
 ]);
 
+it('does not treat wildcard characters as show route patterns', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Wildcard Decoy Item',
+            'type' => 'Clothing',
+            'class_name' => 'wildcard_decoy_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $this->getJson('/api/items/'.rawurlencode('%'))
+        ->assertNotFound();
+});
+
 it('returns not found for non-existent item', function () {
     $response = $this->getJson('/api/items/non-existent-item');
 

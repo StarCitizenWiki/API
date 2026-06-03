@@ -15,7 +15,6 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
-use App\Models\Game\Vehicle;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use App\Support\Filters\ItemFilterLabel;
@@ -58,17 +57,257 @@ class ItemController extends Controller
         return [
             IncludeDefinition::custom('shops', new CustomEagerLoadInclude),
             IncludeDefinition::custom('shops.items', new CustomEagerLoadInclude),
-            IncludeDefinition::custom('variants', new CustomEagerLoadInclude([
-                'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
-            ])),
-            IncludeDefinition::custom('related_items', new CustomEagerLoadInclude([
-                'variantGroupItem.variantGroup.items.itemData.item',
-                'setItems.item',
-                'variants.item', 'variants.manufacturer', 'variants.gameVersion', 'variants.baseVariant', 'variants.variantGroupItem',
-                'baseVariant.item',
-            ])),
+            IncludeDefinition::custom('variants', new CustomEagerLoadInclude($this->variantIncludes())),
+            IncludeDefinition::custom('related_items', new CustomEagerLoadInclude($this->relatedItemIncludes())),
             IncludeDefinition::custom('blueprints', new CustomEagerLoadInclude),
-            IncludeDefinition::custom('vehicles', new CustomEagerLoadInclude(['installedOnVehicles.vehicle', 'installedOnVehicles.manufacturer', 'installedOnVehicles.gameVersion'])),
+            IncludeDefinition::custom('vehicles', new CustomEagerLoadInclude($this->vehicleIncludes())),
+        ];
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function defaultShowIncludes(): array
+    {
+        return [
+            'entityTags' => fn ($query) => $query->select($this->entityTagColumns()),
+            'item' => fn ($query) => $query
+                ->select($this->fullItemColumns())
+                ->withExists('vehicle'),
+            'gameVersion' => fn ($query) => $query->select($this->gameVersionColumns()),
+            'variantGroupItem' => fn ($query) => $query->select($this->variantGroupItemColumns()),
+            'baseVariant' => fn ($query) => $query->select($this->itemDataLinkColumns()),
+            'baseVariant.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'baseVariant.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
+            'baseVariant.gameVersion' => fn ($query) => $query->select($this->gameVersionColumns()),
+            'manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
+            'descriptionData',
+            'commodities' => fn ($query) => $query->select($this->commodityColumns()),
+        ];
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function variantIncludes(): array
+    {
+        return [
+            'variants' => fn ($query) => $query->select($this->itemDataLinkColumns()),
+            'variants.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'variants.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
+            'variants.gameVersion' => fn ($query) => $query->select($this->gameVersionColumns()),
+            'variants.baseVariant' => fn ($query) => $query->select($this->itemDataLinkColumns()),
+            'variants.baseVariant.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'variants.variantGroupItem' => fn ($query) => $query->select($this->variantGroupItemColumns()),
+        ];
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function relatedItemIncludes(): array
+    {
+        return [
+            'variantGroupItem.variantGroup' => fn ($query) => $query->select($this->variantGroupColumns()),
+            'variantGroupItem.variantGroup.items' => fn ($query) => $query->select($this->variantGroupItemColumns()),
+            'variantGroupItem.variantGroup.items.itemData' => fn ($query) => $query->select($this->itemDataLinkColumns()),
+            'variantGroupItem.variantGroup.items.itemData.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'variantGroupItem.variantGroup.items.itemData.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
+            'setItems' => fn ($query) => $query->select($this->setItemDataColumns()),
+            'setItems.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+        ];
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function vehicleIncludes(): array
+    {
+        return [
+            'installedOnVehicles' => fn ($query) => $query->select($this->vehicleDataLinkColumns()),
+            'installedOnVehicles.vehicle' => fn ($query) => $query->select($this->vehicleIdentityColumns()),
+            'installedOnVehicles.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
+            'installedOnVehicles.gameVersion' => fn ($query) => $query->select($this->gameVersionColumns()),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function itemDataLinkColumns(): array
+    {
+        return [
+            'game_item_data.id',
+            'game_item_data.item_id',
+            'game_item_data.game_version_id',
+            'game_item_data.manufacturer_id',
+            'game_item_data.name',
+            'game_item_data.class_name',
+            'game_item_data.type',
+            'game_item_data.sub_type',
+            'game_item_data.classification',
+            'game_item_data.size',
+            'game_item_data.grade',
+            'game_item_data.class',
+            'game_item_data.base_id',
+            'game_item_data.rarity',
+            'game_item_data.updated_at',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function setItemDataColumns(): array
+    {
+        return [
+            'game_item_data.id',
+            'game_item_data.item_id',
+            'game_item_data.name',
+            'game_item_data.class_name',
+            'game_item_data.type',
+            'game_item_data.sub_type',
+            'game_item_data.classification',
+            'game_item_data.size',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function vehicleDataLinkColumns(): array
+    {
+        return [
+            'game_vehicle_data.id',
+            'game_vehicle_data.vehicle_id',
+            'game_vehicle_data.manufacturer_id',
+            'game_vehicle_data.game_version_id',
+            'game_vehicle_data.class_name',
+            'game_vehicle_data.name',
+            'game_vehicle_data.display_name',
+            'game_vehicle_data.career',
+            'game_vehicle_data.role',
+            'game_vehicle_data.size',
+            'game_vehicle_data.is_vehicle',
+            'game_vehicle_data.is_gravlev',
+            'game_vehicle_data.is_spaceship',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function fullItemColumns(): array
+    {
+        return [
+            'game_items.id',
+            'game_items.uuid',
+            'game_items.slug',
+            'game_items.translation',
+            'game_items.images',
+            'game_items.updated_at',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function itemIdentityColumns(): array
+    {
+        return [
+            'game_items.id',
+            'game_items.uuid',
+            'game_items.slug',
+            'game_items.updated_at',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function vehicleIdentityColumns(): array
+    {
+        return [
+            'game_vehicles.id',
+            'game_vehicles.uuid',
+            'game_vehicles.slug',
+            'game_vehicles.updated_at',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function manufacturerColumns(): array
+    {
+        return [
+            'game_manufacturers.id',
+            'game_manufacturers.name',
+            'game_manufacturers.code',
+            'game_manufacturers.uuid',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function gameVersionColumns(): array
+    {
+        return [
+            'game_versions.id',
+            'game_versions.code',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function variantGroupItemColumns(): array
+    {
+        return [
+            'game_item_variant_group_items.id',
+            'game_item_variant_group_items.variant_group_id',
+            'game_item_variant_group_items.item_data_id',
+            'game_item_variant_group_items.variant_name',
+            'game_item_variant_group_items.sort_order',
+            'game_item_variant_group_items.is_base',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function variantGroupColumns(): array
+    {
+        return [
+            'game_item_variant_groups.id',
+            'game_item_variant_groups.game_version_id',
+            'game_item_variant_groups.set_name',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function entityTagColumns(): array
+    {
+        return [
+            'game_entity_tags.id',
+            'game_entity_tags.uuid',
+            'game_entity_tags.name',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function commodityColumns(): array
+    {
+        return [
+            'game_commodities.id',
+            'game_commodities.uuid',
+            'game_commodities.name',
+            'game_commodities.slug',
         ];
     }
 
@@ -238,8 +477,11 @@ class ItemController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_item_data.name', '%'.$value.'%')
-                        ->orWhereLike('game_item_data.class_name', '%'.$value.'%');
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $pattern = "%{$value}%";
+
+                    $q->whereRaw("game_item_data.name {$like} ?", [$pattern])
+                        ->orWhereRaw("game_item_data.class_name {$like} ?", [$pattern]);
                 });
             }),
         ];
@@ -458,12 +700,6 @@ class ItemController extends Controller
                 response: 200,
                 description: 'List of Items',
                 content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')),
-                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
-                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
-                    ],
-                    type: 'object',
                     examples: [
                         new OA\Examples(
                             example: 'item_search_page',
@@ -477,6 +713,12 @@ class ItemController extends Controller
                             ],
                         ),
                     ],
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object',
                 )
             ),
         ]
@@ -637,7 +879,7 @@ class ItemController extends Controller
     #[OA\Get(
         path: '/api/items/{identifier}',
         operationId: 'getItem',
-        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.',
+        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.',
         summary: 'In-Game Item Detail',
         tags: ['Items'],
         parameters: [
@@ -685,7 +927,7 @@ class ItemController extends Controller
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->allowedIncludes(...$this->allowedIncludes())
-                ->with(['entityTags', 'item', 'gameVersion', 'variantGroupItem', 'baseVariant.item', 'baseVariant.manufacturer', 'baseVariant.gameVersion', 'manufacturer', 'descriptionData', 'commodities']);
+                ->with($this->defaultShowIncludes());
 
             $itemData = null;
 
@@ -705,11 +947,12 @@ class ItemController extends Controller
                 $itemData = $baseQuery()
                     ->where(function (Builder $q) use ($identifier, $original) {
                         $underscored = str_replace(' ', '_', $identifier);
+
                         $q->where('name', $identifier)
-                            ->orWhereRaw('upper(name) = ?', [strtoupper($identifier)])
+                            ->orWhereRaw('LOWER(name) = LOWER(?)', [$identifier])
                             ->orWhere('class_name', $underscored)
-                            ->orWhereRaw('upper(class_name) = ?', [strtoupper($original)])
-                            ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                            ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$underscored])
+                            ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$original]);
                     })
                     ->first();
             }
@@ -731,7 +974,7 @@ class ItemController extends Controller
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        if (Vehicle::where('uuid', $itemData->item->uuid)->exists()) {
+        if ((bool) ($itemData->item->vehicle_exists ?? false)) {
             $url = sprintf('/api/vehicles/%s', $itemData->item->uuid);
             $qs = $request->server->get('QUERY_STRING');
 
@@ -809,13 +1052,15 @@ class ItemController extends Controller
     {
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
-        $normalizedSearch = mb_strtolower($toSearch);
+
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+        $pattern = "%{$toSearch}%";
 
         $query = $this->buildBaseQuery($request)
-            ->where(function (Builder $query) use ($toSearch, $isUuid, $normalizedSearch) {
-                $query->whereRaw('LOWER(name) LIKE ?', ["%{$normalizedSearch}%"])
-                    ->orWhereRaw('LOWER(type) = ?', [$normalizedSearch])
-                    ->orWhereRaw('LOWER(sub_type) = ?', [$normalizedSearch]);
+            ->where(function (Builder $query) use ($toSearch, $isUuid, $like, $pattern) {
+                $query->whereRaw("name {$like} ?", [$pattern])
+                    ->orWhereRaw('LOWER(type) = LOWER(?)', [$toSearch])
+                    ->orWhereRaw('LOWER(sub_type) = LOWER(?)', [$toSearch]);
 
                 if ($isUuid) {
                     $query->orWhereHas('item', fn (Builder $q) => $q->where('uuid', $toSearch));

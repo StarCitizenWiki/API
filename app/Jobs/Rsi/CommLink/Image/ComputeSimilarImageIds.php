@@ -27,7 +27,9 @@ class ComputeSimilarImageIds implements ShouldQueue
 
     public function handle(): void
     {
-        $image = Image::query()->find($this->imageId);
+        $image = Image::query()
+            ->with(['hash'])
+            ->find($this->imageId);
 
         if ($image === null) {
             return;

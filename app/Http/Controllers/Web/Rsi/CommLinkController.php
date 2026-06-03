@@ -125,7 +125,7 @@ class CommLinkController extends Controller
         $results = $searchQuery === ''
             ? collect()
             : Image::query()
-                ->with(['commLinks', 'tags'])
+                ->with(['metadata', 'commLinks.channel', 'commLinks.category', 'commLinks.series', 'tags'])
                 ->whereNull('base_image_id')
                 ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($searchQuery))])
                 ->whereRelation('metadata', 'size', '>', 0)
@@ -168,7 +168,7 @@ class CommLinkController extends Controller
         $similarity = (int) ($validated['similarity'] ?? 75);
         $matches = ImageHashModel::similarImagesForHash($hashResult->toBitString(), $similarity);
 
-        $matches->loadMissing(['commLinks', 'tags']);
+        $matches->loadMissing(['metadata', 'commLinks.channel', 'commLinks.category', 'commLinks.series', 'tags']);
 
         $images = ImageHashResource::collection($matches)->resolve();
 
@@ -205,7 +205,9 @@ class CommLinkController extends Controller
         ]);
 
         /** @var Image $imageModel */
-        $imageModel = Image::query()->findOrFail($image);
+        $imageModel = Image::query()
+            ->with(['hash'])
+            ->findOrFail($image);
 
         $similarity = (int) ($validated['similarity'] ?? 50);
         $similarImages = $imageModel->similarImages($similarity, 50);

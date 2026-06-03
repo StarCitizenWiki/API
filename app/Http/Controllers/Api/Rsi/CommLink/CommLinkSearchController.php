@@ -114,6 +114,7 @@ class CommLinkSearchController extends Controller
         $query = (string) ($request->input('keyword') ?? $request->input('query'));
 
         $commLinks = QueryBuilder::for(CommLink::class)
+            ->with(['channel', 'category', 'series'])
             ->where(function (Builder $builder) use ($query) {
                 $builder->whereLike('title', "%{$query}%");
 
@@ -218,7 +219,9 @@ class CommLinkSearchController extends Controller
         );
 
         if ($image instanceof Image) {
-            $commLinks = $image->commLinks()->get();
+            $commLinks = $image->commLinks()
+                ->with(['channel', 'category', 'series'])
+                ->get();
 
             return CommLinkResource::collection($commLinks);
         }
@@ -373,7 +376,9 @@ class CommLinkSearchController extends Controller
         $data = $request->validated();
 
         /** @var Image $image */
-        $image = Image::query()->findOrFail($data['image']);
+        $image = Image::query()
+            ->with(['hash'])
+            ->findOrFail($data['image']);
 
         $similarity = $data['similarity'] ?? 50;
 

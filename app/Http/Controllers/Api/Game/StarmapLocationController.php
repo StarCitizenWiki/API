@@ -155,8 +155,9 @@ class StarmapLocationController extends Controller
                     return;
                 }
 
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_starmap_location_data.name', '%'.$value.'%');
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where(static function (Builder $q) use ($value, $like): void {
+                    $q->whereRaw("game_starmap_location_data.name {$like} ?", ['%'.$value.'%']);
                 });
             }),
         ];
@@ -457,7 +458,16 @@ class StarmapLocationController extends Controller
                 ]))->toSpatieInclude(),
                 IncludeDefinition::custom('missions', new CustomEagerLoadInclude([
                     'missions' => static function (BelongsToMany $q): void {
-                        $q->with(['mission', 'faction']);
+                        $q->select([
+                            'game_mission_data.id',
+                            'game_mission_data.mission_id',
+                            'game_mission_data.title',
+                            'game_mission_data.debug_name',
+                            'game_mission_data.mission_type',
+                            'game_mission_data.illegal',
+                            'game_mission_data.has_combat',
+                            'game_mission_data.faction_id',
+                        ])->with(['mission', 'faction']);
                     },
                 ]))->toSpatieInclude(),
             )

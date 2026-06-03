@@ -133,7 +133,43 @@ class CommodityController extends Controller
                 'refinedVersion',
                 'resourceData' => fn (BelongsToMany $relation) => $relation
                     ->forRequestedOrDefaultVersion($versionCode)
-                    ->with(['locations.starmapLocationData.location', 'locations.starmapLocationData.parent', 'locations.starmapLocationData.locationHierarchyEntityTag']),
+                    ->select([
+                        'game_resource_data.id',
+                        'game_resource_data.kind',
+                        'game_resource_data.signature',
+                    ])
+                    ->with([
+                        'locations' => fn ($q) => $q->select([
+                            'game_resource_locations.id',
+                            'game_resource_locations.resource_data_id',
+                            'game_resource_locations.group_name',
+                            'game_resource_locations.resource_kind',
+                            'game_resource_locations.quality_min',
+                            'game_resource_locations.quality_max',
+                        ]),
+                        'locations.starmapLocationData' => fn ($q) => $q->select([
+                            'game_starmap_location_data.id',
+                            'game_starmap_location_data.name',
+                            'game_starmap_location_data.system',
+                            'game_starmap_location_data.type_name',
+                            'game_starmap_location_data.parent_data_id',
+                            'game_starmap_location_data.starmap_location_id',
+                            'game_starmap_location_data.location_hierarchy_entity_tag_id',
+                        ]),
+                        'locations.starmapLocationData.location' => fn ($q) => $q->select([
+                            'game_starmap_locations.id',
+                            'game_starmap_locations.uuid',
+                        ]),
+                        'locations.starmapLocationData.parent' => fn ($q) => $q->select([
+                            'game_starmap_location_data.id',
+                            'game_starmap_location_data.name',
+                            'game_starmap_location_data.type_name',
+                        ]),
+                        'locations.starmapLocationData.locationHierarchyEntityTag' => fn ($q) => $q->select([
+                            'game_entity_tags.id',
+                            'game_entity_tags.name',
+                        ]),
+                    ]),
             ])
             ->orderBy('key')
             ->jsonPaginate()
@@ -499,13 +535,14 @@ class CommodityController extends Controller
             AllowedFilter::exact('refined_version', 'refined_version_name'),
             AllowedFilter::callback('location', function (Builder $query, mixed $value): void {
                 $values = is_array($value) ? $value : [$value];
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
 
-                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
+                $query->whereHas('resourceData', function (Builder $q) use ($values, $like): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
-                            $q->where(static function (Builder $inner) use ($values): void {
+                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values, $like): void {
+                            $q->where(static function (Builder $inner) use ($values, $like): void {
                                 foreach ($values as $v) {
-                                    $inner->orWhereLike('name', '%'.$v.'%');
+                                    $inner->orWhereRaw("name {$like} ?", ['%'.$v.'%']);
                                 }
                             });
                         });
@@ -516,9 +553,10 @@ class CommodityController extends Controller
                     return;
                 }
 
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_commodities.name', '%'.$value.'%')
-                        ->orWhereLike('game_commodities.key', '%'.$value.'%');
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where(static function (Builder $q) use ($value, $like): void {
+                    $q->whereRaw("game_commodities.name {$like} ?", ['%'.$value.'%'])
+                        ->orWhereRaw("game_commodities.key {$like} ?", ['%'.$value.'%']);
                 });
             }),
             AllowedFilter::callback('ship', $this->booleanFilterCallback(self::GROUP_SHIP)),

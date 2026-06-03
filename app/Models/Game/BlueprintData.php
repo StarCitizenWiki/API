@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class BlueprintData extends Model
@@ -62,20 +63,29 @@ class BlueprintData extends Model
 
     public function ingredients(): BelongsToMany
     {
-        return $this->belongsToMany(Commodity::class, 'game_blueprint_data_ingredients', 'blueprint_data_id', 'resource_type_id');
+        return $this->belongsToMany(Commodity::class, 'game_blueprint_data_ingredients', 'blueprint_data_id', 'resource_type_id')
+            ->select(['game_commodities.id', 'game_commodities.uuid', 'game_commodities.name']);
     }
 
     public function dismantleReturns(): BelongsToMany
     {
         return $this->belongsToMany(Commodity::class, 'game_blueprint_data_dismantle_returns', 'blueprint_data_id', 'resource_type_id')
-            ->withPivot('quantity_scu');
+            ->withPivot('quantity_scu')
+            ->select(['game_commodities.id', 'game_commodities.uuid', 'game_commodities.name']);
     }
 
     public function missions(): BelongsToMany
     {
         return $this->belongsToMany(MissionData::class, 'game_mission_data_blueprint', 'blueprint_data_id', 'mission_data_id')
             ->withPivot(['pool_uuid', 'item_data_id', 'chance'])
-            ->using(MissionBlueprint::class);
+            ->using(MissionBlueprint::class)
+            ->select([
+                'game_mission_data.id',
+                'game_mission_data.mission_id',
+                'game_mission_data.title',
+                'game_mission_data.debug_name',
+                'game_mission_data.reward_scope',
+            ]);
     }
 
     public function scopeConsumesResourceType(Builder $query, string $resourceTypeUuid): Builder
@@ -109,19 +119,25 @@ class BlueprintData extends Model
 
     public function scopeForOutputName(Builder $query, string $outputName): Builder
     {
-        return $query->whereLike('output_name', '%'.$outputName.'%');
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        return $query->whereRaw("output_name {$like} ?", ['%'.$outputName.'%']);
     }
 
     public function scopeForOutputClass(Builder $query, string $outputClass): Builder
     {
-        return $query->whereLike('output_class', '%'.$outputClass.'%');
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        return $query->whereRaw("output_class {$like} ?", ['%'.$outputClass.'%']);
     }
 
     public function scopeSearchOutput(Builder $query, string $searchTerm): Builder
     {
-        return $query->where(static function (Builder $builder) use ($searchTerm): void {
-            $builder->whereLike('output_name', '%'.$searchTerm.'%')
-                ->orWhereLike('output_class', '%'.$searchTerm.'%');
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        return $query->where(static function (Builder $builder) use ($searchTerm, $like): void {
+            $builder->whereRaw("output_name {$like} ?", ['%'.$searchTerm.'%'])
+                ->orWhereRaw("output_class {$like} ?", ['%'.$searchTerm.'%']);
 
             if (Str::isUuid($searchTerm)) {
                 $builder->orWhere('output_item_uuid', $searchTerm);

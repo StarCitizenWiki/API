@@ -1,16 +1,22 @@
 {
     "agents": [
         "claude_code",
-        "codex",
-        "opencode",
-        "phpstorm"
+        "codex"
     ],
     "cloud": false,
-    "editors": [
-        "claude_code",
-        "codex",
-        "opencode",
-        "phpstorm"
+    "guidelines": true,
+    "packages": [
+        "spatie/laravel-query-builder",
+        "spatie/laravel-translatable"
     ],
-    "guidelines": true
+    "sail": false,
+    "skills": [
+        "fortify-development",
+        "laravel-best-practices",
+        "configure-nightwatch",
+        "pest-testing",
+        "tailwindcss-development",
+        "laravel-query-builder",
+        "translatable-development"
+    ]
 }

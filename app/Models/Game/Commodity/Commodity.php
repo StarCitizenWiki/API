@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Commodity extends Model
@@ -89,9 +90,11 @@ class Commodity extends Model
 
     public function scopeMatchingLookup(Builder $query, string $searchTerm): Builder
     {
-        return $query->where(static function (Builder $builder) use ($searchTerm): void {
-            $builder->whereLike('name', '%'.$searchTerm.'%')
-                ->orWhereLike('key', '%'.$searchTerm.'%');
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        return $query->where(static function (Builder $builder) use ($searchTerm, $like): void {
+            $builder->whereRaw("name {$like} ?", ['%'.$searchTerm.'%'])
+                ->orWhereRaw("key {$like} ?", ['%'.$searchTerm.'%']);
 
             if (Str::isUuid($searchTerm)) {
                 $builder->orWhere('uuid', $searchTerm);

@@ -356,15 +356,16 @@ class VehicleController extends Controller
 
                         $q->{$boolean}(function (Builder $nameQuery) use ($candidate, $underscored) {
                             $nameQuery->where('name', $candidate)
-                                ->orWhereRaw('upper(display_name) = ?', [strtoupper($candidate)])
+                                ->orWhereRaw('LOWER(name) = LOWER(?)', [$candidate])
+                                ->orWhereRaw('LOWER(display_name) = LOWER(?)', [$candidate])
                                 ->orWhere('class_name', strtoupper($underscored))
-                                ->orWhere('class_name', 'LIKE', "%_{$underscored}");
+                                ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$underscored]);
                         });
 
                         $hasConstraint = true;
                     }
 
-                    $q->orWhereRaw('upper(class_name) = ?', [strtoupper($original)]);
+                    $q->orWhereRaw('LOWER(class_name) = LOWER(?)', [$original]);
                 })
                 ->allowedIncludes(...$allowedIncludes)
                 ->with(['vehicle', 'gameVersion', 'manufacturer'])
@@ -534,10 +535,12 @@ class VehicleController extends Controller
 
         $query = $this->buildBaseQuery($request)
             ->where(function (Builder $query) use ($toSearch, $isUuid) {
-                $underscored = str_replace(' ', '_', $toSearch);
-                $query->where('name', 'like', "%{$toSearch}%")
-                    ->orWhere('class_name', 'LIKE', "%{$underscored}%")
-                    ->orWhere('career', 'LIKE', "%{$toSearch}%");
+                $pattern = "%{$toSearch}%";
+                $underscoredPattern = '%'.str_replace(' ', '_', $toSearch).'%';
+
+                $query->where('name', 'LIKE', $pattern)
+                    ->orWhere('class_name', 'LIKE', $underscoredPattern)
+                    ->orWhere('career', 'LIKE', $pattern);
 
                 if ($isUuid) {
                     $query->orWhereHas('vehicle', fn (Builder $q) => $q->where('uuid', $toSearch));
@@ -878,9 +881,12 @@ class VehicleController extends Controller
                     return;
                 }
 
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_vehicle_data.name', '%'.$value.'%')
-                        ->orWhereLike('game_vehicle_data.class_name', '%'.$value.'%');
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $pattern = "%{$value}%";
+
+                $query->where(static function (Builder $q) use ($pattern, $like): void {
+                    $q->whereRaw("game_vehicle_data.name {$like} ?", [$pattern])
+                        ->orWhereRaw("game_vehicle_data.class_name {$like} ?", [$pattern]);
                 });
             }),
         ];

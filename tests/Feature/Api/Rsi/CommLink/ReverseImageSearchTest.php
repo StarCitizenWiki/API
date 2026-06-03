@@ -59,6 +59,19 @@ it('reverse image search defaults similarity to 75', function () {
         ->assertJsonPath('data.0.rsi_url', $image->url);
 });
 
+it('eager loads metadata by default for image resources', function (): void {
+    $image = Image::factory()->create();
+    $image->metadata()->create([
+        'size' => 1024,
+        'mime' => 'image/webp',
+        'last_modified' => now(),
+    ]);
+
+    $loadedImage = Image::query()->findOrFail($image->id);
+
+    expect($loadedImage->relationLoaded('metadata'))->toBeTrue();
+});
+
 it('reverse image search rejects non-image uploads', function () {
     $uploadedFile = UploadedFile::fake()->create('not-an-image.txt', 10, 'text/plain');
 

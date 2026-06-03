@@ -143,7 +143,7 @@ class BlueprintController extends Controller
         $blueprintData = BlueprintData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->where('blueprint_id', $blueprint->id)
-            ->with(['blueprint', 'gameVersion', 'outputItem', 'dismantleReturns', 'ingredients.rawVersions', 'missions.mission'])
+            ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions', 'missions.mission'])
             ->withCount('missions')
             ->first();
 
@@ -348,14 +348,15 @@ class BlueprintController extends Controller
             }),
             AllowedFilter::callback('ingredient.uuid', static function (Builder $query, mixed $value): void {
                 $resourceTypeUuids = match (true) {
-                    is_array($value) => array_values(array_unique(array_filter(
-                        array_map(static fn (mixed $entry): string => trim((string) $entry), $value),
-                        static fn (string $entry): bool => $entry !== '',
-                    ))),
-                    is_string($value) => array_values(array_unique(array_filter(
-                        array_map(static fn (string $entry): string => trim($entry), explode(',', $value)),
-                        static fn (string $entry): bool => $entry !== '',
-                    ))),
+                    is_array($value) => array_map(static fn (mixed $entry): string => trim((string) $entry), $value)
+                            |> (fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
+                            |> array_unique(...)
+                            |> array_values(...),
+                    is_string($value) => explode(',', $value)
+                            |> (fn ($x) => array_map(static fn (string $entry): string => trim($entry), $x))
+                            |> (fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
+                            |> array_unique(...)
+                            |> array_values(...),
                     default => [],
                 };
 

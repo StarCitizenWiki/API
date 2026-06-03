@@ -104,7 +104,8 @@ class MissionData extends Model
 
     public function mission(): BelongsTo
     {
-        return $this->belongsTo(Mission::class);
+        return $this->belongsTo(Mission::class)
+            ->select(['game_missions.id', 'game_missions.uuid', 'game_missions.slug']);
     }
 
     public function faction(): BelongsTo

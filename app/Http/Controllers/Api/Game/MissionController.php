@@ -597,10 +597,12 @@ class MissionController extends Controller
                 $query->where('reward_max', '<=', (int) $value);
             }),
             AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
-                $query->whereRaw('LOWER(game_mission_data.title) LIKE ?', [sprintf('%%%s%%', mb_strtolower((string) $value))]);
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->whereRaw("game_mission_data.title {$like} ?", [sprintf('%%%s%%', (string) $value)]);
             }),
             AllowedFilter::callback('description', static function (Builder $query, mixed $value): void {
-                $query->whereRaw('LOWER(game_mission_data.description) LIKE ?', [sprintf('%%%s%%', mb_strtolower((string) $value))]);
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->whereRaw("game_mission_data.description {$like} ?", [sprintf('%%%s%%', (string) $value)]);
             }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -608,10 +610,10 @@ class MissionController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $normalized = mb_strtolower($value);
-                    $q->whereRaw('LOWER(game_mission_data.title) LIKE ?', ["%{$normalized}%"])
-                        ->orWhereRaw('LOWER(game_mission_data.description) LIKE ?', ["%{$normalized}%"])
-                        ->orWhereRaw('LOWER(game_mission_data.debug_name) LIKE ?', ["%{$normalized}%"]);
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $q->whereRaw("game_mission_data.title {$like} ?", ["%{$value}%"])
+                        ->orWhereRaw("game_mission_data.description {$like} ?", ["%{$value}%"])
+                        ->orWhereRaw("game_mission_data.debug_name {$like} ?", ["%{$value}%"]);
                 });
             }),
             AllowedFilter::callback('reward_scope', static function (Builder $query, mixed $value): void {

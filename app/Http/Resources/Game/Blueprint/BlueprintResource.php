@@ -469,7 +469,9 @@ class BlueprintResource extends AbstractBaseResource
             'is_available_by_default' => $this->is_available_by_default,
             'game_version' => $this->gameVersion?->code,
             'ingredient_count' => $this->ingredientCount($payload, $normalizer),
-            'unlocking_missions_count' => (int) ($this->resource->missions_count ?? 0),
+            'unlocking_missions_count' => $this->resource->relationLoaded('missions')
+                ? $this->loadedRelation('missions')->count()
+                : (int) ($this->resource->missions_count ?? 0),
             'ingredients' => $this->ingredients($request, $normalizer, $requirementGroups),
             'dismantle_returns' => $this->dismantleReturnsList($request),
             'output' => $this->outputPayload($request, $payload),

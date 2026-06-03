@@ -37,10 +37,10 @@ class Image extends Model
         'local' => 'boolean',
     ];
 
-    protected $with = [
-        'hash',
-        'metadata',
-    ];
+    /**
+     * @var list<string>
+     */
+    protected $with = ['metadata'];
 
     public function commLinks(): BelongsToMany
     {

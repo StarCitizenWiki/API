@@ -39,12 +39,6 @@ class CommLink extends Model
         'translation',
     ];
 
-    protected $with = [
-        'channel',
-        'category',
-        'series',
-    ];
-
     protected $casts = [
         'cig_id' => 'int',
         'comment_count' => 'int',

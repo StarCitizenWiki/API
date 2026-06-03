@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
 use App\Services\ItemVariantResolver;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class RelatedItemsResource extends AbstractBaseResource
 {
@@ -60,17 +59,6 @@ class RelatedItemsResource extends AbstractBaseResource
 
     private function formatRelatedLink(ItemData $itemData, ?string $variantName, bool $isBase, string $versionCode, Request $request): array
     {
-        $manufacturer = Arr::get($itemData->data, 'stdItem.Manufacturer');
-
-        if (is_array($manufacturer)) {
-            $manufacturer = [
-                'code' => $manufacturer['Code'] ?? null,
-                'name' => $manufacturer['Name'] ?? null,
-            ];
-        } else {
-            $manufacturer = null;
-        }
-
         $uuid = $itemData->item->uuid;
 
         $link = [
@@ -84,7 +72,7 @@ class RelatedItemsResource extends AbstractBaseResource
             'classification' => $itemData->classification,
             'classification_label' => $itemData->classification_label,
             'is_base_variant' => $isBase,
-            'manufacturer' => $this->expandManufacturerLink($manufacturer),
+            'manufacturer' => $this->formatManufacturerLink($itemData),
             'size' => $itemData->size,
             'grade' => $itemData->grade,
             'grade_label' => ItemData::formatGrade($itemData->grade, $itemData->classification),
@@ -131,13 +119,12 @@ class RelatedItemsResource extends AbstractBaseResource
             return null;
         }
 
-        $names = array_values(array_filter(
-            array_merge(
-                [$itemData->name ?? ''],
-                $itemData->setItems->map(fn (ItemData $s): string => $s->name ?? '')->all(),
-            ),
-            static fn (string $n): bool => $n !== '',
-        ));
+        $names = array_merge(
+            [$itemData->name ?? ''],
+            $itemData->setItems->map(fn (ItemData $s): string => $s->name ?? '')->all(),
+        )
+                |> (static fn ($x) => array_filter($x, static fn (string $n): bool => $n !== ''))
+                |> array_values(...);
 
         if (count($names) < 2) {
             return null;
@@ -156,15 +143,16 @@ class RelatedItemsResource extends AbstractBaseResource
         return ItemVariantResolver::deriveSetNameFromNames($strippedNames);
     }
 
-    private function expandManufacturerLink(?array $manufacturer): ?array
+    private function formatManufacturerLink(ItemData $itemData): ?array
     {
-        if ($manufacturer === null) {
+        if (! $itemData->relationLoaded('manufacturer') || $itemData->manufacturer === null) {
             return null;
         }
 
         return [
-            ...$manufacturer,
-            'link' => route('manufacturers.show', ['manufacturer' => $manufacturer['code'] ?? 'UNKN']),
+            'code' => $itemData->manufacturer->code,
+            'name' => $itemData->manufacturer->name,
+            'link' => route('manufacturers.show', ['manufacturer' => $itemData->manufacturer->code ?: 'UNKN']),
         ];
     }
 }

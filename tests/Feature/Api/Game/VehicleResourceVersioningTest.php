@@ -48,6 +48,11 @@ beforeEach(function () {
         ]);
 });
 
+it('does not treat wildcard characters as show route patterns', function (): void {
+    $this->getJson('/api/vehicles/'.rawurlencode('%'))
+        ->assertNotFound();
+});
+
 it('returns v2 hardpoint format when accessing api/v2/vehicles endpoint', function (): void {
     $response = $this->getJson("/api/v2/vehicles/{$this->vehicle->uuid}");
 

@@ -10,7 +10,7 @@ use Spatie\QueryBuilder\Includes\IncludeInterface;
 class CustomEagerLoadInclude implements IncludeInterface
 {
     /**
-     * @param  array<int, string>  $relations
+     * @param  array<int|string, mixed>  $relations
      */
     public function __construct(
         protected array $relations = [],
