@@ -371,7 +371,7 @@ class VehicleController extends Controller
                 ->with(['vehicle', 'gameVersion', 'manufacturer'])
                 ->first();
 
-            if ($vehicleData === null) {
+            if ($vehicleData === null || $vehicleData->vehicle === null) {
                 $shipMatrixVehicle = ShipMatrixVehicle::query()
                     ->where(function (Builder $q) use ($nameCandidates, $original) {
                         foreach ($nameCandidates as $index => $candidate) {

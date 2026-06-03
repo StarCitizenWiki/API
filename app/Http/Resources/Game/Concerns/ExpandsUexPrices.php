@@ -12,10 +12,6 @@ trait ExpandsUexPrices
 {
     private static ?Collection $locationDataCache = null;
 
-    /**
-     * @param array $locationDataIds
-     * @return void
-     */
     private static function cachedGet(array $locationDataIds): void
     {
         if (static::$locationDataCache === null) {
