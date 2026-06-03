@@ -13,6 +13,33 @@ trait ExpandsUexPrices
     private static ?Collection $locationDataCache = null;
 
     /**
+     * @param array $locationDataIds
+     * @return void
+     */
+    private static function cachedGet(array $locationDataIds): void
+    {
+        if (static::$locationDataCache === null) {
+            static::$locationDataCache = Collection::empty();
+        }
+
+        $uncachedIds = array_values(
+            array_diff($locationDataIds, static::$locationDataCache->keys()->toArray())
+        );
+
+        if ($uncachedIds !== []) {
+            $fetched = StarmapLocationData::query()
+                ->with(['location', 'parent.star'])
+                ->whereIn('id', $uncachedIds)
+                ->get()
+                ->keyBy('id');
+
+            static::$locationDataCache = collect(
+                static::$locationDataCache->all() + $fetched->all()
+            );
+        }
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function expandPrices(array $prices): array
@@ -51,23 +78,21 @@ trait ExpandsUexPrices
             return Collection::empty();
         }
 
-        if (static::$locationDataCache === null) {
-            static::$locationDataCache = Collection::empty();
-        }
-
-        $uncachedIds = array_values(array_diff($locationDataIds, static::$locationDataCache->keys()->toArray()));
-
-        if ($uncachedIds !== []) {
-            $fetched = StarmapLocationData::query()
-                ->with(['location', 'parent.star'])
-                ->whereIn('id', $uncachedIds)
-                ->get()
-                ->keyBy('id');
-
-            static::$locationDataCache = collect(static::$locationDataCache->all() + $fetched->all());
-        }
+        self::cachedGet($locationDataIds);
 
         return static::$locationDataCache->only($locationDataIds);
+    }
+
+    /**
+     * @param  array<int, int>  $locationDataIds
+     */
+    public static function preloadLocationData(array $locationDataIds): void
+    {
+        if ($locationDataIds === []) {
+            return;
+        }
+
+        self::cachedGet($locationDataIds);
     }
 
     public static function flushLocationDataCache(): void

@@ -500,6 +500,17 @@ class ItemController extends Controller
 
         ItemData::loadCraftingBlueprints($items->getCollection());
 
+        ItemResource::preloadLocationData(
+            $items->getCollection()
+                ->pluck('uex_prices')
+                ->flatten(1)
+                ->pluck('starmap_location_data_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray()
+        );
+
         return ItemResource::collection($items)
             ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
     }
@@ -726,6 +737,15 @@ class ItemController extends Controller
 
             return redirect($qs !== null && $qs !== '' ? $url.'?'.$qs : $url);
         }
+
+        ItemResource::preloadLocationData(
+            collect($itemData->uex_prices ?? [])
+                ->pluck('starmap_location_data_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray()
+        );
 
         return new ItemResource($itemData)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
