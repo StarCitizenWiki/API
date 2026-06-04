@@ -924,35 +924,29 @@ class ItemController extends Controller
         $isUuid = Str::isUuid($identifier);
 
         try {
+            $underscored = str_replace(' ', '_', $identifier);
+
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->allowedIncludes(...$this->allowedIncludes())
                 ->with($this->defaultShowIncludes());
 
-            $itemData = null;
-
-            if ($isUuid) {
-                $itemData = $baseQuery()
-                    ->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier))
-                    ->first();
-            }
-
-            if ($itemData === null && ! $isUuid) {
-                $itemData = $baseQuery()
-                    ->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier))
-                    ->first();
-            }
+            $itemData = $baseQuery()
+                ->when(
+                    $isUuid,
+                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier)),
+                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier)),
+                )
+                ->first();
 
             if ($itemData === null) {
                 $itemData = $baseQuery()
-                    ->where(function (Builder $q) use ($identifier, $original) {
-                        $underscored = str_replace(' ', '_', $identifier);
-
-                        $q->where('name', $identifier)
-                            ->orWhereRaw('LOWER(name) = LOWER(?)', [$identifier])
-                            ->orWhere('class_name', $underscored)
-                            ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$underscored])
-                            ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$original]);
+                    ->where(function (Builder $q) use ($identifier, $original, $underscored) {
+                        $q->where('game_item_data.name', $identifier)
+                            ->orWhereRaw('LOWER(game_item_data.name) = LOWER(?)', [$identifier])
+                            ->orWhere('game_item_data.class_name', $underscored)
+                            ->orWhereRaw('LOWER(game_item_data.class_name) = LOWER(?)', [$underscored])
+                            ->orWhereRaw('LOWER(game_item_data.class_name) = LOWER(?)', [$original]);
                     })
                     ->first();
             }
