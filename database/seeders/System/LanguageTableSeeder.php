@@ -14,8 +14,9 @@ class LanguageTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Language::query()->firstOrCreate(['code' => 'en']);
-        Language::query()->firstOrCreate(['code' => 'de']);
-        Language::query()->firstOrCreate(['code' => 'zh']);
+        Language::query()->firstOrCreate(['code' => Language::ENGLISH]);
+        Language::query()->firstOrCreate(['code' => Language::GERMAN]);
+        Language::query()->firstOrCreate(['code' => Language::CHINESE]);
+        Language::query()->firstOrCreate(['code' => Language::FRENCH]);
     }
 }

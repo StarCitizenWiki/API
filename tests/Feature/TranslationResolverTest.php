@@ -5,8 +5,20 @@ declare(strict_types=1);
 use App\Http\Resources\TranslationResolver;
 use App\Models\Game\Item;
 use App\Models\System\Language;
+use Database\Seeders\System\LanguageTableSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
+
+it('seeds every supported translation locale', function (): void {
+    $this->seed(LanguageTableSeeder::class);
+
+    expect(Language::query()->pluck('code')->sort()->values()->all())->toBe([
+        Language::GERMAN,
+        Language::ENGLISH,
+        Language::FRENCH,
+        Language::CHINESE,
+    ]);
+});
 
 it('returns locale specific translations with english fallback', function (): void {
     Language::query()->insert([

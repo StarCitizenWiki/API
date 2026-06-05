@@ -20,10 +20,13 @@ class Language extends Model
 
     public const CHINESE = 'zh';
 
+    public const FRENCH = 'fr';
+
     public const OLD_LANG_MAP = [
         self::ENGLISH => 'en_EN',
         self::GERMAN => 'de_DE',
         self::CHINESE => 'zh_CN',
+        self::FRENCH => 'fr_FR',
     ];
 
     public const LABEL_MAP = [
@@ -33,5 +36,7 @@ class Language extends Model
         self::GERMAN => 'German',
         'zh_CN' => 'Chinese',
         self::CHINESE => 'Chinese',
+        'fr_FR' => 'French',
+        self::FRENCH => 'French',
     ];
 }

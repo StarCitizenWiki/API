@@ -19,6 +19,7 @@ $resolveTranslationModel = static function (string $type): array {
                     Language::ENGLISH => 'Comm-Link Example',
                     Language::GERMAN => 'Comm-Link Beispiel',
                     Language::CHINESE => 'Comm-Link 示例',
+                    Language::FRENCH => 'Exemple Comm-Link',
                 ],
             ]),
             'Comm-Link Example',
@@ -26,6 +27,7 @@ $resolveTranslationModel = static function (string $type): array {
                 Language::ENGLISH => 'Comm-Link Example',
                 Language::GERMAN => 'Comm-Link Beispiel',
                 Language::CHINESE => 'Comm-Link 示例',
+                Language::FRENCH => 'Exemple Comm-Link',
             ],
         ],
         'article' => [
@@ -35,6 +37,7 @@ $resolveTranslationModel = static function (string $type): array {
                     Language::ENGLISH => 'Galactapedia Example',
                     Language::GERMAN => 'Galactapedia Beispiel',
                     Language::CHINESE => 'Galactapedia 示例',
+                    Language::FRENCH => 'Exemple Galactapedia',
                 ],
             ]),
             'Galactapedia Example',
@@ -42,6 +45,7 @@ $resolveTranslationModel = static function (string $type): array {
                 Language::ENGLISH => 'Galactapedia Example',
                 Language::GERMAN => 'Galactapedia Beispiel',
                 Language::CHINESE => 'Galactapedia 示例',
+                Language::FRENCH => 'Exemple Galactapedia',
             ],
         ],
         'smSize' => [
@@ -51,6 +55,7 @@ $resolveTranslationModel = static function (string $type): array {
                     Language::ENGLISH => 'Small',
                     Language::GERMAN => 'Klein',
                     Language::CHINESE => '小',
+                    Language::FRENCH => 'Petit',
                 ],
             ]),
             null,
@@ -58,6 +63,7 @@ $resolveTranslationModel = static function (string $type): array {
                 Language::ENGLISH => 'Small',
                 Language::GERMAN => 'Klein',
                 Language::CHINESE => '小',
+                Language::FRENCH => 'Petit',
             ],
         ],
         'smFocus' => [
@@ -67,6 +73,7 @@ $resolveTranslationModel = static function (string $type): array {
                     Language::ENGLISH => 'Combat',
                     Language::GERMAN => 'Kampf',
                     Language::CHINESE => '战斗',
+                    Language::FRENCH => 'Combat',
                 ],
             ]),
             null,
@@ -74,6 +81,7 @@ $resolveTranslationModel = static function (string $type): array {
                 Language::ENGLISH => 'Combat',
                 Language::GERMAN => 'Kampf',
                 Language::CHINESE => '战斗',
+                Language::FRENCH => 'Combat',
             ],
         ],
         'smType' => [
@@ -83,6 +91,7 @@ $resolveTranslationModel = static function (string $type): array {
                     Language::ENGLISH => 'Fighter',
                     Language::GERMAN => 'Jäger',
                     Language::CHINESE => '战斗机',
+                    Language::FRENCH => 'Chasseur',
                 ],
             ]),
             null,
@@ -90,6 +99,7 @@ $resolveTranslationModel = static function (string $type): array {
                 Language::ENGLISH => 'Fighter',
                 Language::GERMAN => 'Jäger',
                 Language::CHINESE => '战斗机',
+                Language::FRENCH => 'Chasseur',
             ],
         ],
         default => throw new InvalidArgumentException("Unsupported translation type [{$type}]."),
@@ -195,7 +205,8 @@ it('renders the edit page for each translation resolver branch', function (strin
         ->assertSeeText('ID: '.$model->id)
         ->assertSeeText($translations[Language::ENGLISH])
         ->assertSeeText($translations[Language::GERMAN])
-        ->assertSeeText($translations[Language::CHINESE]);
+        ->assertSeeText($translations[Language::CHINESE])
+        ->assertSeeText($translations[Language::FRENCH]);
 
     if ($expectedHeading !== null) {
         $response->assertSeeText($expectedHeading);
@@ -240,6 +251,7 @@ it('updates translations for each resolver branch', function (string $type) use 
         Language::ENGLISH => $translations[Language::ENGLISH].' Updated',
         Language::GERMAN => $translations[Language::GERMAN].' Aktualisiert',
         Language::CHINESE => $translations[Language::CHINESE].' 更新',
+        Language::FRENCH => $translations[Language::FRENCH].' Mis à jour',
     ];
 
     $response = $this->actingAs($admin)->put(route('admin.translations.update', [
@@ -276,6 +288,7 @@ it('redirects guests to login on translations update', function (): void {
             Language::ENGLISH => 'Updated English translation',
             Language::GERMAN => 'Updated German translation',
             Language::CHINESE => 'Updated Chinese translation',
+            Language::FRENCH => 'Updated French translation',
         ],
     ]);
 
@@ -302,6 +315,7 @@ it('forbids non-admin users on translations update', function (): void {
                 Language::ENGLISH => 'Updated English translation',
                 Language::GERMAN => 'Updated German translation',
                 Language::CHINESE => 'Updated Chinese translation',
+                Language::FRENCH => 'Updated French translation',
             ],
         ]);
 
@@ -320,6 +334,7 @@ it('filters blank translations when updating', function (): void {
             Language::ENGLISH => 'Initial English translation',
             Language::GERMAN => 'Initial German translation',
             Language::CHINESE => 'Initial Chinese translation',
+            Language::FRENCH => 'Initial French translation',
         ],
     ]);
 
@@ -331,6 +346,7 @@ it('filters blank translations when updating', function (): void {
             Language::ENGLISH => 'Updated English translation',
             Language::GERMAN => '',
             Language::CHINESE => null,
+            Language::FRENCH => '',
         ],
     ]);
 
@@ -343,6 +359,7 @@ it('filters blank translations when updating', function (): void {
         Language::ENGLISH => 'Updated English translation',
         Language::GERMAN => 'Initial German translation',
         Language::CHINESE => 'Initial Chinese translation',
+        Language::FRENCH => 'Initial French translation',
     ]);
 });
 

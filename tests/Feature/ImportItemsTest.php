@@ -139,7 +139,8 @@ it('imports item data, description data, and translations and upserts on re-run'
         ->and($descriptionData->first()->value)->toBe('10')
         ->and($item->getTranslation('translation', Language::ENGLISH, false))->toBe('English description')
         ->and($item->getTranslation('translation', Language::CHINESE, false))->toBe('中文描述')
-        ->and($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung');
+        ->and($item->getTranslation('translation', Language::GERMAN, false))->toBe('Deutsche Beschreibung')
+        ->and($item->getTranslation('translation', Language::FRENCH, false))->toBeEmpty();
 
     // Re-run with updated payload to verify upsert behaviour
     $payload['Item']['grade'] = 4;

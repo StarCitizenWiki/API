@@ -235,7 +235,7 @@ class ImportItemData implements ShouldQueue
             return;
         }
 
-        foreach ([Language::CHINESE, Language::GERMAN] as $language) {
+        foreach (config('translations.locales', []) as $language) {
             try {
                 $updated = $this->syncLanguageTranslation($item, $descriptionLabel, $language) || $updated;
             } catch (Exception $e) {

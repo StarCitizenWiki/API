@@ -21,8 +21,6 @@ class ImportLabels extends Command
     public function handle(): int
     {
         $labelsPath = config('translations.labels_json');
-        $chinesePath = config('translations.sources.zh_CN');
-        $germanPath = config('translations.sources.de_DE');
 
         if (! file_exists($labelsPath)) {
             $this->error("Labels file not found: {$labelsPath}");
@@ -42,11 +40,7 @@ class ImportLabels extends Command
 
         $this->info("Loaded {$englishLabels->count()} English labels");
 
-        $chineseTranslations = $this->readIniTranslations($chinesePath);
-        $germanTranslations = $this->readIniTranslations($germanPath);
-
-        $this->info("Loaded {$chineseTranslations->count()} Chinese translations");
-        $this->info("Loaded {$germanTranslations->count()} German translations");
+        $translations = $this->loadTranslations();
 
         $this->info('Creating/updating database records...');
 
@@ -56,14 +50,17 @@ class ImportLabels extends Command
         $labelsData = [];
 
         foreach ($englishLabels as $key => $value) {
+            $labelTranslations = array_filter([
+                'en' => $value,
+                ...$translations->mapWithKeys(fn (Collection $trans, string $locale) => [
+                    $locale => $trans->get($key),
+                ])->toArray(),
+            ]);
+
             $labelsData[] = [
                 'id' => Str::uuid(),
                 'key' => $key,
-                'translation' => array_filter([
-                    'en' => $value,
-                    'de' => $germanTranslations->get($key),
-                    'zh' => $chineseTranslations->get($key),
-                ]),
+                'translation' => $labelTranslations,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -87,6 +84,36 @@ class ImportLabels extends Command
         $this->info("Successfully imported {$totalLabels} labels");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Load all configured INI translation sources, keyed by short locale code.
+     *
+     * @return Collection<string, Collection<string, string>>
+     */
+    private function loadTranslations(): Collection
+    {
+        /** @var array<string, string> $sources */
+        $sources = config('translations.sources', []);
+        $locales = config('translations.locales', []);
+
+        $localeMap = collect($sources)->mapWithKeys(fn (string $path, string $code) => [
+            substr($code, 0, 2) => $path,
+        ]);
+
+        return collect($locales)
+            ->mapWithKeys(function (string $locale) use ($localeMap) {
+                $path = $localeMap->get($locale);
+
+                if ($path === null) {
+                    return [$locale => collect()];
+                }
+
+                $translations = $this->readIniTranslations($path);
+                $this->info("Loaded {$translations->count()} ".strtoupper($locale).' translations');
+
+                return [$locale => $translations];
+            });
     }
 
     private function readJsonLabels(string $path): Collection

@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: Language::ENGLISH, type: 'string'),
         new OA\Property(property: Language::GERMAN, type: 'string'),
         new OA\Property(property: Language::CHINESE, type: 'string'),
+        new OA\Property(property: Language::FRENCH, type: 'string'),
     ],
     type: 'object'
 )]

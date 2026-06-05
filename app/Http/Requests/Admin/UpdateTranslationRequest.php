@@ -27,6 +27,7 @@ class UpdateTranslationRequest extends FormRequest
             'translations.'.Language::ENGLISH => ['nullable', 'string'],
             'translations.'.Language::GERMAN => ['nullable', 'string'],
             'translations.'.Language::CHINESE => ['nullable', 'string'],
+            'translations.'.Language::FRENCH => ['nullable', 'string'],
         ];
     }
 

@@ -7,3 +7,6 @@
 [submodule "storage/app/api/ScToolBoxLocales"]
 	path = storage/app/api/ScToolBoxLocales
 	url = https://github.com/StarCitizenToolBox/LocalizationData
+[submodule "storage/app/api/Scefra"]
+	path = storage/app/api/Scefra
+	url = https://github.com/SPEED0U/Scefra.git

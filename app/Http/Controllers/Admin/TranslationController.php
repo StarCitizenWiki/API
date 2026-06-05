@@ -45,6 +45,7 @@ class TranslationController extends Controller
             Language::ENGLISH => $model->getTranslation('translation', Language::ENGLISH, false) ?? '',
             Language::GERMAN => $model->getTranslation('translation', Language::GERMAN, false) ?? '',
             Language::CHINESE => $model->getTranslation('translation', Language::CHINESE, false) ?? '',
+            Language::FRENCH => $model->getTranslation('translation', Language::FRENCH, false) ?? '',
         ];
 
         return view('admin.translations.edit', compact('model', 'type', 'translations'));

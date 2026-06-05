@@ -17,12 +17,28 @@ return [
     'sources' => [
         'zh_CN' => storage_path('app/api/ScToolBoxLocales/chinese_(simplified)/global.ini'),
         'de_DE' => storage_path('app/api/StarCitizenDeutsch/live/global.ini'),
+        'fr_FR' => storage_path('app/api/Scefra/french_(france)/global.ini'),
     ],
 
     'sources_git' => [
         'de' => 'https://github.com/rjcncpt/StarCitizen-Deutsch-INI',
         'zh' => 'https://github.com/StarCitizenToolBox/LocalizationData',
+        'fr' => 'https://github.com/SPEED0U/Scefra',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Translation Locales
+    |--------------------------------------------------------------------------
+    |
+    | Locale codes that should be synced from game_labels into translatable
+    | models (e.g. game_items.translation). Derived from config sources,
+    | but defined explicitly for clarity. Add new locales here when adding
+    | a new translation source above.
+    |
+    */
+
+    'locales' => ['zh', 'de', 'fr'],
 
     /*
     |--------------------------------------------------------------------------

@@ -76,6 +76,21 @@
                                 >{{ old('translations.'.\App\Models\System\Language::CHINESE, $translations[\App\Models\System\Language::CHINESE]) }}</textarea>
                             </div>
 
+                            {{-- French Translation --}}
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold">{{ \App\Models\System\Language::LABEL_MAP[\App\Models\System\Language::FRENCH] }}</span>
+                                    <span class="label-text-alt">{{ \App\Models\System\Language::FRENCH }}</span>
+                                </label>
+                                <textarea
+                                    name="translations[{{ \App\Models\System\Language::FRENCH }}]"
+                                    data-testid="translation-edit-field-{{ \App\Models\System\Language::FRENCH }}"
+                                    class="textarea textarea-bordered w-full"
+                                    rows="10"
+                                    placeholder="Enter French translation..."
+                                >{{ old('translations.'.\App\Models\System\Language::FRENCH, $translations[\App\Models\System\Language::FRENCH]) }}</textarea>
+                            </div>
+
                             <div class="flex gap-2">
                                 <button type="submit" class="btn btn-primary" data-testid="translation-edit-submit">
                                     Save Translations

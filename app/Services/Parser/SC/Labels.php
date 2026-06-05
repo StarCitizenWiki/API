@@ -10,80 +10,65 @@ use Illuminate\Support\Facades\Cache;
 
 final class Labels
 {
-    private static ?Collection $staticLabelsLookup = null;
+    /** @var array<string, Collection>|null */
+    private static ?array $localeCaches = null;
 
-    private static ?Collection $staticZhTranslations = null;
-
-    private static ?Collection $staticDeTranslations = null;
-
-    private ?Collection $labelsLookup = null;
-
-    private ?Collection $zhTranslations = null;
-
-    private ?Collection $deTranslations = null;
+    private static ?Collection $enLabelsLookup = null;
 
     public function getData(): Collection
     {
-        if (self::$staticLabelsLookup === null) {
+        if (self::$enLabelsLookup === null) {
             $this->loadFromDatabase();
         }
 
-        return self::$staticLabelsLookup;
-    }
-
-    public function getDataZh(): Collection
-    {
-        if (self::$staticZhTranslations === null) {
-            $this->loadFromDatabase();
-        }
-
-        return self::$staticZhTranslations;
-    }
-
-    public function getDataDe(): Collection
-    {
-        if (self::$staticDeTranslations === null) {
-            $this->loadFromDatabase();
-        }
-
-        return self::$staticDeTranslations;
+        return self::$enLabelsLookup;
     }
 
     public function getTranslation(string $localeCode, string $key): ?string
     {
         $normalized = ltrim($key, '@');
 
-        return match ($localeCode) {
-            'zh' => $this->getDataZh()->get($normalized),
-            'zh_CN' => $this->getDataZh()->get($normalized),
-            'de' => $this->getDataDe()->get($normalized),
-            'de_DE' => $this->getDataDe()->get($normalized),
-            default => null,
-        };
+        return $this->getLocaleData($localeCode)?->get($normalized);
+    }
+
+    private function getLocaleData(string $localeCode): ?Collection
+    {
+        $locale = $this->normalizeLocale($localeCode);
+
+        if (! in_array($locale, config('translations.locales'), true)) {
+            return null;
+        }
+
+        if (self::$localeCaches === null) {
+            $this->loadFromDatabase();
+        }
+
+        return self::$localeCaches[$locale] ?? null;
+    }
+
+    private function normalizeLocale(string $localeCode): string
+    {
+        // 'zh_CN' -> 'zh', 'de_DE' -> 'de', 'fr_FR' -> 'fr'
+        return substr($localeCode, 0, 2);
     }
 
     private function loadFromDatabase(): void
     {
-        self::$staticLabelsLookup = collect(Cache::remember('labels:all', now()->addHours(24), function (): array {
+        self::$enLabelsLookup = collect(Cache::remember('labels:all', now()->addHours(24), function (): array {
             return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) {
                 return [$label->key => $label->getTranslation('translation', 'en')];
             })->all();
         }));
 
-        self::$staticZhTranslations = collect(Cache::remember('labels:zh', now()->addHours(24), function (): array {
-            $labels = GameLabel::all(['key', 'translation']);
+        $locales = config('translations.locales', []);
+        self::$localeCaches = [];
 
-            return $labels->mapWithKeys(function (GameLabel $label) {
-                return [$label->key => $label->getTranslation('translation', 'zh')];
-            })->filter()->all();
-        }));
-
-        self::$staticDeTranslations = collect(Cache::remember('labels:de', now()->addHours(24), function (): array {
-            $labels = GameLabel::all(['key', 'translation']);
-
-            return $labels->mapWithKeys(function (GameLabel $label) {
-                return [$label->key => $label->getTranslation('translation', 'de')];
-            })->filter()->all();
-        }));
+        foreach ($locales as $locale) {
+            self::$localeCaches[$locale] = collect(Cache::remember("labels:{$locale}", now()->addHours(24), function () use ($locale): array {
+                return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) use ($locale) {
+                    return [$label->key => $label->getTranslation('translation', $locale, false)];
+                })->filter()->all();
+            }));
+        }
     }
 }
