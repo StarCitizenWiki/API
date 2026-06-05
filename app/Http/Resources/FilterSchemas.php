@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'filter_value',
     title: 'Filter Value',
-    description: 'A value available for filtering along with a human label and result count.',
+    description: 'A value available for filtering with a human label and optional result count.',
     properties: [
         new OA\Property(
             property: 'value',
@@ -21,7 +21,7 @@ use OpenApi\Attributes as OA;
             ]
         ),
         new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(property: 'count', type: 'integer'),
+        new OA\Property(property: 'count', description: 'Result count when supplied by the facet.', type: 'integer', nullable: true),
     ],
     type: 'object'
 )]

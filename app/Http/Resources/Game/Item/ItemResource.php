@@ -74,6 +74,13 @@ use OpenApi\Attributes as OA;
             example: 'Common',
             nullable: true,
         ),
+        new OA\Property(
+            property: 'event_source',
+            description: 'Event or reward source labels for limited/event items. Empty for regular items.',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            example: ['IAE'],
+        ),
         new OA\Property(property: 'is_base_variant', description: 'Whether this item is the base variant (has no parent variant).', type: 'boolean'),
         new OA\Property(property: 'is_craftable', description: 'Whether this item can be crafted via blueprints.', type: 'boolean'),
         new OA\Property(
@@ -464,6 +471,9 @@ class ItemResource extends AbstractBaseResource
 
         $this->eagerLoadPortEquippedItems($itemData, $request);
 
+        $eventSource = Arr::get($itemData->data, 'event_source', []);
+        $eventSource = is_array($eventSource) ? array_values($eventSource) : [];
+
         return [
             'uuid' => $this->item->uuid,
             'slug' => $this->item->slug,
@@ -477,6 +487,7 @@ class ItemResource extends AbstractBaseResource
             $this->mergeWhen($itemData->rarity !== null, [
                 'rarity' => $itemData->rarity,
             ]),
+            'event_source' => $eventSource,
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
             $this->mergeWhen($itemData->is_craftable, [

@@ -27,6 +27,7 @@ final class ItemFieldCatalog
         'size',
         'mass',
         'rarity',
+        'event_source',
         'grade',
         'class',
         'type',
@@ -176,6 +177,7 @@ final class ItemFieldCatalog
             'grade' => ['type' => 'list'],
             'class' => ['type' => 'list'],
             'rarity' => ['type' => 'list'],
+            'event_source' => ['type' => 'list'],
         ];
     }
 

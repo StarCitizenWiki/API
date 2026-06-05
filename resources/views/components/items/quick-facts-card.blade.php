@@ -11,6 +11,7 @@
     $size = data_get($item, 'size');
     $grade = data_get($item, 'grade');
     $version = data_get($item, 'version');
+    $eventSource = data_get($item, 'event_source', []);
     $currentItemUuid = data_get($item, 'uuid');
     $baseVariant = data_get($item, 'related_items.base_item', []);
     $baseVariantUuid = data_get($baseVariant, 'uuid');
@@ -98,6 +99,10 @@
     $statsRows = [
         ['label' => 'UEX Listings', 'value' => $uexPricesCount > 0 ? (string) $uexPricesCount : '-'],
     ];
+
+    if ($eventSource !== []) {
+        $statsRows[] = ['label' => 'Event Source', 'value' => implode(', ', $eventSource)];
+    }
 
     if ($baseVariantUrl !== null) {
         $statsRows[] = [

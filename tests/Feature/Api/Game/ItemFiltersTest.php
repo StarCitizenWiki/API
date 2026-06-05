@@ -94,6 +94,7 @@ it('returns item filter values with counts', function (): void {
                     ['value' => 'A', 'label' => 'A', 'count' => 1],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
+                'event_source' => [],
                 'manufacturer' => [
                     ['value' => 'Acme', 'label' => 'Acme', 'count' => 1],
                     ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
@@ -172,6 +173,7 @@ it('filters item filter values by category', function (): void {
                 'class' => [
                     ['value' => 'Civilian', 'label' => 'Civilian', 'count' => 1],
                 ],
+                'event_source' => [],
                 'manufacturer' => [
                     ['value' => 'Category Co', 'label' => 'Category Co', 'count' => 1],
                 ],
@@ -249,6 +251,7 @@ it('filters item filter values by type', function (): void {
                 'class' => [
                     ['value' => 'Industrial', 'label' => 'Industrial', 'count' => 1],
                 ],
+                'event_source' => [],
                 'manufacturer' => [
                     ['value' => 'Type Co', 'label' => 'Type Co', 'count' => 1],
                 ],

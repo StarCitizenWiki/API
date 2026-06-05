@@ -260,17 +260,17 @@ class ItemData extends Model
 
     public function scopeFood(Builder $query): Builder
     {
-        return $query->whereIn('type', ['Food', 'Bottle', 'Drink']);
+        return $query->whereIn($this->qualifyColumn('type'), ['Food', 'Bottle', 'Drink']);
     }
 
     public function scopeMedical(Builder $query): Builder
     {
-        return $query->where('classification', 'FPS.Consumable.Medical');
+        return $query->where($this->qualifyColumn('classification'), 'FPS.Consumable.Medical');
     }
 
     public function scopeMiningModifiers(Builder $query): Builder
     {
-        return $query->whereIn('classification', [
+        return $query->whereIn($this->qualifyColumn('classification'), [
             'Mining.Module',
             'Mining.Gadget',
         ]);
@@ -278,9 +278,9 @@ class ItemData extends Model
 
     public function scopeWeaponAttachments(Builder $query): Builder
     {
-        return $query->where('type', 'WeaponAttachment')
+        return $query->where($this->qualifyColumn('type'), 'WeaponAttachment')
             ->whereNotIn(
-                'sub_type',
+                $this->qualifyColumn('sub_type'),
                 [
                     // Magazines
                     'Magazine',
@@ -292,35 +292,35 @@ class ItemData extends Model
                     'PowerArray',
                 ]
             )
-            ->whereNot('classification', 'Ship.WeaponAttachment.Barrel');
+            ->whereNot($this->qualifyColumn('classification'), 'Ship.WeaponAttachment.Barrel');
     }
 
     public function scopePersonalWeapons(Builder $query): Builder
     {
-        return $query->where('type', 'WeaponPersonal');
+        return $query->where($this->qualifyColumn('type'), 'WeaponPersonal');
     }
 
     public function scopeClothes(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.Clothing.%');
+            ->where($this->qualifyColumn('classification'), 'LIKE', 'FPS.Clothing.%');
     }
 
     public function scopeFpsItems(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.%');
+            ->where($this->qualifyColumn('classification'), 'LIKE', 'FPS.%');
     }
 
     public function scopeArmor(Builder $query): Builder
     {
         return $query
-            ->where('classification', 'LIKE', 'FPS.Armor.%');
+            ->where($this->qualifyColumn('classification'), 'LIKE', 'FPS.Armor.%');
     }
 
     public function scopeVehicleWeapons(Builder $query): Builder
     {
-        return $query->where('type', 'WeaponGun');
+        return $query->where($this->qualifyColumn('type'), 'WeaponGun');
     }
 
     public function scopeVehicleItems(Builder $query): Builder
@@ -334,7 +334,7 @@ class ItemData extends Model
             // ->where('class_name', 'NOT LIKE', '%s%_turret')
             // ->where('class_name', 'NOT LIKE', 'mrck_s05_orig_%')
             // ->where('class_name', 'NOT LIKE', 'mrck_s05_behr_quad_s03_a')
-            ->whereIn('type', [
+            ->whereIn($this->qualifyColumn('type'), [
                 'Arm',
                 'Armor',
                 'Battery',
@@ -385,7 +385,7 @@ class ItemData extends Model
     public function scopeVehicleFlairItems(Builder $query): Builder
     {
         return $query
-            ->whereIn('type', [
+            ->whereIn($this->qualifyColumn('type'), [
                 'Flair_Cockpit',
                 'Flair_Wall',
                 'Flair_Floor',
@@ -396,7 +396,7 @@ class ItemData extends Model
     public function scopeVehicleComponents(Builder $query): Builder
     {
         return $query
-            ->whereIn('type', [
+            ->whereIn($this->qualifyColumn('type'), [
                 'Cooler',
                 'Shield',
                 'PowerPlant',

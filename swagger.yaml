@@ -1193,6 +1193,12 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[event_source]'
+          in: query
+          description: 'Event or reward source label. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values). Example: `IAE`'
+          schema:
+            type: string
+        -
           name: 'filter[include_irrelevant]'
           in: query
           description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
@@ -1746,6 +1752,12 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[event_source]'
+          in: query
+          description: 'Narrow facets to items with this event or reward source. Example: `IAE`'
+          schema:
+            type: string
+        -
           name: 'filter[include_irrelevant]'
           in: query
           description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.'
@@ -1758,7 +1770,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0-12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1-7, mapped A-G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                  filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0-12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1-7, mapped A-G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, event_source: { description: 'Event or reward source labels (count-less values)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
   /api/manufacturers:
     get:
@@ -5108,7 +5120,7 @@ components:
   schemas:
     filter_value:
       title: 'Filter Value'
-      description: 'A value available for filtering along with a human label and result count.'
+      description: 'A value available for filtering with a human label and optional result count.'
       properties:
         value:
           nullable: true
@@ -5122,7 +5134,9 @@ components:
         label:
           type: string
         count:
+          description: 'Result count when supplied by the facet.'
           type: integer
+          nullable: true
       type: object
     blueprint_output:
       title: 'Blueprint Output'
@@ -7708,6 +7722,13 @@ components:
             - Legendary
           example: Common
           nullable: true
+        event_source:
+          description: 'Event or reward source labels for limited/event items. Empty for regular items.'
+          type: array
+          items:
+            type: string
+          example:
+            - IAE
         is_base_variant:
           description: 'Whether this item is the base variant (has no parent variant).'
           type: boolean

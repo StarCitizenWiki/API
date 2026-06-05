@@ -412,6 +412,18 @@ class ItemController extends Controller
             AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
                 $this->applyColumnFilter($query, 'game_item_data.rarity', $value);
             }),
+            AllowedFilter::callback('event_source', static function (Builder $query, mixed $value): void {
+                $sources = self::normalizeFilterTags($value);
+                if ($sources === []) {
+                    return;
+                }
+
+                $query->where(static function (Builder $q) use ($sources): void {
+                    foreach ($sources as $source) {
+                        $q->orWhereJsonContains('data->event_source', $source);
+                    }
+                });
+            }),
             // filter[tags]: AND on RequiredTags -> item must have ALL provided tags
             AllowedFilter::callback('tags', static function (Builder $query, mixed $value): void {
                 $tags = self::normalizeFilterTags($value);
@@ -690,6 +702,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[grade]', description: 'Exact item grade (1-7, mapped to A-G). Example: `3`', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[class]', description: 'Exact match on item class. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values). Example: `Military`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Item rarity. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values). Example: `Rare`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[event_source]', description: 'Event or reward source label. Accepts comma-separated values for OR matching. (see GET /api/items/filters for valid values). Example: `IAE`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[tags]', description: 'Filter by stdItem.RequiredTags array values. Use when a port has required_tags - matches items whose RequiredTags contain ALL specified values. Accepts comma-separated tags for AND matching. Example: `MISC_Fury_Miru`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[port_tags]', description: 'Filter items by RequiredTags compatibility with a port\'s tags. Accepts comma-separated port tag values. Returns items where any of their RequiredTags appear in the provided tags, OR items with no RequiredTags but whose Tags overlap with the provided tags (e.g. older paint system). Items with no RequiredTags and no overlapping Tags are excluded. Pass the port_tags value from a vehicle hardpoint port. Example: `flight_ready,Ship_Dock_Refuel`', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -1093,6 +1106,7 @@ class ItemController extends Controller
             new OA\Parameter(name: 'filter[grade]', description: 'Narrow facets to items with this grade. Example: `3`', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[class]', description: 'Narrow facets to items with this class. Example: `Military`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[rarity]', description: 'Narrow facets to items with this rarity. Example: `Rare`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[event_source]', description: 'Narrow facets to items with this event or reward source. Example: `IAE`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[include_irrelevant]', description: 'When set to true, includes items flagged as not player-relevant (test, placeholder, dev items). Default shows only relevant items.', in: 'query', schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [
@@ -1112,6 +1126,7 @@ class ItemController extends Controller
                                 new OA\Property(property: 'class', description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'manufacturer', description: 'Manufacturer names', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                                 new OA\Property(property: 'rarity', description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
+                                new OA\Property(property: 'event_source', description: 'Event or reward source labels (count-less values)', type: 'array', items: new OA\Items(ref: '#/components/schemas/filter_value')),
                             ],
                             type: 'object'
                         ),
@@ -1211,6 +1226,8 @@ class ItemController extends Controller
                 $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null, $facet['labelResolver'] ?? null);
             }
 
+            $out['event_source'] = $this->eventSourceFilterValues(clone $baseQuery);
+
             return $out;
         };
 
@@ -1230,6 +1247,37 @@ class ItemController extends Controller
     }
 
     /**
+     * @return array<int, array{value: string, label: string}>
+     */
+    private function eventSourceFilterValues(QueryBuilder $query): array
+    {
+        $driver = DB::connection()->getDriverName();
+
+        $tableExpression = $driver === 'sqlite'
+            ? "json_each(game_item_data.data, '$.event_source') AS event_source_values"
+            : "LATERAL jsonb_array_elements_text(game_item_data.data->'event_source') AS event_source_values(value)";
+
+        $valueExpression = 'event_source_values.value';
+
+        return $query
+            ->join(DB::raw($tableExpression), DB::raw('1'), '=', DB::raw('1'))
+            ->selectRaw("{$valueExpression} as value")
+            ->whereRaw("{$valueExpression} IS NOT NULL")
+            ->whereRaw("{$valueExpression} <> ''")
+            ->distinct()
+            ->orderBy('value')
+            ->get()
+            ->pluck('value')
+            ->filter(static fn (mixed $value): bool => is_string($value) && trim($value) !== '')
+            ->map(static fn (string $value): array => [
+                'value' => $value,
+                'label' => $value,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
      * Normalize a filter value to a non-empty array of tag strings.
      *
      * @return list<string>
@@ -1238,7 +1286,17 @@ class ItemController extends Controller
     {
         $tags = is_array($value) ? $value : [$value];
 
-        return array_values(array_filter($tags, static fn ($item) => $item !== null && $item !== ''));
+        return array_map(static function (mixed $item): ?string {
+            if (! is_scalar($item)) {
+                return null;
+            }
+
+            $tag = trim((string) $item);
+
+            return $tag === '' ? null : $tag;
+        }, $tags)
+                |> (static fn ($x) => array_filter($x, static fn (?string $item): bool => $item !== null))
+                |> array_values(...);
     }
 
     /**

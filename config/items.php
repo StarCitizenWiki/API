@@ -350,6 +350,13 @@ return [
                 'minWidth' => 220,
             ],
             [
+                'title' => 'Event',
+                'field' => 'event_source',
+                'headerSort' => false,
+                'headerFilter' => 'list',
+                'minWidth' => 160,
+            ],
+            [
                 'title' => 'Class Name',
                 'field' => 'class_name',
                 'headerSort' => true,
@@ -376,6 +383,7 @@ return [
             'sub_type_label' => 'sub_type',
             'classification_label' => 'classification',
             'rarity' => 'rarity',
+            'event_source' => 'event_source',
             'size' => 'size',
             'grade' => 'grade',
             'class' => 'class',

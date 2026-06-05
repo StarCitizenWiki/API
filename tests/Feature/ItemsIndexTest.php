@@ -231,3 +231,44 @@ it('renders breadcrumbs for item filters', function (): void {
             ],
         ]));
 });
+
+it('ignores nested array values in item tag filters', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Festival Jacket',
+            'class_name' => 'festival_jacket',
+            'data' => ['event_source' => ['IAE']],
+        ]);
+
+    $response = $this->getJson(route('items.index', [
+        'filter' => [
+            'event_source' => [
+                ['nested'],
+            ],
+        ],
+    ]));
+
+    $response->assertSuccessful()
+        ->assertJsonStructure([
+            'data' => [
+                '*' => ['uuid', 'name', 'event_source'],
+            ],
+            'links',
+            'meta',
+        ])
+        ->assertJsonPath('data.0.name', 'Festival Jacket')
+        ->assertJsonPath('data.0.event_source', ['IAE']);
+});
