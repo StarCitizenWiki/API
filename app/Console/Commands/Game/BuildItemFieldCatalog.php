@@ -16,6 +16,8 @@ class BuildItemFieldCatalog extends Command
 
     private const array SCALAR_FIELD_TYPES = ['boolean', 'integer', 'number', 'string'];
 
+    private const array COLUMNABLE_ARRAY_ITEM_TYPES = ['integer', 'number', 'string'];
+
     /**
      * The name and signature of the console command.
      *
@@ -186,7 +188,7 @@ class BuildItemFieldCatalog extends Command
                     nullable: $nullable,
                     array: true,
                     deprecated: $deprecated,
-                    columnable: false,
+                    columnable: $this->hasOnlyColumnableArrayItemTypes($itemTypes),
                     suffix: $this->schemaSuffix($schema),
                     formatter: $this->schemaFormatter($schema),
                     formatterParams: $this->schemaFormatterParams($schema),
@@ -320,6 +322,14 @@ class BuildItemFieldCatalog extends Command
         $types = $this->sortedUnique(array_filter($types, static fn (string $type): bool => $type !== 'mixed'));
 
         return count($types) === 1 ? $types[0] : 'mixed';
+    }
+
+    /**
+     * @param  array<int, string>  $types
+     */
+    private function hasOnlyColumnableArrayItemTypes(array $types): bool
+    {
+        return $types !== [] && array_diff($types, self::COLUMNABLE_ARRAY_ITEM_TYPES) === [];
     }
 
     /**
