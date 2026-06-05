@@ -31,6 +31,12 @@ final class Labels
         return $this->getLocaleData($localeCode)?->get($normalized);
     }
 
+    public static function flushCache(): void
+    {
+        self::$localeCaches = null;
+        self::$enLabelsLookup = null;
+    }
+
     private function getLocaleData(string $localeCode): ?Collection
     {
         $locale = $this->normalizeLocale($localeCode);

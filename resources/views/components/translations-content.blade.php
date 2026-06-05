@@ -41,7 +41,7 @@
 @if ($translationEntries !== [])
     @if (count($translationEntries) === 1)
         <div class="max-h-48 overflow-y-auto text-sm leading-relaxed whitespace-pre-line text-subtle">
-            {!! nl2br(e($translationEntries[0]['text'])) !!}
+            {!! e($translationEntries[0]['text']) !!}
         </div>
     @else
         <div role="tablist" class="tabs tabs-bordered">
@@ -64,9 +64,9 @@
                 />
                 <div role="tabpanel" class="tab-content text-sm leading-relaxed whitespace-pre-line text-subtle">
                     @if ($entry['text'])
-                        {!! nl2br(e($entry['text'])) !!}
+                        {!! e($entry['text']) !!}
 
-                        @if ($attributionLinks && in_array($entry['label'], ['German', 'Chinese'], true) && is_string($entry['locale']))
+                        @if ($attributionLinks && is_string($entry['locale']) && config('translations.sources_git.'.substr($entry['locale'], 0, 2)))
                             <div class="mt-3 text-xs text-subtle">
                                 {{ $entry['label'] }} translation from
                                 <a

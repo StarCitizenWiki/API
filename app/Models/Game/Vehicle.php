@@ -8,17 +8,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Translatable\HasTranslations;
 
 class Vehicle extends Model
 {
     use HasFactory;
+    use HasTranslations;
     use HasVersionedData;
+
+    public array $translatable = ['translation'];
 
     protected $table = 'game_vehicles';
 
     protected $fillable = [
         'uuid',
         'slug',
+        'translation',
     ];
 
     protected $casts = [

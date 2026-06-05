@@ -24,6 +24,7 @@ class VehicleFactory extends Factory
         return [
             'uuid' => fake()->unique()->uuid(),
             'slug' => fake()->unique()->slug(2),
+            'translation' => null,
         ];
     }
 }

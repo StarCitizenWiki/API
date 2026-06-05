@@ -8,9 +8,11 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use App\Models\System\Language;
 use App\Services\Game\SlugService;
 use App\Services\Game\VehicleMatchingService;
 use App\Services\ItemRelevanceChecker;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,6 +38,8 @@ class ImportVehicleData implements ShouldQueue
 
     /** @var array<string, Vehicle>|null UUID => Vehicle */
     private static ?array $vehicleCache = null;
+
+    private static ?Labels $labels = null;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -74,6 +78,8 @@ class ImportVehicleData implements ShouldQueue
         );
 
         $this->syncInstalledItems($vehicleData, $payload);
+
+        $this->syncTranslations($vehicle, $payload);
 
         $this->updateSlug($vehicle, $payload);
 
@@ -272,6 +278,49 @@ class ImportVehicleData implements ShouldQueue
         }
 
         return array_unique(array_filter($uuids));
+    }
+
+    /**
+     * Sync description translations from label keys onto the parent Vehicle model.
+     */
+    private function syncTranslations(Vehicle $vehicle, array $payload): void
+    {
+        $descriptionKey = Arr::get($payload, 'DescriptionKey');
+
+        if (! is_string($descriptionKey) || trim($descriptionKey) === '') {
+            return;
+        }
+
+        $updated = false;
+
+        $englishDescription = $payload['DescriptionText'] ?? $payload['Description'] ?? null;
+
+        if (is_string($englishDescription) && trim($englishDescription) !== '') {
+            $vehicle->setTranslation('translation', Language::ENGLISH, trim($englishDescription));
+            $updated = true;
+        }
+
+        foreach (config('translations.locales', []) as $locale) {
+            $translation = $this->getLabels()->getTranslation($locale, $descriptionKey);
+
+            if ($translation !== null && $translation !== '') {
+                $vehicle->setTranslation('translation', $locale, str_replace('\n', "\n", $translation));
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
+            $vehicle->save();
+        }
+    }
+
+    private function getLabels(): Labels
+    {
+        if (self::$labels === null) {
+            self::$labels = new Labels;
+        }
+
+        return self::$labels;
     }
 
     private function updateSlug(Vehicle $vehicle, array $payload): void

@@ -210,6 +210,12 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[group]'
+          in: query
+          description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`'
+          schema:
+            type: string
+        -
           name: 'filter[refined_version]'
           in: query
           description: 'Refined version name (see GET /api/commodities/filters for valid values). Example: `Agricium`'
@@ -363,6 +369,12 @@ paths:
           schema:
             type: string
         -
+          name: 'filter[group]'
+          in: query
+          description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`'
+          schema:
+            type: string
+        -
           name: 'filter[refined_version]'
           in: query
           description: 'Refined version name. Example: `Agricium`'
@@ -423,7 +435,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  filters: { properties: { system: { description: 'Star systems where commodities can be found', type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { description: 'Location type names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Commodity tier/rarity levels', type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { description: 'Resource kinds', type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { description: 'Refined version names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { description: 'Starmap locations grouped by system', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
+                  filters: { properties: { system: { description: 'Star systems where commodities can be found', type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { description: 'Location type names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Commodity tier/rarity levels', type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { description: 'Resource kinds', type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { description: 'Refined version names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, group: { description: 'Commodity groups', type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { description: 'Starmap locations grouped by system', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
   /api/factions:
     get:
@@ -1483,7 +1495,7 @@ paths:
       tags:
         - Items
       summary: 'In-Game Item Detail'
-      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Vehicle-type items (NOITEM_Vehicle) automatically redirect to GET /api/vehicles/{uuid}.'
+      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.'
       operationId: getItem
       parameters:
         -
@@ -1850,7 +1862,7 @@ paths:
       tags:
         - Missions
       summary: 'List Game Missions'
-      description: 'Returns paginated missions for the requested or default game version. Results are grouped by title when no filters or sorts are active. Includes mission, game version, faction, and blueprint relationships.'
+      description: 'Returns paginated missions for the requested or default game version. Results are grouped by mission variant key by default. Grouping is automatically disabled when filters are active unless filter[grouped]=true is set explicitly. Includes mission, game version, faction, and blueprint relationships.'
       operationId: listMissions
       parameters:
         -
@@ -2006,6 +2018,12 @@ paths:
           description: 'Filter by starmap location UUID. Example: `2bf56608-62ea-4d1a-9e9b-38377004dc1b`'
           schema:
             type: string
+        -
+          name: 'filter[grouped]'
+          in: query
+          description: 'Control mission variant grouping. Defaults to true (grouped) when no filters are active, false (ungrouped) when filters are active. Set explicitly to true to keep grouping with filters, or false to always ungroup.'
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'List of missions'
@@ -2575,7 +2593,7 @@ paths:
               schema:
                 properties:
                   data: { type: array, items: { properties: { uuid: { type: string, format: uuid }, name: { type: string }, type: { type: string }, system: { type: string }, parent_uuid: { type: string, format: uuid, nullable: true }, x: { type: number, format: float }, 'y': { type: number, format: float }, z: { type: number, format: float } }, type: object } }
-                  connections: { type: array, items: { properties: { entry_uuid: { type: string, format: uuid }, exit_uuid: { type: string, format: uuid }, entry_system: { type: string }, exit_system: { type: string }, fuel_cost: { type: integer }, size_class: { type: string, enum: [small, large, unknown] } }, type: object } }
+                  connections: { type: array, items: { properties: { entry_uuid: { type: string, format: uuid }, exit_uuid: { type: string, format: uuid }, entry_system: { type: string }, exit_system: { type: string }, fuel_cost: { description: 'Fuel cost in SCU', type: number }, size_class: { type: string, enum: [small, large, unknown] } }, type: object } }
                 type: object
   /api/search:
     get:
@@ -5905,6 +5923,9 @@ components:
         name:
           description: 'Display name of the commodity.'
           type: string
+        display_name:
+          description: 'Name with leaf commodity group in parentheses, e.g. "WiDoW (Vice)".'
+          type: string
         slug:
           description: 'URL-friendly slug for the commodity.'
           type: string
@@ -5984,6 +6005,12 @@ components:
         kind:
           description: 'Resource kind classification (e.g. "Mineable", "Harvestable").'
           type: string
+          nullable: true
+        commodity_groups:
+          description: 'Ordered commodity groups from root to leaf (e.g. ["ProcessedGoods", "Vice"]).'
+          type: array
+          items:
+            type: string
           nullable: true
         methods:
           description: 'Available extraction methods (e.g. ["Ship", "Ground Vehicle", "FPS"]).'
@@ -6203,6 +6230,9 @@ components:
             name:
               description: 'Display name of the commodity.'
               type: string
+            display_name:
+              description: 'Name with leaf commodity group in parentheses, e.g. "WiDoW (Vice)".'
+              type: string
             slug:
               description: 'URL-friendly slug for the commodity.'
               type: string
@@ -6282,6 +6312,12 @@ components:
             kind:
               description: 'Resource kind classification (e.g. "Mineable", "Harvestable").'
               type: string
+              nullable: true
+            commodity_groups:
+              description: 'Ordered commodity groups from root to leaf (e.g. ["ProcessedGoods", "Vice"]).'
+              type: array
+              items:
+                type: string
               nullable: true
             methods:
               description: 'Available extraction methods (e.g. ["Ship", "Ground Vehicle", "FPS"]).'
@@ -18949,6 +18985,16 @@ components:
           type: string
           example: Combat
           nullable: true
+        game_description:
+          description: 'Vehicle description from raw game data, or a translation object with localized strings.'
+          nullable: true
+          oneOf:
+            -
+              type: string
+            -
+              type: object
+              additionalProperties:
+                type: string
         web_url:
           type: string
           example: 'https://example.com/vehicles/uuid'
@@ -20149,6 +20195,8 @@ components:
         de:
           type: string
         zh:
+          type: string
+        fr:
           type: string
       type: object
     translation_single:

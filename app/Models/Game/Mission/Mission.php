@@ -10,17 +10,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 class Mission extends Model
 {
     use HasFactory;
+    use HasTranslations;
     use HasVersionedData;
+
+    public array $translatable = ['translation'];
 
     protected $table = 'game_missions';
 
     protected $fillable = [
         'uuid',
         'slug',
+        'translation',
     ];
 
     public function getRouteKeyName(): string

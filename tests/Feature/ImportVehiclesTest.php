@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ImportVehicleData;
+use App\Models\Game\GameLabel;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
@@ -14,12 +15,16 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Services\Game\VehicleMatchingService;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
     VehicleMatchingService::resetState();
+    Labels::flushCache();
+    Cache::flush();
 });
 
 it('fails when the game version does not exist', function (): void {
@@ -526,4 +531,105 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
 
     expect($data7->name)->toBe('MISC Prospector')
         ->and($data7->display_name)->toBe('Prospector');
+});
+
+it('syncs description translations when DescriptionKey is present', function (): void {
+    Storage::fake('scunpacked');
+
+    GameLabel::factory()->create([
+        'key' => 'vehicle_Desc_Test_Ship',
+        'translation' => [
+            'en' => 'English ship description',
+            'zh' => '中文描述',
+            'de' => 'Deutsche Beschreibung',
+        ],
+    ]);
+
+    $version = GameVersion::query()->create([
+        'code' => '3.24.1',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => false,
+    ]);
+
+    $manufacturerUuid = fake()->uuid();
+    Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Test Manufacturer',
+        'code' => 'TST',
+    ]);
+
+    $vehicleUuid = fake()->uuid();
+    $payload = [
+        'UUID' => $vehicleUuid,
+        'ClassName' => 'TEST_SHIP',
+        'Name' => 'Test Ship',
+        'DescriptionKey' => 'vehicle_Desc_Test_Ship',
+        'DescriptionText' => 'English ship description',
+        'Career' => 'Combat',
+        'Role' => 'Fighter',
+        'IsVehicle' => false,
+        'IsGravlev' => false,
+        'IsSpaceship' => true,
+        'Size' => 2,
+        'Manufacturer' => [
+            'UUID' => $manufacturerUuid,
+            'Name' => 'Test Manufacturer',
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('ships/test.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    (new ImportVehicleData($version->id, 'ships/test.json'))->handle();
+
+    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
+    expect($vehicle)->not->toBeNull()
+        ->and($vehicle->getTranslation('translation', 'en', false))->toBe('English ship description')
+        ->and($vehicle->getTranslation('translation', 'zh', false))->toBe('中文描述')
+        ->and($vehicle->getTranslation('translation', 'de', false))->toBe('Deutsche Beschreibung')
+        ->and($vehicle->getTranslation('translation', 'fr', false))->toBeEmpty();
+});
+
+it('skips translation sync when DescriptionKey is null', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::query()->create([
+        'code' => '3.24.2',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => false,
+    ]);
+
+    $manufacturerUuid = fake()->uuid();
+    Manufacturer::query()->create([
+        'uuid' => $manufacturerUuid,
+        'name' => 'Test Manufacturer',
+        'code' => 'TST',
+    ]);
+
+    $vehicleUuid = fake()->uuid();
+    $payload = [
+        'UUID' => $vehicleUuid,
+        'ClassName' => 'TEST_SHIP_NOKEY',
+        'Name' => 'No Key Ship',
+        'DescriptionKey' => null,
+        'Career' => 'Transport',
+        'Role' => 'Hauler',
+        'IsVehicle' => false,
+        'IsGravlev' => false,
+        'IsSpaceship' => true,
+        'Size' => 3,
+        'Manufacturer' => [
+            'UUID' => $manufacturerUuid,
+            'Name' => 'Test Manufacturer',
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('ships/nokey.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    (new ImportVehicleData($version->id, 'ships/nokey.json'))->handle();
+
+    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
+    expect($vehicle)->not->toBeNull()
+        ->and($vehicle->getTranslations('translation'))->toBe([]);
 });

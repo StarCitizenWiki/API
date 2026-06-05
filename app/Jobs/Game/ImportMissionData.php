@@ -14,7 +14,9 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Models\System\Language;
 use App\Services\Game\SlugService;
+use App\Services\Parser\SC\Labels;
 use App\Support\Filters\MissionScopeMapping;
 use App\Support\Formatting\FormatMissionText;
 use Illuminate\Bus\Batchable;
@@ -63,6 +65,8 @@ class ImportMissionData implements ShouldQueue
 
     /** @var array<string, Mission>|null */
     private static ?array $missionCache = null;
+
+    private static ?Labels $labels = null;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -206,6 +210,7 @@ class ImportMissionData implements ShouldQueue
         $this->syncCommodities($missionData, $payload);
         $this->syncItems($missionData, $payload);
         $this->syncRewardItems($missionData, $payload);
+        $this->syncTranslations($mission, $payload);
     }
 
     private function readPayload(): array
@@ -752,6 +757,50 @@ class ImportMissionData implements ShouldQueue
         $value = trim($value);
 
         return $value === '' ? null : $value;
+    }
+
+    /**
+     * Sync description translations from label keys onto the parent Mission model.
+     */
+    private function syncTranslations(Mission $mission, array $payload): void
+    {
+        $descriptionKey = $this->trimOrNull(Arr::get($payload, 'description_key'));
+
+        if ($descriptionKey === null) {
+            return;
+        }
+
+        $updated = false;
+
+        $englishDescription = $this->trimOrNull(Arr::get($payload, 'DisplayDescription'))
+            ?? $this->trimOrNull(Arr::get($payload, 'Description'));
+
+        if ($englishDescription !== null) {
+            $mission->setTranslation('translation', Language::ENGLISH, $englishDescription);
+            $updated = true;
+        }
+
+        foreach (config('translations.locales', []) as $locale) {
+            $translation = $this->getLabels()->getTranslation($locale, $descriptionKey);
+
+            if ($translation !== null && $translation !== '') {
+                $mission->setTranslation('translation', $locale, str_replace('\n', "\n", $translation));
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
+            $mission->save();
+        }
+    }
+
+    private function getLabels(): Labels
+    {
+        if (self::$labels === null) {
+            self::$labels = new Labels;
+        }
+
+        return self::$labels;
     }
 
     private function assignSlug(Mission $mission, array $payload): void

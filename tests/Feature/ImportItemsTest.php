@@ -14,8 +14,14 @@ use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+
+beforeEach(function (): void {
+    Labels::flushCache();
+    Cache::flush();
+});
 
 it('fails when the game version does not exist', function (): void {
     $this->artisan('game:import-items', ['version' => 'missing'])

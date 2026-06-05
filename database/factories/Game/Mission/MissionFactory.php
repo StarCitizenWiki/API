@@ -22,6 +22,7 @@ class MissionFactory extends Factory
         return [
             'uuid' => fake()->unique()->uuid(),
             'slug' => Str::slug($title),
+            'translation' => null,
         ];
     }
 }

@@ -17,6 +17,7 @@ use App\Http\Resources\Game\Vehicle\Builders\VehicleWeaponryBuilder;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
+use App\Http\Resources\TranslationResolver;
 use App\Models\Game\VehicleData;
 use App\Services\Game\WeaponSnapshotService;
 use App\Support\Game\HardpointCategory;
@@ -597,6 +598,18 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'career', description: 'Primary career classification (see GET /api/vehicles/filters for valid values).', type: 'string', example: 'Light Freight', nullable: true),
         new OA\Property(property: 'role', description: 'Specific role within the career (see GET /api/vehicles/filters for valid values).', type: 'string', example: 'Combat', nullable: true),
+        new OA\Property(
+            property: 'game_description',
+            description: 'Vehicle description from raw game data, or a translation object with localized strings.',
+            nullable: true,
+            oneOf: [
+                new OA\Schema(type: 'string'),
+                new OA\Schema(
+                    type: 'object',
+                    additionalProperties: new OA\AdditionalProperties(type: 'string'),
+                ),
+            ],
+        ),
         new OA\Property(property: 'web_url', type: 'string', example: 'https://example.com/vehicles/uuid', nullable: true),
         new OA\Property(property: 'link', type: 'string', example: 'https://api.example.com/vehicles/uuid'),
         new OA\Property(property: 'description', ref: '#/components/schemas/translation', description: 'Ship-Matrix vehicle description', nullable: true),
@@ -1058,6 +1071,8 @@ class VehicleResource extends AbstractBaseResource
             'career' => $vehicleData->career ?? Arr::get($payload, 'Career'),
             'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
 
+            'game_description' => $this->resolveGameDescription($vehicleData, $request),
+
             $this->mergeWhen(
                 $this->relationLoaded('shipMatrixVehicle') && $this->shipMatrixVehicle?->relationLoaded('components') && $this->isVehicleShowRoute($request),
                 fn () => ['components' => $this->getComponents($vehicleData)]
@@ -1089,6 +1104,17 @@ class VehicleResource extends AbstractBaseResource
 
             ...$this->resolveShipMatrixData($vehicleData, $request),
         ];
+    }
+
+    private function resolveGameDescription(VehicleData $vehicleData, Request $request): array|string|null
+    {
+        $vehicle = $vehicleData->vehicle;
+
+        if ($vehicle === null || $vehicle->getTranslations('translation') === []) {
+            return null;
+        }
+
+        return TranslationResolver::resolve($vehicle, $request);
     }
 
     private function buildWebUrl(Request $request): string

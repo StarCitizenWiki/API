@@ -63,7 +63,7 @@
         </div>
 
         <div class="mx-auto grid w-full gap-4 xl:grid-cols-12">
-            <x-vehicles.hero :vehicle="$vehicle" :translations="data_get($vehicle, 'description')" class="xl:col-span-6" />
+            <x-vehicles.hero :vehicle="$vehicle" :translations="data_get($vehicle, 'game_description')" class="xl:col-span-6" />
             <x-vehicles.quick-facts-card :vehicle="$vehicle" class="xl:col-span-6" />
         </div>
 

@@ -76,6 +76,7 @@ class MissionController extends Controller
     {
         $apiRequest = $request->duplicate();
         $apiRequest->query->set('include', 'faction,starmapLocations,blueprints,rewardItems,unlocks,requiredBy,prerequisites');
+        $apiRequest->query->set('locale', 'all');
 
         $payload = $this->apiJsonRequest->request(route('missions.show', ['mission' => $mission], false), $apiRequest);
         $data = Arr::get($payload, 'data', []);
