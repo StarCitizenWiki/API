@@ -9,7 +9,6 @@ use App\Models\Game\Mission\MissionBlueprint;
 use App\Models\Game\Mission\MissionData;
 use Database\Factories\Game\BlueprintDataFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,7 +47,7 @@ class BlueprintData extends Model
         'craft_time_seconds' => 'integer',
         'is_available_by_default' => 'boolean',
         'ingredient_resource_type_uuids' => 'array',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function blueprint(): BelongsTo

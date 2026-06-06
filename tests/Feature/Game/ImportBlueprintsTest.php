@@ -181,7 +181,7 @@ it('imports blueprints, keeps full payloads, and syncs ingredient resource types
         ->and($blueprintData->output_class)->toBe('alpha_output_class')
         ->and($blueprintData->craft_time_seconds)->toBe(240)
         ->and($blueprintData->is_available_by_default)->toBeTrue()
-        ->and($blueprintData->data->get('UUID'))->toBe($payload[0]['UUID']);
+        ->and($blueprintData->data['UUID'])->toBe($payload[0]['UUID']);
 
     $ingredientUuids = $blueprintData->ingredients->pluck('uuid')->sort()->values()->all();
     expect($ingredientUuids)->toBe(collect([$ironUuid, $lindiniumUuid])->sort()->values()->all());

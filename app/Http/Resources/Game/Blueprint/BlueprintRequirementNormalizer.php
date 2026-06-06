@@ -40,11 +40,14 @@ final class BlueprintRequirementNormalizer
      * @param  array<string, mixed>  $payload
      * @return array<int, array<string, mixed>>
      */
-    public function summaryProperties(array $payload): array
+    /**
+     * @param  array<int, array<string, mixed>>  $requirementGroups
+     */
+    public function summaryPropertiesFromGroups(array $requirementGroups): array
     {
         $summaryProperties = [];
 
-        foreach ($this->requirementGroups($payload) as $group) {
+        foreach ($requirementGroups as $group) {
             $this->collectSummaryProperties($summaryProperties, $group['modifiers']);
             $this->collectChildSummaryProperties($summaryProperties, $group['children']);
         }
@@ -55,11 +58,14 @@ final class BlueprintRequirementNormalizer
     /**
      * @param  array<string, mixed>  $payload
      */
-    public function ingredientCount(array $payload): int
+    /**
+     * @param  array<int, array<string, mixed>>  $requirementGroups
+     */
+    public function ingredientCountFromGroups(array $requirementGroups): int
     {
         $ingredientCount = 0;
 
-        foreach ($this->requirementGroups($payload) as $group) {
+        foreach ($requirementGroups as $group) {
             $ingredientCount += $this->countRequirementChildren(
                 is_array($group['children'] ?? null) ? $group['children'] : [],
             );

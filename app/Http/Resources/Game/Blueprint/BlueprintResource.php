@@ -468,7 +468,7 @@ class BlueprintResource extends AbstractBaseResource
             'craft_time_label' => FormatDuration::fromSeconds($this->craft_time_seconds),
             'is_available_by_default' => $this->is_available_by_default,
             'game_version' => $this->gameVersion?->code,
-            'ingredient_count' => $this->ingredientCount($payload, $normalizer),
+            'ingredient_count' => $this->ingredientCount($requirementGroups, $normalizer),
             'unlocking_missions_count' => $this->resource->relationLoaded('missions')
                 ? $this->loadedRelation('missions')->count()
                 : (int) ($this->resource->missions_count ?? 0),
@@ -482,7 +482,7 @@ class BlueprintResource extends AbstractBaseResource
             $this->mergeWhen($this->shouldIncludeDetailFields($request), [
                 'dismantle' => $this->dismantlePayload($payload),
                 'requirement_groups' => $this->enrichRequirementGroupsWithOreUuids($requirementGroups),
-                'summary_properties' => $normalizer->summaryProperties($payload),
+                'summary_properties' => $normalizer->summaryPropertiesFromGroups($requirementGroups),
                 'unlocking_missions' => $this->unlockingMissions($request),
                 'unlocking_missions_grouped' => $this->groupedUnlockingMissions($request),
                 'aspects' => $this->buildAspectState($requirementGroups, $request),
@@ -763,9 +763,12 @@ class BlueprintResource extends AbstractBaseResource
         ];
     }
 
-    private function ingredientCount(array $payload, BlueprintRequirementNormalizer $normalizer): int
+    /**
+     * @param  array<int, array<string, mixed>>  $requirementGroups
+     */
+    private function ingredientCount(array $requirementGroups, BlueprintRequirementNormalizer $normalizer): int
     {
-        $ingredientCount = $normalizer->ingredientCount($payload);
+        $ingredientCount = $normalizer->ingredientCountFromGroups($requirementGroups);
 
         if ($ingredientCount > 0) {
             return $ingredientCount;
