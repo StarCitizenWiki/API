@@ -781,7 +781,7 @@ class VehicleResource extends AbstractBaseResource
             $vehicleData->relationLoaded('gameVersion') ? $vehicleData->gameVersion?->code : null,
         );
 
-        $payload = ($vehicleData->data ?? collect())->toArray();
+        $payload = $vehicleData->data ?? [];
         $flight = Arr::get($payload, 'FlightCharacteristics', []);
 
         $apiVersion = $this->getApiVersion($request);

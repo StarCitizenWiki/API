@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\Commodity\Commodity;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 it('fails when the commodities file is missing', function (): void {
@@ -76,7 +77,7 @@ it('imports commodities and resolves refined versions', function (): void {
         ->and($commodity->box_sizes_scu)->toBe([1, 2, 4])
         ->and($commodity->quality_distribution_uuid)->toBe('4fb1e7e6-9b98-443a-8409-71b94a6e5d0f')
         ->and($commodity->quality_location_override_uuid)->toBe('4867be55-137a-42ee-b41c-84b39ab29d00')
-        ->and($commodity->data->get('Name'))->toBe('Agricium (Ore)');
+        ->and(Arr::get($commodity->data, 'Name'))->toBe('Agricium (Ore)');
 });
 
 it('does not suffix an existing commodity slug when reimporting the same commodity', function (): void {

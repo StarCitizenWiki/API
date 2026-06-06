@@ -7,6 +7,7 @@ namespace App\Http\Resources\Game\Mission;
 use App\Http\Resources\AbstractBaseResource;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -67,7 +68,7 @@ class MissionHaulingResource extends AbstractBaseResource
 
     public function mapHaulingOrders(mixed $data, Request $request): ?array
     {
-        $orders = $data?->get('HaulingOrders');
+        $orders = Arr::get($data, 'HaulingOrders');
 
         if (! is_array($orders) || empty($orders)) {
             return null;

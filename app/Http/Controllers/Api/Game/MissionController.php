@@ -19,6 +19,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -137,7 +138,7 @@ class MissionController extends Controller
         $factionUuids = $missions->getCollection()
             ->pluck('data')
             ->filter()
-            ->map(static fn ($data): ?array => $data->get('ReputationGained'))
+            ->map(static fn (array $data): ?array => Arr::get($data, 'ReputationGained'))
             ->filter()
             ->flatten(1)
             ->filter(static fn (mixed $entry): bool => is_array($entry) && str_contains($entry['Faction'] ?? '', 'UNINITIALIZED'))

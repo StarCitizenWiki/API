@@ -10,6 +10,7 @@ use App\Support\Formatting\FormatDuration;
 use App\Support\Formatting\FormatMissionText;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -154,11 +155,11 @@ class MissionIndexResource extends AbstractBaseResource
     {
         $mission = $this->resource->mission;
         $data = $this->resource->data;
-        $haulingOrders = $data?->get('HaulingOrders');
-        $minStanding = $data?->get('MinStanding');
-        $maxStanding = $data?->get('MaxStanding');
-        $lifetime = $data?->get('Lifetime');
-        $cooldown = $data?->get('Cooldown');
+        $haulingOrders = Arr::get($data, 'HaulingOrders');
+        $minStanding = Arr::get($data, 'MinStanding');
+        $maxStanding = Arr::get($data, 'MaxStanding');
+        $lifetime = Arr::get($data, 'Lifetime');
+        $cooldown = Arr::get($data, 'Cooldown');
 
         $minStandingData = $this->mapStanding($minStanding);
         $maxStandingData = $this->mapStanding($maxStanding);
@@ -232,7 +233,7 @@ class MissionIndexResource extends AbstractBaseResource
             'max_standing' => $maxStandingData,
             'min_standing_name' => $minStandingData['name'] ?? null,  // deprecated: use min_standing.name
             'max_standing_name' => $maxStandingData['name'] ?? null,  // deprecated: use max_standing.name
-            'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
+            'cost' => Arr::has($data, 'Cost') && Arr::get($data, 'Cost') !== null ? (int) Arr::get($data, 'Cost') : null,
             'min_crime_stat' => $this->resource->min_crime_stat,
             'max_crime_stat' => $this->resource->max_crime_stat,
             'available_in_prison' => $this->resource->available_in_prison,
@@ -240,15 +241,15 @@ class MissionIndexResource extends AbstractBaseResource
             'work_in_progress' => $this->resource->work_in_progress,
             'released' => ! $this->resource->not_for_release && ! $this->resource->work_in_progress,
             'reputation_gained' => $this->mapReputationGained($data),
-            'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
+            'max_players_per_instance' => Arr::get($data, 'MaxPlayersPerInstance'),
             'max_instances_per_player' => is_array($lifetime) ? ($lifetime['MaxInstancesPerPlayer'] ?? null) : null,
             'cooldown' => $cooldownData,
             'cooldown_seconds' => $cooldownData['personal_seconds'] ?? null,  // deprecated: use cooldown.personal_seconds
             'cooldown_label' => $cooldownData['label'] ?? null,  // deprecated: use cooldown.label
 
-            'reaccept_after_abandoning' => $this->parseNullableBool($data?->get('ReacceptAfterAbandoning')) ?? false,
-            'reaccept_after_failing' => $this->parseNullableBool($data?->get('ReacceptAfterFailing')) ?? false,
-            'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')) ?? false,
+            'reaccept_after_abandoning' => $this->parseNullableBool(Arr::get($data, 'ReacceptAfterAbandoning')) ?? false,
+            'reaccept_after_failing' => $this->parseNullableBool(Arr::get($data, 'ReacceptAfterFailing')) ?? false,
+            'fail_if_became_criminal' => $this->parseNullableBool(Arr::get($data, 'FailIfBecameCriminal')) ?? false,
             'hauling_summary' => $this->mapHaulingSummary($haulingOrders),
             'reward_scope' => $this->resource->reward_scope,
             'reputation_amount' => $this->extractFirstReputationAmount($data),
@@ -280,7 +281,7 @@ class MissionIndexResource extends AbstractBaseResource
 
     private function mapReputationGained($data): ?array
     {
-        $reputation = $data?->get('ReputationGained');
+        $reputation = Arr::get($data, 'ReputationGained');
 
         if (! is_array($reputation) || $reputation === []) {
             return null;
@@ -333,7 +334,7 @@ class MissionIndexResource extends AbstractBaseResource
 
     private function extractFirstReputationAmount($data): ?int
     {
-        $reputation = $data?->get('ReputationGained');
+        $reputation = Arr::get($data, 'ReputationGained');
 
         if (! is_array($reputation) || $reputation === []) {
             return null;

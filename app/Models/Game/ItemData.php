@@ -8,7 +8,6 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\Mission\MissionData;
 use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,7 +52,7 @@ class ItemData extends Model
         'grade' => 'integer',
         'is_player_relevant' => 'boolean',
         'is_bespoke' => 'boolean',
-        'data' => AsCollection::class,
+        'data' => 'array',
         'uex_prices' => 'array',
         'bespoke_vehicle_tags' => 'array',
     ];

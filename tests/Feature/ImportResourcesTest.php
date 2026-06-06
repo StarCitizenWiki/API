@@ -8,6 +8,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 it('fails when the game version does not exist', function (): void {
@@ -100,7 +101,7 @@ it('imports mineable resources with composition commodity links', function (): v
         ->and($resourceData->kind)->toBe(ResourceKind::Mineable)
         ->and($resourceData->tier)->toBe('common')
         ->and($resourceData->signature)->toBe(5)
-        ->and($resourceData->data->get('Kind'))->toBe('mineable');
+        ->and(Arr::get($resourceData->data, 'Kind'))->toBe('mineable');
 
     $commodities = $resourceData->commodities()->get();
     expect($commodities)->toHaveCount(2);
@@ -173,7 +174,7 @@ it('imports harvestable resources with parts resource types', function (): void 
         ->and($resourceData->key)->toBe('Carryable_1H_SQ_drug_neon_1_a')
         ->and($resourceData->kind)->toBe(ResourceKind::Harvestable)
         ->and($resourceData->signature)->toBeNull()
-        ->and($resourceData->data->get('HarvestableKey'))->toBe('Item_Drugs_005');
+        ->and(Arr::get($resourceData->data, 'HarvestableKey'))->toBe('Item_Drugs_005');
 
     $commodities = $resourceData->commodities()->get();
     expect($commodities)->toHaveCount(1);

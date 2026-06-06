@@ -8,6 +8,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Support\Formatting\FormatMissionText;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
@@ -215,7 +216,7 @@ class MissionChainResource extends AbstractBaseResource
 
     public function mapCompletionTags(mixed $data, Request $request): ?array
     {
-        $tags = $data?->get('CompletionTags');
+        $tags = Arr::get($data, 'CompletionTags');
 
         if (! is_array($tags) || empty($tags)) {
             return null;

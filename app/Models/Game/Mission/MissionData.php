@@ -11,7 +11,6 @@ use App\Models\Game\HasGameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -100,7 +99,7 @@ class MissionData extends Model
         'enemy_count_max' => 'integer',
         'star_systems' => 'array',
         'mission_key' => 'string',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function mission(): BelongsTo

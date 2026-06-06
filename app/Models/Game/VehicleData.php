@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Game;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,7 +58,7 @@ class VehicleData extends Model
 
         'size' => 'integer',
 
-        'data' => AsCollection::class,
+        'data' => 'array',
 
         'uex_purchase_prices' => 'array',
         'uex_rental_prices' => 'array',

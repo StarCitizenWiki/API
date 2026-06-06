@@ -8,6 +8,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
+use Illuminate\Support\Arr;
 
 it('creates a resource with uuid only', function (): void {
     $resource = Resource::factory()->create();
@@ -160,8 +161,8 @@ it('creates a resource location with quality data', function (): void {
         ->and($location->quality_max)->toBe(1000)
         ->and($location->quality_mean)->toBe(750)
         ->and($location->quality_stddev)->toBe(150)
-        ->and($location->data->get('clustering'))->not->toBeNull()
-        ->and($location->data->get('cave_type'))->toBe('rock');
+        ->and(Arr::get($location->data, 'clustering'))->not->toBeNull()
+        ->and(Arr::get($location->data, 'cave_type'))->toBe('rock');
 });
 
 it('resource location belongs to resource data', function (): void {

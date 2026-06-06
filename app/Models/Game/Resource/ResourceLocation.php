@@ -8,7 +8,6 @@ use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\StarmapLocationData;
 use Database\Factories\Game\Resource\ResourceLocationFactory;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,7 +47,7 @@ class ResourceLocation extends Model
         'quality_stddev' => 'integer',
         'min_percentage' => 'decimal:4',
         'max_percentage' => 'decimal:4',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function commodity(): BelongsTo

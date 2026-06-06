@@ -9,6 +9,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -149,7 +150,7 @@ class CommodityIndexResource extends AbstractBaseResource
 
         $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
-        $commodityGroups = $this->resource->data?->get('CommodityGroups');
+        $commodityGroups = Arr::get($this->resource->data, 'CommodityGroups');
         $commodityGroups = is_array($commodityGroups) ? $commodityGroups : null;
         $leafGroup = $commodityGroups !== null && $commodityGroups !== [] ? end($commodityGroups) : null;
         $displayName = $leafGroup !== false && $leafGroup !== null

@@ -7,7 +7,6 @@ namespace App\Models\Game;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Resource\ResourceLocation;
 use Database\Factories\Game\StarmapLocationDataFactory;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +51,7 @@ class StarmapLocationData extends Model
         'system' => 'string',
         'is_scannable' => 'boolean',
         'block_travel' => 'boolean',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function location(): BelongsTo

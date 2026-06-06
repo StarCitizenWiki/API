@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -85,8 +86,8 @@ class MissionCombatResource extends AbstractBaseResource
     public function toArray(Request $request): ?array
     {
         $data = $this->resource;
-        $summary = $data?->get('CombatSummary');
-        $spawns = $data?->get('Combat');
+        $summary = Arr::get($data, 'CombatSummary');
+        $spawns = Arr::get($data, 'Combat');
 
         $hasSummary = is_array($summary) && isset($summary['Total']);
         $hasSpawns = is_array($spawns) && ! empty($spawns);

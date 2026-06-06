@@ -11,7 +11,6 @@ use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceData;
 use Database\Factories\Game\Commodity\CommodityFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,7 +52,7 @@ class Commodity extends Model
         'box_sizes_scu' => 'array',
         'images' => 'array',
         'uex_prices' => 'array',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function getRouteKeyName(): string

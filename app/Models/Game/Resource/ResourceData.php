@@ -8,7 +8,6 @@ use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\HasGameVersion;
 use Database\Factories\Game\Resource\ResourceDataFactory;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +38,7 @@ class ResourceData extends Model
         'game_version_id' => 'integer',
         'kind' => ResourceKind::class,
         'signature' => 'integer',
-        'data' => AsCollection::class,
+        'data' => 'array',
     ];
 
     public function resource(): BelongsTo

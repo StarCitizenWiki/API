@@ -105,7 +105,7 @@ it('returns v3 port format when accessing api/v3/vehicles endpoint', function ()
 
 it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): void {
     $this->vehicleData->update([
-        'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
+        'data' => array_merge($this->vehicleData->data, [
             'CargoGrids' => [
                 [
                     'MinSize' => ['X' => 1.0, 'Y' => 1.0, 'Z' => 1.0],
@@ -133,7 +133,7 @@ it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): 
 
 it('returns cargo limits when accessing api/v3/vehicles endpoint', function (): void {
     $this->vehicleData->update([
-        'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
+        'data' => array_merge($this->vehicleData->data, [
             'CargoGrids' => [
                 [
                     'MinSize' => ['X' => 1.0, 'Y' => 1.0, 'Z' => 1.0],
@@ -282,7 +282,7 @@ it('does not include version in web url when version is not requested in vehicle
 describe('ore_capacity', function (): void {
     it('returns ore_capacity when present in ship data', function (): void {
         $this->vehicleData->update([
-            'data' => array_merge(collect($this->vehicleData->data)->toArray(), [
+            'data' => array_merge($this->vehicleData->data, [
                 'OreCapacity' => 96,
             ]),
         ]);

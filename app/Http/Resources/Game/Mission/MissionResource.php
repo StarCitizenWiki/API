@@ -8,6 +8,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
 use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -308,7 +309,7 @@ class MissionResource extends AbstractBaseResource
         $haulingResource = new MissionHaulingResource(null, $makeApiUrl, $makeWebUrl);
         $chainResource = new MissionChainResource(null, $makeApiUrl, $makeWebUrl);
         $locationResource = new MissionLocationResource(null, $makeApiUrl, $makeWebUrl);
-        $tokens = MissionDataBlockResource::mapMissionTokens($data?->get('MissionTokens'));
+        $tokens = MissionDataBlockResource::mapMissionTokens(Arr::get($data, 'MissionTokens'));
 
         return [
             'uuid' => $mission?->uuid,
@@ -358,10 +359,10 @@ class MissionResource extends AbstractBaseResource
             'reward_currency' => $this->resource->reward_currency,
             'time_to_complete_minutes' => $this->resource->time_to_complete_minutes,
             'star_systems' => $this->resource->star_systems,
-            'cooldown' => ($c = $data?->get('Cooldown')) !== null ? (new MissionCooldownResource($c))->toArray($request) : null,
-            'lifetime' => ($l = $data?->get('Lifetime')) !== null ? (new MissionLifetimeResource($l))->toArray($request) : null,
-            'reaccept_after_failing' => $this->parseNullableBool($data?->get('ReacceptAfterFailing')),
-            'reaccept_after_abandoning' => $this->parseNullableBool($data?->get('ReacceptAfterAbandoning')),
+            'cooldown' => ($c = Arr::get($data, 'Cooldown')) !== null ? (new MissionCooldownResource($c))->toArray($request) : null,
+            'lifetime' => ($l = Arr::get($data, 'Lifetime')) !== null ? (new MissionLifetimeResource($l))->toArray($request) : null,
+            'reaccept_after_failing' => $this->parseNullableBool(Arr::get($data, 'ReacceptAfterFailing')),
+            'reaccept_after_abandoning' => $this->parseNullableBool(Arr::get($data, 'ReacceptAfterAbandoning')),
             'blueprints' => $this->mapBlueprints($request),
             'reward_items' => $this->when(
                 $this->resource->relationLoaded('rewardItems'),
@@ -369,21 +370,21 @@ class MissionResource extends AbstractBaseResource
             ),
             'combat' => (new MissionCombatResource($data))->toArray($request),
             'completion_tags' => $chainResource->mapCompletionTags($data, $request),
-            'reputation_gained' => $this->mapReputation($data?->get('ReputationGained')),
-            'reputation_lost' => $this->mapReputation($data?->get('ReputationLost')),
+            'reputation_gained' => $this->mapReputation(Arr::get($data, 'ReputationGained')),
+            'reputation_lost' => $this->mapReputation(Arr::get($data, 'ReputationLost')),
             'hauling_orders' => $haulingResource->mapHaulingOrders($data, $request),
-            'cost' => $data?->has('Cost') && $data->get('Cost') !== null ? (int) $data->get('Cost') : null,
-            'max_players_per_instance' => $data?->get('MaxPlayersPerInstance'),
-            'fail_if_became_criminal' => $this->parseNullableBool($data?->get('FailIfBecameCriminal')),
-            'min_standing' => MissionDataBlockResource::mapStanding($data?->get('MinStanding')),
-            'max_standing' => MissionDataBlockResource::mapStanding($data?->get('MaxStanding')),
+            'cost' => Arr::has($data, 'Cost') && Arr::get($data, 'Cost') !== null ? (int) Arr::get($data, 'Cost') : null,
+            'max_players_per_instance' => Arr::get($data, 'MaxPlayersPerInstance'),
+            'fail_if_became_criminal' => $this->parseNullableBool(Arr::get($data, 'FailIfBecameCriminal')),
+            'min_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MinStanding')),
+            'max_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MaxStanding')),
             'mission_tokens' => $tokens,
-            'deadline' => MissionDataBlockResource::mapDeadline($data?->get('Deadline')),
-            'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites($data?->get('BrokerReputationPrerequisites')),
-            'item_counts' => MissionDataBlockResource::mapItemCounts($data?->get('ItemCounts')),
-            'entity_spawns' => MissionDataBlockResource::mapEntitySpawns($data?->get('EntitySpawns')),
-            'hidden_in_mobiglas' => $this->parseNullableBool($data?->get('HiddenInMobiglas')),
-            'notify_on_available' => $this->parseNullableBool($data?->get('NotifyOnAvailable')),
+            'deadline' => MissionDataBlockResource::mapDeadline(Arr::get($data, 'Deadline')),
+            'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites(Arr::get($data, 'BrokerReputationPrerequisites')),
+            'item_counts' => MissionDataBlockResource::mapItemCounts(Arr::get($data, 'ItemCounts')),
+            'entity_spawns' => MissionDataBlockResource::mapEntitySpawns(Arr::get($data, 'EntitySpawns')),
+            'hidden_in_mobiglas' => $this->parseNullableBool(Arr::get($data, 'HiddenInMobiglas')),
+            'notify_on_available' => $this->parseNullableBool(Arr::get($data, 'NotifyOnAvailable')),
             'reward_scope' => $this->resource->reward_scope,
             'reputation_amount' => $this->extractFirstReputationAmount($data),
             'game_version' => $this->resource->gameVersion?->code,
@@ -555,7 +556,7 @@ class MissionResource extends AbstractBaseResource
             return true;
         }
 
-        $fixedReward = $data?->get('FixedReward');
+        $fixedReward = Arr::get($data, 'FixedReward');
         if (is_array($fixedReward) && (
             $this->hasPositiveRewardAmount($fixedReward['Amount'] ?? null)
             || $this->hasPositiveRewardAmount($fixedReward['Max'] ?? null)
@@ -563,7 +564,7 @@ class MissionResource extends AbstractBaseResource
             return true;
         }
 
-        if ($this->resource->calculated_reward || $data?->get('CalculatedReward') === true) {
+        if ($this->resource->calculated_reward || Arr::get($data, 'CalculatedReward') === true) {
             return true;
         }
 
@@ -575,11 +576,11 @@ class MissionResource extends AbstractBaseResource
             return true;
         }
 
-        if (is_array($data?->get('ReputationGained')) && $data->get('ReputationGained') !== []) {
+        if (is_array(Arr::get($data, 'ReputationGained')) && Arr::get($data, 'ReputationGained') !== []) {
             return true;
         }
 
-        return is_array($data?->get('ReputationLost')) && $data->get('ReputationLost') !== [];
+        return is_array(Arr::get($data, 'ReputationLost')) && Arr::get($data, 'ReputationLost') !== [];
     }
 
     private function hasPositiveRewardAmount(mixed $value): bool
@@ -589,17 +590,17 @@ class MissionResource extends AbstractBaseResource
 
     private function computeHasCombatSection($data): bool
     {
-        $summary = $data?->get('CombatSummary');
+        $summary = Arr::get($data, 'CombatSummary');
 
         if (is_array($summary) && isset($summary['Total'])) {
             return true;
         }
 
-        if (is_array($data?->get('Combat')) && $data->get('Combat') !== []) {
+        if (is_array(Arr::get($data, 'Combat')) && Arr::get($data, 'Combat') !== []) {
             return true;
         }
 
-        return is_array($data?->get('EntitySpawns')) && $data->get('EntitySpawns') !== [];
+        return is_array(Arr::get($data, 'EntitySpawns')) && Arr::get($data, 'EntitySpawns') !== [];
     }
 
     private function computeHasChain(): bool
@@ -613,7 +614,7 @@ class MissionResource extends AbstractBaseResource
 
     private function extractFirstReputationAmount($data): ?int
     {
-        $reputation = $data?->get('ReputationGained');
+        $reputation = Arr::get($data, 'ReputationGained');
 
         if (! is_array($reputation) || $reputation === []) {
             return null;

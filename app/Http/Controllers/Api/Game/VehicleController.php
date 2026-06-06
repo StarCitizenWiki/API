@@ -785,7 +785,7 @@ class VehicleController extends Controller
     private function preloadArmorItems(Collection $vehicles): void
     {
         $armorUuids = $vehicles
-            ->map(fn (VehicleData $vehicleData): mixed => Arr::get(($vehicleData->data ?? collect())->toArray(), 'Armor.UUID'))
+            ->map(fn (VehicleData $vehicleData): mixed => Arr::get($vehicleData->data ?? [], 'Armor.UUID'))
             ->filter()
             ->unique()
             ->values();
