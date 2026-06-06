@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -248,6 +249,7 @@ class VehicleController extends Controller
     {
         $query = $this->buildBaseQuery($request);
         $vehicles = $query->jsonPaginate();
+        $this->preloadIndexResourceDependencies($this->paginatedVehicleCollection($vehicles));
 
         return VehicleResource::collection($vehicles)
             ->additional(['meta' => ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]]);
@@ -548,6 +550,7 @@ class VehicleController extends Controller
             });
 
         $vehicles = $query->jsonPaginate();
+        $this->preloadIndexResourceDependencies($this->paginatedVehicleCollection($vehicles));
 
         return VehicleResource::collection($vehicles)
             ->additional([
@@ -738,7 +741,89 @@ class VehicleController extends Controller
             ->allowedSorts(...$this->allowedSorts())
             ->defaultSort('name')
             ->allowedIncludes(...$this->allowedIncludes())
-            ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner', 'shipMatrixVehicle.skus']);
+            ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner.sc.vehicle', 'shipMatrixVehicle.skus']);
+    }
+
+    /**
+     * @return Collection<int, VehicleData>
+     */
+    private function paginatedVehicleCollection(mixed $vehicles): Collection
+    {
+        if (method_exists($vehicles, 'getCollection')) {
+            return $vehicles->getCollection();
+        }
+
+        if (method_exists($vehicles, 'items')) {
+            return collect($vehicles->items());
+        }
+
+        return collect();
+    }
+
+    /**
+     * Preload data used during VehicleResource collection rendering.
+     *
+     * Resource rendering must not call the database per vehicle. The index/search
+     * payload computes armor from the vehicle JSON and expands UEX prices, so load
+     * those dependencies once for the current page and store them on the request.
+     *
+     * @param  Collection<int, VehicleData>  $vehicles
+     */
+    private function preloadIndexResourceDependencies(Collection $vehicles): void
+    {
+        if ($vehicles->isEmpty()) {
+            return;
+        }
+
+        $this->preloadArmorItems($vehicles);
+        $this->preloadUexLocationData($vehicles);
+    }
+
+    /**
+     * @param  Collection<int, VehicleData>  $vehicles
+     */
+    private function preloadArmorItems(Collection $vehicles): void
+    {
+        $armorUuids = $vehicles
+            ->map(fn (VehicleData $vehicleData): mixed => Arr::get(($vehicleData->data ?? collect())->toArray(), 'Armor.UUID'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($armorUuids->isEmpty()) {
+            return;
+        }
+
+        $version = $this->gameVersion();
+
+        $itemData = ItemData::query()
+            ->where('game_version_id', $version->id)
+            ->whereHas('item', static fn (Builder $query): Builder => $query->whereIn('uuid', $armorUuids->all()))
+            ->with(['item', 'manufacturer', 'gameVersion', 'variantGroupItem'])
+            ->get()
+            ->keyBy(fn (ItemData $itemData): string => $itemData->item->uuid);
+
+        request()->attributes->set('eager_loaded_game_items', $itemData);
+    }
+
+    /**
+     * @param  Collection<int, VehicleData>  $vehicles
+     */
+    private function preloadUexLocationData(Collection $vehicles): void
+    {
+        $locationDataIds = $vehicles
+            ->flatMap(static function (VehicleData $vehicleData): array {
+                return collect($vehicleData->uex_purchase_prices ?? [])
+                    ->merge($vehicleData->uex_rental_prices ?? [])
+                    ->pluck('starmap_location_data_id')
+                    ->all();
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        VehicleResource::preloadLocationData($locationDataIds);
     }
 
     /**

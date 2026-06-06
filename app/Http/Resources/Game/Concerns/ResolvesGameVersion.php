@@ -61,20 +61,22 @@ trait ResolvesGameVersion
      */
     protected function loadItemForVersion(string $uuid): ?Item
     {
-        $eagerLoaded = request()->attributes->get('eager_loaded_port_items');
+        foreach (['eager_loaded_game_items', 'eager_loaded_port_items'] as $attribute) {
+            $eagerLoaded = request()->attributes->get($attribute);
 
-        if ($eagerLoaded !== null && $eagerLoaded->has($uuid)) {
-            $cached = $eagerLoaded->get($uuid);
+            if ($eagerLoaded !== null && $eagerLoaded->has($uuid)) {
+                $cached = $eagerLoaded->get($uuid);
 
-            // The eager-loaded cache stores ItemData instances (keyed by item UUID).
-            // Extract the underlying Item relation instead of returning the wrong type.
-            if ($cached instanceof ItemData) {
-                $cached->item->setRelation('data', collect([$cached]));
+                // Some caches store ItemData instances keyed by item UUID.
+                // Extract the underlying Item relation instead of returning the wrong type.
+                if ($cached instanceof ItemData) {
+                    $cached->item->setRelation('data', collect([$cached]));
 
-                return $cached->item;
+                    return $cached->item;
+                }
+
+                return $cached;
             }
-
-            return $cached;
         }
 
         $version = $this->gameVersion();
