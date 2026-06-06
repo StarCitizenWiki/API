@@ -29,6 +29,9 @@ Schedule::command('pledge-store:import')
 Schedule::command('vehicles:import-loaner')
     ->daily();
 
+Schedule::command('game:import-images')
+    ->monthly();
+
 // Item Prices
 Schedule::command('game:import-item-prices')
     ->daily()
