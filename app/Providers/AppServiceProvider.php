@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Jobs\Game\ImportItemData;
+use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
+use App\Jobs\StarCitizen\Galactapedia\ImportArticleProperty;
+use App\Jobs\StarCitizen\Galactapedia\TranslateArticle;
 use App\Models\User;
 use App\Services\Translation\TranslationService;
 use App\View\Composers\AppShellComposer;
 use DeepL\Translator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -76,7 +82,8 @@ class AppServiceProvider extends ServiceProvider
         Nightwatch::rejectQueries(static function (Query $query) {
             return str_contains($query->sql, 'from "cache"')
                 || str_contains($query->sql, 'into "cache"')
-                || str_contains($query->sql, 'from "game_versions"');
+                || str_contains($query->sql, 'from "game_versions"')
+                || str_contains($query->sql, 'from "sessions"');
         });
 
         Nightwatch::rejectQueries(static function (Query $query) {
@@ -85,7 +92,21 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Nightwatch::rejectQueuedJobs(static function (QueuedJob $job) {
-            return str_starts_with($job->name, 'App\Jobs\Game\Import');
+            return str_starts_with($job->name, 'App\Jobs\Game\Import')
+                && $job->name !== 'App\Jobs\Game\ImportItemData';
+        });
+
+        Queue::before(static function (JobProcessing $event) {
+            $sampledAtTenPercent = [
+                ImportItemData::class,
+                ImportArticleProperty::class,
+                TranslateArticle::class,
+                DownloadCommLink::class,
+            ];
+
+            if (in_array($event->job->resolveName(), $sampledAtTenPercent, true)) {
+                Nightwatch::sample(rate: 0.25);
+            }
         });
     }
 
