@@ -242,8 +242,7 @@ class StarmapLocationController extends Controller
             ->defaultSort('name')
             ->with($this->indexRelations($gameVersionId))
             ->withCount($this->childCountRelation($gameVersionId))
-            ->withExists('resourceLocations as has_resources')
-            ->withCount('missions as mission_count');
+            ->withExists('resourceLocations as has_resources');
     }
 
     #[OA\Get(
@@ -441,7 +440,6 @@ class StarmapLocationController extends Controller
             ->whereNotNull('system')
             ->with($this->detailRelations($gameVersionId))
             ->withCount($this->childCountRelation($gameVersionId))
-            ->withCount('missions as mission_count')
             ->allowedIncludes(
                 IncludeDefinition::custom('children', new CustomEagerLoadInclude($childSummaryRelation))->toSpatieInclude(),
                 IncludeDefinition::custom('resources', new CustomEagerLoadInclude([

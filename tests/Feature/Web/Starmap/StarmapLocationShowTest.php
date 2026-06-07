@@ -84,6 +84,7 @@ it('shows missions section when location has missions', function (): void {
         ]);
 
     $locationData->missions()->attach($missionData->id, ['purpose' => 'availability']);
+    $locationData->forceFill(['mission_count' => 1])->save();
 
     $response = $this->get('/locations/'.$location->uuid);
 
@@ -133,6 +134,7 @@ it('includes link to filtered missions index', function (): void {
         ->create(['title' => 'Test Mission']);
 
     $locationData->missions()->attach($missionData->id, ['purpose' => 'availability']);
+    $locationData->forceFill(['mission_count' => 1])->save();
 
     $response = $this->get('/locations/'.$location->uuid);
 
@@ -165,6 +167,7 @@ it('links mission cards to mission show page', function (): void {
         ]);
 
     $locationData->missions()->attach($missionData->id, ['purpose' => 'availability']);
+    $locationData->forceFill(['mission_count' => 1])->save();
 
     $response = $this->get('/locations/'.$location->uuid);
 

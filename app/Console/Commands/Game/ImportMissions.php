@@ -7,6 +7,7 @@ namespace App\Console\Commands\Game;
 use App\Jobs\Game\ImportMissionData;
 use App\Jobs\Game\LinkMissionChains;
 use App\Models\Game\GameVersion;
+use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Bus;
@@ -58,6 +59,20 @@ class ImportMissions extends Command implements PromptsForMissingInput
         Bus::batch($jobs)
             ->then(static function () use ($versionId): void {
                 LinkMissionChains::dispatchSync($versionId);
+            })
+            ->then(static function () use ($versionId): void {
+                StarmapLocationData::where('game_version_id', $versionId)
+                    ->withCount('missions')
+                    ->chunk(200, static function ($locations): void {
+                        foreach ($locations as $location) {
+                            $location->forceFill(['mission_count' => $location->missions_count])->save();
+                        }
+                    });
+
+                StarmapLocationData::where('game_version_id', $versionId)
+                    ->where('mission_count', '>', 0)
+                    ->whereDoesntHave('missions')
+                    ->update(['mission_count' => 0]);
             })
             ->dispatch();
 

@@ -1672,6 +1672,7 @@ it('includes mission_count on starmap location index responses', function (): vo
         ]);
 
     $dataWithMissions->missions()->attach($missionData->id, ['purpose' => 'Availability']);
+    $dataWithMissions->forceFill(['mission_count' => 1])->save();
 
     $this->getJson('/api/locations')
         ->assertSuccessful()
@@ -1741,6 +1742,7 @@ it('shows missions grouped by purpose on show response when requested via includ
 
     $locationData->missions()->attach($missionDataOne->id, ['purpose' => 'Availability']);
     $locationData->missions()->attach($missionDataTwo->id, ['purpose' => 'Completion']);
+    $locationData->forceFill(['mission_count' => 2])->save();
 
     $response = $this->getJson('/api/locations/'.$starmapLocation->uuid.'?include=missions');
 

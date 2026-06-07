@@ -51,6 +51,7 @@ class StarmapLocationData extends Model
         'system' => 'string',
         'is_scannable' => 'boolean',
         'block_travel' => 'boolean',
+        'mission_count' => 'integer',
         'data' => 'array',
     ];
 
