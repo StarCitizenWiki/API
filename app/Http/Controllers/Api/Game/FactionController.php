@@ -12,6 +12,7 @@ use App\Models\Game\Faction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -119,8 +120,7 @@ class FactionController extends Controller
             throw new NotFoundHttpException('No Faction found with the specified UUID.');
         }
 
-        return (new FactionResource($factionModel))
-            ->setValidIncludes([]);
+        return new FactionResource($factionModel)->setValidIncludes([]);
     }
 
     /**
@@ -140,9 +140,8 @@ class FactionController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $normalized = mb_strtolower($value);
-                    $q->whereRaw('LOWER(name) LIKE ?', ["%{$normalized}%"])
-                        ->orWhereRaw('LOWER(description) LIKE ?', ["%{$normalized}%"]);
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $q->where('name', $like, "%{$value}%")->orWhere('description', $like, "%{$value}%");
                 });
             }),
         ];

@@ -400,9 +400,30 @@ class ItemController extends Controller
             AllowedFilter::exact('sub_type'),
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
             AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
-            AllowedFilter::partial('class_name'),
-            AllowedFilter::partial('name'),
-            AllowedFilter::partial('classification'),
+            AllowedFilter::callback('class_name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_item_data.class_name', $like, "%{$value}%");
+            }),
+            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_item_data.name', $like, "%{$value}%");
+            }),
+            AllowedFilter::callback('classification', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_item_data.classification', $like, "%{$value}%");
+            }),
             AllowedFilter::exact('size'),
             AllowedFilter::exact('grade'),
             AllowedFilter::exact('class'),

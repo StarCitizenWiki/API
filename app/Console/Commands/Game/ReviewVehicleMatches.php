@@ -95,8 +95,8 @@ class ReviewVehicleMatches extends Command
     private function findPotentialMatches(string $name): Collection
     {
         return ShipMatrixVehicle::query()
-            ->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower($name).'%'])
-            ->orWhereRaw('LOWER(slug) LIKE ?', ['%'.mb_strtolower(Str::slug($name)).'%'])
+            ->where('name', 'ILIKE', '%'.$name.'%')
+            ->orWhere('slug', 'ILIKE', '%'.Str::slug($name).'%')
             ->limit(10)
             ->get();
     }

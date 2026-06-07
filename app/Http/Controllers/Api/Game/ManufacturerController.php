@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -34,7 +35,14 @@ class ManufacturerController extends Controller
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
             ->where('name', '<>', '')
-            ->allowedFilters(AllowedFilter::partial('name'))
+            ->allowedFilters(AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('manufacturers.name', $like, "%{$value}%");
+            }))
             ->groupBy('name')
             ->orderBy('name');
     }
@@ -173,15 +181,14 @@ class ManufacturerController extends Controller
     {
         $query = $request->validated('query');
         $isUuid = Str::isUuid($query);
-        $normalizedSearch = mb_strtolower($query);
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
 
         $manufacturers = QueryBuilder::for(Manufacturer::class)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
-            ->where(function (Builder $q) use ($query, $isUuid, $normalizedSearch) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$normalizedSearch}%"])
-                    ->orWhereRaw('LOWER(code) LIKE ?', ["%{$normalizedSearch}%"]);
+            ->where(function (Builder $q) use ($query, $isUuid, $like) {
+                $q->where('name', $like, "%{$query}%")->orWhere('code', $like, "%{$query}%");
 
                 if ($isUuid) {
                     $q->orWhere('uuid', $query);

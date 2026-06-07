@@ -229,6 +229,93 @@ it('includes loaner vehicles when present', function () {
         ->assertJsonPath('data.loaner.0.link', route('vehicles.show', ['vehicle' => 'Loaner Ship']));
 });
 
+it('uses loaner game vehicle data from the current game version', function () {
+    $oldVersion = GameVersion::query()->create([
+        'code' => '3.24.0-LIVE.0000000',
+        'channel' => 'live',
+        'is_default' => false,
+    ]);
+
+    $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 77777,
+        'chassis_id' => 77,
+        'name' => 'Main Ship',
+        'slug' => 'main-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    $loanerShipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 88888,
+        'chassis_id' => 88,
+        'name' => 'Loaner Ship',
+        'slug' => 'loaner-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    $shipMatrixVehicle->loaner()->attach($loanerShipMatrixVehicle, ['version' => 'PU']);
+
+    $mainVehicle = Vehicle::query()->create([
+        'uuid' => '11111111-2222-3333-4444-555555555555',
+        'slug' => 'main-game-ship',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $mainVehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Main Game Ship',
+        'class_name' => 'Main_Game_Ship',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $oldLoanerVehicle = Vehicle::query()->create([
+        'uuid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        'slug' => 'old-loaner-game-ship',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $oldLoanerVehicle->id,
+        'game_version_id' => $oldVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $loanerShipMatrixVehicle->id,
+        'name' => 'Old Loaner Game Ship',
+        'class_name' => 'Old_Loaner_Game_Ship',
+        'data' => ['test' => 'old'],
+    ]);
+
+    $currentLoanerVehicle = Vehicle::query()->create([
+        'uuid' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+        'slug' => 'current-loaner-game-ship',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $currentLoanerVehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $loanerShipMatrixVehicle->id,
+        'name' => 'Current Loaner Game Ship',
+        'class_name' => 'Current_Loaner_Game_Ship',
+        'data' => ['test' => 'current'],
+    ]);
+
+    $response = $this->getJson('/api/vehicles/11111111-2222-3333-4444-555555555555');
+
+    $response->assertOk()
+        ->assertJsonPath('data.loaner.0.name', 'Loaner Ship')
+        ->assertJsonPath('data.loaner.0.uuid', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')
+        ->assertJsonPath('data.loaner.0.slug', 'current-loaner-game-ship')
+        ->assertJsonPath('data.loaner.0.link', route('vehicles.show', ['vehicle' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb']));
+});
+
 it('handles missing ship-matrix relationships gracefully', function () {
     $vehicle = Vehicle::query()->create([
         'uuid' => '77777777-7777-7777-7777-777777777777',

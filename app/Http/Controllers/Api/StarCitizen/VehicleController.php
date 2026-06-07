@@ -51,7 +51,14 @@ class VehicleController extends Controller
             AllowedFilter::scope('type'),
             AllowedFilter::scope('focus'),
             AllowedFilter::scope('production_status'),
-            AllowedFilter::partial('name'),
+            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('shipmatrix_vehicles.name', $like, "%{$value}%");
+            }),
         ];
     }
 

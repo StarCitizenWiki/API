@@ -66,7 +66,14 @@ class CommLinkController extends Controller
     {
         return [
             AllowedFilter::exact('id', 'cig_id'),
-            AllowedFilter::partial('title'),
+            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('comm_links.title', $like, "%{$value}%");
+            }),
             AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
                 if (! is_string($value)) {
                     return;

@@ -134,7 +134,14 @@ class StarmapLocationController extends Controller
         };
 
         return [
-            AllowedFilter::partial('name'),
+            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_starmap_location_data.name', $like, "%{$value}%");
+            }),
             AllowedFilter::exact('type_name'),
             AllowedFilter::callback('type_classification', $jsonFilter('Type.Classification')),
             AllowedFilter::callback('respawn_location_type', $jsonFilter('RespawnLocationType')),
@@ -144,9 +151,25 @@ class StarmapLocationController extends Controller
             AllowedFilter::exact('block_travel'),
             AllowedFilter::callback('amenity', $amenityFilter),
             AllowedFilter::callback('tag', $entityTagFilter),
-            AllowedFilter::partial('parent_name', 'parent.name'),
+            AllowedFilter::callback('parent_name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->whereHas('parent', static function (Builder $q) use ($value, $like): void {
+                    $q->where($q->qualifyColumn('name'), $like, "%{$value}%");
+                });
+            }),
             AllowedFilter::exact('parent_uuid', 'parent.location.uuid'),
-            AllowedFilter::partial('system'),
+            AllowedFilter::callback('system', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_starmap_location_data.system', $like, "%{$value}%");
+            }),
             AllowedFilter::callback('has_resources', $hasResourcesFilter),
             AllowedFilter::callback('resource', $resourceFilter),
             AllowedFilter::callback('hide_minor_locations', $hideMinorLocationsFilter),
@@ -157,7 +180,7 @@ class StarmapLocationController extends Controller
 
                 $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
                 $query->where(static function (Builder $q) use ($value, $like): void {
-                    $q->whereRaw("game_starmap_location_data.name {$like} ?", ['%'.$value.'%']);
+                    $q->where('game_starmap_location_data.name', $like, '%'.$value.'%');
                 });
             }),
         ];

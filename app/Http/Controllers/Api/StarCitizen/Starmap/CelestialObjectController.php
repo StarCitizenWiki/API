@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -49,11 +50,18 @@ class CelestialObjectController extends Controller
             ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(...[
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
-                AllowedFilter::partial('name'),
+                AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                    if (! is_string($value) || $value === '') {
+                        return;
+                    }
+
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $query->where('starmap_celestial_objects.name', $like, "%{$value}%");
+                }),
                 AllowedFilter::exact('designation'),
                 AllowedFilter::exact('type'),
             ])
-            ->allowedSorts(...[
+            ->allowedSorts(
                 AllowedSort::field('id', 'cig_id'),
                 AllowedSort::custom('starsystem', new SortByRelation, 'starsystem.name'),
                 'name',
@@ -65,8 +73,8 @@ class CelestialObjectController extends Controller
                 'longitude',
                 'sensor_population',
                 'sensor_economy',
-                'sensor_danger',
-            ]);
+                'sensor_danger'
+            );
 
         if ($code !== null) {
             $query->whereRaw('upper(code) = ?', [$code]);

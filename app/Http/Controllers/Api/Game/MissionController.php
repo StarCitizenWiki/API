@@ -358,27 +358,16 @@ class MissionController extends Controller
             $out['faction'] = FilterValues::fromRows($factionRows);
 
             $starSystemQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters())
-                ->join(
-                    'game_mission_data_starmap_location as mdsl',
-                    'game_mission_data.id',
-                    '=',
-                    'mdsl.mission_data_id',
-                )
-                ->join(
-                    'game_starmap_location_data as sld',
-                    'mdsl.starmap_location_data_id',
-                    '=',
-                    'sld.id',
-                );
+                ->allowedFilters(...$this->allowedFilters());
 
-            $systemExpr = $this->stripSystemSuffix('sld.system');
+            $systemExpr = $this->starSystemExpression();
             $starSystemRows = $starSystemQuery
                 ->select([
                     DB::raw("{$systemExpr} as value"),
                     DB::raw('count(distinct game_mission_data.id) as count'),
                 ])
-                ->whereNotNull('sld.system')
+                ->fromRaw($this->starSystemFromExpression())
+                ->whereNotNull('game_mission_data.star_systems')
                 ->groupByRaw($systemExpr)
                 ->orderByRaw($systemExpr)
                 ->get();
@@ -550,13 +539,8 @@ class MissionController extends Controller
                     $q->whereIn('name', $values);
                 });
             }),
-            AllowedFilter::callback('star_system', static function (Builder $query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-
-                $query->whereHas('starmapLocations', static function (Builder $q) use ($values): void {
-                    $q->whereIn('system', $values)
-                        ->orWhereIn('system', array_map(static fn (string $v): string => $v.' System', $values));
-                });
+            AllowedFilter::callback('star_system', function (Builder $query, mixed $value): void {
+                $this->whereStarSystem($query, $value);
             }),
             AllowedFilter::exact('illegal'),
             AllowedFilter::exact('shareable'),
@@ -648,20 +632,7 @@ class MissionController extends Controller
                 });
             }),
             AllowedFilter::callback('reputation_scope', function (Builder $query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-                $placeholders = implode(', ', array_fill(0, count($values), '?'));
-
-                if (DB::connection()->getDriverName() === 'sqlite') {
-                    $query->whereRaw(
-                        "EXISTS (SELECT 1 FROM json_each(game_mission_data.data, '$.ReputationGained') elem WHERE json_extract(elem.value, '$.Scope') IN ({$placeholders}))",
-                        $values,
-                    );
-                } else {
-                    $query->whereRaw(
-                        "EXISTS (SELECT 1 FROM jsonb_array_elements(game_mission_data.data->'ReputationGained') elem WHERE elem->>'Scope' IN ({$placeholders}))",
-                        $values,
-                    );
-                }
+                $this->whereReputationScope($query, $value);
             }),
         ];
     }
@@ -699,13 +670,75 @@ class MissionController extends Controller
         ];
     }
 
-    private function stripSystemSuffix(string $column): string
+    private function whereStarSystem(Builder $query, mixed $value): void
     {
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            return "REPLACE({$column}, ' System', '')";
+        $values = array_values(array_filter(
+            is_array($value) ? $value : [$value],
+            static fn (mixed $system): bool => is_scalar($system) && trim((string) $system) !== '',
+        ));
+
+        if ($values === []) {
+            return;
         }
 
-        return "regexp_replace({$column}, ' System$', '')";
+        $values = array_map(static fn (mixed $system): string => (string) $system, $values);
+        $values = array_map(static fn (string $system): string => preg_replace('/\s+System$/', '', $system) ?? $system, $values)
+                |> (fn ($x) => array_merge($values, $x))
+                |> array_unique(...)
+                |> array_values(...);
+
+        $query->where(static function (Builder $q) use ($values): void {
+            foreach ($values as $system) {
+                $q->orWhereJsonContains('game_mission_data.star_systems', $system);
+            }
+        });
+    }
+
+    private function whereReputationScope(Builder $query, mixed $value): void
+    {
+        $values = array_values(array_filter(
+            is_array($value) ? $value : [$value],
+            static fn (mixed $scope): bool => is_scalar($scope) && trim((string) $scope) !== '',
+        ));
+
+        if ($values === []) {
+            return;
+        }
+
+        $values = array_map(static fn (mixed $scope): string => (string) $scope, $values);
+
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $placeholders = implode(', ', array_fill(0, count($values), '?'));
+            $query->whereRaw(
+                "EXISTS (SELECT 1 FROM json_each(game_mission_data.data, '$.ReputationGained') elem WHERE json_extract(elem.value, '$.Scope') IN ({$placeholders}))",
+                $values,
+            );
+
+            return;
+        }
+
+        $query->where(static function (Builder $q) use ($values): void {
+            foreach ($values as $scope) {
+                $q->orWhereRaw(
+                    "(game_mission_data.data->'ReputationGained') @> ?::jsonb",
+                    [json_encode([['Scope' => $scope]], JSON_THROW_ON_ERROR)],
+                );
+            }
+        });
+    }
+
+    private function starSystemExpression(): string
+    {
+        return 'system_elem.value';
+    }
+
+    private function starSystemFromExpression(): string
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return 'game_mission_data, json_each(game_mission_data.star_systems) system_elem';
+        }
+
+        return 'game_mission_data, jsonb_array_elements_text(game_mission_data.star_systems) system_elem(value)';
     }
 
     private function reputationScopeExpression(): string

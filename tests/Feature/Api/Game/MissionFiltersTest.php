@@ -104,3 +104,37 @@ it('returns filters with description filter applied', function (): void {
     $filtered->assertSuccessful()
         ->assertJsonStructure(['filters']);
 });
+
+it('returns filters using star_systems data and accepts system suffix input', function (): void {
+    $stantonFaction = Faction::factory()->create(['name' => 'Stanton Contractors']);
+    $pyroFaction = Faction::factory()->create(['name' => 'Pyro Contractors']);
+
+    MissionData::factory()
+        ->forVersion($this->version)
+        ->create([
+            'faction_id' => $stantonFaction->id,
+            'star_systems' => ['Stanton'],
+        ]);
+
+    MissionData::factory()
+        ->forVersion($this->version)
+        ->create([
+            'faction_id' => $pyroFaction->id,
+            'star_systems' => ['Pyro'],
+        ]);
+
+    $response = $this->getJson('/api/missions/filters?filter[star_system]=Stanton%20System');
+
+    $response->assertSuccessful()
+        ->assertJsonStructure(['filters']);
+
+    $factionFilters = collect($response->json('filters.faction'));
+    expect($factionFilters->firstWhere('value', 'Stanton Contractors'))
+        ->not->toBeNull()
+        ->and($factionFilters->firstWhere('value', 'Pyro Contractors'))
+        ->toBeNull();
+
+    $starSystemFilters = collect($response->json('filters.star_system'));
+    expect($starSystemFilters->firstWhere('value', 'Stanton'))
+        ->not->toBeNull();
+});

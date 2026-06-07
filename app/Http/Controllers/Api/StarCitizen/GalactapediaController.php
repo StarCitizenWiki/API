@@ -52,7 +52,14 @@ class GalactapediaController extends Controller
             AllowedFilter::scope('category'),
             AllowedFilter::scope('tag'),
             AllowedFilter::scope('template'),
-            AllowedFilter::partial('title'),
+            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('galactapedia_articles.title', $like, "%{$value}%");
+            }),
             AllowedFilter::custom('created_at', new DateFilter('created_at')),
         ];
     }

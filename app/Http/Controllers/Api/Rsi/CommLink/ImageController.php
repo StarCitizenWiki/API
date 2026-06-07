@@ -10,8 +10,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
 use App\Models\Rsi\CommLink\Image\Image;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -160,9 +162,18 @@ class ImageController extends Controller
         $limit = $request->has('limit') ? min($request->get('limit'), 100) : 1;
 
         $query = QueryBuilder::for(Image::class, $request)
-            ->allowedFilters(...[
-                AllowedFilter::partial('tags', 'tags.name'),
-            ])
+            ->allowedFilters(
+                AllowedFilter::callback('tags', static function (Builder $query, mixed $value): void {
+                    if (! is_string($value) || $value === '') {
+                        return;
+                    }
+
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $query->whereHas('tags', static function (Builder $q) use ($value, $like): void {
+                        $q->where('comm_link_image_tags.name', $like, "%{$value}%");
+                    });
+                }),
+            )
             ->with(['metadata'])
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->inRandomOrder()
@@ -230,9 +241,18 @@ class ImageController extends Controller
     public function search(SearchRequest $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-            ->allowedFilters(...[
-                AllowedFilter::partial('tags', 'tags.name'),
-            ])
+            ->allowedFilters(
+                AllowedFilter::callback('tags', static function (Builder $query, mixed $value): void {
+                    if (! is_string($value) || $value === '') {
+                        return;
+                    }
+
+                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                    $query->whereHas('tags', static function (Builder $q) use ($value, $like): void {
+                        $q->where('comm_link_image_tags.name', $like, "%{$value}%");
+                    });
+                }),
+            )
             ->with(['metadata'])
             ->whereNull('base_image_id')
             ->whereRaw('src ILIKE ?', [sprintf('%%%s%%', $request->validated('query'))])

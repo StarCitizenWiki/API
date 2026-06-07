@@ -34,7 +34,14 @@ class StarsystemController extends Controller
         return [
             AllowedFilter::exact('affiliation', 'affiliation.name'),
             AllowedFilter::exact('code'),
-            AllowedFilter::partial('name'),
+            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('starmap_starsystems.name', $like, "%{$value}%");
+            }),
             AllowedFilter::exact('status'),
             AllowedFilter::exact('type'),
             AllowedFilter::exact('size', 'aggregated_size'),

@@ -391,6 +391,7 @@ class VehicleController extends Controller
                         'type',
                         'size',
                         'loaner',
+                        ...$this->currentVersionShipMatrixScLoad('loaner.sc'),
                         'skus',
                     ])
                     ->first();
@@ -408,7 +409,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.productionNote',
                 'shipMatrixVehicle.type',
                 'shipMatrixVehicle.size',
-                'shipMatrixVehicle.loaner.sc.vehicle',
+                ...$this->currentVersionShipMatrixScLoad('shipMatrixVehicle.loaner.sc'),
                 'shipMatrixVehicle.skus',
                 'shipMatrixVehicle.manufacturer',
                 'shipMatrixVehicle.components',
@@ -741,7 +742,29 @@ class VehicleController extends Controller
             ->allowedSorts(...$this->allowedSorts())
             ->defaultSort('name')
             ->allowedIncludes(...$this->allowedIncludes())
-            ->with(['vehicle', 'gameVersion', 'manufacturer', 'shipMatrixVehicle.loaner.sc.vehicle', 'shipMatrixVehicle.skus']);
+            ->with([
+                'vehicle',
+                'gameVersion',
+                'manufacturer',
+                ...$this->currentVersionShipMatrixScLoad('shipMatrixVehicle.loaner.sc'),
+                'shipMatrixVehicle.skus',
+            ]);
+    }
+
+    /**
+     * @return array<string, callable>
+     */
+    private function currentVersionShipMatrixScLoad(string $relation): array
+    {
+        $versionId = $this->gameVersion()->id;
+
+        return [
+            $relation => static function ($query) use ($versionId): void {
+                $query
+                    ->where('game_vehicle_data.game_version_id', $versionId)
+                    ->with('vehicle');
+            },
+        ];
     }
 
     /**
@@ -866,10 +889,24 @@ class VehicleController extends Controller
         return [
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
             AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
-            AllowedFilter::partial('class_name'),
-            AllowedFilter::partial('name'),
-            AllowedFilter::partial('career'),
-            AllowedFilter::partial('role'),
+            AllowedFilter::callback('class_name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_vehicle_data.class_name', $like, "%{$value}%");
+            }),
+            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
+                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where('game_vehicle_data.name', $like, "%{$value}%");
+            }),
+            AllowedFilter::exact('career'),
+            AllowedFilter::exact('role'),
             AllowedFilter::exact('is_vehicle'),
             AllowedFilter::exact('is_gravlev'),
             AllowedFilter::exact('is_spaceship'),

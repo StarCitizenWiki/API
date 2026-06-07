@@ -16,6 +16,7 @@ use App\Services\Parser\CommLink\Image as ImageParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -127,7 +128,11 @@ class CommLinkController extends Controller
             : Image::query()
                 ->with(['metadata', 'commLinks.channel', 'commLinks.category', 'commLinks.series', 'tags'])
                 ->whereNull('base_image_id')
-                ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($searchQuery))])
+                ->when(
+                    DB::connection()->getDriverName() === 'pgsql',
+                    fn ($q) => $q->where('src', 'ILIKE', "%{$searchQuery}%"),
+                    fn ($q) => $q->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($searchQuery))]),
+                )
                 ->whereRelation('metadata', 'size', '>', 0)
                 ->limit(100)
                 ->orderByDesc('created_at')
