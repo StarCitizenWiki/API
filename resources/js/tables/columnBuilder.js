@@ -154,14 +154,18 @@ function buildCatalogSortFieldMap(fieldCatalog, map = {}) {
 }
 
 function withHeaderFilterOptions(columns, context) {
-	if (!context.headerFilterOptionsSeed || !context.headerFilterOptionsMap) {
+	const payload = context.getHeaderFilterOptionsPayload?.() ?? (
+		context.headerFilterOptionsSeed ? { filters: context.headerFilterOptionsSeed } : null
+	);
+
+	if (!payload || !context.headerFilterOptionsMap) {
 		return columns;
 	}
 
 	return context.applyHeaderFilterOptionsToColumns(
 		columns,
 		context.headerFilterOptionsMap,
-		{ filters: context.headerFilterOptionsSeed },
+		payload,
 	);
 }
 
@@ -174,6 +178,7 @@ function setupColumnBuilder({
 	applyHeaderFilterOptionsToColumns,
 	headerFilterOptionsMap,
 	headerFilterOptionsSeed,
+	getHeaderFilterOptionsPayload,
 	normalizeColumns,
 	mobileSafeColumns,
 }) {
@@ -261,6 +266,7 @@ function setupColumnBuilder({
 			applyHeaderFilterOptionsToColumns,
 			headerFilterOptionsMap,
 			headerFilterOptionsSeed,
+			getHeaderFilterOptionsPayload,
 		});
 
 		activeFields = nextFields;
@@ -657,6 +663,7 @@ export function registerColumnBuilder({ registerTabulatorBeforeInit }) {
 				applyHeaderFilterOptionsToColumns: context.applyHeaderFilterOptionsToColumns,
 				headerFilterOptionsMap: context.headerFilterOptionsMap,
 				headerFilterOptionsSeed: context.headerFilterOptionsSeed,
+				getHeaderFilterOptionsPayload: context.getHeaderFilterOptionsPayload,
 				normalizeColumns: context.normalizeColumns,
 				mobileSafeColumns: context.mobileSafeColumns,
 			});

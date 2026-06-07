@@ -39,9 +39,6 @@ class ItemController extends Controller
         $resolvedType = $type ?? $category;
 
         $initialTableData = $this->apiJsonRequest->request(route('items.index', [], false), $request);
-        $filterPayload = $this->apiJsonRequest->request(route('items.filters', [], false), $request);
-
-        $filterOptions = Arr::get($filterPayload, 'filters', []);
 
         $tableConfig = $this->itemTableConfig->build($resolvedType);
         $tableConfig['columnBuilder'] = true;
@@ -70,7 +67,7 @@ class ItemController extends Controller
 
         return view('items.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => $filterOptions,
+            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],

@@ -44,14 +44,10 @@ class BlueprintController extends Controller
             ]), false),
             $request,
         );
-        $filterPayload = $this->apiJsonRequest->request(
-            route('blueprints.filters', $this->buildVersionedRouteParameters($request), false),
-            $request,
-        );
 
         return view('blueprints.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
+            'initialHeaderFilter' => [],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'pageSize' => $tableConfig['pageSize'],
             'pageTitle' => $tableConfig['title'],

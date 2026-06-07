@@ -65,13 +65,10 @@ class CommLinkController extends Controller
         }
 
         $initialTableData = $this->apiJsonRequest->request(route('comm-links.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('comm-links.filters', [], false), $apiRequest);
-
-        $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
 
         return view('comm-links.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => $allowedFilterValues,
+            'initialHeaderFilter' => [],
             'initialFilters' => $initialFilters,
             'searchType' => $searchType,
             'searchQuery' => $searchQuery,

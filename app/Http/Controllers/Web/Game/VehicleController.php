@@ -32,14 +32,11 @@ class VehicleController extends Controller
         $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
 
         $initialTableData = $this->apiJsonRequest->request(route('vehicles.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('vehicles.filters', [], false), $apiRequest);
-
-        $allowedFilterValues = Arr::get($filterPayload, 'filters', []);
 
         return view('vehicles.index', [
             'pageTitle' => 'Vehicles',
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => $allowedFilterValues,
+            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'seo' => $this->vehicleIndexSeoData->build([
                 'pageTitle' => 'Vehicles',

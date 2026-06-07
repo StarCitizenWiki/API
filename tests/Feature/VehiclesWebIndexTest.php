@@ -64,21 +64,6 @@ it('normalizes incoming filter values into initial filters for the table', funct
         })
         ->andReturn($initialTableData);
 
-    $apiJsonRequest->shouldReceive('request')
-        ->once()
-        ->ordered()
-        ->withArgs(function (string $path, Request $apiRequest) use ($normalizedFilter): bool {
-            return $path === route('vehicles.filters', [], false)
-                && $apiRequest->query('version') === '4.0.0-LIVE'
-                && $apiRequest->query('filter') === $normalizedFilter;
-        })
-        ->andReturn([
-            'filters' => [
-                'manufacturer' => ['RSI', 'Drake'],
-                'role' => ['Cargo'],
-            ],
-        ]);
-
     $response = $this->get(route('web.vehicles.index', $request));
 
     $expectedEndpoint = route('vehicles.index', [
@@ -89,10 +74,7 @@ it('normalizes incoming filter values into initial filters for the table', funct
     ]);
     $response->assertSuccessful()
         ->assertViewHas('initialTableData', $initialTableData)
-        ->assertViewHas('initialHeaderFilter', [
-            'manufacturer' => ['RSI', 'Drake'],
-            'role' => ['Cargo'],
-        ])
+        ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [
             ['field' => 'manufacturer.name', 'value' => 'RSI,Drake'],
             ['field' => 'role', 'value' => 'Cargo'],
@@ -122,15 +104,6 @@ it('exposes no initial filters when request filters are empty', function (): voi
                 && $apiRequest->query('filter') === null;
         })
         ->andReturn(['data' => [], 'meta' => ['total' => 0]]);
-
-    $apiJsonRequest->shouldReceive('request')
-        ->once()
-        ->ordered()
-        ->withArgs(function (string $path, Request $apiRequest): bool {
-            return $path === route('vehicles.filters', [], false)
-                && $apiRequest->query('filter') === null;
-        })
-        ->andReturn(['filters' => []]);
 
     $response = $this->get(route('web.vehicles.index'));
 

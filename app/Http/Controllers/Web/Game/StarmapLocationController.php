@@ -37,11 +37,10 @@ class StarmapLocationController extends Controller
         $tableConfig = $this->starmapLocationTableConfig->build();
 
         $initialTableData = $this->apiJsonRequest->request(route('locations.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('locations.filters', [], false), $apiRequest);
 
         return view('starmap.locations.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
+            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],

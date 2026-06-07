@@ -32,11 +32,10 @@ class CommodityController extends Controller
         $tableConfig = $this->commodityTableConfig->build();
 
         $initialTableData = $this->apiJsonRequest->request(route('commodities.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('commodities.filters', [], false), $apiRequest);
 
         return view('commodities.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
+            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],

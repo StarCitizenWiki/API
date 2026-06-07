@@ -810,6 +810,21 @@ function populateSelect(select, values) {
 	}
 }
 
+function selectHasValue(select, value) {
+	return Array.from(select.options).some((option) => option.value === value);
+}
+
+function ensureSelectValueOption(select, value) {
+	if (!value || selectHasValue(select, value)) {
+		return;
+	}
+
+	const option = document.createElement("option");
+	option.value = value;
+	option.textContent = value;
+	select.appendChild(option);
+}
+
 function normalizeColumns(columns) {
 	return (columns ?? []).map((column) => {
 		if (Array.isArray(column.columns) && column.columns.length > 0) {
@@ -1002,9 +1017,10 @@ function applyHeaderFilterOptionsToColumnComponents(
 			if (!filterKey) return;
 
 			const facetData = filters[filterKey];
-			const current = select.value;
+			const current = select.dataset.pendingValue || select.value;
 
 			populateSelect(select, buildSelectValues(facetData ?? []));
+			ensureSelectValueOption(select, current);
 			select.value = current;
 		});
 	}
@@ -1100,14 +1116,15 @@ export function initTabulatorTables() {
 				)
 			: null;
 
+		let latestHeaderFilterOptionsPayload = headerFilterOptionsSeed
+			? { filters: headerFilterOptionsSeed }
+			: null;
 		const defaultColumns =
-			headerFilterOptionsSeed && headerFilterOptionsMap
+			latestHeaderFilterOptionsPayload && headerFilterOptionsMap
 				? applyHeaderFilterOptionsToColumns(
 						config.columns ?? [],
 						headerFilterOptionsMap,
-						{
-							filters: headerFilterOptionsSeed,
-						},
+						latestHeaderFilterOptionsPayload,
 					)
 				: (config.columns ?? []);
 		const afterReadyCallbacks = [];
@@ -1120,6 +1137,7 @@ export function initTabulatorTables() {
 			sortFieldMap,
 			headerFilterOptionsMap,
 			headerFilterOptionsSeed,
+			getHeaderFilterOptionsPayload: () => latestHeaderFilterOptionsPayload,
 			applyHeaderFilterOptionsToColumns,
 			normalizeColumns,
 			mobileSafeColumns,
@@ -1208,6 +1226,8 @@ export function initTabulatorTables() {
 					if (requestId !== latestFilterOptionsRequestId) {
 						return;
 					}
+
+					latestHeaderFilterOptionsPayload = payload;
 
 					applyHeaderFilterOptionsToColumnComponents(
 						table.getColumns(),
@@ -1311,6 +1331,7 @@ export function initTabulatorTables() {
 
 				if (!servedInitial && initial) {
 					servedInitial = true;
+					void refreshHeaderFilterOptions(finalUrl, ajaxConfig);
 
 					const lastPage = get(initial, lastPagePath, 1);
 					return Promise.resolve({
@@ -1376,8 +1397,11 @@ export function initTabulatorTables() {
 
 					// Seed initial value from URL
 					if (externalInitialValues.has(field)) {
-						select.value = externalInitialValues.get(field);
-						table.addFilter(field, "=", externalInitialValues.get(field));
+						const initialValue = externalInitialValues.get(field);
+						select.dataset.pendingValue = initialValue;
+						ensureSelectValueOption(select, initialValue);
+						select.value = initialValue;
+						table.addFilter(field, "=", initialValue);
 					}
 
 					select.addEventListener("change", () => {
@@ -1389,7 +1413,10 @@ export function initTabulatorTables() {
 						}
 
 						if (value) {
+							select.dataset.pendingValue = value;
 							table.addFilter(field, "=", value);
+						} else {
+							delete select.dataset.pendingValue;
 						}
 
 						table.setData();

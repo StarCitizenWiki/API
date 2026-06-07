@@ -35,7 +35,6 @@ class MissionController extends Controller
         $tableConfig = $this->missionTableConfig->build();
 
         $initialTableData = $this->apiJsonRequest->request(route('missions.index', [], false), $apiRequest);
-        $filterPayload = $this->apiJsonRequest->request(route('missions.filters', [], false), $apiRequest);
 
         $locationUuid = $request->input('filter.location');
         $activeLocationFilter = null;
@@ -54,7 +53,7 @@ class MissionController extends Controller
 
         return view('missions.index', [
             'initialTableData' => $initialTableData,
-            'initialHeaderFilter' => Arr::get($filterPayload, 'filters', []),
+            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
