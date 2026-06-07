@@ -324,6 +324,7 @@ class ImportMissionData implements ShouldQueue
             'reward_max' => $rewardMax,
             'reward_currency' => $rewardCurrency,
             'star_systems' => $this->deriveStarSystems($payload),
+            'reputation_scopes' => $this->deriveReputationScopes($payload),
             'has_combat' => $hasCombat,
             'has_defend_objective' => $hasDefendObjective,
             'enemy_count_min' => $enemyCountMin,
@@ -335,6 +336,25 @@ class ImportMissionData implements ShouldQueue
             ]),
             'data' => $payload,
         ];
+    }
+
+    private function deriveReputationScopes(array $payload): array
+    {
+        $scopes = [];
+
+        foreach ($payload['ReputationGained'] ?? [] as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            $scope = $this->trimOrNull($entry['Scope'] ?? null);
+
+            if ($scope !== null) {
+                $scopes[] = $scope;
+            }
+        }
+
+        return array_values(array_unique($scopes));
     }
 
     private function deriveStarSystems(array $payload): array

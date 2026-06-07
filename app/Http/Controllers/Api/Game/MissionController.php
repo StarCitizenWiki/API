@@ -470,7 +470,7 @@ class MissionController extends Controller
                     DB::raw('count(distinct game_mission_data.id) as count'),
                 ])
                 ->fromRaw($scopeFrom)
-                ->whereNotNull('game_mission_data.data')
+                ->whereNotNull('game_mission_data.reputation_scopes')
                 ->groupByRaw($scopeExpr)
                 ->orderByRaw($scopeExpr)
                 ->get();
@@ -710,7 +710,7 @@ class MissionController extends Controller
         if (DB::connection()->getDriverName() === 'sqlite') {
             $placeholders = implode(', ', array_fill(0, count($values), '?'));
             $query->whereRaw(
-                "EXISTS (SELECT 1 FROM json_each(game_mission_data.data, '$.ReputationGained') elem WHERE json_extract(elem.value, '$.Scope') IN ({$placeholders}))",
+                "EXISTS (SELECT 1 FROM json_each(game_mission_data.reputation_scopes) elem WHERE elem.value IN ({$placeholders}))",
                 $values,
             );
 
@@ -719,10 +719,7 @@ class MissionController extends Controller
 
         $query->where(static function (Builder $q) use ($values): void {
             foreach ($values as $scope) {
-                $q->orWhereRaw(
-                    "(game_mission_data.data->'ReputationGained') @> ?::jsonb",
-                    [json_encode([['Scope' => $scope]], JSON_THROW_ON_ERROR)],
-                );
+                $q->orWhereJsonContains('game_mission_data.reputation_scopes', $scope);
             }
         });
     }
@@ -743,19 +740,15 @@ class MissionController extends Controller
 
     private function reputationScopeExpression(): string
     {
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            return "json_extract(elem.value, '$.Scope')";
-        }
-
-        return "elem->>'Scope'";
+        return 'scope_elem.value';
     }
 
     private function reputationScopeFromExpression(): string
     {
         if (DB::connection()->getDriverName() === 'sqlite') {
-            return "game_mission_data, json_each(game_mission_data.data, '$.ReputationGained') elem";
+            return 'game_mission_data, json_each(game_mission_data.reputation_scopes) scope_elem';
         }
 
-        return "game_mission_data, jsonb_array_elements(game_mission_data.data->'ReputationGained') elem";
+        return 'game_mission_data, jsonb_array_elements_text(game_mission_data.reputation_scopes) scope_elem(value)';
     }
 }

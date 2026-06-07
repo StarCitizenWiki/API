@@ -72,6 +72,7 @@ class MissionData extends Model
         'enemy_count_min',
         'enemy_count_max',
         'reward_scope',
+        'reputation_scopes',
         'mission_key',
         'data',
     ];
@@ -98,6 +99,7 @@ class MissionData extends Model
         'enemy_count_min' => 'integer',
         'enemy_count_max' => 'integer',
         'star_systems' => 'array',
+        'reputation_scopes' => 'array',
         'mission_key' => 'string',
         'data' => 'array',
     ];

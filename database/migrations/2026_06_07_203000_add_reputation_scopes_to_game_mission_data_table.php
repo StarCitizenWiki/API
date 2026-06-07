@@ -1,0 +1,71 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public $withinTransaction = false;
+
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (! Schema::hasColumn('game_mission_data', 'reputation_scopes')) {
+            Schema::table('game_mission_data', static function (Blueprint $table): void {
+                $table->jsonb('reputation_scopes')->nullable()->after('reward_scope');
+            });
+        }
+
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        DB::statement(<<<'SQL'
+            UPDATE game_mission_data AS gmd
+            SET reputation_scopes = COALESCE((
+                SELECT jsonb_agg(scope)
+                FROM (
+                    SELECT DISTINCT elem->>'Scope' AS scope
+                    FROM jsonb_array_elements(
+                        CASE
+                            WHEN jsonb_typeof(gmd.data->'ReputationGained') = 'array'
+                                THEN gmd.data->'ReputationGained'
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS elem
+                    WHERE elem->>'Scope' IS NOT NULL
+                        AND btrim(elem->>'Scope') <> ''
+                    ORDER BY scope
+                ) AS scopes
+            ), '[]'::jsonb)
+            WHERE gmd.reputation_scopes IS NULL
+                AND gmd.data->'ReputationGained' IS NOT NULL
+        SQL);
+
+        DB::statement(<<<'SQL'
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS game_mission_data_reputation_scopes_gin_index
+            ON game_mission_data
+            USING GIN (reputation_scopes)
+        SQL);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS game_mission_data_reputation_scopes_gin_index');
+        }
+
+        if (Schema::hasColumn('game_mission_data', 'reputation_scopes')) {
+            Schema::table('game_mission_data', static function (Blueprint $table): void {
+                $table->dropColumn('reputation_scopes');
+            });
+        }
+    }
+};

@@ -19,12 +19,19 @@ beforeEach(function (): void {
 function createMissionWithReputation(GameVersion $version, array $reputationGained, array $overrides = []): MissionData
 {
     $mission = Mission::factory()->create();
+    $reputationScopes = collect($reputationGained)
+        ->pluck('Scope')
+        ->filter(static fn (mixed $scope): bool => is_string($scope) && trim($scope) !== '')
+        ->unique()
+        ->values()
+        ->all();
 
     return MissionData::factory()
         ->forVersion($version)
         ->forMission($mission)
         ->create(array_merge([
             'data' => ['ReputationGained' => $reputationGained],
+            'reputation_scopes' => $reputationScopes,
         ], $overrides));
 }
 
