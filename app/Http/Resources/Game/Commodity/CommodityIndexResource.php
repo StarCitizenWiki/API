@@ -243,11 +243,19 @@ class CommodityIndexResource extends AbstractBaseResource
                 $first = $groupedEntries[0]['resourceLocation'];
                 $qMin = PHP_INT_MAX;
                 $qMax = PHP_INT_MIN;
+
                 foreach ($groupedEntries as $p) {
                     $v = $p['resourceLocation']->quality_min;
-                    if ($v !== null && $v < $qMin) { $qMin = $v; }
+
+                    if ($v !== null && $v < $qMin) {
+                        $qMin = $v;
+                    }
+
                     $v = $p['resourceLocation']->quality_max;
-                    if ($v !== null && $v > $qMax) { $qMax = $v; }
+
+                    if ($v !== null && $v > $qMax) {
+                        $qMax = $v;
+                    }
                 }
                 $entries[$first->group_name] = [
                     'group_name' => $first->group_name,
@@ -340,10 +348,19 @@ class CommodityIndexResource extends AbstractBaseResource
         $harvestable = ['Harvestables' => true, 'Havestables' => true, 'Plants' => true];
         $hasHarvestable = false;
         $hasSalvage = false;
+
         foreach ($groupNames as $name) {
-            if (isset($fps[$name])) { $hasFps = true; }
-            if (isset($harvestable[$name])) { $hasHarvestable = true; }
-            if (str_starts_with($name, 'Salvage')) { $hasSalvage = true; }
+            if (isset($fps[$name])) {
+                $hasFps = true;
+            }
+
+            if (isset($harvestable[$name])) {
+                $hasHarvestable = true;
+            }
+
+            if (str_starts_with($name, 'Salvage')) {
+                $hasSalvage = true;
+            }
         }
 
         return compact('hasShip', 'hasGround', 'hasFps', 'hasHarvestable', 'hasSalvage');

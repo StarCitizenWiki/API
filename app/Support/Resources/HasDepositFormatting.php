@@ -264,13 +264,30 @@ trait HasDepositFormatting
         $providerNames = [];
         foreach ($depositPairs as $pair) {
             $rl = $pair['resourceLocation'];
-            if ($rl->quality_min !== null && $rl->quality_min < $depQMin) { $depQMin = $rl->quality_min; }
-            if ($rl->quality_max !== null && $rl->quality_max > $depQMax) { $depQMax = $rl->quality_max; }
+
+            if ($rl->quality_min !== null && $rl->quality_min < $depQMin) {
+                $depQMin = $rl->quality_min;
+            }
+
+            if ($rl->quality_max !== null && $rl->quality_max > $depQMax) {
+                $depQMax = $rl->quality_max;
+            }
+
             $rp = (float) $rl->relative_probability;
-            if ($rp < $relProbMin) { $relProbMin = $rp; }
-            if ($rp > $relProbMax) { $relProbMax = $rp; }
+
+            if ($rp < $relProbMin) {
+                $relProbMin = $rp;
+            }
+
+            if ($rp > $relProbMax) {
+                $relProbMax = $rp;
+            }
+
             $pn = $rl->provider?->provider_name;
-            if ($pn !== null) { $providerNames[$pn] = true; }
+
+            if ($pn !== null) {
+                $providerNames[$pn] = true;
+            }
         }
 
         return [

@@ -319,21 +319,25 @@ class CommodityShowResource extends CommodityIndexResource
 
         // Group by location key
         $groups = [];
+
         foreach ($flatPairs as $pair) {
             if (Str::isUuid($pair['locationData']->name)) {
                 continue;
             }
+
             $key = $pair['locationData']->name.'@'.($pair['locationData']->system ?? '');
             $groups[$key][] = $pair;
         }
 
         $locations = [];
+
         foreach ($groups as $pairs) {
             $firstLocationData = $pairs[0]['locationData'];
             $firstResourceLocation = $pairs[0]['resourceLocation'];
 
             // Group deposits
             $depositGroups = [];
+
             foreach ($pairs as $pair) {
                 $rl = $pair['resourceLocation'];
                 $depositKey = $rl->resource_kind === ResourceKind::Mineable
@@ -343,6 +347,7 @@ class CommodityShowResource extends CommodityIndexResource
             }
 
             $depositEntries = [];
+
             foreach ($depositGroups as $depositPairs) {
                 $representative = $depositPairs[0]['resourceLocation'];
                 $resourceData = $representative->resourceData;
@@ -352,6 +357,7 @@ class CommodityShowResource extends CommodityIndexResource
                 $deposit['resource_kind'] = $representative->resource_kind instanceof ResourceKind ? $representative->resource_kind->value : $representative->resource_kind;
                 $depositEntries[] = $deposit;
             }
+
             usort($depositEntries, static fn (array $a, array $b): int => $a['key'] <=> $b['key']);
 
             $allAreas = self::formatAllAreas($firstResourceLocation->provider?->areas);
@@ -361,11 +367,19 @@ class CommodityShowResource extends CommodityIndexResource
 
             $qMin = PHP_INT_MAX;
             $qMax = PHP_INT_MIN;
+
             foreach ($pairs as $p) {
                 $v = $p['resourceLocation']->quality_min;
-                if ($v !== null && $v < $qMin) { $qMin = $v; }
+
+                if ($v !== null && $v < $qMin) {
+                    $qMin = $v;
+                }
+
                 $v = $p['resourceLocation']->quality_max;
-                if ($v !== null && $v > $qMax) { $qMax = $v; }
+
+                if ($v !== null && $v > $qMax) {
+                    $qMax = $v;
+                }
             }
 
             $locations[$firstLocationData->name] = [
@@ -400,18 +414,21 @@ class CommodityShowResource extends CommodityIndexResource
     public function buildSystemsGrouped(array $locations): array
     {
         $groups = [];
+
         foreach ($locations as $location) {
             $system = $location['system'] ?? 'Unknown System';
             $groups[$system][] = $location;
         }
+
         ksort($groups);
 
         $result = [];
+
         foreach ($groups as $systemName => $systemLocations) {
-            usort($systemLocations, static fn (array $a, array $b): int =>
-                ($a['designation'] ?? "\xFF") <=> ($b['designation'] ?? "\xFF")
+            usort($systemLocations, static fn (array $a, array $b): int => ($a['designation'] ?? "\xFF") <=> ($b['designation'] ?? "\xFF")
                 ?: ($a['name'] ?? '') <=> ($b['name'] ?? '')
             );
+
             $result[] = [
                 'name' => $systemName,
                 'locations' => $systemLocations,
