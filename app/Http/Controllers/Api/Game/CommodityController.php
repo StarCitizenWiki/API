@@ -316,8 +316,11 @@ class CommodityController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode() ?? $this->gameVersion()->code;
-        $resolver = function () use ($request, $versionCode): array {
+        $gameVersion = $this->gameVersion();
+        $versionCode = $this->gameVersionCode() ?? $gameVersion->code;
+        $versionId = $gameVersion->id;
+
+        $resolver = function () use ($request, $versionId): array {
             $out = [];
 
             $simpleFacets = [
@@ -349,7 +352,7 @@ class CommodityController extends Controller
                 'kind' => 'grd.kind',
             ];
 
-            $baseQuery = $this->buildFiltersBaseQuery($request, $versionCode)
+            $baseQuery = $this->buildFiltersBaseQuery($request, $versionId)
                 ->allowedFilters(...$this->allowedFilters());
 
             foreach ($locationFacets as $key => $expr) {
@@ -422,14 +425,12 @@ class CommodityController extends Controller
         ]);
     }
 
-    private function buildFiltersBaseQuery(Request $request, string $versionCode): QueryBuilder
+    private function buildFiltersBaseQuery(Request $request, int $versionId): QueryBuilder
     {
         $versionedResourceData = ResourceData::query()
             ->select('game_resource_data.id', 'game_resource_data.kind', 'grc.commodity_id')
             ->join('game_resource_commodity as grc', 'game_resource_data.id', '=', 'grc.resource_data_id')
-            ->whereHas('gameVersion', static function (Builder $q) use ($versionCode): void {
-                $q->whereRaw('LOWER(code) = ?', [strtolower($versionCode)]);
-            });
+            ->where('game_resource_data.game_version_id', $versionId);
 
         return QueryBuilder::for(Commodity::class, $request)
             ->leftJoinSub($versionedResourceData, 'grd', 'game_commodities.id', '=', 'grd.commodity_id')
@@ -459,18 +460,14 @@ class CommodityController extends Controller
             AllowedSort::field('resistance', 'resistance'),
             AllowedSort::callback('signature', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
-                $versionCode = $this->gameVersionCode();
+                $versionId = $this->gameVersion()->id;
 
                 $subQuery = ResourceData::query()
                     ->select('game_resource_data.signature')
                     ->join('game_resource_commodity as grc', 'game_resource_data.id', '=', 'grc.resource_data_id')
                     ->whereColumn('grc.commodity_id', 'game_commodities.id')
                     ->whereNotNull('game_resource_data.signature')
-                    ->when($versionCode !== null, function (Builder $q) use ($versionCode): void {
-                        $q->whereHas('gameVersion', static function (Builder $q) use ($versionCode): void {
-                            $q->whereRaw('LOWER(code) = ?', [strtolower($versionCode)]);
-                        });
-                    })
+                    ->where('game_resource_data.game_version_id', $versionId)
                     ->orderByDesc('game_resource_data.signature')
                     ->limit(1);
 

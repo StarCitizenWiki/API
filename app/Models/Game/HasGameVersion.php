@@ -16,14 +16,8 @@ trait HasGameVersion
 
     public function scopeForRequestedOrDefaultVersion(Builder $query, ?string $code = null): Builder
     {
-        if ($code !== null) {
-            return $query->whereHas('gameVersion', static function (Builder $builder) use ($code): void {
-                $builder->whereRaw('LOWER(code) = ?', [strtolower($code)]);
-            });
-        }
+        $version = GameVersion::resolveRequestedOrDefault($code);
 
-        return $query->whereHas('gameVersion', static function (Builder $builder): void {
-            $builder->where('is_default', true);
-        });
+        return $query->where($query->qualifyColumn('game_version_id'), $version->id);
     }
 }

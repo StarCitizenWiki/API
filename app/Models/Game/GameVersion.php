@@ -50,7 +50,7 @@ class GameVersion extends Model
     public function scopeRequestedOrDefault(Builder $query, ?string $code): Builder
     {
         if ($code !== null) {
-            return $query->whereRaw('LOWER(code) = ?', [strtolower($code)]);
+            return $query->where('code', strtoupper($code));
         }
 
         return $query->where('is_default', true);

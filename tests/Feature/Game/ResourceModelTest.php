@@ -112,8 +112,15 @@ it('filters resource data by requested or default version scope', function (): v
     $defaultData = ResourceData::factory()->for($resource)->for($defaultVersion, 'gameVersion')->create(['name' => 'Default']);
     $ptuData = ResourceData::factory()->for($resource)->for($ptuVersion, 'gameVersion')->create(['name' => 'PTU']);
 
-    $defaultResults = ResourceData::forRequestedOrDefaultVersion()->get();
-    $ptuResults = ResourceData::forRequestedOrDefaultVersion('1.0.0-PTU')->get();
+    $defaultQuery = ResourceData::forRequestedOrDefaultVersion();
+    $ptuQuery = ResourceData::forRequestedOrDefaultVersion('1.0.0-PTU');
+
+    expect(strtolower($ptuQuery->toSql()))
+        ->toContain('game_version_id')
+        ->not->toContain('game_versions');
+
+    $defaultResults = $defaultQuery->get();
+    $ptuResults = $ptuQuery->get();
 
     expect($defaultResults->pluck('id')->toArray())->toContain($defaultData->id)
         ->and($defaultResults->pluck('id')->toArray())->not->toContain($ptuData->id)

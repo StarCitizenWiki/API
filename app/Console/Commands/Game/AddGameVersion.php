@@ -138,7 +138,7 @@ class AddGameVersion extends Command implements PromptsForMissingInput
     private function versionExists(string $code): bool
     {
         return GameVersion::query()
-            ->whereRaw('LOWER(code) = ?', [Str::lower($code)])
+            ->where('code', Str::upper($code))
             ->exists();
     }
 

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 beforeEach(function (): void {
     $this->version = GameVersion::factory()->create([
-        'code' => 'test-version',
+        'code' => '4.0.0-LIVE.1',
         'channel' => 'testing',
         'is_default' => true,
     ]);
