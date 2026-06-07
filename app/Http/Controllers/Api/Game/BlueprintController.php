@@ -205,10 +205,13 @@ class BlueprintController extends Controller
         $resolver = function () use ($request, $versionCode): array {
             $out = [];
 
+            $baseQuery = QueryBuilder::for(BlueprintData::class, $request)
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->allowedFilters(...$this->allowedFilters());
+
             $typeExpr = $this->jsonExpression('Output.Type');
 
-            $typeRows = QueryBuilder::for(BlueprintData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
+            $typeRows = (clone $baseQuery)
                 ->select([
                     DB::raw("{$typeExpr} as value"),
                     DB::raw('count(*) as count'),
@@ -222,8 +225,7 @@ class BlueprintController extends Controller
                 labelResolver: [ItemFilterLabel::class, 'resolveType'],
             );
 
-            $ingredientRows = QueryBuilder::for(BlueprintData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
+            $ingredientRows = (clone $baseQuery)
                 ->join('game_blueprint_data_ingredients as bdi', 'game_blueprint_data.id', '=', 'bdi.blueprint_data_id')
                 ->join('game_commodities as ic', 'bdi.resource_type_id', '=', 'ic.id')
                 ->select([
@@ -246,8 +248,7 @@ class BlueprintController extends Controller
                 ];
             }
 
-            $dismantleRows = QueryBuilder::for(BlueprintData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
+            $dismantleRows = (clone $baseQuery)
                 ->join('game_blueprint_data_dismantle_returns as bddr', 'game_blueprint_data.id', '=', 'bddr.blueprint_data_id')
                 ->join('game_commodities as dc', 'bddr.resource_type_id', '=', 'dc.id')
                 ->select([
