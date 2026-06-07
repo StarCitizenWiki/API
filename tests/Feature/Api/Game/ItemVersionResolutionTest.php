@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
+use App\Models\Game\GameVersionAlias;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
@@ -141,6 +142,46 @@ it('resolves specific game versions from the version query parameter', function 
         ->assertJsonPath('data.version', '3.21.0-PTU')
         ->assertJsonPath('data.name', 'PTU Variant')
         ->assertJsonPath('data.class_name', 'ptu_variant');
+});
+
+it('resolves game version aliases to their target version', function (): void {
+    $targetVersion = GameVersion::factory()->create([
+        'code' => '4.8.1-LIVE.11882409',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    GameVersionAlias::query()->create([
+        'code' => '4.8.0-LIVE.11825000',
+        'game_version_id' => $targetVersion->id,
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Alias Labs',
+        'code' => 'ALS',
+    ]);
+
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($targetVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Resolved Payload',
+            'class_name' => 'resolved_payload',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?version=4.8.0-live.11825000");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.version', '4.8.1-LIVE.11882409')
+        ->assertJsonPath('data.name', 'Resolved Payload')
+        ->assertJsonPath('data.class_name', 'resolved_payload');
 });
 
 it('resolves crafting blueprints for the requested game version', function (): void {

@@ -7,6 +7,8 @@ namespace App\Models\Game;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GameVersion extends Model
 {
@@ -37,6 +39,11 @@ class GameVersion extends Model
         'TECHPREVIEW' => 'scunpacked_ptu',
     ];
 
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(GameVersionAlias::class);
+    }
+
     /**
      * Resolve the filesystem disk name for this version's channel.
      */
@@ -50,7 +57,17 @@ class GameVersion extends Model
     public function scopeRequestedOrDefault(Builder $query, ?string $code): Builder
     {
         if ($code !== null) {
-            return $query->where('code', strtoupper($code));
+            $normalizedCode = strtoupper($code);
+
+            return $query->where(function (Builder $query) use ($normalizedCode): void {
+                $query->where('code', $normalizedCode)
+                    ->orWhereIn(
+                        'id',
+                        GameVersionAlias::query()
+                            ->select('game_version_id')
+                            ->where('code', $normalizedCode)
+                    );
+            });
         }
 
         return $query->where('is_default', true);
@@ -58,13 +75,40 @@ class GameVersion extends Model
 
     public static function resolveRequestedOrDefault(?string $code): self
     {
-        return static::requestedOrDefault($code)->firstOrFail();
+        if ($code !== null) {
+            return static::findByCode($code, fail: true);
+        }
+
+        return static::requestedOrDefault(null)->firstOrFail();
     }
 
-    /** Find a version by code (case-insensitive). Pass fail=true to throw 404. */
+    /** Find a version by code or alias (case-insensitive). Pass fail=true to throw 404. */
     public static function findByCode(string $code, bool $fail = false): ?self
     {
-        return static::where('code', strtoupper($code))->{$fail ? 'firstOrFail' : 'first'}();
+        $normalizedCode = strtoupper($code);
+
+        $version = static::query()
+            ->where('code', $normalizedCode)
+            ->first();
+
+        if ($version !== null) {
+            return $version;
+        }
+
+        $alias = GameVersionAlias::query()
+            ->where('code', $normalizedCode)
+            ->with('gameVersion')
+            ->first();
+
+        if ($alias?->gameVersion !== null) {
+            return $alias->gameVersion;
+        }
+
+        if ($fail) {
+            throw (new ModelNotFoundException)->setModel(static::class, [$code]);
+        }
+
+        return null;
     }
 
     public static function versionFamily(string $code): ?string

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
+use App\Models\Game\GameVersionAlias;
 
 it('lists all game versions with default sort order', function (): void {
     $newestVersion = GameVersion::factory()->create([
@@ -33,6 +34,26 @@ it('lists all game versions with default sort order', function (): void {
         ->assertJsonPath('data.1.is_default', false)
         ->assertJsonPath('meta.current_page', 1)
         ->assertJsonPath('meta.valid_relations', []);
+});
+
+it('does not list game version aliases', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.8.1-LIVE.11882409',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    GameVersionAlias::query()->create([
+        'code' => '4.8.0-LIVE.11825000',
+        'game_version_id' => $version->id,
+    ]);
+
+    $response = $this->getJson('/api/game-versions');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.code', '4.8.1-LIVE.11882409');
 });
 
 it('filters game versions by channel', function (): void {

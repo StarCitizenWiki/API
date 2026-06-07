@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game;
 
 use App\Models\Game\GameVersion;
+use App\Models\Game\GameVersionAlias;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Carbon;
@@ -24,7 +25,8 @@ class AddGameVersion extends Command implements PromptsForMissingInput
         {code : Game version in the format Major.Minor.Patch.SCOPE.Buildnumber (scope must be LIVE, PTU, or EPTU)}
         {--released-at= : Release date/time (e.g. 2025-12-06 or 2025-12-06 15:30)}
         {--default : Set this version as the default}
-        {--hidden : Set this version as hidden}';
+        {--hidden : Set this version as hidden}
+        {--alias-of= : Existing real game version code this code should resolve to instead of creating an imported version}';
 
     /**
      * The console command description.
@@ -54,6 +56,12 @@ class AddGameVersion extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
+        $aliasTarget = $this->option('alias-of');
+
+        if (is_string($aliasTarget) && trim($aliasTarget) !== '') {
+            return $this->createAlias($parsed, trim($aliasTarget));
+        }
+
         $releasedAt = $this->parseReleaseDate((string) $this->option('released-at'));
 
         if ($releasedAt === false) {
@@ -81,6 +89,39 @@ class AddGameVersion extends Command implements PromptsForMissingInput
         });
 
         $this->info(sprintf('Game version "%s" created.', $parsed['code']));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * @param  array{code: string, scope: string}  $alias
+     */
+    private function createAlias(array $alias, string $targetCode): int
+    {
+        $target = $this->parseVersion($targetCode);
+
+        if ($target === null) {
+            $this->error('Invalid target game version format. Expected Major.Minor.Patch.SCOPE.Buildnumber with scope LIVE, PTU, or EPTU (e.g. 4.4.0-LIVE.10753606).');
+
+            return self::FAILURE;
+        }
+
+        $targetVersion = GameVersion::query()
+            ->where('code', $target['code'])
+            ->first();
+
+        if ($targetVersion === null) {
+            $this->error(sprintf('Target game version "%s" was not found.', $target['code']));
+
+            return self::FAILURE;
+        }
+
+        GameVersionAlias::query()->create([
+            'code' => $alias['code'],
+            'game_version_id' => $targetVersion->id,
+        ]);
+
+        $this->info(sprintf('Game version alias "%s" created for "%s".', $alias['code'], $targetVersion->code));
 
         return self::SUCCESS;
     }
@@ -137,9 +178,14 @@ class AddGameVersion extends Command implements PromptsForMissingInput
 
     private function versionExists(string $code): bool
     {
+        $normalizedCode = Str::upper($code);
+
         return GameVersion::query()
-            ->where('code', Str::upper($code))
-            ->exists();
+            ->where('code', $normalizedCode)
+            ->exists()
+            || GameVersionAlias::query()
+                ->where('code', $normalizedCode)
+                ->exists();
     }
 
     private function isAllowedScope(string $scope): bool

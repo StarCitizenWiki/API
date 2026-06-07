@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
+use App\Models\Game\GameVersionAlias;
 
 describe('GET /api/game-versions/{identifier}', function (): void {
     it('returns a game version by code', function (): void {
@@ -24,6 +25,22 @@ describe('GET /api/game-versions/{identifier}', function (): void {
         ]);
 
         $response = $this->getJson('/api/game-versions/4.7.0-live.11518367');
+
+        $response->assertOk();
+        $response->assertJsonPath('data.code', $version->code);
+    });
+
+    it('returns the resolved game version for an alias', function (): void {
+        $version = GameVersion::factory()->create([
+            'code' => '4.8.1-LIVE.11882409',
+        ]);
+
+        GameVersionAlias::query()->create([
+            'code' => '4.8.0-LIVE.11825000',
+            'game_version_id' => $version->id,
+        ]);
+
+        $response = $this->getJson('/api/game-versions/4.8.0-live.11825000');
 
         $response->assertOk();
         $response->assertJsonPath('data.code', $version->code);
