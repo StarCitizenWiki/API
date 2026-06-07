@@ -57,7 +57,7 @@ it('returns item filter values with counts', function (): void {
         ->for($unknownManufacturer)
         ->create([
             'name' => 'Mystery Item',
-            'type' => null,
+            'type' => 'Unknown',
             'sub_type' => null,
             'classification' => null,
             'size' => null,
@@ -71,8 +71,8 @@ it('returns item filter values with counts', function (): void {
         ->assertExactJson([
             'filters' => [
                 'type' => [
+                    ['value' => 'Unknown', 'label' => 'Unknown', 'count' => 1],
                     ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'sub_type' => [
                     ['value' => 'Laser', 'label' => 'Laser', 'count' => 1],
