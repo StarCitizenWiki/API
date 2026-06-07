@@ -710,7 +710,7 @@ class StarmapLocationResource extends AbstractBaseResource
             ->sortByDesc(static fn ($commodity): float => (float) $commodity->pivot->max_percentage)
             ->first();
 
-        $depositBase = self::buildDepositBase($uniqueResourceLocations, $resourceData, $primaryCommodity?->id);
+        $depositBase = self::buildDepositBase($uniqueResourceLocations->all(), $resourceData, $primaryCommodity?->id);
 
         return [
             'key' => $depositBase['key'],

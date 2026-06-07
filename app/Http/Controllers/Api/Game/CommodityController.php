@@ -154,7 +154,6 @@ class CommodityController extends Controller
                             'game_starmap_location_data.type_name',
                             'game_starmap_location_data.parent_data_id',
                             'game_starmap_location_data.starmap_location_id',
-                            'game_starmap_location_data.location_hierarchy_entity_tag_id',
                         ]),
                         'locations.starmapLocationData.location' => fn ($q) => $q->select([
                             'game_starmap_locations.id',
@@ -164,10 +163,6 @@ class CommodityController extends Controller
                             'game_starmap_location_data.id',
                             'game_starmap_location_data.name',
                             'game_starmap_location_data.type_name',
-                        ]),
-                        'locations.starmapLocationData.locationHierarchyEntityTag' => fn ($q) => $q->select([
-                            'game_entity_tags.id',
-                            'game_entity_tags.name',
                         ]),
                     ]),
             ])
@@ -244,15 +239,72 @@ class CommodityController extends Controller
                 'rawVersions',
                 'resourceData' => fn (BelongsToMany $relation) => $relation
                     ->forRequestedOrDefaultVersion($versionCode)
+                    ->select([
+                        'game_resource_data.id',
+                        'game_resource_data.resource_id',
+                        'game_resource_data.key',
+                        'game_resource_data.kind',
+                        'game_resource_data.signature',
+                    ])
                     ->with([
-                        'resource',
-                        'locations.starmapLocationData.location',
-                        'locations.starmapLocationData.parent.location',
-                        'locations.starmapLocationData.locationHierarchyEntityTag',
-                        'locations.resourceData',
-                        'locations.commodity',
-                        'locations.provider',
-                        'commodities',
+                        'resource' => fn ($q) => $q->select(['game_resources.id', 'game_resources.uuid']),
+                        'locations' => fn ($q) => $q->select([
+                            'game_resource_locations.id',
+                            'game_resource_locations.resource_data_id',
+                            'game_resource_locations.commodity_id',
+                            'game_resource_locations.resource_provider_id',
+                            'game_resource_locations.group_name',
+                            'game_resource_locations.resource_kind',
+                            'game_resource_locations.group_probability',
+                            'game_resource_locations.relative_probability',
+                            'game_resource_locations.quality_min',
+                            'game_resource_locations.quality_max',
+                            'game_resource_locations.quality_mean',
+                            'game_resource_locations.quality_stddev',
+                            'game_resource_locations.min_percentage',
+                            'game_resource_locations.max_percentage',
+                            'game_resource_locations.data',
+                        ]),
+                        'locations.starmapLocationData' => fn ($q) => $q->select([
+                            'game_starmap_location_data.id',
+                            'game_starmap_location_data.name',
+                            'game_starmap_location_data.system',
+                            'game_starmap_location_data.type_name',
+                            'game_starmap_location_data.parent_data_id',
+                            'game_starmap_location_data.starmap_location_id',
+                        ]),
+                        'locations.starmapLocationData.location' => fn ($q) => $q->select([
+                            'game_starmap_locations.id',
+                            'game_starmap_locations.uuid',
+                        ]),
+                        'locations.starmapLocationData.parent' => fn ($q) => $q->select([
+                            'game_starmap_location_data.id',
+                            'game_starmap_location_data.name',
+                            'game_starmap_location_data.type_name',
+                            'game_starmap_location_data.starmap_location_id',
+                        ]),
+                        'locations.starmapLocationData.parent.location' => fn ($q) => $q->select([
+                            'game_starmap_locations.id',
+                            'game_starmap_locations.uuid',
+                        ]),
+                        'locations.resourceData' => fn ($q) => $q->select([
+                            'game_resource_data.id',
+                            'game_resource_data.resource_id',
+                            'game_resource_data.key',
+                        ])->with(['resource' => fn ($q2) => $q2->select(['game_resources.id', 'game_resources.uuid'])]),
+                        'locations.commodity' => fn ($q) => $q->select([
+                            'game_commodities.id',
+                            'game_commodities.uuid',
+                            'game_commodities.key',
+                            'game_commodities.name',
+                            'game_commodities.instability',
+                            'game_commodities.resistance',
+                        ]),
+                        'locations.provider' => fn ($q) => $q->select([
+                            'game_resource_providers.id',
+                            'game_resource_providers.provider_name',
+                            'game_resource_providers.areas',
+                        ]),
                     ]),
             ])
             ->first();

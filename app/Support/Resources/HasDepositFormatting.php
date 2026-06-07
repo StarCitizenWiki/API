@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Support\Resources;
 
 use Carbon\CarbonInterval;
-use Illuminate\Support\Collection;
 
 trait HasDepositFormatting
 {
@@ -115,29 +114,27 @@ trait HasDepositFormatting
 
     protected static function formatAllAreas(mixed $areas): ?array
     {
-        if ($areas === null || $areas->isEmpty()) {
+        if ($areas === null || $areas === []) {
             return null;
         }
 
-        $filtered = $areas
-            ->filter(static fn ($area): bool => ($area['global_modifier'] ?? null) !== null && $area['global_modifier'] > 1)
-            ->map(static fn ($area): array => [
-                'name' => $area['name'] ?? null,
-                'global_modifier' => $area['global_modifier'] ?? null,
-            ])
-            ->values()
-            ->all();
+        $filtered = array_map(static fn (array $area): ?array => ($area['global_modifier'] ?? null) !== null && $area['global_modifier'] > 1 ? [
+            'name' => $area['name'] ?? null,
+            'global_modifier' => $area['global_modifier'] ?? null,
+        ] : null, $areas)
+                |> array_filter(...)
+                |> array_values(...);
 
         return $filtered !== [] ? $filtered : null;
     }
 
     protected static function formatAreaExceptions(mixed $areas, ?string $groupName, ?string $resourceUuid): ?array
     {
-        if ($areas === null || $areas->isEmpty() || $resourceUuid === null) {
+        if ($areas === null || $areas === [] || $resourceUuid === null) {
             return null;
         }
 
-        $exceptions = $areas->map(function ($area) use ($groupName, $resourceUuid): ?array {
+        $exceptions = array_map(function (array $area) use ($groupName, $resourceUuid): ?array {
             $matched = collect($area['modifiers'] ?? [])
                 ->first(static fn (array $m): bool => $m['resource_uuid'] === $resourceUuid
                     && ($groupName === null || ($m['group_name'] ?? null) === $groupName));
@@ -150,18 +147,20 @@ trait HasDepositFormatting
                 'name' => $area['name'] ?? null,
                 'modifier' => $matched['modifier'],
             ];
-        })->filter()->values()->all();
+        }, $areas)
+                |> array_filter(...)
+                |> array_values(...);
 
         return $exceptions !== [] ? $exceptions : null;
     }
 
     protected static function formatAreas(mixed $areas, ?string $groupName = null): ?array
     {
-        if ($areas === null || $areas->isEmpty()) {
+        if ($areas === null || $areas === []) {
             return null;
         }
 
-        return $areas->map(static fn ($area): array => [
+        return array_map(static fn (array $area): array => [
             'name' => $area['name'] ?? null,
             'global_modifier' => $area['global_modifier'] ?? null,
             'modifiers' => collect($area['modifiers'] ?? [])
@@ -174,7 +173,7 @@ trait HasDepositFormatting
                 ])
                 ->values()
                 ->all(),
-        ])->all();
+        ], $areas);
     }
 
     protected static function extractClustering(mixed $data): ?array
@@ -254,22 +253,25 @@ trait HasDepositFormatting
             ->forHumans(short: true);
     }
 
-    protected static function buildDepositBase(Collection $depositPairs, mixed $resourceData, ?int $commodityId): array
+    protected static function buildDepositBase(array $depositPairs, mixed $resourceData, ?int $commodityId): array
     {
-        $representative = $depositPairs->first()['resourceLocation'];
+        $representative = $depositPairs[0]['resourceLocation'];
 
-        $depQMin = $depositPairs->min(static fn (array $pair) => $pair['resourceLocation']->quality_min);
-        $depQMax = $depositPairs->max(static fn (array $pair) => $pair['resourceLocation']->quality_max);
-
-        $relProbMin = $depositPairs->min(static fn (array $pair): float => (float) $pair['resourceLocation']->relative_probability);
-        $relProbMax = $depositPairs->max(static fn (array $pair): float => (float) $pair['resourceLocation']->relative_probability);
-
-        $providerNames = $depositPairs
-            ->map(static fn (array $pair): ?string => $pair['resourceLocation']->provider?->provider_name)
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
+        $depQMin = PHP_INT_MAX;
+        $depQMax = PHP_INT_MIN;
+        $relProbMin = INF;
+        $relProbMax = -INF;
+        $providerNames = [];
+        foreach ($depositPairs as $pair) {
+            $rl = $pair['resourceLocation'];
+            if ($rl->quality_min !== null && $rl->quality_min < $depQMin) { $depQMin = $rl->quality_min; }
+            if ($rl->quality_max !== null && $rl->quality_max > $depQMax) { $depQMax = $rl->quality_max; }
+            $rp = (float) $rl->relative_probability;
+            if ($rp < $relProbMin) { $relProbMin = $rp; }
+            if ($rp > $relProbMax) { $relProbMax = $rp; }
+            $pn = $rl->provider?->provider_name;
+            if ($pn !== null) { $providerNames[$pn] = true; }
+        }
 
         return [
             'key' => $resourceData->key,
@@ -279,10 +281,10 @@ trait HasDepositFormatting
             'area_exceptions' => self::formatAreaExceptions($representative->provider?->areas, $representative->group_name, $resourceData->resource->uuid),
             'clustering' => self::extractClustering($representative->data),
             'harvestable_setup' => self::extractHarvestableSetup($representative->data),
-            'provider_names' => $providerNames,
+            'provider_names' => array_keys($providerNames),
             'materials' => self::buildMaterials($depositPairs, $resourceData, $commodityId),
-            'quality_min' => $depQMin,
-            'quality_max' => $depQMax,
+            'quality_min' => $depQMin === PHP_INT_MAX ? null : $depQMin,
+            'quality_max' => $depQMax === PHP_INT_MIN ? null : $depQMax,
             'relative_probability_min' => $relProbMin,
             'relative_probability_max' => $relProbMax,
             'relative_probability_min_percent' => self::formatPercent($relProbMin),
@@ -290,39 +292,46 @@ trait HasDepositFormatting
         ];
     }
 
-    protected static function buildMaterials(Collection $depositPairs, mixed $resourceData, ?int $primaryCommodityId): array
+    protected static function buildMaterials(array $depositPairs, mixed $resourceData, ?int $primaryCommodityId): array
     {
-        return $depositPairs
-            ->unique(static fn (array $pair): int => $pair['resourceLocation']->id)
-            ->map(function (array $pair) use ($primaryCommodityId): array {
-                $rl = $pair['resourceLocation'];
-                $commodity = $rl->commodity;
+        $seen = [];
+        $materials = [];
+        foreach ($depositPairs as $pair) {
+            $id = $pair['resourceLocation']->id;
+            if (isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
 
-                $qqValues = data_get($rl->data, 'quality_quantization');
+            $rl = $pair['resourceLocation'];
+            $commodity = $rl->commodity;
 
-                return [
-                    'key' => $rl->commodity?->key,
-                    'name' => $commodity?->name,
-                    'uuid' => $commodity?->uuid,
-                    'is_current' => $commodity?->id === $primaryCommodityId,
-                    'quality_min' => $rl->quality_min,
-                    'quality_max' => $rl->quality_max,
-                    'quality_mean' => $rl->quality_mean,
-                    'quality_stddev' => $rl->quality_stddev,
-                    'min_percentage' => (float) $rl->min_percentage,
-                    'max_percentage' => (float) $rl->max_percentage,
-                    'instability' => $commodity !== null ? (float) $commodity->instability : null,
-                    'resistance' => $commodity !== null ? (float) $commodity->resistance : null,
-                    'group_probability' => (float) $rl->group_probability,
-                    'group_probability_percent' => self::formatPercent((float) $rl->group_probability),
-                    'relative_probability' => (float) $rl->relative_probability,
-                    'relative_probability_percent' => self::formatPercent((float) $rl->relative_probability),
-                    'quality_quantized_values' => $qqValues,
-                    'quality_quantization' => $qqValues,
-                ];
-            })
-            ->sortByDesc(static fn (array $item): float => $item['max_percentage'])
-            ->values()
-            ->all();
+            $qqValues = data_get($rl->data, 'quality_quantization');
+
+            $materials[] = [
+                'key' => $rl->commodity?->key,
+                'name' => $commodity?->name,
+                'uuid' => $commodity?->uuid,
+                'is_current' => $commodity?->id === $primaryCommodityId,
+                'quality_min' => $rl->quality_min,
+                'quality_max' => $rl->quality_max,
+                'quality_mean' => $rl->quality_mean,
+                'quality_stddev' => $rl->quality_stddev,
+                'min_percentage' => (float) $rl->min_percentage,
+                'max_percentage' => (float) $rl->max_percentage,
+                'instability' => $commodity !== null ? (float) $commodity->instability : null,
+                'resistance' => $commodity !== null ? (float) $commodity->resistance : null,
+                'group_probability' => (float) $rl->group_probability,
+                'group_probability_percent' => self::formatPercent((float) $rl->group_probability),
+                'relative_probability' => (float) $rl->relative_probability,
+                'relative_probability_percent' => self::formatPercent((float) $rl->relative_probability),
+                'quality_quantized_values' => $qqValues,
+                'quality_quantization' => $qqValues,
+            ];
+        }
+
+        usort($materials, static fn (array $a, array $b): int => $b['max_percentage'] <=> $a['max_percentage']);
+
+        return $materials;
     }
 }

@@ -10,7 +10,6 @@ use App\Models\Game\Commodity\Commodity;
 use App\Support\Formatting\FormatDuration;
 use App\Support\Resources\HasDepositFormatting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -238,7 +237,7 @@ class CommodityShowResource extends CommodityIndexResource
 
     public function toArray(Request $request): array
     {
-        $resourceDataCollection = $this->resource->resourceData ?? collect();
+        $resourceDataCollection = $this->resource->relationLoaded('resourceData') ? $this->resource->resourceData->all() : [];
         $locations = $this->buildDetailedLocations($resourceDataCollection, $this->resource->id);
 
         $this->setCanonicalResource(
@@ -314,83 +313,111 @@ class CommodityShowResource extends CommodityIndexResource
         ]);
     }
 
-    private function buildDetailedLocations(Collection $resourceDataCollection, int $currentCommodityId): array
+    private function buildDetailedLocations(array $resourceDataCollection, int $currentCommodityId): array
     {
         $flatPairs = $this->flattenLocationPairs($resourceDataCollection);
 
-        $grouped = $flatPairs
-            ->filter(static fn (array $pair): bool => ! Str::isUuid($pair['locationData']->name))
-            ->groupBy(static fn (array $pair): string => $pair['locationData']->name.'@'.($pair['locationData']->system ?? ''));
+        // Group by location key
+        $groups = [];
+        foreach ($flatPairs as $pair) {
+            if (Str::isUuid($pair['locationData']->name)) {
+                continue;
+            }
+            $key = $pair['locationData']->name.'@'.($pair['locationData']->system ?? '');
+            $groups[$key][] = $pair;
+        }
 
-        return $grouped
-            ->map(function (Collection $pairs) use ($currentCommodityId): array {
-                $firstLocationData = $pairs->first()['locationData'];
-                $firstResourceLocation = $pairs->first()['resourceLocation'];
+        $locations = [];
+        foreach ($groups as $pairs) {
+            $firstLocationData = $pairs[0]['locationData'];
+            $firstResourceLocation = $pairs[0]['resourceLocation'];
 
-                $depositGroups = $pairs
-                    ->groupBy(static fn (array $pair): string => $pair['resourceLocation']->resource_kind === ResourceKind::Mineable
-                        ? $pair['resourceLocation']->resourceData->key.'@'.($pair['resourceLocation']->resource_provider_id ?? 'none')
-                        : (string) $pair['resourceLocation']->resourceData->id)
-                    ->map(function (Collection $depositPairs) use ($currentCommodityId): array {
-                        $representative = $depositPairs->first()['resourceLocation'];
-                        $resourceData = $representative->resourceData;
+            // Group deposits
+            $depositGroups = [];
+            foreach ($pairs as $pair) {
+                $rl = $pair['resourceLocation'];
+                $depositKey = $rl->resource_kind === ResourceKind::Mineable
+                    ? $rl->resourceData->key.'@'.($rl->resource_provider_id ?? 'none')
+                    : (string) $rl->resourceData->id;
+                $depositGroups[$depositKey][] = $pair;
+            }
 
-                        $deposit = self::buildDepositBase($depositPairs, $resourceData, $currentCommodityId);
-                        $deposit['group_name'] = $representative->group_name;
-                        $deposit['resource_kind'] = $representative->resource_kind instanceof ResourceKind ? $representative->resource_kind->value : $representative->resource_kind;
+            $depositEntries = [];
+            foreach ($depositGroups as $depositPairs) {
+                $representative = $depositPairs[0]['resourceLocation'];
+                $resourceData = $representative->resourceData;
 
-                        return $deposit;
-                    })
-                    ->sortBy('key')
-                    ->values()
-                    ->all();
+                $deposit = self::buildDepositBase($depositPairs, $resourceData, $currentCommodityId);
+                $deposit['group_name'] = $representative->group_name;
+                $deposit['resource_kind'] = $representative->resource_kind instanceof ResourceKind ? $representative->resource_kind->value : $representative->resource_kind;
+                $depositEntries[] = $deposit;
+            }
+            usort($depositEntries, static fn (array $a, array $b): int => $a['key'] <=> $b['key']);
 
-                $allAreas = self::formatAllAreas($firstResourceLocation->provider?->areas);
+            $allAreas = self::formatAllAreas($firstResourceLocation->provider?->areas);
 
-                $designation = $firstLocationData->designation;
-                $displayName = $designation !== null ? "{$designation}: {$firstLocationData->name}" : $firstLocationData->name;
+            $designation = $firstLocationData->designation;
+            $displayName = $designation !== null ? "{$designation}: {$firstLocationData->name}" : $firstLocationData->name;
 
-                return [
-                    'name' => $firstLocationData->name,
-                    'designation' => $designation,
-                    'display_name' => $displayName,
-                    'system' => $firstLocationData->system,
-                    'type' => $firstLocationData->type_name,
-                    'parent_name' => $firstLocationData->parent?->name,
-                    'parent_type' => $firstLocationData->parent?->type_name,
-                    'parent_uuid' => $firstLocationData->parent?->location?->uuid,
-                    'uuid' => $firstLocationData->location?->uuid,
-                    'link' => $firstLocationData->location?->uuid
-                        ? route('locations.show', ['identifier' => $firstLocationData->location->uuid])
-                        : null,
-                    'group_probability' => (float) $firstResourceLocation->group_probability,
-                    'group_probability_percent' => self::formatPercent((float) $firstResourceLocation->group_probability, 1),
-                    'relative_probability' => (float) $firstResourceLocation->relative_probability,
-                    'relative_probability_percent' => self::formatPercent((float) $firstResourceLocation->relative_probability, 1),
-                    'quality_min' => $pairs->min(static fn (array $pair) => $pair['resourceLocation']->quality_min),
-                    'quality_max' => $pairs->max(static fn (array $pair) => $pair['resourceLocation']->quality_max),
-                    'areas' => $allAreas,
-                    'resources' => $depositGroups,
-                ];
-            })
-            ->sortBy('name')
-            ->values()
-            ->all();
+            $qMin = PHP_INT_MAX;
+            $qMax = PHP_INT_MIN;
+            foreach ($pairs as $p) {
+                $v = $p['resourceLocation']->quality_min;
+                if ($v !== null && $v < $qMin) { $qMin = $v; }
+                $v = $p['resourceLocation']->quality_max;
+                if ($v !== null && $v > $qMax) { $qMax = $v; }
+            }
+
+            $locations[$firstLocationData->name] = [
+                'name' => $firstLocationData->name,
+                'designation' => $designation,
+                'display_name' => $displayName,
+                'system' => $firstLocationData->system,
+                'type' => $firstLocationData->type_name,
+                'parent_name' => $firstLocationData->parent?->name,
+                'parent_type' => $firstLocationData->parent?->type_name,
+                'parent_uuid' => $firstLocationData->parent?->location?->uuid,
+                'uuid' => $firstLocationData->location?->uuid,
+                'link' => $firstLocationData->location?->uuid
+                    ? route('locations.show', ['identifier' => $firstLocationData->location->uuid])
+                    : null,
+                'group_probability' => (float) $firstResourceLocation->group_probability,
+                'group_probability_percent' => self::formatPercent((float) $firstResourceLocation->group_probability, 1),
+                'relative_probability' => (float) $firstResourceLocation->relative_probability,
+                'relative_probability_percent' => self::formatPercent((float) $firstResourceLocation->relative_probability, 1),
+                'quality_min' => $qMin === PHP_INT_MAX ? null : $qMin,
+                'quality_max' => $qMax === PHP_INT_MIN ? null : $qMax,
+                'areas' => $allAreas,
+                'resources' => array_values($depositEntries),
+            ];
+        }
+
+        uasort($locations, static fn (array $a, array $b): int => $a['name'] <=> $b['name']);
+
+        return array_values($locations);
     }
 
     public function buildSystemsGrouped(array $locations): array
     {
-        return collect($locations)
-            ->groupBy(static fn (array $location): string => $location['system'] ?? 'Unknown System')
-            ->sortKeys()
-            ->map(static fn (Collection $systemLocations): array => [
-                'name' => $systemLocations->first()['system'] ?? 'Unknown System',
-                'locations' => $systemLocations
-                    ->sortBy(static fn (array $loc): array => [$loc['designation'] ?? "\xFF", $loc['name'] ?? ''])
-                    ->values()
-                    ->all(),
-            ])
-            ->values()
-            ->all();
+        $groups = [];
+        foreach ($locations as $location) {
+            $system = $location['system'] ?? 'Unknown System';
+            $groups[$system][] = $location;
+        }
+        ksort($groups);
+
+        $result = [];
+        foreach ($groups as $systemName => $systemLocations) {
+            usort($systemLocations, static fn (array $a, array $b): int =>
+                ($a['designation'] ?? "\xFF") <=> ($b['designation'] ?? "\xFF")
+                ?: ($a['name'] ?? '') <=> ($b['name'] ?? '')
+            );
+            $result[] = [
+                'name' => $systemName,
+                'locations' => $systemLocations,
+            ];
+        }
+
+        return $result;
     }
 }

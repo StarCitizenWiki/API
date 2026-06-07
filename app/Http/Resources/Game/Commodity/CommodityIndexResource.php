@@ -6,11 +6,8 @@ namespace App\Http\Resources\Game\Commodity;
 
 use App\Enums\Game\ResourceKind;
 use App\Http\Resources\AbstractBaseResource;
-use App\Models\Game\Resource\ResourceLocation;
-use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -143,12 +140,13 @@ class CommodityIndexResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
-        $resourceDataCollection = $this->resource->resourceData ?? collect();
+        $resourceDataCollection = $this->resource->relationLoaded('resourceData') ? $this->resource->resourceData->all() : [];
         $locations = $this->buildLocations($resourceDataCollection);
         $groupNames = $this->extractGroupNames($resourceDataCollection);
         ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
 
-        $kind = ($first = $resourceDataCollection->first()) ? ($first->locations->first()?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
+        $first = $resourceDataCollection[0] ?? null;
+        $kind = $first !== null ? ($first->locations[0]?->resource_kind?->value ?? ($first->kind instanceof ResourceKind ? $first->kind->value : $first->kind)) : null;
 
         $commodityGroups = Arr::get($this->resource->data, 'CommodityGroups');
         $commodityGroups = is_array($commodityGroups) ? $commodityGroups : null;
@@ -187,14 +185,14 @@ class CommodityIndexResource extends AbstractBaseResource
             'validate_default_cargo_box' => $this->resource->validate_default_cargo_box,
             'has_default_cargo_containers' => $this->resource->has_default_cargo_containers,
 
-            'is_mineable' => $resourceDataCollection->isNotEmpty(),
+            'is_mineable' => $resourceDataCollection !== [],
             'has_ship_mineables' => $hasShip,
             'has_ground_vehicle_mineables' => $hasGround,
             'has_fps_mineables' => $hasFps,
             'has_harvestables' => $hasHarvestable,
             'has_salvage' => $hasSalvage,
 
-            'signature' => ($sig = $resourceDataCollection->first()?->signature) !== null && $sig > 0 ? $sig : null,
+            'signature' => ($sig = ($resourceDataCollection[0] ?? null)?->signature) !== null && $sig > 0 ? $sig : null,
             'kind' => empty($kind) ? null : $kind,
             'methods' => $this->buildMethodsFromFlags($hasShip, $hasGround, $hasFps, $hasHarvestable, $hasSalvage),
             'systems' => $this->buildSystems($locations),
@@ -214,74 +212,102 @@ class CommodityIndexResource extends AbstractBaseResource
         ];
     }
 
-    protected function buildLocations(Collection $resourceDataCollection): array
+    protected function buildLocations(array $resourceDataCollection): array
     {
         $flatPairs = $this->flattenLocationPairs($resourceDataCollection);
 
-        $grouped = $flatPairs
-            ->filter(static fn (array $pair): bool => ! Str::isUuid($pair['locationData']->name))
-            ->groupBy(static fn (array $pair): string => $pair['locationData']->name.'@'.($pair['locationData']->system ?? ''));
+        // Group by location key
+        $groups = [];
+        foreach ($flatPairs as $pair) {
+            if (Str::isUuid($pair['locationData']->name)) {
+                continue;
+            }
+            $key = $pair['locationData']->name.'@'.($pair['locationData']->system ?? '');
+            $groups[$key][] = $pair;
+        }
 
-        return $grouped
-            ->map(function (Collection $pairs): array {
-                $firstLocationData = $pairs->first()['locationData'];
-                $designation = $firstLocationData->designation;
-                $displayName = $designation !== null ? "{$designation}: {$firstLocationData->name}" : $firstLocationData->name;
+        $locations = [];
+        foreach ($groups as $pairs) {
+            $firstLocationData = $pairs[0]['locationData'];
+            $designation = $firstLocationData->designation;
+            $displayName = $designation !== null ? "{$designation}: {$firstLocationData->name}" : $firstLocationData->name;
 
-                return [
-                    'name' => $firstLocationData->name,
-                    'display_name' => $displayName,
-                    'system' => $firstLocationData->system,
-                    'type' => $firstLocationData->type_name,
-                    'parent_name' => $firstLocationData->parent?->name,
-                    'parent_type' => $firstLocationData->parent?->type_name,
-                    'uuid' => $firstLocationData->location?->uuid,
-                    'link' => $firstLocationData->location?->uuid
-                        ? route('locations.show', ['identifier' => $firstLocationData->location->uuid])
-                        : null,
-                    'entries' => $pairs
-                        ->groupBy(static fn (array $pair): string => $pair['resourceLocation']->group_name)
-                        ->map(static function (Collection $groupedEntries): array {
-                            $first = $groupedEntries->first()['resourceLocation'];
+            // Inner group by group_name
+            $innerGroups = [];
+            foreach ($pairs as $pair) {
+                $innerGroups[$pair['resourceLocation']->group_name][] = $pair;
+            }
 
-                            return [
-                                'group_name' => $first->group_name,
-                                'resource_kind' => $first->resource_kind instanceof ResourceKind ? $first->resource_kind->value : $first->resource_kind,
-                                'quality_min' => $groupedEntries->min(static fn (array $pair) => $pair['resourceLocation']->quality_min),
-                                'quality_max' => $groupedEntries->max(static fn (array $pair) => $pair['resourceLocation']->quality_max),
-                                'entry_count' => $groupedEntries->count(),
-                            ];
-                        })
-                        ->sortBy('group_name')
-                        ->values()
-                        ->all(),
+            $entries = [];
+            foreach ($innerGroups as $groupedEntries) {
+                $first = $groupedEntries[0]['resourceLocation'];
+                $qMin = PHP_INT_MAX;
+                $qMax = PHP_INT_MIN;
+                foreach ($groupedEntries as $p) {
+                    $v = $p['resourceLocation']->quality_min;
+                    if ($v !== null && $v < $qMin) { $qMin = $v; }
+                    $v = $p['resourceLocation']->quality_max;
+                    if ($v !== null && $v > $qMax) { $qMax = $v; }
+                }
+                $entries[$first->group_name] = [
+                    'group_name' => $first->group_name,
+                    'resource_kind' => $first->resource_kind instanceof ResourceKind ? $first->resource_kind->value : $first->resource_kind,
+                    'quality_min' => $qMin === PHP_INT_MAX ? null : $qMin,
+                    'quality_max' => $qMax === PHP_INT_MIN ? null : $qMax,
+                    'entry_count' => count($groupedEntries),
                 ];
-            })
-            ->sortBy('name')
-            ->values()
-            ->all();
+            }
+            ksort($entries);
+
+            $locations[$firstLocationData->name] = [
+                'name' => $firstLocationData->name,
+                'display_name' => $displayName,
+                'system' => $firstLocationData->system,
+                'type' => $firstLocationData->type_name,
+                'parent_name' => $firstLocationData->parent?->name,
+                'parent_type' => $firstLocationData->parent?->type_name,
+                'uuid' => $firstLocationData->location?->uuid,
+                'link' => $firstLocationData->location?->uuid
+                    ? route('locations.show', ['identifier' => $firstLocationData->location->uuid])
+                    : null,
+                'entries' => array_values($entries),
+            ];
+        }
+
+        uasort($locations, static fn (array $a, array $b): int => $a['name'] <=> $b['name']);
+
+        return array_values($locations);
     }
 
-    protected function flattenLocationPairs(Collection $resourceDataCollection): Collection
+    protected function flattenLocationPairs(array $resourceDataCollection): array
     {
-        return $resourceDataCollection
-            ->flatMap(static fn ($resourceData) => $resourceData->locations)
-            ->flatMap(static fn (ResourceLocation $resourceLocation) => $resourceLocation->starmapLocationData
-                ->map(static fn (StarmapLocationData $locationData) => [
-                    'resourceLocation' => $resourceLocation,
-                    'locationData' => $locationData,
-                ]));
+        $pairs = [];
+        foreach ($resourceDataCollection as $resourceData) {
+            foreach ($resourceData->locations as $resourceLocation) {
+                foreach ($resourceLocation->starmapLocationData as $locationData) {
+                    $pairs[] = [
+                        'resourceLocation' => $resourceLocation,
+                        'locationData' => $locationData,
+                    ];
+                }
+            }
+        }
+
+        return $pairs;
     }
 
     protected function buildSystems(array $locations): array
     {
-        return collect($locations)
-            ->pluck('system')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
+        $systems = [];
+        foreach ($locations as $location) {
+            if ($location['system'] !== null && $location['system'] !== '') {
+                $systems[$location['system']] = true;
+            }
+        }
+        $systems = array_keys($systems);
+        sort($systems);
+
+        return $systems;
     }
 
     protected function formatDecimal(mixed $value, int $decimals): ?float
@@ -293,21 +319,32 @@ class CommodityIndexResource extends AbstractBaseResource
         return round((float) $value, $decimals);
     }
 
-    protected function extractGroupNames(Collection $resourceDataCollection): Collection
+    protected function extractGroupNames(array $resourceDataCollection): array
     {
-        return $resourceDataCollection
-            ->flatMap(static fn ($resourceData) => $resourceData->locations->pluck('group_name'))
-            ->unique()
-            ->values();
+        $names = [];
+        foreach ($resourceDataCollection as $resourceData) {
+            foreach ($resourceData->locations as $location) {
+                $names[$location->group_name] = true;
+            }
+        }
+
+        return array_keys($names);
     }
 
-    protected function resolveFlags(Collection $groupNames): array
+    protected function resolveFlags(array $groupNames): array
     {
-        $hasShip = $groupNames->contains('SpaceShip_Mineables');
-        $hasGround = $groupNames->contains('GroundVehicle_Mineables');
-        $hasFps = $groupNames->intersect(['FPS_Mineables', 'FPS mineables'])->isNotEmpty();
-        $hasHarvestable = $groupNames->intersect(['Harvestables', 'Havestables', 'Plants'])->isNotEmpty();
-        $hasSalvage = $groupNames->contains(static fn (string $name) => str_starts_with($name, 'Salvage'));
+        $hasShip = in_array('SpaceShip_Mineables', $groupNames, true);
+        $hasGround = in_array('GroundVehicle_Mineables', $groupNames, true);
+        $fps = ['FPS_Mineables' => true, 'FPS mineables' => true];
+        $hasFps = false;
+        $harvestable = ['Harvestables' => true, 'Havestables' => true, 'Plants' => true];
+        $hasHarvestable = false;
+        $hasSalvage = false;
+        foreach ($groupNames as $name) {
+            if (isset($fps[$name])) { $hasFps = true; }
+            if (isset($harvestable[$name])) { $hasHarvestable = true; }
+            if (str_starts_with($name, 'Salvage')) { $hasSalvage = true; }
+        }
 
         return compact('hasShip', 'hasGround', 'hasFps', 'hasHarvestable', 'hasSalvage');
     }

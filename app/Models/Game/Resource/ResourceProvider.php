@@ -7,7 +7,6 @@ namespace App\Models\Game\Resource;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
 use Database\Factories\Game\Resource\ResourceProviderFactory;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,7 +27,7 @@ class ResourceProvider extends Model
     ];
 
     protected $casts = [
-        'areas' => AsCollection::class,
+        'areas' => 'array',
     ];
 
     public function gameVersion(): BelongsTo
