@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Concerns;
 
+use Illuminate\Support\Arr;
+
 /**
  * Maps equipment Type values to canonical display categories
  */
@@ -128,6 +130,55 @@ trait CategorizesEquipmentType
         }
 
         return $category;
+    }
+
+    /**
+     * Categorize a raw loadout port array into a display category.
+     *
+     * @param  array<string, mixed>  $item  Raw port entry from loadout JSON.
+     * @return string Display category label.
+     */
+    public function categorizeRawPort(array $item): string
+    {
+        [$type, $subtype] = explode('.', Arr::get($item, 'Type', '.'));
+
+        $category = $this->categorizeEquipmentType(
+            $type,
+            $subtype,
+            Arr::get($item, 'ClassName'),
+        );
+
+        if ($category === 'Other' && ($type === '' || $type === null)) {
+            $hardpoint = Arr::get($item, 'HardpointName');
+
+            if ($hardpoint !== null) {
+                $fallback = $this->categorizeByHardpointName($hardpoint);
+
+                if ($fallback !== 'Other') {
+                    return $fallback;
+                }
+            }
+        }
+
+        if ($category === 'Docking' && array_any(Arr::get($item, 'Loadout') ?? [], fn($child) => $this->isAttachedVehiclePort($child) && is_string($uuid = Arr::get($child, 'UUID')) && $uuid !== '')) {
+            return 'Docked Vehicles';
+        }
+
+        return $category;
+    }
+
+    /**
+     * Check whether a raw port represents a NOITEM_Vehicle type.
+     *
+     * @param  array<string, mixed>  $port
+     */
+    protected function isAttachedVehiclePort(array $port): bool
+    {
+        $type = Arr::get($port, 'Type', '');
+        $compatibleTypes = Arr::get($port, 'CompatibleTypes') ?? Arr::get($port, 'ItemTypes', []);
+
+        return str_starts_with($type, 'NOITEM_Vehicle')
+            || collect($compatibleTypes)->contains(fn (array $compatibleType): bool => ($compatibleType['Type'] ?? '') === 'NOITEM_Vehicle');
     }
 
     /**

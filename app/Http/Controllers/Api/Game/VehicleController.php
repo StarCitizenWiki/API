@@ -746,6 +746,11 @@ class VehicleController extends Controller
                 'vehicle',
                 'gameVersion',
                 'manufacturer',
+                'shipMatrixVehicle.foci',
+                'shipMatrixVehicle.productionStatus',
+                'shipMatrixVehicle.productionNote',
+                'shipMatrixVehicle.type',
+                'shipMatrixVehicle.size',
                 ...$this->currentVersionShipMatrixScLoad('shipMatrixVehicle.loaner.sc'),
                 'shipMatrixVehicle.skus',
             ]);

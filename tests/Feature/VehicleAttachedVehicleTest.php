@@ -61,6 +61,54 @@ describe('Docked Vehicles category', function (): void {
             ->assertJsonPath('data.ports.0.category_label', 'Docked Vehicles');
     });
 
+    it('keeps docked vehicle ports on the vehicle index route', function (): void {
+        $version = GameVersion::factory()->create(['is_default' => true]);
+        $manufacturer = Manufacturer::factory()->create();
+
+        $attachedVehicle = Vehicle::factory()->create(['slug' => 'drak-command-module']);
+        VehicleData::factory()->create([
+            'vehicle_id' => $attachedVehicle->id,
+            'game_version_id' => $version->id,
+            'manufacturer_id' => $manufacturer->id,
+            'class_name' => 'DRAK_Command_Module',
+            'name' => 'Command Module',
+            'is_player_relevant' => false,
+        ]);
+
+        $parentVehicle = Vehicle::factory()->create();
+        VehicleData::factory()->create([
+            'vehicle_id' => $parentVehicle->id,
+            'game_version_id' => $version->id,
+            'manufacturer_id' => $manufacturer->id,
+            'class_name' => 'DRAK_Caterpillar',
+            'name' => 'Caterpillar',
+            'data' => [
+                'Loadout' => [
+                    [
+                        'HardpointName' => 'hardpoint_docking_module',
+                        'Type' => 'DockingCollar.UNDEFINED',
+                        'UUID' => 'd6c3310d-9978-48d1-b888-a934550251da',
+                        'ClassName' => 'DRAK_Caterpillar_Command_Module_DockingTube',
+                        'Loadout' => [
+                            [
+                                'HardpointName' => 'itemport_vehicle_attach',
+                                'Type' => 'NOITEM_Vehicle.Vehicle_Spaceship',
+                                'UUID' => $attachedVehicle->uuid,
+                                'ClassName' => 'DRAK_Command_Module',
+                                'ItemTypes' => [['Type' => 'NOITEM_Vehicle']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson('/api/vehicles?include=ports');
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.ports.0.category_label', 'Docked Vehicles');
+    });
+
     it('keeps empty DockingCollar as Docking category', function (): void {
         $version = GameVersion::factory()->create(['is_default' => true]);
         $manufacturer = Manufacturer::factory()->create();

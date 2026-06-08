@@ -115,6 +115,93 @@ it('includes ship-matrix data when shipmatrix_id is set', function () {
     $response->assertJsonPath('data.pledge_url', 'https://robertsspaceindustries.com/pledge/ships/aegis-avenger/Avenger-Titan');
 });
 
+it('includes ship-matrix foci on the vehicle index route', function (): void {
+    $this->focus->setTranslation('translation', 'en', 'Combat');
+    $this->focus->save();
+
+    $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 12347,
+        'chassis_id' => 102,
+        'name' => 'Index Focus Ship',
+        'slug' => 'index-focus-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    $shipMatrixVehicle->foci()->attach($this->focus);
+
+    $vehicle = Vehicle::query()->create([
+        'uuid' => '13131313-1313-1313-1313-131313131313',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Index Focus Ship',
+        'class_name' => 'Index_Focus_Ship',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $this->getJson('/api/vehicles')
+        ->assertOk()
+        ->assertJsonPath('data.0.foci.0.en', 'Combat');
+});
+
+it('includes requested ship-matrix components on the vehicle index route', function (): void {
+    $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 12348,
+        'chassis_id' => 103,
+        'name' => 'Index Component Ship',
+        'slug' => 'index-component-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    $component = ShipMatrixComponent::query()->create([
+        'type' => 'Weapon',
+        'name' => 'CF-227 Badger Repeater',
+        'component_size' => 3,
+        'category' => null,
+        'manufacturer' => 'Klaus & Werner',
+        'component_class' => 'weapon',
+    ]);
+
+    $shipMatrixVehicle->components()->attach($component, [
+        'mounts' => 2,
+        'size' => 3,
+        'details' => 'Wing hardpoints',
+        'quantity' => 2,
+    ]);
+
+    $vehicle = Vehicle::query()->create([
+        'uuid' => '14141414-1414-1414-1414-141414141414',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Index Component Ship',
+        'class_name' => 'Index_Component_Ship',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $this->getJson('/api/vehicles?include=components')
+        ->assertOk()
+        ->assertJsonPath('data.0.components.0.name', 'CF-227 Badger Repeater')
+        ->assertJsonPath('data.0.components.0.mounts', 2)
+        ->assertJsonPath('data.0.components.0.quantity', 2);
+});
+
 it('does not include ship-matrix data when shipmatrix_id is null', function () {
     $vehicle = Vehicle::query()->create([
         'uuid' => '22222222-2222-2222-2222-222222222222',

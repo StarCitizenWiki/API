@@ -14,6 +14,7 @@ use App\Http\Resources\Game\Vehicle\Builders\VehicleArmorBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleDriveBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleFlightBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleWeaponryBuilder;
+use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
@@ -733,6 +734,7 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleResource extends AbstractBaseResource
 {
+    use CategorizesEquipmentType;
     use ExpandsUexPrices;
     use ExtractsJsonData;
     use ResolvesGameVersion;
@@ -782,9 +784,18 @@ class VehicleResource extends AbstractBaseResource
         );
 
         $payload = $vehicleData->data ?? [];
-        $flight = Arr::get($payload, 'FlightCharacteristics', []);
+        $flight = $payload['FlightCharacteristics'] ?? [];
+        $emission = $payload['Emission'] ?? [];
+        $shieldsTotal = $payload['ShieldsTotal'] ?? [];
+        $shieldCtrl = $payload['ShieldController'] ?? [];
+        $seating = $payload['Seating'] ?? [];
+        $crossSection = $payload['CrossSection'] ?? [];
+        $insurance = $payload['Insurance'] ?? [];
+        $penetration = $payload['PenetrationMultiplier'] ?? [];
+        $cooling = $payload['Cooling'] ?? [];
+        $power = $payload['Power'] ?? [];
 
-        $apiVersion = $this->getApiVersion($request);
+        $apiVersion = $request->route('api_version');
 
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
@@ -841,9 +852,9 @@ class VehicleResource extends AbstractBaseResource
                 'height' => Arr::get($payload, 'Height'),
             ],
             'emission' => [
-                'ir' => Arr::get($payload, 'Emission.IrShields'),
-                'em_idle' => Arr::get($payload, 'Emission.EmShields'),
-                'em_max' => Arr::get($payload, 'Emission.EmQuantum'),
+                'ir' => $emission['IrShields'] ?? null,
+                'em_idle' => $emission['EmShields'] ?? null,
+                'em_max' => $emission['EmQuantum'] ?? null,
             ],
 
             'mass' => $vehicleData->mass ?? Arr::get($payload, 'Mass'),
@@ -879,36 +890,32 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => null,
             ],
 
-            'max_medical_tier' => $this->resolveMaxMedicalTier($payload),
+            'max_medical_tier' => $this->resolveMaxMedicalTier($seating),
 
-            'seating' => (function () use ($payload) {
-                $seating = Arr::get($payload, 'Seating', []);
-
-                return [
-                    'crew_stations' => Arr::get($seating, 'CrewStations', 0),
-                    'ejection_seats' => Arr::get($seating, 'EjectionSeats', 0),
-                    'escape_pods' => Arr::get($seating, 'EscapePods'),
-                    'jump_seats' => Arr::get($seating, 'JumpSeats'),
-                    'beds' => Arr::get($seating, 'TotalBeds', 0),
-                    'medical_beds' => $this->resolveMedicalBeds($payload),
-                ];
-            })(),
+            'seating' => [
+                'crew_stations' => $seating['CrewStations'] ?? 0,
+                'ejection_seats' => $seating['EjectionSeats'] ?? 0,
+                'escape_pods' => $seating['EscapePods'] ?? null,
+                'jump_seats' => $seating['JumpSeats'] ?? null,
+                'beds' => $seating['TotalBeds'] ?? 0,
+                'medical_beds' => $this->resolveMedicalBeds($seating),
+            ],
 
             'health' => Arr::get($payload, 'Health', 0),
 
-            'shield_hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
-            'shield_face_type' => Arr::get($payload, 'ShieldController.FaceType'),
+            'shield_hp' => $shieldsTotal['Hp'] ?? null,
+            'shield_face_type' => $shieldCtrl['FaceType'] ?? null,
 
             'shield' => [
-                'hp' => Arr::get($payload, 'ShieldsTotal.Hp', 0),
-                'regeneration' => Arr::get($payload, 'ShieldsTotal.Regen'),
-                'regeneration_time' => Arr::get($payload, 'ShieldsTotal.RegenerationTime'),
-                'face_type' => Arr::get($payload, 'ShieldController.FaceType'),
-                'max_reallocation' => Arr::get($payload, 'ShieldController.MaxReallocation'),
-                'reconfiguration_cooldown' => Arr::get($payload, 'ShieldController.ReconfigurationCooldown'),
-                'max_electrical_charge_damage_rate' => Arr::get($payload, 'ShieldController.MaxElectricalChargeDamageRate'),
-                'resistance' => $this->weaponryBuilder->buildDamageTypeRange($payload, 'ShieldsTotal.Resistance'),
-                'absorption' => $this->weaponryBuilder->buildDamageTypeRange($payload, 'ShieldsTotal.Absorption'),
+                'hp' => $shieldsTotal['Hp'] ?? 0,
+                'regeneration' => $shieldsTotal['Regen'] ?? null,
+                'regeneration_time' => $shieldsTotal['RegenerationTime'] ?? null,
+                'face_type' => $shieldCtrl['FaceType'] ?? null,
+                'max_reallocation' => $shieldCtrl['MaxReallocation'] ?? null,
+                'reconfiguration_cooldown' => $shieldCtrl['ReconfigurationCooldown'] ?? null,
+                'max_electrical_charge_damage_rate' => $shieldCtrl['MaxElectricalChargeDamageRate'] ?? null,
+                'resistance' => $this->weaponryBuilder->buildDamageTypeRange($shieldsTotal, 'Resistance'),
+                'absorption' => $this->weaponryBuilder->buildDamageTypeRange($shieldsTotal, 'Absorption'),
             ],
 
             $this->mergeWhen(
@@ -969,14 +976,14 @@ class VehicleResource extends AbstractBaseResource
             'size_class' => $vehicleData->size ?? Arr::get($payload, 'Size'),
 
             'cross_section' => [
-                'length' => Arr::get($payload, 'CrossSection.X'),
-                'width' => Arr::get($payload, 'CrossSection.Y'),
-                'height' => Arr::get($payload, 'CrossSection.Z'),
+                'length' => $crossSection['X'] ?? null,
+                'width' => $crossSection['Y'] ?? null,
+                'height' => $crossSection['Z'] ?? null,
             ],
             'cross_section_max' => max(
-                Arr::get($payload, 'CrossSection.X', 0),
-                Arr::get($payload, 'CrossSection.Y', 0),
-                Arr::get($payload, 'CrossSection.Z', 0),
+                $crossSection['X'] ?? 0,
+                $crossSection['Y'] ?? 0,
+                $crossSection['Z'] ?? 0,
             ) ?: null,
 
             'is_vehicle' => Arr::get($payload, 'IsVehicle'),
@@ -984,38 +991,38 @@ class VehicleResource extends AbstractBaseResource
             'is_spaceship' => Arr::get($payload, 'IsSpaceship'),
 
             'signature' => [
-                'ir_quantum' => Arr::get($payload, 'Emission.IrQuantum'),
-                'ir_shields' => Arr::get($payload, 'Emission.IrShields'),
+                'ir_quantum' => $emission['IrQuantum'] ?? null,
+                'ir_shields' => $emission['IrShields'] ?? null,
 
-                'em_quantum' => Arr::get($payload, 'Emission.EmQuantum'),
-                'em_shields' => Arr::get($payload, 'Emission.EmShields'),
+                'em_quantum' => $emission['EmQuantum'] ?? null,
+                'em_shields' => $emission['EmShields'] ?? null,
 
-                'em_groups_quantum' => Arr::get($payload, 'Emission.EmGroupsQuantum'),
-                'em_groups_shields' => Arr::get($payload, 'Emission.EmGroupsShields'),
+                'em_groups_quantum' => $emission['EmGroupsQuantum'] ?? null,
+                'em_groups_shields' => $emission['EmGroupsShields'] ?? null,
 
-                'em_segment_groups_quantum' => Arr::get($payload, 'Emission.EmSegmentGroupsQuantum'),
-                'em_segment_groups_shields' => Arr::get($payload, 'Emission.EmSegmentGroupsShields'),
+                'em_segment_groups_quantum' => $emission['EmSegmentGroupsQuantum'] ?? null,
+                'em_segment_groups_shields' => $emission['EmSegmentGroupsShields'] ?? null,
 
-                'em_per_segment' => Arr::get($payload, 'Emission.EmPerSegment'),
+                'em_per_segment' => $emission['EmPerSegment'] ?? null,
             ],
 
             'cooling' => [
-                'generation_segments' => Arr::get($payload, 'Cooling.GenerationSegments'),
-                'usage_shields_pct' => Arr::get($payload, 'Cooling.UsedSegmentsShieldsPct'),
-                'usage_quantum_pct' => Arr::get($payload, 'Cooling.UsedSegmentsQuantumPct'),
+                'generation_segments' => $cooling['GenerationSegments'] ?? null,
+                'usage_shields_pct' => $cooling['UsedSegmentsShieldsPct'] ?? null,
+                'usage_quantum_pct' => $cooling['UsedSegmentsQuantumPct'] ?? null,
 
-                'used_segments_shields' => Arr::get($payload, 'Cooling.UsedSegmentsShields'),
-                'used_segments_quantum' => Arr::get($payload, 'Cooling.UsedSegmentsQuantum'),
+                'used_segments_shields' => $cooling['UsedSegmentsShields'] ?? null,
+                'used_segments_quantum' => $cooling['UsedSegmentsQuantum'] ?? null,
 
-                'used_segments_shields_grouped' => Arr::get($payload, 'Cooling.UsedSegmentsShieldsGrouped'),
-                'used_segments_quantum_grouped' => Arr::get($payload, 'Cooling.UsedSegmentsQuantumGrouped'),
+                'used_segments_shields_grouped' => $cooling['UsedSegmentsShieldsGrouped'] ?? null,
+                'used_segments_quantum_grouped' => $cooling['UsedSegmentsQuantumGrouped'] ?? null,
             ],
 
             'power' => [
-                'generation_segments' => Arr::get($payload, 'Power.GenerationSegments'),
-                'used_segments_shields' => Arr::get($payload, 'Power.UsedSegmentsShields'),
-                'used_segments_quantum' => Arr::get($payload, 'Power.UsedSegmentsQuantum'),
-                'used_segments_grouped' => Arr::get($payload, 'Power.UsedSegmentsGrouped'),
+                'generation_segments' => $power['GenerationSegments'] ?? null,
+                'used_segments_shields' => $power['UsedSegmentsShields'] ?? null,
+                'used_segments_quantum' => $power['UsedSegmentsQuantum'] ?? null,
+                'used_segments_grouped' => $power['UsedSegmentsGrouped'] ?? null,
             ],
 
             $this->mergeWhen(
@@ -1024,8 +1031,8 @@ class VehicleResource extends AbstractBaseResource
             ),
 
             'penetration_multiplier' => [
-                'fuse' => Arr::get($payload, 'PenetrationMultiplier.Fuse'),
-                'components' => Arr::get($payload, 'PenetrationMultiplier.Components'),
+                'fuse' => $penetration['Fuse'] ?? null,
+                'components' => $penetration['Components'] ?? null,
             ],
 
             $this->mergeWhen(
@@ -1034,9 +1041,9 @@ class VehicleResource extends AbstractBaseResource
             ),
 
             'insurance' => [
-                'claim_time' => Arr::get($payload, 'Insurance.StandardClaimTime'),
-                'expedite_time' => Arr::get($payload, 'Insurance.ExpeditedClaimTime'),
-                'expedite_cost' => Arr::get($payload, 'Insurance.ExpeditedCost'),
+                'claim_time' => $insurance['StandardClaimTime'] ?? null,
+                'expedite_time' => $insurance['ExpeditedClaimTime'] ?? null,
+                'expedite_cost' => $insurance['ExpeditedCost'] ?? null,
             ],
             'damage_limits' => [
                 'before_destruction' => Arr::get($payload, 'DamageBeforeDestruction'),
@@ -1147,35 +1154,43 @@ class VehicleResource extends AbstractBaseResource
             return [];
         }
 
-        $matrixVehicle = new \App\Http\Resources\StarCitizen\Vehicle\VehicleResource($shipMatrixVehicle)
-            ->resolve($request);
-
-        $fieldMap = [
-            'id' => 'id',
-            'chassis_id' => 'chassis_id',
-            'name' => 'shipmatrix_name',
-            'foci' => 'foci',
-            'production_status' => 'production_status',
-            'production_note' => 'production_note',
-            'type' => 'type',
-            'description' => 'description',
-            'size' => 'size',
-            'msrp' => 'msrp',
-            'pledge_url' => 'pledge_url',
-            'loaner' => 'loaner',
-            'skus' => 'skus',
-            'components' => 'components',
+        $result = [
+            'id' => $shipMatrixVehicle->cig_id,
+            'chassis_id' => $shipMatrixVehicle->chassis_id,
+            'shipmatrix_name' => $shipMatrixVehicle->name,
+            'foci' => $this->resolveShipMatrixFoci($shipMatrixVehicle, $request),
+            'production_status' => TranslationResolver::resolve($shipMatrixVehicle->productionStatus, $request),
+            'production_note' => TranslationResolver::resolve($shipMatrixVehicle->productionNote, $request),
+            'type' => TranslationResolver::resolve($shipMatrixVehicle->type, $request),
+            'description' => TranslationResolver::resolve($shipMatrixVehicle, $request),
+            'size' => TranslationResolver::resolve($shipMatrixVehicle->size, $request),
+            'msrp' => $shipMatrixVehicle->msrp,
+            'pledge_url' => $shipMatrixVehicle->pledge_url !== null
+                ? sprintf('https://robertsspaceindustries.com%s', $shipMatrixVehicle->pledge_url)
+                : null,
         ];
 
-        $result = [];
-
-        foreach ($fieldMap as $sourceKey => $targetKey) {
-            if (array_key_exists($sourceKey, $matrixVehicle) && $matrixVehicle[$sourceKey] !== null) {
-                $result[$targetKey] = $matrixVehicle[$sourceKey];
-            }
+        if (! $this->isVehicleShowRoute($request) && $shipMatrixVehicle->relationLoaded('components')) {
+            $result['components'] = ComponentResource::collection($shipMatrixVehicle->components)->resolve($request);
         }
 
-        return $result;
+        return array_filter($result, static fn ($value): bool => $value !== null);
+    }
+
+    /**
+     * Resolve foci translations directly without creating full resource.
+     */
+    private function resolveShipMatrixFoci(mixed $shipMatrixVehicle, Request $request): array
+    {
+        if (! $shipMatrixVehicle->relationLoaded('foci')) {
+            return [];
+        }
+
+        return $shipMatrixVehicle->foci
+            ->map(fn ($focus) => TranslationResolver::resolve($focus, $request))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**
@@ -1218,16 +1233,15 @@ class VehicleResource extends AbstractBaseResource
     private function buildLightweightPorts(array $payload, Request $request): array
     {
         $primaryCategories = HardpointCategory::primary();
+        $primaryKeys = array_flip($primaryCategories);
+        $loadout = Arr::get($payload, 'Loadout', []);
 
-        return collect(PortResource::collection(Arr::get($payload, 'Loadout', []))->resolve($request))
-            ->filter(fn (array $port): bool => in_array($port['category_label'] ?? '', $primaryCategories, true))
-            ->values()
-            ->all();
-    }
+        $filtered = array_filter(
+            $loadout,
+            fn (array $item): bool => isset($primaryKeys[$this->categorizeRawPort($item)]),
+        );
 
-    private function getApiVersion(Request $request): ?string
-    {
-        return $request->route('api_version');
+        return PortResource::collection(array_values($filtered))->resolve($request);
     }
 
     private function getLoaner(VehicleData $vehicleData): array
@@ -1351,23 +1365,54 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function resolveMaxMedicalTier(array $payload): ?string
+    private function resolveMaxMedicalTier(array $seating): ?string
     {
-        return collect(Arr::get($payload, 'Seating.MedicalBeds'))
-            ->pluck('Tier')
-            ->sortByDesc(static fn (string $tier): int => (int) ltrim($tier, 'T'))
-            ->first();
+        $medicalBeds = $seating['MedicalBeds'] ?? [];
+
+        if ($medicalBeds === []) {
+            return null;
+        }
+
+        $best = null;
+        $bestTier = 0;
+
+        foreach ($medicalBeds as $bed) {
+            $tierLabel = $bed['Tier'] ?? null;
+
+            if (! is_string($tierLabel) || $tierLabel === '') {
+                continue;
+            }
+
+            $tier = (int) ltrim($tierLabel, 'T');
+
+            if ($tier > $bestTier) {
+                $bestTier = $tier;
+                $best = $tierLabel;
+            }
+        }
+
+        return $best;
     }
 
-    private function resolveMedicalBeds(array $payload): ?array
+    private function resolveMedicalBeds(array $seating): ?array
     {
-        $medicalBeds = Arr::get($payload, 'Seating.MedicalBeds');
+        $medicalBeds = $seating['MedicalBeds'] ?? null;
 
         if ($medicalBeds === null || $medicalBeds === []) {
             return null;
         }
 
-        return collect($medicalBeds)->pluck('Count', 'Tier')->all();
+        $result = [];
+
+        foreach ($medicalBeds as $bed) {
+            $tier = $bed['Tier'] ?? null;
+
+            if ($tier !== null) {
+                $result[$tier] = ($result[$tier] ?? 0) + ($bed['Count'] ?? 1);
+            }
+        }
+
+        return $result !== [] ? $result : null;
     }
 
     /**

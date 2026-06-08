@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Resources\Game\Vehicle\PortResource;
+use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('renders vehicle breadcrumbs with navigation links', function (): void {
@@ -146,6 +148,15 @@ it('renders purchase variants with price and sku table content', function (): vo
         ->assertSeeText('TEST-001')
         ->assertSeeText("100\u{00A0}000")
         ->assertSeeText('Imported At');
+});
+
+it('normalizes null compatible type payloads to an empty list', function (): void {
+    $result = (new PortResource([
+        'HardpointName' => 'hardpoint_empty',
+        'CompatibleTypes' => null,
+    ]))->resolve(Request::create('/'));
+
+    expect($result['compatible_types'])->toBeNull();
 });
 
 it('renders salvage head children inside turret ports with UNDEFINED subtype', function (): void {

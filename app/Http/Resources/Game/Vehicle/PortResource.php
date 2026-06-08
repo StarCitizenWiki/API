@@ -164,24 +164,7 @@ class PortResource extends AbstractBaseResource
 
     private function categorizePort(): string
     {
-        [$type, $subtype] = $this->extractTypeAndSubtype();
-
-        $category = $this->categorizeEquipmentType(
-            $type,
-            $subtype,
-            Arr::get($this, 'ClassName'),
-        );
-
-        // When type is empty/unknown, fall back to hardpoint-name patterns
-        if ($category === 'Other' && ($type === '' || $type === null)) {
-            $hardpoint = Arr::get($this, 'HardpointName');
-            if ($hardpoint !== null) {
-                $fallback = $this->categorizeByHardpointName($hardpoint);
-                if ($fallback !== 'Other') {
-                    return $fallback;
-                }
-            }
-        }
+        $category = $this->categorizeRawPort($this->resource);
 
         // Promote Docking parents with an attached vehicle child to "Docked Vehicles"
         if ($category === 'Docking' && $this->findAttachedVehicleChild() !== null) {

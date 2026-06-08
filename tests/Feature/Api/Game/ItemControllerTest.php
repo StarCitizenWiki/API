@@ -53,6 +53,40 @@ it('shows an item by uuid', function (): void {
         ->assertJsonMissingPath('data.blueprint');
 });
 
+it('treats percent characters as literal text for exact item lookups', function (): void {
+    $decoy = Item::factory()->create();
+    ItemData::factory()
+        ->for($decoy)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'WildcardXItem',
+            'type' => 'Clothing',
+            'class_name' => 'wildcard_x_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $exact = Item::factory()->create();
+    ItemData::factory()
+        ->for($exact)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Wildcard%Item',
+            'type' => 'Clothing',
+            'class_name' => 'wildcard_percent_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson('/api/items/'.rawurlencode('Wildcard%Item'));
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $exact->uuid)
+        ->assertJsonPath('data.name', 'Wildcard%Item');
+});
+
 it('includes all crafting blueprints when an item is craftable', function (): void {
     $item = Item::factory()->create();
 

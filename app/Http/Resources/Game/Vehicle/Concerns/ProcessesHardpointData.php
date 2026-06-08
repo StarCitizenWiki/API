@@ -43,14 +43,14 @@ trait ProcessesHardpointData
         // Pre 4.8 ScDataDumper format
         $source = Arr::get($this->resource, 'CompatibleTypes') ?? Arr::get($this->resource, 'ItemTypes', []);
 
-        return collect($source)
-            ->map(static function ($type) {
-                return [
-                    'type' => Arr::get($type, 'Type'),
-                    'sub_types' => Arr::get($type, 'SubTypes', []),
-                ];
-            })
-            ->toArray();
+        if ($source === null || $source === []) {
+            return [];
+        }
+
+        return array_map(static fn ($type) => [
+            'type' => Arr::get($type, 'Type'),
+            'sub_types' => Arr::get($type, 'SubTypes', []),
+        ], $source);
     }
 
     protected function shouldIncludeChildren(): bool

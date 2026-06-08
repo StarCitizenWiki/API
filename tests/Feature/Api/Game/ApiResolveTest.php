@@ -170,6 +170,34 @@ describe('apiResolve', function (): void {
             ->assertRedirect(route('vehicles.show', ['vehicle' => 'class-name-vehicle']));
     });
 
+    it('treats percent characters as literal text for exact resolve matches', function (): void {
+        $decoy = Vehicle::factory()->create(['slug' => 'wildcard-decoy-vehicle']);
+        VehicleData::factory()
+            ->for($decoy)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'WildcardXVehicle',
+                'display_name' => 'WildcardXVehicle',
+                'class_name' => 'WildcardXVehicle',
+            ]);
+
+        $exact = Vehicle::factory()->create(['slug' => 'wildcard-exact-vehicle']);
+        VehicleData::factory()
+            ->for($exact)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Wildcard%Vehicle',
+                'display_name' => 'Wildcard%Vehicle',
+                'class_name' => 'Wildcard_Percent_Vehicle',
+            ]);
+
+        $this->getJson('/api/search/'.rawurlencode('Wildcard%Vehicle'))
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'wildcard-exact-vehicle']));
+    });
+
     it('resolves commodities by name', function (): void {
         Commodity::factory()->create([
             'name' => 'Agricium',
