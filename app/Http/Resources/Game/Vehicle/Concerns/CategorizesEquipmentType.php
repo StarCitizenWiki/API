@@ -160,7 +160,7 @@ trait CategorizesEquipmentType
             }
         }
 
-        if ($category === 'Docking' && array_any(Arr::get($item, 'Loadout') ?? [], fn($child) => $this->isAttachedVehiclePort($child) && is_string($uuid = Arr::get($child, 'UUID')) && $uuid !== '')) {
+        if ($category === 'Docking' && array_any(Arr::get($item, 'Loadout') ?? [], fn ($child) => $this->isAttachedVehiclePort($child) && is_string($uuid = Arr::get($child, 'UUID')) && $uuid !== '')) {
             return 'Docked Vehicles';
         }
 
