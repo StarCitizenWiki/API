@@ -63,12 +63,32 @@ class ImportEntityTags extends Command
         $skipped = 0;
 
         $tags = collect($payload)
-            ->filter(static function ($name, $uuid) use (&$skipped): bool {
+            ->filter(static function ($tagData, $uuid) use (&$skipped): bool {
                 if (! is_string($uuid) || trim($uuid) === '') {
                     $skipped++;
 
                     return false;
                 }
+
+                // Legacy format: flat string (UUID => name)
+                if (is_string($tagData)) {
+                    if (trim($tagData) === '') {
+                        $skipped++;
+
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                // New format: object with name + parent_uuid
+                if (! is_array($tagData)) {
+                    $skipped++;
+
+                    return false;
+                }
+
+                $name = $tagData['name'] ?? null;
 
                 if (! is_string($name) || trim($name) === '') {
                     $skipped++;
@@ -78,10 +98,14 @@ class ImportEntityTags extends Command
 
                 return true;
             })
-            ->map(function (string $name, string $uuid) use ($now): array {
+            ->map(function ($tagData, string $uuid) use ($now): array {
+                $name = is_array($tagData) ? $tagData['name'] : $tagData;
+                $parentUuid = is_array($tagData) ? ($tagData['parent_uuid'] ?? null) : null;
+
                 return [
                     'uuid' => trim($uuid),
                     'name' => trim($name),
+                    'parent_uuid' => $parentUuid !== null && trim($parentUuid) !== '' ? trim($parentUuid) : null,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -107,7 +131,7 @@ class ImportEntityTags extends Command
             EntityTag::query()->upsert(
                 $batch->values()->all(),
                 ['uuid'],
-                ['name', 'updated_at']
+                ['name', 'parent_uuid', 'updated_at']
             );
 
             $batchCreated = count(array_diff($batchUuids, $existing));

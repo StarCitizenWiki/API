@@ -17,6 +17,7 @@ class EntityTag extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'parent_uuid',
     ];
 
     public function itemData(): BelongsToMany
