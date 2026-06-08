@@ -16276,16 +16276,6 @@ components:
               nullable: true
           type: object
           nullable: true
-        item_counts:
-          properties:
-            max_items:
-              type: integer
-              nullable: true
-            min_items:
-              type: integer
-              nullable: true
-          type: object
-          nullable: true
         entity_spawns:
           type: array
           items:

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Services\TagItemResolverService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -62,19 +63,120 @@ class MissionHaulingResource extends AbstractBaseResource
         $resource,
         private readonly Closure $makeApiUrl,
         private readonly Closure $makeWebUrl,
+        private readonly ?TagItemResolverService $tagResolver = null,
+        private readonly ?int $gameVersionId = null,
     ) {
         parent::__construct($resource);
     }
 
+    /**
+     * Build hauling orders
+     * Some missions define hauling items as tag searches, resolve them here
+     */
     public function mapHaulingOrders(mixed $data, Request $request): ?array
     {
         $orders = Arr::get($data, 'HaulingOrders');
 
-        if (! is_array($orders) || empty($orders)) {
+        $result = [];
+
+        if (is_array($orders) && ! empty($orders)) {
+            $result = $this->mapHaulingOrderEntries($orders, $request);
+        }
+
+        $tagOrder = $this->mapSyntheticHaulingOrders($data, $request);
+        if ($tagOrder !== null) {
+            $result = array_merge($result, $tagOrder);
+        }
+
+        return $result !== [] ? $result : null;
+    }
+
+    /**
+     * Generate synthetic hauling orders from ItemCounts.TagSearchTerms.
+     *
+     * Each tag search term group becomes one hauling order containing all matching items.
+     */
+    private function mapSyntheticHaulingOrders(mixed $data, Request $request): ?array
+    {
+        $tagTerms = Arr::get($data, 'ItemCounts.TagSearchTerms');
+
+        if (! is_array($tagTerms) || $tagTerms === [] || $this->tagResolver === null || $this->gameVersionId === null) {
             return null;
         }
 
-        return $this->mapHaulingOrderEntries($orders, $request);
+        $itemCounts = Arr::get($data, 'ItemCounts');
+        $maxItems = $itemCounts['MaxItems'] ?? null;
+        $minItems = $itemCounts['MinItems'] ?? null;
+
+        $groups = [];
+        foreach ($tagTerms as $term) {
+            $positiveUuids = collect($term['PositiveTags'] ?? [])
+                ->pluck('UUID')
+                ->filter()
+                ->values()
+                ->all();
+
+            $negativeUuids = collect($term['NegativeTags'] ?? [])
+                ->pluck('UUID')
+                ->filter(fn (?string $uuid): bool => $uuid !== null && $uuid !== '00000000-0000-0000-0000-000000000000')
+                ->values()
+                ->all();
+
+            if ($positiveUuids !== [] || $negativeUuids !== []) {
+                $groups[] = ['positive' => $positiveUuids, 'negative' => $negativeUuids];
+            }
+        }
+
+        if ($groups === []) {
+            return null;
+        }
+
+        $tagNames = collect($tagTerms)
+            ->flatMap(fn (array $term): array => array_map(
+                static fn (array $tag): ?string => $tag['Name'] ?? null,
+                $term['PositiveTags'] ?? [],
+            ))
+            ->filter()
+            ->unique()
+            ->values()
+            ->implode(', ');
+
+        $items = $this->tagResolver->resolveItems($groups, $this->gameVersionId, ['item']);
+
+        if ($items->isEmpty()) {
+            return null;
+        }
+
+        $orderItems = $items->map(function ($itemData) use ($request): array {
+            $uuid = $itemData->item?->uuid;
+
+            return [
+                'name' => $itemData->name,
+                'uuid' => $uuid,
+                'link' => $uuid !== null
+                    ? ($this->makeApiUrl)('items.show', ['identifier' => $uuid], $request)
+                    : null,
+                'web_url' => $uuid !== null
+                    ? ($this->makeWebUrl)('web.items.show', ['item' => $itemData->item->slug ?? $uuid], $request)
+                    : null,
+            ];
+        })->values()->all();
+
+        return [
+            [
+                'kind' => 'TagMatch',
+                'name' => $tagNames !== '' ? "Items matching {$tagNames}" : null,
+                'uuid' => null,
+                'items' => $orderItems,
+                'max_scu' => null,
+                'min_scu' => null,
+                'max_amount' => $maxItems,
+                'min_amount' => $minItems,
+                'max_container_size' => null,
+                'link' => null,
+                'web_url' => null,
+            ],
+        ];
     }
 
     public function mapHaulingOrderEntries(array $entries, Request $request): array
@@ -98,11 +200,13 @@ class MissionHaulingResource extends AbstractBaseResource
                 ];
             } else {
                 $uuid = $entry['UUID'] ?? null;
+                $entryItems = $entry['Items'] ?? [];
+
                 $mapped = [
                     'kind' => $kind,
                     'name' => $entry['Name'] ?? null,
                     'uuid' => $uuid,
-                    'items' => collect($entry['Items'] ?? [])->map(function (array $item) use ($kind, $request): array {
+                    'items' => collect($entryItems)->map(function (array $item) use ($kind, $request): array {
                         $itemUuid = $item['UUID'] ?? $item['ItemUUID'] ?? null;
 
                         return [

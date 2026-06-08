@@ -76,18 +76,6 @@ class MissionDataBlockResource extends AbstractBaseResource
         ];
     }
 
-    public static function mapItemCounts(mixed $counts): ?array
-    {
-        if (! is_array($counts)) {
-            return null;
-        }
-
-        return [
-            'max_items' => $counts['MaxItems'] ?? null,
-            'min_items' => $counts['MinItems'] ?? null,
-        ];
-    }
-
     public static function mapEntitySpawns(mixed $spawns): ?array
     {
         if (! is_array($spawns) || empty($spawns)) {

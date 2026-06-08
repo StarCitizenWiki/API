@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\Faction;
+use App\Services\TagItemResolverService;
 use App\Support\Formatting\FormatMissionText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -134,15 +135,6 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'max_wanted_level', type: 'integer', nullable: true),
                 new OA\Property(property: 'min_wanted_level', type: 'integer', nullable: true),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
-            property: 'item_counts',
-            properties: [
-                new OA\Property(property: 'max_items', type: 'integer', nullable: true),
-                new OA\Property(property: 'min_items', type: 'integer', nullable: true),
             ],
             type: 'object',
             nullable: true
@@ -306,7 +298,13 @@ class MissionResource extends AbstractBaseResource
         $makeApiUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
         $makeWebUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
 
-        $haulingResource = new MissionHaulingResource(null, $makeApiUrl, $makeWebUrl);
+        $haulingResource = new MissionHaulingResource(
+            null,
+            $makeApiUrl,
+            $makeWebUrl,
+            app(TagItemResolverService::class),
+            $this->resource->gameVersion?->id,
+        );
         $chainResource = new MissionChainResource(null, $makeApiUrl, $makeWebUrl);
         $locationResource = new MissionLocationResource(null, $makeApiUrl, $makeWebUrl);
         $tokens = MissionDataBlockResource::mapMissionTokens(Arr::get($data, 'MissionTokens'));
@@ -381,7 +379,6 @@ class MissionResource extends AbstractBaseResource
             'mission_tokens' => $tokens,
             'deadline' => MissionDataBlockResource::mapDeadline(Arr::get($data, 'Deadline')),
             'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites(Arr::get($data, 'BrokerReputationPrerequisites')),
-            'item_counts' => MissionDataBlockResource::mapItemCounts(Arr::get($data, 'ItemCounts')),
             'entity_spawns' => MissionDataBlockResource::mapEntitySpawns(Arr::get($data, 'EntitySpawns')),
             'hidden_in_mobiglas' => $this->parseNullableBool(Arr::get($data, 'HiddenInMobiglas')),
             'notify_on_available' => $this->parseNullableBool(Arr::get($data, 'NotifyOnAvailable')),
