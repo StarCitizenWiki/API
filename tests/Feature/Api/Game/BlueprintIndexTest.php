@@ -178,3 +178,62 @@ it('includes item-kind ingredients with links and quantity on index', function (
         ->and($itemIngredient['web_url'])->toBe(route('web.items.show', ['item' => $hadaniteUuid]));
 
 });
+
+it('includes unlocking_missions_count from denormalized column', function (): void {
+    $blueprintData = BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'Mission Blueprint',
+            'unlocking_missions_count' => 3,
+            'data' => ['tiers' => []],
+        ]);
+
+    $response = $this->getJson('/api/blueprints');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.unlocking_missions_count', 3);
+});
+
+it('defaults unlocking_missions_count to zero', function (): void {
+    BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'output_name' => 'No Missions Blueprint',
+            'data' => ['tiers' => []],
+        ]);
+
+    $response = $this->getJson('/api/blueprints');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.0.unlocking_missions_count', 0);
+});
+
+it('sorts by unlocking_missions_count descending', function (): void {
+    $bpA = BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_MANY',
+            'output_name' => 'Many Missions',
+            'unlocking_missions_count' => 10,
+            'data' => ['tiers' => []],
+        ]);
+
+    $bpB = BlueprintData::factory()
+        ->for(Blueprint::factory(), 'blueprint')
+        ->for($this->defaultVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_FEW',
+            'output_name' => 'Few Missions',
+            'unlocking_missions_count' => 2,
+            'data' => ['tiers' => []],
+        ]);
+
+    $response = $this->getJson('/api/blueprints?sort=-unlocking_missions_count');
+
+    $response->assertSuccessful();
+    $names = collect($response->json('data'))->pluck('output_name')->toArray();
+    expect($names)->toBe(['Many Missions', 'Few Missions']);
+});

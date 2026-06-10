@@ -35,6 +35,8 @@ class MissionDataFactory extends Factory
             'calculated_reward' => false,
             'has_combat' => false,
             'has_defend_objective' => false,
+            'max_players_per_instance' => null,
+            'reputation_amount' => null,
         ];
     }
 

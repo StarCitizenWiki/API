@@ -394,6 +394,7 @@ class StarmapLocationController extends Controller
                     ->unless(Str::isUuid($identifier), fn (Builder $q) => $q->where('slug', $identifier));
             })
             ->whereNotNull('system')
+            ->with('amenities')
             ->allowedIncludes(
                 IncludeDefinition::custom('children', new CustomEagerLoadInclude($childSummaryRelation))->toSpatieInclude(),
                 IncludeDefinition::custom('resources', new CustomEagerLoadInclude([

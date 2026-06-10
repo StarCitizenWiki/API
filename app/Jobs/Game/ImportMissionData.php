@@ -334,6 +334,8 @@ class ImportMissionData implements ShouldQueue
                 'generator_class' => $generatorClass,
                 'debug_name' => $debugName,
             ]),
+            'max_players_per_instance' => is_numeric($payload['MaxPlayersPerInstance'] ?? null) ? (int) $payload['MaxPlayersPerInstance'] : null,
+            'reputation_amount' => $this->extractFirstReputationAmount($payload),
             'data' => $payload,
         ];
     }
@@ -766,6 +768,23 @@ class ImportMissionData implements ShouldQueue
         }
 
         $missionData->rewardItems()->sync($syncData);
+    }
+
+    private function extractFirstReputationAmount(array $payload): ?int
+    {
+        $reputation = $payload['ReputationGained'] ?? null;
+
+        if (! is_array($reputation) || $reputation === []) {
+            return null;
+        }
+
+        $first = $reputation[0] ?? null;
+
+        if (! is_array($first)) {
+            return null;
+        }
+
+        return isset($first['Amount']) && is_numeric($first['Amount']) ? (int) $first['Amount'] : null;
     }
 
     private function trimOrNull(mixed $value): ?string

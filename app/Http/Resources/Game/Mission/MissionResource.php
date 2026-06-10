@@ -89,7 +89,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'reputation_lost', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_reputation'), nullable: true),
         new OA\Property(property: 'hauling_orders', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_hauling_order'), nullable: true),
         new OA\Property(property: 'cost', type: 'integer', nullable: true),
-        new OA\Property(property: 'max_players_per_instance', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_players_per_instance', type: 'integer'),
         new OA\Property(property: 'fail_if_became_criminal', type: 'boolean', nullable: true),
         new OA\Property(
             property: 'min_standing',
@@ -159,7 +159,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'hidden_in_mobiglas', type: 'boolean', nullable: true),
         new OA\Property(property: 'notify_on_available', type: 'boolean', nullable: true),
         new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
-        new OA\Property(property: 'reputation_amount', type: 'integer', nullable: true),
+        new OA\Property(property: 'reputation_amount', type: 'integer'),
         new OA\Property(property: 'game_version', type: 'string', nullable: true),
         new OA\Property(
             property: 'starmap_locations',
@@ -372,7 +372,7 @@ class MissionResource extends AbstractBaseResource
             'reputation_lost' => $this->mapReputation(Arr::get($data, 'ReputationLost')),
             'hauling_orders' => $haulingResource->mapHaulingOrders($data, $request),
             'cost' => Arr::has($data, 'Cost') && Arr::get($data, 'Cost') !== null ? (int) Arr::get($data, 'Cost') : null,
-            'max_players_per_instance' => Arr::get($data, 'MaxPlayersPerInstance'),
+            'max_players_per_instance' => $this->resource->max_players_per_instance,
             'fail_if_became_criminal' => $this->parseNullableBool(Arr::get($data, 'FailIfBecameCriminal')),
             'min_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MinStanding')),
             'max_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MaxStanding')),
@@ -383,7 +383,7 @@ class MissionResource extends AbstractBaseResource
             'hidden_in_mobiglas' => $this->parseNullableBool(Arr::get($data, 'HiddenInMobiglas')),
             'notify_on_available' => $this->parseNullableBool(Arr::get($data, 'NotifyOnAvailable')),
             'reward_scope' => $this->resource->reward_scope,
-            'reputation_amount' => $this->extractFirstReputationAmount($data),
+            'reputation_amount' => $this->resource->reputation_amount,
             'game_version' => $this->resource->gameVersion?->code,
             'starmap_locations' => $this->when(
                 $this->resource->relationLoaded('starmapLocations'),
@@ -607,23 +607,6 @@ class MissionResource extends AbstractBaseResource
         }
 
         return $this->resource->relationLoaded('prerequisiteGroups') && ($this->resource->prerequisiteGroups?->isNotEmpty() ?? false);
-    }
-
-    private function extractFirstReputationAmount($data): ?int
-    {
-        $reputation = Arr::get($data, 'ReputationGained');
-
-        if (! is_array($reputation) || $reputation === []) {
-            return null;
-        }
-
-        $first = $reputation[0] ?? null;
-
-        if (! is_array($first)) {
-            return null;
-        }
-
-        return isset($first['Amount']) && is_numeric($first['Amount']) ? (int) $first['Amount'] : null;
     }
 
     private function mapFactionReputationLadder(): ?array

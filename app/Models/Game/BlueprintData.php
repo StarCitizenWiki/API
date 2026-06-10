@@ -38,6 +38,7 @@ class BlueprintData extends Model
         'craft_time_seconds',
         'is_available_by_default',
         'ingredient_resource_type_uuids',
+        'unlocking_missions_count',
         'data',
     ];
 
@@ -47,6 +48,7 @@ class BlueprintData extends Model
         'craft_time_seconds' => 'integer',
         'is_available_by_default' => 'boolean',
         'ingredient_resource_type_uuids' => 'array',
+        'unlocking_missions_count' => 'integer',
         'data' => 'array',
     ];
 

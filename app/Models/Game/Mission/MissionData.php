@@ -74,6 +74,8 @@ class MissionData extends Model
         'reward_scope',
         'reputation_scopes',
         'mission_key',
+        'max_players_per_instance',
+        'reputation_amount',
         'data',
     ];
 
@@ -101,6 +103,8 @@ class MissionData extends Model
         'star_systems' => 'array',
         'reputation_scopes' => 'array',
         'mission_key' => 'string',
+        'max_players_per_instance' => 'integer',
+        'reputation_amount' => 'integer',
         'data' => 'array',
     ];
 

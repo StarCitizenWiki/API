@@ -626,9 +626,7 @@ class MissionController extends Controller
             }),
             AllowedFilter::callback('location', static function (Builder $query, mixed $value): void {
                 $query->whereHas('starmapLocations', static function (Builder $q) use ($value): void {
-                    $q->whereHas('location', static function (Builder $lq) use ($value): void {
-                        $lq->where('uuid', $value);
-                    });
+                    $q->where('game_starmap_location_data.location_uuid', $value);
                 });
             }),
             AllowedFilter::callback('reputation_scope', function (Builder $query, mixed $value): void {
@@ -649,22 +647,14 @@ class MissionController extends Controller
             'reward_min',
             'reward_max',
             'time_to_complete_minutes',
-            AllowedSort::callback('max_players_per_instance', function (Builder $query, bool $descending): void {
-                $direction = $descending ? 'desc' : 'asc';
-
-                if (DB::connection()->getDriverName() === 'sqlite') {
-                    $query->orderByRaw("CAST(json_extract(data, '$.MaxPlayersPerInstance') AS REAL) {$direction}");
-                } else {
-                    $query->orderByRaw("(data->>'MaxPlayersPerInstance')::numeric {$direction}");
-                }
-            }),
+            'max_players_per_instance',
             AllowedSort::callback('reputation_amount', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
 
-                if (DB::connection()->getDriverName() === 'sqlite') {
-                    $query->orderByRaw("CAST(json_extract(data, '$.ReputationGained[0].Amount') AS REAL) IS NULL, CAST(json_extract(data, '$.ReputationGained[0].Amount') AS REAL) {$direction}");
+                if (DB::connection()->getDriverName() === 'pgsql') {
+                    $query->orderBy('reputation_amount', $direction)->orderByRaw('reputation_amount IS NULL');
                 } else {
-                    $query->orderByRaw("(data->'ReputationGained'->0->>'Amount')::numeric {$direction} nulls last");
+                    $query->orderBy('reputation_amount', $direction);
                 }
             }),
         ];

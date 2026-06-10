@@ -1128,6 +1128,8 @@ it('includes web_url for unlocking missions on blueprint detail', function (): v
         'item_data_id' => $itemData->id,
     ]);
 
+    $blueprintData->update(['unlocking_missions_count' => 1]);
+
     $response = $this->getJson("/api/blueprints/{$blueprint->uuid}");
 
     $response->assertSuccessful()

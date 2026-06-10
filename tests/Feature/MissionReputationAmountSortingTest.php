@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
-use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     $this->version = GameVersion::factory()->create([
@@ -29,45 +28,84 @@ function createMissionWithReputationAmount(GameVersion $version, ?int $amount, s
         ->forMission($mission)
         ->create([
             'title' => $title,
+            'reputation_amount' => $amount,
             'data' => ['ReputationGained' => $reputationGained],
         ]);
 }
 
-it('sorts missions by reputation_amount ascending', function (): void {
-    createMissionWithReputationAmount($this->version, 500, 'High Rep');
-    createMissionWithReputationAmount($this->version, 100, 'Low Rep');
-    createMissionWithReputationAmount($this->version, 250, 'Mid Rep');
+describe('reputation_amount sort', function (): void {
+    it('sorts ascending', function (): void {
+        createMissionWithReputationAmount($this->version, 500, 'High Rep');
+        createMissionWithReputationAmount($this->version, 100, 'Low Rep');
+        createMissionWithReputationAmount($this->version, 250, 'Mid Rep');
 
-    $response = $this->getJson('/api/missions?sort=reputation_amount');
+        $response = $this->getJson('/api/missions?sort=reputation_amount');
 
-    $response->assertSuccessful();
-    $titles = collect($response->json('data'))->pluck('title')->toArray();
-    expect($titles)->toBe(['Low Rep', 'Mid Rep', 'High Rep']);
-})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
-    ->group('db-pgsql');
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('title')->toArray();
+        expect($titles)->toBe(['Low Rep', 'Mid Rep', 'High Rep']);
+    });
 
-it('sorts missions by reputation_amount descending', function (): void {
-    createMissionWithReputationAmount($this->version, 500, 'High Rep');
-    createMissionWithReputationAmount($this->version, 100, 'Low Rep');
-    createMissionWithReputationAmount($this->version, 250, 'Mid Rep');
+    it('sorts descending', function (): void {
+        createMissionWithReputationAmount($this->version, 500, 'High Rep');
+        createMissionWithReputationAmount($this->version, 100, 'Low Rep');
+        createMissionWithReputationAmount($this->version, 250, 'Mid Rep');
 
-    $response = $this->getJson('/api/missions?sort=-reputation_amount');
+        $response = $this->getJson('/api/missions?sort=-reputation_amount');
 
-    $response->assertSuccessful();
-    $titles = collect($response->json('data'))->pluck('title')->toArray();
-    expect($titles)->toBe(['High Rep', 'Mid Rep', 'Low Rep']);
-})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
-    ->group('db-pgsql');
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('title')->toArray();
+        expect($titles)->toBe(['High Rep', 'Mid Rep', 'Low Rep']);
+    });
 
-it('places null reputation_amount last when sorting', function (): void {
-    createMissionWithReputationAmount($this->version, 100, 'Has Rep');
-    createMissionWithReputationAmount($this->version, null, 'No Rep');
-    createMissionWithReputationAmount($this->version, 200, 'More Rep');
+    it('places nulls last when sorting descending', function (): void {
+        createMissionWithReputationAmount($this->version, 100, 'Has Rep');
+        createMissionWithReputationAmount($this->version, null, 'No Rep');
+        createMissionWithReputationAmount($this->version, 200, 'More Rep');
 
-    $response = $this->getJson('/api/missions?sort=reputation_amount');
+        $response = $this->getJson('/api/missions?sort=-reputation_amount');
 
-    $response->assertSuccessful();
-    $titles = collect($response->json('data'))->pluck('title')->toArray();
-    expect($titles)->toBe(['Has Rep', 'More Rep', 'No Rep']);
-})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
-    ->group('db-pgsql');
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('title')->toArray();
+        expect($titles)->toBe(['More Rep', 'Has Rep', 'No Rep']);
+    });
+});
+
+describe('max_players_per_instance sort', function (): void {
+    function createMissionWithMaxPlayers(GameVersion $version, ?int $maxPlayers, string $title): MissionData
+    {
+        $mission = Mission::factory()->create();
+
+        return MissionData::factory()
+            ->forVersion($version)
+            ->forMission($mission)
+            ->create([
+                'title' => $title,
+                'max_players_per_instance' => $maxPlayers,
+            ]);
+    }
+
+    it('sorts ascending', function (): void {
+        createMissionWithMaxPlayers($this->version, 10, 'Ten Players');
+        createMissionWithMaxPlayers($this->version, 2, 'Two Players');
+        createMissionWithMaxPlayers($this->version, 5, 'Five Players');
+
+        $response = $this->getJson('/api/missions?sort=max_players_per_instance');
+
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('title')->toArray();
+        expect($titles)->toBe(['Two Players', 'Five Players', 'Ten Players']);
+    });
+
+    it('sorts descending', function (): void {
+        createMissionWithMaxPlayers($this->version, 10, 'Ten Players');
+        createMissionWithMaxPlayers($this->version, 2, 'Two Players');
+        createMissionWithMaxPlayers($this->version, 5, 'Five Players');
+
+        $response = $this->getJson('/api/missions?sort=-max_players_per_instance');
+
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('title')->toArray();
+        expect($titles)->toBe(['Ten Players', 'Five Players', 'Two Players']);
+    });
+});

@@ -110,7 +110,7 @@ use OpenApi\Attributes as OA;
             ),
             nullable: true
         ),
-        new OA\Property(property: 'max_players_per_instance', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_players_per_instance', type: 'integer'),
         new OA\Property(property: 'max_instances_per_player', type: 'integer', nullable: true),
         new OA\Property(property: 'cooldown', ref: '#/components/schemas/mission_cooldown', nullable: true),
         new OA\Property(property: 'cooldown_seconds', description: 'Deprecated: Use cooldown.personal_seconds.', type: 'integer', nullable: true, deprecated: true),
@@ -132,7 +132,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
-        new OA\Property(property: 'reputation_amount', type: 'integer', nullable: true),
+        new OA\Property(property: 'reputation_amount', type: 'integer'),
         new OA\Property(property: 'game_version', type: 'string', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri'),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
@@ -241,7 +241,7 @@ class MissionIndexResource extends AbstractBaseResource
             'work_in_progress' => $this->resource->work_in_progress,
             'released' => ! $this->resource->not_for_release && ! $this->resource->work_in_progress,
             'reputation_gained' => $this->mapReputationGained($data),
-            'max_players_per_instance' => Arr::get($data, 'MaxPlayersPerInstance'),
+            'max_players_per_instance' => $this->resource->max_players_per_instance,
             'max_instances_per_player' => is_array($lifetime) ? ($lifetime['MaxInstancesPerPlayer'] ?? null) : null,
             'cooldown' => $cooldownData,
             'cooldown_seconds' => $cooldownData['personal_seconds'] ?? null,  // deprecated: use cooldown.personal_seconds
@@ -252,7 +252,7 @@ class MissionIndexResource extends AbstractBaseResource
             'fail_if_became_criminal' => $this->parseNullableBool(Arr::get($data, 'FailIfBecameCriminal')) ?? false,
             'hauling_summary' => $this->mapHaulingSummary($haulingOrders),
             'reward_scope' => $this->resource->reward_scope,
-            'reputation_amount' => $this->extractFirstReputationAmount($data),
+            'reputation_amount' => $this->resource->reputation_amount,
             'game_version' => $this->resource->gameVersion?->code,
             'link' => $this->urlWithVersion(
                 route('missions.show', ['mission' => $mission?->uuid]),
@@ -330,23 +330,6 @@ class MissionIndexResource extends AbstractBaseResource
         }
 
         return Faction::query()->whereIn('uuid', $uuids)->pluck('name', 'uuid')->all();
-    }
-
-    private function extractFirstReputationAmount($data): ?int
-    {
-        $reputation = Arr::get($data, 'ReputationGained');
-
-        if (! is_array($reputation) || $reputation === []) {
-            return null;
-        }
-
-        $first = $reputation[0] ?? null;
-
-        if (! is_array($first)) {
-            return null;
-        }
-
-        return isset($first['Amount']) && is_numeric($first['Amount']) ? (int) $first['Amount'] : null;
     }
 
     private function mapHaulingSummary($haulingOrders): ?array

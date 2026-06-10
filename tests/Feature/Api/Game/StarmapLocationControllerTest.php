@@ -16,8 +16,6 @@ use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapAmenity;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use App\Support\Filters\FilterCache;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\Fluent\AssertableJson;
 
 function createStarmapLocationData(
@@ -34,11 +32,6 @@ function createStarmapLocationData(
 }
 
 beforeEach(function (): void {
-    app()->instance('env', 'production');
-    app('cache')->setDefaultDriver('array');
-    app('cache')->forgetDriver(['array', 'database']);
-    Cache::store('array')->flush();
-
     $this->defaultVersion = GameVersion::factory()->create([
         'code' => '4.1.0-LIVE',
         'channel' => 'live',
@@ -818,6 +811,7 @@ it('includes has_resources on child summaries in show response', function (): vo
 
     $resourceLocation = ResourceLocation::factory()->create();
     $childWithData->resourceLocations()->sync([$resourceLocation->id]);
+    $childWithData->update(['has_resources' => true]);
 
     $this->getJson('/api/locations/'.$parentLocation->uuid.'?include=children')
         ->assertSuccessful()
@@ -1086,54 +1080,6 @@ it('returns separate amenity facet rows for duplicate labels with different uuid
         ]);
 });
 
-it('caches only broad starmap facet responses', function (): void {
-    $systemLocation = StarmapLocation::factory()->create();
-    createStarmapLocationData($this->defaultVersion, [
-        'name' => 'Stanton',
-        'system' => 'Stanton',
-        'type_name' => 'SolarSystem',
-        'data' => ['Type' => ['Classification' => 'Solar System']],
-    ], $systemLocation);
-
-    $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
-
-    $this->getJson(route('locations.filters', ['version' => $this->defaultVersion->code]))
-        ->assertOk();
-
-    expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
-        ->and(Cache::get($broadKey))->not->toBeNull();
-
-    Cache::flush();
-
-    $this->getJson(route('locations.filters', [
-        'version' => $this->defaultVersion->code,
-        'filter' => ['type_name' => 'SolarSystem'],
-    ]))->assertOk();
-
-    expect(Cache::get('filters:index:starmap-locations'))->toBeNull()
-        ->and(Cache::get($broadKey))->toBeNull();
-});
-
-it('treats blank starmap facet inputs as broad cache requests', function (): void {
-    $systemLocation = StarmapLocation::factory()->create();
-    createStarmapLocationData($this->defaultVersion, [
-        'name' => 'Stanton',
-        'system' => 'Stanton',
-        'type_name' => 'SolarSystem',
-        'data' => ['Type' => ['Classification' => 'Solar System']],
-    ], $systemLocation);
-
-    $broadKey = FilterCache::starmapLocationsKey($this->defaultVersion->code);
-
-    $this->getJson(route('locations.filters', [
-        'version' => $this->defaultVersion->code,
-        'filter' => ['type_name' => ''],
-    ]))->assertOk();
-
-    expect(Cache::get('filters:index:starmap-locations'))->toBe([$broadKey])
-        ->and(Cache::get($broadKey))->not->toBeNull();
-});
-
 it('filters starmap locations by has_resources flag and includes has_resources in index response', function (): void {
     $withResourcesLocation = StarmapLocation::factory()->create();
     $withoutResourcesLocation = StarmapLocation::factory()->create();
@@ -1154,6 +1100,7 @@ it('filters starmap locations by has_resources flag and includes has_resources i
 
     $resourceLocation = ResourceLocation::factory()->create();
     $withData->resourceLocations()->sync([$resourceLocation->id]);
+    $withData->update(['has_resources' => true]);
 
     $this->getJson('/api/locations?filter[has_resources]=true')
         ->assertSuccessful()

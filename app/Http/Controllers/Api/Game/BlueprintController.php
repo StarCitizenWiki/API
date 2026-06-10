@@ -93,7 +93,6 @@ class BlueprintController extends Controller
     {
         $blueprints = $this->buildIndexQuery($request)
             ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions'])
-            ->withCount('missions')
             ->defaultSort('key')
             ->jsonPaginate()
             ->appends($request->query());
@@ -144,7 +143,6 @@ class BlueprintController extends Controller
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->where('blueprint_id', $blueprint->id)
             ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions', 'missions.mission'])
-            ->withCount('missions')
             ->first();
 
         if ($blueprintData === null) {
@@ -423,15 +421,11 @@ class BlueprintController extends Controller
     {
         return [
             'craft_time_seconds',
+            'unlocking_missions_count',
             AllowedSort::callback('ingredient_count', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
 
                 $query->orderByRaw($this->ingredientCountSortExpression().' '.$direction.' nulls last');
-            }),
-            AllowedSort::callback('unlocking_missions_count', static function (Builder $query, bool $descending): void {
-                $direction = $descending ? 'desc' : 'asc';
-
-                $query->orderBy('missions_count', $direction);
             }),
         ];
     }

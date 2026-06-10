@@ -39,6 +39,7 @@ class BlueprintDataFactory extends Factory
             'craft_time_seconds' => fake()->numberBetween(10, 600),
             'is_available_by_default' => fake()->boolean(),
             'ingredient_resource_type_uuids' => [],
+            'unlocking_missions_count' => 0,
             'data' => [
                 'UUID' => fake()->uuid(),
                 'Output' => [
