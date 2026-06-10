@@ -43,7 +43,7 @@ class ItemController extends Controller
         $tableConfig = $this->itemTableConfig->build($resolvedType);
         $tableConfig['columnBuilder'] = true;
         $tableConfig['columnBuilderCoreFields'] = ['name'];
-        $tableConfig['fieldCatalog'] = $this->itemFieldCatalog->forTableBuilder();
+        $tableConfig['fieldCatalog'] = $this->itemFieldCatalog->forTableBuilder($tableConfig['columns']);
         $fieldCatalogFilterMap = collect($tableConfig['fieldCatalog'])
             ->filter(fn (array $field): bool => (bool) ($field['filterable'] ?? false))
             ->mapWithKeys(fn (array $field): array => [
@@ -90,8 +90,12 @@ class ItemController extends Controller
 
     public function show(Request $request, string $item): View|RedirectResponse
     {
-        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
-        $include = array_values(array_unique(array_merge($include, ['related_items', 'blueprints', 'vehicles'])));
+        $include = explode(',', (string) $request->query('include', ''))
+                |> (static fn ($x) => array_map('trim', $x))
+                |> array_filter(...);
+        $include = array_merge($include, ['related_items', 'blueprints', 'vehicles'])
+                |> array_unique(...)
+                |> array_values(...);
 
         $apiRequest = $request->duplicate();
         $apiRequest->query->set('include', implode(',', $include));

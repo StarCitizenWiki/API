@@ -7,40 +7,11 @@ namespace App\Support\Items;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Throwable;
 
 final class ItemFieldCatalog
 {
-    /**
-     * Root field names that belong to the "Core" group.
-     *
-     * @var array<int, string>
-     */
-    private const CORE_FIELDS = [
-        'uuid',
-        'slug',
-        'name',
-        'class_name',
-        'classification',
-        'classification_label',
-        'description',
-        'size',
-        'mass',
-        'rarity',
-        'event_source',
-        'grade',
-        'class',
-        'type',
-        'type_label',
-        'type_web_url',
-        'sub_type',
-        'sub_type_label',
-        'web_url',
-        'link',
-        'updated_at',
-        'version',
-    ];
-
     /**
      * @var array<int, array<string, mixed>>|null
      */
@@ -95,15 +66,29 @@ final class ItemFieldCatalog
     /**
      * Catalog payload intended for the Tabulator column builder.
      *
+     * When a pre-resolved ItemTableConfig columns tree is supplied, its leaf
+     * columns are merged in so the dialog shows every column the table can
+     * render, with proper nested group titles. OpenAPI catalog entries that
+     * aren't already represented by a config column are appended for the user
+     * to opt into.
+     *
+     * @param  array<int, array<string, mixed>>|null  $tableColumns  Pre-resolved enriched columns tree (e.g. from ItemTableConfig::build()).
      * @return array<int, array<string, mixed>>
      */
-    public function forTableBuilder(): array
+    public function forTableBuilder(?array $tableColumns = null): array
     {
         $sorts = config('sorts.items', []);
         $coreSorts = $this->coreSortFields();
         $filters = $this->filterFields();
 
-        return collect($this->all())
+        $configEntries = $tableColumns === null
+            ? []
+            : $this->configColumnsToCatalog($tableColumns);
+
+        $configFieldNames = array_column($configEntries, 'field');
+
+        $catalogEntries = collect($this->all())
+            ->filter(static fn (array $field): bool => ! in_array($field['field'] ?? null, $configFieldNames, true))
             ->map(static function (array $field) use ($sorts, $coreSorts, $filters): array {
                 $fieldName = (string) $field['field'];
                 $sortConfig = $sorts[$fieldName] ?? null;
@@ -127,6 +112,11 @@ final class ItemFieldCatalog
 
                 return $field;
             })
+            ->all();
+
+        $entries = [...$configEntries, ...$catalogEntries];
+
+        return collect($entries)
             ->sortBy([
                 fn (array $a, array $b) => match (true) {
                     $a['group'] === 'Core' => -1,
@@ -140,6 +130,80 @@ final class ItemFieldCatalog
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * Walk a resolved ItemTableConfig columns tree and emit one catalog entry
+     * per leaf column, with group = joined ancestor titles and the column's
+     * own metadata (sortable, filterable, formatter) preserved.
+     *
+     * @param  array<int, array<string, mixed>>  $columns
+     * @return array<int, array<string, mixed>>
+     */
+    private function configColumnsToCatalog(array $columns, array $groupTitles = []): array
+    {
+        $entries = [];
+
+        foreach ($columns as $column) {
+            $title = is_string($column['title'] ?? null) ? (string) $column['title'] : null;
+            $childGroups = $title !== null ? [...$groupTitles, $title] : $groupTitles;
+
+            if (is_array($column['columns'] ?? null) && $column['columns'] !== []) {
+                $entries = [...$entries, ...$this->configColumnsToCatalog($column['columns'], $childGroups)];
+
+                continue;
+            }
+
+            $field = $column['field'] ?? null;
+            if (! is_string($field) || $field === '') {
+                continue;
+            }
+
+            $headerSort = $column['headerSort'] ?? null;
+            $sortField = $column['sortField'] ?? Arr::get($column, 'sort.path') ?? $field;
+            $headerFilter = $column['headerFilter'] ?? null;
+            $group = count($childGroups) > 1
+                ? $childGroups[0]
+                : self::fieldGroup($field);
+
+            $entry = [
+                'field' => $field,
+                'title' => $title ?? $field,
+                'type' => 'string',
+                'types' => [],
+                'description' => null,
+                'nullable' => true,
+                'array' => false,
+                'columnable' => true,
+                'schema' => $childGroups === [] ? null : end($childGroups),
+                'schemas' => $childGroups === [] ? [] : [end($childGroups)],
+                'deprecated' => false,
+                'formatter_params' => $column['formatterParams'] ?? null,
+                'group' => $group,
+                'shortTitle' => $title ?? $field,
+                'sortable' => $headerSort === true || (is_string($sortField) && $sortField !== $field),
+                'sortField' => $sortField,
+                'filterable' => $headerFilter !== null && $headerFilter !== false,
+            ];
+
+            if ($headerFilter === 'list') {
+                $entry['filterType'] = 'list';
+            } elseif (is_string($headerFilter) && $headerFilter !== '') {
+                $entry['filterType'] = 'input';
+            }
+
+            if (isset($column['formatter']) && (is_string($column['formatter']) || is_callable($column['formatter']))) {
+                $entry['formatter'] = $column['formatter'];
+            }
+
+            if (isset($column['suffix']) && is_string($column['suffix'])) {
+                $entry['suffix'] = $column['suffix'];
+            }
+
+            $entries[] = $entry;
+        }
+
+        return $entries;
     }
 
     /**
@@ -194,14 +258,58 @@ final class ItemFieldCatalog
 
     private static function fieldGroup(string $field): string
     {
-        $root = str($field)->before('.')->toString();
+        $segments = explode('.', $field);
+        $root = $segments[0];
 
-        return match (true) {
-            in_array($root, self::CORE_FIELDS, true) => 'Core',
-            'manufacturer', 'manufacturer_description' => 'Manufacturer',
-            'is_base_variant', 'is_craftable', 'base_variant', 'variants', 'related_items' => 'Variants & Crafting',
-            'tags', 'required_tags', 'entity_tags', 'entity_tag_map', 'interactions' => 'Tags & Interactions',
-            default => str($root)->replace('_', ' ')->headline()->toString(),
-        };
+        if (in_array($root, self::coreRoots(), true)) {
+            return 'Core';
+        }
+
+        if ($root === 'manufacturer' || $root === 'manufacturer_description') {
+            return 'Manufacturer';
+        }
+
+        if (in_array($root, self::variantRoots(), true)) {
+            return 'Variants & Crafting';
+        }
+
+        if (in_array($root, self::tagRoots(), true)) {
+            return 'Tags & Interactions';
+        }
+
+        if (count($segments) <= 2) {
+            return Str::headline($root);
+        }
+
+        return Str::headline($root).' / '.Str::headline($segments[1]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function coreRoots(): array
+    {
+        return [
+            'uuid', 'slug', 'name', 'class_name', 'classification', 'classification_label',
+            'description', 'size', 'mass', 'rarity', 'event_source', 'grade', 'class',
+            'type', 'type_label', 'type_web_url', 'sub_type', 'sub_type_label',
+            'web_url', 'link', 'updated_at', 'version',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function variantRoots(): array
+    {
+        return ['is_base_variant', 'is_craftable', 'base_variant', 'variants', 'related_items'];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function tagRoots(): array
+    {
+        return ['tags', 'required_tags', 'entity_tags', 'entity_tag_map', 'interactions'];
     }
 }

@@ -51,11 +51,11 @@ return [
             'columns' => [
                 [
                     'title' => 'Min',
-                    'field' => 'resource_network.usage.power.minimum',
+                    'field' => 'resource_network.usage.power.min',
                 ],
                 [
                     'title' => 'Max',
-                    'field' => 'resource_network.usage.power.maximum',
+                    'field' => 'resource_network.usage.power.max',
                 ],
             ],
         ],
@@ -64,11 +64,11 @@ return [
             'columns' => [
                 [
                     'title' => 'Min',
-                    'field' => 'resource_network.usage.coolant.minimum',
+                    'field' => 'resource_network.usage.coolant.min',
                 ],
                 [
                     'title' => 'Max',
-                    'field' => 'resource_network.usage.coolant.maximum',
+                    'field' => 'resource_network.usage.coolant.max',
                 ],
             ],
         ],
@@ -136,7 +136,7 @@ return [
                 ],
                 [
                     'title' => 'Shutdown Dmg',
-                    'field' => 'distortion.maximum',
+                    'field' => 'distortion.max',
                     ...numFormat(),
                 ],
                 [
@@ -214,7 +214,7 @@ return [
                 ],
                 [
                     'title' => 'Overheat',
-                    'field' => 'temperature.overheat_temperature',
+                    'field' => 'temperature.overheat_threshold',
                     ...suffix('°C'),
                     'headerSort' => false,
                 ],
@@ -838,15 +838,6 @@ return [
                     ],
                 ],
                 [
-                    'title' => 'Boost',
-                    'columns' => [
-                        [
-                            'title' => 'Segments',
-                            'field' => 'flight_controller.boost_segments',
-                        ],
-                    ],
-                ],
-                [
                     'title' => 'Boost Activation',
                     'columns' => [
                         [
@@ -1417,12 +1408,12 @@ return [
                     'columns' => [
                         [
                             'title' => 'Jamming',
-                            'field' => 'quantum_interdiction_generator.jammer_range',
+                            'field' => 'quantum_interdiction_generator.jamming.range',
                             ...suffix('m'),
                         ],
                         [
                             'title' => 'Interdiction',
-                            'field' => 'quantum_interdiction_generator.interdiction_range',
+                            'field' => 'quantum_interdiction_generator.pulse.radius',
                             ...suffix('m'),
                         ],
                     ],
@@ -1432,27 +1423,27 @@ return [
                     'columns' => [
                         [
                             'title' => 'Charge',
-                            'field' => 'quantum_interdiction_generator.charge_duration',
+                            'field' => 'quantum_interdiction_generator.pulse.charge_time',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Activation',
-                            'field' => 'quantum_interdiction_generator.activation_duration',
+                            'field' => 'quantum_interdiction_generator.pulse.activation_phase_duration',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Disperse Charge',
-                            'field' => 'quantum_interdiction_generator.disperse_charge_duration',
+                            'field' => 'quantum_interdiction_generator.pulse.decrease_charge_rate_time',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Discharge',
-                            'field' => 'quantum_interdiction_generator.discharge_duration',
+                            'field' => 'quantum_interdiction_generator.pulse.discharge_time',
                             ...suffix('s', space: false),
                         ],
                         [
                             'title' => 'Cooldown',
-                            'field' => 'quantum_interdiction_generator.cooldown_duration',
+                            'field' => 'quantum_interdiction_generator.pulse.cooldown_time',
                             ...suffix('s', space: false),
                         ],
                     ],
@@ -1469,7 +1460,7 @@ return [
             'add_columns' => [
                 [
                     'title' => 'Cooldown',
-                    'field' => 'cooldown',
+                    'field' => 'radar.cooldown',
                     ...suffix('s', space: false),
                 ],
                 [
@@ -1578,15 +1569,15 @@ return [
             'add_columns' => [
                 [
                     'title' => 'Salvage Speed',
-                    'field' => 'salvage_modifier.salvage_speed_multiplier',
+                    'field' => 'weapon_modifier.salvage.salvage_speed_multiplier',
                 ],
                 [
                     'title' => 'Radius',
-                    'field' => 'salvage_modifier.radius_multiplier',
+                    'field' => 'weapon_modifier.salvage.radius_multiplier',
                 ],
                 [
                     'title' => 'Extraction Efficiency',
-                    'field' => 'salvage_modifier.extraction_efficiency',
+                    'field' => 'weapon_modifier.salvage.extraction_efficiency',
                 ],
             ],
         ],
@@ -2151,7 +2142,7 @@ return [
                         ],
                         [
                             'title' => 'Maximum',
-                            'field' => 'vehicle_weapon.damage.maximum',
+                            'field' => 'vehicle_weapon.damage.max',
                             ...numFormat(),
                         ],
                     ],
@@ -2243,11 +2234,11 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'vehicle_weapon.spread.minimum',
+                                    'field' => 'vehicle_weapon.spread.min',
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'vehicle_weapon.spread.maximum',
+                                    'field' => 'vehicle_weapon.spread.max',
                                 ],
                                 [
                                     'title' => 'First Attack',
@@ -2378,11 +2369,11 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'mining_laser.laser_power.minimum',
+                            'field' => 'mining_laser.laser_power.min',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'mining_laser.laser_power.maximum',
+                            'field' => 'mining_laser.laser_power.max',
                         ],
                     ],
                 ],
@@ -2474,7 +2465,7 @@ return [
                         ],
                         [
                             'title' => 'Per Mag',
-                            'field' => 'personal_weapon.damage.maximum',
+                            'field' => 'personal_weapon.damage.max',
                         ],
                     ],
                 ],
@@ -2603,11 +2594,11 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'personal_weapon.spread.minimum',
+                            'field' => 'personal_weapon.spread.min',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'personal_weapon.spread.maximum',
+                            'field' => 'personal_weapon.spread.max',
                         ],
                         [
                             'title' => 'First Attack',
@@ -2624,11 +2615,11 @@ return [
                     'columns' => [
                         [
                             'title' => 'Min',
-                            'field' => 'personal_weapon.ads_spread.minimum',
+                            'field' => 'personal_weapon.ads_spread.min',
                         ],
                         [
                             'title' => 'Max',
-                            'field' => 'personal_weapon.ads_spread.maximum',
+                            'field' => 'personal_weapon.ads_spread.max',
                         ],
                         [
                             'title' => 'First Attack',
@@ -2702,12 +2693,12 @@ return [
                     'columns' => [
                         [
                             'title' => 'Slot',
-                            'field' => 'clothing.slot',
+                            'field' => 'suit_armor.slot',
                             'headerSort' => false,
                         ],
                         [
                             'title' => 'Type',
-                            'field' => 'clothing.type',
+                            'field' => 'suit_armor.armor_type',
                             'headerSort' => false,
                         ],
                     ],
@@ -2720,12 +2711,12 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'temperature_resistance.minimum',
+                                    'field' => 'temperature_resistance.min',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'temperature_resistance.maximum',
+                                    'field' => 'temperature_resistance.max',
                                     ...suffix('ºC'),
                                 ],
                             ],
@@ -2735,11 +2726,11 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Capacity',
-                                    'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
+                                    'field' => 'suit_armor.radiation_resistance.maximum_radiation_capacity',
                                 ],
                                 [
                                     'title' => 'Scrub Rate',
-                                    'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
+                                    'field' => 'suit_armor.radiation_resistance.radiation_dissipation_rate',
                                 ],
                             ],
                         ],
@@ -2906,12 +2897,12 @@ return [
                     'columns' => [
                         [
                             'title' => 'Slot',
-                            'field' => 'clothing.slot',
+                            'field' => 'suit_armor.slot',
                             'headerSort' => false,
                         ],
                         // [
                         //     'title' => 'Type',
-                        //     'field' => 'clothing.type',
+                        //     'field' => 'suit_armor.armor_type',
                         // ],
                     ],
                 ],
@@ -2924,12 +2915,12 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Min',
-                                    'field' => 'temperature_resistance.minimum',
+                                    'field' => 'temperature_resistance.min',
                                     ...suffix('ºC'),
                                 ],
                                 [
                                     'title' => 'Max',
-                                    'field' => 'temperature_resistance.maximum',
+                                    'field' => 'temperature_resistance.max',
                                     ...suffix('ºC'),
                                 ],
                             ],
@@ -2939,12 +2930,12 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Capacity',
-                                    'field' => 'clothing.radiation_resistance.maximum_radiation_capacity',
+                                    'field' => 'suit_armor.radiation_resistance.maximum_radiation_capacity',
                                     ...suffix('REM'),
                                 ],
                                 [
                                     'title' => 'Scrub Rate',
-                                    'field' => 'clothing.radiation_resistance.radiation_dissipation_rate',
+                                    'field' => 'suit_armor.radiation_resistance.radiation_dissipation_rate',
                                     ...suffix('REM/s'),
                                 ],
                             ],
@@ -2954,32 +2945,32 @@ return [
                             'columns' => [
                                 [
                                     'title' => 'Impact',
-                                    'field' => 'clothing.damage_resistance_map.impact_change',
+                                    'field' => 'suit_armor.damage_resistance_map.impact_change',
                                     'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Physical',
-                                    'field' => 'clothing.damage_resistance_map.physical_change',
+                                    'field' => 'suit_armor.damage_resistance_map.physical_change',
                                     'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Energy',
-                                    'field' => 'clothing.damage_resistance_map.energy_change',
+                                    'field' => 'suit_armor.damage_resistance_map.energy_change',
                                     'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Distortion',
-                                    'field' => 'clothing.damage_resistance_map.distortion_change',
+                                    'field' => 'suit_armor.damage_resistance_map.distortion_change',
                                     'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Thermal',
-                                    'field' => 'clothing.damage_resistance_map.thermal_change',
+                                    'field' => 'suit_armor.damage_resistance_map.thermal_change',
                                     'formatter' => 'pctDelta',
                                 ],
                                 [
                                     'title' => 'Stun',
-                                    'field' => 'clothing.damage_resistance_map.stun_change',
+                                    'field' => 'suit_armor.damage_resistance_map.stun_change',
                                     'formatter' => 'pctDelta',
                                 ],
                             ],
@@ -2991,11 +2982,11 @@ return [
                     'columns' => [
                         [
                             'title' => 'EM',
-                            'field' => 'clothing.signature.electromagnetic',
+                            'field' => 'suit_armor.signature.electromagnetic',
                         ],
                         [
                             'title' => 'IR',
-                            'field' => 'clothing.signature.infrared',
+                            'field' => 'suit_armor.signature.infrared',
                         ],
                     ],
                 ],
@@ -3199,7 +3190,7 @@ return [
             'add_columns' => [
                 [
                     'title' => 'Description',
-                    'field' => 'description.en_EN',
+                    'field' => 'description',
                     'headerSort' => false,
                 ],
             ],

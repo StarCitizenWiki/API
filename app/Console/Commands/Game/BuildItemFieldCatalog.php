@@ -45,6 +45,14 @@ class BuildItemFieldCatalog extends Command
     private array $fields = [];
 
     /**
+     * Path prefixes that originate from a deprecated schema. Fields emitted
+     * under any of these prefixes are marked deprecated.
+     *
+     * @var array<string, true>
+     */
+    private array $deprecatedPaths = [];
+
+    /**
      * Execute the console command.
      */
     public function handle(): int
@@ -88,6 +96,7 @@ class BuildItemFieldCatalog extends Command
 
         $this->schemas = $schemas;
         $this->fields = [];
+        $this->deprecatedPaths = [];
 
         $this->collectFields(
             schema: $gameItemSchema,
@@ -128,8 +137,8 @@ class BuildItemFieldCatalog extends Command
         bool $deprecated = false,
         array $refStack = [],
     ): void {
-        $nullable = $nullable || (bool) ($schema['nullable'] ?? false);
-        $deprecated = $deprecated || (bool) ($schema['deprecated'] ?? false);
+        $nullable = $nullable || ($schema['nullable'] ?? false);
+        $deprecated = $deprecated || ($schema['deprecated'] ?? false) || $this->isPathDeprecated($path);
 
         $ref = $schema['$ref'] ?? null;
         if (is_string($ref)) {
@@ -140,6 +149,15 @@ class BuildItemFieldCatalog extends Command
 
             $resolved = $this->schemas[$refName] ?? null;
             if (! is_array($resolved)) {
+                return;
+            }
+
+            // mark the path prefix as deprecated so leaves emitted through it inherit the flag,
+            if ($resolved['deprecated'] ?? false) {
+                if ($path !== '') {
+                    $this->deprecatedPaths[$path] = true;
+                }
+
                 return;
             }
 
@@ -193,6 +211,24 @@ class BuildItemFieldCatalog extends Command
                     formatter: $this->schemaFormatter($schema),
                     formatterParams: $this->schemaFormatterParams($schema),
                 );
+
+                // For translation-object arrays (e.g. `description: { en_EN: ..., de_DE: ... }`),
+                // emit a synthetic locale-suffixed sibling so the column builder can offer the
+                // current-language text as a selectable column.
+                if ($this->isTranslationSchema($schema['items'] ?? [])) {
+                    $localeField = $path.'.en_EN';
+                    $this->addField(
+                        field: $localeField,
+                        type: 'string',
+                        sourceSchema: $sourceSchema,
+                        description: 'English (en_EN) entry from the translation object.',
+                        nullable: true,
+                        array: false,
+                        deprecated: $deprecated,
+                        columnable: true,
+                    );
+                    $this->fields[$localeField]['title'] = ucfirst($path).' (en_EN)';
+                }
             }
 
             // Arrays of objects are intentionally not expanded into indexed dot paths.
@@ -245,6 +281,27 @@ class BuildItemFieldCatalog extends Command
         }
 
         return urldecode(substr($ref, strlen($prefix)));
+    }
+
+    private function isPathDeprecated(string $path): bool
+    {
+        if ($path === '') {
+            return false;
+        }
+
+        $segment = $path;
+        while (true) {
+            if (isset($this->deprecatedPaths[$segment])) {
+                return true;
+            }
+
+            $pos = strrpos($segment, '.');
+            if ($pos === false) {
+                return false;
+            }
+
+            $segment = substr($segment, 0, $pos);
+        }
     }
 
     /**
@@ -330,6 +387,34 @@ class BuildItemFieldCatalog extends Command
     private function hasOnlyColumnableArrayItemTypes(array $types): bool
     {
         return $types !== [] && array_diff($types, self::COLUMNABLE_ARRAY_ITEM_TYPES) === [];
+    }
+
+    /**
+     * Detect whether a schema describes a translation object (locale-keyed
+     * properties like `en`, `de_DE`, `fr`, `zh_CN`). A schema matches when all
+     * of its property names are either a 2-letter language code or a
+     * `xx_YY` locale code. The schema may be passed directly or via `$ref`.
+     */
+    private function isTranslationSchema(array $schema): bool
+    {
+        $ref = $schema['$ref'] ?? null;
+        if (is_string($ref)) {
+            $name = $this->localSchemaName($ref);
+
+            if ($name === null || ! isset($this->schemas[$name])) {
+                return false;
+            }
+
+            $schema = $this->schemas[$name];
+        }
+
+        $properties = $schema['properties'] ?? null;
+
+        if (! is_array($properties) || $properties === []) {
+            return false;
+        }
+
+        return array_all(array_keys($properties), fn($name) => is_string($name) && preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $name) === 1);
     }
 
     /**

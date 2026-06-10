@@ -120,27 +120,59 @@ function inferredColumnDefinition(field) {
 	return column;
 }
 
+function pruneDefaultColumns(columns, selected, matched = new Set()) {
+	const out = [];
+
+	for (const column of columns ?? []) {
+		if (Array.isArray(column?.columns) && column.columns.length > 0) {
+			const nested = pruneDefaultColumns(column.columns, selected, matched);
+
+			if (nested.length > 0) {
+				out.push({ ...column, columns: nested });
+			}
+
+			continue;
+		}
+
+		if (!column?.field) {
+			continue;
+		}
+
+		if (!selected.has(column.field)) {
+			continue;
+		}
+
+		matched.add(column.field);
+		out.push(column);
+	}
+
+	return out;
+}
+
 function columnsFromSelection(selectedFields, defaultColumns, fieldCatalog) {
-	const defaultColumnMap = collectLeafColumns(defaultColumns);
+	const selected = new Set(selectedFields);
 	const catalog = catalogByField(fieldCatalog);
+	const prunedFields = new Set();
+	const pruned = pruneDefaultColumns(defaultColumns, selected, prunedFields);
 
-	return selectedFields
-		.map((field) => {
-			const existing = defaultColumnMap.get(field);
+	return [
+		...pruned,
+		...selectedFields
+			.map((field) => {
+				if (prunedFields.has(field)) {
+					return null;
+				}
 
-            if (existing) {
-				return existing;
-			}
+				const catalogField = catalog.get(field);
 
-			const catalogField = catalog.get(field);
+                if (!catalogField || catalogField.columnable === false) {
+					return null;
+				}
 
-            if (!catalogField || catalogField.columnable === false) {
-				return null;
-			}
-
-			return inferredColumnDefinition(catalogField);
-		})
-		.filter(Boolean);
+				return inferredColumnDefinition(catalogField);
+			})
+			.filter(Boolean),
+	];
 }
 
 function buildCatalogSortFieldMap(fieldCatalog, map = {}) {

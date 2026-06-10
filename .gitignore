@@ -40,3 +40,7 @@ AGENTS.md
 *.sql
 *.tar.gz
 .pi
+/api_prod
+.agents
+issues
+docs/examples
